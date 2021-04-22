@@ -1,0 +1,55 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 29
+        versionCode 2017010101
+        versionName "2.8.14"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'src/main/AndroidManifest.xml'
+            java.srcDirs = ['src/main/java']
+            resources.srcDirs = ['src/main/java']
+            renderscript.srcDirs = ['src/main/java']
+            res.srcDirs = ['src/main/res']
+            assets.srcDirs = ['src/main/assets']
+            jni.srcDirs = []
+            jniLibs.srcDirs = ['src/main/libs']
+        }
+    }
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api fileTree(dir: 'src/main/libs', include: ['*.jar'])
+    api project(':IMLib')
+    //基础布局
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    api 'androidx.fragment:fragment:1.2.5'
+    api 'androidx.recyclerview:recyclerview:1.1.0'
+    api 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    api "androidx.viewpager2:viewpager2:1.1.0-alpha01"
+    // content 协议头处理
+    implementation "androidx.documentfile:documentfile:1.0.1"
+    //本地广播
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    //数据存储
+    implementation "androidx.room:room-runtime:2.2.5"
+    annotationProcessor "androidx.room:room-compiler:2.2.5"
+    //图片加载
+    api 'com.github.bumptech.glide:glide:4.11.0'
+
+}
+

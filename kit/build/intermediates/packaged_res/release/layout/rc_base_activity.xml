@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/rc_ac_ll_base_title"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/rc_main_theme"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/rc_action_bar_back"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/rc_action_bar_back_selector"
+            android:drawableStart="@drawable/rc_action_bar_back_icon"
+            android:singleLine="true" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp"
+            android:background="#0083e0" />
+
+        <TextView
+            android:id="@+id/rc_action_bar_title"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|start"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:textSize="18sp" />
+
+        <ImageView
+            android:id="@+id/rc_search"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:src="@drawable/rc_action_bar_search_icon" />
+
+        <Button
+            android:id="@+id/rc_action_bar_ok"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:background="@android:color/transparent"
+            android:paddingEnd="10dp"
+            android:textAllCaps="false"
+            android:text="@string/rc_action_bar_ok"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ViewFlipper
+        android:id="@+id/rc_base_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent" />
+</LinearLayout>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:minHeight="@dimen/rc_ext_input_panel_height"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/input_panel_voice_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/rc_destruct_ext_panel_key_icon" />
+
+    <EditText
+        android:id="@+id/edit_btn"
+        style="@style/EditTextStyle.Alignment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="6.5dp"
+        android:layout_marginBottom="6.5dp"
+        android:background="@drawable/rc_ext_panel_editbox_background"
+        android:maxLines="4"
+        app:layout_constraintBottom_toBottomOf="@+id/input_panel_voice_toggle"
+        app:layout_constraintEnd_toStartOf="@+id/input_panel_img_btn"
+        app:layout_constraintStart_toEndOf="@+id/input_panel_voice_toggle"
+        app:layout_constraintTop_toTopOf="@+id/input_panel_voice_toggle"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/press_to_speech_btn"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="@dimen/rc_ext_input_panel_editbox_width"
+        android:layout_height="@dimen/rc_ext_input_panel_editbox_height"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rc_destruct_ext_voice_btn_shape"
+        android:text="@string/rc_voice_press_to_input"
+        android:textSize="@dimen/rc_font_nav_or_date_size"
+        android:textColor="@color/rc_destruct_base_color"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="@+id/input_panel_voice_toggle"
+        app:layout_constraintEnd_toStartOf="@+id/input_panel_img_btn"
+        app:layout_constraintStart_toEndOf="@+id/input_panel_voice_toggle"
+        android:visibility="visible"/>
+
+    <ImageView
+        android:id="@+id/input_panel_img_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="48dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/input_panel_send_btn"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.47"
+        app:srcCompat="@drawable/rc_destruct_ext_panel_img_icon" />
+
+    <ImageView
+        android:id="@+id/input_panel_cancel_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rc_destruct_ext_panel_cancel_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/input_panel_send_btn"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="@dimen/rc_ext_input_panel_send_width"
+        android:layout_height="@dimen/rc_ext_input_panel_send_height"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rc_destruct_ext_send_btn_shape"
+        android:text="@string/rc_send"
+        android:textSize="@dimen/rc_font_text_third_size"
+        android:textColor="@color/rc_text_color_primary_inverse"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

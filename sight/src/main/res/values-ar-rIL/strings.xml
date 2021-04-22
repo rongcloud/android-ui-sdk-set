@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rc_plugin_sight">مقطع فيديو</string>
+    <string name="rc_message_content_sight">[فيديو]</string>
+    <string name="rc_sight_reminder">اضغط باستمرار لتسجيل فيديو</string>
+    <string name="rc_sight_list_title">ملف المحادثات</string>
+    <string name="rc_sight_download_failed">فشل التحميل , اضغط للتحميل مجددا</string>
+    <string name="rc_sight_record_too_short_time">وقت التسجيل قصير جدا , نرجوا المحاولة مرة أخرى</string>
+    <string name="rc_sight_message_recalled">تم التراجع عن الإرسال</string>
+    <string name="rc_save_video">حفظ الفيديو</string>
+    <string name="rc_save_video_success">تم الحفظ في معرض الصور</string>
+</resources>

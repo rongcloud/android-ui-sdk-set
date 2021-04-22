@@ -1,0 +1,97 @@
+group = PROJ_GROUP
+version = PROJ_VERSION
+project.archivesBaseName = PROJ_ARTIFACTID
+
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+task sourcesJar(type: Jar) {
+    from 'jcenter_src'
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    failOnError false
+    source = android.sourceSets.main.java.sourceFiles
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    classpath += configurations.compile
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task syncJavadoc(type: Sync, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    into rootProject.file('docs')
+}
+
+javadoc {
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        title "$PROJ_NAME $PROJ_VERSION"
+        String packageListRef = "${android.sdkDirectory}/docs/reference/"
+        linksOffline 'http://d.android.com/reference/', packageListRef
+    }
+    include()
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                name PROJ_NAME
+//            description PROJ_DESCRIPTION
+                packaging 'aar'
+                groupId PROJ_GROUP
+                artifactId PROJ_ARTIFACTID
+                version PROJ_VERSION
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+            }
+        }.whenConfigured { pom -> pom.dependencies.clear() }
+    }
+}
+
+
+bintray {
+    user = BINTRAY_USER
+    key = BINTRAY_KEY
+
+    configurations = ['archives']
+
+    dryRun = false
+    publish = true
+
+    pkg {
+        repo = PROJ_REPO
+        name = PROJ_NAME
+        licenses = ['Apache-2.0']
+        publicDownloadNumbers = true
+        version {
+            name = PROJ_VERSION
+            desc = PROJ_DESCRIPTION
+            vcsTag = PROJ_VERSION
+
+            gpg {
+                sign = true
+            }
+        }
+    }
+}

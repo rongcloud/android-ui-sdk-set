@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/rc_reference_ext_view_height"
+    android:background="@color/rc_white_color">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/rc_margin_size_12"
+        android:paddingEnd="@dimen/rc_margin_size_51">
+
+        <TextView
+            android:id="@+id/rc_reference_sender_name"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textSize="@dimen/rc_font_nav_or_date_size" />
+
+        <TextView
+            android:id="@+id/rc_reference_content"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="@dimen/rc_font_nav_or_date_size" />
+
+    </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/rc_reference_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/rc_margin_size_10"
+        android:layout_marginEnd="@dimen/rc_margin_size_12"
+        android:src="@drawable/rc_reference_cancel_btn" />
+</RelativeLayout>

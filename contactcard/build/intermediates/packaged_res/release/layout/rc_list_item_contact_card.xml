@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/letter"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.0"
+        android:background="@color/rc_background_main_color"
+        android:paddingStart="12dip"
+        android:paddingTop="5dip"
+        android:paddingBottom="5dip"
+        android:text="A"
+        android:textColor="#999999" />
+
+    <RelativeLayout
+        android:id="@+id/memberItem"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@drawable/rc_contact_item_bg"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/rc_user_portrait"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="@dimen/rc_margin_size_12"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/rc_user_name"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/rc_margin_size_12"
+            android:layout_toEndOf="@+id/rc_user_portrait"
+            android:ellipsize="end"
+            android:lines="1"
+            android:maxLength="32"
+            android:textColor="#353535"
+            android:textSize="16sp" />
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="1px"
+            android:layout_alignStart="@+id/rc_user_name"
+            android:layout_alignParentBottom="true"
+            android:background="#ccc" />
+    </RelativeLayout>
+
+
+</LinearLayout>

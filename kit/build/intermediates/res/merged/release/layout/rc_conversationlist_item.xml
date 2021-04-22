@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rc_conversation_item"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/rc_conversation_item_height">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:id="@+id/rc_conversation_portrait_rl"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="@dimen/rc_margin_size_12"
+            android:layout_marginTop="@dimen/rc_margin_size_12"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/rc_conversation_portrait"
+                android:layout_width="@dimen/rc_conversation_portrait_size"
+                android:layout_height="@dimen/rc_conversation_portrait_size"
+                android:scaleType="centerCrop" />
+
+
+            <RelativeLayout
+                android:id="@+id/rc_conversation_unread"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true">
+
+                <ImageView
+                    android:id="@+id/rc_conversation_unread_bg"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_centerInParent="true"
+                    app:srcCompat="@drawable/rc_unread_count_bg_normal" />
+
+                <TextView
+                    android:id="@+id/rc_conversation_unread_count"
+                    style="@style/TextStyle.Alignment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="15"
+                    android:textColor="@color/rc_white_color"
+                    android:textSize="@dimen/rc_font_auxiliary_size" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/rc_conversation_title"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rc_margin_size_12"
+            android:layout_marginTop="@dimen/rc_margin_size_16"
+            android:layout_marginEnd="@dimen/rc_margin_size_12"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="张三"
+            android:textColor="@color/rc_text_main_color"
+            android:textSize="@dimen/rc_font_secondary_size"
+            app:layout_constraintEnd_toStartOf="@+id/rc_conversation_date"
+            app:layout_constraintStart_toEndOf="@+id/rc_conversation_portrait_rl"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/rc_conversation_content"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="60dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="你好，朋友！"
+            android:textColor="@color/rc_secondary_color"
+            android:textSize="@dimen/rc_font_text_third_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/rc_conversation_portrait_rl"
+            app:layout_constraintTop_toBottomOf="@+id/rc_conversation_title" />
+
+        <TextView
+            android:id="@+id/rc_conversation_date"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/rc_margin_size_16"
+            android:layout_marginEnd="@dimen/rc_margin_size_12"
+            android:text="3 月 22 日"
+            android:textColor="@color/rc_auxiliary_color"
+            android:textSize="@dimen/rc_font_nav_or_date_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/rc_conversation_no_disturb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/rc_margin_size_12"
+            android:layout_marginBottom="@dimen/rc_margin_size_12"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/rc_no_disturb" />
+
+        <ImageView
+            android:id="@+id/rc_conversation_read_receipt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/rc_margin_size_2"
+            android:layout_marginBottom="@dimen/rc_margin_size_12"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/rc_conversation_no_disturb"
+            app:layout_goneMarginRight="@dimen/rc_margin_size_12"
+            app:srcCompat="@drawable/rc_read_receipt" />
+
+        <View
+            android:layout_width="wrap_content"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="71.5dp"
+            android:background="@color/rc_divider_color"
+            app:layout_constraintStart_toStartOf="@id/rc_conversation_title"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

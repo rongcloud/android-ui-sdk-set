@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rc_cl_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/rc_margin_size_10"
+    android:paddingBottom="@dimen/rc_margin_size_10">
+
+    <TextView
+        android:id="@+id/rc_time"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="12dp"
+        android:textColor="@color/rc_secondary_color"
+        android:textSize="@dimen/rc_font_describe_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="7月29日 12:30" />
+
+    <ImageView
+        android:id="@+id/rc_selected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/rc_margin_size_8"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/rc_selector_selected"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ll_content" />
+
+    <ImageView
+        android:id="@+id/rc_left_portrait"
+        android:layout_width="@dimen/rc_message_portrait_size"
+        android:layout_height="@dimen/rc_message_portrait_size"
+        android:layout_marginStart="@dimen/rc_margin_size_4"
+        android:src="@color/rc_secondary_color"
+        app:layout_constraintStart_toEndOf="@id/rc_selected"
+        app:layout_constraintTop_toTopOf="@id/ll_content"
+        app:layout_goneMarginStart="@dimen/rc_margin_size_12" />
+
+    <ImageView
+        android:id="@+id/rc_right_portrait"
+        android:layout_width="@dimen/rc_message_portrait_size"
+        android:layout_height="@dimen/rc_message_portrait_size"
+        android:layout_marginEnd="@dimen/rc_margin_size_12"
+        android:src="@color/rc_secondary_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ll_content"
+        app:layout_goneMarginTop="@dimen/rc_margin_size_20" />
+
+    <LinearLayout
+        android:id="@+id/ll_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/rc_margin_size_8"
+        android:layout_marginEnd="@dimen/rc_margin_size_8"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@id/rc_right_portrait"
+        app:layout_constraintStart_toEndOf="@id/rc_left_portrait"
+        app:layout_constraintTop_toBottomOf="@id/rc_time">
+
+        <TextView
+            android:id="@+id/rc_title"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/rc_secondary_color"
+            android:textSize="@dimen/rc_font_text_third_size" />
+
+        <LinearLayout
+            android:id="@+id/rc_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/rc_progress"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="11dp"
+                android:indeterminateDrawable="@drawable/rc_progress_sending_style"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/rc_warning"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/rc_ic_warning"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/rc_read_receipt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/rc_read_receipt"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/rc_read_receipt_request"
+                style="@style/TextStyle.Alignment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:layout_marginTop="13dp"
+                android:layout_marginEnd="4dp"
+                android:drawableStart="@drawable/rc_read_receipt_request_button"
+                android:textColor="@color/rc_read_receipt_status"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/rc_read_receipt_status"
+                style="@style/TextStyle.Alignment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="5dp"
+                android:text="@string/rc_read_receipt_status"
+                android:textColor="@color/rc_read_receipt_status"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <FrameLayout
+                android:id="@+id/rc_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/rc_v_edit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

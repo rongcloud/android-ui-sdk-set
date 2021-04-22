@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<io.rong.imkit.widget.RCMessageFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false">
+
+    <ImageView
+        android:id="@+id/rc_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/def_gif_bg"
+        android:scaleType="centerCrop" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/rc_start_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxWidth="120dp"
+            android:maxHeight="120dp"
+            android:src="@drawable/rc_image_download" />
+
+        <ImageView
+            android:id="@+id/rc_download_failed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/rc_image_download_failed" />
+
+        <ProgressBar
+            android:id="@+id/rc_pre_progress"
+            android:layout_width="@dimen/rc_gif_item_progress_size"
+            android:layout_height="@dimen/rc_gif_item_progress_size"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+        <io.rong.imkit.widget.CircleProgressView
+            android:id="@+id/rc_gif_progress"
+            android:layout_width="@dimen/rc_gif_item_progress_size"
+            android:layout_height="@dimen/rc_gif_item_progress_size"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/rc_length"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+</io.rong.imkit.widget.RCMessageFrameLayout>

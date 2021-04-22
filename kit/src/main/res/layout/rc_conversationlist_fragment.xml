@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/rc_white_color"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/rc_conversationlist_notice_container"
+        layout="@layout/rc_conversationlist_notice_view"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <io.rong.imkit.widget.refresh.SmartRefreshLayout
+        android:id="@+id/rc_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rc_conversation_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            tools:listitem="@layout/rc_conversationlist_item" />
+    </io.rong.imkit.widget.refresh.SmartRefreshLayout>
+</LinearLayout>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="rc_main_theme">#0195ff</color>
+    <color name="rc_main_theme_lucency">#800195ff</color>
+
+    <color name="rc_background_main_color">#F5F6F9</color>
+    <color name="rc_item_background_color">#F8F8F8</color>
+    <color name="rc_item_top_color">#F1F1F1</color>
+    <color name="rc_text_main_color">#111F2C</color>
+    <color name="rc_secondary_color">#A0A5AB</color>
+    <color name="rc_auxiliary_color">#c7cbce</color>
+    <color name="rc_divider_color">#E3E5E6</color>
+
+    <color name="rc_white_color">#FFFFFF</color>
+    <color name="rc_voice_color">#111f2c</color>
+    <color name="rc_warning_color">#FF4141</color>
+    <color name="rc_read_receipt_status">#0099ff</color>
+    <color name="rc_notification_bg">#D3D3D3</color>
+    <color name="rc_blue">#0099ff</color>
+    <color name="rc_text_color_primary_inverse">#ffffff</color>
+    <color name="rc_notice_error_bg">#FFDFDF</color>
+    <color name="rc_item_space_color">#fff7f7f7</color>
+    <color name="rc_destruct_base_color">#FFFA9D3B</color>
+
+    <color name="rc_EmoticonTab_bg_select_color">#d7d7d7</color>
+    <color name="rc_emoji_grid_item_bg">#ebebeb</color>
+
+    <color name="rc_map_list_text_color">#262626</color>
+    <color name="rc_map_list_text_grey_color">#939393</color>
+    <color name="rc_map_search_highlight_color">#0099ff</color>
+    <color name="rc_map_send_enabled">#7F000000</color>
+    <color name="rc_map_send_not_enabled">#80FFFFFF</color>
+    <color name="rc_map_list_divider_color">#e5e5e5</color>
+
+    //Todo delete later
+    <color name="rc_popup_dialog_list_divider_color">#dfdfdd</color>
+    <color name="rc_popup_dialog_prompt_ok_color">#0099ff</color>
+    <color name="rc_popup_dialog_prompt_cancel_color">#999999</color>
+    <color name="rc_popup_dialog_prompt_clear_color">#f43530</color>
+    <color name="rc_popup_dialog_text_color">#353535</color>
+
+    <color name="rc_dialog_bottom_text_color">#333333</color>
+    <color name="rc_dialog_bottom_text_title_color">#ffa0a5ab</color>
+    <color name="rc_dialog_bottom_selection_separate_color">#ffe3e5e6</color>
+
+    <color name="rc_reference_sent_mark_bg">#A5CCE5</color>
+    <color name="rc_reference_file_name">#528EBD</color>
+    <color name="rc_reference_title_color">#A0A5AB</color>
+    <color name="rc_reference_text_link_color">#2972ab</color>
+    <color name="rc_reference_content_send_color">#111F2C</color>
+
+    <color name="rc_rich_title">#262626</color>
+    <color name="rc_rich_content">#939393</color>
+
+    <!--FilePreview-->
+    <color name="rc_file_preview_name">#111F2C</color>
+
+    <color name="rc_new_message_divider_text_color">#B2B2B2</color>
+
+    <color name="rc_extension_normal">#f4f4f6</color>
+    <color name="color_list_item_hover">#DFDFDD</color>
+    <!--Location-->
+    <color name="rc_location_text">#7F000000</color>
+    <color name="rc_image_count_down">#F4B50B</color>
+
+
+    <!-- start图库 -->
+    <color name="picture_color_grey">#393a3e</color>
+    <color name="picture_color_black">#000000</color>
+    <color name="picture_color_white">#FFFFFF</color>
+    <color name="picture_color_blue">#7D7DFF</color>
+    <color name="picture_color_light_grey">#999999</color>
+    <color name="picture_color_a83">#a8333333</color>
+    <color name="picture_color_70">#70000000</color>
+    <color name="picture_color_80">#80000000</color>
+    <color name="picture_color_20">#20000000</color>
+    <color name="picture_color_e">#EEEEEE</color>
+    <color name="picture_color_fa">#FAFAFA</color>
+    <color name="picture_color_fa632d">#FA632D</color>
+    <color name="picture_color_9b">#0099ff</color>
+    <color name="picture_color_f2">#F2F2F2</color>
+    <color name="picture_color_transparent">#00000000</color>
+    <color name="picture_color_transparent_white">#F0FFFFFF</color>
+    <color name="picture_color_transparent_e0db">#E0DBDBDB</color>
+    <color name="picture_color_db">#DBDBDB</color>
+    <color name="picture_color_53575e">#53575e</color>
+    <color name="picture_color_f0">#F0F0F0</color>
+    <color name="picture_color_grey_3e">#dd393a3e</color>
+    <color name="picture_color_4d">#4d4d4d</color>
+    <color name="picture_color_e0ff6100">#E0FF6100</color>
+    <color name="picture_color_eb">#ebebeb</color>
+    <color name="picture_color_ba3">#b0567ba3</color>
+    <color name="picture_color_bfe85d">#BF96E85D</color>
+    <color name="picture_color_ffe85d">#FF96E85D</color>
+    <color name="picture_color_ffd042">#FFFFD042</color>
+    <color name="picture_color_20c064">#20c064</color>
+    <color name="picture_color_394a3e">#394a3e</color>
+    <color name="picture_color_half_grey">#a0393a3e</color>
+    <color name="picture_color_ec">#ececec</color>
+    <color name="picture_color_4e4d4e">#4e4d4e</color>
+    <color name="picture_color_aab2bd">#AAB2BD</color>
+    <color name="app_color_grey">#393a3e</color>
+    <color name="app_color_white">#FFFFFF</color>
+    <color name="app_color_blue">#7D7DFF</color>
+    <color name="app_color_black">#000000</color>
+    <color name="app_color_burn">#F4B50B</color>
+    <!-- end图库 -->
+
+    <!--公众号-->
+    <color name="rc_ext_menu_item_text_color">#FF111F2C</color>
+</resources>

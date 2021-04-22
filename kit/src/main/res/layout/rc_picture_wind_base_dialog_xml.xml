@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/rc_picture_dialog_shadow"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/picture_prompt"
+            android:textColor="#ff572e"
+            android:textSize="16sp" />
+
+        <TextView
+            style="@style/TextStyle.Alignment"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:background="@color/picture_color_e" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1.5"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_content"
+                style="@style/TextStyle.Alignment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:text="@string/picture_prompt_content"
+                android:textColor="#53575e"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="bottom"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextStyle.Alignment"
+                android:layout_width="match_parent"
+                android:layout_height="1dip"
+                android:background="@color/picture_color_e" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_cancel"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/rc_picture_btn_left_bottom_selector"
+                    android:text="@string/picture_cancel"
+                    android:textColor="#529BeA" />
+
+                <TextView
+                    style="@style/TextStyle.Alignment"
+                    android:layout_width="1dip"
+                    android:layout_height="match_parent"
+                    android:background="@color/picture_color_e" />
+
+                <Button
+                    android:id="@+id/btn_commit"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/rc_picture_btn_right_bottom_selector"
+                    android:text="@string/picture_confirm"
+                    android:textColor="#529BeA" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

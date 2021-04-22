@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/picture_color_black"
+    android:fitsSystemWindows="true">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/preview_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <FrameLayout
+        android:id="@+id/fl_top"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:background="?attr/picture.ac_preview.bottom.bg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/picture_left_back"
+            android:layout_width="wrap_content"
+            android:padding="@dimen/rc_margin_size_10"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center"
+            android:layout_marginStart="12dp"
+            android:src="@drawable/rc_picture_icon_back" />
+
+
+        <TextView
+            android:id="@+id/check"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="12dp"
+            android:background="?attr/picture.checked.style"
+            android:gravity="center"
+            android:textColor="@color/picture_color_white"
+            android:textSize="12sp" />
+
+        <View
+            android:id="@+id/btnCheck"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="end|center"
+            android:layout_marginEnd="12dp"
+            android:background="@color/picture_color_transparent" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/select_bar_layout"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:background="?attr/picture.ac_preview.bottom.bg"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <CheckBox
+            android:id="@+id/cb_original"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start|center"
+            android:layout_marginStart="12dp"
+            android:background="@color/picture_color_transparent"
+            android:button="@color/picture_color_white"
+            android:gravity="center"
+            android:paddingStart="5dp"
+            android:text="@string/picture_original_image"
+            android:textColor="@color/picture_color_white"
+            android:textSize="17dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_ok"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end|center"
+            android:enabled="false"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="@string/picture_send"
+            android:textColor="@color/rc_main_theme"
+            android:textSize="@dimen/rc_font_secondary_size" />
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

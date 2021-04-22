@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal|bottom"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rc_bottom_menu_dialog_style"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/bt_by_step"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rc_selector_item_hover_top"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@string/rc_combine_stepwise_forwarding"
+            android:textColor="#333333"
+            android:textSize="17sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/rc_divider_color" />
+
+        <Button
+            android:id="@+id/bt_combine"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rc_selector_item_hover_bottom"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="@string/rc_combine_forwarding"
+            android:textColor="#333333"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:background="#F7F7F7" />
+
+
+    <Button
+        android:id="@+id/bt_cancel"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rc_selector_item_hover"
+        android:gravity="center"
+        android:padding="12dp"
+        android:text="@string/rc_cancel"
+        android:textColor="#333333"
+        android:textSize="17sp" />
+</LinearLayout>

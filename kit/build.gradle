@@ -1,0 +1,84 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        minSdkVersion 19
+        targetSdkVersion 29
+        versionCode 20210422
+        versionName "5.0.0"
+        buildConfigField "String", "IMSDK_VER", "${IMSDK_VER}"
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api 'cn.rongcloud.sdk:im_lib:5.0.0'
+    //基础布局
+    api 'androidx.appcompat:appcompat:1.2.0'
+    api 'androidx.fragment:fragment:1.2.5'
+    api 'androidx.recyclerview:recyclerview:1.1.0'
+    api 'androidx.constraintlayout:constraintlayout:2.0.4'
+    api 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    api "androidx.viewpager2:viewpager2:1.1.0-alpha01"
+    // content 协议头处理
+    api "androidx.documentfile:documentfile:1.0.1"
+    //本地广播
+    api 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
+    //数据存储
+    api "androidx.room:room-runtime:2.2.5"
+    annotationProcessor "androidx.room:room-compiler:2.2.5"
+    //图片加载
+    api 'com.github.bumptech.glide:glide:4.11.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
+
+//生成 jar 名字
+def JAR_NAME = "Rong_IMKit"
+//生成 jar 路径
+def OUTPUT_PATH = "build/libs/"
+//执行 gradle makeJar 后生成发布的 kit.jar
+//执行脚本前，lib 如果有修改，要重新先编译 lib，否则，发布的版本 lib 非最新的。
+task makeJar(type: Jar) {
+    from zipTree(file('build/intermediates/packaged-classes/release/classes.jar'))
+    //去除编译生成的临时文件
+    exclude('**/BuildConfig.class')
+    exclude('**/BuildConfig\$*.class')
+    exclude('**/R.class')
+    exclude('**/R\$*.class')
+    exclude('**/assets/**')
+    exclude('**/assets/pushresources/**')
+    exclude('**/assets/pushresources')
+    exclude('**/assets')
+    exclude('**/*_version')
+
+    baseName JAR_NAME
+    destinationDir file(OUTPUT_PATH)
+}
+
+task clearJar(type: Delete) {
+    delete OUTPUT_PATH + JAR_NAME + '.jar'
+}
+makeJar.dependsOn(clearJar, build)
+//apply from: './bintray.gradle'
