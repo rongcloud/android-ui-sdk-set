@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Altres"</string>
     <string name="hms_abort" priority="translator">"Aturar"</string>
     <string name="hms_abort_message" priority="translator">"Voleu aturar la baixada?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s no pot utilitzar Huawei Mobile Services. Inicieu l\'Optimitzador (Administrador del telèfon) o aneu a Paràmetres, habiliteu tots els permisos per a %2$s (incloent-hi l\'inici automàtic i l\'inici secundari) i torneu a provar-ho."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s no pot utilitzar HMS Core. Inicieu l\'Optimitzador (Administrador del telèfon) o aneu a Paràmetres, habiliteu tots els permisos per a %2$s (incloent-hi l\'inici automàtic i l\'inici secundari) i torneu a provar-ho."</string>
     <string name="hms_cancel" priority="translator">"Cancel·lar"</string>
     <string name="hms_check_failure" priority="translator">"No s\'ha pogut comprovar si hi ha actualitzacions."</string>
-    <string name="hms_check_no_update" priority="translator">"La vostra versió està actualitzada."</string>
     <string name="hms_checking" priority="translator">"S\'estan cercant actualitzacions…"</string>
     <string name="hms_confirm" priority="translator">"D\'acord"</string>
-    <string name="hms_download_failure" priority="translator">"No s\'ha pogut baixar el paquet de Huawei Mobile Services."</string>
+    <string name="hms_download_failure" priority="translator">"No s\'ha pogut baixar el paquet de HMS Core."</string>
     <string name="hms_download_no_space" priority="translator">"No hi ha prou espai lliure. La baixada no es pot efectuar."</string>
     <string name="hms_download_retry" priority="translator">"Ha fallat la baixada. Voleu tornar-ho a provar?"</string>
-    <string name="hms_downloading" priority="translator">"S\'està baixant Huawei Mobile Services | progrés: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Baixant"</string>
-    <string name="hms_downloading_new" priority="LT">"S\'està descarregant l\'HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Instal·lar"</string>
-    <string name="hms_install_message" priority="translator">"Cal tenir instal·lat Huawei Mobile Services per utilitzar aquesta funció. Voleu instal·lar-lo?"</string>
-    <string name="hms_push_channel" priority="translator">"Predeterminat"</string>
+    <string name="hms_install_message" priority="translator">"Cal tenir instal·lat HMS Core per utilitzar aquesta funció. Voleu instal·lar-lo?"</string>
+    <string name="hms_push_channel" priority="Original">"Predeterminat"</string>
     <string name="hms_retry" priority="translator">"Tornar-hi"</string>
     <string name="hms_update" priority="translator">"Actualitzar"</string>
     <string name="hms_update_continue" priority="LT">"Baixar"</string>
-    <string name="hms_update_message" priority="translator">"Per utilitzar aquesta funció, actualitzeu a la darrera versió de Huawei Mobile Services. Voleu actualitzar-la ara?"</string>
+    <string name="hms_update_message" priority="translator">"Per utilitzar aquesta funció, actualitzeu a la darrera versió de HMS Core. Voleu actualitzar-la ara?"</string>
     <string name="hms_update_message_new" priority="LT">"Aquest servei requereix la versió més recent de la següent aplicació:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Sense connexió Wi-Fi. Voleu baixar utilitzant les dades mòbils?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Mobile Services"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Cerca"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"S\'està baixant AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Instal·lar"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"S\'està baixant %s…"</string>
     <string name="upsdk_app_size" priority="translator">"Mida"</string>
     <string name="upsdk_app_version" priority="translator">"Versió"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Cal %s per actualitzar aquesta aplicació. Ho voleu instal·lar ara?"</string>
     <string name="upsdk_cancel" priority="translator">"Cancel·lar"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"S\'estan cercant actualitzacions…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"S\'estan cercant actualitzacions…"</string>
     <string name="upsdk_choice_update" priority="LT">"Actualització disponible. Baixeu i instal·leu la darrera versió."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"No es pot connectar al servidor. Torneu a provar-ho més tard."</string>
     <string name="upsdk_detail" priority="translator">"Detalls"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"No s\'ha pogut recuperar la informació. Torneu a provar-ho més tard."</string>
-    <string name="upsdk_install" priority="LT">"Instal·leu AppGallery per actualitzar. Voleu instal·lar-lo ara?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Actualment esteu connectat a una xarxa mòbil. Si baixeu ara s\'utilitzaran %1$s de dades."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Cap connexió a Internet. Comproveu la vostra configuració de xarxa."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Aplicació"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Més tard"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"La instal·lació ha fallat."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Sí"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"La vostra versió està actualitzada."</string>
-    <string name="upsdk_updating" priority="translator">"S\'està actualitzant"</string>
 </resources>

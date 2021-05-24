@@ -108,7 +108,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         boolean eqVideo = PictureMimeType.eqVideo(media.getMimeType());
         mCbOriginal.setVisibility(eqVideo ? View.GONE : View.VISIBLE);
         mCbOriginal.setChecked(config.isCheckOriginalImage);
-        mCbOriginal.setText(getString(R.string.picture_original_image_size, getSize(media.getSize())));
+        mCbOriginal.setText(getString(R.string.rc_picture_original_image_size, getSize(media.getSize())));
         mCbOriginal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -181,7 +181,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 boolean eqVideo = PictureMimeType.eqVideo(media.getMimeType());
                 mCbOriginal.setVisibility(eqVideo ? View.GONE : View.VISIBLE);
                 mCbOriginal.setChecked(config.isCheckOriginalImage);
-                mCbOriginal.setText(getString(R.string.picture_original_image_size, getSize(media.getSize())));
+                mCbOriginal.setText(getString(R.string.rc_picture_original_image_size, getSize(media.getSize())));
             }
         });
         viewPager.setAdapter(adapter);
@@ -260,8 +260,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         this.refresh = isRefresh;
         boolean enable = selectImages.size() != 0;
         mTvPictureOk.setTextColor(selectImages.size() > 0 ? getResources().getColor(R.color.rc_main_theme) : getResources().getColor(R.color.rc_main_theme_lucency));
-        mTvPictureOk.setText(config.selectionMode == PictureConfig.SINGLE || !enable ? getString(R.string.picture_send) :
-                getString(R.string.picture_send_num) + "(" + selectImages.size() + ")");
+        mTvPictureOk.setText(config.selectionMode == PictureConfig.SINGLE || !enable ? getString(R.string.rc_picture_send) :
+                getString(R.string.rc_picture_send_num) + "(" + selectImages.size() + ")");
         if (enable) {
             mTvPictureOk.setEnabled(true);
             mTvPictureOk.setSelected(true);
@@ -332,8 +332,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 check.setSelected(false);
             }
             if (selectImages.size() >= config.maxSelectNum && isChecked) {
-                ToastUtils.s(getContext(), getString(R.string.picture_message_max_num_fir)
-                        + config.maxSelectNum + getString(R.string.picture_message_max_num_sec));
+                ToastUtils.s(getContext(), getString(R.string.rc_picture_message_max_num_fir)
+                        + config.maxSelectNum + getString(R.string.rc_picture_message_max_num_sec));
                 check.setSelected(false);
                 return;
             }
@@ -381,8 +381,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         if (config.minSelectNum > 0) {
             if (size < config.minSelectNum && config.selectionMode == PictureConfig.MULTIPLE) {
                 boolean eqImg = PictureMimeType.eqImage(mimeType);
-                String str = eqImg ? getString(R.string.picture_min_img_num, config.minSelectNum)
-                        : getString(R.string.picture_min_video_num, config.minSelectNum);
+                String str = eqImg ? getString(R.string.rc_picture_min_img_num, config.minSelectNum)
+                        : getString(R.string.rc_picture_min_video_num, config.minSelectNum);
                 ToastUtils.s(getContext(), str);
                 return;
             }

@@ -5,7 +5,7 @@
     <size android:height="40dp"
         android:width="40dp"/>
     <corners android:radius="4dp"/>
-    <stroke android:color="@color/emui_color_gray_1"/>
-    <solid android:color="@color/emui_color_gray_1"/>
+    <stroke android:color="@color/upsdk_color_gray_1"/>
+    <solid android:color="@color/upsdk_color_gray_1"/>
 
 </shape>

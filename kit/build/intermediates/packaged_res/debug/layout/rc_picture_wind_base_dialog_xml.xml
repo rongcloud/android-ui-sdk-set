@@ -16,7 +16,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="@string/picture_prompt"
+            android:text="@string/rc_picture_prompt"
             android:textColor="#ff572e"
             android:textSize="16sp" />
 
@@ -43,7 +43,7 @@
                 android:gravity="center"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
-                android:text="@string/picture_prompt_content"
+                android:text="@string/rc_picture_prompt_content"
                 android:textColor="#53575e"
                 android:textSize="15sp" />
         </LinearLayout>
@@ -73,7 +73,7 @@
                     android:layout_height="40dp"
                     android:layout_weight="1"
                     android:background="@drawable/rc_picture_btn_left_bottom_selector"
-                    android:text="@string/picture_cancel"
+                    android:text="@string/rc_picture_cancel"
                     android:textColor="#529BeA" />
 
                 <TextView
@@ -88,7 +88,7 @@
                     android:layout_height="40dp"
                     android:layout_weight="1"
                     android:background="@drawable/rc_picture_btn_right_bottom_selector"
-                    android:text="@string/picture_confirm"
+                    android:text="@string/rc_picture_confirm"
                     android:textColor="#529BeA" />
             </LinearLayout>
         </LinearLayout>

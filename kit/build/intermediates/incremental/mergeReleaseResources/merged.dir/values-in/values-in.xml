@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Lain-Lain"</string>
     <string name="hms_abort" priority="translator">"Hentikan"</string>
     <string name="hms_abort_message" priority="translator">"Hentikan pengunduhan?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s tidak dapat menggunakan Huawei Mobile Services. Luncurkan Pengoptimal (Pengelola Ponsel) atau buka Pengaturan, aktifkan semua izin untuk %2$s (termasuk peluncuran otomatis dan peluncuran sekunder), dan coba lagi."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s tidak dapat menggunakan HMS Core. Luncurkan Pengoptimal (Pengelola Telepon) atau buka Pengaturan, aktifkan semua izin untuk %2$s (termasuk peluncuran otomatis dan peluncuran sekunder), dan coba lagi."</string>
     <string name="hms_cancel" priority="translator">"Batal"</string>
     <string name="hms_check_failure" priority="translator">"Gagal memeriksa pembaruan."</string>
-    <string name="hms_check_no_update" priority="translator">"Versi Anda sudah yang terbaru."</string>
     <string name="hms_checking" priority="translator">"Memeriksa pembaruan..."</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"Gagal mengunduh paket Layanan Seluler Huawei."</string>
+    <string name="hms_download_failure" priority="translator">"Gagal mengunduh paket HMS Core."</string>
     <string name="hms_download_no_space" priority="translator">"Ruang kosong tidak cukup. Pengunduhan tidak dapat diselesaikan."</string>
     <string name="hms_download_retry" priority="translator">"Pengunduhan gagal. Coba lagi?"</string>
-    <string name="hms_downloading" priority="translator">"Mengunduh Layanan Seluler Huawei | kemajuan: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Mengunduh"</string>
-    <string name="hms_downloading_new" priority="LT">"Mengunduh HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Pasang"</string>
-    <string name="hms_install_message" priority="translator">"Layanan Seluler Huawei harus dipasang untuk dapat menggunakan fitur ini. Pasang?"</string>
-    <string name="hms_push_channel" priority="translator">"Standar"</string>
+    <string name="hms_install_message" priority="translator">"HMS Core harus dipasang untuk dapat menggunakan fitur ini. Pasang?"</string>
+    <string name="hms_push_channel" priority="Original">"Standar"</string>
     <string name="hms_retry" priority="translator">"Coba lagi"</string>
     <string name="hms_update" priority="translator">"Perbarui"</string>
     <string name="hms_update_continue" priority="LT">"Unduh"</string>
-    <string name="hms_update_message" priority="translator">"Perbarui ke versi terbaru Layanan Seluler Huawei untuk menggunakan fitur ini. Perbarui sekarang?"</string>
+    <string name="hms_update_message" priority="translator">"Perbarui ke versi terbaru HMS Core untuk menggunakan fitur ini. Perbarui sekarang?"</string>
     <string name="hms_update_message_new" priority="LT">"Layanan ini memerlukan versi terbaru dari aplikasi berikut ini:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Tidak ada koneksi Wi-Fi. Unduh menggunakan data seluler?"</string>
-    <string name="hms_update_title" priority="translator">"Layanan Seluler Huawei"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Telusuri"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Mengunduh AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Pasang"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Mengunduh %s…"</string>
     <string name="upsdk_app_size" priority="translator">"Ukuran"</string>
     <string name="upsdk_app_version" priority="translator">"Versi"</string>
+    <string name="upsdk_appstore_install" priority="translator">"%s diperlukan untuk memperbarui aplikasi ini. Pasang sekarang?"</string>
     <string name="upsdk_cancel" priority="translator">"Batal"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Memeriksa pembaruan..."</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Memeriksa pembaruan..."</string>
     <string name="upsdk_choice_update" priority="LT">"Pembaruan tersedia. Unduh dan pasang versi terbaru."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Tidak dapat terhubung ke server. Coba lagi nanti."</string>
     <string name="upsdk_detail" priority="translator">"Perincian"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Tidak dapat mengambil data. Coba lagi nanti."</string>
-    <string name="upsdk_install" priority="LT">"Pasang AppGallery untuk memperbarui. Pasang sekarang?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Anda saat ini terhubung ke jaringan seluler. Mengunduh sekarang akan menggunakan %1$s data."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Tidak ada koneksi Internet. Periksa pengaturan jaringan Anda."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Apl"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Nanti"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Instalasi gagal."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Ya"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Versi Anda sudah yang terbaru."</string>
-    <string name="upsdk_updating" priority="translator">"Memperbarui"</string>
 </resources>

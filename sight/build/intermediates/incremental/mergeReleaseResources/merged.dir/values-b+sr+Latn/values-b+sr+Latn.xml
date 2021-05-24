@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Razno"</string>
     <string name="hms_abort" priority="translator">"Zaustavi"</string>
     <string name="hms_abort_message" priority="translator">"Zaustaviti preuzimanje?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s ne može da koristi opciju Huawei Mobile Services. Pokrenite aplikaciju Optimizator (Menadžer telefona) ili idite na opciju Podešavanja, omogućite sve dozvole za opciju %2$s (uključujući automatsko pokretanje i sekundarno pokretanje) i pokušajte ponovo."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s ne može da koristi aplikaciju HMS Core. Pokrenite aplikaciju Optimizator (Menadžer telefona) ili idite na opciju Podešavanja, omogućite sve dozvole za opciju %2$s (uključujući automatsko pokretanje i sekundarno pokretanje) i pokušajte ponovo."</string>
     <string name="hms_cancel" priority="translator">"Otkaži"</string>
     <string name="hms_check_failure" priority="translator">"Proveravanje ažuriranja nije uspelo."</string>
-    <string name="hms_check_no_update" priority="translator">"Već koristite najnoviju verziju."</string>
     <string name="hms_checking" priority="translator">"Proveravaju se ažuriranja…"</string>
     <string name="hms_confirm" priority="translator">"U redu"</string>
-    <string name="hms_download_failure" priority="translator">"Preuzimanje paketa Huawei Mobile Services nije uspelo."</string>
+    <string name="hms_download_failure" priority="translator">"Preuzimanje paketa aplikacije HMS Core nije uspelo."</string>
     <string name="hms_download_no_space" priority="translator">"Nedovoljno slobodnog prostora. Preuzimanje ne može da se dovrši."</string>
     <string name="hms_download_retry" priority="translator">"Preuzimanje nije uspelo. Pokušati ponovo?"</string>
-    <string name="hms_downloading" priority="translator">"Preuzimanje aplikacije Huawei okvir za usluge | napredak: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Preuzimanje"</string>
-    <string name="hms_downloading_new" priority="LT">"Preuzimanje HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Instaliraj"</string>
-    <string name="hms_install_message" priority="translator">"Aplikacija Huawei mobilne usluge mora da se instalira da bi se koristila ova funkcija. Instalirati?"</string>
-    <string name="hms_push_channel" priority="translator">"Podrazumevano"</string>
+    <string name="hms_install_message" priority="translator">"Aplikacija HMS Core mora da se instalira da bi se koristila ova funkcija. Instalirati?"</string>
+    <string name="hms_push_channel" priority="Original">"Podrazumevano"</string>
     <string name="hms_retry" priority="translator">"Pokuš. pon."</string>
     <string name="hms_update" priority="translator">"Ažuriraj"</string>
     <string name="hms_update_continue" priority="LT">"Preuzmi"</string>
-    <string name="hms_update_message" priority="translator">"Da biste koristili ovu funkciju, ažurirajte na najnoviju verziju aplikacije Huawei Mobile Services. Ažurirati odmah?"</string>
+    <string name="hms_update_message" priority="translator">"Da biste koristili ovu funkciju, ažurirajte na najnoviju verziju aplikacije HMS Core. Ažurirati odmah?"</string>
     <string name="hms_update_message_new" priority="LT">"Ova usluga zahteva najnoviju verziju sledeće aplikacije:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Nema Wi-Fi veze. Preuzeti korišćenjem prenosa podataka?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Mobile Services"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Pretražite"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Preuzimanje aplikacije AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Instaliraj"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Preuzimanje %s…"</string>
     <string name="upsdk_app_size" priority="translator">"Veličina"</string>
     <string name="upsdk_app_version" priority="translator">"Verzija"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Aplikacija %s je neophodna za ažuriranje ove aplikacije. Instalirati sada?"</string>
     <string name="upsdk_cancel" priority="translator">"Otkaži"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Provera dostupnosti ažuriranja…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Provera dostupnosti ažuriranja…"</string>
     <string name="upsdk_choice_update" priority="LT">"Dostupno je ažuriranje. Preuzmite i instalirajte najnoviju verziju."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Povezivanje na server nije moguće. Pokušajte ponovo kasnije."</string>
     <string name="upsdk_detail" priority="translator">"Detalji"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Preuzimanje informacija nije moguće. Pokušajte ponovo kasnije."</string>
-    <string name="upsdk_install" priority="LT">"Instaliraj aplikaciju AppGallery radi ažuriranja. Instalirati sada?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Trenutno ste povezani na mobilnu mrežu. Preuzimanje u ovom trenutku iskoristiće %1$s podataka."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Nema internet veze. Proverite svoja mrežna podešavanja."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Aplikacija"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Kasnije"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Instalacija nije uspela."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Da"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Već koristite najnoviju verziju."</string>
-    <string name="upsdk_updating" priority="translator">"Ažuriranje"</string>
 </resources>

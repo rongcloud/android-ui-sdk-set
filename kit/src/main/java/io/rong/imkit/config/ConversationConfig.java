@@ -60,9 +60,16 @@ import io.rong.imlib.model.MessageContent;
  */
 public class ConversationConfig {
 
-    private final String TAG = "ConversationConfig";
+    private static final int conversationHistoryMessageMaxCount = 100;
     //离线补偿已读回执，sp 文件名称
     public static String SP_NAME_READ_RECEIPT_CONFIG = "readReceiptConfig";
+    /**
+     * 多端消息未读数同步，仅支持单群聊
+     */
+    public static boolean enableMultiDeviceSync = true;
+    private static int conversationRemoteMessageMaxCount = 100;
+    private static int conversationShowUnreadMessageMaxCount = 100;
+    private final String TAG = "ConversationConfig";
     //消息撤回开关
     public boolean rc_enable_recall_message = true;
     //消息重发开关
@@ -70,7 +77,6 @@ public class ConversationConfig {
     public int rc_message_recall_interval = 120;
     public int rc_message_recall_edit_interval = 300;
     public int rc_chatroom_first_pull_message_count = 10;
-    private long rc_custom_service_evaluation_interval = 60 * 1000L;
     public boolean rc_is_show_warning_notification = true;
     // 设置未听的语音消息，是否连续播放
     public boolean rc_play_audio_continuous = true;
@@ -88,21 +94,13 @@ public class ConversationConfig {
     public int rc_max_message_selected_count = 100;
     // 是否开启合并转发功能,默认关闭
     public boolean rc_enable_send_combine_message = false;
-
+    private long rc_custom_service_evaluation_interval = 60 * 1000L;
     private boolean mStopCSWhenQuit = true;
     /**
      * 已读回执，仅支持，单，群聊
      */
     private boolean mEnableReadReceipt = true;
-
-
     private Set<Conversation.ConversationType> mSupportReadReceiptConversationTypes = new HashSet<>(4);
-
-    /**
-     * 多端消息未读数同步，仅支持单群聊
-     */
-    public static boolean enableMultiDeviceSync = true;
-
     /**
      * 单聊是否显示头像
      */
@@ -115,7 +113,6 @@ public class ConversationConfig {
      * 历史消息是否显示，目前仅支持，单，群聊
      */
     private boolean showHistoryMessageBar = true;
-
     /**
      * 长按是否显示更多
      */
@@ -124,7 +121,6 @@ public class ConversationConfig {
      * 是否显示，历史消息模板
      */
     private boolean showHistoryDividerMessage = true;
-
     private ConversationClickListener mConversationClickListener;
     private OnSendMessageListener mOnSendMessageListener;
     private ProviderManager<UiMessage> mMessageListProvider = new ProviderManager<>();
@@ -133,18 +129,14 @@ public class ConversationConfig {
     private CopyOnWriteArrayList<IClickActions> mMoreClickActions = new CopyOnWriteArrayList<>();
     private IMessageProvider defaultMessageProvider = new DefaultMessageItemProvider();
     private IMessageViewModelProcessor mViewModelProcessor;
-
     // 是否显示未读 @消息
     private boolean showNewMentionMessageBar = true;
     // 进入会话界面，默认拉取历史消息数量
     private int conversationHistoryMessageCount = 10;
-    private static final int conversationHistoryMessageMaxCount = 100;
     // 进入会话界面，默认拉取远端历史消息数量
     private int conversationRemoteMessageCount = 10;
-    private static int conversationRemoteMessageMaxCount = 100;
     // 进入会话界面，默认显示未读消息数量
     private int conversationShowUnreadMessageCount = 10;
-    private static int conversationShowUnreadMessageMaxCount = 100;
 
 
     ConversationConfig() {
@@ -302,9 +294,7 @@ public class ConversationConfig {
     }
 
     private void initMoreClickAction() {
-        if (rc_enable_send_combine_message) {
-            mMoreClickActions.add(new ForwardClickActions());
-        }
+        mMoreClickActions.add(new ForwardClickActions());
         mMoreClickActions.add(new DeleteClickActions());
     }
 
@@ -437,13 +427,6 @@ public class ConversationConfig {
     }
 
     /**
-     * @param showMoreClickAction 长按是否显示更多选项
-     */
-    public void setShowMoreClickAction(boolean showMoreClickAction) {
-        this.showMoreClickAction = showMoreClickAction;
-    }
-
-    /**
      * @return 长按是否显示更多选项
      */
     public boolean isShowMoreClickAction() {
@@ -451,10 +434,10 @@ public class ConversationConfig {
     }
 
     /**
-     * @param showHistoryDividerMessage 是否显示历史消息模板
+     * @param showMoreClickAction 长按是否显示更多选项
      */
-    public void setShowHistoryDividerMessage(boolean showHistoryDividerMessage) {
-        this.showHistoryDividerMessage = showHistoryDividerMessage;
+    public void setShowMoreClickAction(boolean showMoreClickAction) {
+        this.showMoreClickAction = showMoreClickAction;
     }
 
     /**
@@ -462,6 +445,13 @@ public class ConversationConfig {
      */
     public boolean isShowHistoryDividerMessage() {
         return showHistoryDividerMessage;
+    }
+
+    /**
+     * @param showHistoryDividerMessage 是否显示历史消息模板
+     */
+    public void setShowHistoryDividerMessage(boolean showHistoryDividerMessage) {
+        this.showHistoryDividerMessage = showHistoryDividerMessage;
     }
 
     /**

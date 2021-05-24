@@ -210,7 +210,7 @@ public class LocalMediaLoader implements Handler.Callback {
                                 imageFolders.add(0, allImageFolder);
                                 allImageFolder.setFirstImagePath
                                         (latelyImages.get(0).getPath());
-                                String title = mContext.getString(R.string.picture_camera_roll);
+                                String title = mContext.getString(R.string.rc_picture_camera_roll);
                                 allImageFolder.setName(title);
                                 allImageFolder.setOfAllType(config.chooseMode);
                                 allImageFolder.setCameraFolder(true);

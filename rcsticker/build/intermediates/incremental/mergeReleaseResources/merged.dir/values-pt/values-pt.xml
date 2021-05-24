@@ -29,42 +29,38 @@
     <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Recolher"</string>
     <string name="hms_abort" priority="translator">"Parar"</string>
     <string name="hms_abort_message" priority="translator">"Parar o download?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s não pode usar o Huawei Mobile Services. Inicie o Otimizador (Gerenciamento do telefone) ou vá para Configurações, ative todas as permissões para %2$s (incluindo início automático e início secundário) e tente novamente."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s não pode usar o HMS Core. Inicie o Otimizador (Gerenciamento do telefone) ou vá para Configurações, ative todas as permissões para %2$s (incluindo início automático e início secundário) e tente novamente."</string>
     <string name="hms_cancel" priority="translator">"Cancelar"</string>
     <string name="hms_check_failure" priority="translator">"Falha ao verificar atualizações."</string>
-    <string name="hms_check_no_update" priority="translator">"Sua versão está atualizada."</string>
     <string name="hms_checking" priority="translator">"Verificando atualizações..."</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"Falha no download do pacote de serviços móveis da Huawei."</string>
+    <string name="hms_download_failure" priority="translator">"Falha no download do pacote de HMS Core."</string>
     <string name="hms_download_no_space" priority="translator">"Não há espaço livre suficiente. O download não pode ser concluído."</string>
     <string name="hms_download_retry" priority="translator">"Falha no download. Tentar novamente?"</string>
-    <string name="hms_downloading" priority="translator">"Fazendo o download dos serviços móveis da Huawei | progresso: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Baixando"</string>
-    <string name="hms_downloading_new" priority="LT">"Baixando HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"Huawei GameCenter"</string>
     <string name="hms_install" priority="translator">"Instalar"</string>
-    <string name="hms_install_message" priority="translator">"Os serviços móveis da Huawei deve ser instalados para usar este recurso. Instalar?"</string>
-    <string name="hms_push_channel" priority="translator">"Padrão"</string>
+    <string name="hms_install_message" priority="translator">"Os HMS Core deve ser instalados para usar este recurso. Instalar?"</string>
+    <string name="hms_push_channel" priority="Original">"Padrão"</string>
     <string name="hms_retry" priority="translator">"Tentar novamente"</string>
     <string name="hms_update" priority="translator">"Atualizar"</string>
     <string name="hms_update_continue" priority="LT">"Baixar"</string>
-    <string name="hms_update_message" priority="translator">"Para usar este recurso, faça a atualização para a versão mais recente dos serviços móveis da Huawei. Atualizar agora?"</string>
+    <string name="hms_update_message" priority="translator">"Para usar este recurso, faça a atualização para a versão mais recente dos HMS Core. Atualizar agora?"</string>
     <string name="hms_update_message_new" priority="LT">"Este serviço requer a última versão do seguinte aplicativo:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Sem conexão Wi-Fi. Baixar usando dados móveis?"</string>
-    <string name="hms_update_title" priority="translator">"Serviços móveis da Huawei"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Pesquisar"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Download do AppGallery em execução"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Instalar"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Baixando %s…"</string>
     <string name="upsdk_app_size" priority="LT">"Tamanho"</string>
     <string name="upsdk_app_version" priority="LT">"Versão"</string>
+    <string name="upsdk_appstore_install" priority="translator">"%s é necessário para atualizar este aplicativo. Instalar agora?"</string>
     <string name="upsdk_cancel" priority="translator">"Cancelar"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Verificando atualizações..."</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Verificando atualizações…"</string>
     <string name="upsdk_choice_update" priority="LT">"Atualização disponível. Faça download e instale a versão mais recente."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Não é possível conectar ao servidor. Tente novamente mais tarde."</string>
     <string name="upsdk_detail" priority="translator">"Detalhes"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Não é possível recuperar informações. Tente novamente mais tarde."</string>
-    <string name="upsdk_install" priority="LT">"Instale o AppGallery para atualizar. Instalar agora?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"No momento, você está conectado a uma rede móvel. Baixar agora usará %1$s de dados."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"S/ con Int. Erro de rede. Verif.config.rede."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Aplicativo"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Depois"</string>
@@ -75,6 +71,5 @@
     <string name="upsdk_third_app_dl_cancel_download_prompt_ex" priority="translator">"Cancelar a instalação?"</string>
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Falha na instalação."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Sim"</string>
-    <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Sua versão está atualizada."</string>
-    <string name="upsdk_updating" priority="translator">"Atualiz."</string>
+    <string name="upsdk_update_check_no_new_version" priority="LT">"Sua versão está atualizada."</string>
 </resources>

@@ -77,7 +77,7 @@
             android:button="@color/picture_color_white"
             android:gravity="center"
             android:paddingStart="5dp"
-            android:text="@string/picture_original_image"
+            android:text="@string/rc_picture_original_image"
             android:textColor="@color/picture_color_white"
             android:textSize="17dp"
             android:visibility="gone" />
@@ -92,7 +92,7 @@
             android:gravity="center"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:text="@string/picture_send"
+            android:text="@string/rc_picture_send"
             android:textColor="@color/rc_main_theme"
             android:textSize="@dimen/rc_font_secondary_size" />
     </FrameLayout>

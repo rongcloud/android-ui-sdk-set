@@ -73,6 +73,9 @@ import io.rong.imkit.widget.refresh.listener.OnRefreshListener;
 import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.model.Conversation;
 
+/**
+ * @author lvz
+ */
 public class ConversationFragment extends Fragment implements OnRefreshListener, View.OnClickListener, OnLoadMoreListener, IViewProviderListener<UiMessage> {
     private final String TAG = ConversationFragment.class.getSimpleName();
     private static final int REQUEST_MSG_DOWNLOAD_PERMISSION = 1000;
@@ -87,7 +90,9 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     protected TextView mNewMessageNum;
     protected TextView mUnreadHistoryMessageNum;
     protected TextView mUnreadMentionMessageNum;
-    // 开启合并转发的选择会话界面
+    /**
+     * 开启合并转发的选择会话界面
+     **/
     public static final int REQUEST_CODE_FORWARD = 104;
     private LinearLayout mNotificationContainer;
     private boolean onViewCreated = false;
@@ -118,7 +123,9 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         mUnreadMentionMessageNum.setOnClickListener(this);
         mLinearLayoutManager = new LinearLayoutManager(getContext());
         mLinearLayoutManager.setStackFromEnd(true);
-        mList.setLayoutManager(mLinearLayoutManager);
+        if (mList != null) {
+            mList.setLayoutManager(mLinearLayoutManager);
+        }
         mRefreshLayout.setOnTouchListener(new View.OnTouchListener() {
             @SuppressLint("ClickableViewAccessibility")
             @Override
@@ -127,7 +134,6 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
                 return false;
             }
         });
-        mAdapter = new MessageListAdapter(this);
         mAdapter.setItemClickListener(new BaseAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, ViewHolder holder, int position) {
@@ -160,12 +166,12 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
 
                 @Override
                 public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-
+                    // Do nothing
                 }
 
                 @Override
                 public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-
+                    // Do nothing
                 }
             });
         }
@@ -188,8 +194,9 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         }
         super.onViewCreated(view, savedInstanceState);
         Intent intent = getActivity().getIntent();
-        if (mTargetId == null)
+        if (mTargetId == null) {
             mTargetId = intent.getStringExtra(RouteUtils.TARGET_ID);
+        }
         if (mConversationType == null) {
             String type = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
             if (type != null) {
@@ -274,12 +281,14 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             processor.onDestroy();
         }
         mList.removeOnScrollListener(mScrollListener);
-        mMessageViewModel.getPageEventLiveData().removeObserver(mPageObserver);
-        mMessageViewModel.getUiMessageLiveData().removeObserver(mListObserver);
-        mMessageViewModel.getNewMentionMessageUnreadLiveData().removeObserver(mNewMentionMessageUnreadObserver);
+
         if (mMessageViewModel != null) {
+            mMessageViewModel.getPageEventLiveData().removeObserver(mPageObserver);
+            mMessageViewModel.getUiMessageLiveData().removeObserver(mListObserver);
+            mMessageViewModel.getNewMentionMessageUnreadLiveData().removeObserver(mNewMentionMessageUnreadObserver);
             mMessageViewModel.onDestroy();
         }
+
         if (mRongExtension != null) {
             mRongExtension.onDestroy();
             mRongExtension = null;
@@ -301,7 +310,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
                     @Override
                     public void run() {
                         InputMode inputMode = mRongExtensionViewModel.getInputModeLiveData().getValue();
-                        if (!inputMode.equals(InputMode.MoreInputMode) && true == value) {
+                        if (!inputMode.equals(InputMode.MoreInputMode) && Boolean.TRUE.equals(value)) {
                             mList.scrollToPosition(mAdapter.getItemCount() - 1);
                         }
                     }
@@ -403,7 +412,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             if (RongConfigCenter.conversationConfig().isShowNewMentionMessageBar(mMessageViewModel.getCurConversationType())) {
                 if (count != null && count > 0) {
                     mUnreadMentionMessageNum.setVisibility(View.VISIBLE);
-                    mUnreadMentionMessageNum.setText(getContext().getResources().getString(R.string.rc_mention_messages, count));
+                    mUnreadMentionMessageNum.setText(getString(R.string.rc_mention_messages, "(" + count + ")"));
                 } else {
                     mUnreadMentionMessageNum.setVisibility(View.GONE);
                 }
@@ -597,11 +606,6 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             super.onScrolled(recyclerView, dx, dy);
             mMessageViewModel.onScrolled(recyclerView, dx, dy);
         }
-
-        @Override
-        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-            super.onScrollStateChanged(recyclerView, newState);
-        }
     };
 
     /**
@@ -654,8 +658,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
      * @return 会话列表 adapter
      */
     protected MessageListAdapter onResolveAdapter() {
-        MessageListAdapter adapter = new MessageListAdapter(this);
-        return adapter;
+        return new MessageListAdapter(this);
     }
 
     /**

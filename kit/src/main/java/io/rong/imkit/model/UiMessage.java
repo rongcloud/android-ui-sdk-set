@@ -41,6 +41,12 @@ public class UiMessage extends UiBaseBean {
     private SpannableStringBuilder referenceContentSpannable;
 
     public UiMessage(Message message) {
+        setMessage(message);
+        initUserInfo();
+        change();
+    }
+
+    public void setMessage(Message message) {
         this.message = message;
         if (message.getSentStatus() != null) {
             switch (message.getSentStatus()) {
@@ -55,12 +61,6 @@ public class UiMessage extends UiBaseBean {
                     break;
             }
         }
-        initUserInfo();
-        change();
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
         change();
     }
 

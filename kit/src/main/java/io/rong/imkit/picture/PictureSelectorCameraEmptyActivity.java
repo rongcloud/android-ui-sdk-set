@@ -40,7 +40,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                         .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             onTakePhoto();
         } else {
-            ToastUtils.s(getContext(), getString(R.string.picture_camera));
+            ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
             closeActivity();
             return;
         }
@@ -198,7 +198,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                         onTakePhoto();
                     } else {
                         closeActivity();
-                        ToastUtils.s(getContext(), getString(R.string.picture_camera));
+                        ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
                     }
                 }
                 break;
@@ -208,7 +208,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     onTakePhoto();
                 } else {
                     closeActivity();
-                    ToastUtils.s(getContext(), getString(R.string.picture_camera));
+                    ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
                 }
                 break;
         }

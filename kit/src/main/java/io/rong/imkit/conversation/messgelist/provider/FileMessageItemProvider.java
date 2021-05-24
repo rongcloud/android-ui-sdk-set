@@ -3,13 +3,13 @@ package io.rong.imkit.conversation.messgelist.provider;
 import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
 
-import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.resend.ResendManager;
@@ -115,6 +115,9 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
 
     @Override
     public Spannable getSummarySpannable(Context context, FileMessage fileMessage) {
+        if (fileMessage != null && !TextUtils.isEmpty(fileMessage.getName())) {
+            return new SpannableString(context.getString(R.string.rc_conversation_summary_content_file) + fileMessage.getName());
+        }
         return new SpannableString(context.getString(R.string.rc_conversation_summary_content_file));
     }
 

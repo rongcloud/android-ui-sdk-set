@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Бусад"</string>
     <string name="hms_abort" priority="translator">"Зогсоох"</string>
     <string name="hms_abort_message" priority="translator">"Татан авалтыг зогсоох уу?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s нь Huawei Mobile Services-г ашиглах боломжгүй байна. Оновчлогч (Утасны менежер)-г нээх эсвэл Тохиргоо руу орж, %2$s-н (автоматаар ажиллуулах болон нэмэлтээр ажиллуулах гэх мэт) бүх зөвшөөрлийг идэвхжүүлээд, дахин оролдоно уу."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s нь HMS Core-г ашиглах боломжгүй байна. Оновчлогч (Утасны менежер)-г нээх эсвэл Тохиргоо руу орж, %2$s-н (автоматаар ажиллуулах болон нэмэлтээр ажиллуулах гэх мэт) бүх зөвшөөрлийг идэвхжүүлээд, дахин оролдоно уу."</string>
     <string name="hms_cancel" priority="translator">"Цуцлах"</string>
     <string name="hms_check_failure" priority="translator">"Шинэчлэл шалгах үед алдаа гарлаа."</string>
-    <string name="hms_check_no_update" priority="translator">"Таны хувилбар шинэчлэгдсэн байна."</string>
     <string name="hms_checking" priority="translator">"Шинэчлэл шалгаж байна…"</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"Huawei Mobile Services багцыг татаж авахад алдаа гарлаа."</string>
+    <string name="hms_download_failure" priority="translator">"HMS Core багцыг татаж авахад алдаа гарлаа."</string>
     <string name="hms_download_no_space" priority="translator">"Хангалттай зай алга. Татан авалтыг гүйцээх боломжгүй."</string>
     <string name="hms_download_retry" priority="translator">"Татан авалт амжилтгүй. Дахин оролдох уу?"</string>
-    <string name="hms_downloading" priority="translator">"Huawei Mobile Services-г татаж авч байна\nявц: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Татаж байна"</string>
-    <string name="hms_downloading_new" priority="translator">"HMS-ийг татаж байна"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Суулгах"</string>
-    <string name="hms_install_message" priority="translator">"Энэ үйлдлийг ашиглахын тулд Huawei Mobile Services-г суулгасан байх ёстой. Суулгах уу?"</string>
-    <string name="hms_push_channel" priority="translator">"Анхдагч"</string>
+    <string name="hms_install_message" priority="translator">"Энэ үйлдлийг ашиглахын тулд HMS Core-г суулгасан байх ёстой. Суулгах уу?"</string>
+    <string name="hms_push_channel" priority="Original">"Анхдагч"</string>
     <string name="hms_retry" priority="translator">"Дахин оролдох"</string>
     <string name="hms_update" priority="translator">"Шинэчлэх"</string>
     <string name="hms_update_continue" priority="LT">"Татаж авах"</string>
-    <string name="hms_update_message" priority="translator">"Энэ үйлдлийг ашиглахын тулд Huawei Mobile Services-н хамгийн сүүлийн хувилбар болгож шинэчил. Одоо шинэчлэх үү?"</string>
+    <string name="hms_update_message" priority="translator">"Энэ үйлдлийг ашиглахын тулд HMS Core-н хамгийн сүүлийн хувилбар болгож шинэчил. Одоо шинэчлэх үү?"</string>
     <string name="hms_update_message_new" priority="translator">"Энэхүү үйлчилгээг ажиллуулахын тулд доорх программуудын хамгийн сүүлийн хувилбар шаардлагатай:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Wi-Fi холболт байхгүй. Гар утасны дата ашиглан татаж авах уу?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Мобайл Үйлчилгээ"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Хайх"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="translator">"AppGallery-г татаж авч байна"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Суулгах"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"%s-г татаж байна…"</string>
     <string name="upsdk_app_size" priority="translator">"Хэмжээ"</string>
     <string name="upsdk_app_version" priority="translator">"Хувилбар"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Энэ апликэйшнийг шинэчлэхийн тулд %s шаардлагатай. Одоо суулгах уу?"</string>
     <string name="upsdk_cancel" priority="translator">"Цуцлах"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Шинэчлэл шалгаж байна…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Шинэчлэл шалгаж байна…"</string>
     <string name="upsdk_choice_update" priority="translator">"Шинэчлэлт бэлэн байна. Хамгийн сүүлийн хувилбарыг татаж авч, суулгана уу."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Серверт холбогдох боломжгүй байна. Дараа дахин оролдоно уу."</string>
     <string name="upsdk_detail" priority="translator">"Дэлгэрэнгүй"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Мэдээлэл авах боломжгүй байна. Дараа дахин оролдоно уу."</string>
-    <string name="upsdk_install" priority="translator">"Шинэчлэхийн тулд AppGallery-г суулгана уу. Одоо суулгах уу?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Та одоогоор гар утасны сүлжээнд холбогдсон байна. Одоо татаж авбал %1$s дата ашиглах болно."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Интернэт холболт алга. Сүлжээний тохиргоогоо шалгана уу."</string>
     <string name="upsdk_ota_app_name" priority="translator">"Аппликэйшн"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Дараа"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Суурилуулалт амжилтгүй."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Тийм"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Таны хувилбар шинэчлэгдсэн байна."</string>
-    <string name="upsdk_updating" priority="translator">"Шинэчилж байна"</string>
 </resources>

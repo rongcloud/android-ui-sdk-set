@@ -4,6 +4,7 @@
     <dimen name="sight_text_view_padding_vertical">10dp</dimen>
     <dimen name="sight_record_top_icon_size">29dp</dimen>
     <dimen name="sight_record_top_icon_margin">20dp</dimen>
+    <dimen name="sight_record_icon_padding">20dp</dimen>
     <dimen name="sight_record_control_icon_size">74dp</dimen>
     <dimen name="sight_record_control_icon_margin_left">30dp</dimen>
     <dimen name="sight_record_control_icon_margin_bottom">45dp</dimen>

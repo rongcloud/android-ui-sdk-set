@@ -6,25 +6,34 @@
     android:background="@color/color_sight_black"
     android:gravity="center">
 
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        />
+
     <RelativeLayout
         android:id="@+id/rl_sight_download"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="gone"
+        >
 
         <ImageView
             android:id="@+id/rc_sight_thumb"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:scaleType="centerCrop" />
+            android:scaleType="fitCenter" />
+
 
         <ImageView
             android:id="@+id/rc_sight_download_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/sight_record_top_icon_margin"
-            android:layout_marginTop="@dimen/sight_record_top_icon_margin"
+            android:padding="@dimen/sight_record_icon_padding"
             android:src="@drawable/rc_ic_sight_close" />
 
         <io.rong.imkit.widget.CircleProgressView
@@ -59,14 +68,6 @@
                 android:textSize="14sp" />
         </RelativeLayout>
     </RelativeLayout>
-
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
-        />
 
     <TextView
         android:id="@+id/rc_count_down"

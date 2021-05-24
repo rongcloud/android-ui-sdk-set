@@ -67,8 +67,8 @@ public class PictureAlbumDirectoryAdapter extends RecyclerView.Adapter<PictureAl
                             imagePath, holder.ivFirstImage);
         }
         Context context = holder.itemView.getContext();
-        String firstTitle = folder.getOfAllType() != -1 ? context.getString(R.string.picture_camera_roll) : name;
-        holder.tvFolderName.setText(context.getString(R.string.picture_camera_roll_num, firstTitle, imageNum));
+        String firstTitle = folder.getOfAllType() != -1 ? context.getString(R.string.rc_picture_camera_roll) : name;
+        holder.tvFolderName.setText(context.getString(R.string.rc_picture_camera_roll_num, firstTitle, imageNum));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

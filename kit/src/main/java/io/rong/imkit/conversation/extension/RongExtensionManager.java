@@ -5,7 +5,6 @@ import android.content.Context;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -185,16 +184,10 @@ public class RongExtensionManager {
             RLog.e(TAG, "Not init in the main process.");
             return;
         }
-        if (extensionModule == null || !mExtModules.contains(extensionModule)) {
+        if (mExtModules.remove(extensionModule)) {
+            RLog.i(TAG, "unregisterExtensionModule " + extensionModule.getClass().getSimpleName());
+        } else {
             RLog.e(TAG, "Illegal extensionModule.");
-            return;
-        }
-        RLog.i(TAG, "unregisterExtensionModule " + extensionModule.getClass().getSimpleName());
-        Iterator<IExtensionModule> iterator = mExtModules.iterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().equals(extensionModule)) {
-                iterator.remove();
-            }
         }
     }
 

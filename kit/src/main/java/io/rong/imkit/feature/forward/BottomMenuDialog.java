@@ -6,17 +6,39 @@ import android.view.View;
 import android.widget.Button;
 
 import io.rong.imkit.R;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.picture.widget.BaseDialogFragment;
+
+/**
+ * 转发功能点击时的底部对话框
+ *
+ * @author jenny_zhou
+ */
 
 public class BottomMenuDialog extends BaseDialogFragment implements View.OnClickListener {
 
-    private View.OnClickListener confirmListener;
-    private View.OnClickListener middleListener;
-    private View.OnClickListener cancelListener;
     Button step;
     Button combine;
     Button cancel;
+    private View.OnClickListener confirmListener;
+    private View.OnClickListener middleListener;
+    private View.OnClickListener cancelListener;
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mDialog.setCanceledOnTouchOutside(true);
+    }
+
+    @Override
+    protected int getGravity() {
+        return Gravity.BOTTOM;
+    }
+
+    @Override
+    protected float getScreenWidthProportion() {
+        return 1f;
+    }
 
     @Override
     protected void findView() {
@@ -30,17 +52,14 @@ public class BottomMenuDialog extends BaseDialogFragment implements View.OnClick
         cancel.setOnClickListener(this);
         step.setOnClickListener(this);
         combine.setOnClickListener(this);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mDialog.setCanceledOnTouchOutside(true);
+        if (!RongConfigCenter.conversationConfig().rc_enable_send_combine_message) {
+            combine.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void bindData() {
-
+        //no data need to bind
     }
 
     @Override
@@ -63,16 +82,6 @@ public class BottomMenuDialog extends BaseDialogFragment implements View.OnClick
             listener.onClick(v);
         }
 
-    }
-
-    @Override
-    protected float getScreenWidthProportion() {
-        return 1f;
-    }
-
-    @Override
-    protected int getGravity() {
-        return Gravity.BOTTOM;
     }
 
     public View.OnClickListener getConfirmListener() {

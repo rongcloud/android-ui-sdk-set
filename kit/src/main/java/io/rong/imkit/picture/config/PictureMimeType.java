@@ -334,9 +334,9 @@ public final class PictureMimeType {
     public static String s(Context context, String mimeType) {
         Context ctx = context.getApplicationContext();
         if (eqVideo(mimeType)) {
-            return ctx.getString(R.string.picture_video_error);
+            return ctx.getString(R.string.rc_picture_video_error);
         } else {
-            return ctx.getString(R.string.picture_error);
+            return ctx.getString(R.string.rc_picture_error);
         }
     }
 

@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Har xil"</string>
     <string name="hms_abort" priority="translator">"To‘xtatish"</string>
     <string name="hms_abort_message" priority="translator">"Yuklab olish to‘xtatilsinmi?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s Huawei Mobile Services xizmatidan foydalana olmadi. Optimizatsiya (Telefon menejeri) yoki Sozlamalarga kirib, %2$s uchun barcha ruxsatlarni (jumladan, avtomatik ishga tushish va faollashtirish ruxsatlarini) bering hamda qayta urining."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s HMS Core ilovasidan foydalana olmadi. Optimizatsiya (Telefon menejeri) yoki Sozlamalarga kirib, %2$s uchun barcha ruxsatlarni (jumladan, avtomatik ishga tushish va faollashtirish ruxsatlarini) bering hamda qayta urining."</string>
     <string name="hms_cancel" priority="translator">"Bekor qilish"</string>
     <string name="hms_check_failure" priority="translator">"Yangilov borligi tekshirilmadi."</string>
-    <string name="hms_check_no_update" priority="translator">"Eng yangi versiyasidan foydalanyapsiz."</string>
     <string name="hms_checking" priority="translator">"Yangilov borligi tekshirmoqda…"</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"Huawei Mobile Services paketi yuklab olinmadi."</string>
+    <string name="hms_download_failure" priority="translator">"HMS Core paketi yuklab olinmadi."</string>
     <string name="hms_download_no_space" priority="translator">"Bo‘sh joy yetarli emas. Yuklab olish tugallanmadi."</string>
     <string name="hms_download_retry" priority="translator">"Yuklab olish amalga oshmadi. Qayta urinilsinmi?"</string>
-    <string name="hms_downloading" priority="translator">"Huawei Mobile Services yuklab olinmoqda | rivoj: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Yuklab olinmoqda"</string>
-    <string name="hms_downloading_new" priority="LT">"HMS yuklab olinmoqda"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"O‘rnatish"</string>
-    <string name="hms_install_message" priority="translator">"Bu funksiyadan foydalanish uchun Huawei Mobile Services o‘rnatilishi lozim. O‘rnatilsinmi?"</string>
-    <string name="hms_push_channel" priority="translator">"Standart"</string>
+    <string name="hms_install_message" priority="translator">"Bu funksiyadan foydalanish uchun HMS Core o‘rnatilishi lozim. O‘rnatilsinmi?"</string>
+    <string name="hms_push_channel" priority="Original">"Standart"</string>
     <string name="hms_retry" priority="translator">"Qaytadan"</string>
     <string name="hms_update" priority="translator">"Yangilash"</string>
     <string name="hms_update_continue" priority="LT">"Yuklab olish"</string>
-    <string name="hms_update_message" priority="translator">"Bu funksiyadan foydalanish uchun Huawei Mobile Services yangilanishi zarur. Hozir yangilansinmi?"</string>
+    <string name="hms_update_message" priority="translator">"Bu funksiyadan foydalanish uchun HMS Core yangilanishi zarur. Hozir yangilansinmi?"</string>
     <string name="hms_update_message_new" priority="LT">"Bu xizmat quyidagi ilovaning eng oxirgi versiyasini talab qiladi:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Wi-Fi tarmoqqa ulanmagansiz. Mobil internet orqali yuklab olasizmi?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Mobile Services"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Qidiruv"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"AppGallery yuklab olinmoqda"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"O‘rnatish"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"%s yuklab olinmoqda..."</string>
     <string name="upsdk_app_size" priority="translator">"Hajmi"</string>
     <string name="upsdk_app_version" priority="translator">"Versiyasi"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Bu ilovani yangilash uchun %s talab qilinadi. Hozir oʻrnatasizmi?"</string>
     <string name="upsdk_cancel" priority="translator">"Bekor qilish"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Yangilanish borligi tekshirilmoqda…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Yangilanish borligi tekshirilmoqda…"</string>
     <string name="upsdk_choice_update" priority="LT">"Yangilanish chiqdi. Eng oxirgi versiyasini yuklab oling va o‘rnating."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Serverga ulanib bo‘lmadi. Keyinroq qayta urining."</string>
     <string name="upsdk_detail" priority="translator">"Tafsilotlar"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Ma’lumotlar olinmadi. Keyinroq qayta urining."</string>
-    <string name="upsdk_install" priority="LT">"Yangilash uchun AppGallery ilovasini o‘rnating. Hozir o‘rnatilsinmi?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Hozir mobil internetdan foydalanyapsiz. Yuklab olinsa, %1$s internet-trafik sarflanadi."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Internet aloqasi yo‘q. Tarmoq sozlamalarini tekshiring."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Ilova"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Keyinroq"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"O‘rnatish amalga oshmadi."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Ha"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Eng yangi versiyasidan foydalanyapsiz."</string>
-    <string name="upsdk_updating" priority="translator">"Yangilanmoqda"</string>
 </resources>

@@ -1,8 +1,6 @@
 package io.rong.imkit.utils;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
@@ -20,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -31,7 +30,6 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 
 import io.rong.common.LibStorageUtils;
 import io.rong.common.RLog;
@@ -378,5 +376,17 @@ public class RongUtils {
         }
 
         return isLocationServiceEnabled;
+    }
+
+    /**
+     * 是否正在通话中
+     */
+    public static boolean phoneIsInUse(Context context) {
+        if (context == null) {
+            return false;
+        }
+        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        int state = mTelephonyManager.getCallState();
+        return state != TelephonyManager.CALL_STATE_IDLE;
     }
 }

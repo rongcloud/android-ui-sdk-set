@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"የተለያዩ"</string>
     <string name="hms_abort" priority="translator">"አቁም"</string>
     <string name="hms_abort_message" priority="translator">"ማውረድ ይቁም?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s Huawei Mobile Servicesን ለመጠቀም አይችልም። ማትቢያን (የስልክ አስተዳዳሪ) ያስጀምሩ ወይም ወደ ቅንብሮች ይሂዱ እና ለ %2$s (ራስሰር ማስጀመሪያ እና ሁለተኛ ደረጃ ማስጀመሪያን ጨምሮ) ሁሉንም ፈቃዶች ያንቁ እና እንደገና ይሞክሩ።"</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s HMS Coreን ለመጠቀም አይችልም። ማትቢያን (የስልክ አስተዳዳሪ) ያስጀምሩ ወይም ወደ ቅንብሮች ይሂዱ እና ለ %2$s (ራስሰር ማስጀመሪያ እና ሁለተኛ ደረጃ ማስጀመሪያን ጨምሮ) ሁሉንም ፈቃዶች ያንቁ እና እንደገና ይሞክሩ።"</string>
     <string name="hms_cancel" priority="translator">"ይቅር"</string>
     <string name="hms_check_failure" priority="translator">"ዝማኔዎች መኖራቸውን መፈተሽ አልተሳካም።"</string>
-    <string name="hms_check_no_update" priority="translator">"ስሪትዎ የተዘመነ ነው።"</string>
     <string name="hms_checking" priority="translator">"አዘምኖችን በመመልከት ላይ..."</string>
     <string name="hms_confirm" priority="translator">"ይሁን"</string>
-    <string name="hms_download_failure" priority="translator">"የ Huawei Mobile Services ጥቅልን ማውረድ አልተቻለም።"</string>
+    <string name="hms_download_failure" priority="translator">"የHMS Core ጥቅልን ማውረድ አልተቻለም።"</string>
     <string name="hms_download_no_space" priority="translator">"በቂ ነጻ ባዶ ቦታ የለም። ማውረድ ሊጠናቀቅ አይችልም።"</string>
     <string name="hms_download_retry" priority="translator">"አዉርድ አልተሳካም። እንደገና ይሞክር?"</string>
-    <string name="hms_downloading" priority="translator">"Huawei Mobile Servicesን በማውረድ ላይ\nግስጋሴ፦ %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"በማውረድ ላይ"</string>
-    <string name="hms_downloading_new" priority="translator">"HMSን በማውረድ ላይ"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"ጫን"</string>
-    <string name="hms_install_message" priority="translator">"ይህን ባህሪ ለመጠቀም Huawei Mobile Services መጫን አለበት። ይጫን?"</string>
-    <string name="hms_push_channel" priority="translator">"ነባሪ"</string>
+    <string name="hms_install_message" priority="translator">"ይህን ባህሪ ለመጠቀም HMS Core መጫን አለበት። ይጫን?"</string>
+    <string name="hms_push_channel" priority="Original">"ነባሪ"</string>
     <string name="hms_retry" priority="translator">"ድጋሚ ሞክር"</string>
     <string name="hms_update" priority="translator">"አዘምን"</string>
     <string name="hms_update_continue" priority="LT">"አውርድ"</string>
-    <string name="hms_update_message" priority="translator">"ይህን ባህሪ ለመጠቀም ወደ የቅርብ ጊዜው Huawei Mobile Services ስሪት ያዘምኑ። አሁን ይዘምን?"</string>
+    <string name="hms_update_message" priority="translator">"ይህን ባህሪ ለመጠቀም ወደ የቅርብ ጊዜው HMS Core ስሪት ያዘምኑ። አሁን ይዘምን?"</string>
     <string name="hms_update_message_new" priority="translator">"ይህ አገልግሎት የቅርብ የሆነውን መተግበሪያ ይፈልጋል\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"ምንም የWi-Fi ግንኙነት የለም። የሞባይል ውሂብን በመጠቀም ይውረድ?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Mobile Services"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"ፍለጋ"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="translator">"AppGallery ን ማውረድ"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"ጫን"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"%sን በማውረድ ላይ…"</string>
     <string name="upsdk_app_size" priority="translator">"መጠን"</string>
     <string name="upsdk_app_version" priority="translator">"ስሪት"</string>
+    <string name="upsdk_appstore_install" priority="translator">"ይህን መተግበሪያ ለማዘመን %s ያስፈልጋል። አሁን ይጫን?"</string>
     <string name="upsdk_cancel" priority="translator">"ይቅር"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"አዘምኖችን በመመልከት ላይ..."</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"ዝማኔዎችን በመፈተሽ ላይ…"</string>
     <string name="upsdk_choice_update" priority="translator">"ዝማኔን ማግኘት ይቻላል። እባክዎ የቅርብ ጊዜውን ስሪት ያውርዱ እና ይጫኑ።"</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"ወደ አገልጋይ ማገናኘት አልተቻለም። እባክዎ በኋላ ላይ እንደገና ይሞክሩ።"</string>
     <string name="upsdk_detail" priority="translator">"ዝርዝሮች"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"መረጃን ሰርስሮ ለማውጣት አልተቻለም። እባክዎ በኋላ ላይ እንደገና ይሞክሩ።"</string>
-    <string name="upsdk_install" priority="translator">"ለማዘመን AppGallery ን ይጫኑ። አሁን ይጫን?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"በአሁኑ ጊዜ ከአንድ የሞባይል አውታረ መረብ ጋር ተገናኝተዋል። አሁን ማውረድ %1$s ውሂብ ይጠቀማል።"</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"የበይነ መረብ ግኑኙነት የለም። እባክዎ የእርስዎን የአውታረ መረብ ቅንብሮች ይፈትሹ።"</string>
     <string name="upsdk_ota_app_name" priority="translator">"መተግበሪያ"</string>
     <string name="upsdk_ota_cancel" priority="translator">"ኋላ"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"ጭነት አልተሳካም።"</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"አዎ"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"ስሪትዎ የተዘመነ ነው።"</string>
-    <string name="upsdk_updating" priority="translator">"ማዘመን"</string>
 </resources>

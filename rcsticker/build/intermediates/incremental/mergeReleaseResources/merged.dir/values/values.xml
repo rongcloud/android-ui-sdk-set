@@ -926,9 +926,6 @@
     <color name="dim_foreground_disabled_material_light">#80323232</color>
     <color name="dim_foreground_material_dark">#ffbebebe</color>
     <color name="dim_foreground_material_light">#ff323232</color>
-    <color name="emui_color_gray_1">#F2F2F2</color>
-    <color name="emui_color_gray_10">#191919</color>
-    <color name="emui_color_gray_7">#808080</color>
     <color name="error_color_material_dark">#ff7043</color>
     <color name="error_color_material_light">#ff5722</color>
     <color name="foreground_material_dark">@android:color/white</color>
@@ -1052,9 +1049,9 @@
     <color name="switch_thumb_normal_material_light">#fff1f1f1</color>
     <color name="tooltip_background_dark">#e6616161</color>
     <color name="tooltip_background_light">#e6FFFFFF</color>
-    <color name="upsdk_blue_text_007dff">#007dff</color>
-    <color name="upsdk_category_button_select_pressed">#0076f2</color>
-    <color name="upsdk_white">#FFFFFFFF</color>
+    <color name="upsdk_color_gray_1">#F2F2F2</color>
+    <color name="upsdk_color_gray_10">#191919</color>
+    <color name="upsdk_color_gray_7">#808080</color>
     <dimen name="abc_action_bar_content_inset_material">16dp</dimen>
     <dimen name="abc_action_bar_content_inset_with_nav">72dp</dimen>
     <dimen name="abc_action_bar_default_height_material">56dp</dimen>
@@ -1146,8 +1143,6 @@
     <dimen name="download_progress_stroke_width">1dp</dimen>
     <dimen name="download_progress_text_size">15sp</dimen>
     <dimen name="download_text_size">16sp</dimen>
-    <dimen name="emui_master_body_2">13sp</dimen>
-    <dimen name="emui_master_subtitle">15sp</dimen>
     <dimen name="fastscroll_default_thickness">8dp</dimen>
     <dimen name="fastscroll_margin">0dp</dimen>
     <dimen name="fastscroll_minimum_range">50dp</dimen>
@@ -1163,9 +1158,6 @@
     <dimen name="item_touch_helper_max_drag_scroll_per_frame">20dp</dimen>
     <dimen name="item_touch_helper_swipe_escape_max_velocity">800dp</dimen>
     <dimen name="item_touch_helper_swipe_escape_velocity">120dp</dimen>
-    <dimen name="margin_l">16dp</dimen>
-    <dimen name="margin_m">8dp</dimen>
-    <dimen name="margin_xs">2dp</dimen>
     <dimen name="my_sticker_divider_margin_left">10dp</dimen>
     <dimen name="notification_action_icon_size">32dp</dimen>
     <dimen name="notification_action_text_size">13sp</dimen>
@@ -1284,6 +1276,11 @@
     <dimen name="tooltip_vertical_padding">6.5dp</dimen>
     <dimen name="tooltip_y_offset_non_touch">0dp</dimen>
     <dimen name="tooltip_y_offset_touch">16dp</dimen>
+    <dimen name="upsdk_margin_l">16dp</dimen>
+    <dimen name="upsdk_margin_m">8dp</dimen>
+    <dimen name="upsdk_margin_xs">2dp</dimen>
+    <dimen name="upsdk_master_body_2">13sp</dimen>
+    <dimen name="upsdk_master_subtitle">15sp</dimen>
     <drawable name="notification_template_icon_bg">#3333B5E5</drawable>
     <drawable name="notification_template_icon_low_bg">#0cffffff</drawable>
     <item name="accessibility_action_clickable_span" type="id"/>
@@ -1368,7 +1365,9 @@
     <integer name="rc_message_recall_edit_interval">300</integer>
     <integer name="rc_message_recall_interval">120</integer>
     <integer name="rc_read_receipt_request_interval">120</integer>
-    <integer name="rc_resume_file_transfer_size_each_slice">1048576</integer>
+    <integer name="rc_resume_file_transfer_size_each_slice">20971520</integer>
+    <integer name="rc_sight_compress_height">960</integer>
+    <integer name="rc_sight_compress_width">544</integer>
     <integer name="rc_thumb_compress_min_size">100</integer>
     <integer name="rc_thumb_compress_size">240</integer>
     <integer name="rc_thumb_quality">30</integer>
@@ -1426,82 +1425,30 @@
     <string name="gcm_fallback_notification_channel_label">Miscellaneous</string>
     <string name="hms_abort" priority="translator">Stop</string>
     <string name="hms_abort_message" priority="translator">Stop downloading?</string>
-    <string name="hms_base_google" translatable="false">https://play.google.com/store</string>
-    <string name="hms_base_vmall" translatable="false">https://appgallery.cloud.huawei.com/app/</string>
-    <string name="hms_bindfaildlg_message" priority="LT">%1$s is unable to use Huawei Mobile Services. Launch Optimizer (Phone Manager) or go to Settings, enable all permissions for %2$s (including auto-launch and secondary launch), and try again.</string>
+    <string name="hms_bindfaildlg_message" priority="LT">%1$s is unable to use HMS Core. Launch Optimizer (Phone Manager) or go to Settings, enable all permissions for %2$s (including auto-launch and secondary launch), and try again.</string>
     <string name="hms_bindfaildlg_title">@string/hms_update_title</string>
     <string name="hms_cancel" priority="translator">Cancel</string>
     <string name="hms_check_failure" priority="translator">Failed to check for updates.</string>
-    <string name="hms_check_no_update" priority="LT">Your version is up to date.</string>
     <string name="hms_checking" priority="translator">Checking for updates…</string>
     <string name="hms_confirm" priority="translator">OK</string>
-    <string name="hms_download_failure" priority="translator">Failed to download Huawei Mobile Services package.</string>
+    <string name="hms_download_failure" priority="translator">Failed to download HMS Core package.</string>
     <string name="hms_download_no_space" priority="translator">Not enough free space. Download cannot be completed.</string>
     <string name="hms_download_retry" priority="translator">Download failed. Try again?</string>
-    <string name="hms_downloading" priority="translator">Downloading Huawei Mobile Services\nprogress: %d%%</string>
     <string name="hms_downloading_loading" priority="LT">Downloading</string>
-    <string name="hms_downloading_new" priority="LT">Downloading HMS</string>
-    <string name="hms_gamebox_name" priority="LT">HUAWEI GameCenter</string>
     <string name="hms_install" priority="translator">Install</string>
-    <string name="hms_install_message" priority="translator">Huawei Mobile Services must be installed to use this feature. Install?</string>
+    <string name="hms_install_message" priority="translator">HMS Core must be installed to use this feature. Install?</string>
     <string name="hms_push_channel" priority="LT">Default</string>
     <string name="hms_push_google" translatable="false">https://play.google.com/store/apps/details?id=</string>
     <string name="hms_push_vmall" translatable="false">https://appgallery.cloud.huawei.com</string>
     <string name="hms_retry" priority="translator">Retry</string>
     <string name="hms_update" priority="translator">Update</string>
     <string name="hms_update_continue" priority="LT">Download</string>
-    <string name="hms_update_message" priority="translator">Update to the latest version of Huawei Mobile Services to use this feature. Update now?</string>
+    <string name="hms_update_message" priority="translator">Update to the latest version of HMS Core to use this feature. Update now?</string>
     <string name="hms_update_message_new" priority="LT">This service requires the latest version of the following app:\n\n%1$s</string>
     <string name="hms_update_nettype" priority="LT">No Wi-Fi connection. Download using mobile data?</string>
-    <string name="hms_update_title" priority="translator">Huawei Mobile Services</string>
+    <string name="hms_update_title" priority="translator">HMS Core</string>
     <string name="my_sticker">我的表情</string>
     <string name="no_sticker">可在表情推荐面板中，获取动态表情</string>
-    <string name="picture_audio">获取系统录音权限被拒绝</string>
-    <string name="picture_audio_error">音频已损坏</string>
-    <string name="picture_camera">获取系统相机权限被拒绝</string>
-    <string name="picture_camera_roll">相机胶卷</string>
-    <string name="picture_camera_roll_num">%1$s (%2$d)</string>
-    <string name="picture_cancel">取消</string>
-    <string name="picture_completed">已完成</string>
-    <string name="picture_confirm">确定</string>
-    <string name="picture_data_exception">获取相册数据异常...</string>
-    <string name="picture_done">完成</string>
-    <string name="picture_done_front_num">%1$d/%2$d 完成</string>
-    <string name="picture_empty">你可以使用相机拍摄照片或视频</string>
-    <string name="picture_empty_title">无视频或照片\n</string>
-    <string name="picture_error">图片已损坏</string>
-    <string name="picture_gif_tag">动图</string>
-    <string name="picture_jurisdiction">读取内存卡权限被拒绝</string>
-    <string name="picture_long_chart">长图</string>
-    <string name="picture_message_max_num_fir">你最多可以选择</string>
-    <string name="picture_message_max_num_sec">张图片</string>
-    <string name="picture_min_img_num">图片最低选择不能少于%1$d张</string>
-    <string name="picture_min_video_num">视频最低选择不能少于%1$d个</string>
-    <string name="picture_not_crop_data">无可用裁剪数据</string>
-    <string name="picture_original_image">原图</string>
-    <string name="picture_original_image_size">原图(%1$s)</string>
-    <string name="picture_pause_audio">暂停</string>
-    <string name="picture_photograph">拍照</string>
-    <string name="picture_play_audio">播放</string>
-    <string name="picture_please">请稍候...</string>
-    <string name="picture_please_select">请选择</string>
-    <string name="picture_preview">预览</string>
-    <string name="picture_preview_image_num">%1$d / %2$d</string>
-    <string name="picture_prompt">提示</string>
-    <string name="picture_prompt_content">是否保存图片至手机？</string>
-    <string name="picture_quit_audio">退出</string>
-    <string name="picture_record_video">录视频</string>
-    <string name="picture_rule">不能同时选择图片或视频</string>
-    <string name="picture_save_error">图片保存失败</string>
-    <string name="picture_save_success">图片保存成功至</string>
-    <string name="picture_select">选择</string>
-    <string name="picture_send">发送</string>
-    <string name="picture_send_num">发送</string>
-    <string name="picture_stop_audio">停止</string>
-    <string name="picture_take_picture">拍摄</string>
-    <string name="picture_video_error">视频已损坏</string>
-    <string name="picture_video_toast">视频不可预览</string>
-    <string name="picture_warning">暂无媒体文件！</string>
     <string name="push_cat_body" translatable="false">99A9343CEC0A64112FD2496EF752F719</string>
     <string name="push_cat_head" translatable="false">767499AE5B2DFC9D873AF46032E13B00</string>
     <string name="push_heartbeat_timer">240000</string>
@@ -1823,7 +1770,8 @@
     <string name="rc_location_warning">提示</string>
     <string name="rc_location_you_are_sharing">你正在共享位置</string>
     <string name="rc_media_message_default_save_path">/RongCloud/Media/</string>
-    <string name="rc_mention_messages">有人@我(%s)</string>
+    <string name="rc_media_upload_error">不能上传 0kb 的文件</string>
+    <string name="rc_mention_messages">有人@我 %s</string>
     <string name="rc_mention_title_choose_members">选择联系人</string>
     <string name="rc_message_content_burn">[阅后即焚]</string>
     <string name="rc_message_content_card">[个人名片]</string>
@@ -1860,6 +1808,52 @@
     <string name="rc_permission_microphone_and_camera">（麦克风，相机）。</string>
     <string name="rc_picsel_selected_max_time_span_with_param">不能分享超过%d分钟的视频</string>
     <string name="rc_picsel_video_corrupted">不能分享损坏的视频</string>
+    <string name="rc_picture_audio">获取系统录音权限被拒绝</string>
+    <string name="rc_picture_audio_error">音频已损坏</string>
+    <string name="rc_picture_camera">获取系统相机权限被拒绝</string>
+    <string name="rc_picture_camera_roll">相机胶卷</string>
+    <string name="rc_picture_camera_roll_num">%1$s (%2$d)</string>
+    <string name="rc_picture_cancel">取消</string>
+    <string name="rc_picture_completed">已完成</string>
+    <string name="rc_picture_confirm">确定</string>
+    <string name="rc_picture_data_exception">获取相册数据异常...</string>
+    <string name="rc_picture_done">完成</string>
+    <string name="rc_picture_done_front_num">%1$d/%2$d 完成</string>
+    <string name="rc_picture_empty">你可以使用相机拍摄照片或视频</string>
+    <string name="rc_picture_empty_title">无视频或照片\n</string>
+    <string name="rc_picture_error">图片已损坏</string>
+    <string name="rc_picture_gif_tag">动图</string>
+    <string name="rc_picture_jurisdiction">读取内存卡权限被拒绝</string>
+    <string name="rc_picture_long_chart">长图</string>
+    <string name="rc_picture_message_max_num_fir">你最多可以选择</string>
+    <string name="rc_picture_message_max_num_sec">张图片</string>
+    <string name="rc_picture_min_img_num">图片最低选择不能少于%1$d张</string>
+    <string name="rc_picture_min_video_num">视频最低选择不能少于%1$d个</string>
+    <string name="rc_picture_not_crop_data">无可用裁剪数据</string>
+    <string name="rc_picture_original_image">原图</string>
+    <string name="rc_picture_original_image_size">原图(%1$s)</string>
+    <string name="rc_picture_pause_audio">暂停</string>
+    <string name="rc_picture_photograph">拍照</string>
+    <string name="rc_picture_play_audio">播放</string>
+    <string name="rc_picture_please">请稍候...</string>
+    <string name="rc_picture_please_select">请选择</string>
+    <string name="rc_picture_preview">预览</string>
+    <string name="rc_picture_preview_image_num">%1$d / %2$d</string>
+    <string name="rc_picture_prompt">提示</string>
+    <string name="rc_picture_prompt_content">是否保存图片至手机？</string>
+    <string name="rc_picture_quit_audio">退出</string>
+    <string name="rc_picture_record_video">录视频</string>
+    <string name="rc_picture_rule">不能同时选择图片或视频</string>
+    <string name="rc_picture_save_error">图片保存失败</string>
+    <string name="rc_picture_save_success">图片保存成功至</string>
+    <string name="rc_picture_select">选择</string>
+    <string name="rc_picture_send">发送</string>
+    <string name="rc_picture_send_num">发送</string>
+    <string name="rc_picture_stop_audio">停止</string>
+    <string name="rc_picture_take_picture">拍摄</string>
+    <string name="rc_picture_video_error">视频已损坏</string>
+    <string name="rc_picture_video_toast">视频不可预览</string>
+    <string name="rc_picture_warning">暂无媒体文件！</string>
     <string name="rc_plugin_location_message">发送位置</string>
     <string name="rc_plugin_location_sharing">共享实时位置</string>
     <string name="rc_pub_service_info_account">公众号：%s</string>
@@ -1917,17 +1911,18 @@
     <string name="sticker_download_fail">\"%1$s\"未下载成功，请重试</string>
     <string name="sticker_fail_to_load">加载失败</string>
     <string name="system_default_channel">system default channel</string>
-    <string name="upsdk_app_dl_installing" priority="LT">Downloading AppGallery</string>
     <string name="upsdk_app_download_info_new" priority="LT">Install</string>
+    <string name="upsdk_app_download_installing" priority="translator">Downloading %s…</string>
     <string name="upsdk_app_size" priority="LT">Size</string>
     <string name="upsdk_app_version" priority="LT">Version</string>
+    <string name="upsdk_appstore_install" priority="translator">%s is required to update this app. Install now?</string>
+    <string name="upsdk_apptouch_store_url" translatable="false">https://store-at-dre.hispace.dbankcloud.com/hwmarket/api/</string>
     <string name="upsdk_cancel" priority="LT">Cancel</string>
     <string name="upsdk_checking_update_prompt" priority="LT">Checking for updates…</string>
     <string name="upsdk_choice_update" priority="LT">Update available. Please download and install the latest version.</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">Unable to connect to server. Please try again later.</string>
     <string name="upsdk_detail" priority="LT">Details</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">Unable to retrieve information. Please try again later.</string>
-    <string name="upsdk_install" priority="LT">Install AppGallery to update. Install now?</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">You\'re currently connected to a mobile network. Downloading now will use %1$s of data.</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">No Internet connection. Please check your network settings.</string>
     <string name="upsdk_ota_app_name" priority="LT">App</string>
     <string name="upsdk_ota_cancel" priority="LT">Later</string>
@@ -1940,7 +1935,6 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">Installation failed.</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">Yes</string>
     <string name="upsdk_update_check_no_new_version" priority="LT">Your version is up to date.</string>
-    <string name="upsdk_updating" priority="LT">Updating</string>
     <style name="AlertDialog.AppCompat" parent="Base.AlertDialog.AppCompat"/>
     <style name="AlertDialog.AppCompat.Light" parent="Base.AlertDialog.AppCompat.Light"/>
     <style name="Animation.AppCompat.Dialog" parent="Base.Animation.AppCompat.Dialog"/>
@@ -3607,11 +3601,6 @@
     <style name="rc_pb_file_download_progress">
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/rc_pb_file_download_progress</item>
-    </style>
-    <style name="upsdkDlDialog" parent="@android:style/Theme.Holo.Light">
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsTranslucent">true</item>
     </style>
     <declare-styleable name="ActionBar">
         <!-- The type of navigation to use. -->

@@ -14,7 +14,7 @@
         android:layout_marginTop="8dp"
         android:drawableTop="@drawable/rc_picture_icon_camera"
         android:gravity="center"
-        android:text="@string/picture_take_picture"
+        android:text="@string/rc_picture_take_picture"
         android:textColor="@color/picture_color_white"
         android:textSize="14dp" />
 

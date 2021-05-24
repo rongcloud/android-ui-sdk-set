@@ -15,7 +15,6 @@ import java.util.List;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.ConversationClickListener;
-import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.State;
@@ -35,7 +34,8 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
 
     /**
      * 创建 ViewHolder
-     * @param parent 父 ViewGroup
+     *
+     * @param parent   父 ViewGroup
      * @param viewType 视图类型
      * @return ViewHolder
      */
@@ -43,23 +43,24 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
 
     /**
      * 设置消息视图里各 view 的值
-     * @param holder ViewHolder
+     *
+     * @param holder       ViewHolder
      * @param parentHolder 父布局的 ViewHolder
-     * @param t 此展示模板对应的消息
-     * @param uiMessage {@link UiMessage}
-     * @param position 消息位置
-     * @param list 列表
-     * @param listener ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
+     * @param t            此展示模板对应的消息
+     * @param uiMessage    {@link UiMessage}
+     * @param position     消息位置
+     * @param list         列表
+     * @param listener     ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
      */
     protected abstract void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener);
 
     /**
-     * @param holder ViewHolder
-     * @param t 自定义消息
+     * @param holder    ViewHolder
+     * @param t         自定义消息
      * @param uiMessage {@link UiMessage}
-     * @param position 位置
-     * @param list 列表数据
-     * @param listener ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
+     * @param position  位置
+     * @param list      列表数据
+     * @param listener  ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
      * @return 点击事件是否被消费
      */
     protected abstract boolean onItemClick(ViewHolder holder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener);
@@ -375,7 +376,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
                 (message.getContent() instanceof TextMessage);
     }
 
-    private static class MessageViewHolder extends ViewHolder {
+    public static class MessageViewHolder extends ViewHolder {
         private ViewHolder mMessageContentViewHolder;
 
         public MessageViewHolder(Context context, View itemView, ViewHolder messageViewHolder) {

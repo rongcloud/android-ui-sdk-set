@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Rôzne"</string>
     <string name="hms_abort" priority="translator">"Zastaviť"</string>
     <string name="hms_abort_message" priority="translator">"Zastaviť preberanie?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s nemôže používať služby Huawei Mobile Services. Spustite aplikáciu Optimalizátor (Správca telefónu) alebo prejdite do časti Nastavenia, udeľte všetky povolenia pre %2$s (vrátane automatického spustenia a sekundárneho spustenia) a skúste to znova."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s nemôže používať služby HMS Core. Spustite aplikáciu Optimalizátor (Správca telefónu) alebo prejdite do časti Nastavenia, udeľte všetky povolenia pre %2$s (vrátane automatického spustenia a sekundárneho spustenia) a skúste to znova."</string>
     <string name="hms_cancel" priority="translator">"Zrušiť"</string>
     <string name="hms_check_failure" priority="translator">"Vyhľadanie aktualizácií sa nepodarilo."</string>
-    <string name="hms_check_no_update" priority="translator">"Vaša verzia je aktuálna."</string>
     <string name="hms_checking" priority="translator">"Kontrolujú sa aktualizácie…"</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"Balík služieb Huawei Mobile Services sa nepodarilo stiahnuť."</string>
+    <string name="hms_download_failure" priority="translator">"Balík služieb HMS Core sa nepodarilo stiahnuť."</string>
     <string name="hms_download_no_space" priority="translator">"Nedostatok voľného miesta. Preberanie nemožno dokončiť."</string>
     <string name="hms_download_retry" priority="translator">"Preberanie zlyhalo. Skúsiť to znova?"</string>
-    <string name="hms_downloading" priority="translator">"Sťahujú sa služby Huawei Mobile Services\npriebeh: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Preberá sa"</string>
-    <string name="hms_downloading_new" priority="LT">"Sťahovanie HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Inštalovať"</string>
-    <string name="hms_install_message" priority="translator">"Ak chcete používať túto funkciu, musíte mať nainštalované služby Huawei Mobile Services. Inštalovať?"</string>
-    <string name="hms_push_channel" priority="translator">"Predvolené"</string>
+    <string name="hms_install_message" priority="translator">"Ak chcete používať túto funkciu, musíte mať nainštalované služby HMS Core. Inštalovať?"</string>
+    <string name="hms_push_channel" priority="Original">"Predvolené"</string>
     <string name="hms_retry" priority="translator">"Skúsiť znova"</string>
     <string name="hms_update" priority="translator">"Aktualizovať"</string>
     <string name="hms_update_continue" priority="LT">"Stiahnuť"</string>
-    <string name="hms_update_message" priority="translator">"Ak chcete používať túto funkciu, aktualizujte služby Huawei Mobile Services na najnovšiu verziu. Aktualizovať teraz?"</string>
+    <string name="hms_update_message" priority="translator">"Ak chcete používať túto funkciu, aktualizujte služby HMS Core na najnovšiu verziu. Aktualizovať teraz?"</string>
     <string name="hms_update_message_new" priority="LT">"Táto služba vyžaduje najnovšiu verziu nasledovnej aplikácie:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Žiadne pripojenie Wi-Fi. Stiahnuť cez mobilné dáta?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Mobile Services"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Hľadať"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Preberanie služby AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Inštalovať"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Sťahuje sa aplikácia %s…"</string>
     <string name="upsdk_app_size" priority="translator">"Veľkosť"</string>
     <string name="upsdk_app_version" priority="translator">"Verzia"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Na aktualizáciu tejto aplikácie sa vyžaduje aplikácia %s. Inštalovať teraz?"</string>
     <string name="upsdk_cancel" priority="translator">"Zrušiť"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Kontrolujú sa aktualizácie…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Kontrolujú sa aktualizácie…"</string>
     <string name="upsdk_choice_update" priority="LT">"K dispozícii je aktualizácia. Prevezmite a nainštalujte si najnovšiu verziu."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Nedá sa pripojiť k serveru. Skúste to znova neskôr."</string>
     <string name="upsdk_detail" priority="translator">"Podrobnosti"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Nedajú sa získať informácie. Skúste to znova neskôr."</string>
-    <string name="upsdk_install" priority="LT">"Aktualizáciu vykonáte inštaláciou služby AppGallery. Inštalovať teraz?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Aktuálne ste pripojení k mobilnej sieti. Sťahovanie spotrebuje %1$s dát."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Žiadne internetové pripojenie. Skontrolujte systémové nastavenia."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Aplikácia"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Neskôr"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Inštalácia zlyhala."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Áno"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Vaša verzia je aktuálna."</string>
-    <string name="upsdk_updating" priority="translator">"Aktualizuje sa"</string>
 </resources>

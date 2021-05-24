@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Інше"</string>
     <string name="hms_abort" priority="translator">"Стоп"</string>
     <string name="hms_abort_message" priority="translator">"Зупинити завантаження?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s не може використовувати мобільні послуги Huawei. Запустіть \"Оптимізатор\" (Диспетчер телефону) або перейдіть в налаштування, увімкніть всі дозволи для %2$s (в тому числі автоматичний запуск і вторинний запуск) і спробуйте ще раз."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s не може використовувати HMS Core. Запустіть \"Оптимізатор\" (Диспетчер телефону) або перейдіть в налаштування, увімкніть всі дозволи для %2$s (в тому числі автоматичний запуск і вторинний запуск) і спробуйте ще раз."</string>
     <string name="hms_cancel" priority="translator">"Скасувати"</string>
     <string name="hms_check_failure" priority="translator">"Не вдалося перевірити наявність оновлень."</string>
-    <string name="hms_check_no_update" priority="translator">"Ви використовуєте найновішу версію."</string>
     <string name="hms_checking" priority="translator">"Перевірка оновлень..."</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"Не вдалося завантажити пакет Мобільних служб Huawei."</string>
+    <string name="hms_download_failure" priority="translator">"Не вдалося завантажити пакет HMS Core."</string>
     <string name="hms_download_no_space" priority="translator">"Недостатньо вільного місця. Завантаження не може бути завершено."</string>
     <string name="hms_download_retry" priority="translator">"Не вдалося завантажити. Повторити спробу?"</string>
-    <string name="hms_downloading" priority="translator">"Завантаження Мобільних служб Huawei | виконано: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Завантаження"</string>
-    <string name="hms_downloading_new" priority="LT">"Завантаження HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Встановити"</string>
-    <string name="hms_install_message" priority="translator">"Щоб використовувати цю функцію, потрібно встановити Мобільні служби Huawei. Встановити?"</string>
-    <string name="hms_push_channel" priority="translator">"За замовчуванням"</string>
+    <string name="hms_install_message" priority="translator">"Щоб використовувати цю функцію, потрібно встановити HMS Core. Встановити?"</string>
+    <string name="hms_push_channel" priority="Original">"За замовчуванням"</string>
     <string name="hms_retry" priority="translator">"Повторити"</string>
     <string name="hms_update" priority="translator">"Оновити"</string>
     <string name="hms_update_continue" priority="LT">"Завантажити"</string>
-    <string name="hms_update_message" priority="translator">"Щоб використовувати цю функцію, оновіть Мобільні служби Huawei до останньої версії. Оновити зараз?"</string>
+    <string name="hms_update_message" priority="translator">"Щоб використовувати цю функцію, оновіть HMS Core до останньої версії. Оновити зараз?"</string>
     <string name="hms_update_message_new" priority="LT">"Цій послузі потрібна остання версія наступної програми:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Немає підключення до мережі Wi-Fi. Завантажити через мобільні дані?"</string>
-    <string name="hms_update_title" priority="translator">"Мобільні служби Huawei"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Пошук"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Завантаження AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Встановити"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Завантаження служби \"%s\"…"</string>
     <string name="upsdk_app_size" priority="translator">"Розмір"</string>
     <string name="upsdk_app_version" priority="translator">"Версія"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Щоб оновити цей додаток, потрібна служба \"%s\". Установити зараз?"</string>
     <string name="upsdk_cancel" priority="translator">"Скасувати"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Перевірка оновлень…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Перевірка оновлень…"</string>
     <string name="upsdk_choice_update" priority="LT">"Доступне оновлення. Завантажте та встановіть останню версію."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Не вдається підключитися до сервера. Повторіть спробу пізніше."</string>
     <string name="upsdk_detail" priority="translator">"Подробиці"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Не вдалося отримати інформацію. Повторіть спробу пізніше."</string>
-    <string name="upsdk_install" priority="LT">"Для оновлення встановіть AppGallery. Встановити зараз?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Пристрій підключено до мобільної мережі. Якщо завантажити зараз, буде використано %1$s трафіку."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Немає підключення до Інтернету. Перевірте налаштування мережі."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Додаток"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Пізніше"</string>
@@ -95,6 +91,5 @@
     <string name="upsdk_third_app_dl_cancel_download_prompt_ex" priority="translator">"Скасувати встановлення?"</string>
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Встановлення не вдалося."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Так"</string>
-    <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Ви використовуєте найновішу версію."</string>
-    <string name="upsdk_updating" priority="translator">"Оновлення"</string>
+    <string name="upsdk_update_check_no_new_version" priority="LT">"Ви використовуєте найновішу версію."</string>
 </resources>

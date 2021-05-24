@@ -28,6 +28,7 @@ import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.IMLibExtensionModuleManager;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -278,7 +279,7 @@ public class InputPanel {
                     AudioPlayManager.getInstance().stopPlay();
                 }
                 //判断正在视频通话和语音通话中不能进行语音消息发送
-                if (IMLibExtensionModuleManager.getInstance().onRequestHardwareResource(HardwareResource.ResourceType.VIDEO)
+                if (RongUtils.phoneIsInUse(v.getContext()) || IMLibExtensionModuleManager.getInstance().onRequestHardwareResource(HardwareResource.ResourceType.VIDEO)
                         || IMLibExtensionModuleManager.getInstance().onRequestHardwareResource(HardwareResource.ResourceType.AUDIO)) {
                     Toast.makeText(v.getContext(), v.getContext().getResources().getString(R.string.rc_voip_occupying),
                             Toast.LENGTH_SHORT).show();

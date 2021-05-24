@@ -29,12 +29,6 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
     private ImageView iv_play;
     private int mPositionWhenPaused = -1;
 
-
-    @Override
-    public boolean isRequestedOrientation() {
-        return false;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);

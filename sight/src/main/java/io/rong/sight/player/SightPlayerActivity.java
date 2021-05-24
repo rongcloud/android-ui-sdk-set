@@ -2,8 +2,8 @@ package io.rong.sight.player;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.net.Uri;
-import android.net.UrlQuerySanitizer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 
 import com.bumptech.glide.Glide;
 
@@ -52,6 +53,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
     private boolean fromSightListImageVisible = true;
     private PlaybackVideoFragment mPlaybackVideoFragment;
     private DownloadMediaMessageCallback downloadMediaMessageCallback;
+    private int currentSeek;
+    private int currentPlayerStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,14 +63,25 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.rc_activity_sight_player);
+
         mSightMessage = getIntent().getParcelableExtra("SightMessage");
         mMessage = getIntent().getParcelableExtra("Message");
         mProgress = getIntent().getIntExtra("Progress", 0);
         fromSightListImageVisible = getIntent().getBooleanExtra("fromSightListImageVisible", true);
+
         mContainer = findViewById(R.id.container);
         rlSightDownload = findViewById(R.id.rl_sight_download);
         mCountDownView = findViewById(R.id.rc_count_down);
         downloadMediaMessageCallback = new DownloadMediaMessageCallback(this);
+        if (savedInstanceState != null) {
+            currentSeek = savedInstanceState.getInt("seek", 0);
+            currentPlayerStatus = savedInstanceState.getInt("status", 0);
+            Message message = savedInstanceState.getParcelable("message");
+            if (message != null) {
+                mMessage = message;
+                mSightMessage = (SightMessage) mMessage.getContent();
+            }
+        }
         if (mSightMessage != null && FileUtils.isFileExistsWithUri(this, mSightMessage.getLocalPath())) {
             initSightPlayer();
         } else {
@@ -89,6 +103,17 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
         IMCenter.getInstance().addMessageEventListener(mEvent);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mPlaybackVideoFragment != null) {
+            int status = mPlaybackVideoFragment.getBeforePausePlayerStatus();
+            int seek = mPlaybackVideoFragment.getCurrentSeek();
+            outState.putInt("seek", seek);
+            outState.putInt("status", status);
+            outState.putParcelable("message", mMessage);
+        }
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     protected void onDestroy() {
@@ -156,7 +181,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
     }
 
     private void downloadSight() {
-        IMCenter.getInstance().downloadMediaMessage(mMessage, downloadMediaMessageCallback);
+        RLog.e(TAG, "DownloadEvent:" + "***" + (mMessage == null));
+        IMCenter.getInstance().downloadMediaMessage(mMessage, null);
     }
 
     @Override
@@ -194,9 +220,14 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
         @Override
         public void onProgress(Message message, int progress) {
             SightPlayerActivity activity = reference.get();
+            if (message != null) {
+                RLog.e(TAG, "DownloadEvent:" + (activity != null) + "***kk***" + (message != null) + "***" + (message.getContent() instanceof SightMessage));
+            }
             if (activity != null && message != null && message.getContent() instanceof SightMessage) {
                 Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
+                RLog.e(TAG, "DownloadEvent:" + (uri != null) + "***jj***" + (activity.mSightMessage != null) + "***" + (uri.equals(activity.mSightMessage.getMediaUrl())));
                 if (uri != null && activity.mSightMessage != null && uri.equals(activity.mSightMessage.getMediaUrl())) {
+                    RLog.e(TAG, "DownloadEvent:" + "coming ===");
                     activity.mProgress = progress;
                     activity.mSightDownloadProgress.setVisibility(View.VISIBLE);
                     activity.mSightDownloadProgress.setProgress(activity.mProgress, true);
@@ -206,6 +237,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
 
         @Override
         public void onError(Message message, RongIMClient.ErrorCode code) {
+            RLog.e(TAG, "DownloadEvent:" + "Error===" + code.getMessage());
             SightPlayerActivity activity = reference.get();
             if (activity != null && message != null && message.getContent() instanceof SightMessage) {
                 Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
@@ -231,7 +263,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
                 mMessage.getTargetId(),
                 mMessage.getConversationType(),
                 getIntent().getBooleanExtra("fromList", false),
-                fromSightListImageVisible);
+                fromSightListImageVisible, currentSeek,currentPlayerStatus);
         mPlaybackVideoFragment.setVideoCallback(this);
         if (mSightMessage != null && mSightMessage.isDestruct()) {
             mPlaybackVideoFragment.setplayBtnVisible(View.GONE);
@@ -272,6 +304,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
         RLog.d(TAG, "FileMessageEvent");
         Message message = downloadEvent.getMessage();
         String uId = message.getUId();
+        RLog.e(TAG, "DownloadEvent:" + downloadEvent.getProgress() + "===" + downloadEvent.getEvent());
         if (mMessage != null && downloadMediaMessageCallback != null && Objects.equals(uId, mMessage.getUId())) {
             int callBackType = downloadEvent.getEvent();
             switch (callBackType) {
@@ -337,6 +370,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
 
     @Override
     public void onClose() {
-
+        finish();
     }
 }

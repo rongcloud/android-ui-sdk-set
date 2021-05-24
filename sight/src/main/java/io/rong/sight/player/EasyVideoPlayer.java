@@ -58,6 +58,15 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     public static final String TAG = "Sight-EasyVideoPlayer";
     private static final int UPDATE_INTERVAL = 100;
+    public static final int PLAYER_STATUS_STARTED = 1;
+    public static final int PLAYER_STATUS_PAUSED = 2;
+    public static final int PLAYER_STATUS_PREPARING = 3;
+    public static final int PLAYER_STATUS_PREPARED = 4;
+    public static final int PLAYER_STATUS_COMPLETION = 5;
+    public static final int PLAYER_STATUS_CLOSE = 6;
+    private int currentPlayerStatus;
+    private int beforePausePlayerStatus;
+
 
     private AudioManager audioManager;
     private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener;
@@ -258,11 +267,12 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         FrameLayout.LayoutParams imageViewCloseParam = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         imageViewCloseParam.gravity = Gravity.TOP | Gravity.LEFT;
-        int iconMargin = (int) getResources().getDimension(R.dimen.sight_record_top_icon_margin);
-        imageViewCloseParam.setMargins(iconMargin, iconMargin, 0, 0);
+        int iconPadding = (int) getResources().getDimension(R.dimen.sight_record_icon_padding);
         mImageViewClose.setImageResource(R.drawable.rc_ic_sight_close);
+        mImageViewClose.setPadding(iconPadding,iconPadding,iconPadding,iconPadding);
         addView(mImageViewClose, imageViewCloseParam);
         mImageViewClose.setVisibility(View.GONE);
+        currentPlayerStatus = PLAYER_STATUS_CLOSE;
         mImageViewClose.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -337,6 +347,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mSeeker.setProgress(0);
         mSeeker.setEnabled(false);
         mPlayer.reset();
+        currentPlayerStatus = PLAYER_STATUS_PREPARING;
         if (mCallback != null)
             mCallback.onPreparing(this);
         try {
@@ -513,6 +524,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         if (mPlayer == null) return;
         audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         mPlayer.start();
+        currentPlayerStatus = PLAYER_STATUS_STARTED;
         if (mCallback != null) mCallback.onStarted(this);
         if (mHandler == null) mHandler = new Handler();
         mHandler.post(mUpdateCounters);
@@ -522,23 +534,34 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public void seekTo(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos) {
-        if (mPlayer == null) return;
+        if (mPlayer == null) {
+            return;
+        }
         mPlayer.seekTo(pos);
     }
 
     public void setVolume(@FloatRange(from = 0f, to = 1f) float leftVolume, @FloatRange(from = 0f, to = 1f) float rightVolume) {
-        if (mPlayer == null || !mIsPrepared)
+        if (mPlayer == null || !mIsPrepared) {
             throw new IllegalStateException("You cannot use setVolume(float, float) until the player is prepared.");
+        }
         mPlayer.setVolume(leftVolume, rightVolume);
     }
 
     @Override
     public void pause() {
-        if (mPlayer == null || !isPlaying()) return;
+        beforePausePlayerStatus = currentPlayerStatus;
+        currentPlayerStatus = PLAYER_STATUS_PAUSED;
+        if (mPlayer == null || !isPlaying()) {
+            return;
+        }
         audioManager.abandonAudioFocus(audioFocusChangeListener);
         mPlayer.pause();
-        mCallback.onPaused(this);
-        if (mHandler == null) return;
+        if (mCallback != null) {
+            mCallback.onPaused(this);
+        }
+        if (mHandler == null) {
+            return;
+        }
         mHandler.removeCallbacks(mUpdateCounters);
         mBtnPlayPause.setImageResource(R.drawable.rc_ic_sight_play);
         mImageViewPlay.setVisibility(View.VISIBLE);
@@ -640,6 +663,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     public void onPrepared(MediaPlayer mediaPlayer) {
         RLog.d(TAG, "onPrepared()");
         mIsPrepared = true;
+        currentPlayerStatus = PLAYER_STATUS_PREPARED;
         if (mCallback != null)
             mCallback.onPrepared(this);
         mCurrent.setText(Util.getDurationString(0));
@@ -648,19 +672,19 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mSeeker.setMax(mediaPlayer.getDuration());
         setControlsEnabled(true);
 
-        if (mAutoPlay) {
-            if (!mControlsDisabled && mHideControlsOnPlay)
-                hideControls();
-            start();
-            if (mInitialPosition > 0) {
-                seekTo(mInitialPosition);
-                mInitialPosition = -1;
-            }
-        } else {
-            // Hack to show first frame, is there another way?
-            mPlayer.start();
-            mPlayer.pause();
+        if (!mControlsDisabled && mHideControlsOnPlay) {
+            hideControls();
         }
+        start();
+        if (mInitialPosition > 0) {
+            seekTo(mInitialPosition);
+        }
+        if (!mAutoPlay) {
+            mCurrent.setText(Util.getDurationString(mInitialPosition));
+            mSeeker.setProgress(mInitialPosition);
+            pause();
+        }
+        mInitialPosition = -1;
     }
 
     @Override
@@ -697,6 +721,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             mBtnPlayPause.setImageResource(R.drawable.rc_ic_sight_play);
             mImageViewPlay.setVisibility(View.VISIBLE);
         }
+        currentPlayerStatus = PLAYER_STATUS_COMPLETION;
         if (mCallback != null) {
             mCallback.onCompletion(this);
             if (mLoop) {
@@ -988,5 +1013,13 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         if (mClickFrame != null) {
             mClickFrame.setOnLongClickListener(isLongClickable ? this : null);
         }
+    }
+
+    public int getCurrentPlayerStatus() {
+        return currentPlayerStatus;
+    }
+
+    public int getBeforePausePlayerStatus() {
+        return beforePausePlayerStatus;
     }
 }

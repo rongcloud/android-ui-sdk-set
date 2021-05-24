@@ -3,11 +3,14 @@ package io.rong.imkit.activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,6 +88,76 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
             }
         }
     };
+    RongIMClient.OnRecallMessageListener mOnRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
+        @Override
+        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
+            if (mCurrentMessageId == message.getMessageId()) {
+                new AlertDialog.Builder(PicturePagerActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+                        .setMessage(getString(R.string.rc_recall_success))
+                        .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+            } else {
+                mImageAdapter.removeRecallItem(message.getMessageId());
+                if (mImageAdapter.getItemCount() == 0) {
+                    finish();
+                }
+            }
+            return false;
+        }
+    };
+    BaseMessageEvent mBaseMessageEvent = new BaseMessageEvent() {
+        @Override
+        public void onDeleteMessage(DeleteEvent event) {
+            RLog.d(TAG, "MessageDeleteEvent");
+            if (event.getMessageIds() != null) {
+                for (int messageId : event.getMessageIds()) {
+                    mImageAdapter.removeRecallItem(messageId);
+                }
+                mImageAdapter.notifyDataSetChanged();
+                if (mImageAdapter.getItemCount() == 0) {
+                    finish();
+                }
+            }
+        }
+
+        @Override
+        public void onRecallEvent(RecallEvent event) {
+            if (mCurrentMessageId == event.getMessageId()) {
+                new AlertDialog.Builder(PicturePagerActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+                        .setMessage(getString(R.string.rc_recall_success))
+                        .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+            } else {
+                mImageAdapter.removeRecallItem(event.getMessageId());
+                mImageAdapter.notifyDataSetChanged();
+                if (mImageAdapter.getItemCount() == 0) {
+                    finish();
+                }
+            }
+        }
+    };
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mImageAdapter.notifyDataSetChanged();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,16 +251,10 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
         }
     }
 
-    /**
-     * 图片长按处理事件
-     *
-     * @param v             查看图片的PhotoView
-     * @param thumbUri      缩略图的Uri地址
-     * @param largeImageUri 原图片的Uri地址
-     * @return boolean 返回true不会执行默认的处理
-     */
-    public boolean onPictureLongClick(View v, Uri thumbUri, Uri largeImageUri) {
-        return false;
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 
     @Override
@@ -200,8 +267,9 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
         if (imageInfo != null && imageInfo.isDownload()) {
             Uri thumbUri = imageInfo.getThumbUri();
             final Uri largeImageUri = imageInfo.getLargeImageUri();
-            if (onPictureLongClick(v, thumbUri, largeImageUri))
+            if (onPictureLongClick(v, thumbUri, largeImageUri)) {
                 return true;
+            }
             String[] items = new String[]{getString(R.string.rc_save_picture)};
             OptionsPopupDialog.newInstance(this, items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
                 @Override
@@ -262,6 +330,50 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
         return true;
     }
 
+    /**
+     * 图片长按处理事件
+     *
+     * @param v             查看图片的PhotoView
+     * @param thumbUri      缩略图的Uri地址
+     * @param largeImageUri 原图片的Uri地址
+     * @return boolean 返回true不会执行默认的处理
+     */
+    public boolean onPictureLongClick(View v, Uri thumbUri, Uri largeImageUri) {
+        return false;
+    }
+
+    private static class DestructListener implements RongIMClient.DestructCountDownTimerListener {
+        private WeakReference<ImageAdapter.ViewHolder> mHolder;
+        private String mMessageId;
+
+        public DestructListener(ImageAdapter.ViewHolder pHolder, String pMessageId) {
+            mHolder = new WeakReference<>(pHolder);
+            mMessageId = pMessageId;
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished, String pMessageId) {
+            if (mMessageId.equals(pMessageId)) {
+                ImageAdapter.ViewHolder viewHolder = mHolder.get();
+                if (viewHolder != null) {
+                    viewHolder.mCountDownView.setVisibility(View.VISIBLE);
+                    viewHolder.mCountDownView.setText(String.valueOf(Math.max(millisUntilFinished, 1)));
+                }
+            }
+        }
+
+
+        @Override
+        public void onStop(String messageId) {
+            if (mMessageId.equals(messageId)) {
+                ImageAdapter.ViewHolder viewHolder = mHolder.get();
+                if (viewHolder != null) {
+                    viewHolder.mCountDownView.setVisibility(View.GONE);
+                }
+            }
+        }
+    }
+
     protected class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
         private ArrayList<ImageInfo> mImageList = new ArrayList<>();
 
@@ -293,68 +405,6 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
         @Override
         public int getItemCount() {
             return mImageList.size();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder {
-            ProgressBar progressBar;
-            TextView progressText;
-            ImageView failImg;
-            SubsamplingScaleImageView photoView;
-            TextView mCountDownView;
-
-            public ViewHolder(@NonNull View itemView) {
-                super(itemView);
-                progressBar = itemView.findViewById(R.id.rc_progress);
-                progressText = itemView.findViewById(R.id.rc_txt);
-                failImg = itemView.findViewById(R.id.rc_fail_image);
-                photoView = itemView.findViewById(R.id.rc_photoView);
-                mCountDownView = itemView.findViewById(R.id.rc_count_down);
-            }
-        }
-
-        public void addData(ArrayList<ImageInfo> newImages, boolean direction) {
-            if (newImages == null || newImages.size() == 0)
-                return;
-            if (direction && !isDuplicate(newImages.get(0).getMessage().getMessageId())) {
-                mImageList.addAll(0, newImages);
-                notifyItemRangeInserted(0, newImages.size());
-            } else if (!direction && !isDuplicate(newImages.get(0).getMessage().getMessageId())) {
-                mImageList.addAll(mImageList.size(), newImages);
-                notifyItemRangeInserted(mImageList.size(), newImages.size());
-            }
-        }
-
-        public ImageInfo getItem(int index) {
-            return mImageList.get(index);
-        }
-
-        public int getIndexByMessageId(int messageId) {
-            int index = -1;
-            for (int i = 0; i < mImageList.size(); i++) {
-                if (mImageList.get(i).getMessage().getMessageId() == messageId) {
-                    index = i;
-                    break;
-                }
-            }
-            return index;
-        }
-
-        private boolean isDuplicate(int messageId) {
-            for (ImageInfo info : mImageList) {
-                if (info.getMessage().getMessageId() == messageId)
-                    return true;
-            }
-            return false;
-        }
-
-        private void removeRecallItem(int messageId) {
-            for (int i = mImageList.size() - 1; i >= 0; i--) {
-                if (mImageList.get(i).message.getMessageId() == messageId) {
-                    mImageList.remove(i);
-                    notifyItemRemoved(i);
-                    break;
-                }
-            }
         }
 
         private void updatePhotoView(final int position, final ViewHolder holder) {
@@ -423,6 +473,21 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                 }
 
                 @Override
+                public void onLoadCleared(@Nullable Drawable placeholder) {
+                    holder.progressText.setVisibility(View.VISIBLE);
+                    holder.progressText.setText(R.string.rc_load_image_failed);
+                    holder.progressBar.setVisibility(View.GONE);
+                    holder.failImg.setVisibility(View.VISIBLE);
+                    holder.failImg.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            finish();
+                        }
+                    });
+                    holder.photoView.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
                 public void onLoadStarted(@Nullable Drawable placeholder) {
                     String thumbPath = null;
                     Bitmap thumbBitmap = null;
@@ -446,21 +511,6 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                 }
 
                 @Override
-                public void onLoadCleared(@Nullable Drawable placeholder) {
-                    holder.progressText.setVisibility(View.VISIBLE);
-                    holder.progressText.setText(R.string.rc_load_image_failed);
-                    holder.progressBar.setVisibility(View.GONE);
-                    holder.failImg.setVisibility(View.VISIBLE);
-                    holder.failImg.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            finish();
-                        }
-                    });
-                    holder.photoView.setVisibility(View.INVISIBLE);
-                }
-
-                @Override
                 public void onLoadFailed(@Nullable Drawable errorDrawable) {
                     super.onLoadFailed(errorDrawable);
                     holder.progressText.setVisibility(View.VISIBLE);
@@ -476,6 +526,83 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                     holder.photoView.setVisibility(View.INVISIBLE);
                 }
             });
+        }
+
+        public Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
+            // 获得图片的宽高
+            int width = bm.getWidth();
+            int height = bm.getHeight();
+            // 计算缩放比例
+            float scaleWidth = ((float) newWidth) / width;
+            float scaleHeight = ((float) newHeight) / height;
+            // 取得想要缩放的matrix参数
+            Matrix matrix = new Matrix();
+            matrix.postScale(scaleWidth, scaleHeight);
+            // 得到新的图片
+            Bitmap newbm = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
+            return newbm;
+        }
+
+        public void addData(ArrayList<ImageInfo> newImages, boolean direction) {
+            if (newImages == null || newImages.size() == 0)
+                return;
+            if (direction && !isDuplicate(newImages.get(0).getMessage().getMessageId())) {
+                mImageList.addAll(0, newImages);
+                notifyItemRangeInserted(0, newImages.size());
+            } else if (!direction && !isDuplicate(newImages.get(0).getMessage().getMessageId())) {
+                mImageList.addAll(mImageList.size(), newImages);
+                notifyItemRangeInserted(mImageList.size(), newImages.size());
+            }
+        }
+
+        private boolean isDuplicate(int messageId) {
+            for (ImageInfo info : mImageList) {
+                if (info.getMessage().getMessageId() == messageId)
+                    return true;
+            }
+            return false;
+        }
+
+        public ImageInfo getItem(int index) {
+            return mImageList.get(index);
+        }
+
+        public int getIndexByMessageId(int messageId) {
+            int index = -1;
+            for (int i = 0; i < mImageList.size(); i++) {
+                if (mImageList.get(i).getMessage().getMessageId() == messageId) {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
+        }
+
+        private void removeRecallItem(int messageId) {
+            for (int i = mImageList.size() - 1; i >= 0; i--) {
+                if (mImageList.get(i).message.getMessageId() == messageId) {
+                    mImageList.remove(i);
+                    notifyItemRemoved(i);
+                    break;
+                }
+            }
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            ProgressBar progressBar;
+            TextView progressText;
+            ImageView failImg;
+            SubsamplingScaleImageView photoView;
+            TextView mCountDownView;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                progressBar = itemView.findViewById(R.id.rc_progress);
+                progressText = itemView.findViewById(R.id.rc_txt);
+                failImg = itemView.findViewById(R.id.rc_fail_image);
+                photoView = itemView.findViewById(R.id.rc_photoView);
+                mCountDownView = itemView.findViewById(R.id.rc_count_down);
+            }
         }
 
 
@@ -513,102 +640,5 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
             this.download = download;
         }
     }
-
-    private static class DestructListener implements RongIMClient.DestructCountDownTimerListener {
-        private WeakReference<ImageAdapter.ViewHolder> mHolder;
-        private String mMessageId;
-
-        public DestructListener(ImageAdapter.ViewHolder pHolder, String pMessageId) {
-            mHolder = new WeakReference<>(pHolder);
-            mMessageId = pMessageId;
-        }
-
-        @Override
-        public void onTick(long millisUntilFinished, String pMessageId) {
-            if (mMessageId.equals(pMessageId)) {
-                ImageAdapter.ViewHolder viewHolder = mHolder.get();
-                if (viewHolder != null) {
-                    viewHolder.mCountDownView.setVisibility(View.VISIBLE);
-                    viewHolder.mCountDownView.setText(String.valueOf(Math.max(millisUntilFinished, 1)));
-                }
-            }
-        }
-
-
-        @Override
-        public void onStop(String messageId) {
-            if (mMessageId.equals(messageId)) {
-                ImageAdapter.ViewHolder viewHolder = mHolder.get();
-                if (viewHolder != null) {
-                    viewHolder.mCountDownView.setVisibility(View.GONE);
-                }
-            }
-        }
-    }
-
-
-    RongIMClient.OnRecallMessageListener mOnRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
-        @Override
-        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
-            if (mCurrentMessageId == message.getMessageId()) {
-                new AlertDialog.Builder(PicturePagerActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
-                        .setMessage(getString(R.string.rc_recall_success))
-                        .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
-                        .setCancelable(false)
-                        .show();
-            } else {
-                mImageAdapter.removeRecallItem(message.getMessageId());
-                if (mImageAdapter.getItemCount() == 0) {
-                    finish();
-                }
-            }
-            return false;
-        }
-    };
-
-    BaseMessageEvent mBaseMessageEvent = new BaseMessageEvent() {
-        @Override
-        public void onRecallEvent(RecallEvent event) {
-            if (mCurrentMessageId == event.getMessageId()) {
-                new AlertDialog.Builder(PicturePagerActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
-                        .setMessage(getString(R.string.rc_recall_success))
-                        .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
-                        .setCancelable(false)
-                        .show();
-            } else {
-                mImageAdapter.removeRecallItem(event.getMessageId());
-                mImageAdapter.notifyDataSetChanged();
-                if (mImageAdapter.getItemCount() == 0) {
-                    finish();
-                }
-            }
-        }
-
-        @Override
-        public void onDeleteMessage(DeleteEvent event) {
-            RLog.d(TAG, "MessageDeleteEvent");
-            if (event.getMessageIds() != null) {
-                for (int messageId : event.getMessageIds()) {
-                    mImageAdapter.removeRecallItem(messageId);
-                }
-                mImageAdapter.notifyDataSetChanged();
-                if (mImageAdapter.getItemCount() == 0) {
-                    finish();
-                }
-            }
-        }
-    };
 
 }

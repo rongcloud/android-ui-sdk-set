@@ -51,28 +51,26 @@ import io.rong.message.RecallNotificationMessage;
 import io.rong.push.common.PushCacheHelper;
 
 public class RongNotificationManager {
-    private final String TAG = this.getClass().getSimpleName();
     //应用在前台，如果没有在会话界面，收消息时每间隔 3s 一次响铃、震动。
     private final static int SOUND_INTERVAL = 3000;
-    private Application mApplication;
+    private static boolean mIsInForeground;
+    private final String TAG = this.getClass().getSimpleName();
     private final int MAX_NOTIFICATION_STATUS_CACHE = 128;
+    private Application mApplication;
     private RongCache<String, Conversation.ConversationNotificationStatus> mNotificationCache;
     private boolean isQuietSettingSynced = false;
     private String mQuietStartTime;  //通知免打扰起始时间
     private int mQuietSpanTime; //通知免打扰间隔时间
     private int mNotificationId = 10000;
+    private int requestCode = 1000;
     private long mLastSoundTime = 0;
     private Activity mTopForegroundActivity;
-    private static boolean mIsInForeground;
     private HashMap<Integer, Integer> notificationCache;
     private ConcurrentHashMap<String, Message> messageMap = new ConcurrentHashMap<>();
+    private MediaPlayer mediaPlayer;
 
     private RongNotificationManager() {
 
-    }
-
-    private static class SingletonHolder {
-        static RongNotificationManager sInstance = new RongNotificationManager();
     }
 
     public static RongNotificationManager getInstance() {
@@ -148,6 +146,9 @@ public class RongNotificationManager {
         RongUserInfoManager.getInstance().getAllUsersLiveData().observeForever(new Observer<List<User>>() {
             @Override
             public void onChanged(List<User> users) {
+                if (users == null || users.isEmpty()) {
+                    return;
+                }
                 Conversation.ConversationType[] types = new Conversation.ConversationType[]{
                         Conversation.ConversationType.PRIVATE, Conversation.ConversationType.GROUP,
                         Conversation.ConversationType.DISCUSSION, Conversation.ConversationType.CUSTOMER_SERVICE,
@@ -242,7 +243,6 @@ public class RongNotificationManager {
         intent.putExtra(RouteUtils.CONVERSATION_TYPE, type.getName().toLowerCase());
         intent.putExtra(RouteUtils.TARGET_ID, targetId);
         intent.putExtra(RouteUtils.MESSAGE, message);
-        int requestCode = 200;
         PendingIntent pendingIntent = PendingIntent.getActivity(mApplication, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         if (RongConfigCenter.notificationConfig().getInterceptor() != null) {
             pendingIntent = RongConfigCenter.notificationConfig().getInterceptor().onPendingIntent(pendingIntent, intent);
@@ -277,6 +277,7 @@ public class RongNotificationManager {
         NotificationUtil.getInstance().showNotification(mApplication.getApplicationContext(), title, content, pendingIntent, mNotificationId);
         notificationCache.put(message.getMessageId(), mNotificationId);
         mNotificationId++;
+        requestCode++;
     }
 
     /**
@@ -423,14 +424,14 @@ public class RongNotificationManager {
                 mQuietStartTime = null;
                 mQuietSpanTime = 0;
 
-                if (callback != null){
+                if (callback != null) {
                     callback.onSuccess();
                 }
             }
 
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
-                if (callback != null){
+                if (callback != null) {
                     callback.onError(errorCode);
                 }
             }
@@ -460,8 +461,6 @@ public class RongNotificationManager {
             });
         }
     }
-
-    private MediaPlayer mediaPlayer;
 
     private void sound() {
         Uri res = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -618,5 +617,9 @@ public class RongNotificationManager {
     public void clearAllNotification() {
         NotificationManager notificationManager = (NotificationManager) mApplication.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+    }
+
+    private static class SingletonHolder {
+        static RongNotificationManager sInstance = new RongNotificationManager();
     }
 }

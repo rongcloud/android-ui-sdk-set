@@ -3,6 +3,7 @@ package io.rong.imkit.picture;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -60,15 +61,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
 
 
     /**
-     * 是否改变屏幕方向
-     *
-     * @return
-     */
-    public boolean isRequestedOrientation() {
-        return true;
-    }
-
-    /**
      * 获取布局文件
      *
      * @return
@@ -99,9 +91,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
         }
         setTheme(config.themeStyleId);
         super.onCreate(savedInstanceState);
-        if (isRequestedOrientation()) {
-            setNewRequestedOrientation();
-        }
         mHandler = new Handler(Looper.getMainLooper(), this);
         initConfig();
         int layoutResID = getResourceId();
@@ -110,15 +99,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
         }
         initWidgets();
         initPictureSelectorStyle();
-    }
-
-    /**
-     * 设置屏幕方向
-     */
-    protected void setNewRequestedOrientation() {
-        if (config != null) {
-            setRequestedOrientation(config.requestedOrientation);
-        }
     }
 
     /**
@@ -268,7 +248,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
         if (folders.size() == 0) {
             // 没有相册 先创建一个最近相册出来
             LocalMediaFolder newFolder = new LocalMediaFolder();
-            String folderName = getString(R.string.picture_camera_roll);
+            String folderName = getString(R.string.rc_picture_camera_roll);
             newFolder.setName(folderName);
             newFolder.setFirstImagePath("");
             folders.add(newFolder);
@@ -507,7 +487,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity implements H
                         startActivityForResult(cameraIntent, PictureConfig.REQUEST_CAMERA);
                     }
                 } else {
-                    ToastUtils.s(getContext(), getString(R.string.picture_audio));
+                    ToastUtils.s(getContext(), getString(R.string.rc_picture_audio));
                 }
                 break;
         }

@@ -28,8 +28,8 @@
 				android:layout_alignParentEnd="true"
 				android:layout_marginRight="48dp"
 				android:layout_marginEnd="48dp"
-				android:textColor="@color/emui_color_gray_7"
-				android:textSize="@dimen/emui_master_body_2" />
+				android:textColor="@color/upsdk_color_gray_7"
+				android:textSize="@dimen/upsdk_master_body_2" />
 
 			<TextView
 				android:id="@+id/third_app_warn_text"
@@ -39,9 +39,8 @@
 				android:layout_toStartOf="@id/third_app_dl_progress_text"
 				android:layout_marginRight="16dp"
 				android:layout_marginEnd="16dp"
-				android:text="@string/upsdk_app_dl_installing"
-				android:textColor="@color/emui_color_gray_10"
-				android:textSize="@dimen/emui_master_body_2" />
+				android:textColor="@color/upsdk_color_gray_10"
+				android:textSize="@dimen/upsdk_master_body_2" />
 		</RelativeLayout>
 
 		<RelativeLayout

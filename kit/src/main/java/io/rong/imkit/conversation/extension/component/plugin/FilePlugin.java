@@ -68,10 +68,12 @@ public class FilePlugin implements IPluginModule {
                     public void run() {
                         try {
                             String displayName = DocumentFile.fromSingleUri(mContext, uri).getName();
+                            String name = System.currentTimeMillis() + "_" + displayName;
                             String fileSavePath = KitStorageUtils.getFileSavePath(mContext);
-                            if (FileUtils.copyFileToInternal(mContext, uri, fileSavePath, displayName)) {
-                                FileMessage fileMessage = FileMessage.obtain(mContext, Uri.parse("file://" + fileSavePath + "/" + displayName));
+                            if (FileUtils.copyFileToInternal(mContext, uri, fileSavePath,  name)) {
+                                FileMessage fileMessage = FileMessage.obtain(mContext, Uri.parse("file://" + fileSavePath + "/" + name));
                                 if (fileMessage != null) {
+                                    fileMessage.setName(displayName);
                                     final Message message = Message.obtain(targetId, conversationType, fileMessage);
                                     IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
                                 }

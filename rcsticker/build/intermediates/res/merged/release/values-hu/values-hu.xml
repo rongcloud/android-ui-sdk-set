@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Egyéb"</string>
     <string name="hms_abort" priority="translator">"Leállítás"</string>
     <string name="hms_abort_message" priority="translator">"Leállítja a letöltést?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s nem tudja használni a Huawei Mobile Services-t. Indítsa el az Optimalizálót (Telefonkezelő), vagy lépjen a Beállításokba és engedélyezze a(z) %2$s összes jogosultságát (beleértve az automatikus indítást és másodlagos indítást), majd próbálja újra."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s nem tudja használni a HMS Core-t. Indítsa el az Optimalizálót (Telefonkezelő), vagy lépjen a Beállításokba és engedélyezze a(z) %2$s összes jogosultságát (beleértve az automatikus indítást és másodlagos indítást), majd próbálja újra."</string>
     <string name="hms_cancel" priority="translator">"Mégse"</string>
     <string name="hms_check_failure" priority="translator">"Frissítések keresése sikertelen."</string>
-    <string name="hms_check_no_update" priority="translator">"A verziója naprakész."</string>
     <string name="hms_checking" priority="translator">"Frissítések keresése..."</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"A Huawei Mobile Services csomag letöltése sikertelen."</string>
+    <string name="hms_download_failure" priority="translator">"A HMS Core csomag letöltése sikertelen."</string>
     <string name="hms_download_no_space" priority="translator">"Nincs elég tárhely. A letöltés nem fejezhető be."</string>
     <string name="hms_download_retry" priority="translator">"Letöltés sikertelen. Újrapróbálja?"</string>
-    <string name="hms_downloading" priority="translator">"Huawei Mobile Services letöltése | állapot: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Letöltés"</string>
-    <string name="hms_downloading_new" priority="LT">"HMS letöltése"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Telepítés"</string>
-    <string name="hms_install_message" priority="translator">"A Huawei Mobile Services telepítve kell legyen a funkció használatához. Telepíti?"</string>
-    <string name="hms_push_channel" priority="translator">"Alapértelmezett"</string>
+    <string name="hms_install_message" priority="translator">"A HMS Core telepítve kell legyen a funkció használatához. Telepíti?"</string>
+    <string name="hms_push_channel" priority="Original">"Alapértelmezett"</string>
     <string name="hms_retry" priority="translator">"Újra"</string>
     <string name="hms_update" priority="translator">"Frissítés"</string>
     <string name="hms_update_continue" priority="LT">"Letöltés"</string>
-    <string name="hms_update_message" priority="translator">"A funkció használatához frissítsen a Huawei Mobile Services legfrissebb verzióra. Frissíti most?"</string>
+    <string name="hms_update_message" priority="translator">"A funkció használatához frissítsen a HMS Core legfrissebb verzióra. Frissíti most?"</string>
     <string name="hms_update_message_new" priority="LT">"A szolgáltatásnak szüksége van az alábbi alkalmazás legfrissebb verziójára:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Nincs Wi-Fi kapcsolat. Letöltés mobil adatforgalommal?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Mobile Services"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Keresés"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"AppGallery letöltése"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Telepítés"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"%s letöltése…"</string>
     <string name="upsdk_app_size" priority="translator">"Méret"</string>
     <string name="upsdk_app_version" priority="translator">"Verzió"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Az alkalmazás frissítéséhez a(z) %s szükséges. Telepíti most?"</string>
     <string name="upsdk_cancel" priority="translator">"Mégse"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Frissítések keresése..."</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Frissítések keresése..."</string>
     <string name="upsdk_choice_update" priority="LT">"Frissítés érhető el. Töltse le, és telepítse a legfrissebb verziót."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Nem lehet csatlakozni a szerverhez. Próbálja újra később."</string>
     <string name="upsdk_detail" priority="translator">"Részletek"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Információ lekérése sikertelen. Próbálja újra később."</string>
-    <string name="upsdk_install" priority="LT">"Telepítse az AppGallery-t a frissítéshez. Telepíti most?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Ön jelenleg mobilhálózatra csatlakozik. A letöltés most %1$s adatforgalmat vesz igénybe."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Nincs internetkapcsolat. Ellenőrizze a hálózati beállításait."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Alkalmazás"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Később"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Telepítés sikertelen."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Igen"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"A verziója naprakész."</string>
-    <string name="upsdk_updating" priority="translator">"Frissítés"</string>
 </resources>

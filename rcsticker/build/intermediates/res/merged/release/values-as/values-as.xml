@@ -48,42 +48,38 @@
     <string msgid="4133737464567140336" name="fcm_fallback_notification_channel_label">"বিবিধ"</string>
     <string name="hms_abort" priority="translator">"বন্ধ কৰক"</string>
     <string name="hms_abort_message" priority="translator">"ডাউনলোড কৰা বন্ধ কৰিবনে?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s-এ Huawei ম\'বাইল সেৱাসমূহ ব্যৱহাৰ কৰাত অক্ষম। অনুকূলক (ফোন মেনেজাৰ) প্ৰাৰম্ভ কৰক বা ছেটিংচলৈ যাওক, %2$s-ৰ বাবে সকলো অনুমতি সক্ষম কৰক (স্বয়ং-প্ৰাৰম্ভ আৰু প্ৰাথমিক প্ৰাৰম্ভক অন্তৰ্ভুক্ত কৰি) আৰু পুনঃচেষ্টা কৰক।"</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s-এ HMS Core ব্যৱহাৰ কৰাত অক্ষম। অনুকূলক (ফোন মেনেজাৰ) প্ৰাৰম্ভ কৰক বা ছেটিংচলৈ যাওক, %2$s-ৰ বাবে সকলো অনুমতি সক্ষম কৰক (স্বয়ং-প্ৰাৰম্ভ আৰু প্ৰাথমিক প্ৰাৰম্ভক অন্তৰ্ভুক্ত কৰি) আৰু পুনঃচেষ্টা কৰক।"</string>
     <string name="hms_cancel" priority="translator">"বাতিল কৰক"</string>
     <string name="hms_check_failure" priority="translator">"উন্নীতৰ বাবে পৰীক্ষা কৰাত বিফল হৈছে।"</string>
-    <string name="hms_check_no_update" priority="translator">"আপুনি ইতিমধ্যে শেহতীয়া সংস্কৰণটো ব্যৱহাৰ কৰিছে৷"</string>
     <string name="hms_checking" priority="translator">"উন্নীতৰ বাবে পৰীক্ষা কৰি আছে..."</string>
     <string name="hms_confirm" priority="translator">"ঠিক"</string>
-    <string name="hms_download_failure" priority="translator">"Huawei ম\'বাইল সেৱা পেকেজ ডাউনলোড কৰাত বিফল।"</string>
+    <string name="hms_download_failure" priority="translator">"HMS Core পেকেজ ডাউনলোড কৰাত বিফল হৈছে।"</string>
     <string name="hms_download_no_space" priority="translator">"পৰ্যাপ্ত মুক্ত স্থান নাই। ডাউনলোড সম্পূৰ্ণ কৰিব নোৱাৰি।"</string>
     <string name="hms_download_retry" priority="translator">"ডাউনলোড বিফল হৈছে। পুনঃচেষ্টা কৰিবনে?"</string>
-    <string name="hms_downloading" priority="translator">"Huawei ম\'বাইল সেৱাসমূহ ডাউনলোড কৰি আছে\nপ্ৰগতি: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"ডাউনলোড কৰি আছে"</string>
-    <string name="hms_downloading_new" priority="translator">"HMS ডাউনলোড কৰি আছে"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"ইনষ্টল কৰক"</string>
-    <string name="hms_install_message" priority="translator">"এই ফিচাৰ ব্যৱহাৰ কৰিবলৈ Huawei ম\'বাইল সেৱাসমূহ ডাউনলোড কৰিবই লাগিব। ইনষ্টল কৰিবনে?"</string>
-    <string name="hms_push_channel" priority="translator">"ডিফ\'ল্ট"</string>
+    <string name="hms_install_message" priority="translator">"এই ফিচাৰ ব্যৱহাৰ কৰিবলৈ HMS Core ডাউনলোড কৰিবই লাগিব। ইনষ্টল কৰিবনে?"</string>
+    <string name="hms_push_channel" priority="Original">"ডিফ\'ল্ট"</string>
     <string name="hms_retry" priority="translator">"পুনঃচেষ্টা কৰক"</string>
     <string name="hms_update" priority="translator">"উন্নীত কৰক"</string>
     <string name="hms_update_continue" priority="LT">"ডাউনলোড"</string>
-    <string name="hms_update_message" priority="translator">"এই ফিচাৰ ব্যৱহাৰ কৰিবলৈ Huawei ম\'বাইল সেৱাসমূহৰ শেহতীয়া সংস্কৰণলৈ উন্নীত কৰক। এতিয়া উন্নীত কৰিবনে?"</string>
+    <string name="hms_update_message" priority="translator">"এই ফিচাৰ ব্যৱহাৰ কৰিবলৈ HMS Core-ৰ শেহতীয়া সংস্কৰণলৈ উন্নীত কৰক। এতিয়া উন্নীত কৰিবনে?"</string>
     <string name="hms_update_message_new" priority="translator">"এই সেৱাক নিম্নোক্ত এপ্প্‌ৰ শেহতীয়া সংস্কৰণটোৰ আৱশ্যক:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"কোনো Wi-Fi সংযোগ নাই। ম\'বাইল ডাটা ব্যৱহাৰ কৰি ডাউনলোড কৰিবনে?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei ম\'বাইল সেৱাসমূহ"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"সন্ধান"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"৯৯৯+"</string>
-    <string name="upsdk_app_dl_installing" priority="translator">"AppGallery ডাউনলোড কৰি আছে"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"ইনষ্টল কৰক"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"%s ডাউনলোড কৰি আছে…"</string>
     <string name="upsdk_app_size" priority="translator">"আকাৰ"</string>
     <string name="upsdk_app_version" priority="translator">"সংস্কৰণ"</string>
+    <string name="upsdk_appstore_install" priority="translator">"এই এপ্প্‌টো আপডেট কৰিবলৈ %s-ৰ আৱশ্যক। এতিয়া ইনষ্টল কৰিবনে?"</string>
     <string name="upsdk_cancel" priority="translator">"বাতিল কৰক"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"উন্নীতৰ বাবে পৰীক্ষা কৰি আছে..."</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"আপডেটসমূহৰ বাবে পৰীক্ষা কৰি আছে…"</string>
     <string name="upsdk_choice_update" priority="translator">"উন্নীত উপলব্ধ। অনুগ্ৰহ কৰি শেহতীয়া সংস্কৰণটো ডাউনলোড আৰু ইনষ্টল কৰক।"</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"ছাৰ্ভাৰলৈ সংযোগ কৰাত অক্ষম। অনুগ্ৰহ কৰি পিছত পুনঃচেষ্টা কৰক।"</string>
     <string name="upsdk_detail" priority="translator">"বিৱৰণ"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"তথ্য পুনৰুদ্ধাৰ কৰাত বিফল হৈছে। অনুগ্ৰহ কৰি পিছত পুনঃচেষ্টা কৰক।"</string>
-    <string name="upsdk_install" priority="translator">"উন্নীত কৰিবলৈ AppGallery ইনষ্টল কৰক। এতিয়া ইনষ্টল কৰিবনে?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"আপুনি সাম্প্ৰতিকভাৱে এটা ম\'বাইল নেটৱৰ্কলৈ সংযোগ হৈ আছে। এতিয়া ডাউনলোড কৰিলে %1$s ডাটা ব্যৱহাৰ হ\'ব।"</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"কোনো ইণ্টাৰনেট সংযোগ নাই। অনুগ্ৰহ কৰি আপোনাৰ নেটৱৰ্ক ছেটিংচ পৰীক্ষা কৰক।"</string>
     <string name="upsdk_ota_app_name" priority="translator">"এপ্প্‌"</string>
     <string name="upsdk_ota_cancel" priority="translator">"পাছত"</string>
@@ -95,5 +91,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"ইনষ্টলেশ্বন বিফল হৈছে।"</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"হয়"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"আপোনাৰ সংস্কৰণ আপ টু ডেট হয়।"</string>
-    <string name="upsdk_updating" priority="translator">"উন্নীত কৰি আছে"</string>
 </resources>

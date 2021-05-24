@@ -49,45 +49,41 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Zinginezo"</string>
     <string name="hms_abort" priority="translator">"Sitisha"</string>
     <string name="hms_abort_message" priority="translator">"Ungependa kusitisha kupakua?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s imeshindwa kutumia Huawei Mobile Services. Zindua Kiboreshaji (Kidhibiti Simu) au nenda kwenye Mipangilio, wezesha vibali vyote vya %2$s (vikiwemo uzinduzi otomatiki na uzinduzi mbadala), kisha jaribu tena."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s imeshindwa kutumia HMS Core. Zindua Kiboreshaji (Kidhibiti Simu) au nenda kwenye Mipangilio, wezesha vibali vyote vya %2$s (vikiwemo uzinduzi otomatiki na uzinduzi mbadala), kisha jaribu tena."</string>
     <string name="hms_cancel" priority="translator">"Ghairi"</string>
     <string name="hms_check_failure" priority="translator">"Imeshindwa kuangalia masasisho."</string>
-    <string name="hms_check_no_update" priority="translator">"Toleo lako ni la hivi karibuni."</string>
     <string name="hms_checking" priority="translator">"Inakagua uwepo wa sasisho…"</string>
     <string name="hms_confirm" priority="translator">"Sawa"</string>
-    <string name="hms_download_failure" priority="translator">"Imeshindwa kupakua kifurushi cha Huduma za Simu za Huawei."</string>
+    <string name="hms_download_failure" priority="translator">"Imeshindwa kupakua kifurushi cha HMS Core."</string>
     <string name="hms_download_no_space" priority="translator">"Hakuna nafasi ya kutosha. Kupakua hakuwezi kukamilishwa"</string>
     <string name="hms_download_retry" priority="translator">"Upakuaji umeshindikana. Jaribu tena?"</string>
-    <string name="hms_downloading" priority="translator">".Inapakua Huduma za Simu za Huawei\nmaendeleo: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Inapakua"</string>
-    <string name="hms_downloading_new" priority="translator">"HMS Inapakuliwa"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Sakinisha"</string>
-    <string name="hms_install_message" priority="translator">"Huduma za Simu za Huawei lazima zisakinishwe ili utumie kipengele hiki. Ungependa kusakinisha?"</string>
-    <string name="hms_push_channel" priority="translator">"Chaguo msingi"</string>
+    <string name="hms_install_message" priority="translator">"HMS Core lazima zisakinishwe ili utumie kipengele hiki. Ungependa kusakinisha?"</string>
+    <string name="hms_push_channel" priority="Original">"Chaguo msingi"</string>
     <string name="hms_retry" priority="translator">"Jaribu tena"</string>
     <string name="hms_update" priority="translator">"Sasisha"</string>
     <string name="hms_update_continue" priority="LT">"Pakua"</string>
-    <string name="hms_update_message" priority="translator">"Sasisha upate toleo jipya zaidi la Huduma za Simu za Huawei ili utumie kipengele hiki. Ungependa kusasisha sasa hivi?"</string>
+    <string name="hms_update_message" priority="translator">"Sasisha upate toleo jipya zaidi la HMS Core ili utumie kipengele hiki. Ungependa kusasisha sasa hivi?"</string>
     <string name="hms_update_message_new" priority="translator">"Huduma hii inahitaji uwe na toleo jipa zaidi la programu ifuatayo:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Hakuna muunganisho wa Wi-Fi. Pakua kwa kutumia data ya simu?"</string>
-    <string name="hms_update_title" priority="translator">"Huduma za Simu za Huawei"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string name="rc_notification_new_msg">%1$s ametuma ujumbe  %2$d</string>
     <string name="rc_notification_new_plural_msg">Mrafiki.%1$d wametuma ujumbe  %2$d</string>
     <string name="rc_notification_ticker_text">Umepokea Ujumbe Mpya</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Tafuta"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="translator">"Inapakua AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Sakinisha"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Inapakua %s…"</string>
     <string name="upsdk_app_size" priority="translator">"Ukubwa"</string>
     <string name="upsdk_app_version" priority="translator">"Toleo"</string>
+    <string name="upsdk_appstore_install" priority="translator">"%s inahitajika ili kusasisha programu hii. Sakinisha sasa?"</string>
     <string name="upsdk_cancel" priority="translator">"Ghairi"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Inakagua uwepo wa sasisho…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Inaangalia masasisho…"</string>
     <string name="upsdk_choice_update" priority="translator">"Sasisho linapatikana. Tafadhali pakua na usakinishe toleo jipya."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Imeshindwa kuunganisha na seva. Tafadhali jaribu tena baadaye."</string>
     <string name="upsdk_detail" priority="translator">"Maelezo"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Imeshindwa kurejesha maelezo. Tafadhali jaribu tena baadaye."</string>
-    <string name="upsdk_install" priority="translator">"Sakinisha AppGallery ili usasishe. Sakinisha sasa?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Umeunganishwa kwa mtandao wa simu kwa sasa. Kupakua sasa kutatumia %1$s za data."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Hamna muunganisho wa mtandao. Tafadhali kagua mipangilio ya mtandao wako."</string>
     <string name="upsdk_ota_app_name" priority="translator">"Programu"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Baadaye"</string>
@@ -99,5 +95,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Usakinishaji umeshindikana."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Ndiyo"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Toleo lako ni la hivi karibuni."</string>
-    <string name="upsdk_updating" priority="translator">"Inasasisha"</string>
 </resources>

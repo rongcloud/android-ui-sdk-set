@@ -142,7 +142,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         mTvCancel.setOnClickListener(this);
         mTvPictureOk.setOnClickListener(this);
         llAlbum.setOnClickListener(this);
-        String title = getString(R.string.picture_camera_roll);
+        String title = getString(R.string.rc_picture_camera_roll);
         mTvPictureTitle.setText(title);
         folderWindow = new FolderPopWindow(this, config);
         folderWindow.setArrowImageView(mIvArrow);
@@ -154,7 +154,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         // 解决调用 notifyItemChanged 闪烁问题,取消默认动画
         ((SimpleItemAnimator) mPictureRecycler.getItemAnimator())
                 .setSupportsChangeAnimations(false);
-        mTvEmpty.setText(getString(R.string.picture_empty));
+        mTvEmpty.setText(getString(R.string.rc_picture_empty));
         StringUtils.tempTextFont(mTvEmpty, config.chooseMode);
         adapter = new PictureImageGridAdapter(getContext(), config);
         adapter.setOnPhotoSelectChangedListener(this);
@@ -177,8 +177,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         config.isCheckOriginalImage = !isVideo && !eqVideo && config.isCheckOriginalImage;
         boolean enable = selectImages.size() != 0;
         mTvPictureOk.setTextColor(selectImages.size() > 0 ? getResources().getColor(R.color.rc_main_theme) : getResources().getColor(R.color.rc_main_theme_lucency));
-        mTvPictureOk.setText(config.selectionMode == PictureConfig.SINGLE || !enable ? getString(R.string.picture_send) :
-                getString(R.string.picture_send_num) + "(" + selectImages.size() + ")");
+        mTvPictureOk.setText(config.selectionMode == PictureConfig.SINGLE || !enable ? getString(R.string.rc_picture_send) :
+                getString(R.string.rc_picture_send_num) + "(" + selectImages.size() + ")");
         if (enable) {
             mTvPictureOk.setEnabled(true);
             mTvPictureOk.setSelected(true);
@@ -266,7 +266,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     adapter.bindImagesData(images);
                     boolean isEmpty = images.size() > 0;
                     if (!isEmpty) {
-                        mTvEmpty.setText(getString(R.string.picture_empty));
+                        mTvEmpty.setText(getString(R.string.rc_picture_empty));
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                             mTvEmpty.setCompoundDrawablesRelativeWithIntrinsicBounds
                                     (0, R.drawable.rc_picture_icon_no_data, 0, 0);
@@ -284,7 +284,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     mTvEmpty.setCompoundDrawablesRelativeWithIntrinsicBounds
                             (0, R.drawable.rc_picture_icon_data_error, 0, 0);
                 }
-                mTvEmpty.setText(getString(R.string.picture_data_exception));
+                mTvEmpty.setText(getString(R.string.rc_picture_data_exception));
                 mTvEmpty.setVisibility(images.size() > 0 ? View.INVISIBLE : View.VISIBLE);
             }
         });
@@ -374,8 +374,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
         boolean eqImg = PictureMimeType.eqImage(mimeType);
         if (config.minSelectNum > 0 && config.selectionMode == PictureConfig.MULTIPLE) {
             if (size < config.minSelectNum) {
-                String str = eqImg ? getString(R.string.picture_min_img_num, config.minSelectNum)
-                        : getString(R.string.picture_min_video_num, config.minSelectNum);
+                String str = eqImg ? getString(R.string.rc_picture_min_img_num, config.minSelectNum)
+                        : getString(R.string.rc_picture_min_video_num, config.minSelectNum);
                 ToastUtils.s(getContext(), str);
                 return;
             }
@@ -568,8 +568,8 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     selectedImages.add(media);
                     adapter.bindSelectImages(selectedImages);
                 } else {
-                    ToastUtils.s(this, getString(R.string.picture_message_max_num_fir)
-                            + config.maxSelectNum + getString(R.string.picture_message_max_num_sec));
+                    ToastUtils.s(this, getString(R.string.rc_picture_message_max_num_fir)
+                            + config.maxSelectNum + getString(R.string.rc_picture_message_max_num_sec));
                 }
             }
             adapter.notifyDataSetChanged();
@@ -687,7 +687,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                     mHandler.sendEmptyMessage(SHOW_DIALOG);
                     readLocalMedia();
                 } else {
-                    ToastUtils.s(getContext(), getString(R.string.picture_jurisdiction));
+                    ToastUtils.s(getContext(), getString(R.string.rc_picture_jurisdiction));
                     onBackPressed();
                 }
                 break;
@@ -696,7 +696,7 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onTakePhoto();
                 } else {
-                    ToastUtils.s(getContext(), getString(R.string.picture_camera));
+                    ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
                 }
                 break;
         }

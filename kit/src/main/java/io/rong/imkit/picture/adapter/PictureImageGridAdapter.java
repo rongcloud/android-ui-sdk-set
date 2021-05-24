@@ -247,7 +247,7 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             super(itemView);
             headerView = itemView;
             tvCamera = itemView.findViewById(R.id.tvCamera);
-            String title = context.getString(R.string.picture_take_picture);
+            String title = context.getString(R.string.rc_picture_take_picture);
             tvCamera.setText(title);
         }
     }
@@ -313,8 +313,8 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
         boolean isChecked = contentHolder.tvCheck.isSelected();
         int size = selectImages.size();
         if (size >= maxSelectNum && !isChecked) {
-            ToastUtils.s(context, context.getString(R.string.picture_message_max_num_fir)
-                    + config.maxSelectNum + context.getString(R.string.picture_message_max_num_sec));
+            ToastUtils.s(context, context.getString(R.string.rc_picture_message_max_num_fir)
+                    + config.maxSelectNum + context.getString(R.string.rc_picture_message_max_num_sec));
             return;
         }
 

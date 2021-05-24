@@ -64,8 +64,8 @@
         </activity>
         <activity
             android:name="io.rong.imkit.activity.PicturePagerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -102,15 +102,23 @@
                 android:resource="@xml/rc_file_path" />
         </provider>
 
-        <activity android:name="io.rong.imkit.picture.PictureSelectorActivity" />
+        <activity
+            android:name="io.rong.imkit.picture.PictureSelectorActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
         <activity
             android:name="io.rong.imkit.picture.PictureSelectorCameraEmptyActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
             android:theme="@style/Picture.Theme.Translucent" />
-        <activity android:name="io.rong.imkit.picture.PicturePreviewActivity" />
+        <activity
+            android:name="io.rong.imkit.picture.PicturePreviewActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
         <activity
             android:name="io.rong.imkit.picture.PictureVideoPlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="sensor" />
+            android:screenOrientation="portrait" />
 
         <!-- end图库配置项 -->
     </application>

@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Varios"</string>
     <string name="hms_abort" priority="translator">"Parar"</string>
     <string name="hms_abort_message" priority="translator">"Deter a descarga?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s non pode usar Huawei Mobile Services. Inicie Optimizador (Xestor do teléfono) ou vaia a Configuración, active todos os permisos para %2$s (incluído o inicio automático e o secundario) e ténteo de novo."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s non pode usar HMS Core. Inicie Optimizador (Xestor do teléfono) ou vaia a Configuración, active todos os permisos para %2$s (incluído o inicio automático e o secundario) e ténteo de novo."</string>
     <string name="hms_cancel" priority="translator">"Cancelar"</string>
     <string name="hms_check_failure" priority="translator">"Erro ao comprobar actualizacións."</string>
-    <string name="hms_check_no_update" priority="translator">"A versión está actualizada."</string>
     <string name="hms_checking" priority="translator">"Comprobando actualizacións..."</string>
     <string name="hms_confirm" priority="translator">"Aceptar"</string>
-    <string name="hms_download_failure" priority="translator">"Erro ao descargar o paquete de Servizos de Huawei Mobile."</string>
+    <string name="hms_download_failure" priority="translator">"Erro ao descargar o paquete de HMS Core."</string>
     <string name="hms_download_no_space" priority="translator">"Non hai espazo libre suficiente. Non se pode completar a descarga."</string>
     <string name="hms_download_retry" priority="translator">"Erro ao descargar. Tentar de novo?"</string>
-    <string name="hms_downloading" priority="translator">"Descargando Servizos de Huawei Mobile | progreso: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Descargando"</string>
-    <string name="hms_downloading_new" priority="LT">"Descargando HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Instalar"</string>
-    <string name="hms_install_message" priority="translator">"É preciso ter instalado Huawei Mobile Services para usar esta función. Instalar?"</string>
-    <string name="hms_push_channel" priority="translator">"Predefinido"</string>
+    <string name="hms_install_message" priority="translator">"É preciso ter instalado HMS Core para usar esta función. Instalar?"</string>
+    <string name="hms_push_channel" priority="Original">"Predefinido"</string>
     <string name="hms_retry" priority="translator">"Tentar de novo"</string>
     <string name="hms_update" priority="translator">"Actualizar"</string>
     <string name="hms_update_continue" priority="LT">"Descargar"</string>
-    <string name="hms_update_message" priority="translator">"Actualice á última versión de Servizos de Huawei Moble para usar esta función. Actualizar agora?"</string>
+    <string name="hms_update_message" priority="translator">"Actualice á última versión de HMS Core para usar esta función. Actualizar agora?"</string>
     <string name="hms_update_message_new" priority="LT">"Este servizo require a última versión da seguinte app:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="translator">"Non hai conexión Wi-Fi. Descargar con datos móbiles?"</string>
-    <string name="hms_update_title" priority="translator">"Servizos de Huawei Mobile"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Buscar"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">">999"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Descargando AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Instalar"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Descargando %s…"</string>
     <string name="upsdk_app_size" priority="translator">"Tamaño"</string>
     <string name="upsdk_app_version" priority="translator">"Versión"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Requírese %s para actualizar esta aplicación. Instalar agora?"</string>
     <string name="upsdk_cancel" priority="translator">"Cancelar"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Buscando actualizacións..."</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Buscando actualizacións…"</string>
     <string name="upsdk_choice_update" priority="LT">"Actualización dispoñible. Descargue e instale a última versión."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Non se pode conectar co servidor. Ténteo de novo máis tarde."</string>
     <string name="upsdk_detail" priority="translator">"Detalles"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Non se pode recuperar a información. Ténteo de novo máis tarde."</string>
-    <string name="upsdk_install" priority="LT">"Instale AppGallery para actualizar. Instalar agora?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Xa está conectado a unha rede móbil. A descarga consumirá %1$s de datos."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Sen Internet. Comprobe a súa configuración de rede."</string>
     <string name="upsdk_ota_app_name" priority="LT">"App"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Máis tarde"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Erro ao instalar."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Si"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"A versión está actualizada."</string>
-    <string name="upsdk_updating" priority="translator">"Actualizando"</string>
 </resources>

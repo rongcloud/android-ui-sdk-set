@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Diverse"</string>
     <string name="hms_abort" priority="translator">"Stoppa"</string>
     <string name="hms_abort_message" priority="translator">"Vill du stoppa hämtningen?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"%1$s kan inte använda Huawei Mobile Services. Starta Optimerare (Telefonhanterare) eller gå till Inställningar, aktivera alla behörigheter för %2$s (inklusive autostart och sekundär start) och försök igen."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"%1$s kan inte använda HMS Core. Starta Optimerare (Telefonhanterare) eller gå till Inställningar, aktivera alla behörigheter för %2$s (inklusive autostart och sekundär start) och försök igen."</string>
     <string name="hms_cancel" priority="translator">"Avbryt"</string>
     <string name="hms_check_failure" priority="translator">"Det gick inte att söka efter uppdateringar."</string>
-    <string name="hms_check_no_update" priority="translator">"Din version är uppdaterad."</string>
     <string name="hms_checking" priority="translator">"Söker efter uppdateringar..."</string>
     <string name="hms_confirm" priority="translator">"OK"</string>
-    <string name="hms_download_failure" priority="translator">"Det gick inte att hämta Huawei Mobile Services-paketet."</string>
+    <string name="hms_download_failure" priority="translator">"Det gick inte att hämta HMS Core-paketet."</string>
     <string name="hms_download_no_space" priority="translator">"Inte tillräckligt med ledigt utrymme. Hämtningen kan inte genomföras."</string>
     <string name="hms_download_retry" priority="translator">"Hämtningen misslyckades. Vill du försöka igen?"</string>
-    <string name="hms_downloading" priority="translator">"Hämtar Huawei Mobile Services | status: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Laddar ned"</string>
-    <string name="hms_downloading_new" priority="LT">"Laddar ned HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"HUAWEI GameCenter"</string>
     <string name="hms_install" priority="translator">"Installera"</string>
-    <string name="hms_install_message" priority="translator">"Huawei Mobile Services måste vara installerad för att använda den här funktionen. Installera?"</string>
-    <string name="hms_push_channel" priority="translator">"Standardinställning"</string>
+    <string name="hms_install_message" priority="translator">"HMS Core måste vara installerad för att använda den här funktionen. Installera?"</string>
+    <string name="hms_push_channel" priority="Original">"Standardinställning"</string>
     <string name="hms_retry" priority="translator">"Försök igen"</string>
     <string name="hms_update" priority="translator">"Uppdatera"</string>
     <string name="hms_update_continue" priority="LT">"Ladda ned"</string>
-    <string name="hms_update_message" priority="translator">"Uppdatera till den senaste versionen av Huawei Mobile Services om du vill använda den här funktionen. Vill du uppdatera nu?"</string>
+    <string name="hms_update_message" priority="translator">"Uppdatera till den senaste versionen av HMS Core om du vill använda den här funktionen. Vill du uppdatera nu?"</string>
     <string name="hms_update_message_new" priority="LT">"Denna tjänst kräver den senaste versionen av följande app:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Ingen Wi-Fi-anslutning. Vill du ladda ned med mobildata?"</string>
-    <string name="hms_update_title" priority="translator">"Huawei Mobile Services"</string>
+    <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Sök"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Laddar ned AppGallery"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Installera"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Laddar ned %s …"</string>
     <string name="upsdk_app_size" priority="translator">"Storlek"</string>
     <string name="upsdk_app_version" priority="translator">"Version"</string>
+    <string name="upsdk_appstore_install" priority="translator">"%s behövs för att uppdatera den här appen. Vill du installera nu?"</string>
     <string name="upsdk_cancel" priority="translator">"Avbryt"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Söker efter uppdateringar…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Söker efter uppdateringar …"</string>
     <string name="upsdk_choice_update" priority="LT">"Uppdatering tillgänglig. Ladda ned och installera den senaste versionen."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Kan inte ansluta till server. Försök igen senare."</string>
     <string name="upsdk_detail" priority="translator">"Detaljer"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Kan inte hämta information. Försök igen senare."</string>
-    <string name="upsdk_install" priority="LT">"Installera AppGallery för att uppdatera. Installera nu?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Du är för tillfället ansluten till ett mobilnätverk. Nedladdning nu förbrukar %1$s data."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Ingen internetanslutning. Kontrollera dina nätverksinställningar."</string>
     <string name="upsdk_ota_app_name" priority="LT">"App"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Senare"</string>
@@ -95,6 +91,5 @@
     <string name="upsdk_third_app_dl_cancel_download_prompt_ex" priority="translator">"Avbryta installationen?"</string>
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Installationen misslyckades."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Ja"</string>
-    <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Din version är uppdaterad."</string>
-    <string name="upsdk_updating" priority="translator">"Uppdaterar"</string>
+    <string name="upsdk_update_check_no_new_version" priority="LT">"Din version är uppdaterad."</string>
 </resources>

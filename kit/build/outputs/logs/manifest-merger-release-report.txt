@@ -1,23 +1,23 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
+ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
+INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
+INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
+INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
+INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
+INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
+INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
 	package
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:2:5-28
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-125:12
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-131:12
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:11-69
@@ -54,7 +54,7 @@ ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealde
 	android:name
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:14:22-73
 application
-ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:16:5-122:19
+ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:16:5-128:19
 	android:supportsRtl
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:16:18-44
 activity#io.rong.imkit.conversationlist.RongConversationListActivity
@@ -139,12 +139,12 @@ ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealde
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:62:27-73
 activity#io.rong.imkit.activity.PicturePagerActivity
 ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:66:9-74:20
-	android:screenOrientation
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:70:13-49
 	android:exported
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:68:13-37
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:69:13-37
+	android:configChanges
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:68:13-74
 	android:theme
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:69:13-71
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:70:13-71
 	android:name
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:67:13-58
 activity#io.rong.imkit.activity.ForwardSelectConversationActivity
@@ -202,27 +202,39 @@ ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealde
 	android:name
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:106:17-67
 activity#io.rong.imkit.picture.PictureSelectorActivity
-ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:110:9-69
+ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:110:9-112:52
+	android:screenOrientation
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:112:13-49
+	android:configChanges
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:111:13-74
 	android:name
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:110:19-66
 activity#io.rong.imkit.picture.PictureSelectorCameraEmptyActivity
-ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:111:9-113:64
-	android:theme
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:113:13-61
-	android:name
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:112:13-71
-activity#io.rong.imkit.picture.PicturePreviewActivity
-ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:115:9-68
-	android:name
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:115:19-65
-activity#io.rong.imkit.picture.PictureVideoPlayActivity
-ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:116:9-119:50
+ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:113:9-117:64
 	android:screenOrientation
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:119:13-47
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:116:13-49
 	android:configChanges
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:118:13-74
-	android:name
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:115:13-74
+	android:theme
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:117:13-61
+	android:name
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:114:13-71
+activity#io.rong.imkit.picture.PicturePreviewActivity
+ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:119:9-121:51
+	android:screenOrientation
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:121:13-49
+	android:configChanges
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:120:13-74
+	android:name
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:119:19-65
+activity#io.rong.imkit.picture.PictureVideoPlayActivity
+ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:122:9-125:52
+	android:screenOrientation
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:125:13-49
+	android:configChanges
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:124:13-74
+	android:name
+		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:123:13-61
 uses-sdk
 INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml

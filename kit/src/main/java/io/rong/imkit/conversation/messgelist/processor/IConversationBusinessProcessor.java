@@ -16,21 +16,56 @@ import io.rong.imlib.model.UserInfo;
  * 会话业务处理器
  */
 public interface IConversationBusinessProcessor {
+
     /**
      * 第一次初始化，绑定事件等
      *
-     * @param messageViewModel
+     * @param messageViewModel 消息处理类
+     * @param bundle 上一个页面传递过来的 bundle
      */
     void init(MessageViewModel messageViewModel, Bundle bundle);
 
+    /**
+     * 接收消息回调此接口
+     * @param messageViewModel
+     * @param message
+     * @param left
+     * @param hasPackage
+     * @param offline
+     * @return 是否拦截
+     */
     boolean onReceived(MessageViewModel messageViewModel, UiMessage message, int left, boolean hasPackage, boolean offline);
 
+    /**
+     * 消息点击事件
+     * @param uiMessage
+     */
     void onMessageItemClick(UiMessage uiMessage);
 
+    /**
+     * 消息长按事件
+     * @param uiMessage
+     * @return 是否拦截
+     */
     boolean onMessageItemLongClick(UiMessage uiMessage);
 
+    /**
+     * 用户头像点击事件
+     * @param context
+     * @param conversationType
+     * @param userInfo
+     * @param targetId
+     */
     void onUserPortraitClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo, String targetId);
 
+    /**
+     * 用户头像长按事件
+     * @param context
+     * @param conversationType
+     * @param userInfo
+     * @param targetId
+     * @return
+     */
     boolean onUserPortraitLongClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo, String targetId);
 
     boolean onBackPressed(MessageViewModel viewModel);

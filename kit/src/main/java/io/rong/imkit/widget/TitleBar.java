@@ -179,7 +179,7 @@ public class TitleBar extends Toolbar {
     }
 
     public void setLeftText(CharSequence charSequence) {
-        TextView leftText = (TextView) getLeftView();
+        TextView leftText = getLeftView();
         leftText.setText(charSequence);
     }
 
@@ -189,6 +189,7 @@ public class TitleBar extends Toolbar {
         getMiddleView().setText(title);
     }
 
+    @Override
     public void setTitle(@StringRes int resId) {
         super.setTitle(resId);
         getMiddleView().setText(resId);

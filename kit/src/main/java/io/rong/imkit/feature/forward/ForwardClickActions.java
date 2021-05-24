@@ -93,7 +93,7 @@ public class ForwardClickActions implements IClickActions {
         }
         List<Message> messages = ForwardManager.filterMessagesList(
                 fragment.getContext(), messageList, index);
-        if (messages.size() == 0) {
+        if (messages.isEmpty()) {
             RLog.e(TAG, "startSelectConversationActivity the size of messages is 0!");
             return;
         }
@@ -105,7 +105,13 @@ public class ForwardClickActions implements IClickActions {
     }
 
     public enum ForwardType {
+        /**
+         * 单条转发
+         */
         SINGLE(0),
+        /**
+         * 合并转发
+         */
         MULTI(1);
 
         int value;

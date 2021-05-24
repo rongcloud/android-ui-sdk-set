@@ -49,42 +49,38 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Įvairūs"</string>
     <string name="hms_abort" priority="translator">"Sustabdyti"</string>
     <string name="hms_abort_message" priority="translator">"Ar stabdyti atsisiuntimą?"</string>
-    <string name="hms_bindfaildlg_message" priority="translator">"„%1$s“ negali naudoti „Huawei Mobile Services“. Paleiskite Optimizatorių (Telefono tvarkytuvę) arba eikite į Nuostatas, įjunkite visus „%2$s“ leidimus (įskaitant automatinio paleidimo ir antrinio paleidimo), tada bandykite dar kartą."</string>
+    <string name="hms_bindfaildlg_message" priority="translator">"„%1$s“ negali naudoti „HMS Core“. Paleiskite Optimizatorių (Telefono tvarkytuvę) arba eikite į Nuostatas, įjunkite visus „%2$s“ leidimus (įskaitant automatinio paleidimo ir antrinio paleidimo), tada bandykite dar kartą."</string>
     <string name="hms_cancel" priority="translator">"Atšaukti"</string>
     <string name="hms_check_failure" priority="translator">"Nepavyko patikrinti, ar yra naujinių."</string>
-    <string name="hms_check_no_update" priority="translator">"Naudojate naujausią versiją."</string>
     <string name="hms_checking" priority="translator">"Tikrinama, ar yra naujinių..."</string>
     <string name="hms_confirm" priority="translator">"Gerai"</string>
-    <string name="hms_download_failure" priority="translator">"Nepavyko atnaujinti „Huawei“ mobiliųjų paslaugų paketo."</string>
+    <string name="hms_download_failure" priority="translator">"Nepavyko atnaujinti „HMS Core“ paketo."</string>
     <string name="hms_download_no_space" priority="translator">"Neužtenka laisvos vietos. Negalima atsisiųsti."</string>
     <string name="hms_download_retry" priority="translator">"Atsisiųsti nepavyko. Bandyti dar kartą?"</string>
-    <string name="hms_downloading" priority="translator">"Atsisiunčiamos „Huawei“ mobiliosios paslaugos | eiga: %d%%"</string>
     <string name="hms_downloading_loading" priority="LT">"Atsisiunčiama"</string>
-    <string name="hms_downloading_new" priority="LT">"Atsisiunčiama HMS"</string>
-    <string name="hms_gamebox_name" priority="LT">"„HUAWEI GameCenter“"</string>
     <string name="hms_install" priority="translator">"Įdiegti"</string>
-    <string name="hms_install_message" priority="translator">"Norint naudotis šia funkcija, turi būti įdiegta „Huawei Mobile Services“. Ar įdiegti?"</string>
-    <string name="hms_push_channel" priority="translator">"Numatytasis"</string>
+    <string name="hms_install_message" priority="translator">"Norint naudotis šia funkcija, turi būti įdiegta „HMS Core“. Ar įdiegti?"</string>
+    <string name="hms_push_channel" priority="Original">"Numatytasis"</string>
     <string name="hms_retry" priority="translator">"Bandyti dar kartą"</string>
     <string name="hms_update" priority="translator">"Naujinti"</string>
     <string name="hms_update_continue" priority="LT">"Atsisiųsti"</string>
-    <string name="hms_update_message" priority="translator">"Atnaujinkite į naujausią „Huawei“ mobiliųjų paslaugų versiją, kad galėtumėte naudotis šia funkcija. Naujinti dabar?"</string>
+    <string name="hms_update_message" priority="translator">"Atnaujinkite į naujausią „HMS Core“ versiją, kad galėtumėte naudotis šia funkcija. Naujinti dabar?"</string>
     <string name="hms_update_message_new" priority="LT">"Šiai tarnybai reikia naujausios toliau nurodytos programėlės versijos:\n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Nėra „Wi-Fi“ ryšio. Ar atsisiųsti mobiliuoju duomenų ryšiu?"</string>
-    <string name="hms_update_title" priority="translator">"„Huawei“ mobiliosios paslaugos"</string>
+    <string name="hms_update_title" priority="translator">"„HMS Core“"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Ieškoti"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
-    <string name="upsdk_app_dl_installing" priority="LT">"Atsisiunčiama „AppGallery“"</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Įdiegti"</string>
+    <string name="upsdk_app_download_installing" priority="translator">"Atsisiunčiama „%s“…"</string>
     <string name="upsdk_app_size" priority="translator">"Dydis"</string>
     <string name="upsdk_app_version" priority="translator">"Versija"</string>
+    <string name="upsdk_appstore_install" priority="translator">"Norint atnaujinti šią programėlę, reikia „%s“. Ar įdiegti dabar?"</string>
     <string name="upsdk_cancel" priority="translator">"Atšaukti"</string>
-    <string name="upsdk_checking_update_prompt" priority="translator">"Ieškoma naujinių…"</string>
+    <string name="upsdk_checking_update_prompt" priority="LT">"Ieškoma naujinių…"</string>
     <string name="upsdk_choice_update" priority="LT">"Išleistas naujinys. Atsisiųskite ir įdiekite naujausią versiją."</string>
-    <string name="upsdk_connect_server_fail_prompt_toast" priority="translator">"Nepavyksta prisijungti prie serverio. Bandykite vėliau dar kartą."</string>
     <string name="upsdk_detail" priority="translator">"Išsami informacija"</string>
     <string name="upsdk_getting_message_fail_prompt_toast" priority="translator">"Nepavyksta gauti informacijos. Bandykite vėliau dar kartą."</string>
-    <string name="upsdk_install" priority="LT">"Įdiekite „AppGallery“, kad atnaujintumėte. Ar įdiegti dabar?"</string>
+    <string name="upsdk_mobile_dld_warn" priority="translator">"Šiuo metu esate prisijungę prie mobiliojo ryšio tinklo. Atsisiunčiant dabar, bus perduota %1$s duomenų."</string>
     <string name="upsdk_no_available_network_prompt_toast" priority="translator">"Nėra interneto ryšio. Pasitikrinkite tinklo nuostatas."</string>
     <string name="upsdk_ota_app_name" priority="LT">"Programėlė"</string>
     <string name="upsdk_ota_cancel" priority="translator">"Vėliau"</string>
@@ -96,5 +92,4 @@
     <string name="upsdk_third_app_dl_install_failed" priority="translator">"Įdiegti nepavyko."</string>
     <string name="upsdk_third_app_dl_sure_cancel_download" priority="translator">"Taip"</string>
     <string name="upsdk_update_check_no_new_version" priority="Reviewed">"Naudojate naujausią versiją."</string>
-    <string name="upsdk_updating" priority="translator">"Naujinama"</string>
 </resources>

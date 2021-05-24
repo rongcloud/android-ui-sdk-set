@@ -20,7 +20,7 @@
             android:layout_height="45dp"
             android:background="@drawable/rc_picture_item_select_bg"
             android:gravity="center"
-            android:text="@string/picture_photograph"
+            android:text="@string/rc_picture_photograph"
             android:textColor="@color/picture_color_53575e"
             android:textSize="14sp" />
 
@@ -37,7 +37,7 @@
             android:layout_height="45dp"
             android:background="@drawable/rc_picture_item_select_bg"
             android:gravity="center"
-            android:text="@string/picture_record_video"
+            android:text="@string/rc_picture_record_video"
             android:textColor="@color/picture_color_53575e"
             android:textSize="14sp" />
 
@@ -61,7 +61,7 @@
             android:layout_height="45dp"
             android:background="@drawable/rc_picture_item_select_bg"
             android:gravity="center"
-            android:text="@string/picture_cancel"
+            android:text="@string/rc_picture_cancel"
             android:textColor="@color/picture_color_53575e"
             android:textSize="14sp" />
     </LinearLayout>
