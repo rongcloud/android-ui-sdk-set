@@ -21,12 +21,13 @@ public interface IConversationBusinessProcessor {
      * 第一次初始化，绑定事件等
      *
      * @param messageViewModel 消息处理类
-     * @param bundle 上一个页面传递过来的 bundle
+     * @param bundle           上一个页面传递过来的 bundle
      */
     void init(MessageViewModel messageViewModel, Bundle bundle);
 
     /**
      * 接收消息回调此接口
+     *
      * @param messageViewModel
      * @param message
      * @param left
@@ -36,14 +37,26 @@ public interface IConversationBusinessProcessor {
      */
     boolean onReceived(MessageViewModel messageViewModel, UiMessage message, int left, boolean hasPackage, boolean offline);
 
+
+    /**
+     * 接收到命令消息，(MessageTag 为 None 或 Status 的消息)
+     *
+     * @param messageViewModel
+     * @param message          拦截的命令消息
+     * @return true，ui 不展示，false 在 ui 展示
+     */
+    boolean onReceivedCmd(MessageViewModel messageViewModel, Message message);
+
     /**
      * 消息点击事件
+     *
      * @param uiMessage
      */
     void onMessageItemClick(UiMessage uiMessage);
 
     /**
      * 消息长按事件
+     *
      * @param uiMessage
      * @return 是否拦截
      */
@@ -51,6 +64,7 @@ public interface IConversationBusinessProcessor {
 
     /**
      * 用户头像点击事件
+     *
      * @param context
      * @param conversationType
      * @param userInfo
@@ -60,6 +74,7 @@ public interface IConversationBusinessProcessor {
 
     /**
      * 用户头像长按事件
+     *
      * @param context
      * @param conversationType
      * @param userInfo

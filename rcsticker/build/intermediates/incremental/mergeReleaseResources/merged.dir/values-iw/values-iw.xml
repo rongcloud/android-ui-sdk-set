@@ -45,7 +45,7 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"פתח בטלפון"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"כניסה"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"‏היכנס באמצעות Google"</string>
-    <string msgid="4133737464567140336" name="fcm_fallback_notification_channel_label">"שונות"</string>
+    <string name="fcm_fallback_notification_channel_label">שונות</string>
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"שונות"</string>
     <string name="hms_abort" priority="translator">"עצור"</string>
     <string name="hms_abort_message" priority="translator">"להפסיק את ההורדה?"</string>

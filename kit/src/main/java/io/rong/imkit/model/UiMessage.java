@@ -30,6 +30,7 @@ public class UiMessage extends UiBaseBean {
     private boolean isPlaying;
     private boolean isEdit;
     private boolean isSelected;
+    private String nickname;
 
     /**
      * TextMessage 和 ReferenceMessage 的 content 字段
@@ -44,6 +45,28 @@ public class UiMessage extends UiBaseBean {
         setMessage(message);
         initUserInfo();
         change();
+    }
+
+    public void initUserInfo() {
+        UserInfo user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+        if (user != null) {
+            userInfo = user;
+            if (userInfo.getName() == null) {
+                userInfo.setName(message.getSenderUserId());
+            }
+        } else {
+            userInfo = new UserInfo(message.getSenderUserId(), message.getSenderUserId(), null);
+        }
+        if (message.getConversationType().equals(Conversation.ConversationType.GROUP)) {
+            GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(message.getTargetId(), message.getSenderUserId());
+            if (groupUserInfo != null && !TextUtils.isEmpty(groupUserInfo.getNickname())) {
+                nickname = groupUserInfo.getNickname();
+            }
+        }
+    }
+
+    public Message getMessage() {
+        return message;
     }
 
     public void setMessage(Message message) {
@@ -64,9 +87,17 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
     public void setUserInfo(UserInfo userInfo) {
         this.userInfo = userInfo;
         change();
+    }
+
+    public int getState() {
+        return state;
     }
 
     public void setState(int state) {
@@ -74,9 +105,17 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public int getProgress() {
+        return progress;
+    }
+
     public void setProgress(int progress) {
         this.progress = progress;
         change();
+    }
+
+    public String getDestructTime() {
+        return destructTime;
     }
 
     public void setDestructTime(String destructTime) {
@@ -84,9 +123,17 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
     public void setPlaying(boolean playing) {
         this.isPlaying = playing;
         change();
+    }
+
+    public boolean isEdit() {
+        return isEdit;
     }
 
     public void setEdit(boolean edit) {
@@ -94,49 +141,22 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
-    public void setSelected(boolean selected) {
-        this.isSelected = selected;
-        change();
-    }
-
-    public Message getMessage() {
-        return message;
-    }
-
-    public UserInfo getUserInfo() {
-        return userInfo;
-    }
-
-    public int getState() {
-        return state;
-    }
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public String getDestructTime() {
-        return destructTime;
-    }
-
-    public boolean isPlaying() {
-        return isPlaying;
-    }
-
-    public boolean isEdit() {
-        return isEdit;
-    }
-
     public boolean isSelected() {
         return isSelected;
     }
 
+    public void setSelected(boolean selected) {
+        this.isSelected = selected;
+        change();
+    }
 
     public void onUserInfoUpdate(List<User> userList) {
         for (User user : userList) {
             if (user.id.equals(message.getSenderUserId())) {
                 if (user.name != null) {
                     userInfo.setName(user.name);
+                } else {
+                    userInfo.setName("");
                 }
                 userInfo.setPortraitUri(Uri.parse(user.portraitUrl));
                 userInfo.setExtra(user.extra);
@@ -148,58 +168,13 @@ public class UiMessage extends UiBaseBean {
 
     public void onGroupMemberInfoUpdate(GroupMember member) {
         if (member.userId.equals(message.getSenderUserId())) {
-            if (!TextUtils.isEmpty(member.memberName)) {
-                userInfo.setName(member.memberName);
-                change();
-            }
-        }
-    }
-
-    public void initUserInfo() {
-        UserInfo user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
-        if (user != null) {
-            userInfo = user;
-            if (userInfo.getName() == null) {
-                userInfo.setName(message.getSenderUserId());
-            }
-        } else {
-            userInfo = new UserInfo(message.getSenderUserId(), message.getSenderUserId(), null);
-        }
-        if (message.getConversationType().equals(Conversation.ConversationType.GROUP)) {
-            GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(message.getTargetId(), message.getSenderUserId());
-            if (groupUserInfo != null && !TextUtils.isEmpty(groupUserInfo.getNickname())) {
-                userInfo.setName(groupUserInfo.getNickname());
-            }
+            nickname = member.memberName;
+            change();
         }
     }
 
     public int getMessageId() {
         return message != null ? message.getMessageId() : -1;
-    }
-
-    public void setUId(String UId) {
-        if (message == null) {
-            return;
-        }
-        message.setUId(UId);
-        change();
-    }
-
-
-    public void setConversationType(Conversation.ConversationType conversationType) {
-        if (message == null) {
-            return;
-        }
-        message.setConversationType(conversationType);
-        change();
-    }
-
-    public void setTargetId(String targetId) {
-        if (message == null) {
-            return;
-        }
-        message.setTargetId(targetId);
-        change();
     }
 
     public void setMessageId(int messageId) {
@@ -210,12 +185,56 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public String getUId() {
+        return message != null ? message.getUId() : null;
+    }
+
+    public void setUId(String UId) {
+        if (message == null) {
+            return;
+        }
+        message.setUId(UId);
+        change();
+    }
+
+    public Conversation.ConversationType getConversationType() {
+        return message != null ? message.getConversationType() : Conversation.ConversationType.NONE;
+    }
+
+    public void setConversationType(Conversation.ConversationType conversationType) {
+        if (message == null) {
+            return;
+        }
+        message.setConversationType(conversationType);
+        change();
+    }
+
+    public String getTargetId() {
+        return message != null ? message.getTargetId() : null;
+    }
+
+    public void setTargetId(String targetId) {
+        if (message == null) {
+            return;
+        }
+        message.setTargetId(targetId);
+        change();
+    }
+
+    public long getReadTime() {
+        return message != null ? message.getReadTime() : 0;
+    }
+
     public void setReadTime(long readTime) {
         if (message == null) {
             return;
         }
         message.setReadTime(readTime);
         change();
+    }
+
+    public Message.MessageDirection getMessageDirection() {
+        return message != null ? message.getMessageDirection() : null;
     }
 
     public void setMessageDirection(Message.MessageDirection messageDirection) {
@@ -226,12 +245,20 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public Message.ReceivedStatus getReceivedStatus() {
+        return message != null ? message.getReceivedStatus() : null;
+    }
+
     public void setReceivedStatus(Message.ReceivedStatus receivedStatus) {
         if (message == null) {
             return;
         }
         message.setReceivedStatus(receivedStatus);
         change();
+    }
+
+    public Message.SentStatus getSentStatus() {
+        return message != null ? message.getSentStatus() : null;
     }
 
     public void setSentStatus(Message.SentStatus sentStatus) {
@@ -242,12 +269,20 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public long getReceivedTime() {
+        return message != null ? message.getReceivedTime() : 0;
+    }
+
     public void setReceivedTime(long receivedTime) {
         if (message == null) {
             return;
         }
         message.setReceivedTime(receivedTime);
         change();
+    }
+
+    public long getSentTime() {
+        return message != null ? message.getSentTime() : 0;
     }
 
     public void setSentTime(long sentTime) {
@@ -258,12 +293,20 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public String getObjectName() {
+        return message != null ? message.getObjectName() : null;
+    }
+
     public void setObjectName(String objectName) {
         if (message == null) {
             return;
         }
         message.setObjectName(objectName);
         change();
+    }
+
+    public MessageContent getContent() {
+        return message != null ? message.getContent() : null;
     }
 
     public void setContent(MessageContent content) {
@@ -274,12 +317,20 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public String getExtra() {
+        return message != null ? message.getExtra() : null;
+    }
+
     public void setExtra(String extra) {
         if (message == null) {
             return;
         }
         message.setExtra(extra);
         change();
+    }
+
+    public String getSenderUserId() {
+        return message != null ? message.getSenderUserId() : null;
     }
 
     public void setSenderUserId(String senderUserId) {
@@ -290,12 +341,20 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public ReadReceiptInfo getReadReceiptInfo() {
+        return message != null ? message.getReadReceiptInfo() : null;
+    }
+
     public void setReadReceiptInfo(ReadReceiptInfo readReceiptInfo) {
         if (message == null) {
             return;
         }
         message.setReadReceiptInfo(readReceiptInfo);
         change();
+    }
+
+    public MessageConfig getMessageConfig() {
+        return message != null ? message.getMessageConfig() : null;
     }
 
     public void setMessageConfig(MessageConfig messageConfig) {
@@ -306,6 +365,10 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public boolean isCanIncludeExpansion() {
+        return message != null && message.isCanIncludeExpansion();
+    }
+
     public void setCanIncludeExpansion(boolean canIncludeExpansion) {
         if (message == null) {
             return;
@@ -314,84 +377,16 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public Map<String, String> getExpansion() {
+        return message != null ? message.getExpansion() : null;
+    }
+
     public void setExpansion(HashMap<String, String> expansion) {
         if (message == null) {
             return;
         }
         message.setExpansion(expansion);
         change();
-    }
-
-    public String getUId() {
-        return message != null ? message.getUId() : null;
-    }
-
-    public Conversation.ConversationType getConversationType() {
-        return message != null ? message.getConversationType() : Conversation.ConversationType.NONE;
-    }
-
-    public String getTargetId() {
-        return message != null ? message.getTargetId() : null;
-    }
-
-    public long getReadTime() {
-        return message != null ? message.getReadTime() : 0;
-    }
-
-    public Message.MessageDirection getMessageDirection() {
-        return message != null ? message.getMessageDirection() : null;
-    }
-
-    public Message.ReceivedStatus getReceivedStatus() {
-        return message != null ? message.getReceivedStatus() : null;
-    }
-
-    public Message.SentStatus getSentStatus() {
-        return message != null ? message.getSentStatus() : null;
-    }
-
-    public long getReceivedTime() {
-        return message != null ? message.getReceivedTime() : 0;
-    }
-
-    public long getSentTime() {
-        return message != null ? message.getSentTime() : 0;
-    }
-
-    public String getObjectName() {
-        return message != null ? message.getObjectName() : null;
-    }
-
-    public MessageContent getContent() {
-        return message != null ? message.getContent() : null;
-    }
-
-    public String getExtra() {
-        return message != null ? message.getExtra() : null;
-    }
-
-
-    public String getSenderUserId() {
-        return message != null ? message.getSenderUserId() : null;
-    }
-
-
-    public ReadReceiptInfo getReadReceiptInfo() {
-        return message != null ? message.getReadReceiptInfo() : null;
-    }
-
-
-    public MessageConfig getMessageConfig() {
-        return message != null ? message.getMessageConfig() : null;
-    }
-
-
-    public boolean isCanIncludeExpansion() {
-        return message != null && message.isCanIncludeExpansion();
-    }
-
-    public Map<String, String> getExpansion() {
-        return message != null ? message.getExpansion() : null;
     }
 
     public SpannableStringBuilder getContentSpannable() {
@@ -408,5 +403,13 @@ public class UiMessage extends UiBaseBean {
 
     public void setReferenceContentSpannable(SpannableStringBuilder referenceContentSpannable) {
         this.referenceContentSpannable = referenceContentSpannable;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 }

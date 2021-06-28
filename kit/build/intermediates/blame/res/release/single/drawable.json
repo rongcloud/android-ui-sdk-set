@@ -1,7 +1,7 @@
 [
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_icon_light_focused.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_icon_light_focused.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_icon_light_focused.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/abc_tab_indicator_material.xml",
@@ -17,11 +17,11 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_light.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_text_light.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_text_light.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_icon_light_normal.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_icon_light_normal.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_icon_light_normal.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/rc_picture_sb_thumb.xml",
@@ -125,7 +125,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_dark_normal.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_text_dark_normal.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_text_dark_normal.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/rc_progress_sending_style.xml",
@@ -253,11 +253,11 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_disabled.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_text_disabled.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_text_disabled.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_dark.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_text_dark.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_text_dark.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/rc_bottom_menu_dialog_style.xml",
@@ -353,7 +353,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_icon_dark.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_icon_dark.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_icon_dark.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/rc_picture_original_wechat_normal.xml",
@@ -377,7 +377,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_icon_dark_normal.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_icon_dark_normal.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_icon_dark_normal.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/rc_image_circle_default_bg.xml",
@@ -409,11 +409,11 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_icon_dark_focused.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_icon_dark_focused.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_icon_dark_focused.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_light_focused.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_text_light_focused.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_text_light_focused.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/tooltip_frame_light.xml",
@@ -581,7 +581,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_icon_disabled.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_icon_disabled.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_icon_disabled.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/abc_btn_colored_material.xml",
@@ -629,11 +629,11 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_light_normal.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_text_light_normal.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_text_light_normal.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_dark_focused.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_text_dark_focused.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_text_dark_focused.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/rc_ic_files_selector.xml",
@@ -645,7 +645,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/common_google_signin_btn_icon_light.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-base-16.0.1.aar/716caf0708e2b6ea514e67b469c1b30e/res/drawable/common_google_signin_btn_icon_light.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/f24eda2deb65eb86876b86c97319df7c/res/drawable/common_google_signin_btn_icon_light.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/drawable/abc_ic_go_search_api_material.xml",

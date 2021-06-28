@@ -93,6 +93,28 @@ public class NormalState implements IMessageState {
         });
     }
 
+    private void initUnreadMessage(final MessageViewModel messageViewModel, final int unreadMessageCount) {
+        RongIMClient.getInstance().getTheFirstUnreadMessage(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), new RongIMClient.ResultCallback<Message>() {
+            @Override
+            public void onSuccess(Message message) {
+                if (unreadMessageCount > MessageViewModel.SHOW_UNREAD_MESSAGE_COUNT && message != null) {
+                    messageViewModel.setFirstUnreadMessage(message);
+                    if (RongConfigCenter.conversationConfig().isShowHistoryMessageBar(messageViewModel.getCurConversationType())) {
+                        messageViewModel.showHistoryBar(unreadMessageCount);
+                    }
+                }
+                messageViewModel.setInitUnreadMessageFinish(true);
+                messageViewModel.cleanUnreadStatus();
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode e) {
+                messageViewModel.setInitUnreadMessageFinish(true);
+                messageViewModel.cleanUnreadStatus();
+            }
+        });
+    }
+
     private void initMentionedMessage(Conversation conversation, final MessageViewModel messageViewModel) {
         if (conversation.getMentionedCount() > 0) {
             RongIMClient.getInstance().getUnreadMentionedMessages(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), new RongIMClient.ResultCallback<List<Message>>() {
@@ -123,28 +145,6 @@ public class NormalState implements IMessageState {
         }
     }
 
-    private void initUnreadMessage(final MessageViewModel messageViewModel, final int unreadMessageCount) {
-        RongIMClient.getInstance().getTheFirstUnreadMessage(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), new RongIMClient.ResultCallback<Message>() {
-            @Override
-            public void onSuccess(Message message) {
-                if (unreadMessageCount > MessageViewModel.SHOW_UNREAD_MESSAGE_COUNT && message != null) {
-                    messageViewModel.setFirstUnreadMessage(message);
-                    if (RongConfigCenter.conversationConfig().isShowHistoryMessageBar(messageViewModel.getCurConversationType())) {
-                        messageViewModel.showHistoryBar(unreadMessageCount);
-                    }
-                }
-                messageViewModel.setInitUnreadMessageFinish(true);
-                messageViewModel.cleanUnreadStatus();
-            }
-
-            @Override
-            public void onError(RongIMClient.ErrorCode e) {
-                messageViewModel.setInitUnreadMessageFinish(true);
-                messageViewModel.cleanUnreadStatus();
-            }
-        });
-    }
-
     /**
      * 正常模式不需要上拉加载更多，直接关闭
      *
@@ -171,7 +171,8 @@ public class NormalState implements IMessageState {
      */
     @Override
     public void onReceived(MessageViewModel viewModel, UiMessage uiMessage, int left, boolean hasPackage, boolean offline) {
-        viewModel.getUiMessages().add(uiMessage);
+        int insertPosition = viewModel.findPositionBySendTime(uiMessage.getMessage().getSentTime());
+        viewModel.getUiMessages().add(insertPosition, uiMessage);
         viewModel.updateUiMessages(false);
         viewModel.updateMentionMessage(uiMessage.getMessage());
         // newMessageBar 逻辑
@@ -308,35 +309,6 @@ public class NormalState implements IMessageState {
         }
     }
 
-    public void getRemoteMessage(final MessageViewModel messageViewModel) {
-        RongIMClient.getInstance().getRemoteHistoryMessages(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), messageViewModel.getRefreshSentTime(), DEFAULT_COUNT + 1, new RongIMClient.ResultCallback<List<Message>>() {
-            @Override
-            public void onSuccess(List<Message> messages) {
-                //不为空且大于0证明还有本地数据
-                if (messages != null && messages.size() > 0) {
-                    //如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
-                    List<Message> result;
-                    if (messages.size() < DEFAULT_REMOTE_COUNT + 1) {
-                        messageViewModel.setRemoteMessageLoadFinish(true);
-                        result = messages;
-                    } else {
-                        result = messages.subList(0, DEFAULT_REMOTE_COUNT);
-                    }
-                    messageViewModel.onGetHistoryMessage(result);
-                } else {
-                    messageViewModel.setRemoteMessageLoadFinish(true);
-                }
-                messageViewModel.executePageEvent(new Event.RefreshEvent(RefreshState.RefreshFinish));
-            }
-
-            @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                messageViewModel.executePageEvent(new Event.RefreshEvent(RefreshState.RefreshFinish));
-            }
-        });
-    }
-
-
     public void getLocalMessage(final MessageViewModel messageViewModel) {
         RongIMClient.getInstance().getHistoryMessages(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), messageViewModel.getRefreshMessageId(), DEFAULT_COUNT + 1, new RongIMClient.ResultCallback<List<Message>>() {
             //返回列表（10，9，8，7，6，按messageId倒序）
@@ -367,6 +339,34 @@ public class NormalState implements IMessageState {
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
 
+            }
+        });
+    }
+
+    public void getRemoteMessage(final MessageViewModel messageViewModel) {
+        RongIMClient.getInstance().getRemoteHistoryMessages(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), messageViewModel.getRefreshSentTime(), DEFAULT_COUNT + 1, new RongIMClient.ResultCallback<List<Message>>() {
+            @Override
+            public void onSuccess(List<Message> messages) {
+                //不为空且大于0证明还有本地数据
+                if (messages != null && messages.size() > 0) {
+                    //如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
+                    List<Message> result;
+                    if (messages.size() < DEFAULT_REMOTE_COUNT + 1) {
+                        messageViewModel.setRemoteMessageLoadFinish(true);
+                        result = messages;
+                    } else {
+                        result = messages.subList(0, DEFAULT_REMOTE_COUNT);
+                    }
+                    messageViewModel.onGetHistoryMessage(result);
+                } else {
+                    messageViewModel.setRemoteMessageLoadFinish(true);
+                }
+                messageViewModel.executePageEvent(new Event.RefreshEvent(RefreshState.RefreshFinish));
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+                messageViewModel.executePageEvent(new Event.RefreshEvent(RefreshState.RefreshFinish));
             }
         });
     }

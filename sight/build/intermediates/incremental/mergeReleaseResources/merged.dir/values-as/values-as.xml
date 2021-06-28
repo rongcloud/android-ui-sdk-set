@@ -45,7 +45,8 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"ফ\'নত খোলক"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"ছাইন ইন কৰক"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Googleৰ জৰিয়তে ছাইন ইন কৰক"</string>
-    <string msgid="4133737464567140336" name="fcm_fallback_notification_channel_label">"বিবিধ"</string>
+    <string name="fcm_fallback_notification_channel_label">বিবিধ</string>
+    <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"বিবিধ"</string>
     <string name="hms_abort" priority="translator">"বন্ধ কৰক"</string>
     <string name="hms_abort_message" priority="translator">"ডাউনলোড কৰা বন্ধ কৰিবনে?"</string>
     <string name="hms_bindfaildlg_message" priority="translator">"%1$s-এ HMS Core ব্যৱহাৰ কৰাত অক্ষম। অনুকূলক (ফোন মেনেজাৰ) প্ৰাৰম্ভ কৰক বা ছেটিংচলৈ যাওক, %2$s-ৰ বাবে সকলো অনুমতি সক্ষম কৰক (স্বয়ং-প্ৰাৰম্ভ আৰু প্ৰাথমিক প্ৰাৰম্ভক অন্তৰ্ভুক্ত কৰি) আৰু পুনঃচেষ্টা কৰক।"</string>

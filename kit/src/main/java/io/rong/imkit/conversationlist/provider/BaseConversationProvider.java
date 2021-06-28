@@ -42,7 +42,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
 
         //会话头像
         if (!TextUtils.isEmpty(uiConversation.mCore.getPortraitUrl())) {
-            RongConfigCenter.featureConfig().getKitImageEngine().loadConversationListPortrait(holder.getContext(), uiConversation.mCore.getPortraitUrl(), holder.<ImageView>getView(R.id.rc_conversation_portrait));
+            RongConfigCenter.featureConfig().getKitImageEngine().loadConversationListPortrait(holder.getContext(), uiConversation.mCore.getPortraitUrl(), holder.<ImageView>getView(R.id.rc_conversation_portrait), uiConversation.mCore);
         } else {
             int drawableId = R.drawable.rc_default_portrait;
             if (uiConversation.mCore.getConversationType().equals(Conversation.ConversationType.GROUP)) {

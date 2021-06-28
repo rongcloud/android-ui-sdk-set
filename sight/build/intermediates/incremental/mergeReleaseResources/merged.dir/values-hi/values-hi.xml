@@ -45,8 +45,8 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"फ़ोन पर खोलें"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"साइन इन करें"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Google के ज़रिए साइन इन करें"</string>
-    <string msgid="4133737464567140336" name="fcm_fallback_notification_channel_label">"अन्य"</string>
-    <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"विविध"</string>
+    <string name="fcm_fallback_notification_channel_label">अन्य</string>
+    <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"अन्य"</string>
     <string name="hms_abort" priority="translator">"बंद करें"</string>
     <string name="hms_abort_message" priority="translator">"डाउनलोड बंद करें?"</string>
     <string name="hms_bindfaildlg_message" priority="translator">"HMS Core का उपयोग करने के लिए %1$s अक्षम है। कृपया ऑप्टिमाइज़र (फ़ोन प्रबंधक) को लांच करें या सेटिंग्स पर जाएं, %2$s के लिए सभी अनुमतियों को सक्षम करें (स्वतः-लांच तथा सहायक लांच सहित), और फिर कोशिश करें।"</string>

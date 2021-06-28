@@ -85,7 +85,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                         }
                     }, 100);
 
-                    mReferenceMessage = ReferenceMessage.obtainMessage(uiMessage.getMessage().getSenderUserId(), uiMessage.getMessage().getContent());
+                    mReferenceMessage = ReferenceMessage.obtainMessage(uiMessage.getMessage().getSenderUserId(), uiMessage.getMessage().getContent(), uiMessage.getUId());
                     reference.setReferenceCancelListener(new ReferenceView.ReferenceCancelListener() {
                         @Override
                         public void onCanceled() {

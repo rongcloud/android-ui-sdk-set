@@ -45,7 +45,8 @@
     <string msgid="5201977337835724196" name="common_open_on_phone">"ଫୋନ୍‌ରେ ଖୋଲନ୍ତୁ"</string>
     <string msgid="3441753203274453993" name="common_signin_button_text">"ସାଇନ୍‌-ଇନ୍ କରନ୍ତୁ"</string>
     <string msgid="669893613918351210" name="common_signin_button_text_long">"Google ସହ ସାଇନ୍‌-ଇନ୍ କରନ୍ତୁ"</string>
-    <string msgid="4133737464567140336" name="fcm_fallback_notification_channel_label">"ଅନ୍ୟାନ୍ୟ"</string>
+    <string name="fcm_fallback_notification_channel_label">ଅନ୍ୟାନ୍ୟ</string>
+    <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"ଅନ୍ୟାନ୍ୟ"</string>
     <string name="hms_abort" priority="translator">"ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="hms_abort_message" priority="translator">"ଡାଉନଲୋଡ୍ କରିବା ସ୍ଥଗିତ କରିବେ?"</string>
     <string name="hms_bindfaildlg_message" priority="translator">"%1$s HMS Core ବ୍ୟବହାର କରିବାକୁ ଅସମର୍ଥ। ଦୟାକରି ଅପ୍ଟିମାଇଜର୍‌ (ଫୋନ୍ ପରିଚାଳକ) ଉନ୍ମୋଚନ କରନ୍ତୁ କିମ୍ୱା ସେଟିଂସକୁ ଯାଆନ୍ତୁ, (ଅନ୍ତର୍ଭୁକ୍ତ ସ୍ଵତଃ-ଲଞ୍ଚ ଏବଂ ଗୌଣ ଲଞ୍ଚ) %2$s ପାଇଁ ସମସ୍ତ ଅନୁମତିଗୁଡ଼ିକ ସକ୍ଷମ କରନ୍ତୁ, ଏବଂ ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ।"</string>

@@ -25,6 +25,11 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
     }
 
     @Override
+    public boolean onReceivedCmd(MessageViewModel messageViewModel, Message message) {
+        return true;
+    }
+
+    @Override
     public void onExistUnreadMessage(MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
 
     }
@@ -89,4 +94,5 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
     public void onResume(MessageViewModel viewModel) {
 
     }
+
 }

@@ -32,52 +32,6 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
     private static final String TAG = "BaseMessageItemProvider";
     protected MessageItemProviderConfig mConfig = new MessageItemProviderConfig();
 
-    /**
-     * 创建 ViewHolder
-     *
-     * @param parent   父 ViewGroup
-     * @param viewType 视图类型
-     * @return ViewHolder
-     */
-    protected abstract ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType);
-
-    /**
-     * 设置消息视图里各 view 的值
-     *
-     * @param holder       ViewHolder
-     * @param parentHolder 父布局的 ViewHolder
-     * @param t            此展示模板对应的消息
-     * @param uiMessage    {@link UiMessage}
-     * @param position     消息位置
-     * @param list         列表
-     * @param listener     ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
-     */
-    protected abstract void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener);
-
-    /**
-     * @param holder    ViewHolder
-     * @param t         自定义消息
-     * @param uiMessage {@link UiMessage}
-     * @param position  位置
-     * @param list      列表数据
-     * @param listener  ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
-     * @return 点击事件是否被消费
-     */
-    protected abstract boolean onItemClick(ViewHolder holder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener);
-
-    protected boolean onItemLongClick(ViewHolder holder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
-        return false;
-    }
-
-
-    /**
-     * 根据消息内容，判断是否为本模板需要展示的消息类型
-     *
-     * @param messageContent 消息内容
-     * @return 本模板是否处理。
-     */
-    protected abstract boolean isMessageViewType(MessageContent messageContent);
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View rootView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_message_item, parent, false);
@@ -89,6 +43,20 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
             }
         }
         return new MessageViewHolder(rootView.getContext(), rootView, contentViewHolder);
+    }
+
+    /**
+     * 创建 ViewHolder
+     *
+     * @param parent   父 ViewGroup
+     * @param viewType 视图类型
+     * @return ViewHolder
+     */
+    protected abstract ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType);
+
+    @Override
+    public boolean isItemViewType(UiMessage item) {
+        return isMessageViewType(item.getMessage().getContent());
     }
 
     @Override
@@ -123,6 +91,148 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
         }
     }
 
+    private void initTime(ViewHolder holder, int position, List<UiMessage> data, Message message) {
+        String time = RongDateUtils.getConversationFormatDate(message.getSentTime(), holder.getContext());
+        holder.setText(R.id.rc_time, time);
+        if (position == 0) {
+            holder.setVisible(R.id.rc_time, !(message.getContent() instanceof HistoryDividerMessage));
+        } else {
+            UiMessage pre = data.get(position - 1);
+            if (pre.getMessage() != null && RongDateUtils.isShowChatTime(message.getSentTime(), pre.getMessage().getSentTime(), 180)) {
+                holder.setVisible(R.id.rc_time, true);
+            } else {
+                holder.setVisible(R.id.rc_time, false);
+            }
+        }
+    }
+
+    private void initUserInfo(final ViewHolder holder, final UiMessage uiMessage, final int position, final IViewProviderListener<UiMessage> listener, boolean isSender) {
+        if (mConfig.showPortrait) {
+            holder.setVisible(R.id.rc_left_portrait, !isSender);
+            holder.setVisible(R.id.rc_right_portrait, isSender);
+            ImageView view = holder.getView(isSender ? R.id.rc_right_portrait : R.id.rc_left_portrait);
+            if (uiMessage.getUserInfo().getPortraitUri() != null) {
+                RongConfigCenter.featureConfig().getKitImageEngine().loadConversationPortrait(holder.getContext(), uiMessage.getUserInfo().getPortraitUri().toString(), view, uiMessage.getMessage());
+            }
+            holder.setOnClickListener(R.id.rc_left_portrait, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
+                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
+                        if (!result) {
+                            listener.onViewClick(MessageClickType.USER_PORTRAIT_CLICK, uiMessage);
+                        }
+                    }
+                }
+            });
+
+            holder.setOnClickListener(R.id.rc_right_portrait, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
+                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
+                        if (!result) {
+                            listener.onViewClick(MessageClickType.USER_PORTRAIT_CLICK, uiMessage);
+                        }
+                    }
+                }
+            });
+
+            holder.setOnLongClickListener(R.id.rc_left_portrait, new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
+                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitLongClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
+                        if (!result) {
+                            return listener.onViewLongClick(MessageClickType.USER_PORTRAIT_LONG_CLICK, uiMessage);
+                        }
+                    }
+                    return false;
+                }
+            });
+
+            holder.setOnLongClickListener(R.id.rc_right_portrait, new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
+                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitLongClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
+                        if (!result) {
+                            return listener.onViewLongClick(MessageClickType.USER_PORTRAIT_LONG_CLICK, uiMessage);
+                        }
+                    }
+                    return false;
+                }
+            });
+            if (!RongConfigCenter.conversationConfig().isShowReceiverUserTitle(uiMessage.getMessage().getConversationType())) {
+                holder.setVisible(R.id.rc_title, false);
+            } else {
+                if (!isSender) {
+                    holder.setVisible(R.id.rc_title, true);
+                    holder.setText(R.id.rc_title, !TextUtils.isEmpty(uiMessage.getNickname()) ? uiMessage.getNickname() : uiMessage.getUserInfo().getName());
+                } else {
+                    holder.setVisible(R.id.rc_title, false);
+                }
+            }
+        } else {
+            holder.setVisible(R.id.rc_left_portrait, false);
+            holder.setVisible(R.id.rc_right_portrait, false);
+            holder.setVisible(R.id.rc_title, false);
+        }
+    }
+
+    private void initContent(final ViewHolder holder, boolean isSender, final UiMessage uiMessage, final int position, final IViewProviderListener<UiMessage> listener, final List<UiMessage> list) {
+        if (mConfig.showContentBubble) {
+            holder.setBackgroundRes(R.id.rc_content, isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+        } else {
+            holder.getView(R.id.rc_content).setBackground(null);
+        }
+        holder.setPadding(R.id.rc_content, 0, 0, 0, 0);
+
+        LinearLayout layout = holder.getView(R.id.rc_layout);
+        if (mConfig.centerInHorizontal) {
+            layout.setGravity(Gravity.CENTER_HORIZONTAL);
+        } else {
+            layout.setGravity(isSender ? Gravity.END : Gravity.START);
+        }
+
+
+        holder.setOnClickListener(R.id.rc_content, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean result = false;
+                /**
+                 * 点击事件分发策略：应用 -> 各消息模板实现类 -> Processor
+                 */
+                if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
+                    result = RongConfigCenter.conversationConfig().getConversationClickListener().onMessageClick(holder.getContext(), v, uiMessage.getMessage());
+                }
+                if (!result) {
+                    result = onItemClick(((MessageViewHolder) holder).getMessageContentViewHolder(), (T) uiMessage.getMessage().getContent(), uiMessage, position, list, listener);
+                    if (!result) {
+                        listener.onViewClick(MessageClickType.CONTENT_CLICK, uiMessage);
+                    }
+                }
+            }
+        });
+
+        holder.setOnLongClickListener(R.id.rc_content, new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                boolean result = false;
+                if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
+                    result = RongConfigCenter.conversationConfig().getConversationClickListener().onMessageLongClick(holder.getContext(), v, uiMessage.getMessage());
+                }
+                if (!result) {
+                    result = onItemLongClick(((MessageViewHolder) holder).getMessageContentViewHolder(), (T) uiMessage.getMessage().getContent(), uiMessage, position, list, listener);
+                    if (!result) {
+                        return listener.onViewLongClick(MessageClickType.CONTENT_LONG_CLICK, uiMessage);
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
     private void initStatus(ViewHolder holder, final UiMessage uiMessage, final int position, final IViewProviderListener<UiMessage> listener, Message message, boolean isSender, List<UiMessage> list) {
         if (mConfig.showWarning && !ResendManager.getInstance().needResend(uiMessage.getMessage().getMessageId())) {
             if (isSender && uiMessage.getState() == State.ERROR) {
@@ -153,6 +263,34 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
         }
 
         initReadStatus(holder, uiMessage, position, listener, message, isSender, list);
+    }
+
+    /**
+     * 设置消息视图里各 view 的值
+     *
+     * @param holder       ViewHolder
+     * @param parentHolder 父布局的 ViewHolder
+     * @param t            此展示模板对应的消息
+     * @param uiMessage    {@link UiMessage}
+     * @param position     消息位置
+     * @param list         列表
+     * @param listener     ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
+     */
+    protected abstract void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener);
+
+    /**
+     * @param holder    ViewHolder
+     * @param t         自定义消息
+     * @param uiMessage {@link UiMessage}
+     * @param position  位置
+     * @param list      列表数据
+     * @param listener  ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
+     * @return 点击事件是否被消费
+     */
+    protected abstract boolean onItemClick(ViewHolder holder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener);
+
+    protected boolean onItemLongClick(ViewHolder holder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+        return false;
     }
 
     private void initReadStatus(ViewHolder holder, final UiMessage uiMessage, int position, final IViewProviderListener<UiMessage> listener, final Message message, boolean isSender, List<UiMessage> list) {
@@ -224,149 +362,6 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
 
     }
 
-
-    private void initContent(final ViewHolder holder, boolean isSender, final UiMessage uiMessage, final int position, final IViewProviderListener<UiMessage> listener, final List<UiMessage> list) {
-        if (mConfig.showContentBubble) {
-            holder.setBackgroundRes(R.id.rc_content, isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
-        } else {
-            holder.getView(R.id.rc_content).setBackground(null);
-        }
-        holder.setPadding(R.id.rc_content, 0, 0, 0, 0);
-
-        LinearLayout layout = holder.getView(R.id.rc_layout);
-        if (mConfig.centerInHorizontal) {
-            layout.setGravity(Gravity.CENTER_HORIZONTAL);
-        } else {
-            layout.setGravity(isSender ? Gravity.END : Gravity.START);
-        }
-
-
-        holder.setOnClickListener(R.id.rc_content, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean result = false;
-                /**
-                 * 点击事件分发策略：应用 -> 各消息模板实现类 -> Processor
-                 */
-                if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
-                    result = RongConfigCenter.conversationConfig().getConversationClickListener().onMessageClick(holder.getContext(), v, uiMessage.getMessage());
-                }
-                if (!result) {
-                    result = onItemClick(((MessageViewHolder) holder).getMessageContentViewHolder(), (T) uiMessage.getMessage().getContent(), uiMessage, position, list, listener);
-                    if (!result) {
-                        listener.onViewClick(MessageClickType.CONTENT_CLICK, uiMessage);
-                    }
-                }
-            }
-        });
-
-        holder.setOnLongClickListener(R.id.rc_content, new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                boolean result = false;
-                if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
-                    result = RongConfigCenter.conversationConfig().getConversationClickListener().onMessageLongClick(holder.getContext(), v, uiMessage.getMessage());
-                }
-                if (!result) {
-                    result = onItemLongClick(((MessageViewHolder) holder).getMessageContentViewHolder(), (T) uiMessage.getMessage().getContent(), uiMessage, position, list, listener);
-                    if (!result) {
-                        return listener.onViewLongClick(MessageClickType.CONTENT_LONG_CLICK, uiMessage);
-                    }
-                }
-                return false;
-            }
-        });
-    }
-
-    private void initTime(ViewHolder holder, int position, List<UiMessage> data, Message message) {
-        String time = RongDateUtils.getConversationFormatDate(message.getSentTime(), holder.getContext());
-        holder.setText(R.id.rc_time, time);
-        if (position == 0) {
-            holder.setVisible(R.id.rc_time, !(message.getContent() instanceof HistoryDividerMessage));
-        } else {
-            UiMessage pre = data.get(position - 1);
-            if (pre.getMessage() != null && RongDateUtils.isShowChatTime(message.getSentTime(), pre.getMessage().getSentTime(), 180)) {
-                holder.setVisible(R.id.rc_time, true);
-            } else {
-                holder.setVisible(R.id.rc_time, false);
-            }
-        }
-    }
-
-    private void initUserInfo(final ViewHolder holder, final UiMessage uiMessage, final int position, final IViewProviderListener<UiMessage> listener, boolean isSender) {
-        if (mConfig.showPortrait) {
-            holder.setVisible(R.id.rc_left_portrait, !isSender);
-            holder.setVisible(R.id.rc_right_portrait, isSender);
-            ImageView view = holder.getView(isSender ? R.id.rc_right_portrait : R.id.rc_left_portrait);
-            if (uiMessage.getUserInfo().getPortraitUri() != null) {
-                RongConfigCenter.featureConfig().getKitImageEngine().loadConversationPortrait(holder.getContext(), uiMessage.getUserInfo().getPortraitUri().toString(), view);
-            }
-            holder.setOnClickListener(R.id.rc_left_portrait, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
-                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
-                        if (!result) {
-                            listener.onViewClick(MessageClickType.USER_PORTRAIT_CLICK, uiMessage);
-                        }
-                    }
-                }
-            });
-
-            holder.setOnClickListener(R.id.rc_right_portrait, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
-                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
-                        if (!result) {
-                            listener.onViewClick(MessageClickType.USER_PORTRAIT_CLICK, uiMessage);
-                        }
-                    }
-                }
-            });
-
-            holder.setOnLongClickListener(R.id.rc_left_portrait, new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
-                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitLongClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
-                        if (!result) {
-                            return listener.onViewLongClick(MessageClickType.USER_PORTRAIT_LONG_CLICK, uiMessage);
-                        }
-                    }
-                    return false;
-                }
-            });
-
-            holder.setOnLongClickListener(R.id.rc_right_portrait, new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
-                        boolean result = RongConfigCenter.conversationConfig().getConversationClickListener().onUserPortraitLongClick(holder.getContext(), uiMessage.getMessage().getConversationType(), uiMessage.getUserInfo(), uiMessage.getMessage().getTargetId());
-                        if (!result) {
-                            return listener.onViewLongClick(MessageClickType.USER_PORTRAIT_LONG_CLICK, uiMessage);
-                        }
-                    }
-                    return false;
-                }
-            });
-            if (!RongConfigCenter.conversationConfig().isShowReceiverUserTitle(uiMessage.getMessage().getConversationType())) {
-                holder.setVisible(R.id.rc_title, false);
-            } else {
-                if (!isSender) {
-                    holder.setVisible(R.id.rc_title, true);
-                    holder.setText(R.id.rc_title, uiMessage.getUserInfo().getName());
-                } else {
-                    holder.setVisible(R.id.rc_title, false);
-                }
-            }
-        } else {
-            holder.setVisible(R.id.rc_left_portrait, false);
-            holder.setVisible(R.id.rc_right_portrait, false);
-            holder.setVisible(R.id.rc_title, false);
-        }
-    }
-
     /**
      * @return 群组或讨论组是否展示消息已读回执, 默认只有文本消息展示
      * 子类可以重写此方法
@@ -374,6 +369,24 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
     protected boolean showReadReceiptRequest(Message message) {
         return message != null && message.getContent() != null &&
                 (message.getContent() instanceof TextMessage);
+    }
+
+    /**
+     * 根据消息内容，判断是否为本模板需要展示的消息类型
+     *
+     * @param messageContent 消息内容
+     * @return 本模板是否处理。
+     */
+    protected abstract boolean isMessageViewType(MessageContent messageContent);
+
+    @Override
+    public boolean isSummaryType(MessageContent messageContent) {
+        return isMessageViewType(messageContent);
+    }
+
+    @Override
+    public boolean showSummaryWithName() {
+        return mConfig.showSummaryWithName;
     }
 
     public static class MessageViewHolder extends ViewHolder {
@@ -388,20 +401,5 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
             return mMessageContentViewHolder;
         }
 
-    }
-
-    @Override
-    public boolean isSummaryType(MessageContent messageContent) {
-        return isMessageViewType(messageContent);
-    }
-
-    @Override
-    public boolean isItemViewType(UiMessage item) {
-        return isMessageViewType(item.getMessage().getContent());
-    }
-
-    @Override
-    public boolean showSummaryWithName() {
-        return mConfig.showSummaryWithName;
     }
 }

@@ -6,17 +6,14 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import androidx.core.content.ContextCompat;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
-import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.utils.ExecutorHelper;
-import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -63,22 +60,18 @@ public class FilePlugin implements IPluginModule {
         if (requestCode == REQUEST_FILE) {
             if (data != null) {
                 final Uri uri = data.getData();
+                int takeFlags = data.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                mContext.getContentResolver().takePersistableUriPermission(uri, takeFlags);
                 ExecutorHelper.getInstance().diskIO().execute(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            String displayName = DocumentFile.fromSingleUri(mContext, uri).getName();
-                            String name = System.currentTimeMillis() + "_" + displayName;
-                            String fileSavePath = KitStorageUtils.getFileSavePath(mContext);
-                            if (FileUtils.copyFileToInternal(mContext, uri, fileSavePath,  name)) {
-                                FileMessage fileMessage = FileMessage.obtain(mContext, Uri.parse("file://" + fileSavePath + "/" + name));
-                                if (fileMessage != null) {
-                                    fileMessage.setName(displayName);
-                                    final Message message = Message.obtain(targetId, conversationType, fileMessage);
-                                    IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
-                                }
-                            } else {
-                                RLog.e(TAG, "copy file error,uri is " + uri.toString());
+                            FileMessage fileMessage = FileMessage.obtain(mContext, uri);
+                            if (fileMessage != null) {
+                                final Message message = Message.obtain(targetId, conversationType, fileMessage);
+                                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
                             }
                         } catch (Exception e) {
                             RLog.e(TAG, "select file exception" + e);

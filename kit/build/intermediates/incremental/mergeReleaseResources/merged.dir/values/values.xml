@@ -542,7 +542,6 @@
     <attr format="string" name="constraint_referenced_ids"/>
     <attr format="string" name="constraint_referenced_tags"/>
     <attr format="reference" name="content"/>
-    <attr format="reference" name="coordinatorLayoutStyle"/>
     <attr format="enum" name="curveFit">
         <enum name="spline" value="0"/>
         <enum name="linear" value="1"/>
@@ -946,7 +945,6 @@
     <color name="material_grey_900">#ff212121</color>
     <color name="notification_action_color_filter">#ffffffff</color>
     <color name="notification_icon_bg_color">#ff9e9e9e</color>
-    <color name="notification_material_background_media_default_color">#ff424242</color>
     <color name="picture_color_20">#20000000</color>
     <color name="picture_color_20c064">#20c064</color>
     <color name="picture_color_394a3e">#394a3e</color>
@@ -1256,10 +1254,6 @@
     <dimen name="rc_title_bar_height">44dp</dimen>
     <dimen name="rc_unread_height">40dp</dimen>
     <dimen name="rc_widget_setting_item_height">48dp</dimen>
-    <dimen name="subtitle_corner_radius">2dp</dimen>
-    <dimen name="subtitle_outline_width">2dp</dimen>
-    <dimen name="subtitle_shadow_offset">2dp</dimen>
-    <dimen name="subtitle_shadow_radius">2dp</dimen>
     <dimen name="tooltip_corner_radius">2dp</dimen>
     <dimen name="tooltip_horizontal_padding">16dp</dimen>
     <dimen name="tooltip_margin">8dp</dimen>
@@ -3365,17 +3359,12 @@
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
-    <style name="TextAppearance.Compat.Notification.Info.Media"/>
     <style name="TextAppearance.Compat.Notification.Line2" parent="TextAppearance.Compat.Notification.Info"/>
-    <style name="TextAppearance.Compat.Notification.Line2.Media" parent="TextAppearance.Compat.Notification.Info.Media"/>
-    <style name="TextAppearance.Compat.Notification.Media"/>
     <style name="TextAppearance.Compat.Notification.Time">
         <item name="android:textSize">12sp</item>
         <item name="android:textColor">?android:attr/textColorSecondary</item>
     </style>
-    <style name="TextAppearance.Compat.Notification.Time.Media"/>
     <style name="TextAppearance.Compat.Notification.Title" parent="@android:style/TextAppearance.StatusBar.EventContent.Title"/>
-    <style name="TextAppearance.Compat.Notification.Title.Media"/>
     <style name="TextAppearance.Widget.AppCompat.ExpandedMenu.Item" parent="Base.TextAppearance.Widget.AppCompat.ExpandedMenu.Item">
     </style>
     <style name="TextAppearance.Widget.AppCompat.Toolbar.Subtitle" parent="Base.TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
@@ -3524,9 +3513,6 @@
     <style name="Widget.AppCompat.Toolbar.Button.Navigation" parent="Base.Widget.AppCompat.Toolbar.Button.Navigation"/>
     <style name="Widget.Compat.NotificationActionContainer" parent=""/>
     <style name="Widget.Compat.NotificationActionText" parent=""/>
-    <style name="Widget.Support.CoordinatorLayout" parent="android:Widget">
-        <item name="statusBarBackground">#000000</item>
-    </style>
     <style name="dialogFullscreen">
         <item name="android:windowFullscreen">true</item>
     </style>
@@ -4348,105 +4334,6 @@
     <declare-styleable name="ConstraintLayout_Layout"><attr name="android:orientation"/><attr name="android:minWidth"/><attr name="android:minHeight"/><attr name="android:maxWidth"/><attr name="android:maxHeight"/><attr name="android:visibility"/><attr name="android:elevation"/><attr name="layout_optimizationLevel"/><attr name="layoutDescription"/><attr name="constraintSet"/><attr name="barrierDirection"/><attr name="barrierAllowsGoneWidgets"/><attr name="barrierMargin"/><attr name="constraint_referenced_ids"/><attr name="constraint_referenced_tags"/><attr name="chainUseRtl"/><attr name="flow_horizontalStyle"/><attr name="flow_verticalStyle"/><attr name="flow_wrapMode"/><attr name="flow_maxElementsWrap"/><attr name="flow_horizontalGap"/><attr name="flow_verticalGap"/><attr name="android:padding"/><attr name="android:paddingTop"/><attr name="android:paddingBottom"/><attr name="android:paddingLeft"/><attr name="android:paddingRight"/><attr name="android:paddingStart"/><attr name="android:paddingEnd"/><attr name="flow_verticalAlign"/><attr name="flow_horizontalAlign"/><attr name="flow_verticalBias"/><attr name="flow_horizontalBias"/><attr name="flow_firstHorizontalStyle"/><attr name="flow_firstVerticalStyle"/><attr name="flow_firstHorizontalBias"/><attr name="flow_firstVerticalBias"/><attr name="flow_lastHorizontalStyle"/><attr name="flow_lastVerticalStyle"/><attr name="flow_lastHorizontalBias"/><attr name="flow_lastVerticalBias"/><attr name="layout_constraintCircle"/><attr name="layout_constraintCircleRadius"/><attr name="layout_constraintCircleAngle"/><attr name="layout_constraintGuide_begin"/><attr name="layout_constraintGuide_end"/><attr name="layout_constraintGuide_percent"/><attr name="layout_constraintLeft_toLeftOf"/><attr name="layout_constraintLeft_toRightOf"/><attr name="layout_constraintRight_toLeftOf"/><attr name="layout_constraintRight_toRightOf"/><attr name="layout_constraintTop_toTopOf"/><attr name="layout_constraintTop_toBottomOf"/><attr name="layout_constraintBottom_toTopOf"/><attr name="layout_constraintBottom_toBottomOf"/><attr name="layout_constraintBaseline_toBaselineOf"/><attr name="layout_constraintStart_toEndOf"/><attr name="layout_constraintStart_toStartOf"/><attr name="layout_constraintEnd_toStartOf"/><attr name="layout_constraintEnd_toEndOf"/><attr name="layout_goneMarginLeft"/><attr name="layout_goneMarginTop"/><attr name="layout_goneMarginRight"/><attr name="layout_goneMarginBottom"/><attr name="layout_goneMarginStart"/><attr name="layout_goneMarginEnd"/><attr name="layout_constrainedWidth"/><attr name="layout_constrainedHeight"/><attr name="layout_constraintHorizontal_bias"/><attr name="layout_constraintVertical_bias"/><attr name="layout_constraintWidth_default"/><attr name="layout_constraintHeight_default"/><attr name="layout_constraintWidth_min"/><attr name="layout_constraintWidth_max"/><attr name="layout_constraintWidth_percent"/><attr name="layout_constraintHeight_min"/><attr name="layout_constraintHeight_max"/><attr name="layout_constraintHeight_percent"/><attr name="layout_constraintLeft_creator"/><attr name="layout_constraintTop_creator"/><attr name="layout_constraintRight_creator"/><attr name="layout_constraintBottom_creator"/><attr name="layout_constraintBaseline_creator"/><attr name="layout_constraintDimensionRatio"/><attr name="layout_constraintHorizontal_weight"/><attr name="layout_constraintVertical_weight"/><attr name="layout_constraintHorizontal_chainStyle"/><attr name="layout_constraintVertical_chainStyle"/><attr name="layout_editor_absoluteX"/><attr name="layout_editor_absoluteY"/><attr name="layout_constraintTag"/></declare-styleable>
     <declare-styleable name="ConstraintLayout_placeholder"><attr name="placeholder_emptyVisibility"/><attr name="content"/></declare-styleable>
     <declare-styleable name="ConstraintSet"><attr format="reference" name="deriveConstraintsFrom"/><attr name="android:orientation"/><attr name="android:id"/><attr name="android:visibility"/><attr name="android:alpha"/><attr name="android:elevation"/><attr name="android:rotation"/><attr name="android:rotationX"/><attr name="android:rotationY"/><attr name="android:scaleX"/><attr name="android:scaleY"/><attr name="pivotAnchor"/><attr name="android:pivotX"/><attr name="android:pivotY"/><attr name="android:transformPivotX"/><attr name="android:transformPivotY"/><attr name="android:translationX"/><attr name="android:translationY"/><attr name="android:translationZ"/><attr name="android:layout_width"/><attr name="android:layout_height"/><attr name="android:layout_marginStart"/><attr name="android:layout_marginBottom"/><attr name="android:layout_marginTop"/><attr name="android:layout_marginEnd"/><attr name="android:layout_marginLeft"/><attr name="android:layout_marginRight"/><attr name="layout_constraintCircle"/><attr name="layout_constraintCircleRadius"/><attr name="layout_constraintCircleAngle"/><attr name="layout_constraintGuide_begin"/><attr name="layout_constraintGuide_end"/><attr name="layout_constraintGuide_percent"/><attr name="layout_constraintLeft_toLeftOf"/><attr name="layout_constraintLeft_toRightOf"/><attr name="layout_constraintRight_toLeftOf"/><attr name="layout_constraintRight_toRightOf"/><attr name="layout_constraintTop_toTopOf"/><attr name="layout_constraintTop_toBottomOf"/><attr name="layout_constraintBottom_toTopOf"/><attr name="layout_constraintBottom_toBottomOf"/><attr name="layout_constraintBaseline_toBaselineOf"/><attr name="layout_constraintStart_toEndOf"/><attr name="layout_constraintStart_toStartOf"/><attr name="layout_constraintEnd_toStartOf"/><attr name="layout_constraintEnd_toEndOf"/><attr name="layout_goneMarginLeft"/><attr name="layout_goneMarginTop"/><attr name="layout_goneMarginRight"/><attr name="layout_goneMarginBottom"/><attr name="layout_goneMarginStart"/><attr name="layout_goneMarginEnd"/><attr name="layout_constrainedWidth"/><attr name="layout_constrainedHeight"/><attr name="layout_constraintHorizontal_bias"/><attr name="layout_constraintVertical_bias"/><attr name="layout_constraintWidth_default"/><attr name="layout_constraintHeight_default"/><attr name="layout_constraintWidth_min"/><attr name="layout_constraintWidth_max"/><attr name="layout_constraintWidth_percent"/><attr name="layout_constraintHeight_min"/><attr name="layout_constraintHeight_max"/><attr name="layout_constraintHeight_percent"/><attr name="layout_constraintLeft_creator"/><attr name="layout_constraintTop_creator"/><attr name="layout_constraintRight_creator"/><attr name="layout_constraintBottom_creator"/><attr name="layout_constraintBaseline_creator"/><attr name="layout_constraintDimensionRatio"/><attr name="layout_constraintHorizontal_weight"/><attr name="layout_constraintVertical_weight"/><attr name="layout_constraintHorizontal_chainStyle"/><attr name="layout_constraintVertical_chainStyle"/><attr name="layout_editor_absoluteX"/><attr name="layout_editor_absoluteY"/><attr name="barrierDirection"/><attr name="constraint_referenced_ids"/><attr name="constraint_referenced_tags"/><attr name="barrierMargin"/><attr name="android:maxHeight"/><attr name="android:maxWidth"/><attr name="android:minHeight"/><attr name="android:minWidth"/><attr name="barrierAllowsGoneWidgets"/><attr name="chainUseRtl"/><attr name="flow_horizontalStyle"/><attr name="flow_verticalStyle"/><attr name="flow_verticalAlign"/><attr name="flow_horizontalAlign"/><attr name="flow_verticalBias"/><attr name="flow_horizontalBias"/><attr name="flow_wrapMode"/><attr name="flow_maxElementsWrap"/><attr name="flow_horizontalGap"/><attr name="flow_verticalGap"/><attr name="flow_firstHorizontalStyle"/><attr name="flow_firstVerticalStyle"/><attr name="flow_firstHorizontalBias"/><attr name="flow_firstVerticalBias"/><attr name="flow_lastHorizontalStyle"/><attr name="flow_lastVerticalStyle"/><attr name="flow_lastHorizontalBias"/><attr name="flow_lastVerticalBias"/><attr name="animate_relativeTo"/><attr name="transitionEasing"/><attr name="pathMotionArc"/><attr name="transitionPathRotate"/><attr name="motionStagger"/><attr name="drawPath"/><attr name="motionProgress"/><attr name="layout_constraintTag"/></declare-styleable>
-    <declare-styleable name="CoordinatorLayout">
-        <!-- A reference to an array of integers representing the
-             locations of horizontal keylines in dp from the starting edge.
-             Child views can refer to these keylines for alignment using
-             layout_keyline="index" where index is a 0-based index into
-             this array. -->
-        <attr format="reference" name="keylines"/>
-        <!-- Drawable to display behind the status bar when the view is set to draw behind it. -->
-        <attr format="color|reference" name="statusBarBackground"/>
-    </declare-styleable>
-    <declare-styleable name="CoordinatorLayout_Layout">
-        <attr name="android:layout_gravity"/>
-        <!-- The class name of a Behavior class defining special runtime behavior
-             for this child view. -->
-        <attr format="string" name="layout_behavior"/>
-        <!-- The id of an anchor view that this view should position relative to. -->
-        <attr format="reference" name="layout_anchor"/>
-        <!-- The index of a keyline this view should position relative to.
-             android:layout_gravity will affect how the view aligns to the
-             specified keyline. -->
-        <attr format="integer" name="layout_keyline"/>
-
-        <!-- Specifies how an object should position relative to an anchor, on both the X and Y axes,
-             within its parent's bounds.  -->
-        <attr name="layout_anchorGravity">
-            <!-- Push object to the top of its container, not changing its size. -->
-            <flag name="top" value="0x30"/>
-            <!-- Push object to the bottom of its container, not changing its size. -->
-            <flag name="bottom" value="0x50"/>
-            <!-- Push object to the left of its container, not changing its size. -->
-            <flag name="left" value="0x03"/>
-            <!-- Push object to the right of its container, not changing its size. -->
-            <flag name="right" value="0x05"/>
-            <!-- Place object in the vertical center of its container, not changing its size. -->
-            <flag name="center_vertical" value="0x10"/>
-            <!-- Grow the vertical size of the object if needed so it completely fills its container. -->
-            <flag name="fill_vertical" value="0x70"/>
-            <!-- Place object in the horizontal center of its container, not changing its size. -->
-            <flag name="center_horizontal" value="0x01"/>
-            <!-- Grow the horizontal size of the object if needed so it completely fills its container. -->
-            <flag name="fill_horizontal" value="0x07"/>
-            <!-- Place the object in the center of its container in both the vertical and horizontal axis, not changing its size. -->
-            <flag name="center" value="0x11"/>
-            <!-- Grow the horizontal and vertical size of the object if needed so it completely fills its container. -->
-            <flag name="fill" value="0x77"/>
-            <!-- Additional option that can be set to have the top and/or bottom edges of
-                 the child clipped to its container's bounds.
-                 The clip will be based on the vertical gravity: a top gravity will clip the bottom
-                 edge, a bottom gravity will clip the top edge, and neither will clip both edges. -->
-            <flag name="clip_vertical" value="0x80"/>
-            <!-- Additional option that can be set to have the left and/or right edges of
-                 the child clipped to its container's bounds.
-                 The clip will be based on the horizontal gravity: a left gravity will clip the right
-                 edge, a right gravity will clip the left edge, and neither will clip both edges. -->
-            <flag name="clip_horizontal" value="0x08"/>
-            <!-- Push object to the beginning of its container, not changing its size. -->
-            <flag name="start" value="0x00800003"/>
-            <!-- Push object to the end of its container, not changing its size. -->
-            <flag name="end" value="0x00800005"/>
-        </attr>
-
-        <!-- Specifies how this view insets the CoordinatorLayout and make some other views
-             dodge it. -->
-        <attr format="enum" name="layout_insetEdge">
-            <!-- Don't inset. -->
-            <enum name="none" value="0x0"/>
-            <!-- Inset the top edge. -->
-            <enum name="top" value="0x30"/>
-            <!-- Inset the bottom edge. -->
-            <enum name="bottom" value="0x50"/>
-            <!-- Inset the left edge. -->
-            <enum name="left" value="0x03"/>
-            <!-- Inset the right edge. -->
-            <enum name="right" value="0x05"/>
-            <!-- Inset the start edge. -->
-            <enum name="start" value="0x00800003"/>
-            <!-- Inset the end edge. -->
-            <enum name="end" value="0x00800005"/>
-        </attr>
-        <!-- Specifies how this view dodges the inset edges of the CoordinatorLayout. -->
-        <attr name="layout_dodgeInsetEdges">
-            <!-- Don't dodge any edges -->
-            <flag name="none" value="0x0"/>
-            <!-- Dodge the top inset edge. -->
-            <flag name="top" value="0x30"/>
-            <!-- Dodge the bottom inset edge. -->
-            <flag name="bottom" value="0x50"/>
-            <!-- Dodge the left inset edge. -->
-            <flag name="left" value="0x03"/>
-            <!-- Dodge the right inset edge. -->
-            <flag name="right" value="0x05"/>
-            <!-- Dodge the start inset edge. -->
-            <flag name="start" value="0x00800003"/>
-            <!-- Dodge the end inset edge. -->
-            <flag name="end" value="0x00800005"/>
-            <!-- Dodge all the inset edges. -->
-            <flag name="all" value="0x77"/>
-        </attr>
-    </declare-styleable>
     <declare-styleable name="CustomAttribute"><attr format="string" name="attributeName"/><attr format="color" name="customColorValue"/><attr format="color" name="customColorDrawableValue"/><attr format="integer" name="customIntegerValue"/><attr format="float" name="customFloatValue"/><attr format="string" name="customStringValue"/><attr format="dimension" name="customDimension"/><attr format="dimension" name="customPixelDimension"/><attr format="boolean" name="customBoolean"/></declare-styleable>
     <declare-styleable name="DrawerArrowToggle">
         <!-- The drawing color for the bars -->

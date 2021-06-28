@@ -8,10 +8,6 @@
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_ext_emoticon_pager_item.xml"
     },
     {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_template_lines_media.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_template_lines_media.xml"
-    },
-    {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_message_item.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_message_item.xml"
     },
@@ -164,10 +160,6 @@
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_picture_alert_dialog.xml"
     },
     {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_template_big_media_narrow_custom.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_template_big_media_narrow_custom.xml"
-    },
-    {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_base_activity.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_base_activity.xml"
     },
@@ -216,10 +208,6 @@
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_ext_indicator.xml"
     },
     {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_template_media_custom.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_template_media_custom.xml"
-    },
-    {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_dialog_popup_options_item.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_dialog_popup_options_item.xml"
     },
@@ -230,10 +218,6 @@
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_refresh_header.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_refresh_header.xml"
-    },
-    {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_template_big_media.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_template_big_media.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_ext_public_service_menu.xml",
@@ -248,16 +232,8 @@
         "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/layout/abc_alert_dialog_button_bar_material.xml"
     },
     {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_media_cancel_action.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_media_cancel_action.xml"
-    },
-    {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_picture_empty.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_picture_empty.xml"
-    },
-    {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_media_action.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_media_action.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/abc_action_mode_bar.xml",
@@ -400,20 +376,12 @@
         "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/06801853210aabe000fc7134b85257f6/res/layout/activity_endisable_service.xml"
     },
     {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_template_media.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_template_media.xml"
-    },
-    {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_item_file_message.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_item_file_message.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/select_dialog_multichoice_material.xml",
         "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/layout/select_dialog_multichoice_material.xml"
-    },
-    {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_template_big_media_narrow.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_template_big_media_narrow.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_item_destruct_text_message.xml",
@@ -546,10 +514,6 @@
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_location_search_item.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/packaged_res/release/layout/rc_location_search_item.xml"
-    },
-    {
-        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/notification_template_big_media_custom.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/media-1.0.0.aar/39380a56c2b2dd15738a307f21ff0699/res/layout/notification_template_big_media_custom.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_voice_record_popup.xml",

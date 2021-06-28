@@ -65,8 +65,13 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
                 }
             } else {
                 progress = uiMessage.getProgress();
-                holder.setVisible(R.id.rc_btn_cancel, true);
-                holder.setVisible(R.id.rc_progress, false);
+                if (progress > 0) {
+                    holder.setVisible(R.id.rc_btn_cancel, true);
+                    holder.setVisible(R.id.rc_progress, false);
+                } else {
+                    holder.setVisible(R.id.rc_btn_cancel, false);
+                    holder.setVisible(R.id.rc_progress, true);
+                }
             }
             holder.setHoldVisible(R.id.rc_msg_canceled, false);
             ((FileRectangleProgress) holder.getView(R.id.rc_msg_pb_file_upload_progress)).setProgress(uiMessage.getProgress());
@@ -109,6 +114,12 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
     }
 
     @Override
+    protected boolean onItemClick(ViewHolder holder, FileMessage fileMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+        RouteUtils.routeToFilePreviewActivity(holder.getContext(), uiMessage.getMessage(), fileMessage, uiMessage.getProgress());
+        return true;
+    }
+
+    @Override
     protected boolean isMessageViewType(MessageContent messageContent) {
         return messageContent instanceof FileMessage;
     }
@@ -119,12 +130,6 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
             return new SpannableString(context.getString(R.string.rc_conversation_summary_content_file) + fileMessage.getName());
         }
         return new SpannableString(context.getString(R.string.rc_conversation_summary_content_file));
-    }
-
-    @Override
-    protected boolean onItemClick(ViewHolder holder, FileMessage fileMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
-        RouteUtils.routeToFilePreviewActivity(holder.getContext(), uiMessage.getMessage(), fileMessage, uiMessage.getProgress());
-        return true;
     }
 
 }

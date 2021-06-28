@@ -2606,6 +2606,7 @@ string common_open_on_phone
 string common_signin_button_text
 string common_signin_button_text_long
 string fcm_fallback_notification_channel_label
+string gcm_fallback_notification_channel_label
 string hms_abort
 string hms_abort_message
 string hms_bindfaildlg_message

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -11,6 +12,9 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
 
 
 public class GlideKitImageEngine implements KitImageEngine {
@@ -92,15 +96,39 @@ public class GlideKitImageEngine implements KitImageEngine {
 
 
     @Override
-    public void loadConversationListPortrait(@NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
+    public void loadConversationListPortrait(@NonNull Context context, @NonNull String url, @NonNull ImageView imageView, Conversation conversation) {
+        @DrawableRes int resourceId = R.drawable.rc_default_portrait;
+        switch (conversation.getConversationType()) {
+            case GROUP:
+                resourceId = R.drawable.rc_default_group_portrait;
+                break;
+            case CUSTOMER_SERVICE:
+                resourceId = R.drawable.rc_cs_default_portrait;
+                break;
+            case CHATROOM:
+                resourceId = R.drawable.rc_default_chatroom_portrait;
+                break;
+
+        }
         Glide.with(imageView).load(url)
+                .placeholder(resourceId)
+                .error(resourceId)
 //                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .into(imageView);
     }
 
     @Override
-    public void loadConversationPortrait(@NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
+    public void loadConversationPortrait(@NonNull Context context, @NonNull String url, @NonNull ImageView imageView, Message message) {
+        @DrawableRes int resourceId = R.drawable.rc_default_portrait;
+        switch (message.getConversationType()) {
+            case CUSTOMER_SERVICE:
+                if (Message.MessageDirection.RECEIVE == message.getMessageDirection())
+                    resourceId = R.drawable.rc_cs_default_portrait;
+                break;
+        }
         Glide.with(imageView).load(url)
+                .placeholder(resourceId)
+                .error(resourceId)
 //                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .into(imageView);
     }

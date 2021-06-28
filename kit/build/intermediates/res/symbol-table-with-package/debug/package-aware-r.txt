@@ -797,7 +797,6 @@ color material_grey_850
 color material_grey_900
 color notification_action_color_filter
 color notification_icon_bg_color
-color notification_material_background_media_default_color
 color picture_color_20
 color picture_color_20c064
 color picture_color_394a3e
@@ -1111,10 +1110,6 @@ dimen rc_sight_progress_size
 dimen rc_title_bar_height
 dimen rc_unread_height
 dimen rc_widget_setting_item_height
-dimen subtitle_corner_radius
-dimen subtitle_outline_width
-dimen subtitle_shadow_offset
-dimen subtitle_shadow_radius
 dimen tooltip_corner_radius
 dimen tooltip_horizontal_padding
 dimen tooltip_margin
@@ -1776,7 +1771,6 @@ id accessibility_custom_action_8
 id accessibility_custom_action_9
 id account
 id action
-id action0
 id action_bar
 id action_bar_activity_content
 id action_bar_container
@@ -1822,7 +1816,6 @@ id btnCheck
 id btn_cancel
 id btn_commit
 id buttonPanel
-id cancel_action
 id cancel_bg
 id cancel_imageview
 id cb_original
@@ -1866,7 +1859,6 @@ id edit_btn
 id edit_query
 id enable_service_text
 id end
-id end_padder
 id enter
 id expand_activities_button
 id expanded_menu
@@ -1937,7 +1929,6 @@ id ll_root
 id loading
 id longImg
 id main_bg
-id media_actions
 id memberItem
 id message
 id middle
@@ -2244,7 +2235,6 @@ id startHorizontal
 id startVertical
 id staticLayout
 id staticPostLayout
-id status_bar_latest_event_content
 id stop
 id submenuarrow
 id submit_area
@@ -2380,17 +2370,8 @@ layout custom_dialog
 layout hms_download_progress
 layout notification_action
 layout notification_action_tombstone
-layout notification_media_action
-layout notification_media_cancel_action
-layout notification_template_big_media
-layout notification_template_big_media_custom
-layout notification_template_big_media_narrow
-layout notification_template_big_media_narrow_custom
 layout notification_template_custom_big
 layout notification_template_icon_group
-layout notification_template_lines_media
-layout notification_template_media
-layout notification_template_media_custom
 layout notification_template_part_chronometer
 layout notification_template_part_time
 layout push_expandable_big_image_notification
@@ -2571,6 +2552,7 @@ string common_open_on_phone
 string common_signin_button_text
 string common_signin_button_text_long
 string fcm_fallback_notification_channel_label
+string gcm_fallback_notification_channel_label
 string hms_abort
 string hms_abort_message
 string hms_bindfaildlg_message
@@ -3329,14 +3311,9 @@ style TextAppearance_AppCompat_Widget_Switch
 style TextAppearance_AppCompat_Widget_TextView_SpinnerItem
 style TextAppearance_Compat_Notification
 style TextAppearance_Compat_Notification_Info
-style TextAppearance_Compat_Notification_Info_Media
 style TextAppearance_Compat_Notification_Line2
-style TextAppearance_Compat_Notification_Line2_Media
-style TextAppearance_Compat_Notification_Media
 style TextAppearance_Compat_Notification_Time
-style TextAppearance_Compat_Notification_Time_Media
 style TextAppearance_Compat_Notification_Title
-style TextAppearance_Compat_Notification_Title_Media
 style TextAppearance_Widget_AppCompat_ExpandedMenu_Item
 style TextAppearance_Widget_AppCompat_Toolbar_Subtitle
 style TextAppearance_Widget_AppCompat_Toolbar_Title

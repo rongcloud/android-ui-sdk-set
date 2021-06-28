@@ -36,8 +36,6 @@ import static android.widget.Toast.makeText;
 
 
 public class WebFilePreviewActivity extends RongBaseActivity implements View.OnClickListener {
-    private final static String TAG = "WebFilePreviewActivity";
-    private static final String PATH = "webfile";
     public static final int NOT_DOWNLOAD = 0;
     public static final int DOWNLOADED = 1;
     public static final int DOWNLOADING = 2;
@@ -47,21 +45,20 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
     public static final int DOWNLOAD_SUCCESS = 6;
     public static final int DOWNLOAD_PAUSE = 7;
     public static final int REQUEST_CODE_PERMISSION = 104;
-
+    private final static String TAG = "WebFilePreviewActivity";
+    private static final String PATH = "webfile";
     private static final String TXT_FILE = ".txt";
     private static final String APK_FILE = ".apk";
-
-    private ImageView mFileTypeImage;
-    private TextView mFileNameView;
-    private TextView mFileSizeView;
-    private Button mFileButton;
     //    private ProgressBar mFileDownloadProgressBar;
 //    private LinearLayout mDownloadProgressView;
 //    protected TextView mDownloadProgressTextView;
     protected View mCancel;
-
-    private File mAttachFile;
     protected FileDownloadInfo mFileDownloadInfo;
+    private ImageView mFileTypeImage;
+    private TextView mFileNameView;
+    private TextView mFileSizeView;
+    private Button mFileButton;
+    private File mAttachFile;
     private FrameLayout mContentContainer;
     private SupportResumeStatus supportResumeTransfer = SupportResumeStatus.NOT_SET;
     private DownloadInfo mDownloadInfo;
@@ -201,9 +198,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
             case DOWNLOAD_ERROR:
                 if (supportResumeTransfer == SupportResumeStatus.SUPPORT) {
 //                    mDownloadProgressView.setVisibility(View.VISIBLE);
-                    if (mDownloadInfo != null) {
-                        mFileDownloadInfo.progress = (int) (100L * mDownloadInfo.currentFileLength() / mDownloadInfo.getLength());
-                    }
 //                    mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
                     long downloadedFileLength = (long) (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0) + 0.5f);
                     mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_pause) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
@@ -245,6 +239,10 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
                 break;
         }
+    }
+
+    private void getFileInfo(IRongCoreCallback.ResultCallback<DownloadInfo> callback) {
+        RongCoreClient.getInstance().getDownloadInfo(mFileDownloadInfo.uid, callback);
     }
 
     @Override
@@ -401,11 +399,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                 });
     }
 
-    private void getFileInfo(IRongCoreCallback.ResultCallback<DownloadInfo> callback) {
-        RongCoreClient.getInstance().getDownloadInfo(mFileDownloadInfo.uid, callback);
-    }
-
-
     public void openFile(String fileName, String fileSavePath) {
         if (!openInsidePreview(fileName, fileSavePath)) {
             Intent intent = FileTypeUtils.getOpenFileIntent(this, fileName, fileSavePath);
@@ -474,16 +467,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         getFileDownloadInfo();
     }
 
-    private class FileDownloadInfo {
-        int state;
-        int progress;
-        String path;
-        String fileName;
-        String url;
-        String uid;
-        long size;
-    }
-
     private enum SupportResumeStatus {
         NOT_SET(-1),
         NOT_SUPPORT(0),
@@ -493,10 +476,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
 
         SupportResumeStatus(int value) {
             this.value = value;
-        }
-
-        public int getValue() {
-            return this.value;
         }
 
         public static SupportResumeStatus valueOf(int code) {
@@ -509,6 +488,20 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
             c.value = code;
             return c;
         }
+
+        public int getValue() {
+            return this.value;
+        }
+    }
+
+    private class FileDownloadInfo {
+        int state;
+        int progress;
+        String path;
+        String fileName;
+        String url;
+        String uid;
+        long size;
     }
 
 }

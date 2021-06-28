@@ -143,7 +143,14 @@ public class ResendManager {
                     mIsProcessing = false;
                     return;
                 }
-                resendMessage(mMessageMap.get(idInteger), new IRongCallback.ISendMessageCallback() {
+                resendMessage(mMessageMap.get(idInteger), new ReSendMessageCallback() {
+                    @Override
+                    public void onCancel(Message message) {
+                        removeResendMessage(idInteger);
+                        loopResendMessage();
+                    }
+
+
                     @Override
                     public void onAttached(Message message) {
 
@@ -187,7 +194,7 @@ public class ResendManager {
      *
      * @param message 消息
      */
-    private void resendMessage(Message message, final IRongCallback.ISendMessageCallback callback) {
+    private void resendMessage(Message message, final ReSendMessageCallback callback) {
         if (message == null) {
             RLog.i(TAG, "resendMessage: Message is Null");
             return;
@@ -247,7 +254,7 @@ public class ResendManager {
 
                     @Override
                     public void onCanceled(Message message) {
-
+                        callback.onCancel(message);
                     }
 
                     @Override
@@ -273,5 +280,14 @@ public class ResendManager {
 
     public interface AddResendMessageCallBack {
         void onComplete(Message message, RongIMClient.ErrorCode errorCode);
+    }
+
+    interface ReSendMessageCallback extends IRongCallback.ISendMessageCallback {
+        /**
+         * 消息被取消
+         *
+         * @param message 已存库的消息体。
+         */
+        void onCancel(Message message);
     }
 }

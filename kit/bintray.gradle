@@ -1,9 +1,9 @@
 group = PROJ_GROUP
 version = PROJ_VERSION
 project.archivesBaseName = PROJ_ARTIFACTID
+def NEXUS_REPOSITORY_URL='http://maven.rongcloud.cn/repository/maven-releases/' //nexus repository url
 
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven'
 
 task sourcesJar(type: Jar) {
     from 'jcenter_src'
@@ -44,16 +44,19 @@ artifacts {
     archives javadocJar
 }
 
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: NEXUS_REPOSITORY_URL) {
+                authentication(userName: BINTRAY_USER, password: BINTRAY_KEY)
+            }
+            pom.project {
                 name PROJ_NAME
-//            description PROJ_DESCRIPTION
-                packaging 'aar'
-                groupId PROJ_GROUP
-                artifactId PROJ_ARTIFACTID
                 version PROJ_VERSION
+                artifactId PROJ_ARTIFACTID
+                groupId PROJ_GROUP
+                packaging 'aar'
+//                description POM_DESCRIPTION
 
                 licenses {
                     license {
@@ -62,40 +65,12 @@ install {
                         distribution 'repo'
                     }
                 }
-
-            }
-        }.whenConfigured {
-            p ->
-                p.dependencies = p.dependencies.findAll {
-                    dep ->
-                        dep.scope != "test" && dep.version!="unspecified"
-                }
-        }
-    }
-}
-
-
-bintray {
-    user = BINTRAY_USER
-    key = BINTRAY_KEY
-
-    configurations = ['archives']
-
-    dryRun = false
-    publish = true
-
-    pkg {
-        repo = PROJ_REPO
-        name = PROJ_NAME
-        licenses = ['Apache-2.0']
-        publicDownloadNumbers = true
-        version {
-            name = PROJ_VERSION
-            desc = PROJ_DESCRIPTION
-            vcsTag = PROJ_VERSION
-
-            gpg {
-                sign = true
+            }.whenConfigured {
+                p ->
+                    p.dependencies = p.dependencies.findAll {
+                        dep ->
+                            dep.scope != "test" && dep.version!="unspecified"
+                    }
             }
         }
     }

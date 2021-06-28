@@ -13,7 +13,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import io.rong.common.RLog;
-import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.model.UiMessage;
@@ -27,6 +26,7 @@ import io.rong.imlib.publicservice.message.PublicServiceMultiRichContentMessage;
 import io.rong.imlib.publicservice.message.PublicServiceRichContentMessage;
 import io.rong.message.HQVoiceMessage;
 import io.rong.message.HandshakeMessage;
+import io.rong.message.MediaMessageContent;
 import io.rong.message.NotificationMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
@@ -45,91 +45,13 @@ public class MessageItemLongClickActionManager {
 
     private OptionsPopupDialog mDialog;
     private Message mLongClickMessage;
-
-    private static class Holder {
-        static MessageItemLongClickActionManager instance = new MessageItemLongClickActionManager();
-    }
-
-    public static MessageItemLongClickActionManager getInstance() {
-        return Holder.instance;
-    }
+    private List<MessageItemLongClickAction> messageItemLongClickActions;
 
     private MessageItemLongClickActionManager() {
         if (messageItemLongClickActions == null) {
             messageItemLongClickActions = new ArrayList<>();
             initCommonMessageItemLongClickActions();
         }
-    }
-
-
-    public void setLongClickMessage(Message message) {
-        mLongClickMessage = message;
-    }
-
-    public Message getLongClickMessage() {
-        return mLongClickMessage;
-    }
-
-    public void setLongClickDialog(OptionsPopupDialog dialog) {
-        mDialog = dialog;
-    }
-
-    public OptionsPopupDialog getLongClickDialog() {
-        return mDialog;
-    }
-
-
-    private List<MessageItemLongClickAction> messageItemLongClickActions;
-
-
-    public List<MessageItemLongClickAction> getMessageItemLongClickActions() {
-        return messageItemLongClickActions;
-    }
-
-    public void addMessageItemLongClickAction(MessageItemLongClickAction action) {
-        addMessageItemLongClickAction(action, -1);
-    }
-
-    public void addMessageItemLongClickAction(MessageItemLongClickAction action, int index) {
-        messageItemLongClickActions.remove(action);
-
-        if (index < 0) {
-            messageItemLongClickActions.add(action);
-        } else {
-            messageItemLongClickActions.add(index, action);
-        }
-    }
-
-    public void removeMessageItemLongClickAction(MessageItemLongClickAction action) {
-        messageItemLongClickActions.remove(action);
-    }
-
-    /**
-     * 本方法应当只能被ItemProvider调用, 如果想修改默认的长按弹出菜单，请调用getMessageItemLongClickActions()
-     *
-     * @param uiMessage
-     * @return
-     */
-    public List<MessageItemLongClickAction> getMessageItemLongClickActions(UiMessage uiMessage) {
-        List<MessageItemLongClickAction> actions = new ArrayList<>();
-        for (MessageItemLongClickAction action : messageItemLongClickActions) {
-            if (action.filter(uiMessage)) {
-                actions.add(action);
-            }
-        }
-        Collections.sort(actions, new Comparator<MessageItemLongClickAction>() {
-            @Override
-            public int compare(MessageItemLongClickAction t1, MessageItemLongClickAction t2) {
-                if (t1.priority > t2.priority) {
-                    return 1;
-                }
-                if (t1.priority == t2.priority) {
-                    return 0;
-                }
-                return -1;
-            }
-        });
-        return actions;
     }
 
     // T5051: 会话界面中，优化消息长按后的功能顺序为：复制、删除、撤回、引用、更多
@@ -188,6 +110,13 @@ public class MessageItemLongClickActionManager {
                             Uri playingUri = AudioPlayManager.getInstance().getPlayingUri();
                             if (playingUri.equals(((HQVoiceMessage) message.getContent()).getLocalPath())) {
                                 AudioPlayManager.getInstance().stopPlay();
+                            }
+                        }
+                        if (message.getContent() instanceof MediaMessageContent) {
+                            if (message.getMessageDirection() == Message.MessageDirection.SEND) {
+                                RongIMClient.getInstance().cancelSendMediaMessage(message, null);
+                            } else {
+                                RongIMClient.getInstance().cancelDownloadMediaMessage(message, null);
                             }
                         }
                         IMCenter.getInstance().deleteMessages(uiMessage.getMessage().getConversationType(), uiMessage.getMessage().getTargetId(), new int[]{uiMessage.getMessage().getMessageId()}, null);
@@ -281,5 +210,79 @@ public class MessageItemLongClickActionManager {
                 })
                 .build();
         addMessageItemLongClickAction(messageItemLongClickAction);
+    }
+
+    public void addMessageItemLongClickAction(MessageItemLongClickAction action) {
+        addMessageItemLongClickAction(action, -1);
+    }
+
+    public void addMessageItemLongClickAction(MessageItemLongClickAction action, int index) {
+        messageItemLongClickActions.remove(action);
+
+        if (index < 0) {
+            messageItemLongClickActions.add(action);
+        } else {
+            messageItemLongClickActions.add(index, action);
+        }
+    }
+
+    public static MessageItemLongClickActionManager getInstance() {
+        return Holder.instance;
+    }
+
+    public Message getLongClickMessage() {
+        return mLongClickMessage;
+    }
+
+    public void setLongClickMessage(Message message) {
+        mLongClickMessage = message;
+    }
+
+    public OptionsPopupDialog getLongClickDialog() {
+        return mDialog;
+    }
+
+    public void setLongClickDialog(OptionsPopupDialog dialog) {
+        mDialog = dialog;
+    }
+
+    public List<MessageItemLongClickAction> getMessageItemLongClickActions() {
+        return messageItemLongClickActions;
+    }
+
+    public void removeMessageItemLongClickAction(MessageItemLongClickAction action) {
+        messageItemLongClickActions.remove(action);
+    }
+
+    /**
+     * 本方法应当只能被ItemProvider调用, 如果想修改默认的长按弹出菜单，请调用getMessageItemLongClickActions()
+     *
+     * @param uiMessage
+     * @return
+     */
+    public List<MessageItemLongClickAction> getMessageItemLongClickActions(UiMessage uiMessage) {
+        List<MessageItemLongClickAction> actions = new ArrayList<>();
+        for (MessageItemLongClickAction action : messageItemLongClickActions) {
+            if (action.filter(uiMessage)) {
+                actions.add(action);
+            }
+        }
+        Collections.sort(actions, new Comparator<MessageItemLongClickAction>() {
+            @Override
+            public int compare(MessageItemLongClickAction t1, MessageItemLongClickAction t2) {
+                if (t1.priority > t2.priority) {
+                    return 1;
+                }
+                if (t1.priority == t2.priority) {
+                    return 0;
+                }
+                return -1;
+            }
+        });
+        return actions;
+    }
+
+    private static class Holder {
+        static MessageItemLongClickActionManager instance = new MessageItemLongClickActionManager();
     }
 }
