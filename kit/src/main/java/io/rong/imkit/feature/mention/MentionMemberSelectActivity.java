@@ -29,8 +29,8 @@ import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.CharacterParser;
+import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.SideBar;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.discussion.model.Discussion;
 import io.rong.imlib.model.Conversation;
@@ -58,8 +58,8 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
         mListView.setAdapter(mAdapter);
         mAllMemberList = new ArrayList<>();
 
-        String targetId = getIntent().getStringExtra("targetId");
-        Conversation.ConversationType conversationType = Conversation.ConversationType.setValue(getIntent().getIntExtra("conversationType", 0));
+        String targetId = getIntent().getStringExtra(RouteUtils.TARGET_ID);
+        Conversation.ConversationType conversationType = Conversation.ConversationType.setValue(getIntent().getIntExtra(RouteUtils.CONVERSATION_TYPE, 0));
 
         RongMentionManager.IGroupMembersProvider groupMembersProvider = RongMentionManager.getInstance().getGroupMembersProvider();
         if (conversationType.equals(Conversation.ConversationType.GROUP) && groupMembersProvider != null) {
@@ -207,6 +207,30 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
         });
     }
 
+    public static class PinyinComparator implements Comparator<MemberInfo> {
+
+
+        public static PinyinComparator instance = null;
+
+        public static PinyinComparator getInstance() {
+            if (instance == null) {
+                instance = new PinyinComparator();
+            }
+            return instance;
+        }
+
+        public int compare(MemberInfo o1, MemberInfo o2) {
+            if (o1.getLetter().equals("@") || o2.getLetter().equals("#")) {
+                return -1;
+            } else if (o1.getLetter().equals("#") || o2.getLetter().equals("@")) {
+                return 1;
+            } else {
+                return o1.getLetter().compareTo(o2.getLetter());
+            }
+        }
+
+    }
+
     class MembersAdapter extends BaseAdapter implements SectionIndexer {
         private List<MemberInfo> mList = new ArrayList<>();
 
@@ -215,9 +239,32 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
         }
 
         @Override
+        public Object[] getSections() {
+            return new Object[0];
+        }
+
+        @Override
+        public int getPositionForSection(int sectionIndex) {
+            for (int i = 0; i < getCount(); i++) {
+                String sortStr = mList.get(i).getLetter();
+                char firstChar = sortStr.toUpperCase().charAt(0);
+                if (firstChar == sectionIndex) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        @Override
+        public int getSectionForPosition(int position) {
+            return mList.get(position).getLetter().charAt(0);
+        }        @Override
         public int getCount() {
             return mList.size();
         }
+
+
 
         @Override
         public MemberInfo getItem(int position) {
@@ -261,28 +308,7 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
             return convertView;
         }
 
-        @Override
-        public Object[] getSections() {
-            return new Object[0];
-        }
 
-        @Override
-        public int getPositionForSection(int sectionIndex) {
-            for (int i = 0; i < getCount(); i++) {
-                String sortStr = mList.get(i).getLetter();
-                char firstChar = sortStr.toUpperCase().charAt(0);
-                if (firstChar == sectionIndex) {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        @Override
-        public int getSectionForPosition(int position) {
-            return mList.get(position).getLetter().charAt(0);
-        }
     }
 
     class ViewHolder {
@@ -299,37 +325,13 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
             this.userInfo = userInfo;
         }
 
-        public void setLetter(String letter) {
-            this.letter = letter;
-        }
-
         public String getLetter() {
             return letter;
         }
-    }
 
-    public static class PinyinComparator implements Comparator<MemberInfo> {
-
-
-        public static PinyinComparator instance = null;
-
-        public static PinyinComparator getInstance() {
-            if (instance == null) {
-                instance = new PinyinComparator();
-            }
-            return instance;
+        public void setLetter(String letter) {
+            this.letter = letter;
         }
-
-        public int compare(MemberInfo o1, MemberInfo o2) {
-            if (o1.getLetter().equals("@") || o2.getLetter().equals("#")) {
-                return -1;
-            } else if (o1.getLetter().equals("#") || o2.getLetter().equals("@")) {
-                return 1;
-            } else {
-                return o1.getLetter().compareTo(o2.getLetter());
-            }
-        }
-
     }
 
 }
