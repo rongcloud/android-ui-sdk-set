@@ -22,6 +22,9 @@ public class User {
     @ColumnInfo(name = "name")
     public String name;
 
+    @ColumnInfo(name = "alias")
+    public String alias;
+
     @ColumnInfo(name = "portraitUri")
     public String portraitUrl;
 
@@ -43,6 +46,7 @@ public class User {
     public User(UserInfo info) {
         this.id = info.getUserId();
         this.name = info.getName();
+        this.alias = info.getAlias();
         if (info.getPortraitUri() != null) {
             this.portraitUrl = info.getPortraitUri().toString();
         }

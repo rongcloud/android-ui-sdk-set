@@ -33,18 +33,17 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
+import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.ImageMessage;
 
-import static io.rong.imkit.conversation.messgelist.provider.SightMessageItemProvider.dip2pix;
-
 public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessage> {
-    private final String MSG_TAG = "RC:ImgMsg";
     private static final String TAG = "ImageMessageItemProvide";
-    private Integer minSize = null;
-    private Integer maxSize = null;
     private static int THUMB_COMPRESSED_SIZE = 240;
     private static int THUMB_COMPRESSED_MIN_SIZE = 100;
+    private final String MSG_TAG = "RC:ImgMsg";
+    private Integer minSize = null;
+    private Integer maxSize = null;
 
     public ImageMessageItemProvider() {
         mConfig.showContentBubble = false;
@@ -82,12 +81,17 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
             holder.setVisible(R.id.main_bg, false);
         }
         if (thumUri != null && thumUri.getPath() != null) {
-            RequestOptions options = RequestOptions.bitmapTransform(new RoundedCorners(dip2pix(IMCenter.getInstance().getContext(), 6))).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
+            RequestOptions options = RequestOptions.bitmapTransform(new RoundedCorners(ScreenUtils.dip2px(IMCenter.getInstance().getContext(), 6))).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
             Glide.with(view).load(thumUri.getPath())
+                    .error(uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND ? R.drawable.rc_send_thumb_image_broken : R.drawable.rc_received_thumb_image_broken)
                     .apply(options)
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            ViewGroup.LayoutParams params = view.getLayoutParams();
+                            params.height = ScreenUtils.dip2px(view.getContext(), 35);
+                            params.width = ScreenUtils.dip2px(view.getContext(), 35);
+                            view.setLayoutParams(params);
                             return false;
                         }
 
@@ -98,6 +102,12 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                         }
                     })
                     .into(view);
+        } else {
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            params.height = ScreenUtils.dip2px(view.getContext(), 35);
+            params.width = ScreenUtils.dip2px(view.getContext(), 35);
+            view.setLayoutParams(params);
+            view.setImageResource(uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND ? R.drawable.rc_send_thumb_image_broken : R.drawable.rc_received_thumb_image_broken);
         }
 
     }
@@ -108,6 +118,11 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
         intent.putExtra("message", uiMessage.getMessage());
         holder.getContext().startActivity(intent);
         return true;
+    }
+
+    @Override
+    protected boolean isMessageViewType(MessageContent messageContent) {
+        return messageContent instanceof ImageMessage && !messageContent.isDestruct();
     }
 
     //图片消息最小值为 100 X 100，最大值为 240 X 240
@@ -165,15 +180,8 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
         view.setLayoutParams(params);
     }
 
-
     @Override
     public Spannable getSummarySpannable(Context context, ImageMessage imageMessage) {
         return new SpannableString(context.getString(R.string.rc_conversation_summary_content_image));
-    }
-
-
-    @Override
-    protected boolean isMessageViewType(MessageContent messageContent) {
-        return messageContent instanceof ImageMessage && !messageContent.isDestruct();
     }
 }

@@ -31,7 +31,7 @@ public final class UserDao_Impl implements UserDao {
     this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
       @Override
       public String createQuery() {
-        return "INSERT OR REPLACE INTO `user` (`id`,`name`,`portraitUri`,`extra`) VALUES (?,?,?,?)";
+        return "INSERT OR REPLACE INTO `user` (`id`,`name`,`alias`,`portraitUri`,`extra`) VALUES (?,?,?,?,?)";
       }
 
       @Override
@@ -46,15 +46,20 @@ public final class UserDao_Impl implements UserDao {
         } else {
           stmt.bindString(2, value.name);
         }
-        if (value.portraitUrl == null) {
+        if (value.alias == null) {
           stmt.bindNull(3);
         } else {
-          stmt.bindString(3, value.portraitUrl);
+          stmt.bindString(3, value.alias);
         }
-        if (value.extra == null) {
+        if (value.portraitUrl == null) {
           stmt.bindNull(4);
         } else {
-          stmt.bindString(4, value.extra);
+          stmt.bindString(4, value.portraitUrl);
+        }
+        if (value.extra == null) {
+          stmt.bindNull(5);
+        } else {
+          stmt.bindString(5, value.extra);
         }
       }
     };
@@ -116,6 +121,7 @@ public final class UserDao_Impl implements UserDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
           final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
           final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
           final User _result;
@@ -123,6 +129,7 @@ public final class UserDao_Impl implements UserDao {
             _result = new User();
             _result.id = _cursor.getString(_cursorIndexOfId);
             _result.name = _cursor.getString(_cursorIndexOfName);
+            _result.alias = _cursor.getString(_cursorIndexOfAlias);
             _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
             _result.extra = _cursor.getString(_cursorIndexOfExtra);
           } else {
@@ -156,6 +163,7 @@ public final class UserDao_Impl implements UserDao {
     try {
       final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
       final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+      final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
       final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
       final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
       final User _result;
@@ -163,6 +171,7 @@ public final class UserDao_Impl implements UserDao {
         _result = new User();
         _result.id = _cursor.getString(_cursorIndexOfId);
         _result.name = _cursor.getString(_cursorIndexOfName);
+        _result.alias = _cursor.getString(_cursorIndexOfAlias);
         _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
         _result.extra = _cursor.getString(_cursorIndexOfExtra);
       } else {
@@ -192,6 +201,7 @@ public final class UserDao_Impl implements UserDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
           final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
           final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
           final User _result;
@@ -199,6 +209,7 @@ public final class UserDao_Impl implements UserDao {
             _result = new User();
             _result.id = _cursor.getString(_cursorIndexOfId);
             _result.name = _cursor.getString(_cursorIndexOfName);
+            _result.alias = _cursor.getString(_cursorIndexOfAlias);
             _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
             _result.extra = _cursor.getString(_cursorIndexOfExtra);
           } else {
@@ -228,6 +239,7 @@ public final class UserDao_Impl implements UserDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+          final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
           final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
           final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
           final List<User> _result = new ArrayList<User>(_cursor.getCount());
@@ -236,6 +248,7 @@ public final class UserDao_Impl implements UserDao {
             _item = new User();
             _item.id = _cursor.getString(_cursorIndexOfId);
             _item.name = _cursor.getString(_cursorIndexOfName);
+            _item.alias = _cursor.getString(_cursorIndexOfAlias);
             _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
             _item.extra = _cursor.getString(_cursorIndexOfExtra);
             _result.add(_item);

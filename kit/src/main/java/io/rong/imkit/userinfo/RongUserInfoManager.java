@@ -38,14 +38,6 @@ public class RongUserInfoManager {
     private MediatorLiveData<List<GroupMember>> mAllGroupMembers;
     private List<UserDataObserver> mUserDataObservers;
 
-    private static class SingleTonHolder {
-        static RongUserInfoManager sInstance = new RongUserInfoManager();
-    }
-
-    public static RongUserInfoManager getInstance() {
-        return SingleTonHolder.sInstance;
-    }
-
     private RongUserInfoManager() {
         mUserDataDelegate = new UserDataDelegate();
         mUserDataObservers = new ArrayList<>();
@@ -111,6 +103,14 @@ public class RongUserInfoManager {
         });
     }
 
+    public UserDatabase getUserDatabase() {
+        return mDatabase;
+    }
+
+    public static RongUserInfoManager getInstance() {
+        return SingleTonHolder.sInstance;
+    }
+
     /**
      * 初始化并打开用户信息数据库
      *
@@ -157,17 +157,13 @@ public class RongUserInfoManager {
      *
      * @param groupUserInfoProvider 群组用户信息提供者。
      * @param isCacheGroupUserInfo  设置是否由 IMKit 来缓存 GroupUserInfo。<br>
-     *                         如果 App 提供的 GroupUserInfoProvider。
-     *                         每次都需要通过网络请求数据，而不是将数据缓存到本地，会影响信息的加载速度；<br>
-     *                         此时最好将本参数设置为 true，由 IMKit 来缓存信息。
+     *                              如果 App 提供的 GroupUserInfoProvider。
+     *                              每次都需要通过网络请求数据，而不是将数据缓存到本地，会影响信息的加载速度；<br>
+     *                              此时最好将本参数设置为 true，由 IMKit 来缓存信息。
      */
     public void setGroupUserInfoProvider(UserDataProvider.GroupUserInfoProvider groupUserInfoProvider, boolean isCacheGroupUserInfo) {
         mUserDataDelegate.setGroupUserInfoProvider(groupUserInfoProvider);
         mIsCacheGroupMemberInfo = isCacheGroupUserInfo;
-    }
-
-    public UserDatabase getUserDatabase() {
-        return mDatabase;
     }
 
     public LiveData<List<User>> getAllUsersLiveData() {
@@ -180,33 +176,6 @@ public class RongUserInfoManager {
 
     public LiveData<List<GroupMember>> getAllGroupMembersLiveData() {
         return mAllGroupMembers;
-    }
-
-    public UserInfo getUserInfo(String userId) {
-        if (TextUtils.isEmpty(userId)) {
-            return null;
-        }
-        User user = null;
-        if (mIsCacheUserInfo && mLocalDataSource != null) {
-            user = mLocalDataSource.getUserInfo(userId, mAllUsers);
-        }
-        if (user == null && mUserDataDelegate != null) {
-            UserInfo userInfo = mUserDataDelegate.getUserInfo(userId);
-            if (userInfo != null) {
-                user = new User(userInfo.getUserId(), userInfo.getName() == null ? "" : userInfo.getName(),
-                        userInfo.getPortraitUri());
-            }
-            if (mIsCacheUserInfo && user != null && mLocalDataSource != null) {
-                mLocalDataSource.refreshUserInfo(user);
-            }
-        }
-        if (user != null) {
-            UserInfo userInfo = new UserInfo(user.id, user.name == null ? "" : user.name, Uri.parse(user.portraitUrl));
-            userInfo.setExtra(user.extra);
-            return userInfo;
-        } else {
-            return null;
-        }
     }
 
     public LiveData<User> getUserInfoLiveData(final String userId) {
@@ -274,6 +243,42 @@ public class RongUserInfoManager {
         }
     }
 
+    public UserInfo getCurrentUserInfo() {
+        if (mCurrentUserInfo != null) {
+            return mCurrentUserInfo;
+        } else {
+            return getUserInfo(RongIMClient.getInstance().getCurrentUserId());
+        }
+    }
+
+    public UserInfo getUserInfo(String userId) {
+        if (TextUtils.isEmpty(userId)) {
+            return null;
+        }
+        User user = null;
+        if (mIsCacheUserInfo && mLocalDataSource != null) {
+            user = mLocalDataSource.getUserInfo(userId, mAllUsers);
+        }
+        if (user == null && mUserDataDelegate != null) {
+            UserInfo userInfo = mUserDataDelegate.getUserInfo(userId);
+            if (userInfo != null) {
+                user = new User(userInfo.getUserId(), userInfo.getName() == null ? "" : userInfo.getName(),
+                        userInfo.getPortraitUri());
+            }
+            if (mIsCacheUserInfo && user != null && mLocalDataSource != null) {
+                mLocalDataSource.refreshUserInfo(user);
+            }
+        }
+        if (user != null) {
+            UserInfo userInfo = new UserInfo(user.id, user.name == null ? "" : user.name, Uri.parse(user.portraitUrl));
+            userInfo.setAlias(user.alias);
+            userInfo.setExtra(user.extra);
+            return userInfo;
+        } else {
+            return null;
+        }
+    }
+
     /**
      * 设置当前用户信息。
      * 如果开发者没有实现用户信息提供者，而是使用消息携带用户信息，需要使用这个方法设置当前用户的信息，
@@ -284,14 +289,6 @@ public class RongUserInfoManager {
      */
     public void setCurrentUserInfo(UserInfo userInfo) {
         mCurrentUserInfo = userInfo;
-    }
-
-    public UserInfo getCurrentUserInfo() {
-        if (mCurrentUserInfo != null) {
-            return mCurrentUserInfo;
-        } else {
-            return getUserInfo(RongIMClient.getInstance().getCurrentUserId());
-        }
     }
 
     /**
@@ -319,6 +316,7 @@ public class RongUserInfoManager {
         }
         User user = new User(userInfo.getUserId(), userInfo.getName(), userInfo.getPortraitUri());
         user.extra = userInfo.getExtra();
+        user.alias = userInfo.getAlias();
 
         if (mIsCacheUserInfo && mLocalDataSource != null) {
             mLocalDataSource.refreshUserInfo(user);
@@ -397,6 +395,36 @@ public class RongUserInfoManager {
         }
     }
 
+    public String getUserDisplayName(UserInfo userInfo) {
+        if (userInfo == null) {
+            return null;
+        }
+
+        return TextUtils.isEmpty(userInfo.getAlias()) ? userInfo.getName() : userInfo.getAlias();
+    }
+
+    public String getUserDisplayName(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        return TextUtils.isEmpty(user.alias) ? user.name : user.alias;
+    }
+
+    public String getUserDisplayName(UserInfo userInfo, String groupMemberName) {
+        if (userInfo == null) {
+            return groupMemberName == null ? "" : groupMemberName;
+        }
+
+        if (!TextUtils.isEmpty(userInfo.getAlias())) {
+            return userInfo.getAlias();
+        } else if (!TextUtils.isEmpty(groupMemberName)) {
+            return groupMemberName;
+        } else {
+            return userInfo.getName();
+        }
+    }
+
     public void addUserDataObserver(UserDataObserver observer) {
         mUserDataObservers.add(observer);
     }
@@ -411,5 +439,9 @@ public class RongUserInfoManager {
         void onGroupUpdate(io.rong.imlib.model.Group group);
 
         void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo);
+    }
+
+    private static class SingleTonHolder {
+        static RongUserInfoManager sInstance = new RongUserInfoManager();
     }
 }

@@ -8,7 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +31,7 @@ import java.util.List;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.widget.CircleProgressView;
@@ -65,7 +65,7 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         if (thumbUri != null && thumbUri.getPath() != null) {
             final ImageView imageView = holder.getView(R.id.rc_sight_thumb);
             //设置图片圆角角度
-            RoundedCorners roundedCorners = new RoundedCorners(dip2pix(holder.getContext(), 6));
+            RoundedCorners roundedCorners = new RoundedCorners(ScreenUtils.dip2px(holder.getContext(), 6));
             RequestOptions options = RequestOptions.bitmapTransform(roundedCorners).override(300, 300);
             Glide.with(imageView).load(new File(thumbUri.getPath()))
                     .apply(options)
@@ -153,11 +153,6 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         return messageContent instanceof SightMessage && !messageContent.isDestruct();
     }
 
-    @Override
-    public Spannable getSummarySpannable(Context context, SightMessage sightMessage) {
-        return new SpannableString(context.getString(R.string.rc_conversation_summary_content_sight));
-    }
-
     private void measureLayoutParams(View view, Drawable drawable) {
         float width = drawable.getIntrinsicWidth();
         float height = drawable.getIntrinsicHeight();
@@ -165,7 +160,7 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         int finalHeight;
         int minSize = 100;
         if (minShortSideSize == null)
-            minShortSideSize = dip2pix(view.getContext(), 140);
+            minShortSideSize = ScreenUtils.dip2px(view.getContext(), 140);
         if (minShortSideSize > 0) {
             if (width >= minShortSideSize || height >= minShortSideSize) {
                 float scale = width / height;
@@ -197,14 +192,6 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         }
     }
 
-    public static int dip2pix(Context context, int dips) {
-        return (int)
-                TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        dips,
-                        context.getResources().getDisplayMetrics());
-    }
-
     private String getSightDuration(int time) {
         String recordTime;
         int hour, minute, second;
@@ -234,5 +221,10 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         else
             formatTime = "" + time;
         return formatTime;
+    }
+
+    @Override
+    public Spannable getSummarySpannable(Context context, SightMessage sightMessage) {
+        return new SpannableString(context.getString(R.string.rc_conversation_summary_content_sight));
     }
 }

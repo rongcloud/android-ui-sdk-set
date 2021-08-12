@@ -90,7 +90,7 @@ public class GatheredConversation extends BaseUiConversation {
             for (User user : userList) {
                 if (user != null && user.id.equals(mLastTargetId)) {
                     SpannableStringBuilder builder = new SpannableStringBuilder();
-                    builder.append(user.name).append(COLON_SPLIT).append(RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore.getLatestMessage()));
+                    builder.append(RongUserInfoManager.getInstance().getUserDisplayName(user)).append(COLON_SPLIT).append(RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore.getLatestMessage()));
                     mConversationContent = builder;
                 }
             }

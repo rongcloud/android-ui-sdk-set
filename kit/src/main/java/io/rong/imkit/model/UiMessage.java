@@ -31,7 +31,6 @@ public class UiMessage extends UiBaseBean {
     private boolean isEdit;
     private boolean isSelected;
     private String nickname;
-
     /**
      * TextMessage 和 ReferenceMessage 的 content 字段
      */
@@ -158,6 +157,7 @@ public class UiMessage extends UiBaseBean {
                 } else {
                     userInfo.setName("");
                 }
+                userInfo.setAlias(user.alias);
                 userInfo.setPortraitUri(Uri.parse(user.portraitUrl));
                 userInfo.setExtra(user.extra);
                 change();
@@ -411,5 +411,10 @@ public class UiMessage extends UiBaseBean {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+
+    public String getDisplayName() {
+        return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, nickname);
     }
 }

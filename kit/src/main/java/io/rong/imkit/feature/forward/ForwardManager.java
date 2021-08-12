@@ -1,5 +1,7 @@
 package io.rong.imkit.feature.forward;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -23,17 +25,15 @@ import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
+import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.ImageMessage;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.message.MediaMessageContent;
 import io.rong.message.ReferenceMessage;
-
-import static android.app.Activity.RESULT_OK;
 
 public class ForwardManager {
     private static final String TAG = ForwardManager.class.getSimpleName();
@@ -45,10 +45,6 @@ public class ForwardManager {
 
     private ForwardManager() {
 
-    }
-
-    private static class SingletonHolder {
-        static ForwardManager sInstance = new ForwardManager();
     }
 
     public static ForwardManager getInstance() {
@@ -233,35 +229,6 @@ public class ForwardManager {
 
     }
 
-    private void startForwardMessageByStep(String id, Conversation.ConversationType type, Message fwdMessage) {
-        MessageContent messageContent = fwdMessage.getContent();
-        //有些消息携带了用户信息，转发的消息必须把用户信息去掉
-        messageContent.setUserInfo(null);
-        Message message = Message.obtain(id, type, messageContent);
-
-        if (messageContent instanceof ImageMessage) {
-            ImageMessage imageMessage = (ImageMessage) messageContent;
-            if (imageMessage.getRemoteUri() != null && !imageMessage.getRemoteUri().toString().startsWith("file")) {
-                IMCenter.getInstance().sendMessage(message, null, null, null);
-            } else {
-                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
-            }
-        } else if (messageContent instanceof LocationMessage) {
-            IMCenter.getInstance().sendLocationMessage(message, null, null, null);
-        } else if (messageContent instanceof ReferenceMessage) {
-            IMCenter.getInstance().sendMessage(message, null, null, null);
-        } else if (messageContent instanceof MediaMessageContent) {
-            MediaMessageContent mediaMessageContent = (MediaMessageContent) messageContent;
-            if (mediaMessageContent.getMediaUrl() != null) {
-                IMCenter.getInstance().sendMessage(message, null, null, null);
-            } else {
-                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
-            }
-        } else {
-            IMCenter.getInstance().sendMessage(message, null, null, null);
-        }
-    }
-
     // 合并转发
     private void forwardMessageByCombine(List<Conversation> conversations, List<Message> messages) {
         //拼写H5界面,上传html文件,并回传文件地址uri
@@ -288,25 +255,35 @@ public class ForwardManager {
         }
     }
 
-    private String getTitle(CombineMessage content) {
-        Context context = IMCenter.getInstance().getContext();
-        String title = context.getString(R.string.rc_combine_chat_history);
+    private void startForwardMessageByStep(String id, Conversation.ConversationType type, Message fwdMessage) {
+        MessageContent messageContent = fwdMessage.getContent();
+        //有些消息携带了用户信息，转发的消息必须把用户信息去掉
+        messageContent.setUserInfo(null);
+        // 去掉转发消息中的 @ 信息
+        messageContent.setMentionedInfo(null);
+        Message message = Message.obtain(id, type, messageContent);
 
-        if (Conversation.ConversationType.GROUP.equals(content.getConversationType())) {
-            title = context.getString(R.string.rc_combine_group_chat);
-        } else if (Conversation.ConversationType.PRIVATE.equals(content.getConversationType())) {
-            List<String> nameList = content.getNameList();
-            if (nameList == null) return title;
-
-            if (nameList.size() == 1) {
-                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of), nameList.get(0));
-            } else if (nameList.size() == 2) {
-                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of),
-                        nameList.get(0) + " " + context.getString(R.string.rc_combine_and) + " " + nameList.get(1));
+        if (messageContent instanceof ImageMessage) {
+            ImageMessage imageMessage = (ImageMessage) messageContent;
+            if (imageMessage.getRemoteUri() != null && !imageMessage.getRemoteUri().toString().startsWith("file")) {
+                IMCenter.getInstance().sendMessage(message, null, null, null);
+            } else {
+                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
             }
+        } else if (messageContent instanceof LocationMessage) {
+            IMCenter.getInstance().sendLocationMessage(message, null, null, null);
+        } else if (messageContent instanceof ReferenceMessage) {
+            IMCenter.getInstance().sendMessage(message, null, null, null);
+        } else if (messageContent instanceof MediaMessageContent) {
+            MediaMessageContent mediaMessageContent = (MediaMessageContent) messageContent;
+            if (mediaMessageContent.getMediaUrl() != null) {
+                IMCenter.getInstance().sendMessage(message, null, null, null);
+            } else {
+                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
+            }
+        } else {
+            IMCenter.getInstance().sendMessage(message, null, null, null);
         }
-
-        return title;
     }
 
     private List<String> getNameList(List<Message> messages, Conversation.ConversationType type) {
@@ -336,6 +313,27 @@ public class ForwardManager {
             }
         }
         return names;
+    }
+
+    private String getTitle(CombineMessage content) {
+        Context context = IMCenter.getInstance().getContext();
+        String title = context.getString(R.string.rc_combine_chat_history);
+
+        if (Conversation.ConversationType.GROUP.equals(content.getConversationType())) {
+            title = context.getString(R.string.rc_combine_group_chat);
+        } else if (Conversation.ConversationType.PRIVATE.equals(content.getConversationType())) {
+            List<String> nameList = content.getNameList();
+            if (nameList == null) return title;
+
+            if (nameList.size() == 1) {
+                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of), nameList.get(0));
+            } else if (nameList.size() == 2) {
+                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of),
+                        nameList.get(0) + " " + context.getString(R.string.rc_combine_and) + " " + nameList.get(1));
+            }
+        }
+
+        return title;
     }
 
     private List<String> getSummaryList(List<Message> messages) {
@@ -378,11 +376,14 @@ public class ForwardManager {
         return summaryList;
     }
 
-
     //todo
     public void exitDestructMode() {
         RongExtension extension = ForwardExtensionModule.sRongExtension.get();
         extension.resetToDefaultView();
+    }
+
+    private static class SingletonHolder {
+        static ForwardManager sInstance = new ForwardManager();
     }
 
 }

@@ -1,6 +1,5 @@
 package io.rong.imkit.feature.reference;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -12,16 +11,12 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.LayoutDirection;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -48,6 +43,7 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
@@ -67,7 +63,6 @@ import io.rong.message.ReferenceMessage;
 import io.rong.message.RichContentMessage;
 import io.rong.message.TextMessage;
 
-import static io.rong.imkit.conversation.messgelist.provider.SightMessageItemProvider.dip2pix;
 
 public class ReferenceMessageItemProvider extends BaseMessageItemProvider<ReferenceMessage> {
 
@@ -301,7 +296,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             imageUri = content.getMediaUrl();
         }
         if (imageUri != null) {
-            RequestOptions options = RequestOptions.bitmapTransform(new RoundedCorners(dip2pix(IMCenter.getInstance().getContext(), 3))).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
+            RequestOptions options = RequestOptions.bitmapTransform(new RoundedCorners(ScreenUtils.dip2px(IMCenter.getInstance().getContext(), 3))).override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
             Glide.with(view).load(imageUri).apply(options).listener(new RequestListener<Drawable>() {
                 @Override
                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {

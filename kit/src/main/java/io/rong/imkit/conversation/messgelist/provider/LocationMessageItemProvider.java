@@ -24,15 +24,15 @@ import io.rong.imkit.R;
 import io.rong.imkit.feature.location.AMapPreviewActivity;
 import io.rong.imkit.feature.location.AMapPreviewActivity2D;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imkit.widget.glide.RoundedCornersTransform;
+import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
-import io.rong.imlib.location.message.LocationMessage;
 
-import static io.rong.imkit.conversation.messgelist.provider.SightMessageItemProvider.dip2pix;
 
 public class LocationMessageItemProvider extends BaseMessageItemProvider<LocationMessage> {
     private static final String TAG = LocationMessageItemProvider.class.getSimpleName();
@@ -75,7 +75,7 @@ public class LocationMessageItemProvider extends BaseMessageItemProvider<Locatio
         if (uri == null || !("file").equals(uri.getScheme())) {
             img.setImageResource(R.drawable.rc_ic_location_item_default);
         } else {
-            int px = dip2pix(IMCenter.getInstance().getContext(), 8);
+            int px = ScreenUtils.dip2px(IMCenter.getInstance().getContext(), 8);
             RoundedCornersTransform roundedTransform;
             if (uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND)) {
                 roundedTransform = new RoundedCornersTransform(px, 0, px, px);

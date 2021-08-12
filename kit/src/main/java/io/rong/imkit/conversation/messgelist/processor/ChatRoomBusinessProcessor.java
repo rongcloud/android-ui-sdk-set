@@ -8,9 +8,7 @@ import androidx.lifecycle.Observer;
 import java.util.List;
 
 import io.rong.common.RLog;
-import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
@@ -19,28 +17,13 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
 
 public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
     private static final String TAG = "ChatRoomBusinessProcess";
     private int rc_chatRoom_first_pull_message_count;
-
-    @Override
-    public int getHistoryMessageCount() {
-        int count = rc_chatRoom_first_pull_message_count;
-        if (count == 0) {
-            //等于0取默认值
-            return 10;
-        } else if (count == -1) {
-            return 0;
-        } else {
-            return count;
-        }
-    }
 
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
@@ -88,7 +71,7 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                     for (UiMessage item : messageViewModel.getUiMessages()) {
                         item.onUserInfoUpdate(users);
                     }
-                    messageViewModel.updateUiMessages();
+                    messageViewModel.refreshAllMessage(false);
                 }
             }
         });
@@ -101,6 +84,19 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public int getHistoryMessageCount() {
+        int count = rc_chatRoom_first_pull_message_count;
+        if (count == 0) {
+            //等于0取默认值
+            return 10;
+        } else if (count == -1) {
+            return 0;
+        } else {
+            return count;
+        }
     }
 
 }

@@ -47,7 +47,7 @@ public class RouteUtils {
             activity = sActivityMap.get(RongActivityType.ConversationListActivity);
         }
         Intent intent = new Intent(context, activity);
-        if (TextUtils.isEmpty(title)) {
+        if (!TextUtils.isEmpty(title)) {
             intent.putExtra(TITLE, title);
         }
         context.startActivity(intent);

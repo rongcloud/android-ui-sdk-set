@@ -20,37 +20,52 @@ public class NotificationConfig {
         mOtherPageAction = ForegroundOtherPageAction.Sound;
     }
 
-    public void setNotificationChannel(NotificationChannel channel) {
-        this.mChannel = channel;
-    }
-
-    public void setTitleType(TitleType type) {
-        this.mTitleType = type;
-    }
-
-    public void setForegroundOtherPageAction(ForegroundOtherPageAction action) {
-        this.mOtherPageAction = action;
-    }
-
-
-    public void setInterceptor(Interceptor interceptor) {
-        this.mInterceptor = interceptor;
-    }
-
     public NotificationChannel getNotificationChannel() {
         return mChannel;
+    }
+
+    public void setNotificationChannel(NotificationChannel channel) {
+        this.mChannel = channel;
     }
 
     public Interceptor getInterceptor() {
         return mInterceptor;
     }
 
+    /**
+     * 本地通知拦截器
+     *
+     * @param interceptor 通知拦截器
+     * @Deprecated 5.1.4版本废弃，请使用{{@link #setInterceptor(DefaultInterceptor)}}
+     */
+    @Deprecated
+    public void setInterceptor(Interceptor interceptor) {
+        this.mInterceptor = interceptor;
+    }
+
+    /**
+     * 本地通知拦截器
+     *
+     * @param interceptor 默认的抽象类实现，用户可以继承 DefaultInterceptor，复写方法，进行拦截处理
+     */
+    public void setInterceptor(DefaultInterceptor interceptor) {
+        this.mInterceptor = interceptor;
+    }
+
     public TitleType getTitleType() {
         return mTitleType;
     }
 
+    public void setTitleType(TitleType type) {
+        this.mTitleType = type;
+    }
+
     public ForegroundOtherPageAction getForegroundOtherPageAction() {
         return mOtherPageAction;
+    }
+
+    public void setForegroundOtherPageAction(ForegroundOtherPageAction action) {
+        this.mOtherPageAction = action;
     }
 
 
@@ -84,6 +99,7 @@ public class NotificationConfig {
          * 设置本地通知 PendingIntent 时的回调。
          * 应用层可通过此方法更改 PendingIntent 里的设置，以便自定义本地通知的点击行为。
          * 点击本地通知时，SDK 默认跳转到对应会话页面。
+         *
          * @param pendingIntent SDK 默认 PendingIntent
          * @param intent        pendingIntent 里携带的 intent。
          *                      可通过 intent 获取以下信息:

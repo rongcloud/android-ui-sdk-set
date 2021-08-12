@@ -7,10 +7,13 @@ import java.util.Calendar;
 import java.util.Date;
 
 import io.rong.imkit.R;
+import io.rong.imkit.utils.language.LangUtils;
+import io.rong.imkit.utils.language.RongConfigurationManager;
 
 
 public class RongDateUtils {
 
+    private static final String SPACE_CHAR = " ";
     private static final int OTHER = 2014;
     private static final int TODAY = 6;
     private static final int YESTERDAY = 15;
@@ -131,10 +134,10 @@ public class RongDateUtils {
             }
             timeStr = hour + ":" + minuteStr;
 
-            if (context.getResources().getConfiguration().locale.getCountry().equals("CN")) {
-                formatTime = formatTime + timeStr;
+            if (RongConfigurationManager.getInstance().getLanguageLocal(context) == LangUtils.RCLocale.LOCALE_CHINA) {
+                formatTime = formatTime + SPACE_CHAR + timeStr;
             } else {
-                formatTime = timeStr + " " + formatTime;
+                formatTime = timeStr + SPACE_CHAR + formatTime;
             }
         }
         return formatTime;
@@ -180,21 +183,10 @@ public class RongDateUtils {
                     if (month == monthCur && weekInMonth == weekInMonthCur) {//同月同周
                         formatDate = getWeekDay(context, calendardate.get(Calendar.DAY_OF_WEEK));
                     } else { //不同月
-                        if (context.getResources().getConfiguration().locale.getCountry().equals("CN")) {
-                            formatDate = formatDate(date, "M" + context.getResources().getString(R.string.rc_date_month) +
-                                    "d" + context.getResources().getString(R.string.rc_date_day));
-                        } else {
-                            formatDate = formatDate(date, "M/d");
-                        }
+                        formatDate = formatDate(date, "M/d");
                     }
                 } else {
-                    if (context.getResources().getConfiguration().locale.getCountry().equals("CN")) {
-                        formatDate = formatDate(date, "yyyy" + context.getResources().getString(R.string.rc_date_year) +
-                                "M" + context.getResources().getString(R.string.rc_date_month) +
-                                "d" + context.getResources().getString(R.string.rc_date_day));
-                    } else {
-                        formatDate = formatDate(date, "M/d/yy");
-                    }
+                    formatDate = formatDate(date, "yyyy/M/d");
                 }
 
                 if (showTime) {

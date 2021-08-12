@@ -50,17 +50,12 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                     return;
                 }
                 String operation = groupNotificationMessage.getOperation();
-                String operatorNickname = data.getOperatorNickname();
                 String operatorUserId = groupNotificationMessage.getOperatorUserId();
                 String currentUserId = RongIM.getInstance().getCurrentUserId();
-                if (operatorNickname == null) {
-                    UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
-                    if (userInfo != null) {
-                        operatorNickname = userInfo.getName();
-                        if (operatorNickname == null) {
-                            operatorNickname = groupNotificationMessage.getOperatorUserId();
-                        }
-                    }
+                UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
+                String operatorNickname = RongUserInfoManager.getInstance().getUserDisplayName(userInfo, data.getOperatorNickname());
+                if (TextUtils.isEmpty(operatorNickname)) {
+                    operatorNickname = groupNotificationMessage.getOperatorUserId();
                 }
                 List<String> memberList = data.getTargetUserDisplayNames();
                 List<String> memberIdList = data.getTargetUserIds();
@@ -178,6 +173,50 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
         return messageContent instanceof GroupNotificationMessage;
     }
 
+    private GroupNotificationMessageData jsonToBean(String data) {
+        GroupNotificationMessageData dataEntity = new GroupNotificationMessageData();
+        try {
+            JSONObject jsonObject = new JSONObject(data);
+            if (jsonObject.has("operatorNickname")) {
+                dataEntity.setOperatorNickname(jsonObject.getString("operatorNickname"));
+            }
+            if (jsonObject.has("targetGroupName")) {
+                dataEntity.setTargetGroupName(jsonObject.getString("targetGroupName"));
+            }
+            if (jsonObject.has("timestamp")) {
+                dataEntity.setTimestamp(jsonObject.getLong("timestamp"));
+            }
+            if (jsonObject.has("targetUserIds")) {
+                JSONArray jsonArray = jsonObject.getJSONArray("targetUserIds");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    dataEntity.getTargetUserIds().add(jsonArray.getString(i));
+                }
+            }
+            if (jsonObject.has("targetUserDisplayNames")) {
+                JSONArray jsonArray = jsonObject.getJSONArray("targetUserDisplayNames");
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    dataEntity.getTargetUserDisplayNames().add(jsonArray.getString(i));
+                }
+            }
+            if (jsonObject.has("oldCreatorId")) {
+                dataEntity.setOldCreatorId(jsonObject.getString("oldCreatorId"));
+            }
+            if (jsonObject.has("oldCreatorName")) {
+                dataEntity.setOldCreatorName(jsonObject.getString("oldCreatorName"));
+            }
+            if (jsonObject.has("newCreatorId")) {
+                dataEntity.setNewCreatorId(jsonObject.getString("newCreatorId"));
+            }
+            if (jsonObject.has("newCreatorName")) {
+                dataEntity.setNewCreatorName(jsonObject.getString("newCreatorName"));
+            }
+
+        } catch (Exception e) {
+            RLog.e(TAG, "jsonToBean", e);
+        }
+        return dataEntity;
+    }
+
     @Override
     public Spannable getSummarySpannable(Context context, GroupNotificationMessage groupNotificationMessage) {
         try {
@@ -191,19 +230,15 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                 return null;
             }
             String operation = groupNotificationMessage.getOperation();
-            String operatorNickname = data.getOperatorNickname();
             String operatorUserId = groupNotificationMessage.getOperatorUserId();
             String currentUserId = RongIM.getInstance().getCurrentUserId();
 
-            if (operatorNickname == null) {
-                UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
-                if (userInfo != null) {
-                    operatorNickname = userInfo.getName();
-                }
-                if (operatorNickname == null) {
-                    operatorNickname = groupNotificationMessage.getOperatorUserId();
-                }
+            UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
+            String operatorNickname = RongUserInfoManager.getInstance().getUserDisplayName(userInfo, data.getOperatorNickname());
+            if (TextUtils.isEmpty(operatorNickname)) {
+                operatorNickname = groupNotificationMessage.getOperatorUserId();
             }
+
             List<String> memberList = data.getTargetUserDisplayNames();
             List<String> memberIdList = data.getTargetUserIds();
             String memberName = null;
@@ -322,49 +357,5 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
             RLog.e(TAG, "getContentSummary", e);
         }
         return new SpannableString(context.getString(R.string.rc_item_group_notification_summary));
-    }
-
-    private GroupNotificationMessageData jsonToBean(String data) {
-        GroupNotificationMessageData dataEntity = new GroupNotificationMessageData();
-        try {
-            JSONObject jsonObject = new JSONObject(data);
-            if (jsonObject.has("operatorNickname")) {
-                dataEntity.setOperatorNickname(jsonObject.getString("operatorNickname"));
-            }
-            if (jsonObject.has("targetGroupName")) {
-                dataEntity.setTargetGroupName(jsonObject.getString("targetGroupName"));
-            }
-            if (jsonObject.has("timestamp")) {
-                dataEntity.setTimestamp(jsonObject.getLong("timestamp"));
-            }
-            if (jsonObject.has("targetUserIds")) {
-                JSONArray jsonArray = jsonObject.getJSONArray("targetUserIds");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    dataEntity.getTargetUserIds().add(jsonArray.getString(i));
-                }
-            }
-            if (jsonObject.has("targetUserDisplayNames")) {
-                JSONArray jsonArray = jsonObject.getJSONArray("targetUserDisplayNames");
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    dataEntity.getTargetUserDisplayNames().add(jsonArray.getString(i));
-                }
-            }
-            if (jsonObject.has("oldCreatorId")) {
-                dataEntity.setOldCreatorId(jsonObject.getString("oldCreatorId"));
-            }
-            if (jsonObject.has("oldCreatorName")) {
-                dataEntity.setOldCreatorName(jsonObject.getString("oldCreatorName"));
-            }
-            if (jsonObject.has("newCreatorId")) {
-                dataEntity.setNewCreatorId(jsonObject.getString("newCreatorId"));
-            }
-            if (jsonObject.has("newCreatorName")) {
-                dataEntity.setNewCreatorName(jsonObject.getString("newCreatorName"));
-            }
-
-        } catch (Exception e) {
-            RLog.e(TAG, "jsonToBean", e);
-        }
-        return dataEntity;
     }
 }

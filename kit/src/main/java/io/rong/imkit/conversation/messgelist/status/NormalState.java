@@ -1,5 +1,8 @@
 package io.rong.imkit.conversation.messgelist.status;
 
+import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
+import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_REMOTE_COUNT;
+
 import android.os.Bundle;
 
 import java.util.List;
@@ -16,9 +19,6 @@ import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
-
-import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
-import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_REMOTE_COUNT;
 
 /**
  * 会话页面当前状态，正常模式
@@ -173,7 +173,7 @@ public class NormalState implements IMessageState {
     public void onReceived(MessageViewModel viewModel, UiMessage uiMessage, int left, boolean hasPackage, boolean offline) {
         int insertPosition = viewModel.findPositionBySendTime(uiMessage.getMessage().getSentTime());
         viewModel.getUiMessages().add(insertPosition, uiMessage);
-        viewModel.updateUiMessages(false);
+        viewModel.refreshAllMessage(false);
         viewModel.updateMentionMessage(uiMessage.getMessage());
         // newMessageBar 逻辑
         if (RongConfigCenter.conversationConfig().isShowNewMessageBar(uiMessage.getConversationType())) {

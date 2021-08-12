@@ -39,49 +39,10 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
                     for (UiMessage item : messageViewModel.getUiMessages()) {
                         item.onUserInfoUpdate(users);
                     }
-                    messageViewModel.updateUiMessages();
+                    messageViewModel.refreshAllMessage(false);
                 }
             }
         });
-    }
-
-    @Override
-    public void onExistUnreadMessage(MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
-        boolean isShowReadReceipt = RongConfigCenter.conversationConfig().isShowReadReceipt(viewModel.getCurConversationType());
-        //如果是开启已读回执，则不再发送会话状态同步
-        if (isShowReadReceipt) {
-            sendReadReceiptMessage(viewModel.getApplication(), viewModel.getCurTargetId(), viewModel.getCurConversationType(), conversation.getSentTime(), true);
-        } else {
-            boolean syncReadStatus = RongConfigCenter.conversationConfig().isEnableMultiDeviceSync(viewModel.getCurConversationType());
-            if (syncReadStatus) {
-                IMCenter.getInstance().syncConversationReadStatus(viewModel.getCurConversationType(), viewModel.getCurTargetId(), conversation.getSentTime(), null);
-            }
-        }
-    }
-
-    @Override
-    public void onResume(MessageViewModel viewModel) {
-        checkReadStatus(viewModel);
-    }
-
-    @Override
-    public void onDestroy(MessageViewModel viewModel) {
-        checkReadStatus(viewModel);
-    }
-
-    @Override
-    public void onConnectStatusChange(MessageViewModel viewModel, RongIMClient.ConnectionStatusListener.ConnectionStatus status) {
-        if (status.equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED)) {
-            checkReadStatus(viewModel);
-        }
-    }
-
-    private void checkReadStatus(MessageViewModel viewModel) {
-        SharedPreferences sp = SharedPreferencesUtils.get(viewModel.getApplication(), ConversationConfig.SP_NAME_READ_RECEIPT_CONFIG, Context.MODE_PRIVATE);
-        long sendReadReceiptTime = sp.getLong(getSavedReadReceiptTimeName(viewModel.getCurTargetId(), viewModel.getCurConversationType()), 0);
-        if (sendReadReceiptTime > 0) {
-            sendReadReceiptMessage(viewModel.getApplication(), viewModel.getCurTargetId(), viewModel.getCurConversationType(), sendReadReceiptTime, false);
-        }
     }
 
     @Override
@@ -101,6 +62,45 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
         }
         //本地插入的消息(Uid 为空)不需要发送已读回执
         return super.onReceived(viewModel, message, left, hasPackage, offline);
+    }
+
+    @Override
+    public void onExistUnreadMessage(MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
+        boolean isShowReadReceipt = RongConfigCenter.conversationConfig().isShowReadReceipt(viewModel.getCurConversationType());
+        //如果是开启已读回执，则不再发送会话状态同步
+        if (isShowReadReceipt) {
+            sendReadReceiptMessage(viewModel.getApplication(), viewModel.getCurTargetId(), viewModel.getCurConversationType(), conversation.getSentTime(), true);
+        } else {
+            boolean syncReadStatus = RongConfigCenter.conversationConfig().isEnableMultiDeviceSync(viewModel.getCurConversationType());
+            if (syncReadStatus) {
+                IMCenter.getInstance().syncConversationReadStatus(viewModel.getCurConversationType(), viewModel.getCurTargetId(), conversation.getSentTime(), null);
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy(MessageViewModel viewModel) {
+        checkReadStatus(viewModel);
+    }
+
+    @Override
+    public void onConnectStatusChange(MessageViewModel viewModel, RongIMClient.ConnectionStatusListener.ConnectionStatus status) {
+        if (status.equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED)) {
+            checkReadStatus(viewModel);
+        }
+    }
+
+    @Override
+    public void onResume(MessageViewModel viewModel) {
+        checkReadStatus(viewModel);
+    }
+
+    private void checkReadStatus(MessageViewModel viewModel) {
+        SharedPreferences sp = SharedPreferencesUtils.get(viewModel.getApplication(), ConversationConfig.SP_NAME_READ_RECEIPT_CONFIG, Context.MODE_PRIVATE);
+        long sendReadReceiptTime = sp.getLong(getSavedReadReceiptTimeName(viewModel.getCurTargetId(), viewModel.getCurConversationType()), 0);
+        if (sendReadReceiptTime > 0) {
+            sendReadReceiptMessage(viewModel.getApplication(), viewModel.getCurTargetId(), viewModel.getCurConversationType(), sendReadReceiptTime, false);
+        }
     }
 
     private void sendReadReceiptMessage(final Context context, final String targetId, final Conversation.ConversationType type, final long sendReadReceiptTime, final boolean processError) {

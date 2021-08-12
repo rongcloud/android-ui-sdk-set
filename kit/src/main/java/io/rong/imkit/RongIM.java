@@ -29,6 +29,7 @@ import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.model.CSCustomServiceInfo;
+import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
@@ -409,7 +410,34 @@ public class RongIM {
      */
     public static void connect(String token, int timeLimit,
                                final RongIMClient.ConnectCallback connectCallback) {
-        IMCenter.getInstance().connect(token, timeLimit, connectCallback);
+        connect(ConnectOption.obtain(token, timeLimit), connectCallback);
+    }
+
+    /**
+     * 连接服务器，在整个应用程序全局，只需要调用一次。
+     *
+     * @param option          连接配置
+     *                        1. token
+     *                        从服务端获取的用户身份令牌(Token)
+     *                        2. timeLimit
+     *                        连接超时时间，单位：秒。timeLimit <= 0，则 IM 将一直连接，直到连接成功或者无法连接（如 token 非法）
+     *                        timeLimit > 0 ,则 IM 将最多连接 timeLimit 秒：
+     *                        如果在 timeLimit 秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连；
+     *                        如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError 告知连接超时，您需要再自行调用 connect 接口.
+     *                        <p>
+     *                        3. connectExt
+     *                        从App服务器端获取的鉴权数据，该数据会通过 SDK -> IMServer -> App的服务器，让App的服务器做连接鉴权.
+     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
+     * @return RongIM IM 客户端核心类的实例。
+     * @discussion 调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一：
+     * 第一、连接成功，回调 onSuccess(userId)。
+     * 第二、超时，回调 onError(RC_CONNECT_TIMEOUT)，并不再重连。
+     * 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
+     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
+     */
+    private static void connect(ConnectOption option,
+                               final RongIMClient.ConnectCallback connectCallback) {
+        IMCenter.getInstance().connect(option.getToken(), option.getTimeLimit(), connectCallback);
     }
 
     /**
@@ -1207,9 +1235,9 @@ public class RongIM {
      *
      * @param groupUserInfoProvider 群组用户信息提供者。
      * @param isCacheGroupUserInfo  设置是否由 IMKit 来缓存 GroupUserInfo。<br>
-     *                         如果 App 提供的 GroupUserInfoProvider。
-     *                         每次都需要通过网络请求数据，而不是将数据缓存到本地，会影响信息的加载速度；<br>
-     *                         此时最好将本参数设置为 true，由 IMKit 来缓存信息。
+     *                              如果 App 提供的 GroupUserInfoProvider。
+     *                              每次都需要通过网络请求数据，而不是将数据缓存到本地，会影响信息的加载速度；<br>
+     *                              此时最好将本参数设置为 true，由 IMKit 来缓存信息。
      */
     public static void setGroupUserInfoProvider(UserDataProvider.GroupUserInfoProvider groupUserInfoProvider, boolean isCacheGroupUserInfo) {
         RongUserInfoManager.getInstance().setGroupUserInfoProvider(groupUserInfoProvider, isCacheGroupUserInfo);

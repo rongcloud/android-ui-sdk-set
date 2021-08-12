@@ -13,14 +13,18 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.ViewPagerAdapter;
 import io.rong.imkit.picture.anim.OptAnimationLoader;
@@ -57,13 +61,26 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     protected Handler mHandler;
     protected FrameLayout selectBarLayout, topLayout;
     protected CheckBox mCbOriginal;
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        BroadcastManager.getInstance(this).registerReceiver(commonBroadcastReceiver,
-                BroadcastAction.ACTION_CLOSE_PREVIEW);
-    }
+    private BroadcastReceiver commonBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch (action) {
+                case BroadcastAction.ACTION_CLOSE_PREVIEW:
+                    // 压缩完后关闭预览界面
+                    dismissDialog();
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            onBackPressed();
+                        }
+                    }, 150);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     public int getResourceId() {
@@ -95,13 +112,18 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         is_bottom_preview = getIntent().
                 getBooleanExtra(PictureConfig.EXTRA_BOTTOM_PREVIEW, false);
         // 底部预览按钮过来
+        images.clear();
         if (is_bottom_preview) {
-            images = getIntent().
-                    getParcelableArrayListExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST);
+            images.addAll(getIntent().
+                    <LocalMedia>getParcelableArrayListExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST));
         } else {
-            images = ImagesObservable.getInstance().readPreviewMediaData();
+            images.addAll(ImagesObservable.getInstance().readPreviewMediaData());
         }
-
+        if (images.isEmpty() || images.size() < position) {
+            mCbOriginal.setVisibility(View.GONE);
+            RLog.i("PicturePreviewActivity", "images is empty");
+            return;
+        }
         initViewPageAdapterData();
         // 原图
         LocalMedia media = images.get(position);
@@ -117,23 +139,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         });
     }
 
-    private String getSize(long size) {
-        if (size / 1024 / 1024 < 1) {
-            return String.format("%dK", size / 1024);
-        } else {
-            return String.format("%.2fM", size / 1024f / 1024f);
-        }
-    }
-
-    /**
-     * ViewPage滑动数据变化回调
-     *
-     * @param media
-     */
-    protected void onPageSelectedChange(LocalMedia media) {
-
-    }
-
     /**
      * 动态设置相册主题
      */
@@ -143,21 +148,40 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 .getDrawable(this, R.drawable.rc_picture_original_checkbox));
     }
 
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        BroadcastManager.getInstance(this).registerReceiver(commonBroadcastReceiver,
+                BroadcastAction.ACTION_CLOSE_PREVIEW);
+    }
 
-    /**
-     * 单选图片
-     */
-    private void singleRadioMediaImage() {
-        LocalMedia media = selectImages != null && selectImages.size() > 0 ? selectImages.get(0) : null;
-        if (media != null) {
-            Bundle bundle = new Bundle();
-            bundle.putInt("position", media.getPosition());
-            bundle.putParcelableArrayList("selectImages", (ArrayList<? extends Parcelable>) selectImages);
-            BroadcastManager.getInstance(this)
-                    .action(BroadcastAction.ACTION_SELECTED_DATA)
-                    .extras(bundle)
-                    .broadcast();
-            selectImages.clear();
+    @Override
+    public void onResult(List<LocalMedia> images) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList("selectImages", (ArrayList<? extends Parcelable>) images);
+        BroadcastManager.getInstance(this)
+                .action(BroadcastAction.ACTION_PREVIEW_COMPRESSION)
+                .extras(bundle)
+                .broadcast();
+        onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ImagesObservable.getInstance().clearPreviewMediaData();
+        if (commonBroadcastReceiver != null) {
+            BroadcastManager.getInstance(this).unregisterReceiver(commonBroadcastReceiver,
+                    BroadcastAction.ACTION_CLOSE_PREVIEW);
+            commonBroadcastReceiver = null;
+        }
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+            mHandler = null;
+        }
+        if (animation != null) {
+            animation.cancel();
+            animation = null;
         }
     }
 
@@ -198,6 +222,14 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
     }
 
+    private String getSize(long size) {
+        if (size / 1024 / 1024 < 1) {
+            return String.format("%dK", size / 1024);
+        } else {
+            return String.format("%.2fM", size / 1024f / 1024f);
+        }
+    }
+
     /**
      * 选择按钮更新
      */
@@ -214,16 +246,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     }
 
     /**
-     * 更新选择的顺序
-     */
-    private void subSelectPosition() {
-        for (int index = 0, len = selectImages.size(); index < len; index++) {
-            LocalMedia media = selectImages.get(index);
-            media.setNum(index + 1);
-        }
-    }
-
-    /**
      * 判断当前图片是否选中
      *
      * @param position
@@ -235,21 +257,6 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         } else {
             check.setSelected(false);
         }
-    }
-
-    /**
-     * 当前图片是否选中
-     *
-     * @param image
-     * @return
-     */
-    public boolean isSelected(LocalMedia image) {
-        for (LocalMedia media : selectImages) {
-            if (media.getPath().equals(image.getPath())) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -273,6 +280,21 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     }
 
     /**
+     * 当前图片是否选中
+     *
+     * @param image
+     * @return
+     */
+    public boolean isSelected(LocalMedia image) {
+        for (LocalMedia media : selectImages) {
+            if (media.getPath().equals(image.getPath())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 更新图片列表选中效果
      *
      * @param isRefresh
@@ -289,6 +311,15 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
     }
 
+    /**
+     * ViewPage滑动数据变化回调
+     *
+     * @param media
+     */
+    protected void onPageSelectedChange(LocalMedia media) {
+
+    }
+
     @Override
     public void onClick(View view) {
         int id = view.getId();
@@ -297,6 +328,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         } else if (id == R.id.tv_ok) {
             onComplete();
         } else if (id == R.id.btnCheck) {
+            if (images.size() < position) {
+                return;
+            }
             LocalMedia currentMedia = images.get(position);
             if (PictureMimeType.eqVideo(currentMedia.getMimeType())) {
                 int maxDuration = config.videoDurationLimit;
@@ -316,6 +350,28 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         } else if (id == R.id.select_bar_layout || id == R.id.fl_top) {
             return;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        closeActivity();
+    }
+
+    protected void onComplete() {
+        // 如果设置了图片最小选择数量，则判断是否满足条件
+        int size = selectImages.size();
+        LocalMedia image = selectImages.size() > 0 ? selectImages.get(0) : null;
+        String mimeType = image != null ? image.getMimeType() : "";
+        if (config.minSelectNum > 0) {
+            if (size < config.minSelectNum && config.selectionMode == PictureConfig.MULTIPLE) {
+                boolean eqImg = PictureMimeType.eqImage(mimeType);
+                String str = eqImg ? getString(R.string.rc_picture_min_img_num, config.minSelectNum)
+                        : getString(R.string.rc_picture_min_video_num, config.minSelectNum);
+                ToastUtils.s(getContext(), str);
+                return;
+            }
+        }
+        onResult(selectImages);
     }
 
     protected void onCheckedComplete() {
@@ -364,6 +420,23 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     }
 
     /**
+     * 单选图片
+     */
+    private void singleRadioMediaImage() {
+        LocalMedia media = selectImages != null && selectImages.size() > 0 ? selectImages.get(0) : null;
+        if (media != null) {
+            Bundle bundle = new Bundle();
+            bundle.putInt("position", media.getPosition());
+            bundle.putParcelableArrayList("selectImages", (ArrayList<? extends Parcelable>) selectImages);
+            BroadcastManager.getInstance(this)
+                    .action(BroadcastAction.ACTION_SELECTED_DATA)
+                    .extras(bundle)
+                    .broadcast();
+            selectImages.clear();
+        }
+    }
+
+    /**
      * 选中或是移除
      *
      * @param isAddRemove
@@ -373,55 +446,13 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
 
     }
 
-    protected void onComplete() {
-        // 如果设置了图片最小选择数量，则判断是否满足条件
-        int size = selectImages.size();
-        LocalMedia image = selectImages.size() > 0 ? selectImages.get(0) : null;
-        String mimeType = image != null ? image.getMimeType() : "";
-        if (config.minSelectNum > 0) {
-            if (size < config.minSelectNum && config.selectionMode == PictureConfig.MULTIPLE) {
-                boolean eqImg = PictureMimeType.eqImage(mimeType);
-                String str = eqImg ? getString(R.string.rc_picture_min_img_num, config.minSelectNum)
-                        : getString(R.string.rc_picture_min_video_num, config.minSelectNum);
-                ToastUtils.s(getContext(), str);
-                return;
-            }
-        }
-        onResult(selectImages);
-    }
-
-    @Override
-    public void onResult(List<LocalMedia> images) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList("selectImages", (ArrayList<? extends Parcelable>) images);
-        BroadcastManager.getInstance(this)
-                .action(BroadcastAction.ACTION_PREVIEW_COMPRESSION)
-                .extras(bundle)
-                .broadcast();
-        onBackPressed();
-    }
-
-    @Override
-    public void onBackPressed() {
-        closeActivity();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ImagesObservable.getInstance().clearPreviewMediaData();
-        if (commonBroadcastReceiver != null) {
-            BroadcastManager.getInstance(this).unregisterReceiver(commonBroadcastReceiver,
-                    BroadcastAction.ACTION_CLOSE_PREVIEW);
-            commonBroadcastReceiver = null;
-        }
-        if (mHandler != null) {
-            mHandler.removeCallbacksAndMessages(null);
-            mHandler = null;
-        }
-        if (animation != null) {
-            animation.cancel();
-            animation = null;
+    /**
+     * 更新选择的顺序
+     */
+    private void subSelectPosition() {
+        for (int index = 0, len = selectImages.size(); index < len; index++) {
+            LocalMedia media = selectImages.get(index);
+            media.setNum(index + 1);
         }
     }
 
@@ -429,26 +460,5 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     public void onActivityBackPressed() {
         onBackPressed();
     }
-
-    private BroadcastReceiver commonBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            switch (action) {
-                case BroadcastAction.ACTION_CLOSE_PREVIEW:
-                    // 压缩完后关闭预览界面
-                    dismissDialog();
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            onBackPressed();
-                        }
-                    }, 150);
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
 
 }

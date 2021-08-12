@@ -17,7 +17,7 @@ import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.common.rlog.RLog;
 
-@Database(entities = {User.class, Group.class, GroupMember.class}, version = 1, exportSchema = false)
+@Database(entities = {User.class, Group.class, GroupMember.class}, version = 2, exportSchema = false)
 public abstract class UserDatabase extends RoomDatabase {
     private static final String TAG = UserDatabase.class.getCanonicalName();
     private static final String DB_NAME_FORMAT = "kit_user_%s";

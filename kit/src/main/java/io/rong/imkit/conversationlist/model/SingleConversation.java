@@ -54,9 +54,9 @@ public class SingleConversation extends BaseUiConversation {
         }
         for (User user : userList) {
             if (user.id.equals(mCore.getTargetId())) {
-                mCore.setConversationTitle(user.name);
+                mCore.setConversationTitle(RongUserInfoManager.getInstance().getUserDisplayName(user));
                 mCore.setPortraitUrl(user.portraitUrl);
-                RLog.d(TAG, "onUserInfoUpdate. name:" + user.name);
+                RLog.d(TAG, "onUserInfoUpdate. name:" + mCore.getConversationTitle());
                 break;
             }
         }
@@ -66,7 +66,7 @@ public class SingleConversation extends BaseUiConversation {
     public void onConversationUpdate(Conversation conversation) {
         mCore = conversation;
         UserInfo user = RongUserInfoManager.getInstance().getUserInfo(conversation.getTargetId());
-        mCore.setConversationTitle(user == null ? conversation.getTargetId() : user.getName());
+        mCore.setConversationTitle(user == null ? conversation.getTargetId() : RongUserInfoManager.getInstance().getUserDisplayName(user));
         mCore.setPortraitUrl(user == null || user.getPortraitUri() == null ? "" : user.getPortraitUri().toString());
         buildConversationContent();
     }

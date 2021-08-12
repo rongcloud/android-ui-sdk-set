@@ -383,7 +383,82 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
             }
         }
         processHistoryDividerMessage();
-        updateUiMessages();
+        refreshAllMessage();
+    }
+
+    public UiMessage mapUIMessage(Message message) {
+        UiMessage uiMessage = new UiMessage(message);
+        if (mIsEditStatus != null) {
+            uiMessage.setEdit(mIsEditStatus.getValue());
+        }
+        return uiMessage;
+    }
+
+    public void processHistoryDividerMessage() {
+        //存在历史消息
+        if (getFirstUnreadMessage() == null) {
+            return;
+        }
+        int position = findPositionByMessageId(getFirstUnreadMessage().getMessageId());
+        //找到第一条历史消息
+        if (position >= 0) {
+            //插入历史未读数
+            if (RongConfigCenter.conversationConfig().isShowHistoryDividerMessage()) {
+                Message hisMessage = Message.obtain(getCurTargetId(), getCurConversationType(),
+                        HistoryDividerMessage.obtain(getApplication().getString(R.string.rc_new_message_divider_content)));
+                hisMessage.setSenderUserId(RongIMClient.getInstance().getCurrentUserId());
+                UiMessage uiMessage = new UiMessage(hisMessage);
+                UiMessage firstUiMessage = mUiMessages.get(position);
+                //比第一条历史消息时间戳少1毫秒
+                uiMessage.setSentTime(firstUiMessage.getMessage().getSentTime() - 1);
+                mUiMessages.add(position, uiMessage);
+            }
+        }
+    }
+
+    public void refreshAllMessage() {
+        refreshAllMessage(true);
+    }
+
+    public Message getFirstUnreadMessage() {
+        return mFirstUnreadMessage;
+    }
+
+    public int findPositionByMessageId(int messageId) {
+        int position = -1;
+        for (int i = 0; i < mUiMessages.size(); i++) {
+            UiMessage item = mUiMessages.get(i);
+            if (item.getMessage().getMessageId() == messageId) {
+                position = i;
+                break;
+            }
+        }
+        return position;
+    }
+
+    public String getCurTargetId() {
+        return mCurTargetId;
+    }
+
+    public Conversation.ConversationType getCurConversationType() {
+        return mCurConversationType;
+    }
+
+    public void refreshAllMessage(boolean force) {
+        if (force) {
+            for (UiMessage item : mUiMessages) {
+                item.change();
+            }
+        }
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            mUiMessageLiveData.setValue(mUiMessages);
+        } else {
+            mUiMessageLiveData.postValue(mUiMessages);
+        }
+    }
+
+    public void setFirstUnreadMessage(Message firstUnreadMessage) {
+        mFirstUnreadMessage = firstUnreadMessage;
     }
 
     /**
@@ -407,7 +482,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         }
         mUiMessages.addAll(list);
         processHistoryDividerMessage();
-        updateUiMessages();
+        refreshAllMessage();
     }
 
     /**
@@ -431,7 +506,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
             }
         }
         processHistoryDividerMessage();
-        updateUiMessages();
+        refreshAllMessage();
     }
 
     public MediatorLiveData<PageEvent> getPageEventLiveData() {
@@ -519,29 +594,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
 
     public boolean onUserPortraitLongClick(Context context, Conversation.ConversationType conversationType, UserInfo userInfo, String targetId) {
         return ConversationProcessorFactory.getInstance().getProcessor(conversationType).onUserPortraitLongClick(context, conversationType, userInfo, targetId);
-    }
-
-    public void processHistoryDividerMessage() {
-        //存在历史消息
-        if (getFirstUnreadMessage() == null) {
-            return;
-        }
-        int position = findPositionByMessageId(getFirstUnreadMessage().getMessageId());
-        //找到第一条历史消息
-        if (position >= 0) {
-            //插入历史未读数
-            if (RongConfigCenter.conversationConfig().isShowHistoryDividerMessage()) {
-                Message hisMessage = Message.obtain(getCurTargetId(), getCurConversationType(),
-                        HistoryDividerMessage.obtain(getApplication().getString(R.string.rc_new_message_divider_content)));
-                hisMessage.setSenderUserId(RongIMClient.getInstance().getCurrentUserId());
-                UiMessage uiMessage = new UiMessage(hisMessage);
-                UiMessage firstUiMessage = mUiMessages.get(position);
-                //比第一条历史消息时间戳少1毫秒
-                uiMessage.setSentTime(firstUiMessage.getMessage().getSentTime() - 1);
-                mUiMessages.add(position, uiMessage);
-                updateUiMessages();
-            }
-        }
     }
 
     public void reSendMessage(Message message) {
@@ -748,7 +800,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         return uiMessage;
     }
 
-
     @Override
     public void onSendMessage(SendEvent event) {
         Message msg = event.getMessage();
@@ -796,18 +847,10 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         return uiMessage;
     }
 
-    public UiMessage mapUIMessage(Message message) {
-        UiMessage uiMessage = new UiMessage(message);
-        if (mIsEditStatus != null) {
-            uiMessage.setEdit(mIsEditStatus.getValue());
-        }
-        return uiMessage;
-    }
-
     private void sendMessageEvent(UiMessage uiMessage) {
         int insertPosition = findPositionBySendTime(uiMessage.getMessage().getSentTime());
         mUiMessages.add(insertPosition, uiMessage);
-        mUiMessageLiveData.setValue(mUiMessages);
+        refreshAllMessage();
         executePageEvent(new ScrollToEndEvent());
     }
 
@@ -831,18 +874,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
 
     public void executePageEvent(PageEvent pageEvent) {
         mPageEventLiveData.setValue(pageEvent);
-    }
-
-    public int findPositionByMessageId(int messageId) {
-        int position = -1;
-        for (int i = 0; i < mUiMessages.size(); i++) {
-            UiMessage item = mUiMessages.get(i);
-            if (item.getMessage().getMessageId() == messageId) {
-                position = i;
-                break;
-            }
-        }
-        return position;
     }
 
     @Override
@@ -1021,7 +1052,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
                 && msg.getMessageId() > 0) {
             int position = findPositionBySendTime(msg.getSentTime());
             mUiMessages.add(position, mapUIMessage(msg));
-            mUiMessageLiveData.setValue(mUiMessages);
+            refreshAllMessage();
             executePageEvent(new ScrollEvent(position));
         }
     }
@@ -1106,18 +1137,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
 
     public void setScrollToBottom(boolean scrollToBottom) {
         mScrollToBottom = scrollToBottom;
-    }
-
-    public void updateUiMessages() {
-        updateUiMessages(true);
-    }
-
-    public void updateUiMessages(boolean sync) {
-        if (sync) {
-            mUiMessageLiveData.setValue(mUiMessages);
-        } else {
-            mUiMessageLiveData.postValue(mUiMessages);
-        }
     }
 
     public void updateMentionMessage(io.rong.imlib.model.Message message) {
@@ -1464,14 +1483,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         processNewMentionMessageUnread(true);
     }
 
-    public Message getFirstUnreadMessage() {
-        return mFirstUnreadMessage;
-    }
-
-    public void setFirstUnreadMessage(Message firstUnreadMessage) {
-        mFirstUnreadMessage = firstUnreadMessage;
-    }
-
     public List<UiMessage> getUiMessages() {
         return mUiMessages;
     }
@@ -1510,14 +1521,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
 
     public boolean isInitMentionedMessageFinish() {
         return mInitMentionedMessageFinish;
-    }
-
-    public Conversation.ConversationType getCurConversationType() {
-        return mCurConversationType;
-    }
-
-    public String getCurTargetId() {
-        return mCurTargetId;
     }
 
     public void setInitMentionedMessageFinish(boolean initMentionedMessageFinish) {

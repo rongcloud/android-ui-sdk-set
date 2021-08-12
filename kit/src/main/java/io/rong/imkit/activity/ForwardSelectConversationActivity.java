@@ -131,7 +131,7 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
                         if (conversation.getConversationType().equals(Conversation.ConversationType.PRIVATE) || conversation.getConversationType().equals(Conversation.ConversationType.ENCRYPTED)) {
                             UserInfo user = RongUserInfoManager.getInstance().getUserInfo(conversation.getTargetId());
                             if (user != null) {
-                                conversation.setConversationTitle(user.getName());
+                                conversation.setConversationTitle(RongUserInfoManager.getInstance().getUserDisplayName(user));
                                 conversation.setPortraitUrl(user.getPortraitUri() == null ? null : user.getPortraitUri().toString());
                             }
                         } else {

@@ -45,18 +45,18 @@ import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.RongIMClient;
 
 public class ConversationListFragment extends Fragment implements BaseAdapter.OnItemClickListener {
-    private final String TAG = ConversationListFragment.class.getSimpleName();
     /*
      * 连接通知状态延迟显示时间。
      * 为了防止连接闪断，不会在断开连接时立即显示连接通知状态，而是在延迟一定时间后显示。
      */
     protected final long NOTICE_SHOW_DELAY_MILLIS = 4000L;
+    private final String TAG = ConversationListFragment.class.getSimpleName();
     protected ConversationListAdapter mAdapter;
-    private RecyclerView mList;
+    protected RecyclerView mList;
     protected View mNoticeContainerView;
-    private TextView mNoticeContentTv;
-    private ImageView mNoticeIconIv;
-    private ConversationListViewModel mConversationListViewModel;
+    protected TextView mNoticeContentTv;
+    protected ImageView mNoticeIconIv;
+    protected ConversationListViewModel mConversationListViewModel;
     protected SmartRefreshLayout mRefreshLayout;
     protected Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -123,29 +123,6 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         });
     }
 
-    protected void onConversationListLoadMore() {
-        if (mConversationListViewModel != null) {
-            mConversationListViewModel.getConversationList(true);
-        }
-    }
-
-    protected void onConversationListRefresh(RefreshLayout refreshLayout) {
-        if (mConversationListViewModel != null) {
-            mConversationListViewModel.getConversationList(false);
-        }
-    }
-
-    /**
-     * 获取 adapter. 可复写此方法实现自定义 adapter.
-     *
-     * @return 会话列表 adapter
-     */
-    protected ConversationListAdapter onResolveAdapter() {
-        mAdapter = new ConversationListAdapter();
-        mAdapter.setEmptyView(R.layout.rc_conversationlist_empty_view);
-        return mAdapter;
-    }
-
     /**
      * 观察 view model 各数据以便进行页面刷新操作。
      */
@@ -190,6 +167,48 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                 }
             }
         });
+    }
+
+    protected void onConversationListRefresh(RefreshLayout refreshLayout) {
+        if (mConversationListViewModel != null) {
+            mConversationListViewModel.getConversationList(false);
+        }
+    }
+
+    protected void onConversationListLoadMore() {
+        if (mConversationListViewModel != null) {
+            mConversationListViewModel.getConversationList(true);
+        }
+    }
+
+    /**
+     * 更新连接状态通知栏
+     *
+     * @param content
+     */
+    protected void updateNoticeContent(NoticeContent content) {
+        if (content == null) return;
+
+        if (content.isShowNotice()) {
+            mNoticeContainerView.setVisibility(View.VISIBLE);
+            mNoticeContentTv.setText(content.getContent());
+            if (content.getIconResId() != 0) {
+                mNoticeIconIv.setImageResource(content.getIconResId());
+            }
+        } else {
+            mNoticeContainerView.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * 获取 adapter. 可复写此方法实现自定义 adapter.
+     *
+     * @return 会话列表 adapter
+     */
+    protected ConversationListAdapter onResolveAdapter() {
+        mAdapter = new ConversationListAdapter();
+        mAdapter.setEmptyView(R.layout.rc_conversationlist_empty_view);
+        return mAdapter;
     }
 
     /**
@@ -277,25 +296,6 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                     }
                 }).show();
         return true;
-    }
-
-    /**
-     * 更新连接状态通知栏
-     *
-     * @param content
-     */
-    protected void updateNoticeContent(NoticeContent content) {
-        if (content == null) return;
-
-        if (content.isShowNotice()) {
-            mNoticeContainerView.setVisibility(View.VISIBLE);
-            mNoticeContentTv.setText(content.getContent());
-            if (content.getIconResId() != 0) {
-                mNoticeIconIv.setImageResource(content.getIconResId());
-            }
-        } else {
-            mNoticeContainerView.setVisibility(View.GONE);
-        }
     }
 
     /**

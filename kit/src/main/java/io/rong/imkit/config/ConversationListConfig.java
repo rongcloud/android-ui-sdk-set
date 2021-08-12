@@ -2,15 +2,16 @@ package io.rong.imkit.config;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.conversationlist.provider.BaseConversationProvider;
-import io.rong.imkit.conversationlist.provider.ConversationListEmptyProvider;
 import io.rong.imkit.conversationlist.provider.PrivateConversationProvider;
 import io.rong.imkit.widget.adapter.IViewProvider;
 import io.rong.imkit.widget.adapter.ProviderManager;
@@ -40,6 +41,14 @@ public class ConversationListConfig {
 
         @Override
         public List<Conversation> filtered(List<Conversation> data) {
+            List<Conversation> invalidConversation = new LinkedList<>();
+            for (Conversation item : data) {
+                if (TextUtils.isEmpty(item.getTargetId()) ||
+                        item.getConversationType() == null) {
+                    invalidConversation.add(item);
+                }
+            }
+            data.removeAll(invalidConversation);
             return data;
         }
 
@@ -69,10 +78,6 @@ public class ConversationListConfig {
         }
     }
 
-    public void setDataProcessor(DataProcessor<Conversation> dataFilter) {
-        this.mDataProcessor = dataFilter;
-    }
-
     public void setBehaviorListener(ConversationListBehaviorListener listener) {
         this.mListener = listener;
     }
@@ -83,10 +88,6 @@ public class ConversationListConfig {
 
     public void setConversationListProvider(ProviderManager<BaseUiConversation> providerManager) {
         this.mProviderManager = providerManager;
-    }
-
-    public void setEnableAutomaticDownloadHQVoice(boolean enable) {
-        this.mEnableAutomaticDownloadHQVoice = enable;
     }
 
     public void setConversationProvider(BaseConversationProvider provider) {
@@ -101,8 +102,16 @@ public class ConversationListConfig {
         return mEnableAutomaticDownloadHQVoice;
     }
 
+    public void setEnableAutomaticDownloadHQVoice(boolean enable) {
+        this.mEnableAutomaticDownloadHQVoice = enable;
+    }
+
     public DataProcessor<Conversation> getDataProcessor() {
         return mDataProcessor;
+    }
+
+    public void setDataProcessor(DataProcessor<Conversation> dataFilter) {
+        this.mDataProcessor = dataFilter;
     }
 
     public ConversationListBehaviorListener getListener() {

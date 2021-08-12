@@ -3,7 +3,6 @@ package io.rong.imkit;
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,6 +33,7 @@ import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Message;
@@ -114,7 +114,13 @@ public class IMCenter {
     }
 
     public void connect(String token, int timeLimit, final RongIMClient.ConnectCallback connectCallback) {
-        RongIMClient.connect(token, timeLimit, new RongIMClient.ConnectCallback() {
+        ConnectOption connectOption = ConnectOption.obtain(token, timeLimit);
+        connect(connectOption, connectCallback);
+
+    }
+
+    private void connect(ConnectOption option, final RongIMClient.ConnectCallback connectCallback) {
+        RongIMClient.connect(option.getToken(), option.getTimeLimit(), new RongIMClient.ConnectCallback() {
             @Override
             public void onSuccess(String s) {
                 if (connectCallback != null) {
@@ -392,7 +398,6 @@ public class IMCenter {
     public static void setConversationListBehaviorListener(ConversationListBehaviorListener listener) {
         RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
     }
-
 
 
     /**

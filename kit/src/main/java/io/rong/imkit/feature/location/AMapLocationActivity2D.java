@@ -60,8 +60,8 @@ import com.amap.api.services.poisearch.PoiSearch;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.rong.imkit.R;
 import io.rong.common.RLog;
+import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
 import io.rong.imkit.utils.RongUtils;
 
@@ -81,9 +81,9 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
     private static final int REQUEST_SEARCH_LOCATION = 1;
     private static final int PAGE_COUNT = 20;
     private static final int REQUEST_OPEN_LOCATION_SERVICE = 50;
+    ValueAnimator animator;
     private int currentPage = 1;
     private int mTouchSlop;//系统值
-
     private BitmapDescriptor mBitmapDescriptor;
     private MapView mAMapView;
     private AMap mAMap;
@@ -92,15 +92,12 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
     private Marker mMarker;
     private GeocodeSearch mGeocodeSearch;
     private OnLocationChangedListener mLocationChangedListener;
-
     private double mMyLat;
     private double mMyLng;
     private String mMyPoi;
-
     private double mLatResult;
     private double mLngResult;
     private String mPoiResult;
-
     private ListView listViewNearby;
     private NearbyListAdapter nearbyListAdapter;
     private ProgressBar listLoadingView;
@@ -109,11 +106,27 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
     private float lastY;
     private int flag = 0;
     private String cityCode = "";
+    private AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (firstVisibleItem != 0 && (firstVisibleItem + visibleItemCount) == totalItemCount) {
+                View lastVisibleItemView = listViewNearby.getChildAt(listViewNearby.getChildCount() - 1);
+                if (lastVisibleItemView != null && lastVisibleItemView.getBottom() == listViewNearby.getHeight()) {
+                    loadNextPageNearByView();
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (!LocationDelegate3D.getInstance().isBindedConversation()) {
+        if (!LocationDelegate2D.getInstance().isBindedConversation()) {
             finish();
             return;
         }
@@ -209,15 +222,15 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
         }
     }
 
+    @Override
+    public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
+
+    }
+
     private String getMapUrl(double latitude, double longitude) {
         return "http://restapi.amap.com/v3/staticmap?location=" + longitude + "," + latitude +
                 "&zoom=16&scale=2&size=408*240&markers=mid,,A:" + longitude + ","
                 + latitude + "&key=" + "e09af6a2b26c02086e9216bd07c960ae";
-    }
-
-    @Override
-    public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
-
     }
 
     @Override
@@ -259,8 +272,6 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
         mMarker.setPositionByPixels(mAMapView.getWidth() / 2, mAMapView.getHeight() / 2);
         mLocationTip.setText(String.format("%s", poi));
     }
-
-    ValueAnimator animator;
 
     @TargetApi(11)
     private void animMarker() {
@@ -344,142 +355,6 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
         }
     }
 
-    private class NearbyListAdapter extends BaseAdapter {
-        List<MapNearbyInfo> nearbyInfoList;
-        Context context;
-
-        public NearbyListAdapter(Context context, List<MapNearbyInfo> nearbyInfoList) {
-            this.context = context;
-            this.nearbyInfoList = nearbyInfoList;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            NearbyViewHolder nearbyViewHolder;
-            final MapNearbyInfo mapNearbyInfo = nearbyInfoList.get(position);
-            if (convertView == null) {
-                nearbyViewHolder = new NearbyViewHolder();
-                convertView = View.inflate(context, R.layout.rc_location_map_nearby_info_item, null);
-                nearbyViewHolder.tvNearbyName = convertView.findViewById(R.id.rc_nearby_name);
-                nearbyViewHolder.tvNearbyAddress = convertView.findViewById(R.id.rc_nearby_address);
-                nearbyViewHolder.ivNearbyChecked = convertView.findViewById(R.id.rc_nearby_checked);
-                convertView.setTag(nearbyViewHolder);
-            } else {
-                nearbyViewHolder = (NearbyViewHolder) convertView.getTag();
-            }
-            if (position == 0) {
-                nearbyViewHolder.tvNearbyAddress.setVisibility(View.GONE);
-                nearbyViewHolder.tvNearbyName.setText(mapNearbyInfo.getName());
-            } else {
-                nearbyViewHolder.tvNearbyAddress.setVisibility(View.VISIBLE);
-                nearbyViewHolder.tvNearbyName.setText(mapNearbyInfo.getName());
-                nearbyViewHolder.tvNearbyAddress.setText(mapNearbyInfo.getAddress());
-            }
-            if (mapNearbyInfo.getChecked()) {
-                nearbyViewHolder.ivNearbyChecked.setVisibility(View.VISIBLE);
-            } else {
-                nearbyViewHolder.ivNearbyChecked.setVisibility(View.GONE);
-            }
-            return convertView;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            if (nearbyInfoList != null && nearbyInfoList.size() > 0) {
-                return nearbyInfoList.get(position);
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public int getCount() {
-            return nearbyInfoList.size();
-        }
-
-        public void addItems(List<MapNearbyInfo> nearbyInfoList) {
-            if (this.nearbyInfoList != null) {
-                this.nearbyInfoList.addAll(nearbyInfoList);
-            }
-        }
-
-        class NearbyViewHolder {
-            TextView tvNearbyName;
-            TextView tvNearbyAddress;
-            ImageView ivNearbyChecked;
-        }
-    }
-
-    private class MapNearbyInfo {
-        String name;
-        String address;
-        double latitude;
-        double longitude;
-        String poi;
-        boolean checked;
-
-        public MapNearbyInfo() {
-        }
-
-        public MapNearbyInfo(String name, String address) {
-            this.name = name;
-            this.address = address;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setAddress(String address) {
-            this.address = address;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public double getLongitude() {
-            return longitude;
-        }
-
-        public void setLongitude(double longitude) {
-            this.longitude = longitude;
-        }
-
-        public double getLatitude() {
-            return latitude;
-        }
-
-        public void setLatitude(double latitude) {
-            this.latitude = latitude;
-        }
-
-        public String getPoi() {
-            return poi;
-        }
-
-        public void setPoi(String poi) {
-            this.poi = poi;
-        }
-
-        public void setChecked(boolean checked) {
-            this.checked = checked;
-        }
-
-        public boolean getChecked() {
-            return checked;
-        }
-    }
-
     private void initNearbyView() {
         listViewNearby = findViewById(R.id.rc_list_nearby);
         listLoadingView = findViewById(R.id.rc_ext_loading);
@@ -538,11 +413,6 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
                 return false;
             }
         });
-    }
-
-    private enum ScrollDirection {
-        SCROLL_UP,
-        SCROLL_DOWN
     }
 
     private boolean handleScrollState(ScrollDirection scrollDirection) {
@@ -710,23 +580,6 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
         }
     }
 
-    private AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener() {
-        @Override
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-        }
-
-        @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-            if (firstVisibleItem != 0 && (firstVisibleItem + visibleItemCount) == totalItemCount) {
-                View lastVisibleItemView = listViewNearby.getChildAt(listViewNearby.getChildCount() - 1);
-                if (lastVisibleItemView != null && lastVisibleItemView.getBottom() == listViewNearby.getHeight()) {
-                    loadNextPageNearByView();
-                }
-            }
-        }
-    };
-
     private void handleMyLocation() {
         if (mMyPoi != null) {
             mAMap.setOnCameraChangeListener(null);
@@ -842,5 +695,146 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
 
     private void updateCheckedMapView(double longitude, double latitude, String poi) {
         updateToPosition(longitude, latitude, poi, false);
+    }
+
+    private enum ScrollDirection {
+        SCROLL_UP,
+        SCROLL_DOWN
+    }
+
+    private class NearbyListAdapter extends BaseAdapter {
+        List<MapNearbyInfo> nearbyInfoList;
+        Context context;
+
+        public NearbyListAdapter(Context context, List<MapNearbyInfo> nearbyInfoList) {
+            this.context = context;
+            this.nearbyInfoList = nearbyInfoList;
+        }
+
+        @Override
+        public int getCount() {
+            return nearbyInfoList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            if (nearbyInfoList != null && nearbyInfoList.size() > 0) {
+                return nearbyInfoList.get(position);
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            NearbyViewHolder nearbyViewHolder;
+            final MapNearbyInfo mapNearbyInfo = nearbyInfoList.get(position);
+            if (convertView == null) {
+                nearbyViewHolder = new NearbyViewHolder();
+                convertView = View.inflate(context, R.layout.rc_location_map_nearby_info_item, null);
+                nearbyViewHolder.tvNearbyName = convertView.findViewById(R.id.rc_nearby_name);
+                nearbyViewHolder.tvNearbyAddress = convertView.findViewById(R.id.rc_nearby_address);
+                nearbyViewHolder.ivNearbyChecked = convertView.findViewById(R.id.rc_nearby_checked);
+                convertView.setTag(nearbyViewHolder);
+            } else {
+                nearbyViewHolder = (NearbyViewHolder) convertView.getTag();
+            }
+            if (position == 0) {
+                nearbyViewHolder.tvNearbyAddress.setVisibility(View.GONE);
+                nearbyViewHolder.tvNearbyName.setText(mapNearbyInfo.getName());
+            } else {
+                nearbyViewHolder.tvNearbyAddress.setVisibility(View.VISIBLE);
+                nearbyViewHolder.tvNearbyName.setText(mapNearbyInfo.getName());
+                nearbyViewHolder.tvNearbyAddress.setText(mapNearbyInfo.getAddress());
+            }
+            if (mapNearbyInfo.getChecked()) {
+                nearbyViewHolder.ivNearbyChecked.setVisibility(View.VISIBLE);
+            } else {
+                nearbyViewHolder.ivNearbyChecked.setVisibility(View.GONE);
+            }
+            return convertView;
+        }
+
+        public void addItems(List<MapNearbyInfo> nearbyInfoList) {
+            if (this.nearbyInfoList != null) {
+                this.nearbyInfoList.addAll(nearbyInfoList);
+            }
+        }
+
+        class NearbyViewHolder {
+            TextView tvNearbyName;
+            TextView tvNearbyAddress;
+            ImageView ivNearbyChecked;
+        }
+    }
+
+    private class MapNearbyInfo {
+        String name;
+        String address;
+        double latitude;
+        double longitude;
+        String poi;
+        boolean checked;
+
+        public MapNearbyInfo() {
+        }
+
+        public MapNearbyInfo(String name, String address) {
+            this.name = name;
+            this.address = address;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getAddress() {
+            return address;
+        }
+
+        public void setAddress(String address) {
+            this.address = address;
+        }
+
+        public double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(double longitude) {
+            this.longitude = longitude;
+        }
+
+        public double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(double latitude) {
+            this.latitude = latitude;
+        }
+
+        public String getPoi() {
+            return poi;
+        }
+
+        public void setPoi(String poi) {
+            this.poi = poi;
+        }
+
+        public boolean getChecked() {
+            return checked;
+        }
+
+        public void setChecked(boolean checked) {
+            this.checked = checked;
+        }
     }
 }

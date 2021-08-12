@@ -2,7 +2,6 @@ package io.rong.imkit.conversation.messgelist.processor;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import androidx.lifecycle.Observer;
 
@@ -14,20 +13,15 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.feature.mention.RongMentionManager;
-import io.rong.imkit.manager.hqvoicemessage.AutoDownloadEntry;
-import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
-import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
-import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.UserInfo;
-import io.rong.message.HQVoiceMessage;
 
 public class GroupBusinessProcessor extends BaseBusinessProcessor {
     private static final String TAG = "GroupBusinessProcessor";
@@ -42,7 +36,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                     for (UiMessage item : messageViewModel.getUiMessages()) {
                         item.onUserInfoUpdate(users);
                     }
-                    messageViewModel.updateUiMessages();
+                    messageViewModel.refreshAllMessage(false);
                 }
             }
         });
@@ -61,7 +55,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                         }
                     }
                     if (isExist) {
-                        messageViewModel.updateUiMessages();
+                        messageViewModel.refreshAllMessage(false);
                     }
                 }
             }
@@ -96,6 +90,28 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
         return false;
     }
 
+    /**
+     * 当加载完消息，群组发送已读回执
+     */
+    @Override
+    public void onLoadMessage(MessageViewModel viewModel, List<Message> messages) {
+        if (!RongConfigCenter.conversationConfig().isShowReadReceiptRequest(viewModel.getCurConversationType())) {
+            return;
+        }
+        List<io.rong.imlib.model.Message> responseMessageList = new ArrayList<>();
+        for (io.rong.imlib.model.Message message : messages) {
+            ReadReceiptInfo readReceiptInfo = message.getReadReceiptInfo();
+            if (readReceiptInfo == null) {
+                continue;
+            }
+            if (readReceiptInfo.isReadReceiptMessage() && !readReceiptInfo.hasRespond()) {
+                responseMessageList.add(message);
+            }
+        }
+        if (responseMessageList.size() > 0) {
+            RongIMClient.getInstance().sendReadReceiptResponse(viewModel.getCurConversationType(), viewModel.getCurTargetId(), responseMessageList, null);
+        }
+    }
 
     @Override
     public void onMessageReceiptRequest(final MessageViewModel viewModel, Conversation.ConversationType conversationType, String targetId, String messageUId) {
@@ -130,29 +146,6 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                 });
                 break;
             }
-        }
-    }
-
-    /**
-     * 当加载完消息，群组发送已读回执
-     */
-    @Override
-    public void onLoadMessage(MessageViewModel viewModel, List<Message> messages) {
-        if (!RongConfigCenter.conversationConfig().isShowReadReceiptRequest(viewModel.getCurConversationType())) {
-            return;
-        }
-        List<io.rong.imlib.model.Message> responseMessageList = new ArrayList<>();
-        for (io.rong.imlib.model.Message message : messages) {
-            ReadReceiptInfo readReceiptInfo = message.getReadReceiptInfo();
-            if (readReceiptInfo == null) {
-                continue;
-            }
-            if (readReceiptInfo.isReadReceiptMessage() && !readReceiptInfo.hasRespond()) {
-                responseMessageList.add(message);
-            }
-        }
-        if (responseMessageList.size() > 0) {
-            RongIMClient.getInstance().sendReadReceiptResponse(viewModel.getCurConversationType(), viewModel.getCurTargetId(), responseMessageList, null);
         }
     }
 }

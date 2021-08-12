@@ -1,5 +1,7 @@
 package io.rong.imkit.conversation.messgelist.status;
 
+import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
+
 import android.os.Bundle;
 
 import java.util.List;
@@ -14,8 +16,6 @@ import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
-
-import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
 
 public class HistoryState implements IMessageState {
     private boolean isLoading;
@@ -127,7 +127,7 @@ public class HistoryState implements IMessageState {
                     viewModel.executePageEvent(new ScrollToEndEvent());
                 }
                 viewModel.setState(IMessageState.normalState);
-                viewModel.updateUiMessages();
+                viewModel.refreshAllMessage();
             }
 
             @Override

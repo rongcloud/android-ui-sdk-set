@@ -11,7 +11,6 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -51,12 +50,12 @@ import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Message;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
-import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
 
 public class ConversationListViewModel extends AndroidViewModel {
     private final String TAG = ConversationListViewModel.class.getSimpleName();
@@ -67,12 +66,186 @@ public class ConversationListViewModel extends AndroidViewModel {
     protected Application mApplication;
     protected CopyOnWriteArrayList<BaseUiConversation> mUiConversationList = new CopyOnWriteArrayList<>();
     protected MediatorLiveData<List<BaseUiConversation>> mConversationListLiveData;
+    protected DataProcessor<Conversation> mDataFilter;
+    protected Handler mHandler;
     private MutableLiveData<ConnectionStatus> mConnectionStatusLiveData = new MutableLiveData<>();
     private MutableLiveData<NoticeContent> mNoticeContentLiveData = new MutableLiveData<>();
     private MutableLiveData<Event.RefreshEvent> mRefreshEventLiveData = new MutableLiveData<>();
-    protected DataProcessor<Conversation> mDataFilter;
-    protected Handler mHandler;
     private boolean isTaskScheduled;
+    private ConversationEventListener mConversationEventListener = new ConversationEventListener() {
+        @Override
+        public void onSaveDraft(Conversation.ConversationType type, String targetId, String content) {
+            getConversation(type, targetId);
+        }
+
+        @Override
+        public void onClearedMessage(Conversation.ConversationType type, String targetId) {
+            getConversation(type, targetId);
+        }
+
+        @Override
+        public void onClearedUnreadStatus(Conversation.ConversationType type, String targetId) {
+            getConversation(type, targetId);
+        }
+
+        @Override
+        public void onConversationRemoved(Conversation.ConversationType type, String targetId) {
+            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+            if (oldItem != null) {
+                mUiConversationList.remove(oldItem);
+                mConversationListLiveData.postValue(mUiConversationList);
+            }
+        }
+
+        @Override
+        public void onOperationFailed(RongIMClient.ErrorCode code) {
+
+        }
+
+        @Override
+        public void onClearConversations(Conversation.ConversationType... conversationTypes) {
+            RLog.d(TAG, "onClearConversations");
+            List<Conversation.ConversationType> clearedTypes = Arrays.asList(conversationTypes);
+            Iterator<BaseUiConversation> iterator = mUiConversationList.iterator();
+            while (iterator.hasNext()) {
+                BaseUiConversation item = iterator.next();
+                if (clearedTypes.contains(item.mCore.getConversationType())) {
+                    mUiConversationList.remove(item);
+                }
+            }
+            mConversationListLiveData.postValue(mUiConversationList);
+        }
+    };
+    private MessageEventListener mMessageEventListener = new MessageEventListener() {
+        @Override
+        public void onSendMessage(SendEvent event) {
+            if (event != null && event.getMessage() != null) {
+                getConversation(event.getMessage().getConversationType(), event.getMessage().getTargetId());
+            }
+        }
+
+        @Override
+        public void onSendMediaMessage(SendMediaEvent event) {
+            if (event != null && event.getEvent() != SendMediaEvent.PROGRESS && event.getMessage() != null) {
+                getConversation(event.getMessage().getConversationType(), event.getMessage().getTargetId());
+            }
+        }
+
+        @Override
+        public void onDownloadMessage(DownloadEvent event) {
+            if (event == null) {
+                return;
+            }
+            Conversation.ConversationType type = event.getMessage().getConversationType();
+            String targetId = event.getMessage().getTargetId();
+            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+            if (oldItem != null && oldItem.mCore.getLatestMessageId() == event.getMessage().getMessageId() && event.getEvent() != DownloadEvent.PROGRESS) {
+                getConversation(type, targetId);
+            }
+        }
+
+        @Override
+        public void onDeleteMessage(DeleteEvent event) {
+            if (event != null) {
+                getConversation(event.getConversationType(), event.getTargetId());
+            }
+        }
+
+        @Override
+        public void onRecallEvent(RecallEvent event) {
+            if (event != null) {
+                getConversation(event.getConversationType(), event.getTargetId());
+            }
+        }
+
+        @Override
+        public void onRefreshEvent(RefreshEvent event) {
+
+        }
+
+        @Override
+        public void onInsertMessage(InsertEvent event) {
+            if (event == null) {
+                return;
+            }
+            Conversation.ConversationType type = event.getMessage().getConversationType();
+            String targetId = event.getMessage().getTargetId();
+            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+            getConversation(type, targetId);
+        }
+
+        @Override
+        public void onClearMessages(ClearEvent event) {
+            getConversation(event.getConversationType(), event.getTargetId());
+        }
+    };
+    private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener = new RongIMClient.OnReceiveMessageWrapperListener() {
+        @Override
+        public boolean onReceived(Message message, int left, boolean hasPackage, boolean offline) {
+            getConversationList(false);
+            return false;
+        }
+    };
+    private RongIMClient.ReadReceiptListener mReadReceiptListener = new RongIMClient.ReadReceiptListener() {
+        @Override
+        public void onReadReceiptReceived(Message message) {
+            if (message != null && message.getContent() instanceof ReadReceiptMessage) {
+                Conversation.ConversationType type = message.getConversationType();
+                BaseUiConversation oldItem = findConversationFromList(type, message.getTargetId(), mDataFilter.isGathered(type));
+                if (oldItem != null && type.equals(Conversation.ConversationType.PRIVATE)
+                        && oldItem.mCore.getSentTime() == ((ReadReceiptMessage) message.getContent()).getLastMessageSendTime()) {
+                    oldItem.mCore.setSentStatus(Message.SentStatus.READ);
+                    mConversationListLiveData.postValue(mUiConversationList);
+                }
+            }
+        }
+
+        @Override
+        public void onMessageReceiptRequest(Conversation.ConversationType type, String targetId, String messageUId) {
+
+        }
+
+        @Override
+        public void onMessageReceiptResponse(Conversation.ConversationType type, String targetId, String messageUId, HashMap<String, Long> respondUserIdList) {
+
+        }
+    };
+    private RongIMClient.OnRecallMessageListener mOnRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
+        @Override
+        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
+            if (message != null) {
+                getConversation(message.getConversationType(), message.getTargetId());
+            }
+            return false;
+        }
+    };
+    private RongIMClient.SyncConversationReadStatusListener mSyncConversationReadStatusListener = new RongIMClient.SyncConversationReadStatusListener() {
+        @Override
+        public void onSyncConversationReadStatus(Conversation.ConversationType type, String targetId) {
+            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+            if (oldItem != null) {
+                oldItem.mCore.setUnreadMessageCount(0);
+                mConversationListLiveData.postValue(mUiConversationList);
+            }
+        }
+    };
+    private RongIMClient.ConnectionStatusListener mConnectionStatusListener = new RongIMClient.ConnectionStatusListener() {
+        @Override
+        public void onChanged(ConnectionStatus status) {
+            mConnectionStatusLiveData.postValue(status);
+            if (status.equals(ConnectionStatus.CONNECTED)) {
+                getConversationList(false);
+            }
+            // 更新连接状态通知信息
+            updateNoticeContent(status);
+        }
+    };
+    private RongIMClient.ConversationStatusListener mConversationStatusListener = new RongIMClient.ConversationStatusListener() {
+        @Override
+        public void onStatusChanged(ConversationStatus[] conversationStatus) {
+            onConversationStatusChange(conversationStatus);
+        }
+    };
 
     public ConversationListViewModel(Application application) {
         super(application);
@@ -213,13 +386,69 @@ public class ConversationListViewModel extends AndroidViewModel {
 
     }
 
-    protected boolean isSupported(Conversation.ConversationType type) {
-        for (Conversation.ConversationType conversationType : mSupportedTypes) {
-            if (conversationType.equals(type)) {
-                return true;
+    protected BaseUiConversation findConversationFromList(Conversation.ConversationType conversationType, String targetId, boolean isGathered) {
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            if (isGathered && uiConversation instanceof GatheredConversation && Objects.equals(conversationType, uiConversation.mCore.getConversationType())) {
+                return uiConversation;
+            } else if (!isGathered) {
+                if (uiConversation.mCore.getConversationType().equals(conversationType) && Objects.equals(uiConversation.mCore.getTargetId(), targetId)) {
+                    return uiConversation;
+                }
             }
         }
-        return false;
+        return null;
+    }
+
+    // conversationList排序规律：
+    // 1. 首先是top会话，按时间顺序排列。
+    // 2. 然后非top会话也是按时间排列。
+    protected void sort() {
+        List temp = Arrays.asList(mUiConversationList.toArray());
+        Collections.sort(temp, new Comparator<BaseUiConversation>() {
+            @Override
+            public int compare(BaseUiConversation o1, BaseUiConversation o2) {
+                if (o1.mCore.isTop() && o2.mCore.isTop() || !o1.mCore.isTop() && !o2.mCore.isTop()) {
+                    if (o1.mCore.getSentTime() > o2.mCore.getSentTime()) {
+                        return -1;
+                    } else if (o1.mCore.getSentTime() < o2.mCore.getSentTime()) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                } else if (o1.mCore.isTop() && !o2.mCore.isTop()) {
+                    return -1;
+                } else if (!o1.mCore.isTop() && o2.mCore.isTop()) {
+                    return 1;
+                }
+                return 0;
+            }
+        });
+        mUiConversationList.clear();
+        mUiConversationList.addAll(temp);
+    }
+
+    /**
+     * 会话状态（置顶或免打扰）发生变化时的回调。
+     *
+     * @param statuses 发生变更的会话状态。
+     */
+    private void onConversationStatusChange(ConversationStatus[] statuses) {
+        for (ConversationStatus status : statuses) {
+            Conversation.ConversationType type = status.getConversationType();
+            BaseUiConversation oldItem = findConversationFromList(type, status.getTargetId(), mDataFilter.isGathered(type));
+            if (oldItem != null) {
+                if (status.getStatus().get(ConversationStatus.TOP_KEY) != null) {
+                    oldItem.mCore.setTop(status.isTop());
+                }
+                if (status.getStatus().get(ConversationStatus.NOTIFICATION_KEY) != null) {
+                    oldItem.mCore.setNotificationStatus(status.getNotifyStatus());
+                }
+                sort();
+                mConversationListLiveData.postValue(mUiConversationList);
+            } else {
+                getConversation(type, status.getTargetId());
+            }
+        }
     }
 
     private void getConversation(Conversation.ConversationType type, String targetId) {
@@ -271,28 +500,16 @@ public class ConversationListViewModel extends AndroidViewModel {
         }
     }
 
-    /**
-     * 会话状态（置顶或免打扰）发生变化时的回调。
-     *
-     * @param statuses 发生变更的会话状态。
-     */
-    private void onConversationStatusChange(ConversationStatus[] statuses) {
-        for (ConversationStatus status : statuses) {
-            Conversation.ConversationType type = status.getConversationType();
-            BaseUiConversation oldItem = findConversationFromList(type, status.getTargetId(), mDataFilter.isGathered(type));
-            if (oldItem != null) {
-                if (status.getStatus().get(ConversationStatus.TOP_KEY) != null) {
-                    oldItem.mCore.setTop(status.isTop());
-                }
-                if (status.getStatus().get(ConversationStatus.NOTIFICATION_KEY) != null) {
-                    oldItem.mCore.setNotificationStatus(status.getNotifyStatus());
-                }
-                sort();
-                mConversationListLiveData.postValue(mUiConversationList);
-            } else {
-                getConversation(type, status.getTargetId());
+    protected boolean isSupported(Conversation.ConversationType type) {
+        if (mSupportedTypes == null) {
+            return false;
+        }
+        for (Conversation.ConversationType conversationType : mSupportedTypes) {
+            if (conversationType.equals(type)) {
+                return true;
             }
         }
+        return false;
     }
 
     @Override
@@ -305,47 +522,6 @@ public class ConversationListViewModel extends AndroidViewModel {
         IMCenter.getInstance().removeOnRecallMessageListener(mOnRecallMessageListener);
         IMCenter.getInstance().removeConversationEventListener(mConversationEventListener);
         IMCenter.getInstance().removeSyncConversationReadStatusListeners(mSyncConversationReadStatusListener);
-    }
-
-    // conversationList排序规律：
-    // 1. 首先是top会话，按时间顺序排列。
-    // 2. 然后非top会话也是按时间排列。
-    protected void sort() {
-        List temp = Arrays.asList(mUiConversationList.toArray());
-        Collections.sort(temp, new Comparator<BaseUiConversation>() {
-            @Override
-            public int compare(BaseUiConversation o1, BaseUiConversation o2) {
-                if (o1.mCore.isTop() && o2.mCore.isTop() || !o1.mCore.isTop() && !o2.mCore.isTop()) {
-                    if (o1.mCore.getSentTime() > o2.mCore.getSentTime()) {
-                        return -1;
-                    } else if (o1.mCore.getSentTime() < o2.mCore.getSentTime()) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
-                } else if (o1.mCore.isTop() && !o2.mCore.isTop()) {
-                    return -1;
-                } else if (!o1.mCore.isTop() && o2.mCore.isTop()) {
-                    return 1;
-                }
-                return 0;
-            }
-        });
-        mUiConversationList.clear();
-        mUiConversationList.addAll(temp);
-    }
-
-    protected BaseUiConversation findConversationFromList(Conversation.ConversationType conversationType, String targetId, boolean isGathered) {
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            if (isGathered && uiConversation instanceof GatheredConversation && ((GatheredConversation) uiConversation).mCore.getConversationType().equals(conversationType)) {
-                return uiConversation;
-            } else if (!isGathered) {
-                if (uiConversation.mCore.getConversationType().equals(conversationType) && uiConversation.mCore.getTargetId().equals(targetId)) {
-                    return uiConversation;
-                }
-            }
-        }
-        return null;
     }
 
     public MediatorLiveData<List<BaseUiConversation>> getConversationListLiveData() {
@@ -410,189 +586,6 @@ public class ConversationListViewModel extends AndroidViewModel {
 
         mNoticeContentLiveData.postValue(noticeContent);
     }
-
-    private ConversationEventListener mConversationEventListener = new ConversationEventListener() {
-        @Override
-        public void onSaveDraft(Conversation.ConversationType type, String targetId, String content) {
-            getConversation(type, targetId);
-        }
-
-        @Override
-        public void onClearedMessage(Conversation.ConversationType type, String targetId) {
-            getConversation(type, targetId);
-        }
-
-        @Override
-        public void onClearedUnreadStatus(Conversation.ConversationType type, String targetId) {
-            getConversation(type, targetId);
-        }
-
-        @Override
-        public void onConversationRemoved(Conversation.ConversationType type, String targetId) {
-            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
-            if (oldItem != null) {
-                mUiConversationList.remove(oldItem);
-                mConversationListLiveData.postValue(mUiConversationList);
-            }
-        }
-
-        @Override
-        public void onOperationFailed(RongIMClient.ErrorCode code) {
-
-        }
-
-        @Override
-        public void onClearConversations(Conversation.ConversationType... conversationTypes) {
-            RLog.d(TAG, "onClearConversations");
-            List<Conversation.ConversationType> clearedTypes = Arrays.asList(conversationTypes);
-            Iterator<BaseUiConversation> iterator = mUiConversationList.iterator();
-            while (iterator.hasNext()) {
-                BaseUiConversation item = iterator.next();
-                if (clearedTypes.contains(item.mCore.getConversationType())) {
-                        mUiConversationList.remove(item);
-                }
-            }
-            mConversationListLiveData.postValue(mUiConversationList);
-        }
-    };
-    private MessageEventListener mMessageEventListener = new MessageEventListener() {
-        @Override
-        public void onSendMessage(SendEvent event) {
-            if (event != null && event.getMessage() != null) {
-                getConversation(event.getMessage().getConversationType(), event.getMessage().getTargetId());
-            }
-        }
-
-        @Override
-        public void onSendMediaMessage(SendMediaEvent event) {
-            if (event != null && event.getEvent() != SendMediaEvent.PROGRESS && event.getMessage() != null) {
-                getConversation(event.getMessage().getConversationType(), event.getMessage().getTargetId());
-            }
-        }
-
-        @Override
-        public void onDownloadMessage(DownloadEvent event) {
-            if (event == null) {
-                return;
-            }
-            Conversation.ConversationType type = event.getMessage().getConversationType();
-            String targetId = event.getMessage().getTargetId();
-            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
-            if (oldItem != null && oldItem.mCore.getLatestMessageId() == event.getMessage().getMessageId() && event.getEvent() != DownloadEvent.PROGRESS) {
-                getConversation(type, targetId);
-            }
-        }
-
-        @Override
-        public void onDeleteMessage(DeleteEvent event) {
-            if (event != null) {
-                getConversation(event.getConversationType(), event.getTargetId());
-            }
-        }
-
-        @Override
-        public void onRecallEvent(RecallEvent event) {
-            if (event != null) {
-                getConversation(event.getConversationType(), event.getTargetId());
-            }
-        }
-
-        @Override
-        public void onRefreshEvent(RefreshEvent event) {
-
-        }
-
-        @Override
-        public void onInsertMessage(InsertEvent event) {
-            if (event == null) {
-                return;
-            }
-            Conversation.ConversationType type = event.getMessage().getConversationType();
-            String targetId = event.getMessage().getTargetId();
-            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
-            if (oldItem != null) {
-                getConversation(type, targetId);
-            }
-        }
-
-        @Override
-        public void onClearMessages(ClearEvent event) {
-            getConversation(event.getConversationType(), event.getTargetId());
-        }
-    };
-
-    private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener = new RongIMClient.OnReceiveMessageWrapperListener() {
-        @Override
-        public boolean onReceived(Message message, int left, boolean hasPackage, boolean offline) {
-            getConversationList(false);
-            return false;
-        }
-    };
-
-    private RongIMClient.ReadReceiptListener mReadReceiptListener = new RongIMClient.ReadReceiptListener() {
-        @Override
-        public void onReadReceiptReceived(Message message) {
-            if (message != null && message.getContent() instanceof ReadReceiptMessage) {
-                Conversation.ConversationType type = message.getConversationType();
-                BaseUiConversation oldItem = findConversationFromList(type, message.getTargetId(), mDataFilter.isGathered(type));
-                if (oldItem != null && type.equals(Conversation.ConversationType.PRIVATE)
-                        && oldItem.mCore.getSentTime() == ((ReadReceiptMessage) message.getContent()).getLastMessageSendTime()) {
-                    oldItem.mCore.setSentStatus(Message.SentStatus.READ);
-                    mConversationListLiveData.postValue(mUiConversationList);
-                }
-            }
-        }
-
-        @Override
-        public void onMessageReceiptRequest(Conversation.ConversationType type, String targetId, String messageUId) {
-
-        }
-
-        @Override
-        public void onMessageReceiptResponse(Conversation.ConversationType type, String targetId, String messageUId, HashMap<String, Long> respondUserIdList) {
-
-        }
-    };
-
-    private RongIMClient.OnRecallMessageListener mOnRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
-        @Override
-        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
-            if (message != null) {
-                getConversation(message.getConversationType(), message.getTargetId());
-            }
-            return false;
-        }
-    };
-
-    private RongIMClient.SyncConversationReadStatusListener mSyncConversationReadStatusListener = new RongIMClient.SyncConversationReadStatusListener() {
-        @Override
-        public void onSyncConversationReadStatus(Conversation.ConversationType type, String targetId) {
-            BaseUiConversation oldItem = findConversationFromList(type, targetId, mDataFilter.isGathered(type));
-            if (oldItem != null) {
-                oldItem.mCore.setUnreadMessageCount(0);
-                mConversationListLiveData.postValue(mUiConversationList);
-            }
-        }
-    };
-
-    private RongIMClient.ConnectionStatusListener mConnectionStatusListener = new RongIMClient.ConnectionStatusListener() {
-        @Override
-        public void onChanged(ConnectionStatus status) {
-            mConnectionStatusLiveData.postValue(status);
-            if (status.equals(ConnectionStatus.CONNECTED)) {
-                getConversationList(false);
-            }
-            // 更新连接状态通知信息
-            updateNoticeContent(status);
-        }
-    };
-
-    private RongIMClient.ConversationStatusListener mConversationStatusListener = new RongIMClient.ConversationStatusListener() {
-        @Override
-        public void onStatusChanged(ConversationStatus[] conversationStatus) {
-            onConversationStatusChange(conversationStatus);
-        }
-    };
 
     public void clearAllNotification() {
         if (RongConfigCenter.featureConfig().rc_wipe_out_notification_message) {

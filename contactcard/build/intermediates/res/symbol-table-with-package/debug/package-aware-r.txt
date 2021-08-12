@@ -1528,6 +1528,7 @@ drawable rc_read_receipt_request_button
 drawable rc_read_receipt_request_hover
 drawable rc_real_time_location_exit
 drawable rc_real_time_location_hide
+drawable rc_received_thumb_image_broken
 drawable rc_reference_cancel_btn
 drawable rc_refresh
 drawable rc_search
@@ -1542,6 +1543,7 @@ drawable rc_selector_selected
 drawable rc_selector_title_back_press
 drawable rc_selector_title_pic_back_press
 drawable rc_send_background
+drawable rc_send_thumb_image_broken
 drawable rc_send_toggle
 drawable rc_send_toggle_hover
 drawable rc_setting_item_selector

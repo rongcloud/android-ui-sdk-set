@@ -168,7 +168,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
             } else {
                 if (!isSender) {
                     holder.setVisible(R.id.rc_title, true);
-                    holder.setText(R.id.rc_title, !TextUtils.isEmpty(uiMessage.getNickname()) ? uiMessage.getNickname() : uiMessage.getUserInfo().getName());
+                    holder.setText(R.id.rc_title, uiMessage.getDisplayName());
                 } else {
                     holder.setVisible(R.id.rc_title, false);
                 }
@@ -277,6 +277,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
      * @param listener     ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
      */
     protected abstract void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, T t, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener);
+
 
     /**
      * @param holder    ViewHolder

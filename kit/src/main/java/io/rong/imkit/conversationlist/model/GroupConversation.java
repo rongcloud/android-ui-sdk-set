@@ -83,37 +83,13 @@ public class GroupConversation extends BaseUiConversation {
         }
         for (User user : users) {
             if (user != null && mCore.getSenderUserId().equals(user.id) && !mNicknameIds.contains(user.id)) {
-                mCore.setSenderUserName(user.name);
+                mCore.setSenderUserName(RongUserInfoManager.getInstance().getUserDisplayName(user));
                 Spannable messageSummary = RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore.getLatestMessage());
                 SpannableStringBuilder builder = new SpannableStringBuilder();
-                builder.append(mPreString).append(user.name).append(COLON_SPLIT).append(messageSummary);
+                builder.append(mPreString).append(RongUserInfoManager.getInstance().getUserDisplayName(user)).append(COLON_SPLIT).append(messageSummary);
                 mConversationContent = builder;
             }
         }
-    }
-
-    @Override
-    public void onConversationUpdate(Conversation conversation) {
-        mCore = conversation;
-        io.rong.imlib.model.Group group = RongUserInfoManager.getInstance().getGroupInfo(conversation.getTargetId());
-        if (group != null) {
-            RLog.d(TAG, "onConversationUpdate. name:" + group.getName());
-        } else {
-            RLog.d(TAG, "onConversationUpdate. group info is null");
-        }
-        mCore.setConversationTitle(group == null ? conversation.getTargetId() : group.getName());
-        mCore.setPortraitUrl(group == null || group.getPortraitUri() == null ? "" : group.getPortraitUri().toString());
-        GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(conversation.getTargetId(), conversation.getSenderUserId());
-        if (groupUserInfo != null) {
-            mNicknameIds.add(groupUserInfo.getUserId());
-            mCore.setSenderUserName(groupUserInfo.getNickname());
-        } else {
-            UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(conversation.getSenderUserId());
-            if (userInfo != null) {
-                mCore.setSenderUserName(userInfo.getName());
-            }
-        }
-        buildConversationContent();
     }
 
     @Override
@@ -147,5 +123,29 @@ public class GroupConversation extends BaseUiConversation {
             }
         }
 
+    }
+
+    @Override
+    public void onConversationUpdate(Conversation conversation) {
+        mCore = conversation;
+        io.rong.imlib.model.Group group = RongUserInfoManager.getInstance().getGroupInfo(conversation.getTargetId());
+        if (group != null) {
+            RLog.d(TAG, "onConversationUpdate. name:" + group.getName());
+        } else {
+            RLog.d(TAG, "onConversationUpdate. group info is null");
+        }
+        mCore.setConversationTitle(group == null ? conversation.getTargetId() : group.getName());
+        mCore.setPortraitUrl(group == null || group.getPortraitUri() == null ? "" : group.getPortraitUri().toString());
+        GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(conversation.getTargetId(), conversation.getSenderUserId());
+        UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(conversation.getSenderUserId());
+        if (groupUserInfo != null) {
+            mNicknameIds.add(groupUserInfo.getUserId());
+            mCore.setSenderUserName(RongUserInfoManager.getInstance().getUserDisplayName(userInfo, groupUserInfo.getNickname()));
+        } else {
+            if (userInfo != null) {
+                mCore.setSenderUserName(RongUserInfoManager.getInstance().getUserDisplayName(userInfo));
+            }
+        }
+        buildConversationContent();
     }
 }
