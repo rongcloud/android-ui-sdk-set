@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 20210811
-        versionName "5.1.4"
+        versionCode 20210813
+        versionName "5.1.4.1"
         buildConfigField "String", "IMSDK_VER", "${IMSDK_VER}"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -32,7 +32,7 @@ android {
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
-    api 'cn.rongcloud.sdk:im_lib:5.1.4'
+    api 'cn.rongcloud.sdk:im_lib:5.1.4.1'
     //基础布局
     api 'androidx.appcompat:appcompat:1.2.0'
     api 'androidx.fragment:fragment:1.2.5'

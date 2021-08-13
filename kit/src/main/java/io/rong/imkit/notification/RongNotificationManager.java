@@ -496,8 +496,13 @@ public class RongNotificationManager {
             //设置 STREAM_RING 模式：当系统设置震动时，使用系统设置方式是否播放收消息铃声。
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
             mediaPlayer.setDataSource(mApplication, res);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    mediaPlayer.start();
+                }
+            });
         } catch (Exception e) {
             RLog.e(TAG, "sound", e);
             if (mediaPlayer != null) {

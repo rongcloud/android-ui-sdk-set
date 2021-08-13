@@ -338,10 +338,16 @@ public class AudioPlayManager implements SensorEventListener {
                     mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 }
                 //mMediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
-                mMediaPlayer.prepare();
-                mMediaPlayer.start();
-                if (_playListener != null)
-                    _playListener.onStart(mUriPlaying);
+                mMediaPlayer.prepareAsync();
+                mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        mMediaPlayer.start();
+                        if (_playListener != null) {
+                            _playListener.onStart(mUriPlaying);
+                        }
+                    }
+                });
             } catch (Exception e) {
                 RLog.e(TAG, "startPlay", e);
                 if (_playListener != null) {
