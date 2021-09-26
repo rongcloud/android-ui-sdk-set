@@ -86,4 +86,7 @@
     <integer name="rc_conversation_remote_message_count">10</integer>
     <!-- 进入会话界面，默认显示未读消息数量 -->
     <integer name="rc_conversation_show_unread_message_count">10</integer>
+
+    <!-- 实时位置功能是否请求后台位置权限,Android 10及以上版本位置权限拆分为了前台位置和后台位置权限 -->
+    <bool name="rc_enable_background_location_permission">false</bool>
 </resources>

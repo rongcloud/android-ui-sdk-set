@@ -4,14 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
@@ -90,28 +88,26 @@ public class ReferenceView extends FrameLayout {
         return mReferenceView;
     }
 
-    public interface ReferenceCancelListener {
-        void onCanceled();
-    }
-
     public void setReferenceCancelListener(ReferenceCancelListener referenceCancelListener) {
         this.mCancelListener = referenceCancelListener;
     }
 
     private String getDisplayName(UiMessage uiMessage) {
-        if (uiMessage.getMessage().getSenderUserId() != null) {
-            if (uiMessage.getMessage().getConversationType().equals(Conversation.ConversationType.GROUP)) {
-                GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(uiMessage.getMessage().getTargetId(), uiMessage.getMessage().getSenderUserId());
-                if (groupUserInfo != null) {
-                    return groupUserInfo.getNickname() + "：";
-                }
-            } else {
-                UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(uiMessage.getMessage().getSenderUserId());
-                if (userInfo != null) {
-                    return userInfo.getName() + "：";
-                }
+        if (uiMessage.getMessage().getConversationType().equals(Conversation.ConversationType.GROUP)) {
+            GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(uiMessage.getMessage().getTargetId(), uiMessage.getMessage().getSenderUserId());
+            if (groupUserInfo != null) {
+                return groupUserInfo.getNickname() + "：";
             }
         }
+
+        UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(uiMessage.getMessage().getSenderUserId());
+        if (userInfo != null) {
+            return RongUserInfoManager.getInstance().getUserDisplayName(userInfo) + "：";
+        }
         return uiMessage.getMessage().getSenderUserId() + "：";
+    }
+
+    public interface ReferenceCancelListener {
+        void onCanceled();
     }
 }

@@ -121,11 +121,6 @@ public class NormalState implements IMessageState {
                 @Override
                 public void onSuccess(List<Message> messages) {
                     if (messages != null && messages.size() > 0) {
-                        int messageId = messages.get(0).getMessageId();
-                        int index = messageViewModel.findPositionByMessageId(messageId);
-                        if (index >= 0) {
-                            messageViewModel.executePageEvent(new ScrollEvent(index));
-                        }
                         messageViewModel.setNewUnReadMentionMessages(messages);
                         messageViewModel.executePageEvent(new ScrollMentionEvent());
                     }
@@ -178,7 +173,7 @@ public class NormalState implements IMessageState {
         // newMessageBar 逻辑
         if (RongConfigCenter.conversationConfig().isShowNewMessageBar(uiMessage.getConversationType())) {
             //不在最底部，添加到未读列表
-            if (!viewModel.isScrollToBottom()) {
+            if (!viewModel.isScrollToBottom() && !viewModel.filterMessageToHideNewMessageBar(uiMessage)) {
                 viewModel.getNewUnReadMessages().add(uiMessage);
             }
             //判断ui是否滑动到底部
@@ -203,7 +198,9 @@ public class NormalState implements IMessageState {
     @Override
     public void onNewMentionMessageBarClick(MessageViewModel viewModel) {
         List<Message> mMentionMessages = viewModel.getNewUnReadMentionMessages();
-        if (mMentionMessages.size() > 0) {
+        if (mMentionMessages.isEmpty()) {
+            viewModel.updateNewMentionMessageUnreadBar();
+        } else {
             io.rong.imlib.model.Message message = mMentionMessages.get(0);
             int position = viewModel.findPositionByMessageId(message.getMessageId());
             if (position >= 0) {
@@ -218,10 +215,9 @@ public class NormalState implements IMessageState {
                 getMentionMessage(viewModel, isNewMentionMessage, message);
             }
         }
-        viewModel.processNewMentionMessageUnread(true);
     }
 
-    private void getMentionMessage(final MessageViewModel viewModel, boolean isNewMentionMessage, Message message) {
+    private void getMentionMessage(final MessageViewModel viewModel, boolean isNewMentionMessage, final Message message) {
         if (isNewMentionMessage) {
             if (!isLoading) {
                 isLoading = true;
@@ -242,6 +238,10 @@ public class NormalState implements IMessageState {
                         }
                         viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
                         isLoading = false;
+                        int position = viewModel.findPositionByMessageId(message.getMessageId());
+                        if (position >= 0) {
+                            viewModel.executePageEvent(new ScrollEvent(position));
+                        }
                     }
 
                     @Override
@@ -344,22 +344,15 @@ public class NormalState implements IMessageState {
     }
 
     public void getRemoteMessage(final MessageViewModel messageViewModel) {
-        RongIMClient.getInstance().getRemoteHistoryMessages(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), messageViewModel.getRefreshSentTime(), DEFAULT_COUNT + 1, new RongIMClient.ResultCallback<List<Message>>() {
+        RongIMClient.getInstance().getRemoteHistoryMessages(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), messageViewModel.getRefreshSentTime(), DEFAULT_REMOTE_COUNT, new RongIMClient.ResultCallback<List<Message>>() {
             @Override
             public void onSuccess(List<Message> messages) {
                 //不为空且大于0证明还有本地数据
                 if (messages != null && messages.size() > 0) {
                     //如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
                     List<Message> result;
-                    if (messages.size() < DEFAULT_REMOTE_COUNT + 1) {
-                        messageViewModel.setRemoteMessageLoadFinish(true);
-                        result = messages;
-                    } else {
-                        result = messages.subList(0, DEFAULT_REMOTE_COUNT);
-                    }
+                    result = messages;
                     messageViewModel.onGetHistoryMessage(result);
-                } else {
-                    messageViewModel.setRemoteMessageLoadFinish(true);
                 }
                 messageViewModel.executePageEvent(new Event.RefreshEvent(RefreshState.RefreshFinish));
             }

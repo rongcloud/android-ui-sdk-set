@@ -11,6 +11,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.model.OperationResult;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
@@ -36,7 +39,7 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         RongIMClient.getInstance().getConversation(conversationType, targetId, new RongIMClient.ResultCallback<Conversation>() {
             @Override
             public void onSuccess(Conversation conversation) {
-                if (conversation!=null){
+                if (conversation != null) {
                     mTopStatus.postValue(conversation.isTop());
                     mNotificationStatus.postValue(conversation.getNotificationStatus());
                 }
@@ -44,6 +47,17 @@ public class ConversationSettingViewModel extends AndroidViewModel {
 
             @Override
             public void onError(RongIMClient.ErrorCode errorCode) {
+
+            }
+        });
+        RongCoreClient.getInstance().getConversationTopStatus(targetId, conversationType, new IRongCoreCallback.ResultCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean aBoolean) {
+                mTopStatus.postValue(aBoolean);
+            }
+
+            @Override
+            public void onError(IRongCoreEnum.CoreErrorCode e) {
 
             }
         });

@@ -26,6 +26,7 @@ import io.rong.imlib.model.UserInfo;
 import static io.rong.imkit.utils.PermissionCheckUtil.REQUEST_CODE_ASK_PERMISSIONS;
 
 public class LocationUiRender implements IConversationUIRenderer {
+
     private ConversationFragment mFragment;
     private Conversation.ConversationType mConversationType;
     private String mTargetId;
@@ -46,58 +47,18 @@ public class LocationUiRender implements IConversationUIRenderer {
                     @Override
                     public void onClick(View v) {
 
-                        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
-
-                        if (!PermissionCheckUtil.checkPermissions(mFragment.getContext(), permissions)) {
-                            PermissionCheckUtil.requestPermissions(mFragment.getActivity(), permissions, REQUEST_CODE_ASK_PERMISSIONS);
-                            return;
-                        }
-
-                        RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
+                        final RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
                         if (status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_INCOMING) {
                             PromptPopupDialog dialog = PromptPopupDialog.newInstance(mFragment.getActivity(), "", mFragment.getActivity().getResources().getString(R.string.rc_real_time_join_notification));
                             dialog.setPromptButtonClickedListener(new PromptPopupDialog.OnPromptButtonClickedListener() {
                                 @Override
                                 public void onPositiveButtonClicked() {
-                                    int result;
-                                    if (mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
-                                        result = LocationDelegate2D.getInstance().joinLocationSharing();
-                                    } else {
-                                        result = LocationDelegate3D.getInstance().joinLocationSharing();
-                                    }
-                                    if (result == 0) {
-                                        Intent intent;
-                                        if (mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
-                                            intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity2D.class);
-                                        } else {
-                                            intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity.class);
-                                        }
-                                        if (mLocationShareParticipants != null) {
-                                            intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
-                                        }
-                                        mFragment.getActivity().startActivity(intent);
-                                    } else if (result == 1) {
-                                        Toast.makeText(mFragment.getActivity(), R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
-                                    } else if ((result == 2)) {
-                                        Toast.makeText(mFragment.getActivity(), R.string.rc_location_sharing_exceed_max, Toast.LENGTH_SHORT).show();
-                                    }
+                                    checkLocationPermission(mFragment, status);
                                 }
                             });
                             dialog.show();
                         } else {
-                            Intent intent;
-                            if (mFragment == null || mFragment.getContext() == null || mFragment.getActivity() == null) {
-                                return;
-                            }
-                            if (mFragment.getContext().getResources().getBoolean(R.bool.rc_location_2D)) {
-                                intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity2D.class);
-                            } else {
-                                intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity.class);
-                            }
-                            if (mLocationShareParticipants != null) {
-                                intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
-                            }
-                            mFragment.getActivity().startActivity(intent);
+                            checkLocationPermission(mFragment, status);
                         }
                     }
                 });
@@ -164,6 +125,61 @@ public class LocationUiRender implements IConversationUIRenderer {
         return false;
     }
 
+    private void checkLocationPermission(ConversationFragment mFragment, RealTimeLocationConstant.RealTimeLocationStatus status) {
+        String[] permissions = new String[]{Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_NETWORK_STATE};
+
+        if (PermissionCheckUtil.checkPermissions(mFragment.getActivity(), permissions)) {
+            joinLocation();
+        } else {
+            PermissionCheckUtil.requestPermissions(mFragment, permissions, PermissionCheckUtil.REQUEST_CODE_LOCATION_SHARE);
+        }
+    }
+
+    public void joinLocation() {
+        RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
+        if (status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_INCOMING) {
+            int result;
+            if (mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
+                result = LocationDelegate2D.getInstance().joinLocationSharing();
+            } else {
+                result = LocationDelegate3D.getInstance().joinLocationSharing();
+            }
+            if (result == 0) {
+                Intent intent;
+                if (mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
+                    intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity2D.class);
+                } else {
+                    intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity.class);
+                }
+                if (mLocationShareParticipants != null) {
+                    intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
+                }
+                mFragment.getActivity().startActivity(intent);
+            } else if (result == 1) {
+                Toast.makeText(mFragment.getActivity(), R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
+            } else if ((result == 2)) {
+                Toast.makeText(mFragment.getActivity(), R.string.rc_location_sharing_exceed_max, Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Intent intent;
+            if (mFragment == null || mFragment.getContext() == null || mFragment.getActivity() == null) {
+                return;
+            }
+            if (mFragment.getContext().getResources().getBoolean(R.bool.rc_location_2D)) {
+                intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity2D.class);
+            } else {
+                intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity.class);
+            }
+            if (mLocationShareParticipants != null) {
+                intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
+            }
+            mFragment.getActivity().startActivity(intent);
+        }
+    }
+
     @Override
     public void onDestroy() {
         if (mFragment != null && mFragment.getActivity() != null && mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
@@ -180,5 +196,4 @@ public class LocationUiRender implements IConversationUIRenderer {
         mRealTimeText = null;
         LocationManager.getInstance().setOnRTLocationChangedCallback(null);
     }
-
 }

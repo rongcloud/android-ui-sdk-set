@@ -4,17 +4,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/core-1.3.1.aar/2f8a4d67a4a0cb174ac13801d69e5c1d/res/values-v16/values-v16.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "65",
-                        "endOffsets": "116"
-                    }
-                },
-                {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/values-v16/values-v16.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/values-v16/values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -30,6 +20,16 @@
                         "endLines": "6",
                         "endColumns": "12",
                         "endOffsets": "289"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/core-1.3.1.aar/aa74cbc34b7477b0b9b4922307fe7221/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
                     }
                 }
             ]
@@ -38,17 +38,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/core-1.3.1.aar/2f8a4d67a4a0cb174ac13801d69e5c1d/res/values-v16/values-v16.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "65",
-                        "endOffsets": "116"
-                    }
-                },
-                {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/values-v16/values-v16.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/values-v16/values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -64,6 +54,16 @@
                         "endLines": "6",
                         "endColumns": "12",
                         "endOffsets": "289"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/core-1.3.1.aar/aa74cbc34b7477b0b9b4922307fe7221/res/values-v16/values-v16.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "65",
+                        "endOffsets": "116"
                     }
                 }
             ]

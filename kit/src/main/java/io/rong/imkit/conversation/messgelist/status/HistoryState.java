@@ -99,7 +99,9 @@ public class HistoryState implements IMessageState {
     public void onReceived(MessageViewModel viewModel, UiMessage uiMessage, int left, boolean hasPackage, boolean offline) {
         //不在最底部，添加到未读列表
         if (!viewModel.isScrollToBottom()) {
-            viewModel.getNewUnReadMessages().add(uiMessage);
+            if (!viewModel.filterMessageToHideNewMessageBar(uiMessage)) {
+                viewModel.getNewUnReadMessages().add(uiMessage);
+            }
             if (RongConfigCenter.conversationConfig().isShowNewMentionMessageBar(uiMessage.getConversationType())) {
                 viewModel.updateMentionMessage(uiMessage.getMessage());
             }

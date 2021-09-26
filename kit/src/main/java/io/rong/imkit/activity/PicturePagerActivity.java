@@ -40,6 +40,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -275,6 +276,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                 @Override
                 public void onOptionsItemClicked(int which) {
                     if (which == 0) {
+                        // KNOTE: 2021/8/25 保留存储权限申请
                         String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
                         if (!PermissionCheckUtil.requestPermissions(PicturePagerActivity.this, permissions)) {
                             return;
@@ -422,13 +424,12 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
             Glide.with(PicturePagerActivity.this).asBitmap().load(originalUri).timeout(30000).into(new CustomTarget<Bitmap>() {
                 @Override
                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
-                    resource = resource.copy(Bitmap.Config.ARGB_8888, true);
                     int maxLoader = Utils.getMaxLoader();//openGL最大允许的长或宽
                     if (resource != null && resource.getWidth() < maxLoader && resource.getHeight() < maxLoader) {
+                        resource = resource.copy(Bitmap.Config.ARGB_8888, true);
                         if (mCurrentImageMessage.isDestruct() && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
                             DestructManager.getInstance().startDestruct(mMessage);
-                            //todo
-                            //EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
+
                         }
                         holder.progressText.setVisibility(View.GONE);
                         holder.failImg.setVisibility(View.GONE);
@@ -437,14 +438,23 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                         holder.photoView.setBitmapAndFileUri(resource, null);
                         imageInfo.download = true;
                     } else {
+                        if (FileUtils.uriStartWithFile(originalUri)) {
+                            if (mCurrentImageMessage.isDestruct() && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
+                                DestructManager.getInstance().startDestruct(mMessage);
+                            }
+                            holder.progressText.setVisibility(View.GONE);
+                            holder.failImg.setVisibility(View.GONE);
+                            holder.progressBar.setVisibility(View.GONE);
+                            holder.photoView.setVisibility(View.VISIBLE);
+                            holder.photoView.setBitmapAndFileUri(null, originalUri);
+                            imageInfo.download = true;
+                            return;
+                        }
                         Glide.with(PicturePagerActivity.this).asFile().load(originalUri).timeout(30000).into(new CustomTarget<File>() {
                             @Override
                             public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
-
                                 if (mCurrentImageMessage.isDestruct() && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
                                     DestructManager.getInstance().startDestruct(mMessage);
-                                    //todo
-                                    //EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
                                 }
                                 holder.progressText.setVisibility(View.GONE);
                                 holder.failImg.setVisibility(View.GONE);
@@ -490,13 +500,21 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                 @Override
                 public void onLoadStarted(@Nullable Drawable placeholder) {
                     String thumbPath = null;
-                    Bitmap thumbBitmap = null;
                     if ("file".equals(thumbUri.getScheme())) {
                         thumbPath = thumbUri.toString().substring(7);
                     }
-                    if (thumbPath != null) {
-                        thumbBitmap = BitmapFactory.decodeFile(thumbPath).copy(Bitmap.Config.ARGB_8888, true);
+                    if (thumbPath == null) {
+                        RLog.e(TAG, "thumbPath should not be null.");
+                        return;
                     }
+
+                    Bitmap tempBitmap = BitmapFactory.decodeFile(thumbPath);
+                    if (tempBitmap == null) {
+                        RLog.e(TAG, "tempBitmap should not be null.");
+                        return;
+                    }
+
+
                     /*
                      * 为保持与加载后放大缩小手势可缩放比率一致
                      * 且防止因与加载成功后方法不同导致偶发加载成功后仍显示缩略图情况
@@ -504,9 +522,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                      * setBitmapAndFileUri 与 suitMaxScaleWithSize 缩放规则一致
                      */
                     holder.photoView.setVisibility(View.VISIBLE);
-                    if (thumbBitmap != null) {
-                        holder.photoView.setImage(ImageSource.bitmap(thumbBitmap));
-                    }
+                    holder.photoView.setBitmapAndFileUri(tempBitmap, null);
                     holder.progressBar.setVisibility(View.VISIBLE);
                 }
 

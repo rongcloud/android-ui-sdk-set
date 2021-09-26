@@ -40,7 +40,7 @@ public class SubConversationListFragment extends ConversationListFragment {
         if (this.getActivity() != null) {
             SubConversationListVMFactory factory = new SubConversationListVMFactory(this.getActivity().getApplication(), mConversationType);
             mSubConversationListViewModel = new ViewModelProvider(this, factory).get(SubConversationListViewModel.class);
-            mSubConversationListViewModel.getConversationList(false);
+            mSubConversationListViewModel.getConversationList(false,false);
             mSubConversationListViewModel.getConversationListLiveData().observe(getViewLifecycleOwner(), new Observer<List<BaseUiConversation>>() {
                 @Override
                 public void onChanged(List<BaseUiConversation> baseUiConversations) {
@@ -91,14 +91,14 @@ public class SubConversationListFragment extends ConversationListFragment {
     @Override
     protected void onConversationListRefresh(RefreshLayout refreshLayout) {
         if (mSubConversationListViewModel != null) {
-            mSubConversationListViewModel.getConversationList(false);
+            mSubConversationListViewModel.getConversationList(false,true);
         }
     }
 
     @Override
     protected void onConversationListLoadMore() {
         if (mSubConversationListViewModel != null) {
-            mSubConversationListViewModel.getConversationList(true);
+            mSubConversationListViewModel.getConversationList(true,true);
         }
     }
 }

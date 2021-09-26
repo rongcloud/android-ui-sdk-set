@@ -4,18 +4,22 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.GpsStatus;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -31,8 +35,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 
 import com.amap.api.maps.AMap;
@@ -63,8 +65,7 @@ import java.util.List;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
-import io.rong.imkit.conversation.extension.component.plugin.IPluginRequestPermissionResultCallback;
-import io.rong.imkit.feature.location.plugin.CombineLocationPlugin;
+import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.TitleBar;
 import io.rong.imlib.common.NetUtils;
@@ -80,7 +81,6 @@ public class AMapLocationActivity extends RongBaseActivity implements
 
     private final static String TAG = "AMapLocationActivity";
 
-    private static final int REQUEST_CODE_ASK_PERMISSIONS = 100;
     private static final int REQUEST_SEARCH_LOCATION = 1;
     private static final int PAGE_COUNT = 20;
     private static final int REQUEST_OPEN_LOCATION_SERVICE = 50;
@@ -114,7 +114,10 @@ public class AMapLocationActivity extends RongBaseActivity implements
     private int flag = 0;
     private String cityCode = "";
     private TextView mSend;
+    private String[] locationPermissions = {Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION};
 
+    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,9 +137,64 @@ public class AMapLocationActivity extends RongBaseActivity implements
         initTitleBar();
         mAMapView.onCreate(savedInstanceState);
 
-        if (RongUtils.isLocationServiceEnabled(this)) {
-            initMap();
-        } else {
+        checkMapPermission();
+        initMap();
+
+        //Bug:关闭位置服务进入到此页面,直接在设置或快捷菜单中再次开启位置服务(非位置服务引导进行的操作),查看位置没有正常加载数据.
+        //监听手机位置服务或定位服务开关状态,重新开启需重新定位,进而回调onMyLocationChanged再次刷新位置页面.
+        if (PermissionCheckUtil.checkPermissions(this, locationPermissions)) {
+            LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0f, gpsListener);
+            locationManager.addGpsStatusListener(new GpsStatus.Listener() {
+                @Override
+                public void onGpsStatusChanged(int event) {
+                    if (event == GpsStatus.GPS_EVENT_STARTED) {
+                        Log.w(TAG, "Gps Started");
+                        LocationDelegate3D.getInstance().updateMyLocation();
+                    } else if (event == GpsStatus.GPS_EVENT_STOPPED) {
+                        Log.w(TAG, "Gps Stopped");
+                    }
+                }
+            });
+        }
+    }
+
+    private LocationListener gpsListener = new LocationListener() {
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.w(TAG, "onLocationChanged");
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.w(TAG, "onStatusChanged");
+            if (status == LocationProvider.OUT_OF_SERVICE) {
+                Log.w(TAG, "GpsLocation | gps is outOfService  ");
+            }
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            Log.w(TAG, "onProviderEnabled");
+            if (LocationManager.GPS_PROVIDER.equalsIgnoreCase(provider)) {
+                Log.w(TAG, "GpsLocation | onProviderEnabled  ");
+            }
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            Log.w(TAG, "onProviderDisabled");
+            if (LocationManager.GPS_PROVIDER.equalsIgnoreCase(provider)) {
+                Log.w(TAG, "GpsLocation | onProviderDisabled  ");
+            }
+        }
+    };
+
+    /**
+     * 检查位置服务是否开启
+     */
+    private void checkMapPermission() {
+        if (!RongUtils.isLocationServiceEnabled(this)) {
             new AlertDialog.Builder(AMapLocationActivity.this).
                     setTitle(getString(R.string.rc_location_sevice_dialog_title))
                     .setMessage(getString(R.string.rc_location_sevice_dialog_messgae))
@@ -150,7 +208,6 @@ public class AMapLocationActivity extends RongBaseActivity implements
                                 Intent intent = new Intent(ACTION_SETTINGS);
                                 startActivityForResult(intent, REQUEST_OPEN_LOCATION_SERVICE);
                             }
-
                         }
                     }).create().show();
         }
@@ -174,6 +231,16 @@ public class AMapLocationActivity extends RongBaseActivity implements
                 handleOkButton();
             }
         });
+
+        mTitleBar.setSearchViewVisibility(true);
+        mTitleBar.getSearchView().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AMapLocationActivity.this, SearchLocationActivity.class);
+                intent.putExtra(LocationConst.CITY_CODE, cityCode);
+                startActivityForResult(intent, REQUEST_SEARCH_LOCATION);
+            }
+        });
         boolean netWorkAvailable = NetUtils.isNetWorkAvailable(this);
         if (netWorkAvailable) {
             mSend.setEnabled(true);
@@ -185,20 +252,8 @@ public class AMapLocationActivity extends RongBaseActivity implements
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission Granted
-                if (permissions[0].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    initMap();
-                }
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
+    //knote  位置
+    //此页面无申请权限逻辑 删除.
 
     private void initMap() {
         mAMap = mAMapView.getMap();
@@ -806,7 +861,7 @@ public class AMapLocationActivity extends RongBaseActivity implements
             resetViewHeight();
             updateToPosition(mLngResult, mLatResult, mPoiResult, true);
         } else if (requestCode == REQUEST_OPEN_LOCATION_SERVICE) {
-            initMap();
+            LocationDelegate3D.getInstance().updateMyLocation();
         }
     }
 

@@ -121,7 +121,7 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
         if (RongUtils.isDestroy(GIFPreviewActivity.this)) {
             return;
         }
-        Glide.with(this).asGif().addListener(new RequestListener<GifDrawable>() {
+        Glide.with(this).asGif().error(R.drawable.rc_received_thumb_image_broken).addListener(new RequestListener<GifDrawable>() {
             @Override
             public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<GifDrawable> target, boolean isFirstResource) {
                 return false;

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@id/rc_layout"
     android:layout_width="231dp"
-    android:layout_height="126dp"
+    android:layout_height="wrap_content"
     android:background="@android:color/white">
 
     <TextView
@@ -40,7 +40,7 @@
             android:gravity="start"
             android:lines="3"
             android:paddingBottom="9dp"
-            tools:text="Content" />
+            tools:text="content" />
 
         <ImageView
             android:id="@+id/rc_img"

@@ -182,7 +182,7 @@ public class ConversationListViewModel extends AndroidViewModel {
     private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener = new RongIMClient.OnReceiveMessageWrapperListener() {
         @Override
         public boolean onReceived(Message message, int left, boolean hasPackage, boolean offline) {
-            getConversationList(false);
+            getConversationList(false, false);
             return false;
         }
     };
@@ -234,7 +234,7 @@ public class ConversationListViewModel extends AndroidViewModel {
         public void onChanged(ConnectionStatus status) {
             mConnectionStatusLiveData.postValue(status);
             if (status.equals(ConnectionStatus.CONNECTED)) {
-                getConversationList(false);
+                getConversationList(false, false);
             }
             // 更新连接状态通知信息
             updateNoticeContent(status);
@@ -316,10 +316,11 @@ public class ConversationListViewModel extends AndroidViewModel {
      * 以便提高接受大量消息时的刷新性能。
      * </p>
      *
-     * @param loadMore 是否根据上次同步的时间戳拉取更多会话。
-     *                 false: 从数据库拉取最新 N 条会话。true: 根据 UI 上最后一条会话的时间戳，继续拉取之前的 N 条会话。
+     * @param loadMore      是否根据上次同步的时间戳拉取更多会话。
+     *                      false: 从数据库拉取最新 N 条会话。true: 根据 UI 上最后一条会话的时间戳，继续拉取之前的 N 条会话。
+     * @param isEventManual 是否是用还手动触发的刷新获取，手动触发的需要主动关闭下
      */
-    public void getConversationList(final boolean loadMore) {
+    public void getConversationList(final boolean loadMore, final boolean isEventManual) {
         if (isTaskScheduled) {
             return;
         }
@@ -335,10 +336,12 @@ public class ConversationListViewModel extends AndroidViewModel {
                 RongIMClient.getInstance().getConversationListByPage(new RongIMClient.ResultCallback<List<Conversation>>() {
                     @Override
                     public void onSuccess(List<Conversation> conversations) {
-                        if (loadMore) {
-                            mRefreshEventLiveData.postValue(new Event.RefreshEvent(RefreshState.LoadFinish));
-                        } else {
-                            mRefreshEventLiveData.postValue(new Event.RefreshEvent(RefreshState.RefreshFinish));
+                        if (isEventManual) {
+                            if (loadMore) {
+                                mRefreshEventLiveData.postValue(new Event.RefreshEvent(RefreshState.LoadFinish));
+                            } else {
+                                mRefreshEventLiveData.postValue(new Event.RefreshEvent(RefreshState.RefreshFinish));
+                            }
                         }
                         if (conversations == null || conversations.size() == 0) {
                             return;

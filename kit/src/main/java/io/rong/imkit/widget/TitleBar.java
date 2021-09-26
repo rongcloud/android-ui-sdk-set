@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -33,6 +34,7 @@ public class TitleBar extends Toolbar {
     private OnRightIconClickListener mOnRightIconClickListener;
     private Context mContext;
     private Drawable drawable;
+    private ImageView search;
 
     public TitleBar(Context context) {
         super(context);
@@ -210,6 +212,16 @@ public class TitleBar extends Toolbar {
         }
     }
 
+    public ImageView getSearchView() {
+        if (search == null) {
+            search = findViewById(R.id.rc_search);
+        }
+        return search;
+    }
+
+    public void setSearchViewVisibility(boolean visibility) {
+        getSearchView().setVisibility(visibility ? View.VISIBLE : View.GONE);
+    }
 
     public interface OnBackClickListener {
         void onBackClick();

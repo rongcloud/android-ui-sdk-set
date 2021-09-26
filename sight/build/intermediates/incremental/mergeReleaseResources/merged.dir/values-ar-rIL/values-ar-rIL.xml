@@ -69,7 +69,7 @@
     <string name="rc_conversation_summary_content_sticker">[ملصق]</string>
     <string name="rc_conversation_summary_content_voice">[صوت]</string>
     <string name="rc_conversation_summary_content_vst">[مكالمة الفيديو و الصوت]</string>
-    <string name="rc_conversation_unread_dot">"···"</string>
+    <string name="rc_conversation_unread_dot">99+</string>
     <string name="rc_cs_average">مقبول</string>
     <string name="rc_cs_cancel">إلغاء</string>
     <string name="rc_cs_evaluate">موافق</string>
@@ -428,6 +428,7 @@
     <string name="rc_search_no_result">لا نتائج</string>
     <string name="rc_send">إرسال</string>
     <string name="rc_sight_download_failed">فشل التحميل , اضغط للتحميل مجددا</string>
+    <string name="rc_sight_file_expired"> تم حذف الفيديو أو منتهية الصلاحي </string>
     <string name="rc_sight_list_title">ملف المحادثات</string>
     <string name="rc_sight_message_recalled">تم التراجع عن الإرسال</string>
     <string name="rc_sight_record_too_short_time">وقت التسجيل قصير جدا , نرجوا المحاولة مرة أخرى</string>

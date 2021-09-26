@@ -127,19 +127,9 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
             imageView.setImageResource(R.drawable.def_gif_bg);
             final int size = RongConfigCenter.conversationConfig().rc_gifmsg_auto_download_size;
             if (gifMessage.getGifDataSize() <= size * 1024) {
-                if (checkPermission(holder.getContext())) {
-                    if (!uiMessage.getMessage().getReceivedStatus().isDownload()) {
-                        uiMessage.getMessage().getReceivedStatus().setDownload();
-                        downLoad(uiMessage.getMessage(), holder);
-                    }
-                } else {
-                    if (progress != -1) {
-                        // 显示图片下载的界面
-                        holder.setVisible(R.id.rc_start_download, true);
-                        holder.setVisible(R.id.rc_length, true);
-                        holder.setText(R.id.rc_length, formatSize(gifMessage.getGifDataSize()));
-                    }
-
+                if (!uiMessage.getMessage().getReceivedStatus().isDownload()) {
+                    uiMessage.getMessage().getReceivedStatus().setDownload();
+                    downLoad(uiMessage.getMessage(), holder);
                 }
             } else {
                 // 下载的时候
@@ -174,6 +164,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
         if (thumbUri != null && thumbUri.getPath() != null) {
             Glide.with(imageView.getContext())
                     .asGif()
+                    .error(R.drawable.rc_received_thumb_image_broken)
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .load(thumbUri.getPath())
                     .into(imageView);
@@ -190,26 +181,11 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
 
         if (startDownLoad.getVisibility() == View.VISIBLE) {
             startDownLoad.setVisibility(View.GONE);
-            if (checkPermission(holder.getContext())) {
-                downLoad(uiMessage.getMessage(), holder);
-            } else {
-                downLoadFailed.setVisibility(View.VISIBLE);
-                length.setVisibility(View.VISIBLE);
-                length.setText(formatSize(gifMessage.getGifDataSize()));
-                Toast.makeText(holder.getContext(), R.string.rc_ac_file_download_request_permission, Toast.LENGTH_SHORT).show();
-            }
+            downLoad(uiMessage.getMessage(), holder);
             return true;
         } else if (downLoadFailed.getVisibility() == View.VISIBLE) {
             downLoadFailed.setVisibility(View.GONE);
-            if (checkPermission(holder.getContext())) {
-                downLoad(uiMessage.getMessage(), holder);
-            } else {
-                // 显示图片下载的界面
-                downLoadFailed.setVisibility(View.VISIBLE);
-                length.setVisibility(View.VISIBLE);
-                length.setText(formatSize(gifMessage.getGifDataSize()));
-                Toast.makeText(holder.getContext(), R.string.rc_ac_file_download_request_permission, Toast.LENGTH_SHORT).show();
-            }
+            downLoad(uiMessage.getMessage(), holder);
             return true;
         } else if (preProgress.getVisibility() != View.VISIBLE && loadingProgress.getVisibility() != View.VISIBLE) {
             if (gifMessage != null) {
@@ -293,10 +269,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
         view.setLayoutParams(params);
     }
 
-    private boolean checkPermission(Context context) {
-        String[] permission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        return PermissionCheckUtil.checkPermissions(context, permission);
-    }
+    // KNOTE: 2021/8/25 Gif下载删除存储权限申请  下载私有目录
 
     private void downLoad(final Message downloadMsg, final ViewHolder holder) {
         holder.setVisible(R.id.rc_pre_progress, true);

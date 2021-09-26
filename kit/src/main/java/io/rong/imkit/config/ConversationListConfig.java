@@ -2,10 +2,8 @@ package io.rong.imkit.config;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import io.rong.common.RLog;
@@ -20,50 +18,26 @@ import io.rong.imlib.model.Conversation;
 public class ConversationListConfig {
 
     private final String TAG = "ConversationListConfig";
-    private ConversationListBehaviorListener mListener;
-    private boolean mIsEnableConnectStateNotice = true;
-    //会话列表页是否自动下载高清语音
-    private boolean mEnableAutomaticDownloadHQVoice = true;
-    private int mConversationCountPerPage = 100; //每页拉取的会话条数, 默认 100.
-    private ProviderManager<BaseUiConversation> mProviderManager;
-
-    private Conversation.ConversationType[] mSupportedTypes = {Conversation.ConversationType.PRIVATE,
+    private final Conversation.ConversationType[] mSupportedTypes = {Conversation.ConversationType.PRIVATE,
             Conversation.ConversationType.GROUP, Conversation.ConversationType.SYSTEM,
             Conversation.ConversationType.CUSTOMER_SERVICE, Conversation.ConversationType.CHATROOM,
             Conversation.ConversationType.APP_PUBLIC_SERVICE, Conversation.ConversationType.PUBLIC_SERVICE,
             Conversation.ConversationType.ENCRYPTED};
+    private ConversationListBehaviorListener mListener;
+    private boolean mIsEnableConnectStateNotice = true;
+    //会话列表页是否自动下载高清语音
+    private boolean mEnableAutomaticDownloadHQVoice = true;
+    //每页拉取的会话条数, 默认 100.
+    private int mConversationCountPerPage = 100;
+    private ProviderManager<BaseUiConversation> mProviderManager;
+    private DataProcessor<Conversation> mDataProcessor;
 
-    private DataProcessor<Conversation> mDataProcessor = new DataProcessor<Conversation>() {
-        @Override
-        public Conversation.ConversationType[] supportedTypes() {
-            return mSupportedTypes;
-        }
-
-        @Override
-        public List<Conversation> filtered(List<Conversation> data) {
-            List<Conversation> invalidConversation = new LinkedList<>();
-            for (Conversation item : data) {
-                if (TextUtils.isEmpty(item.getTargetId()) ||
-                        item.getConversationType() == null) {
-                    invalidConversation.add(item);
-                }
-            }
-            data.removeAll(invalidConversation);
-            return data;
-        }
-
-        @Override
-        public boolean isGathered(Conversation.ConversationType type) {
-            return false;
-        }
-    };
+    private BaseDataProcessor<Conversation> mConversationListDataProcessor = new DefaultConversationListProcessor();
 
     public ConversationListConfig() {
         List<IViewProvider<BaseUiConversation>> providerList = new ArrayList<>();
         providerList.add(new PrivateConversationProvider());
-        //        providerList.add(new GatheredConversationProvider());
         mProviderManager = new ProviderManager<>(providerList);
-        //mProviderManager.setEmptyViewProvider(new ConversationListEmptyProvider());
         mProviderManager.setDefaultProvider(new BaseConversationProvider());
     }
 
@@ -107,11 +81,27 @@ public class ConversationListConfig {
     }
 
     public DataProcessor<Conversation> getDataProcessor() {
-        return mDataProcessor;
+        // mDataProcessor 的处理是为了兼容旧版本。
+        if (mDataProcessor != null) {
+            return mDataProcessor;
+        } else {
+            return mConversationListDataProcessor;
+        }
     }
 
+    /**
+     * 设置数据处理器。
+     *
+     * @param dataFilter 处理器
+     * @deprecated 此方法以废弃，请使用{@link #setDataProcessor(BaseDataProcessor)}
+     */
+    @Deprecated
     public void setDataProcessor(DataProcessor<Conversation> dataFilter) {
         this.mDataProcessor = dataFilter;
+    }
+
+    public void setDataProcessor(BaseDataProcessor<Conversation> dataFilter) {
+        this.mConversationListDataProcessor = dataFilter;
     }
 
     public ConversationListBehaviorListener getListener() {
@@ -125,6 +115,5 @@ public class ConversationListConfig {
     public int getConversationCountPerPage() {
         return mConversationCountPerPage;
     }
-
 }
 

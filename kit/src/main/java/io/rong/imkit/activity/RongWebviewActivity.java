@@ -77,6 +77,10 @@ public class RongWebviewActivity extends RongBaseActivity {
             mPrevUrl = data.toString();
             mWebView.loadUrl(data.toString());
         }
+
+        if (mTitleBar != null) {
+            mTitleBar.setRightVisible(false);
+        }
     }
 
     public void setOnTitleReceivedListener(OnTitleReceivedListener onTitleReceivedListener) {

@@ -59,7 +59,7 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
         mAllMemberList = new ArrayList<>();
 
         String targetId = getIntent().getStringExtra(RouteUtils.TARGET_ID);
-        Conversation.ConversationType conversationType = Conversation.ConversationType.setValue(getIntent().getIntExtra(RouteUtils.CONVERSATION_TYPE, 0));
+        Conversation.ConversationType conversationType = Conversation.ConversationType.setValue(getIntent().getIntExtra(RouteUtils.CONVERSATION_TYPE, Conversation.ConversationType.GROUP.getValue()));
 
         RongMentionManager.IGroupMembersProvider groupMembersProvider = RongMentionManager.getInstance().getGroupMembersProvider();
         if (conversationType.equals(Conversation.ConversationType.GROUP) && groupMembersProvider != null) {

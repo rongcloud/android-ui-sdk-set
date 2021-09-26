@@ -107,7 +107,8 @@
                 android:resource="@xml/rc_file_path" />
         </provider>
 
-        <activity android:name=".picture.PictureSelectorActivity"
+        <activity
+            android:name=".picture.PictureSelectorActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait" />
         <activity
@@ -116,16 +117,22 @@
             android:screenOrientation="portrait"
             android:theme="@style/Picture.Theme.Translucent" />
 
-        <activity android:name=".picture.PicturePreviewActivity"
+        <activity
+            android:name=".picture.PicturePreviewActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".picture.PictureVideoPlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait" />
-
         <!--end图库配置项-->
+
+        <activity
+            android:name="io.rong.imkit.feature.location.SearchLocationActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <meta-data
+            android:name="rc.imkit"
+            android:value="io.rong.imkit.IMKitBuildVar" />
     </application>
-
-
 </manifest>

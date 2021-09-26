@@ -4,7 +4,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-v17/values-v17.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/values-v17/values-v17.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/values-v17/values-v17.xml",
                     "from": {
                         "startLines": "2,5,9,12,15,18,22,25,29,33,37,40,43,46,50,53,57",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -20,7 +20,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/values-v17/values-v17.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/values-v17/values-v17.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/values-v17/values-v17.xml",
                     "from": {
                         "startLines": "2,5,9,12,15,18,22,25,29,33,37,40,43,46,50,53,57",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

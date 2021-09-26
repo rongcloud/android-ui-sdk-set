@@ -52,7 +52,7 @@ public class PublicServiceExtensionModule implements IExtensionModule {
         mMenuItemList = new ArrayList<>();
     }
 
-    void updateMenu(PublicServiceProfile publicServiceProfile) {
+    public void updateMenu(PublicServiceProfile publicServiceProfile) {
         if (publicServiceProfile == null || mFragment == null || mRongExtension == null) {
             return;
         }

@@ -118,14 +118,16 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
             if (!RongOperationPermissionUtils.isMediaOperationPermit(holder.getContext())) {
                 return true;
             }
-            String[] permissions = {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            };
-            if (!PermissionCheckUtil.checkPermissions(holder.getContext(), permissions)) {
-                Activity activity = (Activity) holder.getContext();
-                PermissionCheckUtil.requestPermissions(activity, permissions, 100);
-                return true;
-            }
+
+            // KNOTE: 2021/8/24  点击进入SightPlayerActivity下载播放,下载保存目录是应用私有目录  不需要存储权限
+//            String[] permissions = {
+//                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+//            };
+//            if (!PermissionCheckUtil.checkPermissions(holder.getContext(), permissions)) {
+//                Activity activity = (Activity) holder.getContext();
+//                PermissionCheckUtil.requestPermissions(activity, permissions, 100);
+//                return true;
+//            }
 
             Uri.Builder builder = new Uri.Builder();
             builder.scheme("rong")

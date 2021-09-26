@@ -110,7 +110,7 @@ public class RouteUtils {
             activity = sActivityMap.get(RongActivityType.MentionMemberSelectActivity);
         }
         Intent intent = new Intent(context, activity);
-        intent.putExtra(CONVERSATION_TYPE, type.getName());
+        intent.putExtra(CONVERSATION_TYPE, type.getValue());
         intent.putExtra(TARGET_ID, targetId);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

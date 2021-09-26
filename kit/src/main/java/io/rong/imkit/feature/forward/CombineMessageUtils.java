@@ -195,7 +195,7 @@ public class CombineMessageUtils {
         switch (type) {
             case TAG_TXT: // 文本
                 TextMessage text = (TextMessage) content;
-                html = html.replace(MSG_TEXT, text.getContent());
+                html = html.replace(MSG_TEXT, text.getContent() == null ? "" : text.getContent());
                 break;
             case TAG_IMG_TEXT: // 图文
             case TAG_VC: // 语音

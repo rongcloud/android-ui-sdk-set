@@ -3,6 +3,7 @@ package io.rong.imkit.conversationlist.provider;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +13,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.utils.RongDateUtils;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.adapter.IViewProvider;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
@@ -42,6 +43,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
         holder.setText(R.id.rc_conversation_title, uiConversation.mCore.getConversationTitle());
 
         //会话头像
+
         if (!TextUtils.isEmpty(uiConversation.mCore.getPortraitUrl())) {
             RongConfigCenter.featureConfig().getKitImageEngine().loadConversationListPortrait(holder.getContext(), uiConversation.mCore.getPortraitUrl(), holder.<ImageView>getView(R.id.rc_conversation_portrait), uiConversation.mCore);
         } else {
@@ -53,7 +55,9 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
             } else if (uiConversation.mCore.getConversationType().equals(Conversation.ConversationType.CUSTOMER_SERVICE)) {
                 drawableId = R.drawable.rc_default_chatroom_portrait;
             }
-            holder.setImageBitmapCircle(R.id.rc_conversation_portrait, drawableId);
+
+            Uri uri = RongUtils.getUriFromDrawableRes(holder.getContext(), drawableId);
+            RongConfigCenter.featureConfig().getKitImageEngine().loadConversationListPortrait(holder.getContext(), uri.toString(), holder.<ImageView>getView(R.id.rc_conversation_portrait), uiConversation.mCore);
         }
         holder.getView(R.id.rc_conversation_portrait).setOnClickListener(new View.OnClickListener() {
             @Override

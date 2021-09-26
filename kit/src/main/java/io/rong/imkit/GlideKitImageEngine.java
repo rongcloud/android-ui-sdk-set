@@ -10,7 +10,10 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.Transformation;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 
 import io.rong.imlib.model.Conversation;
@@ -18,6 +21,8 @@ import io.rong.imlib.model.Message;
 
 
 public class GlideKitImageEngine implements KitImageEngine {
+    private Transformation<Bitmap> transformation = new CenterCrop();
+
     /**
      * 加载图片
      *
@@ -27,7 +32,7 @@ public class GlideKitImageEngine implements KitImageEngine {
      */
     @Override
     public void loadImage(@NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
-        Glide.with(context).load(url).into(imageView);
+        Glide.with(context).load(url).error(R.drawable.rc_received_thumb_image_broken).into(imageView);
     }
 
     /**
@@ -108,12 +113,13 @@ public class GlideKitImageEngine implements KitImageEngine {
             case CHATROOM:
                 resourceId = R.drawable.rc_default_chatroom_portrait;
                 break;
-
+            default:
+                break;
         }
         Glide.with(imageView).load(url)
                 .placeholder(resourceId)
                 .error(resourceId)
-//                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                .apply(RequestOptions.bitmapTransform(getPortraitTransformation()))
                 .into(imageView);
     }
 
@@ -122,14 +128,21 @@ public class GlideKitImageEngine implements KitImageEngine {
         @DrawableRes int resourceId = R.drawable.rc_default_portrait;
         switch (message.getConversationType()) {
             case CUSTOMER_SERVICE:
-                if (Message.MessageDirection.RECEIVE == message.getMessageDirection())
+                if (Message.MessageDirection.RECEIVE == message.getMessageDirection()) {
                     resourceId = R.drawable.rc_cs_default_portrait;
+                }
+                break;
+            default:
                 break;
         }
         Glide.with(imageView).load(url)
                 .placeholder(resourceId)
                 .error(resourceId)
-//                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                .apply(RequestOptions.bitmapTransform(getPortraitTransformation()))
                 .into(imageView);
+    }
+
+    protected Transformation<Bitmap> getPortraitTransformation() {
+        return transformation;
     }
 }

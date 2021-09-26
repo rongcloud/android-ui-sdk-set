@@ -693,6 +693,7 @@ bool abc_action_bar_embed_tabs
 bool abc_allow_stacked_button_bar
 bool abc_config_actionMenuItemAllCaps
 bool rc_enable_automatic_download_voice_msg
+bool rc_enable_background_location_permission
 bool rc_enable_mentioned_message
 bool rc_enable_message_recall
 bool rc_enable_send_combine_message

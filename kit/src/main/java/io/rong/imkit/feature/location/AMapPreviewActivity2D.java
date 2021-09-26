@@ -11,11 +11,13 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
 import io.rong.imlib.location.message.LocationMessage;
 
 public class AMapPreviewActivity2D extends RongBaseActivity {
+    private final String TAG = AMapPreviewActivity2D.class.getCanonicalName();
     private MapView mAMapView;
 
     @Override
@@ -39,6 +41,10 @@ public class AMapPreviewActivity2D extends RongBaseActivity {
 
         Intent intent = getIntent();
         LocationMessage locationMessage = intent.getParcelableExtra("location");
+        if (locationMessage == null) {
+            RLog.e(TAG, "location message is null, return directly!");
+            return;
+        }
         double lat = locationMessage.getLat();
         double lng = locationMessage.getLng();
         String poi = locationMessage.getPoi();

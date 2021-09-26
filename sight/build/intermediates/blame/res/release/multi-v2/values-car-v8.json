@@ -4,7 +4,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-car-v8/values-car-v8.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/b5b394e44b952fb34d3175ddebec5907/res/values-car-v8/values-car-v8.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/5850f1ace9bb64d8d05eda2e3fb1ce2e/res/values-car-v8/values-car-v8.xml",
                     "from": {
                         "startLines": "2,3,4",
                         "startColumns": "4,4,4",
@@ -19,7 +19,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/build/intermediates/res/merged/release/values-car-v8/values-car-v8.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/b5b394e44b952fb34d3175ddebec5907/res/values-car-v8/values-car-v8.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/5850f1ace9bb64d8d05eda2e3fb1ce2e/res/values-car-v8/values-car-v8.xml",
                     "from": {
                         "startLines": "2,3,4",
                         "startColumns": "4,4,4",

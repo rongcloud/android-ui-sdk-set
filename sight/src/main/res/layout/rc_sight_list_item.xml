@@ -47,6 +47,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textColor="#939393"
+            android:ellipsize="middle"
+            android:singleLine="true"
             android:textSize="13dp"
             tools:text="TextView" />
     </LinearLayout>

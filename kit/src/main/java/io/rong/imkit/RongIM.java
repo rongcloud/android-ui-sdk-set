@@ -29,6 +29,7 @@ import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.model.CSCustomServiceInfo;
+import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
@@ -41,7 +42,6 @@ import io.rong.imlib.publicservice.model.PublicServiceProfile;
 import io.rong.imlib.publicservice.model.PublicServiceProfileList;
 import io.rong.message.FileMessage;
 import io.rong.message.ImageMessage;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.message.MediaMessageContent;
 import io.rong.message.TextMessage;
 
@@ -53,12 +53,252 @@ public class RongIM {
 
     }
 
-    private static class SingletonHolder {
-        static RongIM sInstance = new RongIM();
-    }
-
     public static RongIM getInstance() {
         return SingletonHolder.sInstance;
+    }
+
+    /**
+     * <p>初始化 SDK，在整个应用程序全局只需要调用一次, 建议在 Application 继承类中调用。
+     * 调用此接口传入 AppKey 与在 AndroidManifest.xml 里写入 RONG_CLOUD_APP_KEY 是同样效果，二选一即可。</p>
+     *
+     * @param application 应用
+     * @param appKey      融云注册应用的AppKey。
+     */
+    public static void init(Application application, String appKey) {
+        IMCenter.init(application, appKey, true);
+    }
+
+    /**
+     * <p>初始化 SDK，在整个应用程序全局只需要调用一次, 建议在 Application 继承类中调用。
+     * 调用此接口传入 AppKey 与在 AndroidManifest.xml 里写入 RONG_CLOUD_APP_KEY 是同样效果，二选一即可。</p>
+     *
+     * @param application 应用
+     * @param appKey      融云注册应用的AppKey。
+     * @param enablePush  是否使用推送功能。false 代表不使用推送相关功能, SDK 里将不会携带推送相关文件。
+     */
+    public static void init(Application application, String appKey, boolean enablePush) {
+        IMCenter.init(application, appKey, enablePush);
+    }
+
+    /**
+     * 连接服务器，在整个应用程序全局，只需要调用一次。
+     *
+     * @param token           从服务端获取的 <a
+     *                        href="http://docs.rongcloud.cn/android#token">用户身份令牌（
+     *                        Token）</a>。
+     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
+     * @return RongIM IM 客户端核心类的实例。
+     * @discussion 调用该接口，SDK 会在连接失败之后尝试重连，将出现以下两种情况：
+     * 第一、连接成功，回调 onSuccess(userId)。
+     * 第二、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
+     * <p>
+     * 如果您不想一直进行重连，可以使用 connect(String,int,ConnectCallback) 接口并设置连接超时时间 timeLimit。
+     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
+     */
+    public static void connect(final String token, final RongIMClient.ConnectCallback connectCallback) {
+        connect(token, -1, connectCallback);
+    }
+
+    /**
+     * 连接服务器，在整个应用程序全局，只需要调用一次。
+     *
+     * @param token           从服务端获取的 <a
+     *                        href="http://docs.rongcloud.cn/android#token">用户身份令牌（
+     *                        Token）</a>。
+     * @param timeLimit       连接超时时间，单位：秒。timeLimit <= 0，则 IM 将一直连接，直到连接成功或者无法连接（如 token 非法）
+     *                        timeLimit > 0 ,则 IM 将最多连接 timeLimit 秒：
+     *                        如果在 timeLimit 秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连；
+     *                        如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError 告知连接超时，您需要再自行调用 connect 接口
+     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
+     * @return RongIM IM 客户端核心类的实例。
+     * @discussion 调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一：
+     * 第一、连接成功，回调 onSuccess(userId)。
+     * 第二、超时，回调 onError(RC_CONNECT_TIMEOUT)，并不再重连。
+     * 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
+     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
+     */
+    public static void connect(String token, int timeLimit,
+                               final RongIMClient.ConnectCallback connectCallback) {
+        connect(ConnectOption.obtain(token, timeLimit), connectCallback);
+    }
+
+    /**
+     * 连接服务器，在整个应用程序全局，只需要调用一次。
+     *
+     * @param option          连接配置
+     *                        1. token
+     *                        从服务端获取的用户身份令牌(Token)
+     *                        2. timeLimit
+     *                        连接超时时间，单位：秒。timeLimit <= 0，则 IM 将一直连接，直到连接成功或者无法连接（如 token 非法）
+     *                        timeLimit > 0 ,则 IM 将最多连接 timeLimit 秒：
+     *                        如果在 timeLimit 秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连；
+     *                        如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError 告知连接超时，您需要再自行调用 connect 接口.
+     *                        <p>
+     *                        3. connectExt
+     *                        从App服务器端获取的鉴权数据，该数据会通过 SDK -> IMServer -> App的服务器，让App的服务器做连接鉴权.
+     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
+     * @return RongIM IM 客户端核心类的实例。
+     * @discussion 调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一：
+     * 第一、连接成功，回调 onSuccess(userId)。
+     * 第二、超时，回调 onError(RC_CONNECT_TIMEOUT)，并不再重连。
+     * 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
+     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
+     */
+    private static void connect(ConnectOption option,
+                               final RongIMClient.ConnectCallback connectCallback) {
+        IMCenter.getInstance().connect(option.getToken(), option.getTimeLimit(), connectCallback);
+    }
+
+    /**
+     * 注册消息模板。
+     *
+     * @param provider 模板类型。
+     */
+    public static void registerMessageTemplate(IMessageProvider provider) {
+        RongConfigCenter.conversationConfig().addMessageProvider(provider);
+    }
+
+    /**
+     * 设置接收消息的监听器。
+     * <p/>
+     * 所有接收到的消息、通知、状态都经由此处设置的监听器处理。包括私聊消息、讨论组消息、群组消息、聊天室消息以及各种状态。
+     *
+     * @param listener 接收消息的监听器。
+     */
+    public static void addOnReceiveMessageListener(RongIMClient.OnReceiveMessageWrapperListener
+                                                           listener) {
+        IMCenter.getInstance().addOnReceiveMessageListener(listener);
+    }
+
+    /**
+     * 移除接收消息的监听器。
+     *
+     * @param listener 接收消息的监听器。
+     */
+    public static void removeOnReceiveMessageListener(RongIMClient.OnReceiveMessageWrapperListener
+                                                              listener) {
+        IMCenter.getInstance().removeOnReceiveMessageListener(listener);
+    }
+
+    /**
+     * 设置连接状态变化的监听器。
+     *
+     * @param listener 连接状态变化的监听器。
+     */
+    public static void setConnectionStatusListener(
+            final RongIMClient.ConnectionStatusListener listener) {
+        IMCenter.getInstance().addConnectionStatusListener(listener);
+    }
+
+    /**
+     * 设置会话界面操作的监听器。
+     *
+     * @param listener 会话界面操作的监听器。
+     */
+    public static void setConversationClickListener(ConversationClickListener listener) {
+        RongConfigCenter.conversationConfig().setConversationClickListener(listener);
+    }
+
+    /**
+     * 设置会话列表界面操作的监听器。
+     *
+     * @param listener 会话列表界面操作的监听器。
+     */
+    public static void setConversationListBehaviorListener(ConversationListBehaviorListener listener) {
+        RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
+    }
+
+    /**
+     * <p>
+     * 设置用户信息的提供者，供 RongIM 调用获取用户名称和头像信息。
+     * 设置后，当 sdk 界面展示用户信息时，会回调 {@link UserDataProvider.UserInfoProvider#getUserInfo(String)}
+     * 使用者只需要根据对应的 userId 提供对应的用户信息。
+     * 如果需要异步从服务器获取用户信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
+     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshUserInfoCache(UserInfo)} 刷新用户信息。
+     * </p>
+     *
+     * @param userInfoProvider 用户信息提供者 {@link UserDataProvider.UserInfoProvider}。
+     * @param isCacheUserInfo  设置是否由 IMKit 来缓存用户信息。<br>
+     *                         如果 App 提供的 UserInfoProvider。
+     *                         每次都需要通过网络请求用户数据，而不是将用户数据缓存到本地，会影响用户信息的加载速度；<br>
+     *                         此时最好将本参数设置为 true，由 IMKit 来缓存用户信息。
+     */
+    public static void setUserInfoProvider(UserDataProvider.UserInfoProvider userInfoProvider,
+                                           boolean isCacheUserInfo) {
+        RongUserInfoManager.getInstance().setUserInfoProvider(userInfoProvider, isCacheUserInfo);
+    }
+
+    /**
+     * <p>设置群组信息的提供者。</p>
+     * <p>设置后，当 sdk 界面展示群组信息时，会回调 {@link UserDataProvider.GroupInfoProvider#getGroupInfo(String)}
+     * 使用者只需要根据对应的 groupId 提供对应的群组信息。
+     * 如果需要异步从服务器获取群组信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
+     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshGroupInfoCache(Group)} 刷新信息。</p>
+     *
+     * @param groupInfoProvider 群组信息提供者。
+     * @param isCacheGroupInfo  设置是否由 IMKit 来缓存用户信息。<br>
+     *                          如果 App 提供的 GroupInfoProvider。
+     *                          每次都需要通过网络请求群组数据，而不是将群组数据缓存到本地，会影响群组信息的加载速度；<br>
+     *                          此时最好将本参数设置为 true，由 IMKit 来缓存群组信息。
+     */
+    public static void setGroupInfoProvider(UserDataProvider.GroupInfoProvider groupInfoProvider, boolean isCacheGroupInfo) {
+        RongUserInfoManager.getInstance().setGroupInfoProvider(groupInfoProvider, isCacheGroupInfo);
+    }
+
+    /**
+     * <p>设置GroupUserInfo提供者，供RongIM 调用获取GroupUserInfo</p>
+     * <p>可以使用此方法，修改群组中用户昵称</p>
+     * <p>设置后，当 sdk 界面展示用户信息时，会回调 {@link UserDataProvider.GroupUserInfoProvider#getGroupUserInfo(String, String)}
+     * 使用者只需要根据对应的 groupId, userId 提供对应的用户信息 {@link GroupUserInfo}。
+     * 如果需要异步从服务器获取用户信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
+     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshGroupUserInfoCache(GroupUserInfo)} 刷新信息。</p>
+     *
+     * @param groupUserInfoProvider 群组用户信息提供者。
+     * @param isCacheGroupUserInfo  设置是否由 IMKit 来缓存 GroupUserInfo。<br>
+     *                              如果 App 提供的 GroupUserInfoProvider。
+     *                              每次都需要通过网络请求数据，而不是将数据缓存到本地，会影响信息的加载速度；<br>
+     *                              此时最好将本参数设置为 true，由 IMKit 来缓存信息。
+     */
+    public static void setGroupUserInfoProvider(UserDataProvider.GroupUserInfoProvider groupUserInfoProvider, boolean isCacheGroupUserInfo) {
+        RongUserInfoManager.getInstance().setGroupUserInfoProvider(groupUserInfoProvider, isCacheGroupUserInfo);
+    }
+
+    /**
+     * 设置位置信息的提供者。
+     *
+     * @param locationProvider 位置信息提供者。
+     */
+    public static void setLocationProvider(LocationManager.LocationProvider locationProvider) {
+        LocationManager.getInstance().setLocationProvider(locationProvider);
+    }
+
+    /**
+     * 设置公众号界面操作的监听器。
+     *
+     * @param listener 会话公众号界面操作的监听器。
+     */
+    public static void setPublicServiceBehaviorListener(PublicServiceManager.PublicServiceBehaviorListener listener) {
+        PublicServiceManager.getInstance().setPublicServiceBehaviorListener(listener);
+    }
+
+    /**
+     * 设置公众服务账号信息的提供者，供 RongIM 调用获公众服务账号名称，头像信息和公众服务号菜单。
+     * <p>
+     * 目前 sdk 默认的公众号服务不需要开发者设置，这个接口提供了另外一种从 app 层设置公众服务账号信息的方式
+     * 设置后，当 sdk 界面展示用户信息时，会回调 {@link PublicServiceManager.PublicServiceProfileProvider#getPublicServiceProfile(Conversation.PublicServiceType, String)}
+     * 使用者只需要根据对应的publicServiceType, publicServiceId 提供对应的公众服务账号信息。
+     * 如果需要异步从服务器获取公众服务账号信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
+     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshPublicServiceProfile(PublicServiceProfile)} 刷新公众号信息。
+     * </p>
+     *
+     * @param publicServiceProfileProvider 公众服务账号信息的提供者 {@link PublicServiceManager.PublicServiceProfileProvider}。
+     */
+    public static void setPublicServiceProfileProvider(PublicServiceManager.PublicServiceProfileProvider publicServiceProfileProvider) {
+        PublicServiceManager.getInstance().setPublicServiceProfileProvider(publicServiceProfileProvider);
+    }
+
+    public static String getVersion() {
+        return IMKitBuildVar.SDK_VERSION;
     }
 
     /**
@@ -131,7 +371,6 @@ public class RongIM {
         IMCenter.getInstance().clearMessages(conversationType, targetId, callback);
     }
 
-
     /**
      * 根据会话类型，清除目标 Id 的消息未读状态，回调方式获取清除是否成功。
      *
@@ -153,30 +392,6 @@ public class RongIM {
     public void clearTextMessageDraft(Conversation.ConversationType conversationType, String targetId, RongIMClient.ResultCallback<Boolean> callback) {
         IMCenter.getInstance().clearTextMessageDraft(conversationType, targetId, callback);
     }
-
-    /**
-     * <p>初始化 SDK，在整个应用程序全局只需要调用一次, 建议在 Application 继承类中调用。
-     * 调用此接口传入 AppKey 与在 AndroidManifest.xml 里写入 RONG_CLOUD_APP_KEY 是同样效果，二选一即可。</p>
-     *
-     * @param application 应用
-     * @param appKey      融云注册应用的AppKey。
-     */
-    public static void init(Application application, String appKey) {
-        IMCenter.init(application, appKey, true);
-    }
-
-    /**
-     * <p>初始化 SDK，在整个应用程序全局只需要调用一次, 建议在 Application 继承类中调用。
-     * 调用此接口传入 AppKey 与在 AndroidManifest.xml 里写入 RONG_CLOUD_APP_KEY 是同样效果，二选一即可。</p>
-     *
-     * @param application 应用
-     * @param appKey      融云注册应用的AppKey。
-     * @param enablePush  是否使用推送功能。false 代表不使用推送相关功能, SDK 里将不会携带推送相关文件。
-     */
-    public static void init(Application application, String appKey, boolean enablePush) {
-        IMCenter.init(application, appKey, enablePush);
-    }
-
 
     /**
      * 向本地会话中插入一条消息，方向为接收。这条消息只是插入本地会话，不会实际发送给服务器和对方。
@@ -212,7 +427,6 @@ public class RongIM {
                                       MessageContent content, RongIMClient.ResultCallback<Message> callback) {
         insertIncomingMessage(type, targetId, senderUserId, receivedStatus, content, System.currentTimeMillis(), callback);
     }
-
 
     /**
      * 向本地会话中插入一条消息，方向为发送。这条消息只是插入本地会话，不会实际发送给服务器和对方。
@@ -307,7 +521,6 @@ public class RongIM {
         IMCenter.getInstance().logout();
     }
 
-
     /**
      * 暂停下载多媒体文件
      *
@@ -361,7 +574,6 @@ public class RongIM {
         RongUserInfoManager.getInstance().refreshGroupUserInfoCache(groupUserInfo);
     }
 
-
     /**
      * 刷新公众服务账号缓存数据。
      *
@@ -369,75 +581,6 @@ public class RongIM {
      */
     public void refreshPublicServiceProfile(PublicServiceProfile publicServiceProfile) {
         PublicServiceManager.getInstance().refreshPublicServiceProfile(publicServiceProfile);
-    }
-
-    /**
-     * 连接服务器，在整个应用程序全局，只需要调用一次。
-     *
-     * @param token           从服务端获取的 <a
-     *                        href="http://docs.rongcloud.cn/android#token">用户身份令牌（
-     *                        Token）</a>。
-     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     * @return RongIM IM 客户端核心类的实例。
-     * @discussion 调用该接口，SDK 会在连接失败之后尝试重连，将出现以下两种情况：
-     * 第一、连接成功，回调 onSuccess(userId)。
-     * 第二、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
-     * <p>
-     * 如果您不想一直进行重连，可以使用 connect(String,int,ConnectCallback) 接口并设置连接超时时间 timeLimit。
-     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
-     */
-    public static void connect(final String token, final RongIMClient.ConnectCallback connectCallback) {
-        connect(token, -1, connectCallback);
-    }
-
-    /**
-     * 连接服务器，在整个应用程序全局，只需要调用一次。
-     *
-     * @param token           从服务端获取的 <a
-     *                        href="http://docs.rongcloud.cn/android#token">用户身份令牌（
-     *                        Token）</a>。
-     * @param timeLimit       连接超时时间，单位：秒。timeLimit <= 0，则 IM 将一直连接，直到连接成功或者无法连接（如 token 非法）
-     *                        timeLimit > 0 ,则 IM 将最多连接 timeLimit 秒：
-     *                        如果在 timeLimit 秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连；
-     *                        如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError 告知连接超时，您需要再自行调用 connect 接口
-     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     * @return RongIM IM 客户端核心类的实例。
-     * @discussion 调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一：
-     * 第一、连接成功，回调 onSuccess(userId)。
-     * 第二、超时，回调 onError(RC_CONNECT_TIMEOUT)，并不再重连。
-     * 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
-     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
-     */
-    public static void connect(String token, int timeLimit,
-                               final RongIMClient.ConnectCallback connectCallback) {
-        connect(ConnectOption.obtain(token, timeLimit), connectCallback);
-    }
-
-    /**
-     * 连接服务器，在整个应用程序全局，只需要调用一次。
-     *
-     * @param option          连接配置
-     *                        1. token
-     *                        从服务端获取的用户身份令牌(Token)
-     *                        2. timeLimit
-     *                        连接超时时间，单位：秒。timeLimit <= 0，则 IM 将一直连接，直到连接成功或者无法连接（如 token 非法）
-     *                        timeLimit > 0 ,则 IM 将最多连接 timeLimit 秒：
-     *                        如果在 timeLimit 秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连；
-     *                        如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError 告知连接超时，您需要再自行调用 connect 接口.
-     *                        <p>
-     *                        3. connectExt
-     *                        从App服务器端获取的鉴权数据，该数据会通过 SDK -> IMServer -> App的服务器，让App的服务器做连接鉴权.
-     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     * @return RongIM IM 客户端核心类的实例。
-     * @discussion 调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一：
-     * 第一、连接成功，回调 onSuccess(userId)。
-     * 第二、超时，回调 onError(RC_CONNECT_TIMEOUT)，并不再重连。
-     * 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
-     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
-     */
-    private static void connect(ConnectOption option,
-                               final RongIMClient.ConnectCallback connectCallback) {
-        IMCenter.getInstance().connect(option.getToken(), option.getTimeLimit(), connectCallback);
     }
 
     /**
@@ -464,7 +607,6 @@ public class RongIM {
                                int[] messageIds, final RongIMClient.ResultCallback<Boolean> callback) {
         IMCenter.getInstance().deleteMessages(conversationType, targetId, messageIds, callback);
     }
-
 
     /**
      * 删除指定的一条或者一组消息。会同时删除本地和远端消息。
@@ -532,7 +674,6 @@ public class RongIM {
         IMCenter.getInstance().downloadMediaMessage(message, callback);
     }
 
-
     /**
      * 设置会话界面未读新消息是否展示 注:未读新消息大于1条即展示
      * 目前仅支持单群聊
@@ -551,65 +692,6 @@ public class RongIM {
      */
     public void enableUnreadMessageIcon(boolean state) {
         RongConfigCenter.conversationConfig().setShowHistoryMessageBar(state);
-    }
-
-    /**
-     * 注册消息模板。
-     *
-     * @param provider 模板类型。
-     */
-    public static void registerMessageTemplate(IMessageProvider provider) {
-        RongConfigCenter.conversationConfig().addMessageProvider(provider);
-    }
-
-    /**
-     * 设置接收消息的监听器。
-     * <p/>
-     * 所有接收到的消息、通知、状态都经由此处设置的监听器处理。包括私聊消息、讨论组消息、群组消息、聊天室消息以及各种状态。
-     *
-     * @param listener 接收消息的监听器。
-     */
-    public static void addOnReceiveMessageListener(RongIMClient.OnReceiveMessageWrapperListener
-                                                           listener) {
-        IMCenter.getInstance().addOnReceiveMessageListener(listener);
-    }
-
-    /**
-     * 移除接收消息的监听器。
-     *
-     * @param listener 接收消息的监听器。
-     */
-    public static void removeOnReceiveMessageListener(RongIMClient.OnReceiveMessageWrapperListener
-                                                              listener) {
-        IMCenter.getInstance().removeOnReceiveMessageListener(listener);
-    }
-
-    /**
-     * 设置连接状态变化的监听器。
-     *
-     * @param listener 连接状态变化的监听器。
-     */
-    public static void setConnectionStatusListener(
-            final RongIMClient.ConnectionStatusListener listener) {
-        IMCenter.getInstance().addConnectionStatusListener(listener);
-    }
-
-    /**
-     * 设置会话界面操作的监听器。
-     *
-     * @param listener 会话界面操作的监听器。
-     */
-    public static void setConversationClickListener(ConversationClickListener listener) {
-        RongConfigCenter.conversationConfig().setConversationClickListener(listener);
-    }
-
-    /**
-     * 设置会话列表界面操作的监听器。
-     *
-     * @param listener 会话列表界面操作的监听器。
-     */
-    public static void setConversationListBehaviorListener(ConversationListBehaviorListener listener) {
-        RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
     }
 
     /**
@@ -786,7 +868,6 @@ public class RongIM {
         return RongIMClient.getInstance().getDeltaTime();
     }
 
-
     /**
      * 根据会话类型的目标 Id，回调方式获取N条历史消息记录。
      *
@@ -817,7 +898,6 @@ public class RongIM {
         RongIMClient.getInstance().getHistoryMessages(conversationType, targetId, objectName, oldestMessageId, count, callback);
     }
 
-
     /**
      * 根据会话类型的目标 Id，回调方式获取最新的 N 条消息记录。
      *
@@ -830,7 +910,6 @@ public class RongIM {
             targetId, int count, RongIMClient.ResultCallback<List<Message>> callback) {
         RongIMClient.getInstance().getLatestMessages(conversationType, targetId, count, callback);
     }
-
 
     /**
      * 获取己关注公共账号列表。
@@ -881,7 +960,6 @@ public class RongIM {
             }
         });
     }
-
 
     /**
      * 根据会话类型和目标 Id，获取 N 条远端历史消息记录。
@@ -949,7 +1027,6 @@ public class RongIM {
         RongIMClient.getInstance().getUnreadCount(callback, conversationTypes);
     }
 
-
     /**
      * 回调方式获取某会话类型的未读消息数。可选择包含或者不包含消息免打扰的未读消息数。
      *
@@ -962,7 +1039,6 @@ public class RongIM {
         RongIMClient.getInstance().getUnreadCount(conversationTypes, containBlocked, callback);
     }
 
-
     /**
      * 根据会话类型数组，回调方式获取某会话类型的未读消息数。
      *
@@ -972,26 +1048,6 @@ public class RongIM {
     public void getUnreadCount(Conversation.ConversationType[]
                                        conversationTypes, RongIMClient.ResultCallback<Integer> callback) {
         RongIMClient.getInstance().getUnreadCount(conversationTypes, callback);
-    }
-
-    /**
-     * <p>
-     * 设置用户信息的提供者，供 RongIM 调用获取用户名称和头像信息。
-     * 设置后，当 sdk 界面展示用户信息时，会回调 {@link UserDataProvider.UserInfoProvider#getUserInfo(String)}
-     * 使用者只需要根据对应的 userId 提供对应的用户信息。
-     * 如果需要异步从服务器获取用户信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
-     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshUserInfoCache(UserInfo)} 刷新用户信息。
-     * </p>
-     *
-     * @param userInfoProvider 用户信息提供者 {@link UserDataProvider.UserInfoProvider}。
-     * @param isCacheUserInfo  设置是否由 IMKit 来缓存用户信息。<br>
-     *                         如果 App 提供的 UserInfoProvider。
-     *                         每次都需要通过网络请求用户数据，而不是将用户数据缓存到本地，会影响用户信息的加载速度；<br>
-     *                         此时最好将本参数设置为 true，由 IMKit 来缓存用户信息。
-     */
-    public static void setUserInfoProvider(UserDataProvider.UserInfoProvider userInfoProvider,
-                                           boolean isCacheUserInfo) {
-        RongUserInfoManager.getInstance().setUserInfoProvider(userInfoProvider, isCacheUserInfo);
     }
 
     /**
@@ -1042,7 +1098,6 @@ public class RongIM {
             final RongIMClient.GetNotificationQuietHoursCallback callback) {
         RongNotificationManager.getInstance().getNotificationQuietHours(callback);
     }
-
 
     /**
      * 移除会话通知免打扰时间。
@@ -1209,50 +1264,6 @@ public class RongIM {
     }
 
     /**
-     * <p>设置群组信息的提供者。</p>
-     * <p>设置后，当 sdk 界面展示群组信息时，会回调 {@link UserDataProvider.GroupInfoProvider#getGroupInfo(String)}
-     * 使用者只需要根据对应的 groupId 提供对应的群组信息。
-     * 如果需要异步从服务器获取群组信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
-     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshGroupInfoCache(Group)} 刷新信息。</p>
-     *
-     * @param groupInfoProvider 群组信息提供者。
-     * @param isCacheGroupInfo  设置是否由 IMKit 来缓存用户信息。<br>
-     *                          如果 App 提供的 GroupInfoProvider。
-     *                          每次都需要通过网络请求群组数据，而不是将群组数据缓存到本地，会影响群组信息的加载速度；<br>
-     *                          此时最好将本参数设置为 true，由 IMKit 来缓存群组信息。
-     */
-    public static void setGroupInfoProvider(UserDataProvider.GroupInfoProvider groupInfoProvider, boolean isCacheGroupInfo) {
-        RongUserInfoManager.getInstance().setGroupInfoProvider(groupInfoProvider, isCacheGroupInfo);
-    }
-
-    /**
-     * <p>设置GroupUserInfo提供者，供RongIM 调用获取GroupUserInfo</p>
-     * <p>可以使用此方法，修改群组中用户昵称</p>
-     * <p>设置后，当 sdk 界面展示用户信息时，会回调 {@link UserDataProvider.GroupUserInfoProvider#getGroupUserInfo(String, String)}
-     * 使用者只需要根据对应的 groupId, userId 提供对应的用户信息 {@link GroupUserInfo}。
-     * 如果需要异步从服务器获取用户信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
-     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshGroupUserInfoCache(GroupUserInfo)} 刷新信息。</p>
-     *
-     * @param groupUserInfoProvider 群组用户信息提供者。
-     * @param isCacheGroupUserInfo  设置是否由 IMKit 来缓存 GroupUserInfo。<br>
-     *                              如果 App 提供的 GroupUserInfoProvider。
-     *                              每次都需要通过网络请求数据，而不是将数据缓存到本地，会影响信息的加载速度；<br>
-     *                              此时最好将本参数设置为 true，由 IMKit 来缓存信息。
-     */
-    public static void setGroupUserInfoProvider(UserDataProvider.GroupUserInfoProvider groupUserInfoProvider, boolean isCacheGroupUserInfo) {
-        RongUserInfoManager.getInstance().setGroupUserInfoProvider(groupUserInfoProvider, isCacheGroupUserInfo);
-    }
-
-    /**
-     * 设置位置信息的提供者。
-     *
-     * @param locationProvider 位置信息提供者。
-     */
-    public static void setLocationProvider(LocationManager.LocationProvider locationProvider) {
-        LocationManager.getInstance().setLocationProvider(locationProvider);
-    }
-
-    /**
      * 设置群组成员提供者。
      * <p/>
      * '@' 功能和VoIP功能在选人界面,需要知道群组内成员信息,开发者需要设置该提供者。 开发者需要在回调中获取到群成员信息
@@ -1279,6 +1290,7 @@ public class RongIM {
      * 设置语音消息的最大长度
      *
      * @param sec 默认值是60s
+     * @deprecated 该接口已被废弃，只支持 60 秒的语音消息
      */
     public void setMaxVoiceDuration(int sec) {
         AudioRecordManager.getInstance().setMaxVoiceDuration(sec);
@@ -1303,21 +1315,21 @@ public class RongIM {
     }
 
     /**
-     * 设置语音消息采样率
-     *
-     * @param sampleRate 消息采样率{@link AudioRecordManager.SamplingRate}
-     */
-    public void setSamplingRate(AudioRecordManager.SamplingRate sampleRate) {
-        AudioRecordManager.getInstance().setSamplingRate(sampleRate);
-    }
-
-    /**
      * 语音消息采样率
      *
      * @return 当前设置的语音采样率
      */
     public int getSamplingRate() {
         return AudioRecordManager.getInstance().getSamplingRate();
+    }
+
+    /**
+     * 设置语音消息采样率
+     *
+     * @param sampleRate 消息采样率{@link AudioRecordManager.SamplingRate}
+     */
+    public void setSamplingRate(AudioRecordManager.SamplingRate sampleRate) {
+        AudioRecordManager.getInstance().setSamplingRate(sampleRate);
     }
 
     /**
@@ -1340,15 +1352,6 @@ public class RongIM {
     }
 
     /**
-     * 设置公众号界面操作的监听器。
-     *
-     * @param listener 会话公众号界面操作的监听器。
-     */
-    public static void setPublicServiceBehaviorListener(PublicServiceManager.PublicServiceBehaviorListener listener) {
-        PublicServiceManager.getInstance().setPublicServiceBehaviorListener(listener);
-    }
-
-    /**
      * 设置公众服务菜单点击监听。
      * 建议使用方法：在进入对应公众服务会话时，设置监听。当退出会话时，重置监听为 null，这样可以防止内存泄露。
      *
@@ -1356,22 +1359,6 @@ public class RongIM {
      */
     public void setPublicServiceMenuClickListener(IPublicServiceMenuClickListener menuClickListener) {
         PublicServiceManager.getInstance().setPublicServiceMenuClickListener(menuClickListener);
-    }
-
-    /**
-     * 设置公众服务账号信息的提供者，供 RongIM 调用获公众服务账号名称，头像信息和公众服务号菜单。
-     * <p>
-     * 目前 sdk 默认的公众号服务不需要开发者设置，这个接口提供了另外一种从 app 层设置公众服务账号信息的方式
-     * 设置后，当 sdk 界面展示用户信息时，会回调 {@link PublicServiceManager.PublicServiceProfileProvider#getPublicServiceProfile(Conversation.PublicServiceType, String)}
-     * 使用者只需要根据对应的publicServiceType, publicServiceId 提供对应的公众服务账号信息。
-     * 如果需要异步从服务器获取公众服务账号信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。
-     * 在异步请求结果返回后，根据返回的结果调用 {@link #refreshPublicServiceProfile(PublicServiceProfile)} 刷新公众号信息。
-     * </p>
-     *
-     * @param publicServiceProfileProvider 公众服务账号信息的提供者 {@link PublicServiceManager.PublicServiceProfileProvider}。
-     */
-    public static void setPublicServiceProfileProvider(PublicServiceManager.PublicServiceProfileProvider publicServiceProfileProvider) {
-        PublicServiceManager.getInstance().setPublicServiceProfileProvider(publicServiceProfileProvider);
     }
 
     /**
@@ -1466,8 +1453,8 @@ public class RongIM {
         RouteUtils.routeToSubConversationListActivity(context, conversationType, "");
     }
 
-    public static String getVersion() {
-        return IMKitBuildVar.SDK_VERSION;
+    private static class SingletonHolder {
+        static RongIM sInstance = new RongIM();
     }
 
 }

@@ -65,18 +65,37 @@
             android:visibility="gone" />
     </FrameLayout>
 
-    <TextView
-        android:id="@+id/tool_bar_right"
-        style="@style/TextStyle.Alignment"
+    <LinearLayout
         android:layout_width="110dp"
         android:layout_height="match_parent"
-        android:gravity="center_vertical|end"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:scaleType="center"
         android:layout_gravity="end"
-        android:visibility="gone"
-        android:textColor="@android:color/black"
-        android:textSize="14sp"
-        tools:text="文字/图标" />
+        android:orientation="horizontal">
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <ImageView
+            android:id="@+id/rc_search"
+            android:layout_width="19dp"
+            android:layout_height="19dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            android:src="@drawable/rc_search_icon" />
+
+        <TextView
+            android:id="@+id/tool_bar_right"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:scaleType="center"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:text="文字/图标" />
+    </LinearLayout>
 </FrameLayout>

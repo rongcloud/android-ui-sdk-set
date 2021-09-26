@@ -1,5 +1,6 @@
 package io.rong.imkit.feature.location;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -8,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -31,8 +33,12 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +51,7 @@ import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.userinfo.viewmodel.UserInfoViewModel;
+import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.dialog.PromptPopupDialog;
 import io.rong.imlib.RongIMClient;
@@ -114,26 +121,7 @@ public class AMapRealTimeActivity2D extends RongBaseNoActionbarActivity implemen
             mParticipants.add(RongIMClient.getInstance().getCurrentUserId());
         }
 
-        if (RongUtils.isLocationServiceEnabled(this)) {
-            initMap();
-        } else {
-            new AlertDialog.Builder(this).
-                    setTitle(getString(R.string.rc_location_sevice_dialog_title))
-                    .setMessage(getString(R.string.rc_location_sevice_dialog_messgae))
-                    .setPositiveButton(getString(R.string.rc_location_sevice_dialog_confirm), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                Intent intent = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivityForResult(intent, REQUEST_OPEN_LOCATION_SERVICE);
-                            } catch (Exception e) {
-                                Intent intent = new Intent(ACTION_SETTINGS);
-                                startActivityForResult(intent, REQUEST_OPEN_LOCATION_SERVICE);
-                            }
-
-                        }
-                    }).create().show();
-        }
+        checkMapPermission();
 
         UserInfoViewModel userInfoViewModel = new ViewModelProvider(this).get(UserInfoViewModel.class);
         userInfoViewModel.getAllUsers().observe(this, new Observer<List<User>>() {
@@ -183,17 +171,16 @@ public class AMapRealTimeActivity2D extends RongBaseNoActionbarActivity implemen
         String userId = userInfo.getUserId();
         UserTarget userTarget = mUserTargetMap.get(userId);
         if (userTarget != null) {
-            setAvatar(userTarget.targetView, userInfo.getPortraitUri().toString());
+            setAvatar(userTarget.targetView, userInfo.getPortraitUri().toString(), null);
             View iconView = LayoutInflater.from(AMapRealTimeActivity2D.this).inflate(R.layout.rc_location_realtime_marker_icon, null);
             ImageView imageView = iconView.findViewById(android.R.id.icon);
             ImageView locImageView = iconView.findViewById(android.R.id.icon1);
-            setAvatar(imageView, userInfo.getPortraitUri().toString());
             if (userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
                 locImageView.setImageResource(R.drawable.rc_location_rt_loc_myself);
             } else {
                 locImageView.setImageResource(R.drawable.rc_location_rt_loc_other);
             }
-            userTarget.targetMarker.setIcon(BitmapDescriptorFactory.fromView(iconView));
+            setAvatar(imageView, userInfo.getPortraitUri().toString(), new PictureRequestListener(userTarget, iconView));
         }
     }
 
@@ -255,13 +242,14 @@ public class AMapRealTimeActivity2D extends RongBaseNoActionbarActivity implemen
         return bitmap;
     }
 
-    private void setAvatar(ImageView imageView, String url) {
+    private void setAvatar(ImageView imageView, String url, PictureRequestListener listener) {
         Glide.with(imageView)
                 .load(url)
                 .placeholder(R.drawable.rc_location_realtime_default_avatar)
                 .fallback(R.drawable.rc_location_realtime_default_avatar)
                 .error(R.drawable.rc_location_realtime_default_avatar)
                 .apply(RequestOptions.bitmapTransform(new CircleCrop()))
+                .addListener(listener)
                 .into(imageView);
     }
 
@@ -303,15 +291,15 @@ public class AMapRealTimeActivity2D extends RongBaseNoActionbarActivity implemen
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(hw, hw);
         userTarget.targetView.setLayoutParams(lp);
         userTarget.targetView.setPadding(pd, pd, pd, pd);
-        setAvatar(userTarget.targetView, null);
         mTitleBar.addView(userTarget.targetView);
+        setAvatar(userTarget.targetView, null, null);
 
         // set target aMap marker.
         View iconView = LayoutInflater.from(AMapRealTimeActivity2D.this).inflate(R.layout.rc_location_realtime_marker_icon, null);
         ImageView locImageView = iconView.findViewById(android.R.id.icon1);
 
         ImageView avatar = iconView.findViewById(android.R.id.icon);
-        setAvatar(avatar, null);
+        setAvatar(avatar, null, null);
         if (userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
             locImageView.setImageResource(R.drawable.rc_location_rt_loc_myself);
         } else {
@@ -384,6 +372,87 @@ public class AMapRealTimeActivity2D extends RongBaseNoActionbarActivity implemen
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_OPEN_LOCATION_SERVICE) {
             initMap();
+        }
+    }
+
+    class PictureRequestListener implements RequestListener<Drawable> {
+        UserTarget userTarget;
+        View iconView;
+
+        public PictureRequestListener(UserTarget userTarget, View iconView) {
+            this.userTarget = userTarget;
+            this.iconView = iconView;
+        }
+
+        @Override
+        public boolean onLoadFailed(GlideException e, Object o, Target<Drawable> target, boolean b) {
+            return false;
+        }
+
+        @Override
+        public boolean onResourceReady(Drawable drawable, Object o, Target<Drawable> target, DataSource dataSource, boolean b) {
+            // 加载成功
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    userTarget.targetMarker.setIcon(BitmapDescriptorFactory.fromView(iconView));
+                }
+            }, 500);
+            return false;
+        }
+    }
+
+    /**
+     * 检查位置服务是否开启、后台位置权限引导
+     */
+    private void checkMapPermission() {
+        if (RongUtils.isLocationServiceEnabled(this)) {
+            initMap();
+        } else {
+            new android.app.AlertDialog.Builder(this).
+                    setTitle(getString(R.string.rc_location_sevice_dialog_title))
+                    .setMessage(getString(R.string.rc_location_sevice_dialog_messgae))
+                    .setPositiveButton(getString(R.string.rc_location_sevice_dialog_confirm), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                Intent intent = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivityForResult(intent, REQUEST_OPEN_LOCATION_SERVICE);
+                            } catch (Exception e) {
+                                Intent intent = new Intent(ACTION_SETTINGS);
+                                startActivityForResult(intent, REQUEST_OPEN_LOCATION_SERVICE);
+                            }
+
+                        }
+                    }).create().show();
+
+            return;
+        }
+
+        boolean isEnableBackgroundLocation = getResources().getBoolean(R.bool.rc_enable_background_location_permission);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                && isEnableBackgroundLocation
+                && !PermissionCheckUtil.checkPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION})) {
+
+            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
+                    .setMessage("应用在后台仍想访问您的位置信息，在设置中选择始终允许")
+                    .setPositiveButton("设置", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+
+                            Intent intent = new Intent();
+                            intent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            intent.setData(Uri.parse("package:" + AMapRealTimeActivity2D.this.getPackageName()));
+                            startActivity(intent);
+                        }
+                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            }).show();
         }
     }
 }

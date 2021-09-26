@@ -35,7 +35,6 @@ import io.rong.imlib.location.message.LocationMessage;
 
 public class CombineLocationPlugin implements IPluginModule, IPluginRequestPermissionResultCallback {
 
-    private final static int REQUEST_CODE_FOREGROUND_PERMISSION_PLUGIN = 254;
     private Conversation.ConversationType mConversationType;
     private String mTargetId;
 
@@ -58,38 +57,15 @@ public class CombineLocationPlugin implements IPluginModule, IPluginRequestPermi
         mConversationType = extension.getConversationType();
         mTargetId = extension.getTargetId();
 
-        //ACCESS_BACKGROUND_LOCATION后台定位权限自API 29添加.
-        //Android 11 对前后台位置权限申请顺序有要求,先前台再后台,否则无法得到后台权限授权.
-        //适配方案：1、target>=30 先前台位置再后台位置权限 2、target<30 前后台权限一起申请
-        String[] permissionsWithBackground = new String[]{Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
+        String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                Manifest.permission.ACCESS_NETWORK_STATE};
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.READ_PHONE_STATE};
 
-        String[] permissions = new String[]{Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_NETWORK_STATE};
-
-        if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ? permissionsWithBackground : permissions)) {
+        if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), permissions)) {
             sendOrShareLocation(currentFragment, extension);
         } else {
-            if (LibStorageUtils.isOsAndTargetForR(currentFragment.getActivity())) {
-                //os>=30 and target>=30
-                extension.requestPermissionForPluginResult(permissions,
-                        REQUEST_CODE_FOREGROUND_PERMISSION_PLUGIN,
-                        this);
-            } else if (LibStorageUtils.isBuildAndTargetForQ(currentFragment.getActivity())) {
-                //os>=29 and target>=29
-                extension.requestPermissionForPluginResult(permissionsWithBackground,
-                        IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
-                        this);
-            } else {
-                extension.requestPermissionForPluginResult(permissions,
-                        IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
-                        this);
-            }
+            extension.requestPermissionForPluginResult(permissions, IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN, this);
         }
     }
 
@@ -156,28 +132,11 @@ public class CombineLocationPlugin implements IPluginModule, IPluginRequestPermi
 
     @Override
     public boolean onRequestPermissionResult(Fragment fragment, final RongExtension extension, int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_CODE_FOREGROUND_PERMISSION_PLUGIN) {
-            if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
-                new AlertDialog.Builder(fragment.getActivity()).setMessage(fragment.getResources().getString(R.string.rc_permission_background_location_grant_tip)).setPositiveButton(R.string.rc_dialog_ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        extension.requestPermissionForPluginResult(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                                IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
-                                CombineLocationPlugin.this);
-                    }
-                }).create().show();
-            } else {
-                if (fragment.getActivity() != null) {
-                    PermissionCheckUtil.showRequestPermissionFailedAlter(fragment.getActivity(), permissions, grantResults);
-                }
-            }
+        if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
+            sendOrShareLocation(fragment, extension);
         } else {
-            if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
-                sendOrShareLocation(fragment, extension);
-            } else {
-                if (fragment.getActivity() != null) {
-                    PermissionCheckUtil.showRequestPermissionFailedAlter(fragment.getActivity(), permissions, grantResults);
-                }
+            if (fragment.getActivity() != null) {
+                PermissionCheckUtil.showRequestPermissionFailedAlter(fragment.getActivity(), permissions, grantResults);
             }
         }
         return true;

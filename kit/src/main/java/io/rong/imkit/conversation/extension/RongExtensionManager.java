@@ -38,10 +38,6 @@ public class RongExtensionManager {
         addExtensionEventWatcher(RongMentionManager.getInstance());
     }
 
-    private static class SingletonHolder {
-        static RongExtensionManager sInstance = new RongExtensionManager();
-    }
-
     public static RongExtensionManager getInstance() {
         return SingletonHolder.sInstance;
     }
@@ -87,16 +83,46 @@ public class RongExtensionManager {
     }
 
     /**
+     * 检查融云表情是否存在
+     */
+    private static void checkRCBQ() {
+        try {
+            Class<?> cls = Class.forName(DEFAULT_RC_STICKER);
+            Constructor<?> constructor = cls.getConstructor();
+            IExtensionModule rcbq = (IExtensionModule) constructor.newInstance();
+            RLog.i(TAG, "add module " + rcbq.getClass().getSimpleName());
+            mExtModules.add(rcbq);
+        } catch (Exception e) {
+            RLog.i(TAG, "Can't find " + DEFAULT_RC_STICKER);
+        }
+    }
+
+    private static void checkCallModule() {
+        try {
+            Class<?> cls = Class.forName(DEFAULT_CALL_MODULE);
+            Constructor<?> constructor = cls.getConstructor();
+            IExtensionModule callModule = (IExtensionModule) constructor.newInstance();
+            RLog.i(TAG, "add module " + callModule.getClass().getSimpleName());
+            mExtModules.add(callModule);
+        } catch (Exception e) {
+            RLog.i(TAG, "Can't find" + DEFAULT_CALL_MODULE);
+        }
+    }
+
+    public IExtensionConfig getExtensionConfig() {
+        if(mExtensionConfig == null) {
+            mExtensionConfig = new DefaultExtensionConfig();
+        }
+        return mExtensionConfig;
+    }
+
+    /**
      * 设置输入栏相关配置。
      *
      * @param extensionConfig
      */
     public void setExtensionConfig(IExtensionConfig extensionConfig) {
         mExtensionConfig = extensionConfig;
-    }
-
-    public IExtensionConfig getExtensionConfig() {
-        return mExtensionConfig;
     }
 
     /**
@@ -240,30 +266,7 @@ public class RongExtensionManager {
         }
     }
 
-    /**
-     * 检查融云表情是否存在
-     */
-    private static void checkRCBQ() {
-        try {
-            Class<?> cls = Class.forName(DEFAULT_RC_STICKER);
-            Constructor<?> constructor = cls.getConstructor();
-            IExtensionModule rcbq = (IExtensionModule) constructor.newInstance();
-            RLog.i(TAG, "add module " + rcbq.getClass().getSimpleName());
-            mExtModules.add(rcbq);
-        } catch (Exception e) {
-            RLog.i(TAG, "Can't find " + DEFAULT_RC_STICKER);
-        }
-    }
-
-    private static void checkCallModule() {
-        try {
-            Class<?> cls = Class.forName(DEFAULT_CALL_MODULE);
-            Constructor<?> constructor = cls.getConstructor();
-            IExtensionModule callModule = (IExtensionModule) constructor.newInstance();
-            RLog.i(TAG, "add module " + callModule.getClass().getSimpleName());
-            mExtModules.add(callModule);
-        } catch (Exception e) {
-            RLog.i(TAG, "Can't find" + DEFAULT_CALL_MODULE);
-        }
+    private static class SingletonHolder {
+        static RongExtensionManager sInstance = new RongExtensionManager();
     }
 }

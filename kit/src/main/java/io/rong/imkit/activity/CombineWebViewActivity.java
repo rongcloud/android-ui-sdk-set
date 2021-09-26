@@ -43,6 +43,7 @@ import io.rong.common.RLog;
 import io.rong.common.RongWebView;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
 import io.rong.imkit.feature.location.AMapPreviewActivity;
 import io.rong.imkit.feature.location.AMapPreviewActivity2D;
@@ -50,22 +51,20 @@ import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
+import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.SightMessage;
 
 public class CombineWebViewActivity extends RongBaseActivity {
+    public static final String TYPE_LOCAL = "local";
+    public static final String TYPE_MEDIA = "media";
     private final static String TAG = CombineWebViewActivity.class.getSimpleName();
-
     // WebView加载视频时的默认背景宽高
     private static final int VIDEO_WIDTH = 300;
     private static final int VIDEO_HEIGHT = 600;
-
-    public static final String TYPE_LOCAL = "local";
-    public static final String TYPE_MEDIA = "media";
     private static final String COMBINE_FILE_PATH = "combine";
 
     protected RongWebView mWebView;
@@ -97,6 +96,16 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
     };
 
+    private static boolean isImageFile(byte[] data) {
+        if (data == null || data.length == 0)
+            return false;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(data, 0, data.length, options);
+        return options.outWidth != -1;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,11 +128,13 @@ public class CombineWebViewActivity extends RongBaseActivity {
         mWebView.setWebViewClient(new CombineWebViewClient());
         mWebView.setWebChromeClient(new CombineWebChromeClient());
 
-        if (Build.VERSION.SDK_INT >= 17) {
+        if (RongConfigCenter.featureConfig().rc_set_java_script_enabled) {
             mWebView.addJavascriptInterface(new JsInterface(), "interface");
+            mWebView.getSettings().setJavaScriptEnabled(true);
+        } else {
+            RLog.e(TAG, "js interface is disabled! This may cause some problems of this page!");
         }
 
-        mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setUseWideViewPort(true);
         mWebView.getSettings().setBuiltInZoomControls(true);
@@ -133,9 +144,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
         mWebView.getSettings().setDisplayZoomControls(false);
         mWebView.getSettings().setAllowFileAccess(true);
         // 允许小视频自动播放
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-        }
+        mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+
         //允许混合内容 解决部分手机https请求里面加载不出http的图片
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
@@ -158,6 +168,208 @@ public class CombineWebViewActivity extends RongBaseActivity {
             mTitleBar.setTitle(title);
         }
 //        onCreateActionbar(new ActionBar());
+    }
+
+    private void openSight(JSONObject jsonObj) {
+        String mediaUrl = jsonObj.optString("fileUrl");
+        int duration = jsonObj.optInt("duration");
+        String base64 = jsonObj.optString("imageBase64");
+        int dotIndex = base64.indexOf(",");
+        base64 = base64.substring(dotIndex + 1);
+
+        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
+        String sightThumb = encodeFile.getThumb();
+        String sightName = encodeFile.getName();
+
+        SightMessage sightMessage = new SightMessage();
+        sightMessage.setThumbUri(Uri.parse("file://" + sightThumb + sightName));
+        sightMessage.setMediaUrl(Uri.parse(mediaUrl));
+        sightMessage.setDuration(duration);
+        if (new IsSightFileExists(sightMessage).invoke()) {
+            String sightPath = LibStorageUtils.getMediaDownloadDir(getApplicationContext(), LibStorageUtils.VIDEO);
+            String name = DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
+            if (sightPath.startsWith("file://")) {
+                sightPath = sightPath.substring(7);
+            }
+            sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
+        }
+
+        Message message = new Message();
+        message.setContent(sightMessage);
+        message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
+        message.setConversationType(Conversation.ConversationType.PRIVATE);
+
+        ComponentName cn = new ComponentName(CombineWebViewActivity.this, "io.rong.sight.player.SightPlayerActivity");
+        Intent intent = new Intent();
+        intent.setComponent(cn);
+        intent.putExtra("Message", message);
+        intent.putExtra("SightMessage", sightMessage);
+        intent.putExtra("fromSightListImageVisible",false);
+        startActivity(intent);
+    }
+
+    private void openImage(JSONObject jsonObj) {
+
+        String mediaUrl = jsonObj.optString("fileUrl");
+        String base64 = jsonObj.optString("imgUrl");
+
+        int dotIndex = base64.indexOf(",");
+        base64 = base64.substring(dotIndex + 1);
+
+        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
+        String thumb = encodeFile.getThumb();
+        String name = encodeFile.getName();
+
+        ImageMessage imageMessage = ImageMessage.obtain();
+        imageMessage.setThumUri(Uri.parse("file://" + thumb + name));
+        imageMessage.setRemoteUri(Uri.parse(mediaUrl));
+
+        Message message = new Message();
+        message.setContent(imageMessage);
+        message.setConversationType(Conversation.ConversationType.PRIVATE);
+        RouteUtils.routeToCombinePicturePagerActivity(this, message);
+    }
+
+    // 根据链接地址，获取合并转发消息下载路径
+    public String getCombineFilePath(String uri) {
+        return FileUtils.getCachePath(IMCenter.getInstance().getContext())
+                + File.separator + COMBINE_FILE_PATH + File.separator;
+    }
+
+    private void openFile(JSONObject jsonObj) {
+        Log.e("openFile", jsonObj.toString());
+//        Intent intent = new Intent(RongKitIntent.RONG_INTENT_ACTION_OPENWEBFILE);
+//        intent.setPackage(getPackageName());
+//        intent.putExtra("fileUrl", jsonObj.optString("fileUrl"));
+//        intent.putExtra("fileName", jsonObj.optString("fileName"));
+//        intent.putExtra("fileSize", jsonObj.optString("fileSize"));
+//        startActivity(intent);
+        RouteUtils.routeToWebFilePreviewActivity(this, jsonObj.optString("fileUrl"), jsonObj.optString("fileName"), jsonObj.optString("fileSize"));
+    }
+
+    private void openMap(JSONObject jsonObj) {
+        double lat = Double.parseDouble(jsonObj.optString("latitude"));
+        double lng = Double.parseDouble(jsonObj.optString("longitude"));
+        String poi = jsonObj.optString("locationName");
+        LocationMessage content = LocationMessage.obtain(lat, lng, poi, null);
+        try {
+            Intent intent;
+            if (this.getResources().getBoolean(R.bool.rc_location_2D)) {
+                intent = new Intent(CombineWebViewActivity.this, AMapPreviewActivity2D.class);
+            } else {
+                intent = new Intent(CombineWebViewActivity.this, AMapPreviewActivity.class);
+            }
+            intent.putExtra("location", content);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            RLog.e(TAG, "openMap", e);
+        }
+    }
+
+    private void openCombine(JSONObject jsonObj) {
+        String type = CombineWebViewActivity.TYPE_MEDIA;
+        String uri = jsonObj.optString("fileUrl");
+        String filePath = CombineMessageUtils.getInstance().getCombineFilePath(uri);
+        if (new File(filePath).exists()) {
+            uri = Uri.parse("file://" + filePath).toString();
+            type = CombineWebViewActivity.TYPE_LOCAL;
+        }
+
+        RouteUtils.routeToCombineWebViewActivity(this, -1, uri, type, jsonObj.optString("title"));
+    }
+
+    private void openLink(JSONObject jsonObj) {
+        String link = jsonObj.optString("link");
+        RouteUtils.routeToWebActivity(this, link);
+    }
+
+    private void openPhone(JSONObject jsonObj) {
+        String phoneNumber = jsonObj.optString("phoneNum");
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
+        startActivity(intent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mWebView != null) {
+            mWebView.destroy();
+        }
+        IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
+            mWebView.goBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private static class DownloadTask extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... params) {
+            OutputStream out = null;
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL(params[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setConnectTimeout(15000);
+                urlConnection.setReadTimeout(15000);
+
+                int code = urlConnection.getResponseCode();
+                if (code < 200 || code >= 300) {
+                    RLog.e(TAG, "DownloadTask failed! code:" + code);
+                    return null;
+                }
+
+                InputStream in = urlConnection.getInputStream();
+                File file = new File(params[1]);
+                if (!file.exists()) {
+                    if (file.getParent() == null) {
+                        RLog.e(TAG, "DownloadTask failed! file.getParent is null.");
+                        return null;
+                    }
+                    File dir = new File(file.getParent());
+                    boolean successMkdir = dir.mkdirs();
+                    boolean isCreateNewFile = file.createNewFile();
+                    RLog.d(TAG, "DownloadTask successMkdir:" + successMkdir + ",isCreateNewFile:" + isCreateNewFile);
+                }
+                out = new FileOutputStream(file);
+                byte[] buffer = new byte[10 * 1024];
+                int len;
+                while ((len = in.read(buffer)) != -1) {
+                    out.write(buffer, 0, len);
+                }
+                in.close();
+            } catch (IOException e) {
+                RLog.e(TAG, "DownloadTask", e);
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        RLog.e(TAG, "DownloadTask", e);
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+        }
     }
 
     private class CombineWebViewClient extends WebViewClient {
@@ -313,43 +525,6 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
     }
 
-    private void openSight(JSONObject jsonObj) {
-        String mediaUrl = jsonObj.optString("fileUrl");
-        int duration = jsonObj.optInt("duration");
-        String base64 = jsonObj.optString("imageBase64");
-        int dotIndex = base64.indexOf(",");
-        base64 = base64.substring(dotIndex + 1);
-
-        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
-        String sightThumb = encodeFile.getThumb();
-        String sightName = encodeFile.getName();
-
-        SightMessage sightMessage = new SightMessage();
-        sightMessage.setThumbUri(Uri.parse("file://" + sightThumb + sightName));
-        sightMessage.setMediaUrl(Uri.parse(mediaUrl));
-        sightMessage.setDuration(duration);
-        if (new IsSightFileExists(sightMessage).invoke()) {
-            String sightPath = LibStorageUtils.getMediaDownloadDir(getApplicationContext(), LibStorageUtils.VIDEO);
-            String name = DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
-            if (sightPath.startsWith("file://")) {
-                sightPath = sightPath.substring(7);
-            }
-            sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
-        }
-
-        Message message = new Message();
-        message.setContent(sightMessage);
-        message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
-        message.setConversationType(Conversation.ConversationType.PRIVATE);
-
-        ComponentName cn = new ComponentName(CombineWebViewActivity.this, "io.rong.sight.player.SightPlayerActivity");
-        Intent intent = new Intent();
-        intent.setComponent(cn);
-        intent.putExtra("Message", message);
-        intent.putExtra("SightMessage", sightMessage);
-        startActivity(intent);
-    }
-
     private class IsSightFileExists {
         private SightMessage sightMessage;
 
@@ -366,180 +541,6 @@ public class CombineWebViewActivity extends RongBaseActivity {
             File file = new File(sightPath + File.separator + name);
             return file.exists();
         }
-    }
-
-    private void openImage(JSONObject jsonObj) {
-
-        String mediaUrl = jsonObj.optString("fileUrl");
-        String base64 = jsonObj.optString("imgUrl");
-
-        int dotIndex = base64.indexOf(",");
-        base64 = base64.substring(dotIndex + 1);
-
-        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
-        String thumb = encodeFile.getThumb();
-        String name = encodeFile.getName();
-
-        ImageMessage imageMessage = ImageMessage.obtain();
-        imageMessage.setThumUri(Uri.parse("file://" + thumb + name));
-        imageMessage.setRemoteUri(Uri.parse(mediaUrl));
-
-        Message message = new Message();
-        message.setContent(imageMessage);
-        message.setConversationType(Conversation.ConversationType.PRIVATE);
-        RouteUtils.routeToCombinePicturePagerActivity(this, message);
-    }
-
-    // 根据链接地址，获取合并转发消息下载路径
-    public String getCombineFilePath(String uri) {
-        return FileUtils.getCachePath(IMCenter.getInstance().getContext())
-                + File.separator + COMBINE_FILE_PATH + File.separator;
-    }
-
-    private static boolean isImageFile(byte[] data) {
-        if (data == null || data.length == 0)
-            return false;
-
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeByteArray(data, 0, data.length, options);
-        return options.outWidth != -1;
-    }
-
-    private void openFile(JSONObject jsonObj) {
-        Log.e("openFile", jsonObj.toString());
-//        Intent intent = new Intent(RongKitIntent.RONG_INTENT_ACTION_OPENWEBFILE);
-//        intent.setPackage(getPackageName());
-//        intent.putExtra("fileUrl", jsonObj.optString("fileUrl"));
-//        intent.putExtra("fileName", jsonObj.optString("fileName"));
-//        intent.putExtra("fileSize", jsonObj.optString("fileSize"));
-//        startActivity(intent);
-        RouteUtils.routeToWebFilePreviewActivity(this, jsonObj.optString("fileUrl"), jsonObj.optString("fileName"), jsonObj.optString("fileSize"));
-    }
-
-    private void openMap(JSONObject jsonObj) {
-        double lat = Double.parseDouble(jsonObj.optString("latitude"));
-        double lng = Double.parseDouble(jsonObj.optString("longitude"));
-        String poi = jsonObj.optString("locationName");
-        LocationMessage content = LocationMessage.obtain(lat, lng, poi, null);
-        try {
-            Intent intent;
-            if (this.getResources().getBoolean(R.bool.rc_location_2D)) {
-                intent = new Intent(CombineWebViewActivity.this, AMapPreviewActivity2D.class);
-            } else {
-                intent = new Intent(CombineWebViewActivity.this, AMapPreviewActivity.class);
-            }
-            intent.putExtra("location", content);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        } catch (Exception e) {
-            RLog.e(TAG, "openMap", e);
-        }
-    }
-
-    private void openCombine(JSONObject jsonObj) {
-        String type = CombineWebViewActivity.TYPE_MEDIA;
-        String uri = jsonObj.optString("fileUrl");
-        String filePath = CombineMessageUtils.getInstance().getCombineFilePath(uri);
-        if (new File(filePath).exists()) {
-            uri = Uri.parse("file://" + filePath).toString();
-            type = CombineWebViewActivity.TYPE_LOCAL;
-        }
-
-        RouteUtils.routeToCombineWebViewActivity(this, -1, uri, type, jsonObj.optString("title"));
-    }
-
-    private void openLink(JSONObject jsonObj) {
-        String link = jsonObj.optString("link");
-        RouteUtils.routeToWebActivity(this, link);
-    }
-
-    private void openPhone(JSONObject jsonObj) {
-        String phoneNumber = jsonObj.optString("phoneNum");
-        Intent intent = new Intent(Intent.ACTION_DIAL);
-        intent.setData(Uri.parse("tel:" + phoneNumber));
-        startActivity(intent);
-    }
-
-    private static class DownloadTask extends AsyncTask<String, Void, Void> {
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-            OutputStream out = null;
-            HttpURLConnection urlConnection = null;
-            try {
-                URL url = new URL(params[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setConnectTimeout(15000);
-                urlConnection.setReadTimeout(15000);
-
-                int code = urlConnection.getResponseCode();
-                if (code < 200 || code >= 300) {
-                    RLog.e(TAG, "DownloadTask failed! code:" + code);
-                    return null;
-                }
-
-                InputStream in = urlConnection.getInputStream();
-                File file = new File(params[1]);
-                if (!file.exists()) {
-                    if (file.getParent() == null) {
-                        RLog.e(TAG, "DownloadTask failed! file.getParent is null.");
-                        return null;
-                    }
-                    File dir = new File(file.getParent());
-                    boolean successMkdir = dir.mkdirs();
-                    boolean isCreateNewFile = file.createNewFile();
-                    RLog.d(TAG, "DownloadTask successMkdir:" + successMkdir + ",isCreateNewFile:" + isCreateNewFile);
-                }
-                out = new FileOutputStream(file);
-                byte[] buffer = new byte[10 * 1024];
-                int len;
-                while ((len = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, len);
-                }
-                in.close();
-            } catch (IOException e) {
-                RLog.e(TAG, "DownloadTask", e);
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        RLog.e(TAG, "DownloadTask", e);
-                    }
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-        }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
-            mWebView.goBack();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mWebView != null) {
-            mWebView.destroy();
-        }
-        IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
     }
 
     private class EncodeFile {

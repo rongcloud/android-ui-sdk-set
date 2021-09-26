@@ -93,16 +93,25 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
 //        mFileDownloadProgressBar = findViewById(R.id.rc_ac_pb_download_progress);
 
         mTitleBar.setTitle(R.string.rc_ac_file_download_preview);
+        mTitleBar.setRightVisible(false);
     }
 
     private void initData() {
         Intent intent = getIntent();
-        if (intent == null) return;
+        if (intent == null) {
+            return;
+        }
 
         mFileDownloadInfo = new FileDownloadInfo();
         mFileDownloadInfo.url = intent.getStringExtra("fileUrl");
         mFileDownloadInfo.fileName = intent.getStringExtra("fileName");
-        mFileDownloadInfo.size = Long.valueOf(intent.getStringExtra("fileSize"));
+        try {
+            mFileDownloadInfo.size = Long.parseLong(intent.getStringExtra("fileSize"));
+        } catch (NumberFormatException e) {
+            RLog.e(TAG, "NumberFormatException, default value is 0L");
+            mFileDownloadInfo.size = 0L;
+        }
+
         mFileDownloadInfo.uid = RongUtils.md5(mFileDownloadInfo.fileName + mFileDownloadInfo.size);
         mFileDownloadInfo.path = FileUtils.getCachePath(this, PATH);
 
@@ -329,11 +338,7 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
 
     @TargetApi(Build.VERSION_CODES.M)
     private void downloadFile() {
-        String[] permission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (!PermissionCheckUtil.checkPermissions(this, permission)) {
-            PermissionCheckUtil.requestPermissions(this, permission, REQUEST_CODE_PERMISSION);
-            return;
-        }
+        // KNOTE: 2021/8/18下载文件使用应用私有目录  不需要存储权限
         mFileDownloadInfo.state = DOWNLOADING;
         if (supportResumeTransfer == SupportResumeStatus.SUPPORT) {
             mFileButton.setText(getResources().getString(R.string.rc_cancel));

@@ -139,12 +139,20 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
 
     private void initData() {
         Intent intent = getIntent();
-        if (intent == null) return;
+        if (intent == null) {
+            RLog.e(TAG, "intent is null, return directly!");
+            return;
+        }
 
         mFileDownloadInfo = new FileDownloadInfo();
         mFileMessage = getIntent().getParcelableExtra("FileMessage");
         mMessage = getIntent().getParcelableExtra("Message");
         mProgress = getIntent().getIntExtra("Progress", 0);
+
+        if(mFileMessage == null || mMessage == null) {
+            RLog.e(TAG, "message is null, return directly!");
+            return;
+        }
 
         mToasts = new ArrayList<>();
         mFileName = mFileMessage.getName();
@@ -365,11 +373,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
 
     @TargetApi(Build.VERSION_CODES.M)
     private void downloadFile() {
-        String[] permission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (!PermissionCheckUtil.checkPermissions(this, permission)) {
-            PermissionCheckUtil.requestPermissions(this, permission, REQUEST_CODE_PERMISSION);
-            return;
-        }
+        // KNOTE: 2021/8/18下载文件使用应用私有目录  不需要存储权限
         mFileDownloadInfo.state = DOWNLOADING;
         mFileButton.setText(getResources().getString(R.string.rc_cancel));
         downloadedFileLength = (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
@@ -419,7 +423,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         webIntent.setPackage(getPackageName());
         //如果是content
         if (FileUtils.uriStartWithContent(uri)) {
-            webIntent.putExtra("url", uri);
+            webIntent.putExtra("url", uri.toString());
         } else {
             //File开头
             String path = uri.toString();

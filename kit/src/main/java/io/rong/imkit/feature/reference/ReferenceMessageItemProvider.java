@@ -240,7 +240,9 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             return;
         }
         TextView textView = holder.getView(R.id.rc_msg_tv_reference_content);
-        textView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListenerByEllipsize(textView, 1));
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == LayoutDirection.RTL) {
+            textView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListenerByEllipsize(textView, 1));
+        }
         TextMessage content = (TextMessage) referenceMessage.getReferenceContent();
         setTextContent(textView, uiMessage, content.getContent(), false);
         setReferenceContentAction(view, holder, parentHolder, position, referenceMessage, uiMessage);

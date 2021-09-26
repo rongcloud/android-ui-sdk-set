@@ -122,7 +122,6 @@ public class ConversationConfig {
      */
     private boolean showHistoryDividerMessage = true;
     private ConversationClickListener mConversationClickListener;
-    private OnSendMessageListener mOnSendMessageListener;
     private ProviderManager<UiMessage> mMessageListProvider = new ProviderManager<>();
     private List<IConversationUIRenderer> mConversationViewProcessors = new ArrayList<>();
     private List<IConversationSummaryProvider> mConversationSummaryProviders = new ArrayList<>();
@@ -650,13 +649,5 @@ public class ConversationConfig {
 
     public void setEnableMultiDeviceSync(boolean enableMultiDeviceSync) {
         this.enableMultiDeviceSync = enableMultiDeviceSync;
-    }
-
-    public void setSendMessageListener(OnSendMessageListener listener) {
-        this.mOnSendMessageListener = listener;
-    }
-
-    public OnSendMessageListener getSendMessageLister() {
-        return mOnSendMessageListener;
     }
 }

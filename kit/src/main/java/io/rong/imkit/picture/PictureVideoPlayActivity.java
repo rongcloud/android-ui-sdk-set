@@ -5,12 +5,14 @@ import android.content.ContextWrapper;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 
 
@@ -22,18 +24,13 @@ import io.rong.imkit.R;
 public class PictureVideoPlayActivity extends PictureBaseActivity implements
         MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener, View.OnClickListener {
+    private final String TAG = PictureVideoPlayActivity.class.getCanonicalName();
     private String video_path = "";
     private ImageView picture_left_back;
     private MediaController mMediaController;
     private VideoView mVideoView;
     private ImageView iv_play;
     private int mPositionWhenPaused = -1;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     public int getResourceId() {
@@ -44,6 +41,10 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
     protected void initWidgets() {
         super.initWidgets();
         video_path = getIntent().getStringExtra("video_path");
+        if (TextUtils.isEmpty(video_path)) {
+            RLog.d(TAG, "video_path is empty! return directly!");
+            return;
+        }
         picture_left_back = findViewById(R.id.picture_left_back);
         mVideoView = findViewById(R.id.video_view);
         mVideoView.setBackgroundColor(Color.BLACK);
@@ -54,6 +55,33 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
         mVideoView.setMediaController(mMediaController);
         picture_left_back.setOnClickListener(this);
         iv_play.setOnClickListener(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(new ContextWrapper(newBase) {
+            @Override
+            public Object getSystemService(String name) {
+                if (Context.AUDIO_SERVICE.equals(name)) {
+                    return getApplicationContext().getSystemService(name);
+                }
+                return super.getSystemService(name);
+            }
+        });
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mMediaController = null;
+        mVideoView = null;
+        iv_play = null;
+        super.onDestroy();
     }
 
     @Override
@@ -71,14 +99,6 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
         mVideoView.stopPlayback();
 
         super.onPause();
-    }
-
-    @Override
-    protected void onDestroy() {
-        mMediaController = null;
-        mVideoView = null;
-        iv_play = null;
-        super.onDestroy();
     }
 
     @Override
@@ -114,19 +134,6 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
             mVideoView.start();
             iv_play.setVisibility(View.INVISIBLE);
         }
-    }
-
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(new ContextWrapper(newBase) {
-            @Override
-            public Object getSystemService(String name) {
-                if (Context.AUDIO_SERVICE.equals(name)) {
-                    return getApplicationContext().getSystemService(name);
-                }
-                return super.getSystemService(name);
-            }
-        });
     }
 
     @Override

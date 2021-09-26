@@ -33,6 +33,7 @@ import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
@@ -44,7 +45,6 @@ import io.rong.imlib.typingmessage.TypingStatus;
 import io.rong.message.FileMessage;
 import io.rong.message.ImageMessage;
 import io.rong.message.InformationNotificationMessage;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.message.MediaMessageContent;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
@@ -67,13 +67,155 @@ public class IMCenter {
     private List<RongIMClient.ConnectCallback> mConnectStatusListener = new CopyOnWriteArrayList<>();
     private List<RongIMClient.SyncConversationReadStatusListener> mSyncConversationReadStatusListeners = new CopyOnWriteArrayList<>();
     private List<RongIMClient.TypingStatusListener> mTypingStatusListeners = new CopyOnWriteArrayList<>();
+    /**
+     * 连接状态变化的监听器。
+     */
+    private RongIMClient.ConnectionStatusListener mConnectionStatusListener = new RongIMClient.ConnectionStatusListener() {
+        @Override
+        public void onChanged(ConnectionStatus connectionStatus) {
+            for (RongIMClient.ConnectionStatusListener listener : mConnectionStatusObserverList) {
+                listener.onChanged(connectionStatus);
+            }
+        }
+    };
+    /**
+     * 接受消息的事件监听器。
+     */
+    private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener = new RongIMClient.OnReceiveMessageWrapperListener() {
+        @Override
+        public boolean onReceived(final Message message, final int left, final boolean hasPackage, final boolean offline) {
+            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (mMessageInterceptor != null && mMessageInterceptor.interceptReceivedMessage(message, left, hasPackage, offline)) {
+                        RLog.d(TAG, "message has been intercepted.");
+                        return;
+                    }
+                    for (RongIMClient.OnReceiveMessageWrapperListener observer : mOnReceiveMessageObserverList) {
+                        observer.onReceived(message, left, hasPackage, offline);
+                    }
+                }
+            });
+            return false;
+        }
+    };
+    /**
+     * 会话状态监听器。当会话的置顶或者免打扰状态更改时，会回调此方法。
+     */
+    private RongIMClient.ConversationStatusListener mConversationStatusListener = new RongIMClient.ConversationStatusListener() {
+        @Override
+        public void onStatusChanged(ConversationStatus[] conversationStatuses) {
+            for (RongIMClient.ConversationStatusListener listener : mConversationStatusObserverList) {
+                listener.onStatusChanged(conversationStatuses);
+            }
+        }
+    };
+    /**
+     * 消息被撤回时的监听器。
+     */
+    private RongIMClient.OnRecallMessageListener mOnRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
+        @Override
+        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
+            for (RongIMClient.OnRecallMessageListener listener : mOnRecallMessageObserverList) {
+                listener.onMessageRecalled(message, recallNotificationMessage);
+            }
+            return false;
+        }
+    };
+    /**
+     * 消息回执监听器
+     */
+    private RongIMClient.ReadReceiptListener mReadReceiptListener = new RongIMClient.ReadReceiptListener() {
+        /**
+         * 单聊中收到消息回执的回调。
+         *
+         * @param message 封装了 {@link ReadReceiptMessage}
+         */
+        @Override
+        public void onReadReceiptReceived(final Message message) {
+            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (RongIMClient.ReadReceiptListener listener : mReadReceiptObserverList) {
+                        listener.onReadReceiptReceived(message);
+                    }
+                }
+            });
+
+        }
+
+
+        /**
+         * 群组和讨论组中，某人发起了回执请求，会话中其余人会收到该请求，并回调此方法。
+         * <p>
+         * 接收方需要在合适的时机（读取了消息之后）调用 {@link RongIMClient#sendReadReceiptResponse(Conversation.ConversationType, String, List, RongIMClient.OperationCallback)} 回复响应。
+         *
+         * @param conversationType       会话类型
+         * @param targetId   会话目标 id
+         * @param messageUId 请求已读回执的消息 uId
+         */
+        @Override
+        public void onMessageReceiptRequest(final Conversation.ConversationType conversationType, final String targetId, final String messageUId) {
+            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (RongIMClient.ReadReceiptListener listener : mReadReceiptObserverList) {
+                        listener.onMessageReceiptRequest(conversationType, targetId, messageUId);
+                    }
+                }
+            });
+        }
+
+        /**
+         * 在群组和讨论组中发起了回执请求的用户，当收到接收方的响应时，会回调此方法。
+         *
+         * @param conversationType              会话类型
+         * @param targetId          会话 id
+         * @param messageUId        收到回执响应的消息的 uId
+         * @param respondUserIdList 会话中响应了此消息的用户列表。其中 key： 用户 id ； value： 响应时间。
+         */
+        @Override
+        public void onMessageReceiptResponse(final Conversation.ConversationType conversationType, final String targetId, final String messageUId, final HashMap<String, Long> respondUserIdList) {
+            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (RongIMClient.ReadReceiptListener listener : mReadReceiptObserverList) {
+                        listener.onMessageReceiptResponse(conversationType, targetId, messageUId, respondUserIdList);
+                    }
+                }
+            });
+        }
+    };
+    /**
+     * 阅后即焚事件监听器。
+     */
+    private RongIMClient.OnReceiveDestructionMessageListener mOnReceiveDestructMessageListener = new RongIMClient.OnReceiveDestructionMessageListener() {
+        @Override
+        public void onReceive(Message message) {
+            for (MessageEventListener item : mMessageEventListeners) {
+                item.onDeleteMessage(new DeleteEvent(message.getConversationType(), message.getTargetId(), new int[]{message.getMessageId()}));
+            }
+        }
+    };
+    private RongIMClient.SyncConversationReadStatusListener mSyncConversationReadStatusListener = new RongIMClient.SyncConversationReadStatusListener() {
+        @Override
+        public void onSyncConversationReadStatus(Conversation.ConversationType type, String targetId) {
+            for (RongIMClient.SyncConversationReadStatusListener item : mSyncConversationReadStatusListeners) {
+                item.onSyncConversationReadStatus(type, targetId);
+            }
+        }
+    };
+    private RongIMClient.TypingStatusListener mTypingStatusListener = new RongIMClient.TypingStatusListener() {
+        @Override
+        public void onTypingStatusChanged(Conversation.ConversationType type, String targetId, Collection<TypingStatus> typingStatusSet) {
+            for (RongIMClient.TypingStatusListener item : mTypingStatusListeners) {
+                item.onTypingStatusChanged(type, targetId, typingStatusSet);
+            }
+        }
+    };
 
     private IMCenter() {
 
-    }
-
-    private static class SingletonHolder {
-        static IMCenter sInstance = new IMCenter();
     }
 
     public static IMCenter getInstance() {
@@ -113,10 +255,36 @@ public class IMCenter {
         RongIMClient.registerMessageType(CombineMessage.class);
     }
 
+    /**
+     * 设置会话界面操作的监听器。
+     *
+     * @param listener 会话界面操作的监听器。
+     */
+    public static void setConversationClickListener(ConversationClickListener listener) {
+        RongConfigCenter.conversationConfig().setConversationClickListener(listener);
+    }
+
+    /**
+     * 设置会话列表界面操作的监听器。
+     *
+     * @param listener 会话列表界面操作的监听器。
+     */
+    public static void setConversationListBehaviorListener(ConversationListBehaviorListener listener) {
+        RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
+    }
+
     public void connect(String token, int timeLimit, final RongIMClient.ConnectCallback connectCallback) {
         ConnectOption connectOption = ConnectOption.obtain(token, timeLimit);
         connect(connectOption, connectCallback);
 
+    }
+
+    /**
+     * 返回 SDK 是否已经初始化。
+     * @return true 代表已经初始化；false 未初始化。
+     */
+    public boolean isInitialized() {
+        return mContext != null;
     }
 
     private void connect(ConnectOption option, final RongIMClient.ConnectCallback connectCallback) {
@@ -382,25 +550,6 @@ public class IMCenter {
     }
 
     /**
-     * 设置会话界面操作的监听器。
-     *
-     * @param listener 会话界面操作的监听器。
-     */
-    public static void setConversationClickListener(ConversationClickListener listener) {
-        RongConfigCenter.conversationConfig().setConversationClickListener(listener);
-    }
-
-    /**
-     * 设置会话列表界面操作的监听器。
-     *
-     * @param listener 会话列表界面操作的监听器。
-     */
-    public static void setConversationListBehaviorListener(ConversationListBehaviorListener listener) {
-        RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
-    }
-
-
-    /**
      * <p>发送消息。
      * 通过 {@link IRongCallback.ISendMessageCallback}
      * 中的方法回调发送的消息状态及消息体。</p>
@@ -495,6 +644,20 @@ public class IMCenter {
             }
 
             @Override
+            public void onError(final Message message, final RongIMClient.ErrorCode errorCode) {
+                filterSentMessage(message, errorCode, new FilterSentListener() {
+                    @Override
+                    public void onComplete() {
+                        for (MessageEventListener item : mMessageEventListeners) {
+                            item.onSendMediaMessage(new SendMediaEvent(SendMediaEvent.ERROR, message, errorCode));
+                        }
+                    }
+                });
+                if (callback != null)
+                    callback.onError(message, errorCode);
+            }
+
+            @Override
             public void onProgress(Message message, int progress) {
                 for (MessageEventListener item : mMessageEventListeners) {
                     item.onSendMediaMessage(new SendMediaEvent(SendMediaEvent.PROGRESS, message, progress));
@@ -517,20 +680,6 @@ public class IMCenter {
                 for (MessageEventListener item : mMessageEventListeners) {
                     item.onSendMediaMessage(new SendMediaEvent(SendMediaEvent.SUCCESS, message));
                 }
-            }
-
-            @Override
-            public void onError(final Message message, final RongIMClient.ErrorCode errorCode) {
-                filterSentMessage(message, errorCode, new FilterSentListener() {
-                    @Override
-                    public void onComplete() {
-                        for (MessageEventListener item : mMessageEventListeners) {
-                            item.onSendMediaMessage(new SendMediaEvent(SendMediaEvent.ERROR, message, errorCode));
-                        }
-                    }
-                });
-                if (callback != null)
-                    callback.onError(message, errorCode);
             }
 
             @Override
@@ -885,13 +1034,6 @@ public class IMCenter {
     public void setConversationNotificationStatus(final Conversation.ConversationType conversationType, final String targetId, final Conversation.ConversationNotificationStatus notificationStatus, final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus> callback) {
         RongIMClient.getInstance().setConversationNotificationStatus(conversationType, targetId, notificationStatus, new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
             @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                if (callback != null) {
-                    callback.onError(errorCode);
-                }
-            }
-
-            @Override
             public void onSuccess(Conversation.ConversationNotificationStatus status) {
                 if (callback != null) {
                     callback.onSuccess(status);
@@ -905,6 +1047,13 @@ public class IMCenter {
                             notificationStatus.equals(Conversation.ConversationNotificationStatus.DO_NOT_DISTURB) ? "1" : "0");
                     conversationStatus.setStatus(statusMap);
                     listener.onStatusChanged(new ConversationStatus[]{conversationStatus});
+                }
+            }
+
+            @Override
+            public void onError(RongIMClient.ErrorCode errorCode) {
+                if (callback != null) {
+                    callback.onError(errorCode);
                 }
             }
         });
@@ -934,7 +1083,6 @@ public class IMCenter {
             }
         });
     }
-
 
     public void insertIncomingMessage(Conversation.ConversationType type, String targetId, String senderId, Message.ReceivedStatus receivedStatus,
                                       MessageContent content, final RongIMClient.ResultCallback<Message> resultCallback) {
@@ -992,7 +1140,6 @@ public class IMCenter {
             }
         });
     }
-
 
     /**
      * 删除会话里的一条或多条消息。
@@ -1080,7 +1227,6 @@ public class IMCenter {
         RongIMClient.getInstance().downloadMedia(conversationType, targetId, mediaType, imageUrl, callback);
     }
 
-
     /**
      * 下载文件
      * 支持断点续传
@@ -1134,9 +1280,8 @@ public class IMCenter {
         RongIMClient.getInstance().cancelDownloadMediaMessage(message, callback);
     }
 
-
     /**
-     * 清空所有会话及会话消息，回调方式通知是否清空成功。
+     * 清空所有会话及会话内的消息，回调方式通知是否清空成功。
      *
      * @param callback          是否清空成功的回调。
      * @param conversationTypes 会话类型。
@@ -1299,20 +1444,6 @@ public class IMCenter {
 
     public Context getContext() {
         return mContext;
-    }
-
-    /**
-     * 语音消息类型
-     */
-    public enum VoiceMessageType {
-        /**
-         * 普通音质语音消息
-         */
-        Ordinary,
-        /**
-         * 高音质语音消息
-         */
-        HighQuality
     }
 
     /**
@@ -1488,10 +1619,6 @@ public class IMCenter {
         }
     }
 
-    public interface FilterSentListener {
-        void onComplete();
-    }
-
     /**
      * 取消发送多媒体文件。
      *
@@ -1602,156 +1729,25 @@ public class IMCenter {
     }
 
     /**
-     * 连接状态变化的监听器。
+     * 语音消息类型
      */
-    private RongIMClient.ConnectionStatusListener mConnectionStatusListener = new RongIMClient.ConnectionStatusListener() {
-        @Override
-        public void onChanged(ConnectionStatus connectionStatus) {
-            for (RongIMClient.ConnectionStatusListener listener : mConnectionStatusObserverList) {
-                listener.onChanged(connectionStatus);
-            }
-        }
-    };
-
-    /**
-     * 接受消息的事件监听器。
-     */
-    private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener = new RongIMClient.OnReceiveMessageWrapperListener() {
-        @Override
-        public boolean onReceived(final Message message, final int left, final boolean hasPackage, final boolean offline) {
-            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
-                @Override
-                public void run() {
-                    if (mMessageInterceptor != null && mMessageInterceptor.interceptReceivedMessage(message, left, hasPackage, offline)) {
-                        RLog.d(TAG, "message has been intercepted.");
-                        return;
-                    }
-                    for (RongIMClient.OnReceiveMessageWrapperListener observer : mOnReceiveMessageObserverList) {
-                        observer.onReceived(message, left, hasPackage, offline);
-                    }
-                }
-            });
-            return false;
-        }
-    };
-    /**
-     * 会话状态监听器。当会话的置顶或者免打扰状态更改时，会回调此方法。
-     */
-    private RongIMClient.ConversationStatusListener mConversationStatusListener = new RongIMClient.ConversationStatusListener() {
-        @Override
-        public void onStatusChanged(ConversationStatus[] conversationStatuses) {
-            for (RongIMClient.ConversationStatusListener listener : mConversationStatusObserverList) {
-                listener.onStatusChanged(conversationStatuses);
-            }
-        }
-    };
-
-    /**
-     * 消息被撤回时的监听器。
-     */
-    private RongIMClient.OnRecallMessageListener mOnRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
-        @Override
-        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
-            for (RongIMClient.OnRecallMessageListener listener : mOnRecallMessageObserverList) {
-                listener.onMessageRecalled(message, recallNotificationMessage);
-            }
-            return false;
-        }
-    };
-
-    /**
-     * 消息回执监听器
-     */
-    private RongIMClient.ReadReceiptListener mReadReceiptListener = new RongIMClient.ReadReceiptListener() {
+    public enum VoiceMessageType {
         /**
-         * 单聊中收到消息回执的回调。
-         *
-         * @param message 封装了 {@link ReadReceiptMessage}
+         * 普通音质语音消息
          */
-        @Override
-        public void onReadReceiptReceived(final Message message) {
-            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
-                @Override
-                public void run() {
-                    for (RongIMClient.ReadReceiptListener listener : mReadReceiptObserverList) {
-                        listener.onReadReceiptReceived(message);
-                    }
-                }
-            });
-
-        }
-
-
+        Ordinary,
         /**
-         * 群组和讨论组中，某人发起了回执请求，会话中其余人会收到该请求，并回调此方法。
-         * <p>
-         * 接收方需要在合适的时机（读取了消息之后）调用 {@link RongIMClient#sendReadReceiptResponse(Conversation.ConversationType, String, List, RongIMClient.OperationCallback)} 回复响应。
-         *
-         * @param conversationType       会话类型
-         * @param targetId   会话目标 id
-         * @param messageUId 请求已读回执的消息 uId
+         * 高音质语音消息
          */
-        @Override
-        public void onMessageReceiptRequest(final Conversation.ConversationType conversationType, final String targetId, final String messageUId) {
-            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
-                @Override
-                public void run() {
-                    for (RongIMClient.ReadReceiptListener listener : mReadReceiptObserverList) {
-                        listener.onMessageReceiptRequest(conversationType, targetId, messageUId);
-                    }
-                }
-            });
-        }
+        HighQuality
+    }
 
-        /**
-         * 在群组和讨论组中发起了回执请求的用户，当收到接收方的响应时，会回调此方法。
-         *
-         * @param conversationType              会话类型
-         * @param targetId          会话 id
-         * @param messageUId        收到回执响应的消息的 uId
-         * @param respondUserIdList 会话中响应了此消息的用户列表。其中 key： 用户 id ； value： 响应时间。
-         */
-        @Override
-        public void onMessageReceiptResponse(final Conversation.ConversationType conversationType, final String targetId, final String messageUId, final HashMap<String, Long> respondUserIdList) {
-            ExecutorHelper.getInstance().mainThread().execute(new Runnable() {
-                @Override
-                public void run() {
-                    for (RongIMClient.ReadReceiptListener listener : mReadReceiptObserverList) {
-                        listener.onMessageReceiptResponse(conversationType, targetId, messageUId, respondUserIdList);
-                    }
-                }
-            });
-        }
-    };
+    public interface FilterSentListener {
+        void onComplete();
+    }
 
-    /**
-     * 阅后即焚事件监听器。
-     */
-    private RongIMClient.OnReceiveDestructionMessageListener mOnReceiveDestructMessageListener = new RongIMClient.OnReceiveDestructionMessageListener() {
-        @Override
-        public void onReceive(Message message) {
-            for (MessageEventListener item : mMessageEventListeners) {
-                item.onDeleteMessage(new DeleteEvent(message.getConversationType(), message.getTargetId(), new int[]{message.getMessageId()}));
-            }
-        }
-    };
-
-    private RongIMClient.SyncConversationReadStatusListener mSyncConversationReadStatusListener = new RongIMClient.SyncConversationReadStatusListener() {
-        @Override
-        public void onSyncConversationReadStatus(Conversation.ConversationType type, String targetId) {
-            for (RongIMClient.SyncConversationReadStatusListener item : mSyncConversationReadStatusListeners) {
-                item.onSyncConversationReadStatus(type, targetId);
-            }
-        }
-    };
-
-    private RongIMClient.TypingStatusListener mTypingStatusListener = new RongIMClient.TypingStatusListener() {
-        @Override
-        public void onTypingStatusChanged(Conversation.ConversationType type, String targetId, Collection<TypingStatus> typingStatusSet) {
-            for (RongIMClient.TypingStatusListener item : mTypingStatusListeners) {
-                item.onTypingStatusChanged(type, targetId, typingStatusSet);
-            }
-        }
-    };
+    private static class SingletonHolder {
+        static IMCenter sInstance = new IMCenter();
+    }
 
 }

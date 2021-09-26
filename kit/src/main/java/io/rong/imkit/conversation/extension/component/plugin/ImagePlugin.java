@@ -15,8 +15,6 @@ import java.util.List;
 
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.ConversationConfig;
-import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.manager.SendImageManager;
@@ -25,7 +23,6 @@ import io.rong.imkit.picture.PictureSelector;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.entity.LocalMedia;
-import io.rong.imkit.GlideKitImageEngine;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -52,10 +49,11 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
         conversationType = extension.getConversationType();
         targetId = extension.getTargetId();
         mRequestCode = ((index + 1) << 8) + (PictureConfig.CHOOSE_REQUEST & 0xff);
+
+        // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
         String[] permissions = {
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA};
+                Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
         if (PermissionCheckUtil.checkPermissions(currentFragment.getContext(), permissions)) {
             openPictureSelector(currentFragment);

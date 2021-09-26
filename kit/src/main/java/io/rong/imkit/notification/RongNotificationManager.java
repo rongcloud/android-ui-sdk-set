@@ -438,7 +438,7 @@ public class RongNotificationManager {
         });
     }
 
-    private void getConversationNotificationStatus(Conversation.ConversationType type, String targetId, final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus> callback) {
+    public void getConversationNotificationStatus(Conversation.ConversationType type, String targetId, final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus> callback) {
         final String key = StringUtils.getKey(type.getName(), targetId);
         if (mNotificationCache.get(key) != null && callback != null) {
             callback.onSuccess(mNotificationCache.get(key));

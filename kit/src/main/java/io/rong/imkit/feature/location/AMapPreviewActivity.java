@@ -11,11 +11,13 @@ import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
 
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
 import io.rong.imlib.location.message.LocationMessage;
 
 public class AMapPreviewActivity extends RongBaseActivity {
+    private final String TAG = AMapPreviewActivity.class.getCanonicalName();
     private MapView mAMapView;
 
     @Override
@@ -41,6 +43,10 @@ public class AMapPreviewActivity extends RongBaseActivity {
 
         Intent intent = getIntent();
         LocationMessage locationMessage = intent.getParcelableExtra("location");
+        if (locationMessage == null) {
+            RLog.e(TAG, "location message is null, return directly!");
+            return;
+        }
         double lat = locationMessage.getLat();
         double lng = locationMessage.getLng();
         String poi = locationMessage.getPoi();
@@ -64,9 +70,9 @@ public class AMapPreviewActivity extends RongBaseActivity {
      * 方法必须重写
      */
     @Override
-    protected void onResume() {
-        super.onResume();
-        mAMapView.onResume();
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mAMapView.onSaveInstanceState(outState);
     }
 
     /**
@@ -82,8 +88,8 @@ public class AMapPreviewActivity extends RongBaseActivity {
      * 方法必须重写
      */
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mAMapView.onSaveInstanceState(outState);
+    protected void onResume() {
+        super.onResume();
+        mAMapView.onResume();
     }
 }

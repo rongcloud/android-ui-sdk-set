@@ -27,6 +27,7 @@
         android:drawableStart="@drawable/rc_action_bar_search_icon"
         android:drawableEnd="@drawable/rc_ext_search_cancel"
         android:drawablePadding="8dp"
+        android:gravity="center"
         android:hint="@string/rc_search"
         android:textColorHint="#8ed0ff"
         android:textColor="#ffffff"

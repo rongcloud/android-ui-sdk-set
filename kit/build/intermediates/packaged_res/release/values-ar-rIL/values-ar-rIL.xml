@@ -69,7 +69,7 @@
     <string name="rc_conversation_summary_content_sticker">[ملصق]</string>
     <string name="rc_conversation_summary_content_voice">[صوت]</string>
     <string name="rc_conversation_summary_content_vst">[مكالمة الفيديو و الصوت]</string>
-    <string name="rc_conversation_unread_dot">"···"</string>
+    <string name="rc_conversation_unread_dot">99+</string>
     <string name="rc_cs_average">مقبول</string>
     <string name="rc_cs_cancel">إلغاء</string>
     <string name="rc_cs_evaluate">موافق</string>

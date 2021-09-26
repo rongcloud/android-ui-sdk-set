@@ -9,10 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.rong.common.RLog;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageConfig;
@@ -21,6 +23,7 @@ import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.UserInfo;
 
 public class UiMessage extends UiBaseBean {
+    private final String TAG = UiMessage.class.getSimpleName();
     private Message message;
     private UserInfo userInfo;
     private @State.Value
@@ -47,6 +50,14 @@ public class UiMessage extends UiBaseBean {
     }
 
     public void initUserInfo() {
+        if (TextUtils.isEmpty(message.getSenderUserId())) {
+            if (message.getMessageDirection().equals(Message.MessageDirection.SEND)) {
+                message.setSenderUserId(RongIMClient.getInstance().getCurrentUserId());
+            } else {
+                RLog.e(TAG, "Invalid message with empty senderUserId!");
+                return;
+            }
+        }
         UserInfo user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
         if (user != null) {
             userInfo = user;
@@ -158,7 +169,11 @@ public class UiMessage extends UiBaseBean {
                     userInfo.setName("");
                 }
                 userInfo.setAlias(user.alias);
-                userInfo.setPortraitUri(Uri.parse(user.portraitUrl));
+                if (!TextUtils.isEmpty(user.portraitUrl)) {
+                    userInfo.setPortraitUri(Uri.parse(user.portraitUrl));
+                } else {
+                    userInfo.setPortraitUri(null);
+                }
                 userInfo.setExtra(user.extra);
                 change();
                 break;

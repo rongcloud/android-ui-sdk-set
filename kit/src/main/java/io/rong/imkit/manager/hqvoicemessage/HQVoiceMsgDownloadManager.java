@@ -32,7 +32,6 @@ public class HQVoiceMsgDownloadManager {
     private Context mContext;
     private final AutoDownloadQueue autoDownloadQueue = new AutoDownloadQueue();
     private ExecutorService executorService;
-    private static final int REQUEST_MSG_DOWNLOAD_PERMISSION = 1001;
     private Future<?> future = null;
     private List<AutoDownloadEntry> errorList = null;
 
@@ -90,12 +89,7 @@ public class HQVoiceMsgDownloadManager {
             return;
         }
 
-        String[] permission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (fragment != null) {
-            if (!PermissionCheckUtil.checkPermissions(fragment.getActivity(), permission)) {
-                PermissionCheckUtil.requestPermissions(fragment, permission, REQUEST_MSG_DOWNLOAD_PERMISSION);
-            }
-        }
+        // KNOTE: 2021/8/25  下载保存至私有目录  不需要存储权限
 
         HQVoiceMessage hqVoiceMessage = (HQVoiceMessage) message.getContent();
 

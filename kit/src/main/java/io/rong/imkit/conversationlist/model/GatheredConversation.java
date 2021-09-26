@@ -34,17 +34,6 @@ public class GatheredConversation extends BaseUiConversation {
         buildConversationContent();
     }
 
-    @Override
-    public void onConversationUpdate(Conversation conversation) {
-        if (conversation != null && conversation.getConversationType().equals(mGatheredType)
-                && conversation.getSentTime() >= mCore.getSentTime()) {
-            mCore = conversation;
-            mLastTargetId = conversation.getTargetId();
-            buildConversationContent();
-            setConversationTitle();
-        }
-    }
-
     /**
      * 会话聚合后，会话列表中显示信息如下：
      * - 会话默认头像
@@ -115,6 +104,17 @@ public class GatheredConversation extends BaseUiConversation {
 
     }
 
+    @Override
+    public void onConversationUpdate(Conversation conversation) {
+        if (conversation != null && conversation.getConversationType().equals(mGatheredType)
+                && conversation.getSentTime() >= mCore.getSentTime()) {
+            mCore = conversation;
+            mLastTargetId = conversation.getTargetId();
+            buildConversationContent();
+            setConversationTitle();
+        }
+    }
+
     private void setConversationTitle() {
         Conversation.ConversationType type = mCore.getConversationType();
         String title = "";
@@ -131,6 +131,8 @@ public class GatheredConversation extends BaseUiConversation {
                 title = mContext.getString(R.string.rc_gathered_conversation_system_title);
             } else if (type.equals(Conversation.ConversationType.CUSTOMER_SERVICE)) {
                 title = mContext.getString(R.string.rc_gathered_conversation_custom_title);
+            } else if (type.equals(Conversation.ConversationType.CHATROOM)) {
+                title = mContext.getString(R.string.rc_gathered_conversation_chatroom_title);
             } else {
                 title = mContext.getString(R.string.rc_gathered_conversation_unkown_title);
             }

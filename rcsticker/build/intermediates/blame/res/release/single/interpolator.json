@@ -1,30 +1,30 @@
 [
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/interpolator/fast_out_slow_in.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/feef336dd3a794d6dffcae384fd8eb62/res/interpolator/fast_out_slow_in.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/interpolator/fast_out_slow_in.xml"
     }
 ]

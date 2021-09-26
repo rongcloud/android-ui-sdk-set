@@ -34,8 +34,7 @@ class SubConversationListViewModel extends ConversationListViewModel {
      *                 false: 从数据库拉取最新 N 条会话。true: 根据 UI 上最后一条会话的时间戳，继续拉取之前的 N 条会话。
      */
     @Override
-    public void getConversationList(final boolean loadMore) {
-
+    public void getConversationList(final boolean loadMore, final boolean isEventManual) {
         long timestamp = 0;
         if (loadMore) {
             timestamp = mLastSyncTime;
@@ -44,10 +43,12 @@ class SubConversationListViewModel extends ConversationListViewModel {
             @Override
             public void onSuccess(List<Conversation> conversations) {
                 RLog.d(TAG, "getConversationListByPage.");
-                if (loadMore) {
-                    ((MutableLiveData<Event.RefreshEvent>) getRefreshEventLiveData()).postValue(new Event.RefreshEvent(RefreshState.LoadFinish));
-                } else {
-                    ((MutableLiveData<Event.RefreshEvent>) getRefreshEventLiveData()).postValue(new Event.RefreshEvent(RefreshState.RefreshFinish));
+                if (isEventManual) {
+                    if (loadMore) {
+                        ((MutableLiveData<Event.RefreshEvent>) getRefreshEventLiveData()).postValue(new Event.RefreshEvent(RefreshState.LoadFinish));
+                    } else {
+                        ((MutableLiveData<Event.RefreshEvent>) getRefreshEventLiveData()).postValue(new Event.RefreshEvent(RefreshState.RefreshFinish));
+                    }
                 }
                 if (conversations == null || conversations.size() == 0) {
                     return;

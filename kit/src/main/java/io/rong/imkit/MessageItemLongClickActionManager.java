@@ -1,6 +1,7 @@
 package io.rong.imkit;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Resources;
@@ -68,7 +69,11 @@ public class MessageItemLongClickActionManager {
                         } else {
                             if (message.getContent() instanceof TextMessage) {
                                 if (clipboard != null) {
-                                    clipboard.setText(((TextMessage) message.getContent()).getContent());
+                                    try {
+                                        clipboard.setPrimaryClip(ClipData.newPlainText(null, ((TextMessage) message.getContent()).getContent()));
+                                    } catch (Exception e) {
+                                        RLog.e(TAG, "initCommonMessageItemLongClickActions TextMessage", e);
+                                    }
                                 }
                             } else if (message.getContent() instanceof ReferenceMessage) {
                                 ReferenceMessage referenceMessage = (ReferenceMessage) message.getContent();
@@ -76,7 +81,11 @@ public class MessageItemLongClickActionManager {
                                     return false;
                                 }
                                 if (clipboard != null) {
-                                    clipboard.setText(referenceMessage.getEditSendText());
+                                    try {
+                                        clipboard.setPrimaryClip(ClipData.newPlainText(null, referenceMessage.getEditSendText()));
+                                    } catch (Exception e) {
+                                        RLog.e(TAG, "initCommonMessageItemLongClickActions ReferenceMessage", e);
+                                    }
                                 }
                             }
                             return true;

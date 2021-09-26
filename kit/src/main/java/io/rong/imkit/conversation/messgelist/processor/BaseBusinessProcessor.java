@@ -9,6 +9,7 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.model.UserInfo;
 
 import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
@@ -26,12 +27,11 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
 
     @Override
     public boolean onReceivedCmd(MessageViewModel messageViewModel, Message message) {
-        return true;
-    }
-
-    @Override
-    public void onExistUnreadMessage(MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
-
+        if (message.getContent() instanceof UnknownMessage) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -54,7 +54,6 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
         return false;
     }
 
-
     @Override
     public boolean onBackPressed(MessageViewModel viewModel) {
         return false;
@@ -66,19 +65,17 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
     }
 
     @Override
-    public void onLoadMessage(MessageViewModel viewModel, List<Message> messages) {
+    public void onExistUnreadMessage(MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
 
-    }
-
-    /**
-     * @return 初始化时，拉取的历史条数，目前只有聊天室需要复写
-     */
-    public int getHistoryMessageCount() {
-        return DEFAULT_COUNT + 1;
     }
 
     @Override
     public void onMessageReceiptRequest(MessageViewModel viewModel, Conversation.ConversationType conversationType, String targetId, String messageUId) {
+
+    }
+
+    @Override
+    public void onLoadMessage(MessageViewModel viewModel, List<Message> messages) {
 
     }
 
@@ -93,6 +90,13 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
     @Override
     public void onResume(MessageViewModel viewModel) {
 
+    }
+
+    /**
+     * @return 初始化时，拉取的历史条数，目前只有聊天室需要复写
+     */
+    public int getHistoryMessageCount() {
+        return DEFAULT_COUNT + 1;
     }
 
 }

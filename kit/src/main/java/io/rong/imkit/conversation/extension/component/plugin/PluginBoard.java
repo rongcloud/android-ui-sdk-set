@@ -21,9 +21,7 @@ import java.util.List;
 
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.ConversationFragment;
-import io.rong.imkit.conversation.extension.IExtensionModule;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
-import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imlib.model.Conversation;
 
 public class PluginBoard {
@@ -91,7 +89,7 @@ public class PluginBoard {
 
     private void initPlugins(Conversation.ConversationType conversationType) {
         // size() 大于 0 ，代表初始化过，直接返回
-        if (mPluginModules.size() > 0) {
+        if (mPluginModules != null && !mPluginModules.isEmpty()) {
             return;
         }
         mPluginModules = RongExtensionManager.getInstance().getExtensionConfig().getPluginModules(mConversationType, mTargetId);
@@ -195,10 +193,11 @@ public class PluginBoard {
     }
 
     public IPluginModule getPluginModule(int position) {
-        if (position >= 0 && position < mPluginModules.size())
+        if (position >= 0 && position < mPluginModules.size()) {
             return mPluginModules.get(position);
-        else
+        } else {
             return null;
+        }
     }
 
     public List<IPluginModule> getPluginModules() {
@@ -206,6 +205,14 @@ public class PluginBoard {
     }
 
     private class PluginPagerAdapter extends RecyclerView.Adapter<PluginPagerViewHolder> {
+        int pages;
+        int items;
+
+        public PluginPagerAdapter(int pages, int items) {
+            this.pages = pages;
+            this.items = items;
+        }
+
         @NonNull
         @Override
         public PluginPagerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -222,14 +229,6 @@ public class PluginBoard {
         @Override
         public int getItemCount() {
             return pages;
-        }
-
-        int pages;
-        int items;
-
-        public PluginPagerAdapter(int pages, int items) {
-            this.pages = pages;
-            this.items = items;
         }
 
         public void setPages(int value) {
@@ -253,11 +252,6 @@ public class PluginBoard {
     private class PluginItemAdapter extends BaseAdapter {
         int count;
         int index;
-
-        class ViewHolder {
-            ImageView imageView;
-            TextView textView;
-        }
 
         public PluginItemAdapter(int index, int count) {
             this.count = Math.min(mPluginCountPerPage, count - index);
@@ -304,6 +298,11 @@ public class PluginBoard {
             holder.imageView.setImageDrawable(plugin.obtainDrawable(context));
             holder.textView.setText(plugin.obtainTitle(context));
             return convertView;
+        }
+
+        class ViewHolder {
+            ImageView imageView;
+            TextView textView;
         }
     }
 

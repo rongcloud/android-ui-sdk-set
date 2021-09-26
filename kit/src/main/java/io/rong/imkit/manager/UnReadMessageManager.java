@@ -1,7 +1,6 @@
 package io.rong.imkit.manager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import io.rong.common.RLog;
@@ -78,17 +77,13 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         IMCenter.getInstance().addSyncConversationReadStatusListener(this);
     }
 
+    public static UnReadMessageManager getInstance() {
+        return SingletonHolder.sInstance;
+    }
+
     @Override
     public void onSyncConversationReadStatus(Conversation.ConversationType type, String targetId) {
         syncUnreadCount();
-    }
-
-    private static class SingletonHolder {
-        static UnReadMessageManager sInstance = new UnReadMessageManager();
-    }
-
-    public static UnReadMessageManager getInstance() {
-        return SingletonHolder.sInstance;
     }
 
     @Override
@@ -118,6 +113,10 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
     }
 
     public void addObserver(Conversation.ConversationType[] conversationTypes, final IUnReadMessageObserver observer) {
+        if (observer == null) {
+            RLog.e(TAG, "can't add a null observer!");
+            return;
+        }
         if (conversationTypes == null) {
             conversationTypes = RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
         }
@@ -166,13 +165,17 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         }
     }
 
+    public interface IUnReadMessageObserver {
+        void onCountChanged(int count);
+    }
+
+    private static class SingletonHolder {
+        static UnReadMessageManager sInstance = new UnReadMessageManager();
+    }
+
     private class MultiConversationUnreadMsgInfo {
         Conversation.ConversationType[] conversationTypes;
         int count;
         IUnReadMessageObserver observer;
-    }
-
-    public interface IUnReadMessageObserver {
-        void onCountChanged(int count);
     }
 }

@@ -78,6 +78,10 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if(!IMCenter.getInstance().isInitialized()) {
+            RLog.e(TAG, "Please init SDK first!");
+            return;
+        }
         mList = view.findViewById(R.id.rc_conversation_list);
         mRefreshLayout = view.findViewById(R.id.rc_refresh);
 
@@ -130,7 +134,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         //会话列表数据监听
         mConversationListViewModel = new ViewModelProvider(this)
                 .get(ConversationListViewModel.class);
-        mConversationListViewModel.getConversationList(false);
+        mConversationListViewModel.getConversationList(false, false);
         mConversationListViewModel.getConversationListLiveData().observe(getViewLifecycleOwner(), new Observer<List<BaseUiConversation>>() {
             @Override
             public void onChanged(List<BaseUiConversation> uiConversations) {
@@ -171,13 +175,13 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
 
     protected void onConversationListRefresh(RefreshLayout refreshLayout) {
         if (mConversationListViewModel != null) {
-            mConversationListViewModel.getConversationList(false);
+            mConversationListViewModel.getConversationList(false, true);
         }
     }
 
     protected void onConversationListLoadMore() {
         if (mConversationListViewModel != null) {
-            mConversationListViewModel.getConversationList(true);
+            mConversationListViewModel.getConversationList(true, true);
         }
     }
 

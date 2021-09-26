@@ -1,7 +1,6 @@
 package io.rong.imkit.config;
 
 import android.net.Uri;
-import android.text.TextUtils;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -15,7 +15,7 @@
     <string name="rc_conversation_list_dialog_remove">删除该聊天</string>
     <string name="rc_conversation_list_popup_set_top">已置顶</string>
     <string name="rc_conversation_list_popup_cancel_top">取消置顶</string>
-    <string name="rc_conversation_unread_dot">"···"</string>
+    <string name="rc_conversation_unread_dot">99+</string>
 
     //会话内容概要
     <string name="rc_conversation_summary_content_image">[图片]</string>

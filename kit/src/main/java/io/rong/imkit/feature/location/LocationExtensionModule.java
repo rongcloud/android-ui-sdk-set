@@ -1,6 +1,7 @@
 package io.rong.imkit.feature.location;
 
 import android.content.Context;
+import android.content.res.Resources;
 
 import androidx.fragment.app.Fragment;
 
@@ -20,12 +21,20 @@ import io.rong.imlib.model.Message;
 public class LocationExtensionModule implements IExtensionModule {
 
     private static final String TAG = "LocationExtensionModule";
+    private String[] types = null;
 
     public LocationExtensionModule() {
+
     }
 
     @Override
     public void onInit(Context context, String appKey) {
+        Resources resources = context.getResources();
+        try {
+            types = resources.getStringArray(resources.getIdentifier("rc_realtime_support_conversation_types", "array", context.getPackageName()));
+        } catch (Resources.NotFoundException e) {
+            RLog.i(TAG, "not config rc_realtime_support_conversation_types in rc_config.xml");
+        }
     }
 
     @Override
@@ -52,12 +61,27 @@ public class LocationExtensionModule implements IExtensionModule {
         try {
             String clsName = "com.amap.api.netlocation.AMapNetworkLocationClient";
             Class<?> locationCls = Class.forName(clsName);
+
             IPluginModule combineLocation = new CombineLocationPlugin();
             IPluginModule locationPlugin = new DefaultLocationPlugin();
-            if (conversationType.equals(Conversation.ConversationType.PRIVATE)) {
+            boolean typesDefined = false;
+            if (types != null && types.length > 0) {
+                for (String type : types) {
+                    if (conversationType.getName().equals(type)) {
+                        typesDefined = true;
+                        break;
+                    }
+                }
+            }
+
+            if (typesDefined) {
                 pluginModuleList.add(combineLocation);
             } else {
-                pluginModuleList.add(locationPlugin);
+                if (types == null && conversationType.equals(Conversation.ConversationType.PRIVATE)) {//配置文件中没有类型定义且会话类型为私聊
+                    pluginModuleList.add(combineLocation);
+                } else {
+                    pluginModuleList.add(locationPlugin);
+                }
             }
         } catch (Exception e) {
             RLog.w(TAG, "No AMap jar ！！");
