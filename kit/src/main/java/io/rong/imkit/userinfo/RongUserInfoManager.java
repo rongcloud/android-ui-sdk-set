@@ -328,10 +328,10 @@ public class RongUserInfoManager {
             for (User temp : userList) {
                 if (temp.id.equals(user.id)) {
                     userList.remove(temp);
-                    userList.add(user);
                     break;
                 }
             }
+            userList.add(user);
             mAllUsers.postValue(userList);
         }
         for (UserDataObserver observer : mUserDataObservers) {
@@ -357,10 +357,10 @@ public class RongUserInfoManager {
             for (Group temp : groupList) {
                 if (temp.id.equals(groupInfo.getId())) {
                     groupList.remove(temp);
-                    groupList.add(group);
                     break;
                 }
             }
+            groupList.add(group);
             mAllGroups.postValue(groupList);
         }
         for (UserDataObserver observer : mUserDataObservers) {
@@ -384,10 +384,10 @@ public class RongUserInfoManager {
             for (GroupMember temp : groupMemberList) {
                 if (temp.groupId.equals(groupMember.groupId) && temp.userId.equals(groupMember.userId)) {
                     groupMemberList.remove(temp);
-                    groupMemberList.add(groupMember);
                     break;
                 }
             }
+            groupMemberList.add(groupMember);
             mAllGroupMembers.postValue(groupMemberList);
         }
         for (UserDataObserver observer : mUserDataObservers) {

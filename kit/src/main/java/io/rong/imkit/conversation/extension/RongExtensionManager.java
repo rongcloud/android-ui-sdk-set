@@ -35,7 +35,6 @@ public class RongExtensionManager {
     private static IExtensionConfig mExtensionConfig;
 
     private RongExtensionManager() {
-        addExtensionEventWatcher(RongMentionManager.getInstance());
     }
 
     public static RongExtensionManager getInstance() {

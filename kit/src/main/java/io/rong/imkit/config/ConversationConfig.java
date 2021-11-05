@@ -623,6 +623,8 @@ public class ConversationConfig {
                 case GROUP:
                 case DISCUSSION:
                     return mSupportReadReceiptConversationTypes.contains(type);
+                default:
+                    break;
             }
         }
         return false;

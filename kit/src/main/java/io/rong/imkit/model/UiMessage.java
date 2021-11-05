@@ -204,14 +204,6 @@ public class UiMessage extends UiBaseBean {
         return message != null ? message.getUId() : null;
     }
 
-    public void setUId(String UId) {
-        if (message == null) {
-            return;
-        }
-        message.setUId(UId);
-        change();
-    }
-
     public Conversation.ConversationType getConversationType() {
         return message != null ? message.getConversationType() : Conversation.ConversationType.NONE;
     }

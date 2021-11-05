@@ -112,6 +112,15 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         }
     }
 
+    /**
+     * 设置未读消息数变化监听器。
+     * 注意:如果是在 activity 中设置,那么要在 activity 销毁时,
+     * 调用 {@link UnReadMessageManager#removeObserver(UnReadMessageManager.IUnReadMessageObserver)}
+     * 否则会造成内存泄漏。
+     *
+     * @param observer          接收未读消息消息的监听器。
+     * @param conversationTypes 接收未读消息的会话类型。
+     */
     public void addObserver(Conversation.ConversationType[] conversationTypes, final IUnReadMessageObserver observer) {
         if (observer == null) {
             RLog.e(TAG, "can't add a null observer!");

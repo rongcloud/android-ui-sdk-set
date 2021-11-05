@@ -436,6 +436,10 @@
         "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/ed6359d9b6b6356c3f734ce8c57e3554/res/layout/push_pure_pic_notification_f8.xml"
     },
     {
+        "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/layout/rc_keyboard_popupwindow.xml",
+        "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/res/layout/rc_keyboard_popupwindow.xml"
+    },
+    {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/layout/rc_picture_camera_pop_layout.xml",
         "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/res/layout/rc_picture_camera_pop_layout.xml"
     },

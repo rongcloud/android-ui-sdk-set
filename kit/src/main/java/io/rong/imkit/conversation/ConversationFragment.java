@@ -1,10 +1,12 @@
 package io.rong.imkit.conversation;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.GestureDetector;
@@ -14,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +25,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -58,6 +62,7 @@ import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.event.uievent.SmoothScrollEvent;
 import io.rong.imkit.event.uievent.ToastEvent;
 import io.rong.imkit.feature.location.LocationUiRender;
+import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.MessageProviderPermissionHandler;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.model.UiMessage;
@@ -87,7 +92,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     private final String TAG = ConversationFragment.class.getSimpleName();
     protected SmartRefreshLayout mRefreshLayout;
     protected RecyclerView mList;
-    protected LinearLayoutManager mLinearLayoutManager;
+    protected RecyclerView.LayoutManager mLinearLayoutManager;
     protected MessageListAdapter mAdapter;
     protected MessageViewModel mMessageViewModel;
     protected RongExtensionViewModel mRongExtensionViewModel;
@@ -95,6 +100,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     protected TextView mNewMessageNum;
     protected TextView mUnreadHistoryMessageNum;
     protected TextView mUnreadMentionMessageNum;
+    protected int activitySoftInputMode = 0;
+
     Observer<List<UiMessage>> mListObserver = new Observer<List<UiMessage>>() {
         @Override
         public void onChanged(List<UiMessage> uiMessages) {
@@ -244,6 +251,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             mMessageViewModel.onScrolled(recyclerView, dx, dy, mAdapter.getHeadersCount(), mAdapter.getFootersCount());
         }
     };
+    private View rootView;
 
     {
         mAdapter = onResolveAdapter();
@@ -287,7 +295,11 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
                     public void run() {
                         InputMode inputMode = mRongExtensionViewModel.getInputModeLiveData().getValue();
                         if (!inputMode.equals(InputMode.MoreInputMode) && Boolean.TRUE.equals(value)) {
-                            mList.scrollToPosition(mAdapter.getItemCount() - 1);
+                            if (mMessageViewModel.isNormalState()) {
+                                mList.scrollToPosition(mAdapter.getItemCount() - 1);
+                            } else {
+                                mMessageViewModel.newMessageBarClick();
+                            }
                         }
                     }
                 }, 150);
@@ -398,6 +410,9 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            ReferenceManager.getInstance().hideReferenceView();
+        }
         if (requestCode == REQUEST_CODE_FORWARD) {
             mMessageViewModel.forwardMessage(data);
             return;
@@ -449,7 +464,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.rc_conversation_fragment, container, false);
+        rootView = inflater.inflate(R.layout.rc_conversation_fragment, container, false);
         mList = rootView.findViewById(R.id.rc_message_list);
         mRongExtension = rootView.findViewById(R.id.rc_extension);
         mRefreshLayout = rootView.findViewById(R.id.rc_refresh);
@@ -460,8 +475,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         mNewMessageNum.setOnClickListener(this);
         mUnreadHistoryMessageNum.setOnClickListener(this);
         mUnreadMentionMessageNum.setOnClickListener(this);
-        mLinearLayoutManager = new LinearLayoutManager(getContext());
-        mLinearLayoutManager.setStackFromEnd(true);
+        mLinearLayoutManager = createLayoutManager();
         if (mList != null) {
             mList.setLayoutManager(mLinearLayoutManager);
         }
@@ -524,6 +538,12 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         return rootView;
     }
 
+    private RecyclerView.LayoutManager createLayoutManager() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        linearLayoutManager.setStackFromEnd(true);
+        return linearLayoutManager;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (getActivity() == null || getActivity().getIntent() == null) {
@@ -584,12 +604,29 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     public void onPause() {
         super.onPause();
         mMessageViewModel.onPause();
+        mRongExtension.onPause();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // 保存 activity 的原 softInputMode
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activitySoftInputMode = activity.getWindow().getAttributes().softInputMode;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && activity.isInMultiWindowMode()) {
+                resetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            } else {
+                resetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+            }
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         mMessageViewModel.onStop();
+        resetSoftInputMode(activitySoftInputMode);
     }
 
     @Override
@@ -610,6 +647,13 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         if (mRongExtension != null) {
             mRongExtension.onDestroy();
             mRongExtension = null;
+        }
+    }
+
+    private void resetSoftInputMode(int mode) {
+        FragmentActivity activity = getActivity();
+        if (activity != null) {
+            activity.getWindow().setSoftInputMode(mode);
         }
     }
 
@@ -671,6 +715,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         });
     }
 
+
     private void closeExpand() {
         if (mRongExtensionViewModel != null) {
             mRongExtensionViewModel.collapseExtensionBoard();
@@ -713,4 +758,5 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     public void setEmptyView(@LayoutRes int emptyId) {
         mAdapter.setEmptyView(emptyId);
     }
+
 }

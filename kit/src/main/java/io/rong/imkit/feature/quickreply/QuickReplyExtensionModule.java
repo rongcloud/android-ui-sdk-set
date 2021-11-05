@@ -3,6 +3,8 @@ package io.rong.imkit.feature.quickreply;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 import androidx.fragment.app.Fragment;
@@ -55,7 +57,7 @@ public class QuickReplyExtensionModule implements IExtensionModule {
             rongExtensionViewModel.getInputModeLiveData().observe(fragment, new Observer<InputMode>() {
                 @Override
                 public void onChanged(InputMode inputMode) {
-                    if (inputMode != InputMode.TextInput) {
+                    if (inputMode != InputMode.QuickReplyMode) {
                         isQuickReplyShow = false;
                     }
                 }
@@ -63,20 +65,23 @@ public class QuickReplyExtensionModule implements IExtensionModule {
             mQuickReplyIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (rongExtensionViewModel.isSoftInputShow() || rongExtensionViewModel.getEditTextWidget().hasFocus()) {
-                        isQuickReplyShow = false;
-                    }
                     if (isQuickReplyShow && rongExtensionViewModel.getExtensionBoardState().getValue()) {
                         isQuickReplyShow = false;
-                        rongExtensionViewModel.getExtensionBoardState().setValue(false);
+                        rongExtensionViewModel.getEditTextWidget().requestFocus();
+                        rongExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
                     } else {
                         isQuickReplyShow = true;
-                        rongExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
-                        rongExtensionViewModel.setSoftInputKeyBoard(false);
-                        rongExtensionViewModel.getExtensionBoardState().setValue(true);
+                        rongExtensionViewModel.getInputModeLiveData().setValue(InputMode.QuickReplyMode);
                         RelativeLayout boardContainer = extension.getContainer(RongExtension.ContainerType.BOARD);
                         boardContainer.removeAllViews();
-                        QuickReplyBoard quickReplyBoard = new QuickReplyBoard(v.getContext(), boardContainer, provider.getPhraseList(type));
+                        QuickReplyBoard quickReplyBoard = new QuickReplyBoard(v.getContext(), boardContainer, provider.getPhraseList(type), new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                isQuickReplyShow = false;
+                                rongExtensionViewModel.getEditTextWidget().requestFocus();
+                                rongExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
+                            }
+                        });
                         quickReplyBoard.setAttachedConversation(extension);
                         boardContainer.addView(quickReplyBoard.getRootView());
                         boardContainer.setVisibility(View.VISIBLE);

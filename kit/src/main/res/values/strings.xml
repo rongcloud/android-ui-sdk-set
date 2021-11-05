@@ -70,7 +70,7 @@
     <string name="rc_recalled_a_message">&#160;撤回了一条消息</string>
     <string name="rc_admin_recalled_message">管理员&#160;撤回了一条消息</string>
     <string name="rc_unknow">未知类型消息</string>
-    <string name="rc_unread_message">{0}条新消息</string>
+    <string name="rc_unread_message">{0} 条新消息</string>
     <string name="rc_new_message_divider_content">以上是历史消息</string>
     <string name="rc_recall_failed_for_network_unavailable">撤回不成功，请检查网络连接</string>
     <string name="rc_recall_overtime">该消息超过撤回时间，不能被撤回。</string>
@@ -408,7 +408,7 @@
     <!-- 错误提醒 -->
     <string name="rc_new_messages">条新消息</string>
     <string name="rc_info_not_in_discussion">你不在该讨论组</string>
-    <string name="rc_info_not_in_group">你不在该群</string>
+    <string name="rc_info_not_in_group">您当前不在此群组</string>
     <string name="rc_info_not_in_chatroom">你不在该聊天室</string>
     <string name="rc_rejected_by_blacklist_prompt">您的消息已经发出，但被对方拒收</string>
     <string name="rc_info_forbidden_to_talk">您当前在群组中被禁言</string>

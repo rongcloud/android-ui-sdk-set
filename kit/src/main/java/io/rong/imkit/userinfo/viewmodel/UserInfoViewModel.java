@@ -19,16 +19,18 @@ import io.rong.imlib.model.UserInfo;
 
 public class UserInfoViewModel extends AndroidViewModel {
     private final String TAG = UserInfoViewModel.class.getSimpleName();
+    private RongIMClient.OnReceiveMessageWrapperListener listener;
 
     public UserInfoViewModel(@NonNull Application application) {
         super(application);
-        IMCenter.getInstance().addOnReceiveMessageListener(new RongIMClient.OnReceiveMessageWrapperListener() {
+        listener = new RongIMClient.OnReceiveMessageWrapperListener() {
             @Override
             public boolean onReceived(Message message, int left, boolean hasPackage, boolean offline) {
                 onReceivedMessage(message, left, hasPackage, offline);
                 return false;
             }
-        });
+        };
+        IMCenter.getInstance().addOnReceiveMessageListener(listener);
     }
 
     public LiveData<List<User>> getAllUsers() {
@@ -46,5 +48,11 @@ public class UserInfoViewModel extends AndroidViewModel {
                 }
             });
         }
+    }
+
+    @Override
+    protected void onCleared() {
+        IMCenter.getInstance().removeOnReceiveMessageListener(listener);
+        super.onCleared();
     }
 }

@@ -54,6 +54,20 @@ public class EmoticonBoard {
     private RongExtensionViewModel mExtensionViewModel;
     private Fragment mFragment;
     private ViewGroup mRoot;
+    private View.OnClickListener tabClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int count = mScrollTab.getChildCount();
+            if (count > 0) {
+                for (int i = 0; i < count; i++) {
+                    if (v.equals(mScrollTab.getChildAt(i))) {
+                        mViewPager.setCurrentItem(i);
+                        break;
+                    }
+                }
+            }
+        }
+    };
 
     public EmoticonBoard(Fragment fragment, ViewGroup parent, Conversation.ConversationType type, String targetId) {
         mFragment = fragment;
@@ -260,6 +274,10 @@ public class EmoticonBoard {
         }
     }
 
+    public int getVisibility() {
+        return mContainer != null ? mContainer.getVisibility() : View.GONE;
+    }
+
     public void setVisibility(int visibility) {
         if (mContainer != null) {
             if (visibility == View.VISIBLE) {
@@ -268,10 +286,6 @@ public class EmoticonBoard {
                 mContainer.setVisibility(View.GONE);
             }
         }
-    }
-
-    public int getVisibility() {
-        return mContainer != null ? mContainer.getVisibility() : View.GONE;
     }
 
     public void setTabViewEnable(boolean enable) {
@@ -296,7 +310,6 @@ public class EmoticonBoard {
         mExtraTabBarItem = getTabIcon(context, drawable);
         mExtraTabBarItem.setOnClickListener(clickListener);
     }
-
 
     private List<IEmoticonTab> getAllTabs() {
         Collection<List<IEmoticonTab>> c = mEmotionTabs.values();
@@ -357,27 +370,20 @@ public class EmoticonBoard {
         }
     }
 
-
-    private View.OnClickListener tabClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int count = mScrollTab.getChildCount();
-            if (count > 0) {
-                for (int i = 0; i < count; i++) {
-                    if (v.equals(mScrollTab.getChildAt(i))) {
-                        mViewPager.setCurrentItem(i);
-                        break;
-                    }
-                }
-            }
-        }
-    };
-
     private class TabPagerAdapter extends PagerAdapter {
 
         @Override
         public int getCount() {
-            return mEmotionTabs.size();
+            int size = 0;
+            if (mEmotionTabs.size() == 0) {
+                return 0;
+            }
+            for (List<IEmoticonTab> tabList : mEmotionTabs.values()) {
+                if (tabList != null) {
+                    size = size + tabList.size();
+                }
+            }
+            return size;
         }
 
         @NonNull

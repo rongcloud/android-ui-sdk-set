@@ -362,7 +362,7 @@ public class CameraView extends RelativeLayout implements SurfaceHolder.Callback
             public void onClick(View v) {
                 releaseCamera();
                 if (cameraViewListener != null) {
-                    cameraViewListener.quit();
+                    cameraViewListener.finish();
                 }
             }
         });
@@ -1100,5 +1100,7 @@ public class CameraView extends RelativeLayout implements SurfaceHolder.Callback
         void captureSuccess(Bitmap bitmap);
 
         void recordSuccess(String url, int recordDuration);
+
+        void finish();
     }
 }

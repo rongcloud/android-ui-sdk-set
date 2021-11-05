@@ -31,7 +31,6 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
         mCameraView.setCameraViewListener(new CameraView.CameraViewListener() {
             @Override
             public void quit() {
-                SightRecordActivity.this.finish();
             }
 
             @Override
@@ -57,6 +56,11 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
                 setResult(RESULT_OK, intent);
                 SightRecordActivity.this.finish();
             }
+
+            @Override
+            public void finish() {
+                SightRecordActivity.this.finish();
+            }
         });
     }
 
@@ -71,5 +75,10 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
     protected void onPause() {
         super.onPause();
         mCameraView.onPause();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
     }
 }

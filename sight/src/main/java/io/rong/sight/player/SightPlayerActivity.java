@@ -54,6 +54,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
     private int currentSeek;
     private int currentPlayerStatus;
     private TextView mFailedText;
+    private ImageView failedImageView;
     BaseMessageEvent mEvent = new BaseMessageEvent() {
         @Override
         public void onDownloadMessage(DownloadEvent event) {
@@ -84,6 +85,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
         rlSightDownload = findViewById(R.id.rl_sight_download);
         mCountDownView = findViewById(R.id.rc_count_down);
         mFailedText = findViewById(R.id.rc_sight_download_failed_tv_reminder);
+        failedImageView = findViewById(R.id.rc_sight_download_failed_iv_reminder);
         mSightDownloadFailedReminder = findViewById(R.id.rc_sight_download_failed_reminder);
 
         downloadMediaMessageCallback = new DownloadMediaMessageCallback(this);
@@ -358,6 +360,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity implements 
                         }
                     });
                     if (code.equals(RongIMClient.ErrorCode.RC_FILE_EXPIRED)) {
+                        activity.failedImageView.setVisibility(View.GONE);
                         activity.mFailedText.setText(R.string.rc_sight_file_expired);
                     } else {
                         activity.mFailedText.setText(R.string.rc_sight_download_failed);

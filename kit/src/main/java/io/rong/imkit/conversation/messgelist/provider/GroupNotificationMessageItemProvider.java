@@ -161,6 +161,10 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                             changeMsg = context.getString(R.string.rc_item_you_change_group_name) + "\"" + groupName + "\"";
                         }
                         holder.setText(R.id.rc_msg, changeMsg);
+                    } else {
+                        if (!TextUtils.isEmpty(groupNotificationMessage.getMessage())) {
+                            holder.setText(R.id.rc_msg, groupNotificationMessage.getMessage());
+                        }
                     }
             }
         } catch (Exception e) {

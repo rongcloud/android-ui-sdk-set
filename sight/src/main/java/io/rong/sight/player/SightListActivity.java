@@ -37,6 +37,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
     private Conversation.ConversationType conversationType;
     private SightListAdapter sightListAdapter;
     private final static int DEFAULT_FILE_COUNT = 100;
+    private boolean isDestruct;
 
 
     @Override
@@ -45,6 +46,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
         setContentView(R.layout.rc_activity_sight_list);
         Intent intent = getIntent();
         targetId = intent.getStringExtra("targetId");
+        isDestruct = intent.getBooleanExtra("isDestruct",false);
         conversationType = Conversation.ConversationType.setValue(intent.getIntExtra("conversationType", 0));
         ListView fileListView = findViewById(R.id.sightList);
         sightListAdapter = new SightListAdapter();
@@ -99,6 +101,9 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
     private void setListAdapterData(List<Message> messages, SightListAdapter sightListAdapter) {
         List<ItemData> itemDataList = new ArrayList<>();
         for (Message message : messages) {
+            if (isDestruct != message.getContent().isDestruct()){
+                continue;
+            }
             ItemData data = new ItemData();
             data.message = message;
             if (conversationType.equals(Conversation.ConversationType.GROUP)) {

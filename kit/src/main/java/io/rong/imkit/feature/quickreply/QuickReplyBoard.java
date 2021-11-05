@@ -22,6 +22,7 @@ import io.rong.imlib.model.Message;
 import io.rong.message.TextMessage;
 
 public class QuickReplyBoard {
+    private final AdapterView.OnItemClickListener mListener;
     private ListView mListView;
     private List<String> mPhraseList;
     private View mRootView;
@@ -29,8 +30,9 @@ public class QuickReplyBoard {
     private String mTargetId;
 
 
-    public QuickReplyBoard(@NonNull Context context, ViewGroup parent, List<String> phraseList) {
+    public QuickReplyBoard(@NonNull Context context, ViewGroup parent, List<String> phraseList, AdapterView.OnItemClickListener listener) {
         mPhraseList = phraseList;
+        mListener = listener;
         initView(context, parent);
     }
 
@@ -45,6 +47,9 @@ public class QuickReplyBoard {
                 String text = mPhraseList.get(position);
                 TextMessage textMessage = TextMessage.obtain(text);
                 IMCenter.getInstance().sendMessage(Message.obtain(mTargetId, mConversationType, textMessage), null, null, null);
+                if(mListener != null){
+                    mListener.onItemClick(parent, view, position, id);
+                }
             }
         });
     }

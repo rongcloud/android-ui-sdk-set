@@ -24,6 +24,7 @@ import androidx.lifecycle.Observer;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.rong.common.RLog;
@@ -35,7 +36,6 @@ import io.rong.imkit.model.ConversationKey;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imkit.utils.StringUtils;
 import io.rong.imkit.widget.cache.RongCache;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
@@ -84,9 +84,21 @@ public class RongNotificationManager {
         IMCenter.getInstance().addConversationStatusListener(new RongIMClient.ConversationStatusListener() {
             @Override
             public void onStatusChanged(ConversationStatus[] conversationStatuses) {
+                String stateType  = "";
+                String key = "";
                 if (conversationStatuses != null && conversationStatuses.length > 0) {
                     for (ConversationStatus status : conversationStatuses) {
-                        mNotificationCache.put(StringUtils.getKey(status.getConversationType().getName(), status.getTargetId()), status.getNotifyStatus());
+                        if (status.getStatus() == null) {
+                            continue;
+                        }
+                        for (Map.Entry<String, String> entry : status.getStatus().entrySet()) {
+                            stateType = entry.getKey();
+                            if (!TextUtils.isEmpty(stateType)) {
+                                break;
+                            }
+                        }
+                        key = getKey(status.getTargetId(), status.getConversationType(), stateType);
+                        mNotificationCache.put(key, status.getNotifyStatus());
                     }
                 }
             }
@@ -242,7 +254,7 @@ public class RongNotificationManager {
         Intent intent = new Intent(mApplication, destination == null ? RongConversationActivity.class : destination);
         intent.putExtra(RouteUtils.CONVERSATION_TYPE, type.getName().toLowerCase());
         intent.putExtra(RouteUtils.TARGET_ID, targetId);
-        intent.putExtra(RouteUtils.MESSAGE, message);
+        intent.putExtra(RouteUtils.MESSAGE_ID, message.getMessageId());
         PendingIntent pendingIntent = PendingIntent.getActivity(mApplication, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         if (RongConfigCenter.notificationConfig().getInterceptor() != null) {
             pendingIntent = RongConfigCenter.notificationConfig().getInterceptor().onPendingIntent(pendingIntent, intent);
@@ -439,7 +451,7 @@ public class RongNotificationManager {
     }
 
     public void getConversationNotificationStatus(Conversation.ConversationType type, String targetId, final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus> callback) {
-        final String key = StringUtils.getKey(type.getName(), targetId);
+        final String key = getKey(targetId, type, "1");
         if (mNotificationCache.get(key) != null && callback != null) {
             callback.onSuccess(mNotificationCache.get(key));
         } else {
@@ -622,6 +634,21 @@ public class RongNotificationManager {
     public void clearAllNotification() {
         NotificationManager notificationManager = (NotificationManager) mApplication.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+    }
+
+    /**
+     *
+     * @param targetId
+     * @param conversationType
+     * @param stateType 状态类型 1 免打扰， 2 置顶；
+     * @return
+     */
+    private String getKey(String targetId, Conversation.ConversationType conversationType, final String stateType) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(conversationType.getName());
+        stringBuilder.append(stateType);
+        stringBuilder.append(targetId);
+        return stringBuilder.toString();
     }
 
     private static class SingletonHolder {

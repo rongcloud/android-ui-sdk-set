@@ -166,26 +166,30 @@ public class NormalState implements IMessageState {
      */
     @Override
     public void onReceived(MessageViewModel viewModel, UiMessage uiMessage, int left, boolean hasPackage, boolean offline) {
-        int insertPosition = viewModel.findPositionBySendTime(uiMessage.getMessage().getSentTime());
-        viewModel.getUiMessages().add(insertPosition, uiMessage);
+        viewModel.getUiMessages().add(uiMessage);
         viewModel.refreshAllMessage(false);
         viewModel.updateMentionMessage(uiMessage.getMessage());
         // newMessageBar 逻辑
-        if (RongConfigCenter.conversationConfig().isShowNewMessageBar(uiMessage.getConversationType())) {
-            //不在最底部，添加到未读列表
-            if (!viewModel.isScrollToBottom() && !viewModel.filterMessageToHideNewMessageBar(uiMessage)) {
-                viewModel.getNewUnReadMessages().add(uiMessage);
-            }
-            //判断ui是否滑动到底部
-            if (RongConfigCenter.conversationConfig().isShowNewMessageBar(viewModel.getCurConversationType())) {
-                if (viewModel.isScrollToBottom()) {
-                    viewModel.executePostPageEvent(new ScrollToEndEvent());
-                } else {
-                    viewModel.processNewMessageUnread(false);
+        if (!RongConfigCenter.conversationConfig().isShowNewMessageBar(uiMessage.getConversationType())) {
+            viewModel.executePostPageEvent(new ScrollToEndEvent());
+        } else {
+            //如果是离线消息直接滑动到最底部
+            if (offline) {
+                viewModel.executePostPageEvent(new ScrollToEndEvent());
+            } else {
+                //不在最底部，添加到未读列表
+                if (!viewModel.isScrollToBottom() && !viewModel.filterMessageToHideNewMessageBar(uiMessage)) {
+                    viewModel.getNewUnReadMessages().add(uiMessage);
+                }
+                //判断ui是否滑动到底部
+                if (RongConfigCenter.conversationConfig().isShowNewMessageBar(viewModel.getCurConversationType())) {
+                    if (viewModel.isScrollToBottom()) {
+                        viewModel.executePostPageEvent(new ScrollToEndEvent());
+                    } else {
+                        viewModel.processNewMessageUnread(false);
+                    }
                 }
             }
-        } else {
-            viewModel.executePostPageEvent(new ScrollToEndEvent());
         }
     }
 
@@ -217,7 +221,8 @@ public class NormalState implements IMessageState {
         }
     }
 
-    private void getMentionMessage(final MessageViewModel viewModel, boolean isNewMentionMessage, final Message message) {
+    private void getMentionMessage(final MessageViewModel viewModel,
+                                   boolean isNewMentionMessage, final Message message) {
         if (isNewMentionMessage) {
             if (!isLoading) {
                 isLoading = true;

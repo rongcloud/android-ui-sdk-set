@@ -1,6 +1,7 @@
 package io.rong.imkit.conversation.extension.component.plugin;
 
 import android.content.Context;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.ConversationFragment;
@@ -39,6 +43,10 @@ public class PluginBoard {
     private PluginPagerAdapter mPagerAdapter;
     private LinearLayout mIndicator;
 
+    private final static int DEFAULT_SHOW_COLUMN = 4;
+    // FIXME: 2021/10/15 优先确保显示两行按钮时不会产生滑动
+    private final static int DEFAULT_SHOW_ROW = 2;
+
     public PluginBoard(Fragment fragment, ViewGroup parent, Conversation.ConversationType type, String targetId) {
         mFragment = fragment;
         mRoot = parent;
@@ -56,6 +64,30 @@ public class PluginBoard {
 
     private void initView(Context context, ViewGroup viewGroup) {
         mViewContainer = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.rc_ext_plugin_pager, viewGroup, false);
+        mViewContainer.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                mRoot.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ConstraintLayout.LayoutParams layoutParams = (ConstraintLayout.LayoutParams) mIndicator.getLayoutParams();
+                        Pair<Integer, Integer> cellSize = calculateCellSize(mRoot, DEFAULT_SHOW_COLUMN, DEFAULT_SHOW_ROW,
+                                0,
+                                mIndicator.getHeight() + layoutParams.topMargin + layoutParams.bottomMargin,
+                                0,
+                                0);
+                        for (GridView gridView : mPagerAdapter.pageSet) {
+                            ((PluginItemAdapter) gridView.getAdapter()).updateLayoutByCellSize(cellSize);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+
+            }
+        });
         try {
             mPluginCountPerPage = context.getResources().getInteger(context.getResources().getIdentifier("rc_extension_plugin_count_per_page", "integer", context.getPackageName()));
         } catch (Exception e) {
@@ -72,6 +104,16 @@ public class PluginBoard {
             }
         });
         initPlugins(mConversationType);
+    }
+
+    private Pair<Integer, Integer> calculateCellSize(ViewGroup parent, int numColumns, int numRows, int paddingTop, int paddingBottom, int paddingLeft, int paddingRight) {
+        int parentHeight = parent.getHeight();
+        int parentWidth = parent.getWidth();
+
+        int cellWidth = (parentWidth - paddingLeft - paddingRight) / numColumns;
+        int cellHeight = (parentHeight - paddingBottom - paddingTop) / numRows;
+        // 为保证在美观，宽高比最大不超过 1.2
+        return Pair.create(cellWidth, Math.min(cellHeight, (int) (cellWidth * 1.2)));
     }
 
     private void initIndicator(Context context, int pages, LinearLayout indicator) {
@@ -207,22 +249,26 @@ public class PluginBoard {
     private class PluginPagerAdapter extends RecyclerView.Adapter<PluginPagerViewHolder> {
         int pages;
         int items;
+        Set<GridView> pageSet = null;
 
         public PluginPagerAdapter(int pages, int items) {
             this.pages = pages;
             this.items = items;
+            pageSet = new HashSet<>();
         }
 
         @NonNull
         @Override
         public PluginPagerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             GridView gridView = (GridView) LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_ext_plugin_grid_view, parent, false);
+            pageSet.add(gridView);
             return new PluginPagerViewHolder(gridView);
         }
 
         @Override
         public void onBindViewHolder(@NonNull PluginPagerViewHolder holder, int position) {
             GridView gridView = holder.gridView;
+            gridView.setNumColumns(DEFAULT_SHOW_COLUMN);
             gridView.setAdapter(new PluginItemAdapter(position * mPluginCountPerPage, items));
         }
 
@@ -252,10 +298,12 @@ public class PluginBoard {
     private class PluginItemAdapter extends BaseAdapter {
         int count;
         int index;
+        Pair<Integer, Integer> cellSize;
 
         public PluginItemAdapter(int index, int count) {
             this.count = Math.min(mPluginCountPerPage, count - index);
             this.index = index;
+            cellSize = new Pair<>(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         }
 
         @Override
@@ -280,10 +328,20 @@ public class PluginBoard {
             if (convertView == null) {
                 holder = new ViewHolder();
                 convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_ext_plugin_item, null);
+
                 holder.imageView = convertView.findViewById(R.id.rc_ext_plugin_icon);
                 holder.textView = convertView.findViewById(R.id.rc_ext_plugin_title);
                 convertView.setTag(holder);
             }
+            ViewGroup.LayoutParams layoutParams = convertView.getLayoutParams();
+            if (layoutParams == null) {
+                layoutParams = new LinearLayout.LayoutParams(cellSize.first, cellSize.second);
+            } else {
+                layoutParams.width = cellSize.first;
+                layoutParams.height = cellSize.second;
+            }
+            convertView.setLayoutParams(layoutParams);
+
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -298,6 +356,13 @@ public class PluginBoard {
             holder.imageView.setImageDrawable(plugin.obtainDrawable(context));
             holder.textView.setText(plugin.obtainTitle(context));
             return convertView;
+        }
+
+        public void updateLayoutByCellSize(Pair<Integer, Integer> cellSize) {
+            if(this.cellSize == null || !this.cellSize.equals(cellSize)) {
+                this.cellSize = cellSize;
+                notifyDataSetChanged();
+            }
         }
 
         class ViewHolder {

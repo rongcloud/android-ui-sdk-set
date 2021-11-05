@@ -10,6 +10,7 @@
     <color name="rc_secondary_color">#A0A5AB</color>
     <color name="rc_auxiliary_color">#c7cbce</color>
     <color name="rc_divider_color">#E3E5E6</color>
+    <color name="rc_gif_item_pre_progress_color">#CCFFFFFF</color>
 
     <color name="rc_white_color">#FFFFFF</color>
     <color name="rc_voice_color">#111f2c</color>
@@ -34,8 +35,8 @@
 
     //Todo delete later
     <color name="rc_popup_dialog_list_divider_color">#dfdfdd</color>
-    <color name="rc_popup_dialog_prompt_ok_color">#0099ff</color>
-    <color name="rc_popup_dialog_prompt_cancel_color">#999999</color>
+    <color name="rc_popup_dialog_prompt_ok_color">#f43530</color>
+    <color name="rc_popup_dialog_prompt_cancel_color">#0099ff</color>
     <color name="rc_popup_dialog_prompt_clear_color">#f43530</color>
     <color name="rc_popup_dialog_text_color">#353535</color>
 

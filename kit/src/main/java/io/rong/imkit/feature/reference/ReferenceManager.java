@@ -110,6 +110,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                     boolean forbidConversationType = message.getConversationType().equals(Conversation.ConversationType.ENCRYPTED)
                             || message.getConversationType().equals(Conversation.ConversationType.APP_PUBLIC_SERVICE)
                             || message.getConversationType().equals(Conversation.ConversationType.PUBLIC_SERVICE)
+                            || message.getConversationType().equals(Conversation.ConversationType.SYSTEM)
                             || message.getConversationType().equals(Conversation.ConversationType.CUSTOMER_SERVICE);
                     boolean isFireMsg = message.getContent().isDestruct();
                     boolean isFireMode = RongExtensionCacheHelper.isDestructMode(rongExtension.getContext(), rongExtension.getConversationType(), rongExtension.getTargetId());
@@ -224,6 +225,9 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
     private RongIMClient.OnRecallMessageListener mRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
         @Override
         public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
+            if (mFragment == null) {
+                return false;
+            }
             Fragment fragment = mFragment.get();
             if (fragment == null) {
                 return false;
@@ -310,16 +314,17 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             referenceInstance.mRongExtension = null;
             referenceInstance.mFragment = null;
         } else {
-            mRongExtension = null;
-            mFragment = null;
-            MessageItemLongClickActionManager.getInstance().removeMessageItemLongClickAction(mClickActionReference);
             IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
+            MessageItemLongClickActionManager.getInstance().removeMessageItemLongClickAction(mClickActionReference);
             IMCenter.getInstance().removeMessageEventListener(mMessageEventListener);
             RongExtensionManager.getInstance().removeExtensionEventWatcher(this);
+            mRongExtension = null;
+            mFragment = null;
+
         }
     }
 
-    private void hideReferenceView() {
+    public void hideReferenceView() {
         mReferenceMessage = null;
         RongExtension rongExtension = null;
 

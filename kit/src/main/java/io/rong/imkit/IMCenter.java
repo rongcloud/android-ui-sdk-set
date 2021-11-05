@@ -195,6 +195,9 @@ public class IMCenter {
             for (MessageEventListener item : mMessageEventListeners) {
                 item.onDeleteMessage(new DeleteEvent(message.getConversationType(), message.getTargetId(), new int[]{message.getMessageId()}));
             }
+            if (MessageItemLongClickActionManager.getInstance().getLongClickDialog() != null) {
+                MessageItemLongClickActionManager.getInstance().getLongClickDialog().dismiss();
+            }
         }
     };
     private RongIMClient.SyncConversationReadStatusListener mSyncConversationReadStatusListener = new RongIMClient.SyncConversationReadStatusListener() {
@@ -281,6 +284,7 @@ public class IMCenter {
 
     /**
      * 返回 SDK 是否已经初始化。
+     *
      * @return true 代表已经初始化；false 未初始化。
      */
     public boolean isInitialized() {
@@ -1059,10 +1063,31 @@ public class IMCenter {
         });
     }
 
+    /**
+     * 向本地会话中插入一条消息，方向为发送。这条消息只是插入本地会话，不会实际发送给服务器和对方。
+     * 插入消息需为入库消息，即 {@link MessageTag#ISPERSISTED}，否者会回调 {@link RongIMClient.ErrorCode#PARAMETER_ERROR}
+     *
+     * @param type           会话类型。
+     * @param targetId       目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
+     * @param sentStatus     接收状态 @see {@link Message.ReceivedStatus}
+     * @param content        消息内容。如{@link TextMessage} {@link ImageMessage}等。
+     * @param resultCallback 获得消息发送实体的回调。
+     */
     public void insertOutgoingMessage(Conversation.ConversationType type, String targetId, Message.SentStatus sentStatus, MessageContent content, final RongIMClient.ResultCallback<Message> resultCallback) {
         insertOutgoingMessage(type, targetId, sentStatus, content, System.currentTimeMillis(), resultCallback);
     }
 
+    /**
+     * 向本地会话中插入一条消息，方向为发送。这条消息只是插入本地会话，不会实际发送给服务器和对方。
+     * 插入消息需为入库消息，即 {@link MessageTag#ISPERSISTED}，否者会回调 {@link RongIMClient.ErrorCode#PARAMETER_ERROR}
+     *
+     * @param type           会话类型。
+     * @param targetId       目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
+     * @param sentStatus     发送状态 @see {@link Message.SentStatus}
+     * @param content        消息内容。如{@link TextMessage} {@link ImageMessage}等。
+     * @param time           插入消息所要模拟的发送时间。
+     * @param resultCallback 获得消息发送实体的回调。
+     */
     public void insertOutgoingMessage(Conversation.ConversationType type, String targetId, Message.SentStatus sentStatus, MessageContent content, long time, final RongIMClient.ResultCallback<Message> resultCallback) {
         RongIMClient.getInstance().insertOutgoingMessage(type, targetId, sentStatus, content, time, new RongIMClient.ResultCallback<Message>() {
             @Override
@@ -1144,10 +1169,10 @@ public class IMCenter {
     /**
      * 删除会话里的一条或多条消息。
      *
-     * @param conversationType
-     * @param targetId
-     * @param messageIds
-     * @param callback
+     * @param conversationType 会话类型
+     * @param targetId         会话 Id
+     * @param messageIds       待删除的消息 Id 数组。
+     * @param callback         删除操作的回调。
      */
     public void deleteMessages(final Conversation.ConversationType conversationType, final String targetId, final int[] messageIds, final RongIMClient.ResultCallback<Boolean> callback) {
         RongIMClient.getInstance().deleteMessages(messageIds, new RongIMClient.ResultCallback<Boolean>() {

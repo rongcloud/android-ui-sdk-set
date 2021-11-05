@@ -13,6 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
 
@@ -26,16 +27,12 @@ import io.rong.imkit.config.RongConfigCenter;
 
 public class NotificationUtil {
     private final String TAG = NotificationUtil.class.getSimpleName();
-    private final String CHANNEL_ID = "rc_notification_id";
+    private final String CHANNEL_ID = "RCChannel";
     private final int SOUND_INTERVAL = 3000;
     private long mLastSoundTime;
 
     private NotificationUtil() {
 
-    }
-
-    private static class SingletonHolder {
-        static NotificationUtil sInstance = new NotificationUtil();
     }
 
     public static NotificationUtil getInstance() {
@@ -51,7 +48,7 @@ public class NotificationUtil {
      * @param defaults       控制通知属性， 对应public Builder setDefaults(int defaults)
      */
     public void showNotification(Context context, String title, String content, PendingIntent pendingIntent, int notificationId, int defaults) {
-        Notification notification = createNotification(context, title, content, pendingIntent, defaults);
+        Notification notification;
         NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -63,9 +60,13 @@ public class NotificationUtil {
                     channel = RongConfigCenter.notificationConfig().getInterceptor().onRegisterChannel(getDefaultChannel(context));
                 }
                 nm.createNotificationChannel(channel);
+                notification = createNotification(context, title, content, pendingIntent, defaults, channel.getId());
+            } else {
+                notification = createNotification(context, title, content, pendingIntent, defaults, null);
             }
+
             if (notification != null) {
-                RLog.d(TAG,"notify for local notification");
+                RLog.d(TAG, "notify for local notification");
                 nm.notify(notificationId, notification);
             }
         }
@@ -94,7 +95,7 @@ public class NotificationUtil {
         nm.cancel(notificationId);
     }
 
-    private Notification createNotification(Context context, String title, String content, PendingIntent pendingIntent, int defaults) {
+    private Notification createNotification(Context context, String title, String content, PendingIntent pendingIntent, int defaults, String channelId) {
         String tickerText = context.getResources().getString(context.getResources().getIdentifier("rc_notification_ticker_text", "string", context.getPackageName()));
         Notification notification;
         boolean isLollipop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
@@ -127,10 +128,10 @@ public class NotificationUtil {
         builder.setContentText(content);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        builder.setOngoing(true);
+        builder.setOngoing(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(CHANNEL_ID);
+            builder.setChannelId(TextUtils.isEmpty(channelId) ? CHANNEL_ID : channelId);
         } else {
             if (System.currentTimeMillis() - mLastSoundTime >= SOUND_INTERVAL) {
                 builder.setDefaults(defaults);
@@ -145,5 +146,9 @@ public class NotificationUtil {
     public int getRingerMode(Context context) {
         AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         return audio.getRingerMode();
+    }
+
+    private static class SingletonHolder {
+        static NotificationUtil sInstance = new NotificationUtil();
     }
 }

@@ -38,6 +38,7 @@
             android:layout_width="@dimen/rc_gif_item_progress_size"
             android:layout_height="@dimen/rc_gif_item_progress_size"
             android:layout_gravity="center"
+            android:indeterminateTint="@color/rc_gif_item_pre_progress_color"
             android:visibility="visible" />
 
         <io.rong.imkit.widget.CircleProgressView

@@ -1,8 +1,11 @@
 package io.rong.imkit.conversation.extension;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -31,6 +34,9 @@ import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.keyboard.KeyboardHeightObserver;
+import io.rong.imkit.utils.keyboard.KeyboardHeightProvider;
 import io.rong.imlib.model.Conversation;
 
 public class RongExtension extends LinearLayout {
@@ -51,6 +57,38 @@ public class RongExtension extends LinearLayout {
     private InputPanel.InputStyle mInputStyle;
     private MoreInputPanel mMoreInputPanel;
     private InputMode mPreInputMode;
+
+    private KeyboardHeightProvider keyboardHeightProvider = null;
+    private boolean editTextIsFocused = false;
+
+
+    private final KeyboardHeightObserver mKeyboardHeightObserver = new KeyboardHeightObserver() {
+
+        @Override
+        public void onKeyboardHeightChanged(int height, int orientation, boolean isOpen, int keyboardHeight) {
+            if (getActivityFromView() != null) {
+                if (isOpen) {
+                    int saveKeyBoardHeight = RongUtils.getSaveKeyBoardHeight(getContext(), orientation);
+                    if (saveKeyBoardHeight != keyboardHeight) {
+                        RongUtils.saveKeyboardHeight(getContext(), orientation, keyboardHeight);
+                        updateBoardContainerHeight();
+                    }
+                    mBoardContainer.setVisibility(VISIBLE);
+                    mExtensionViewModel.getExtensionBoardState().setValue(true);
+                } else {
+                    if (mExtensionViewModel != null) {
+                        if (mExtensionViewModel.isSoftInputShow()) {
+                            mExtensionViewModel.setSoftInputKeyBoard(false, false);
+                        }
+                        if (mPreInputMode == InputMode.TextInput || mPreInputMode == InputMode.VoiceInput) {
+                            mBoardContainer.setVisibility(GONE);
+                            mExtensionViewModel.getExtensionBoardState().setValue(false);
+                        }
+                    }
+                }
+            }
+        }
+    };
 
     /**
      * RongExtension 构造方法.
@@ -74,6 +112,10 @@ public class RongExtension extends LinearLayout {
         int attr = a.getInt(R.styleable.RongExtension_RCStyle, 0x123);
         a.recycle();
         mInputStyle = InputPanel.InputStyle.getStyle(attr);
+        Activity activity = getActivityFromView();
+        if (activity != null) {
+            keyboardHeightProvider = new KeyboardHeightProvider(activity);
+        }
         initView(context);
     }
 
@@ -144,6 +186,23 @@ public class RongExtension extends LinearLayout {
         }
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if (keyboardHeightProvider != null) {
+            keyboardHeightProvider.setKeyboardHeightObserver(mKeyboardHeightObserver);
+        }
+
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (keyboardHeightProvider != null) {
+            keyboardHeightProvider.setKeyboardHeightObserver(null);
+        }
+    }
+
     /**
      * ConversationFragment onResume() 时的生命周期回调。
      */
@@ -151,25 +210,48 @@ public class RongExtension extends LinearLayout {
         if (mExtensionViewModel == null) {
             return;
         }
-        final EditText editText = mExtensionViewModel.getEditTextWidget();
-        if (editText != null && (editText.getText().length() > 0 || editText.isFocused())) {
-            this.postDelayed(new Runnable() {
+        if (keyboardHeightProvider != null) {
+            this.post(new Runnable() {
                 @Override
                 public void run() {
-                    mExtensionViewModel.forceSetSoftInputKeyBoard(true);
-                }
-            }, 100);
-
-            editText.setOnKeyListener(new View.OnKeyListener() {
-                @Override
-                public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
-                        int cursorPos = editText.getSelectionStart();
-                        RongMentionManager.getInstance().onDeleteClick(mConversationType, mTargetId, editText, cursorPos);
-                    }
-                    return false;
+                    keyboardHeightProvider.start();
                 }
             });
+        }
+        final EditText editText = mExtensionViewModel.getEditTextWidget();
+        if (editText != null) {
+            if (editTextIsFocused) {
+                this.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        editText.setSelection(editText.getText().toString().length());
+                        editText.requestFocus();
+                        mExtensionViewModel.forceSetSoftInputKeyBoard(true);
+                    }
+                }, 200);
+            }
+            if ((editText.getText().length() > 0 || editText.isFocused())) {
+                editText.setOnKeyListener(new View.OnKeyListener() {
+                    @Override
+                    public boolean onKey(View v, int keyCode, KeyEvent event) {
+                        if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
+                            int cursorPos = editText.getSelectionStart();
+                            RongMentionManager.getInstance().onDeleteClick(mConversationType, mTargetId, editText, cursorPos);
+                        }
+                        return false;
+                    }
+                });
+            }
+        }
+    }
+
+    public void onPause() {
+        editTextIsFocused = mExtensionViewModel.getEditTextWidget().isFocused();
+        if (keyboardHeightProvider != null) {
+            keyboardHeightProvider.stop();
+        }
+        if (mPreInputMode == InputMode.TextInput && mBoardContainer != null) {
+            mExtensionViewModel.collapseExtensionBoard();
         }
     }
 
@@ -239,14 +321,24 @@ public class RongExtension extends LinearLayout {
             if (isEditTextSameProperty(editText)) return;
             RLog.d(TAG, "update for TextInput mode");
             mInputPanelContainer.setVisibility(VISIBLE);
-            mBoardContainer.setVisibility(GONE);
+
+            updateBoardContainerHeight();
+            mBoardContainer.removeAllViews();
+            mBoardContainer.addView(mPluginBoard.getView());
+
+            Activity activity = getActivityFromView();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && activity != null && activity.isInMultiWindowMode()) {
+                mExtensionViewModel.getExtensionBoardState().setValue(false);
+            } else {
+                mExtensionViewModel.getExtensionBoardState().setValue(true);
+            }
+
             if ((editText.isFocused() || editText.getText().length() > 0)) {
                 this.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (mFragment != null && mFragment.getActivity() != null && !mFragment.getActivity().isFinishing()) {
                             mExtensionViewModel.setSoftInputKeyBoard(true);
-                            mExtensionViewModel.getExtensionBoardState().setValue(true);
                         }
                     }
                 }, 100);
@@ -257,13 +349,14 @@ public class RongExtension extends LinearLayout {
         } else if (inputMode.equals(InputMode.VoiceInput)) {
             mInputPanelContainer.setVisibility(VISIBLE);
             mBoardContainer.setVisibility(GONE);
-            mExtensionViewModel.setSoftInputKeyBoard(false);
+            mExtensionViewModel.forceSetSoftInputKeyBoard(false);
             mExtensionViewModel.getExtensionBoardState().setValue(false);
         } else if (inputMode.equals(InputMode.EmoticonMode)) {
             mExtensionViewModel.setSoftInputKeyBoard(false);
             this.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    updateBoardContainerHeight();
                     mBoardContainer.removeAllViews();
                     mBoardContainer.addView(mEmoticonBoard.getView());
                     mBoardContainer.setVisibility(VISIBLE);
@@ -271,11 +364,19 @@ public class RongExtension extends LinearLayout {
                 }
             }, 100);
         } else if (inputMode.equals(InputMode.PluginMode)) {
-            mBoardContainer.removeAllViews();
-            mBoardContainer.addView(mPluginBoard.getView());
-            mBoardContainer.setVisibility(VISIBLE);
             mExtensionViewModel.setSoftInputKeyBoard(false);
-            mExtensionViewModel.getExtensionBoardState().setValue(true);
+            this.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateBoardContainerHeight();
+                    mBoardContainer.removeAllViews();
+                    mBoardContainer.addView(mPluginBoard.getView());
+                    mBoardContainer.setVisibility(VISIBLE);
+                    mExtensionViewModel.forceSetSoftInputKeyBoard(false);
+                    mExtensionViewModel.getExtensionBoardState().setValue(true);
+                }
+            }, 100);
+
         } else if (inputMode.equals(InputMode.MoreInputMode)) {
             mInputPanelContainer.setVisibility(GONE);
             mBoardContainer.setVisibility(GONE);
@@ -287,8 +388,25 @@ public class RongExtension extends LinearLayout {
             mAttachedInfoContainer.setVisibility(VISIBLE);
             mExtensionViewModel.setSoftInputKeyBoard(false);
             mExtensionViewModel.getExtensionBoardState().setValue(false);
+        } else if (inputMode.equals(InputMode.QuickReplyMode)) {
+            mInputPanelContainer.setVisibility(VISIBLE);
+            mBoardContainer.setVisibility(VISIBLE);
+            mExtensionViewModel.forceSetSoftInputKeyBoard(false);
+            mExtensionViewModel.getExtensionBoardState().setValue(true);
         }
 
+    }
+
+    private void updateBoardContainerHeight() {
+        int saveKeyboardHeight = RongUtils.getSaveKeyBoardHeight(getContext(), getContext().getResources().getConfiguration().orientation);
+        ViewGroup.LayoutParams layoutParams = mBoardContainer.getLayoutParams();
+        if (saveKeyboardHeight <= 0 && layoutParams.height != getResources().getDimensionPixelSize(R.dimen.rc_extension_board_height)) {
+            layoutParams.height = getResources().getDimensionPixelSize(R.dimen.rc_extension_board_height);
+            mBoardContainer.setLayoutParams(layoutParams);
+        } else if (layoutParams.height != saveKeyboardHeight) {
+            layoutParams.height = saveKeyboardHeight;
+            mBoardContainer.setLayoutParams(layoutParams);
+        }
     }
 
     /**
@@ -384,7 +502,7 @@ public class RongExtension extends LinearLayout {
         if (mInputPanel != null) {
             mInputPanel.onDestroy();
         }
-
+        RongMentionManager.getInstance().destroyInstance(mConversationType, mTargetId, getInputEditText());
         for (IExtensionEventWatcher watcher : RongExtensionManager.getInstance().getExtensionEventWatcher()) {
             watcher.onDestroy(mConversationType, mTargetId);
         }
@@ -399,6 +517,7 @@ public class RongExtension extends LinearLayout {
         int cursorPos = editText.getSelectionStart();
         editText.getEditableText().insert(cursorPos, content);
         editText.setSelection(cursorPos + len);
+
     }
 
     /**
@@ -411,6 +530,17 @@ public class RongExtension extends LinearLayout {
         return (mPreInputMode.equals(InputMode.TextInput)
                 && (editText.isFocused() || editText.getText().length() > 0)
                 && mExtensionViewModel.isSoftInputShow());
+    }
+
+    private Activity getActivityFromView() {
+        Context context = getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        return null;
     }
 
     public enum ContainerType {

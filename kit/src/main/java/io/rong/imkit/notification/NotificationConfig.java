@@ -105,7 +105,7 @@ public class NotificationConfig {
          *                      可通过 intent 获取以下信息:
          *                      intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
          *                      intent.getStringExtra(RouteUtils.TARGET_ID);
-         *                      intent.getParcelableExtra(RouteUtils.MESSAGE);
+         *                      intent.getIntExtra(RouteUtils.MESSAGE_ID, -1);
          * @return 本地通知里需配置的 PendingIntent.
          */
         PendingIntent onPendingIntent(PendingIntent pendingIntent, Intent intent);

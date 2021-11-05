@@ -3,6 +3,7 @@ package io.rong.imkit.utils;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -53,6 +54,12 @@ public class RongUtils {
     public static int dialogWidth;
     public static int statusbarheight;
     public static int navbarheight;
+
+    private static String RONG_IM_KIT = "RONG_IM_KIT";
+    private static String KEY_KEYBOARD_HEIGHT = "KEY_BROADCAST_HEIGHT";
+    private static int TEMP_KEYBOARD_HEIGHT = -1;
+    private static int TEMP_KEYBOARD_ORIENTATION = -1;
+
 
     public static int dip2px(float dipValue) {
         return (int) (dipValue * density + 0.5f);
@@ -388,5 +395,30 @@ public class RongUtils {
         TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         int state = mTelephonyManager.getCallState();
         return state != TelephonyManager.CALL_STATE_IDLE;
+    }
+
+    public static int getSaveKeyBoardHeight(Context context, int orientation) {
+        if (TEMP_KEYBOARD_HEIGHT == -1 || orientation != TEMP_KEYBOARD_ORIENTATION) {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(RONG_IM_KIT, Context.MODE_PRIVATE);
+            int height = sharedPreferences.getInt(getKeyboardHeightKey(context, orientation), 0);
+            TEMP_KEYBOARD_HEIGHT = height;
+            TEMP_KEYBOARD_ORIENTATION = orientation;
+            return height;
+        } else {
+            return TEMP_KEYBOARD_HEIGHT;
+        }
+    }
+
+    public static void saveKeyboardHeight(Context context, int orientation, int height) {
+        if (TEMP_KEYBOARD_HEIGHT != height || orientation != TEMP_KEYBOARD_ORIENTATION) {
+            TEMP_KEYBOARD_HEIGHT = height;
+            TEMP_KEYBOARD_ORIENTATION = orientation;
+            SharedPreferences sharedPreferences = context.getSharedPreferences(RONG_IM_KIT, Context.MODE_PRIVATE);
+            sharedPreferences.edit().putInt(getKeyboardHeightKey(context, orientation), height).apply();
+        }
+    }
+
+    private static String getKeyboardHeightKey(Context context, int orientation) {
+        return KEY_KEYBOARD_HEIGHT + "_" + orientation;
     }
 }

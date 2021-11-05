@@ -15,6 +15,8 @@
         android:layout_marginEnd="7dp"
         android:layout_marginBottom="2dp"
         android:text="title"
+        android:ellipsize="end"
+        android:lines="1"
         android:textColor="@color/rc_text_main_color"
         android:textSize="17dp" />
 

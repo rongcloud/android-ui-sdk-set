@@ -402,6 +402,7 @@ public class RongIM {
      * @param senderUserId   发送方 Id
      * @param receivedStatus 接收状态 @see {@link Message.ReceivedStatus}
      * @param content        消息内容。如{@link TextMessage} {@link ImageMessage}等。
+     * @param sentTime       插入消息所要模拟的消息发送时间
      * @param callback       获得消息发送实体的回调。
      */
     public void insertIncomingMessage(Conversation.ConversationType type, String targetId,
@@ -452,6 +453,7 @@ public class RongIM {
      * @param targetId   目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
      * @param sentStatus 发送状态 @see {@link Message.SentStatus}
      * @param content    消息内容。如{@link TextMessage} {@link ImageMessage}等。
+     * @param sentTime   插入消息所要模拟的发送时间。
      * @param callback   获得消息发送实体的回调。
      */
     public void insertOutgoingMessage(Conversation.ConversationType type, String targetId,

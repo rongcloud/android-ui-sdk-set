@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
+    <io.rong.imkit.widget.RongEditText
         android:id="@+id/edit_btn"
         style="@style/EditTextStyle.Alignment"
         android:layout_width="0dp"

@@ -112,9 +112,6 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
     @Override
     protected boolean onItemClick(ViewHolder holder, SightMessage sightMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
         if (sightMessage != null) {
-            if (Message.SentStatus.SENDING.equals(uiMessage.getSentStatus())) {
-                return true;
-            }
             if (!RongOperationPermissionUtils.isMediaOperationPermit(holder.getContext())) {
                 return true;
             }

@@ -58,6 +58,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
                 cursor = start;
                 offset = count;
             }
+            RongMentionManager.getInstance().onTextChanged(getApplication().getApplicationContext(), mConversationType, mTargetId, cursor, offset, s.toString(), mEditText);
             for (IExtensionEventWatcher watcher : RongExtensionManager.getInstance().getExtensionEventWatcher()) {
                 watcher.onTextChanged(getApplication().getApplicationContext(), mConversationType, mTargetId, cursor, offset, s.toString());
             }
@@ -130,7 +131,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
             textMessage.setDestructTime(time);
         }
         io.rong.imlib.model.Message message = io.rong.imlib.model.Message.obtain(mTargetId, mConversationType, textMessage);
-
+        RongMentionManager.getInstance().onSendToggleClick(message, mEditText);
         if (RongExtensionManager.getInstance().getExtensionEventWatcher().size() > 0) {
             for (IExtensionEventWatcher watcher : RongExtensionManager.getInstance().getExtensionEventWatcher()) {
                 watcher.onSendToggleClick(message);
@@ -173,13 +174,18 @@ public class RongExtensionViewModel extends AndroidViewModel {
     }
 
     public void setSoftInputKeyBoard(boolean isShow) {
-        if (isSoftInputShow == isShow) {
-            return;
-        }
         forceSetSoftInputKeyBoard(isShow);
     }
 
+    public void setSoftInputKeyBoard(boolean isShow, boolean clearFocus) {
+        forceSetSoftInputKeyBoard(isShow, clearFocus);
+    }
+
     public void forceSetSoftInputKeyBoard(boolean isShow) {
+        forceSetSoftInputKeyBoard(isShow, true);
+    }
+
+    public void forceSetSoftInputKeyBoard(boolean isShow, boolean clearFocus) {
         InputMethodManager imm = (InputMethodManager) getApplication().getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             if (isShow) {
@@ -187,7 +193,9 @@ public class RongExtensionViewModel extends AndroidViewModel {
                 imm.showSoftInput(mEditText, 0);
             } else {
                 imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
-                mEditText.clearFocus();
+                if (clearFocus) {
+                    mEditText.clearFocus();
+                }
             }
             isSoftInputShow = isShow;
         }

@@ -39,6 +39,7 @@
             android:ellipsize="end"
             android:gravity="start"
             android:lines="3"
+            android:autoLink="web"
             android:paddingBottom="9dp"
             tools:text="content" />
 

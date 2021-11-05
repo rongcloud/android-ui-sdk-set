@@ -48,6 +48,7 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
     public ImageMessageItemProvider() {
         mConfig.showContentBubble = false;
         mConfig.showProgress = false;
+        mConfig.showReadState = true;
         Context context = IMCenter.getInstance().getContext();
         if (context != null) {
             Resources resources = context.getResources();

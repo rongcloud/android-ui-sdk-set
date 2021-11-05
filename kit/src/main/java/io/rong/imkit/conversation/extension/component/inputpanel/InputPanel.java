@@ -25,10 +25,12 @@ import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
+import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.IMLibExtensionModuleManager;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -138,8 +140,13 @@ public class InputPanel {
                         && mExtensionViewModel.getInputModeLiveData().getValue().equals(InputMode.PluginMode)) {
                     mEditText.requestFocus();
                     mExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
+                } else {
+                    mExtensionViewModel.getInputModeLiveData().setValue(InputMode.PluginMode);
+                    ReferenceManager.getInstance().hideReferenceView();
                 }
-                mExtensionViewModel.getInputModeLiveData().setValue(InputMode.PluginMode);
+                if (TextUtils.isEmpty(mInitialDraft)) {
+                    getDraft();
+                }
             }
         });
         mVoiceInputBtn.setOnTouchListener(mOnVoiceBtnTouchListener);
@@ -166,6 +173,13 @@ public class InputPanel {
             mEmojiToggleBtn.setImageDrawable(mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_keyboard_btn));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
+        } else if(inputMode.equals(InputMode.QuickReplyMode)){
+            mIsVoiceInputMode = false;
+            mVoiceToggleBtn.setImageDrawable(mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_voice_btn));
+            mEmojiToggleBtn.setImageDrawable(mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+            mEditText.setVisibility(VISIBLE);
+            mVoiceInputBtn.setVisibility(GONE);
+            mEmojiToggleBtn.setImageDrawable(mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
         }
     }
 
@@ -247,10 +261,19 @@ public class InputPanel {
             @Override
             public void onSuccess(final String s) {
                 if (!TextUtils.isEmpty(s)) {
-                    mInitialDraft = s;
-                    mEditText.setText(s);
-                    mEditText.setSelection(s.length());
-                    mEditText.requestFocus();
+                    mEditText.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            mInitialDraft = s;
+                            if (mEditText instanceof RongEditText) {
+                                ((RongEditText) mEditText).setText(s, false);
+                            } else {
+                                mEditText.setText(s);
+                            }
+                            mEditText.setSelection(s.length());
+                            mEditText.requestFocus();
+                        }
+                    }, 50);
                 }
             }
 

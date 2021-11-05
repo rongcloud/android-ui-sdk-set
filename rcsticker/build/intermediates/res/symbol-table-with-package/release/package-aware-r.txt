@@ -856,6 +856,7 @@ color rc_emoji_grid_item_bg
 color rc_ext_menu_item_text_color
 color rc_extension_normal
 color rc_file_preview_name
+color rc_gif_item_pre_progress_color
 color rc_image_count_down
 color rc_item_background_color
 color rc_item_space_color
@@ -2009,6 +2010,7 @@ id popup_dialog_button_ok
 id popup_dialog_message
 id popup_dialog_prompt_button
 id popup_dialog_title
+id popuplayout
 id portrait
 id position
 id postLayout
@@ -2503,6 +2505,7 @@ layout rc_item_reference_message
 layout rc_item_rich_content_message
 layout rc_item_sight_message
 layout rc_item_voice_message
+layout rc_keyboard_popupwindow
 layout rc_listitem_forward_select_member
 layout rc_location_2d_activity
 layout rc_location_map_nearby_info_item

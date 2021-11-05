@@ -11,6 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,7 @@ import io.rong.message.ReferenceMessage;
 public class PicturePagerActivity extends RongBaseNoActionbarActivity implements View.OnLongClickListener {
     private static final String TAG = "PicturePagerActivity";
     private static final int IMAGE_MESSAGE_COUNT = 10; //每次获取的图片消息数量。
+    private static final int LOAD_PICTURE_TIMEOUT = 30 * 1000; //  最小图片加载时间
     protected ViewPager2 mViewPager;
     protected ImageMessage mCurrentImageMessage;
     protected Message mMessage;
@@ -421,9 +423,11 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
             if (mCurrentImageMessage.isDestruct() && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
                 DestructManager.getInstance().addListener(mMessage.getUId(), new DestructListener(holder, mMessage.getUId()), TAG);
             }
-            Glide.with(PicturePagerActivity.this).asBitmap().load(originalUri).timeout(30000).into(new CustomTarget<Bitmap>() {
+            Glide.with(PicturePagerActivity.this).asBitmap().load(originalUri).timeout(LOAD_PICTURE_TIMEOUT).into(new CustomTarget<Bitmap>() {
+                private Runnable mLoadFailedAction = null;
                 @Override
                 public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    holder.itemView.removeCallbacks(mLoadFailedAction);
                     int maxLoader = Utils.getMaxLoader();//openGL最大允许的长或宽
                     if (resource != null && resource.getWidth() < maxLoader && resource.getHeight() < maxLoader) {
                         resource = resource.copy(Bitmap.Config.ARGB_8888, true);
@@ -450,7 +454,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                             imageInfo.download = true;
                             return;
                         }
-                        Glide.with(PicturePagerActivity.this).asFile().load(originalUri).timeout(30000).into(new CustomTarget<File>() {
+                        Glide.with(PicturePagerActivity.this).asFile().load(originalUri).timeout(LOAD_PICTURE_TIMEOUT).into(new CustomTarget<File>() {
                             @Override
                             public void onResourceReady(@NonNull File resource, @Nullable Transition<? super File> transition) {
                                 if (mCurrentImageMessage.isDestruct() && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
@@ -499,6 +503,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
 
                 @Override
                 public void onLoadStarted(@Nullable Drawable placeholder) {
+                    holder.itemView.removeCallbacks(mLoadFailedAction);
                     String thumbPath = null;
                     if ("file".equals(thumbUri.getScheme())) {
                         thumbPath = thumbUri.toString().substring(7);
@@ -524,11 +529,30 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
                     holder.photoView.setVisibility(View.VISIBLE);
                     holder.photoView.setBitmapAndFileUri(tempBitmap, null);
                     holder.progressBar.setVisibility(View.VISIBLE);
+                    holder.failImg.setVisibility(View.GONE);
+                    holder.progressText.setVisibility(View.GONE);
+                    holder.startLoadTime = SystemClock.elapsedRealtime();
                 }
 
                 @Override
                 public void onLoadFailed(@Nullable Drawable errorDrawable) {
                     super.onLoadFailed(errorDrawable);
+                    long delayMillis = (holder.startLoadTime + LOAD_PICTURE_TIMEOUT) - SystemClock.elapsedRealtime();
+                    holder.itemView.removeCallbacks(mLoadFailedAction);
+                    if (delayMillis > 0) {
+                        mLoadFailedAction = new Runnable() {
+                            @Override
+                            public void run() {
+                                loadFailed(holder);
+                            }
+                        };
+                        holder.itemView.postDelayed(mLoadFailedAction, delayMillis);
+                    } else {
+                        loadFailed(holder);
+                    }
+                }
+
+                private void loadFailed(ViewHolder holder) {
                     holder.progressText.setVisibility(View.VISIBLE);
                     holder.progressText.setText(R.string.rc_load_image_failed);
                     holder.progressBar.setVisibility(View.GONE);
@@ -610,6 +634,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity implements
             ImageView failImg;
             SubsamplingScaleImageView photoView;
             TextView mCountDownView;
+            long startLoadTime;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);

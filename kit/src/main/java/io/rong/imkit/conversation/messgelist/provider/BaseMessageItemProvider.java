@@ -25,6 +25,7 @@ import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UserInfo;
 import io.rong.message.HistoryDividerMessage;
 import io.rong.message.TextMessage;
 
@@ -111,7 +112,8 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
             holder.setVisible(R.id.rc_left_portrait, !isSender);
             holder.setVisible(R.id.rc_right_portrait, isSender);
             ImageView view = holder.getView(isSender ? R.id.rc_right_portrait : R.id.rc_left_portrait);
-            if (uiMessage.getUserInfo().getPortraitUri() != null) {
+            UserInfo userInfo = uiMessage.getUserInfo();
+            if (userInfo != null && userInfo.getPortraitUri() != null) {
                 RongConfigCenter.featureConfig().getKitImageEngine().loadConversationPortrait(holder.getContext(), uiMessage.getUserInfo().getPortraitUri().toString(), view, uiMessage.getMessage());
             }
             holder.setOnClickListener(R.id.rc_left_portrait, new View.OnClickListener() {

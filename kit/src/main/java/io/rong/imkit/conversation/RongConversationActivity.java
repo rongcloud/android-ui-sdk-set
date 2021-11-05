@@ -14,6 +14,7 @@ import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
 import io.rong.imkit.model.TypingInfo;
 import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.TitleBar;
 import io.rong.imlib.model.Conversation;
@@ -51,6 +52,52 @@ public class RongConversationActivity extends RongBaseActivity {
         });
         mTitleBar.getRightView().setVisibility(View.GONE);
         initViewModel();
+        observeUserInfoChange();
+    }
+
+    private void observeUserInfoChange() {
+        if(!TextUtils.isEmpty(mTargetId)){
+            RongUserInfoManager.getInstance().addUserDataObserver(mUserDataObserver);
+        }
+    }
+
+    private final RongUserInfoManager.UserDataObserver mUserDataObserver = new RongUserInfoManager.UserDataObserver() {
+        @Override
+        public void onUserUpdate(UserInfo info) {
+            if (TextUtils.equals(mTargetId, info.getUserId())) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setTitle();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onGroupUpdate(Group group) {
+            if (TextUtils.equals(mTargetId, group.getId())) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        setTitle();
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(!TextUtils.isEmpty(mTargetId)){
+            RongUserInfoManager.getInstance().removeUserDataObserver(mUserDataObserver);
+        }
     }
 
     private void setTitle() {

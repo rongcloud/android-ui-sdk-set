@@ -37,6 +37,7 @@ public class RouteUtils {
     public static final String CUSTOM_SERVICE_INFO = "customServiceInfo";
     public static final String FORWARD_TYPE = "forwardType";
     public static final String MESSAGE_IDS = "messageIds";
+    public static final String MESSAGE_ID = "messageId";
     public static final String MESSAGE = "message";
     private static HashMap<RongActivityType, Class<? extends Activity>> sActivityMap = new HashMap<>();
 

@@ -35,6 +35,7 @@ import io.rong.imkit.conversation.messgelist.processor.ConversationProcessorFact
 import io.rong.imkit.conversation.messgelist.processor.IConversationBusinessProcessor;
 import io.rong.imkit.conversation.messgelist.provider.MessageClickType;
 import io.rong.imkit.conversation.messgelist.status.IMessageState;
+import io.rong.imkit.conversation.messgelist.status.NormalState;
 import io.rong.imkit.event.actionevent.ClearEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
@@ -274,6 +275,13 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
             }
             UiMessage uiMessage = findUIMessage(message.getMessageId());
             removeRecallMentionMsg(message);
+            //当uiMessage = null, 从mNewUnReadMessages中遍历
+            UiMessage newUnreadMessage = findNewUnreadMessage(message.getMessageId());
+            if (newUnreadMessage != null) {
+                mNewUnReadMessages.remove(newUnreadMessage);
+                processNewMessageUnread(true);
+            }
+
             if (uiMessage != null) {
                 MessageContent content = uiMessage.getMessage().getContent();
                 if (content instanceof VoiceMessage) {
@@ -293,11 +301,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
                 }
                 uiMessage.setContent(recallNotificationMessage);
                 refreshSingleMessage(uiMessage);
-                UiMessage newUnreadMessage = findNewUnreadMessage(message.getMessageId());
-                if (newUnreadMessage != null) {
-                    mNewUnReadMessages.remove(newUnreadMessage);
-                    processNewMessageUnread(true);
-                }
             }
             return false;
         }
@@ -328,6 +331,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
             }
         }
     };
+
     public MessageViewModel(@NonNull Application application) {
         super(application);
         IMCenter.getInstance().addOnReceiveMessageListener(mOnReceiveMessageListener);
@@ -574,6 +578,11 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
                                 onViewClick(MessageClickType.EDIT_CLICK, message);
                                 return true;
                             }
+                        }).showFilter(new MessageItemLongClickAction.Filter() {
+                            @Override
+                            public boolean filter(UiMessage message) {
+                                return !message.getConversationType().equals(Conversation.ConversationType.SYSTEM);
+                            }
                         }).build();
                 MessageItemLongClickActionManager.getInstance().addMessageItemLongClickAction(mMoreAction);
             }
@@ -751,6 +760,10 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
             return;
         }
         int position = findPositionByMessageId(uiMessage.getMessage().getMessageId());
+        if (position == -1) {
+            RLog.w(TAG, "the message isn't found in the list.");
+            return;
+        }
         for (int i = position; i < mUiMessages.size(); i++) {
             UiMessage item = mUiMessages.get(i);
             if (item.getMessage().getContent() instanceof HQVoiceMessage) {
@@ -1030,8 +1043,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     }
 
     private void sendMessageEvent(UiMessage uiMessage) {
-        int insertPosition = findPositionBySendTime(uiMessage.getMessage().getSentTime());
-        mUiMessages.add(insertPosition, uiMessage);
+        mUiMessages.add(uiMessage);
         refreshAllMessage();
         executePageEvent(new ScrollToEndEvent());
     }
@@ -1047,7 +1059,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     public int findPositionBySendTime(long sentTime) {
         for (int i = mUiMessages.size() - 1; i >= 0; i--) {
             UiMessage message = mUiMessages.get(i);
-            if (message.getSentTime() < sentTime) {
+            if (message.getSentTime() <= sentTime) {
                 return i + 1;
             }
         }
@@ -1578,5 +1590,9 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         }
 
         return false;
+    }
+
+    public boolean isNormalState() {
+        return IMessageState.normalState.equals(mState);
     }
 }

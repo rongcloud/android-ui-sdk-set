@@ -17,16 +17,14 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileChannel;
 import java.util.Locale;
 
 import io.rong.imkit.picture.config.PictureConfig;
@@ -271,6 +269,21 @@ public class PictureFileUtils {
         return null;
     }
 
+    public static long getMediaSize(Context context, String path) {
+        if (path.startsWith("content://")) {
+            DocumentFile df = DocumentFile.fromSingleUri(context, Uri.parse(path));
+            if (df != null) {
+                return df.length();
+            } else {
+                return 0;
+            }
+        } else if (path.startsWith("file://")) {
+            return new File(path.substring(7)).length();
+        } else {
+            return new File(path).length();
+        }
+    }
+
     /**
      * 读取图片属性：旋转的角度
      *
@@ -282,10 +295,7 @@ public class PictureFileUtils {
         try {
             ExifInterface exifInterface;
             if (SdkVersionUtils.checkedAndroid_Q()) {
-                ParcelFileDescriptor parcelFileDescriptor =
-                        context.getContentResolver()
-                                .openFileDescriptor(Uri.parse(path), "r");
-                exifInterface = new ExifInterface(parcelFileDescriptor.getFileDescriptor());
+                exifInterface = new ExifInterface(context.getContentResolver().openInputStream(Uri.parse(path)));
             } else {
                 exifInterface = new ExifInterface(path);
             }
