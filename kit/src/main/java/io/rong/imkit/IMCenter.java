@@ -242,7 +242,6 @@ public class IMCenter {
         SingletonHolder.sInstance.mContext = application.getApplicationContext();
         RongConfigCenter.syncFromXml(application);
         RongIMClient.init(application.getApplicationContext(), appKey, isEnablePush);
-        RongUserInfoManager.getInstance().initAndUpdateUserDataBase(application);
         RongExtensionManager.init(application.getApplicationContext(), appKey);
         HQVoiceMsgDownloadManager.getInstance().init(application);
         RongNotificationManager.getInstance().init(application);

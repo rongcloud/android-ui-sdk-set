@@ -95,6 +95,7 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
                 }
             }
         });
+
         view.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -122,7 +123,7 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
     public Spannable getSummarySpannable(Context context, TextMessage message) {
         if (message != null && !TextUtils.isEmpty(message.getContent())) {
             String content = message.getContent();
-            content = content.replace("\n", " ");
+            content = content.replace("\n", "");
             if (content.length() > 100) {
                 content = content.substring(0, 100);
             }

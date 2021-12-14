@@ -1,5 +1,8 @@
 package io.rong.imkit.feature.location;
 
+import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
+import static android.provider.Settings.ACTION_SETTINGS;
+
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,9 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdate;
@@ -39,27 +39,23 @@ import com.bumptech.glide.request.target.Target;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import io.rong.imkit.R;
 import io.rong.common.RLog;
+import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.db.model.User;
-import io.rong.imkit.userinfo.viewmodel.UserInfoViewModel;
+import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.dialog.PromptPopupDialog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.RealTimeLocationConstant;
+import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
 
-import static android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS;
-import static android.provider.Settings.ACTION_SETTINGS;
-
 public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
-        ILocationChangedListener {
+        ILocationChangedListener, RongUserInfoManager.UserDataObserver {
 
     private static final String TAG = "AMapRealTimeActivity";
     private static final int REQUEST_OPEN_LOCATION_SERVICE = 50;
@@ -119,22 +115,7 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         }
 
         checkMapPermission();
-
-        UserInfoViewModel userInfoViewModel = new ViewModelProvider(this).get(UserInfoViewModel.class);
-        userInfoViewModel.getAllUsers().observe(this, new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                if (users != null) {
-                    for (User user : users) {
-                        if (mParticipants.contains(user.id)) {
-                            UserInfo info = new UserInfo(user.id, user.name, Uri.parse(user.portraitUrl));
-                            info.setExtra(user.extra);
-                            updateUserInfo(info);
-                        }
-                    }
-                }
-            }
-        });
+        RongUserInfoManager.getInstance().addUserDataObserver(this);
 
 
     }
@@ -247,6 +228,7 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         }
         LocationDelegate3D.getInstance().setLocationChangedListener(null);
         LocationDelegate3D.getInstance().setMyLocationChangedListener(null);
+        RongUserInfoManager.getInstance().removeUserDataObserver(this);
         super.onDestroy();
     }
 
@@ -352,6 +334,25 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
 
     private void removeParticipantMarker(final UserTarget userTarget) {
         userTarget.getTargetMarker().remove();
+    }
+
+    @Override
+    public void onUserUpdate(UserInfo user) {
+        if (user != null) {
+            if (mParticipants.contains(user.getUserId())) {
+                updateUserInfo(user);
+            }
+        }
+    }
+
+    @Override
+    public void onGroupUpdate(Group group) {
+
+    }
+
+    @Override
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+
     }
 
     private class UserTarget {

@@ -1,37 +1,58 @@
 package io.rong.imkit.conversation.messgelist.processor;
 
+import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
+
 import android.content.Context;
+import android.os.Bundle;
 
 import java.util.List;
 
+import io.rong.common.rlog.RLog;
+import io.rong.imkit.conversation.messgelist.status.StateContext;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.model.UserInfo;
 
-import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
-
 /**
  * 处理单聊、群聊、讨论组逻辑的公共类
  */
 public abstract class BaseBusinessProcessor implements IConversationBusinessProcessor {
 
+    protected StateContext mState;
+
+    @Override
+    public void init(MessageViewModel messageViewModel, Bundle bundle) {
+        int state;
+        if (bundle != null) {
+            long indexTime = bundle.getLong(RouteUtils.INDEX_MESSAGE_TIME, 0);
+            if (indexTime > 0) {
+                state = StateContext.HISTORY_STATE;
+            } else {
+                state = StateContext.NORMAL_STATE;
+            }
+        } else {
+            state = StateContext.NORMAL_STATE;
+        }
+        mState = new StateContext(state);
+        mState.init(messageViewModel, bundle);
+    }
 
     @Override
     public boolean onReceived(MessageViewModel viewModel, UiMessage message, int left, boolean hasPackage, boolean offline) {
+        if (mState != null) {
+            mState.onReceived(viewModel, message, left, hasPackage, offline);
+        }
         return false;
     }
 
     @Override
     public boolean onReceivedCmd(MessageViewModel messageViewModel, Message message) {
-        if (message.getContent() instanceof UnknownMessage) {
-            return false;
-        } else {
-            return true;
-        }
+        return !(message.getContent() instanceof UnknownMessage);
     }
 
     @Override
@@ -99,4 +120,60 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
         return DEFAULT_COUNT + 1;
     }
 
+    @Override
+    public void onLoadMore(MessageViewModel viewModel) {
+        if (mState != null) {
+            mState.onLoadMore(viewModel);
+        }
+    }
+
+    @Override
+    public void onClearMessage(MessageViewModel viewModel) {
+        if (mState != null) {
+            mState.onClearMessage(viewModel);
+        }
+    }
+
+    @Override
+    public void onRefresh(MessageViewModel viewModel) {
+        if (mState != null) {
+            mState.onRefresh(viewModel);
+        }
+    }
+
+    @Override
+    public void newMessageBarClick(MessageViewModel viewModel) {
+        if (mState != null) {
+            mState.onNewMessageBarClick(viewModel);
+        }
+    }
+
+    @Override
+    public void unreadBarClick(MessageViewModel viewModel) {
+        if (mState != null) {
+            mState.onHistoryBarClick(viewModel);
+        }
+    }
+
+    @Override
+    public void newMentionMessageBarClick(MessageViewModel viewModel) {
+        if (mState != null) {
+            mState.newMentionMessageBarClick(viewModel);
+        }
+    }
+
+    @Override
+    public boolean isNormalState(MessageViewModel viewModel) {
+        if (mState == null) {
+            return true;
+        }
+        return mState.isNormalState(viewModel);
+    }
+
+    @Override
+    public void onScrollToBottom(MessageViewModel viewModel) {
+        if (mState != null) {
+            mState.onScrollToBottom(viewModel);
+        }
+    }
 }

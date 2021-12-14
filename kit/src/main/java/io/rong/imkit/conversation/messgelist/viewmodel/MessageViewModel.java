@@ -34,8 +34,6 @@ import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;
 import io.rong.imkit.conversation.messgelist.processor.ConversationProcessorFactory;
 import io.rong.imkit.conversation.messgelist.processor.IConversationBusinessProcessor;
 import io.rong.imkit.conversation.messgelist.provider.MessageClickType;
-import io.rong.imkit.conversation.messgelist.status.IMessageState;
-import io.rong.imkit.conversation.messgelist.status.NormalState;
 import io.rong.imkit.event.actionevent.ClearEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
@@ -62,6 +60,8 @@ import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.MessageList;
@@ -70,6 +70,7 @@ import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Group;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -84,7 +85,7 @@ import io.rong.message.ReferenceMessage;
 import io.rong.message.VoiceMessage;
 
 
-public class MessageViewModel extends AndroidViewModel implements MessageEventListener {
+public class MessageViewModel extends AndroidViewModel implements MessageEventListener, RongUserInfoManager.UserDataObserver {
     public static final int DEFAULT_COUNT = RongConfigCenter.conversationConfig().getConversationHistoryMessageCount();
     public static final int DEFAULT_REMOTE_COUNT = RongConfigCenter.conversationConfig().getConversationRemoteMessageCount();
     public static final int SHOW_UNREAD_MESSAGE_COUNT = RongConfigCenter.conversationConfig().getConversationShowUnreadMessageCount();
@@ -218,7 +219,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     private IConversationBusinessProcessor mProcessor;
     private Bundle mBundle;
     private Message mFirstUnreadMessage;
-    private IMessageState mState;
     private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener = new RongIMClient.OnReceiveMessageWrapperListener() {
         @Override
         public boolean onReceived(Message message, int left, boolean hasPackage, boolean offline) {
@@ -253,7 +253,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
                     }
                 }
                 mProcessor.onReceived(MessageViewModel.this, uiMessage, left, hasPackage, offline);
-                mState.onReceived(MessageViewModel.this, uiMessage, left, hasPackage, offline);
             }
             return false;
         }
@@ -323,7 +322,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
                 mUiMessages.clear();
                 mFirstUnreadMessage = null;
                 mRemoteMessageLoadFinish = false;
-                mState = IMessageState.normalState;
+                mProcessor.onClearMessage(MessageViewModel.this);
                 mUiMessageLiveData.setValue(mUiMessages);
                 mNewUnReadMentionMessages.clear();
                 updateNewMentionMessageUnreadBar();
@@ -340,6 +339,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         IMCenter.getInstance().addOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().addMessageEventListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
+        RongUserInfoManager.getInstance().addUserDataObserver(this);
     }
 
     private void stopDestructTime(UiMessage uiMessage) {
@@ -353,17 +353,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         mCurConversationType = type;
         mProcessor = ConversationProcessorFactory.getInstance().getProcessor(type);
         mBundle = bundle;
-        if (bundle != null) {
-            long indexTime = bundle.getLong(RouteUtils.INDEX_MESSAGE_TIME, 0);
-            if (indexTime > 0) {
-                mState = IMessageState.historyState;
-            } else {
-                mState = IMessageState.normalState;
-            }
-        } else {
-            mState = IMessageState.normalState;
-        }
-        mState.init(this, bundle);
         mProcessor.init(this, bundle);
         mIsEditStatus.setValue(false);
     }
@@ -373,6 +362,9 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
      * 下拉加载历史消息
      */
     public void onGetHistoryMessage(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
         mProcessor.onLoadMessage(this, messages);
         for (Message message : messages) {
             final MessageTag msgTag = message.getContent().getClass().getAnnotation(MessageTag.class);
@@ -476,6 +468,9 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
      * 上拉加载更多消息
      */
     public void onLoadMoreMessage(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
         mProcessor.onLoadMessage(this, messages);
         ArrayList<UiMessage> list = new ArrayList<>();
         for (Message message : messages) {
@@ -1067,7 +1062,11 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     }
 
     public void executePageEvent(PageEvent pageEvent) {
-        mPageEventLiveData.setValue(pageEvent);
+        if (Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+            mPageEventLiveData.setValue(pageEvent);
+        } else {
+            mPageEventLiveData.postValue(pageEvent);
+        }
     }
 
     private UiMessage findNewUnreadMessage(int messageId) {
@@ -1103,7 +1102,11 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
 
     public void hideHistoryBar() {
         setFirstUnreadMessage(null);
-        mHistoryMessageUnreadLiveData.setValue(0);
+        if (Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
+            mHistoryMessageUnreadLiveData.setValue(0);
+        } else {
+            mHistoryMessageUnreadLiveData.postValue(0);
+        }
     }
 
     public int getRefreshMessageId() {
@@ -1136,7 +1139,11 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         long result = 0;
         if (mUiMessages.size() > 0) {
             for (int i = mUiMessages.size() - 1; i >= 0; i--) {
-                result = mUiMessages.get(i).getSentTime();
+                if (Message.SentStatus.SENT.equals(mUiMessages.get(i).getSentStatus())) {
+                    result = mUiMessages.get(i).getSentTime();
+                } else {
+                    result = mUiMessages.get(i).getSentTime() - RongIMClient.getInstance().getDeltaTime();
+                }
                 if (result > 0) {
                     break;
                 }
@@ -1231,7 +1238,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     }
 
     public void onRefresh() {
-        mState.onRefresh(this);
+        mProcessor.onRefresh(MessageViewModel.this);
     }
 
     public void cleanUnreadNewCount() {
@@ -1239,21 +1246,15 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     }
 
     public void newMessageBarClick() {
-        if (mState != null) {
-            mState.onNewMessageBarClick(this);
-        }
+        mProcessor.newMessageBarClick(MessageViewModel.this);
     }
 
     public void unreadBarClick() {
-        if (mState != null) {
-            mState.onHistoryBarClick(this);
-        }
+        mProcessor.unreadBarClick(MessageViewModel.this);
     }
 
     public void newMentionMessageBarClick() {
-        if (mState != null) {
-            mState.onNewMentionMessageBarClick(this);
-        }
+        mProcessor.newMentionMessageBarClick(MessageViewModel.this);
     }
 
     /**
@@ -1296,8 +1297,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     }
 
     public void onLoadMore() {
-        if (mState != null)
-            mState.onLoadMore(this);
+        mProcessor.onLoadMore(this);
     }
 
     private void removeRecallMentionMsg(Message message) {
@@ -1326,6 +1326,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().removeMessageEventListener(this);
         IMCenter.getInstance().removeConversationEventListener(mConversationEventListener);
+        RongUserInfoManager.getInstance().removeUserDataObserver(this);
     }
 
     public boolean isForegroundActivity() {
@@ -1422,13 +1423,6 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         return mIsEditStatus;
     }
 
-    public IMessageState getState() {
-        return mState;
-    }
-
-    public void setState(IMessageState state) {
-        mState = state;
-    }
 
     public List<UiMessage> getNewUnReadMessages() {
         return mNewUnReadMessages;
@@ -1469,7 +1463,7 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
         //判断是否滑动到底部
         if (!recyclerView.canScrollVertically(1)) {
             setScrollToBottom(true);
-            mState.onScrollToBottom(this);
+            mProcessor.onScrollToBottom(this);
         } else {
             setScrollToBottom(false);
         }
@@ -1593,6 +1587,34 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
     }
 
     public boolean isNormalState() {
-        return IMessageState.normalState.equals(mState);
+        return mProcessor.isNormalState(MessageViewModel.this);
+    }
+
+    @Override
+    public void onUserUpdate(UserInfo user) {
+        if (user != null) {
+            for (UiMessage item : getUiMessages()) {
+                item.onUserInfoUpdate(user);
+            }
+            refreshAllMessage(false);
+        }
+    }
+
+    @Override
+    public void onGroupUpdate(Group group) {
+
+    }
+
+    @Override
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+        if (!Conversation.ConversationType.GROUP.equals(mCurConversationType)
+                || groupUserInfo == null ||
+                !groupUserInfo.getGroupId().equals(mCurTargetId)) {
+            return;
+        }
+        for (UiMessage item : getUiMessages()) {
+            item.onGroupMemberInfoUpdate(groupUserInfo);
+        }
+        refreshAllMessage(false);
     }
 }

@@ -160,30 +160,27 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
-    public void onUserInfoUpdate(List<User> userList) {
-        for (User user : userList) {
-            if (user.id.equals(message.getSenderUserId())) {
-                if (user.name != null) {
-                    userInfo.setName(user.name);
-                } else {
-                    userInfo.setName("");
-                }
-                userInfo.setAlias(user.alias);
-                if (!TextUtils.isEmpty(user.portraitUrl)) {
-                    userInfo.setPortraitUri(Uri.parse(user.portraitUrl));
-                } else {
-                    userInfo.setPortraitUri(null);
-                }
-                userInfo.setExtra(user.extra);
-                change();
-                break;
+    public void onUserInfoUpdate(UserInfo user) {
+        if (user.getUserId().equals(message.getSenderUserId())) {
+            if (user.getName() != null) {
+                userInfo.setName(user.getName());
+            } else {
+                userInfo.setName("");
             }
+            userInfo.setAlias(user.getAlias());
+            if (user.getPortraitUri() != null) {
+                userInfo.setPortraitUri(Uri.parse(user.getPortraitUri().toString()));
+            } else {
+                userInfo.setPortraitUri(null);
+            }
+            userInfo.setExtra(user.getExtra());
+            change();
         }
     }
 
-    public void onGroupMemberInfoUpdate(GroupMember member) {
-        if (member.userId.equals(message.getSenderUserId())) {
-            nickname = member.memberName;
+    public void onGroupMemberInfoUpdate(GroupUserInfo member) {
+        if (member.getUserId().equals(message.getSenderUserId())) {
+            nickname = member.getNickname();
             change();
         }
     }

@@ -9,7 +9,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,19 +44,19 @@ import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.db.model.Group;
-import io.rong.imkit.userinfo.db.model.GroupMember;
-import io.rong.imkit.userinfo.db.model.User;
+import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
+import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.UserInfo;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
 
-public class ConversationListViewModel extends AndroidViewModel {
+public class ConversationListViewModel extends AndroidViewModel implements RongUserInfoManager.UserDataObserver {
     private final String TAG = ConversationListViewModel.class.getSimpleName();
     private final int REFRESH_INTERVAL = 500;
     protected Conversation.ConversationType[] mSupportedTypes;
@@ -256,50 +255,7 @@ public class ConversationListViewModel extends AndroidViewModel {
         mDataFilter = RongConfigCenter.conversationListConfig().getDataProcessor();
 
         mConversationListLiveData = new MediatorLiveData<>();
-        mConversationListLiveData.addSource(RongUserInfoManager.getInstance().getAllUsersLiveData(), new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                RLog.d(TAG, "Users changed.");
-                if (mUiConversationList.size() == 0) {
-                    return;
-                }
-                if (users != null && users.size() > 0) {
-                    for (BaseUiConversation uiConversation : mUiConversationList) {
-                        uiConversation.onUserInfoUpdate(users);
-                    }
-                    mConversationListLiveData.postValue(mUiConversationList);
-                }
-            }
-        });
-        mConversationListLiveData.addSource(RongUserInfoManager.getInstance().getAllGroupsLiveData(), new Observer<List<Group>>() {
-            @Override
-            public void onChanged(List<Group> groups) {
-                if (groups != null && groups.size() > 0) {
-                    RLog.d(TAG, "on group list info changed. notify ui to update.");
-                    for (BaseUiConversation uiConversation : mUiConversationList) {
-                        if (uiConversation instanceof GroupConversation) {
-                            ((GroupConversation) uiConversation).onGroupInfoUpdate(groups);
-                        }
-                        mConversationListLiveData.postValue(mUiConversationList);
-                    }
-                }
-            }
-        });
-
-        mConversationListLiveData.addSource(RongUserInfoManager.getInstance().getAllGroupMembersLiveData(), new Observer<List<GroupMember>>() {
-            @Override
-            public void onChanged(List<GroupMember> groupMembers) {
-                if (groupMembers != null && groupMembers.size() > 0) {
-                    for (BaseUiConversation uiConversation : mUiConversationList) {
-                        if (uiConversation instanceof GroupConversation) {
-                            ((GroupConversation) uiConversation).onGroupMemberUpdate(groupMembers);
-                            mConversationListLiveData.postValue(mUiConversationList);
-                        }
-                    }
-                }
-            }
-        });
-
+        RongUserInfoManager.getInstance().addUserDataObserver(this);
         IMCenter.getInstance().addOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
@@ -517,6 +473,7 @@ public class ConversationListViewModel extends AndroidViewModel {
 
     @Override
     protected void onCleared() {
+        RongUserInfoManager.getInstance().removeUserDataObserver(this);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConversationStatusListener(mConversationStatusListener);
@@ -594,5 +551,40 @@ public class ConversationListViewModel extends AndroidViewModel {
         if (RongConfigCenter.featureConfig().rc_wipe_out_notification_message) {
             RongNotificationManager.getInstance().clearAllNotification();
         }
+    }
+
+    private void refreshConversationList() {
+        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
+            mConversationListLiveData.setValue(mUiConversationList);
+        } else {
+            mConversationListLiveData.postValue(mUiConversationList);
+        }
+    }
+
+    @Override
+    public void onUserUpdate(UserInfo info) {
+        if (info == null) {
+            return;
+        }
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            uiConversation.onUserInfoUpdate(info);
+        }
+        refreshConversationList();
+    }
+
+    @Override
+    public void onGroupUpdate(Group group) {
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            uiConversation.onGroupInfoUpdate(group);
+        }
+        refreshConversationList();
+    }
+
+    @Override
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            uiConversation.onGroupMemberUpdate(groupUserInfo);
+        }
+        refreshConversationList();
     }
 }

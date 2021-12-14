@@ -138,6 +138,9 @@ public class RecommendTab implements IEmoticonTab {
             holder.downloadBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (DownloadUtil.isFastClick()) {
+                        return;
+                    }
                     StickerPackageDownloadTask task =
                             new StickerPackageDownloadTask(holder.context, stickerPackage.getPackageId());
                     task.downloadStickerPackage(new DownloadUtil.DownloadListener() {

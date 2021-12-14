@@ -76,15 +76,8 @@ public class RealTimeLocationMessageItemProvider extends BaseMessageItemProvider
             return false;
         }
 
-        final Message message = uiMessage.getMessage();
-        final View view = holder.getView(R.id.rc_location);
-        if (message.getMessageDirection() == Message.MessageDirection.SEND) {
-            joinMap(view.getContext(), uiMessage);
-        } else {
-            showPromptPopupDialog(view.getContext(), uiMessage);
-
-        }
-
+        View view = holder.getView(R.id.rc_location);
+        view.setEnabled(false);
         return true;
     }
 

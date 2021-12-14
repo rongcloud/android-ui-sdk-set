@@ -265,4 +265,36 @@ public final class UserDao_Impl implements UserDao {
       }
     });
   }
+
+  @Override
+  public List<User> getLimitUsers(final int limit) {
+    final String _sql = "select * from user limit ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, limit);
+    __db.assertNotSuspendingTransaction();
+    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+    try {
+      final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+      final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
+      final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
+      final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
+      final List<User> _result = new ArrayList<User>(_cursor.getCount());
+      while(_cursor.moveToNext()) {
+        final User _item;
+        _item = new User();
+        _item.id = _cursor.getString(_cursorIndexOfId);
+        _item.name = _cursor.getString(_cursorIndexOfName);
+        _item.alias = _cursor.getString(_cursorIndexOfAlias);
+        _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+        _item.extra = _cursor.getString(_cursorIndexOfExtra);
+        _result.add(_item);
+      }
+      return _result;
+    } finally {
+      _cursor.close();
+      _statement.release();
+    }
+  }
 }

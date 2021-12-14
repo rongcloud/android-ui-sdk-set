@@ -19,12 +19,12 @@
     <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">Background location</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">Location info</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">Location info</string>
-    <string name="rc_android.permission.CAMERA">Camera</string>
     <string name="rc_android.permission.PROCESS_OUTGOING_CALLS">Phone</string>
     <string name="rc_android.permission.READ_EXTERNAL_STORAGE">Storage</string>
     <string name="rc_android.permission.READ_PHONE_STATE">Phone</string>
-    <string name="rc_android.permission.RECORD_AUDIO">Microphone</string>
     <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">Storage</string>
+    <string name="rc_android_permission_CAMERA">Camera</string>
+    <string name="rc_android_permission_RECORD_AUDIO">Microphone</string>
     <string name="rc_blacklist_prompt">You have been added to blacklist</string>
     <string name="rc_cancel">Cancel</string>
     <string name="rc_choose_members">Select Members</string>
@@ -292,6 +292,7 @@
     <string name="rc_join_group">" to joined the group"</string>
     <string name="rc_kicked_from_chatroom">You were kicked out from chatroom</string>
     <string name="rc_load_image_failed">Picture loading failed</string>
+    <string name="rc_load_local_message">Network Error，View local history messages?</string>
     <string name="rc_loadmore_loading">Loading...</string>
     <string name="rc_location_exit_location_sharing">End Real-time Location now?</string>
     <string name="rc_location_exit_sharing_confirm">End</string>
@@ -314,7 +315,7 @@
     <string name="rc_location_warning">Prompt</string>
     <string name="rc_location_you_are_sharing">You are sharing location</string>
     <string name="rc_media_upload_error">Cannot upload 0KB file</string>
-    <string name="rc_mention_messages">@ %s</string>
+    <string name="rc_mention_messages">@%s</string>
     <string name="rc_mention_title_choose_members">Select contacts</string>
     <string name="rc_message_content_burn">[Secret Chat]</string>
     <string name="rc_message_content_card">[Card]</string>
@@ -330,6 +331,7 @@
     <string name="rc_message_content_sticker">[Sticker]</string>
     <string name="rc_message_content_voice">[Voice]</string>
     <string name="rc_message_content_vst">[Audio video call]]</string>
+    <string name="rc_message_too_long">The text you entered is too long to send</string>
     <string name="rc_message_unknown">The current version does not support viewing this message</string>
     <string name="rc_morning_format">AM</string>
     <string name="rc_network_exception">Network anomalies, please try again later</string>

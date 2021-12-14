@@ -76,6 +76,7 @@ public class CustomServiceBusinessProcessor extends BaseBusinessProcessor implem
         mTargetId = messageViewModel.getCurTargetId();
         mCSStartTime = System.currentTimeMillis();
         RongIMClient.getInstance().startCustomService(messageViewModel.getCurTargetId(), mCustomServiceListener, mCustomServiceInfo);
+        super.init(messageViewModel, bundle);
     }
 
     private ICustomServiceListener mCustomServiceListener = new ICustomServiceListener() {

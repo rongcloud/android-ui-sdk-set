@@ -27,6 +27,7 @@
         android:layout_marginBottom="6.5dp"
         android:background="@drawable/rc_ext_panel_editbox_background"
         android:maxLines="4"
+        android:minHeight="39dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/input_panel_emoji_btn"

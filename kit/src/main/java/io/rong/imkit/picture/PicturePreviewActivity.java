@@ -251,7 +251,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
      * @param position
      */
     public void onImageChecked(int position) {
-        if (images != null && images.size() > 0) {
+        if (images != null && images.size() > 0 && images.size() > position) {
             LocalMedia media = images.get(position);
             check.setSelected(isSelected(media));
         } else {
@@ -328,7 +328,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         } else if (id == R.id.tv_ok) {
             onComplete();
         } else if (id == R.id.btnCheck) {
-            if (images.size() < position) {
+            if (images.isEmpty() || images.size() <= position) {
                 return;
             }
             LocalMedia currentMedia = images.get(position);

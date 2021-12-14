@@ -261,4 +261,35 @@ public final class GroupMemberDao_Impl implements GroupMemberDao {
       _statement.release();
     }
   }
+
+  @Override
+  public List<GroupMember> getLimitGroupMembers(final int limit) {
+    final String _sql = "select * from group_member limit ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, limit);
+    __db.assertNotSuspendingTransaction();
+    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+    try {
+      final int _cursorIndexOfGroupId = CursorUtil.getColumnIndexOrThrow(_cursor, "group_id");
+      final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "user_id");
+      final int _cursorIndexOfMemberName = CursorUtil.getColumnIndexOrThrow(_cursor, "member_name");
+      final List<GroupMember> _result = new ArrayList<GroupMember>(_cursor.getCount());
+      while(_cursor.moveToNext()) {
+        final GroupMember _item;
+        final String _tmpGroupId;
+        _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
+        final String _tmpUserId;
+        _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
+        final String _tmpMemberName;
+        _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
+        _item = new GroupMember(_tmpGroupId,_tmpUserId,_tmpMemberName);
+        _result.add(_item);
+      }
+      return _result;
+    } finally {
+      _cursor.close();
+      _statement.release();
+    }
+  }
 }

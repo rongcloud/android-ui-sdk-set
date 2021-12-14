@@ -9,6 +9,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.util.Objects;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
@@ -20,6 +22,7 @@ import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
+import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.TextMessage;
 
@@ -32,6 +35,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
     private String mTargetId;
     private EditText mEditText;
     private boolean isSoftInputShow;
+    private static final int MAX_MESSAGE_LENGTH_TO_SEND = 5500;
     private TextWatcher mTextWatcher = new TextWatcher() {
         private int start;
         private int count;
@@ -117,7 +121,13 @@ public class RongExtensionViewModel extends AndroidViewModel {
         }
 
         String text = mEditText.getText().toString();
+        if (text.length() > MAX_MESSAGE_LENGTH_TO_SEND) {
+            ToastUtils.s(getApplication().getApplicationContext(), getApplication().getString(R.string.rc_message_too_long));
+            RLog.d(TAG, "The text you entered is too long to send.");
+            return;
+        }
         mEditText.setText("");
+
         TextMessage textMessage = TextMessage.obtain(text);
         if (DestructManager.isActive()) {
             int length = text.length();
@@ -186,6 +196,9 @@ public class RongExtensionViewModel extends AndroidViewModel {
     }
 
     public void forceSetSoftInputKeyBoard(boolean isShow, boolean clearFocus) {
+        if (mEditText == null) {
+            return;
+        }
         InputMethodManager imm = (InputMethodManager) getApplication().getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null) {
             if (isShow) {
@@ -214,10 +227,10 @@ public class RongExtensionViewModel extends AndroidViewModel {
     }
 
     public void setEditTextWidget(EditText editText) {
-        mEditText.setText("");
-        mEditText = null;
-        mEditText = editText;
-        mEditText.addTextChangedListener(mTextWatcher);
+        if (!Objects.equals(mEditText, editText)) {
+            mEditText = editText;
+            mEditText.addTextChangedListener(mTextWatcher);
+        }
     }
 
     MutableLiveData<Boolean> getAttachedInfoState() {

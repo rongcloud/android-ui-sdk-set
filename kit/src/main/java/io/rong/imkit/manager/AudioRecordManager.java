@@ -20,6 +20,8 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
@@ -335,6 +337,16 @@ public class AudioRecordManager implements Handler.Callback {
                 }
             }
             File savePath = SavePathUtils.getSavePath(mContext.getCacheDir());
+            if (!savePath.exists()){
+                throw new FileNotFoundException(savePath.getPath());
+            }
+            if (!savePath.canWrite()){
+                boolean result = savePath.setWritable(true, true);
+                if (!result){
+                    String msg = new StringBuilder(savePath.getPath()).append(" could not be writable.").toString();
+                    throw new IOException(msg);
+                }
+            }
             mAudioPath = Uri.fromFile(new File(savePath, System.currentTimeMillis() + "temp.voice"));
             mMediaRecorder.setOutputFile(mAudioPath.getPath());
             mMediaRecorder.prepare();
@@ -344,8 +356,11 @@ public class AudioRecordManager implements Handler.Callback {
             message.what = AUDIO_RECORD_EVENT_TIME_OUT;
             message.obj = 10;
             mHandler.sendMessageDelayed(message, RECORD_INTERVAL * 1000 - 10 * 1000);
-        } catch (Exception e) {
+        } catch (IOException e) {
             RLog.e(TAG, "startRec", e);
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+            mHandler.sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
         }
     }
 

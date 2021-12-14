@@ -116,11 +116,11 @@
     <string name="rc_pub_service_notification">新消息通知</string>
 
     //permission
-    <string name="rc_android.permission.CAMERA">相机</string>
+    <string name="rc_android_permission_CAMERA">相机</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">位置信息</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">位置信息</string>
     <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">后台位置</string>
-    <string name="rc_android.permission.RECORD_AUDIO">麦克风</string>
+    <string name="rc_android_permission_RECORD_AUDIO">麦克风</string>
     <string name="rc_android.permission.READ_EXTERNAL_STORAGE">存储空间</string>
     <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">存储空间</string>
     <string name="rc_android.permission.READ_PHONE_STATE">电话</string>
@@ -498,6 +498,9 @@
     <string name="rc_conversation_remote_side_speaking">对方正在讲话&#046;&#046;&#046;</string>
     <string name="rc_date_format">MM月dd日 HH:mm</string>
 
-    <string name="rc_mention_messages">有人@我 %s</string>
+    <string name="rc_mention_messages">有人@我%s</string>
     <string name="rc_media_upload_error">不能上传 0kb 的文件</string>
+    <string name="rc_load_local_message">网络异常，查看本地历史消息？</string>
+
+    <string name="rc_message_too_long">你输入的文本过长，无法发送</string>
 </resources>

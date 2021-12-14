@@ -19,12 +19,12 @@
     <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">الأذونات</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">معلومات الموقع</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">معلومات الموقع</string>
-    <string name="rc_android.permission.CAMERA">الكاميرا</string>
     <string name="rc_android.permission.PROCESS_OUTGOING_CALLS">الهاتف</string>
     <string name="rc_android.permission.READ_EXTERNAL_STORAGE">التخزين</string>
     <string name="rc_android.permission.READ_PHONE_STATE">الهاتف</string>
-    <string name="rc_android.permission.RECORD_AUDIO">الميكروفون</string>
     <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">التخزين</string>
+    <string name="rc_android_permission_CAMERA">الكاميرا</string>
+    <string name="rc_android_permission_RECORD_AUDIO">الميكروفون</string>
     <string name="rc_blacklist_prompt">تم إضافتك في قائمة الحظر</string>
     <string name="rc_cancel">إلغاء</string>
     <string name="rc_choose_members">اختيار الاعضاء</string>
@@ -290,6 +290,7 @@
     <string name="rc_join_group">الانضمام إلى المجموعة</string>
     <string name="rc_kicked_from_chatroom">You were kicked out from chatroom</string>
     <string name="rc_load_image_failed">تعذر عرض الصورة</string>
+    <string name="rc_load_local_message">Network Error，View local history messages?</string>
     <string name="rc_loadmore_loading">قيد التحميل...</string>
     <string name="rc_location_exit_location_sharing">إنهاء مشاركة الموقع لايف؟</string>
     <string name="rc_location_exit_sharing_confirm">إنهاء مشاركة الموقع لايف؟</string>
@@ -327,6 +328,7 @@
     <string name="rc_message_content_sticker">[ملصق]</string>
     <string name="rc_message_content_voice">[صوت]</string>
     <string name="rc_message_content_vst">[مكالمة الفيديو و الصوت]</string>
+    <string name="rc_message_too_long">النص الذي أدخلته طويل جدًا بحيث لا يمكن إرساله</string>
     <string name="rc_message_unknown">The current version does not support viewing this message</string>
     <string name="rc_morning_format">ص</string>
     <string name="rc_network_exception">خطأ بالشبكة. يرجى المحاولة لاحقاً</string>

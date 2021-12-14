@@ -47,6 +47,7 @@ public class PublicServiceBusinessProcessor extends BaseBusinessProcessor {
                 }
             });
         }
+        super.init(messageViewModel, bundle);
     }
 
 }

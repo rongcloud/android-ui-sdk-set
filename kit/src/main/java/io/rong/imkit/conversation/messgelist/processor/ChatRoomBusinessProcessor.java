@@ -10,6 +10,7 @@ import java.util.List;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.conversation.messgelist.status.StateContext;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.feature.mention.RongMentionManager;
@@ -27,6 +28,8 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
 
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
+        mState = new StateContext(StateContext.CHATROOM_NORMAL_STATE);
+        mState.init(messageViewModel, bundle);
         rc_chatRoom_first_pull_message_count = RongConfigCenter.conversationConfig().rc_chatroom_first_pull_message_count;
         boolean createIfNotExist = bundle.getBoolean(RouteUtils.CREATE_CHATROOM, true);
         if (createIfNotExist) {
@@ -64,17 +67,7 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                 }
             });
         }
-        messageViewModel.getPageEventLiveData().addSource(RongUserInfoManager.getInstance().getAllUsersLiveData(), new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                if (users != null && users.size() > 0) {
-                    for (UiMessage item : messageViewModel.getUiMessages()) {
-                        item.onUserInfoUpdate(users);
-                    }
-                    messageViewModel.refreshAllMessage(false);
-                }
-            }
-        });
+        super.init(messageViewModel, bundle);
     }
 
     @Override

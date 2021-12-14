@@ -35,7 +35,14 @@ public class LinkTextViewMovementMethod extends LinkMovementMethod {
 
             Layout layout = widget.getLayout();
             int line = layout.getLineForVertical(y);
-            int off = layout.getOffsetForHorizontal(line, x);
+            int off;
+            try {
+                off = layout.getOffsetForHorizontal(line, x);
+            } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
+                // This happens for bidi text on Android 7-8.
+                // See https://android.googlesource.com/platform/frameworks/base/+/821e9bd5cc2be4b3210cb0226e40ba0f42b51aed
+                return true;
+            }
 
             ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
 

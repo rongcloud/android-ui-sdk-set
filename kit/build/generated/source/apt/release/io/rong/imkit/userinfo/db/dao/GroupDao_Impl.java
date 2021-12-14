@@ -208,4 +208,35 @@ public final class GroupDao_Impl implements GroupDao {
       _statement.release();
     }
   }
+
+  @Override
+  public List<Group> getLimitGroups(final int limit) {
+    final String _sql = "select * from `group` limit ?";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
+    int _argIndex = 1;
+    _statement.bindLong(_argIndex, limit);
+    __db.assertNotSuspendingTransaction();
+    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+    try {
+      final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+      final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
+      final List<Group> _result = new ArrayList<Group>(_cursor.getCount());
+      while(_cursor.moveToNext()) {
+        final Group _item;
+        final String _tmpId;
+        _tmpId = _cursor.getString(_cursorIndexOfId);
+        final String _tmpName;
+        _tmpName = _cursor.getString(_cursorIndexOfName);
+        final String _tmpPortraitUrl;
+        _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+        _item = new Group(_tmpId,_tmpName,_tmpPortraitUrl);
+        _result.add(_item);
+      }
+      return _result;
+    } finally {
+      _cursor.close();
+      _statement.release();
+    }
+  }
 }

@@ -30,4 +30,7 @@ public interface UserDao {
 
     @Query("select * from user")
     LiveData<List<User>> getAllUsers();
+
+    @Query("select * from user limit :limit")
+    List<User> getLimitUsers(int limit);
 }

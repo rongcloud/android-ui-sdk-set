@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
@@ -49,6 +50,7 @@ import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.conversation.messgelist.processor.IConversationUIRenderer;
+import io.rong.imkit.conversation.messgelist.status.MessageProcessor;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageItemLongClickBean;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.Event;
@@ -57,6 +59,7 @@ import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
 import io.rong.imkit.event.uievent.ScrollMentionEvent;
 import io.rong.imkit.event.uievent.ScrollToEndEvent;
+import io.rong.imkit.event.uievent.ShowLoadMessageDialogEvent;
 import io.rong.imkit.event.uievent.ShowLongClickDialogEvent;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.event.uievent.SmoothScrollEvent;
@@ -79,6 +82,7 @@ import io.rong.imkit.widget.refresh.listener.OnLoadMoreListener;
 import io.rong.imkit.widget.refresh.listener.OnRefreshListener;
 import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
 
 /**
  * @author lvz
@@ -101,7 +105,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     protected TextView mUnreadHistoryMessageNum;
     protected TextView mUnreadMentionMessageNum;
     protected int activitySoftInputMode = 0;
-
+    //滑动结束是否
+    protected boolean onScrollStopRefreshList = false;
     Observer<List<UiMessage>> mListObserver = new Observer<List<UiMessage>>() {
         @Override
         public void onChanged(List<UiMessage> uiMessages) {
@@ -236,6 +241,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
                 }
             } else if (event instanceof ShowWarningDialogEvent) {
                 onWarningDialog(((ShowWarningDialogEvent) event).getMessage());
+            } else if (event instanceof ShowLoadMessageDialogEvent) {
+                showLoadMessageDialog(((ShowLoadMessageDialogEvent) event).getCallback(), ((ShowLoadMessageDialogEvent) event).getList());
             }
         }
     };
@@ -244,14 +251,22 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     private String mTargetId;
     private Bundle mBundle;
     private Conversation.ConversationType mConversationType;
-    private RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
+    private final RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             mMessageViewModel.onScrolled(recyclerView, dx, dy, mAdapter.getHeadersCount(), mAdapter.getFootersCount());
         }
+
+        @Override
+        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE && onScrollStopRefreshList) {
+                onScrollStopRefreshList = false;
+                RLog.d(TAG,"onScrollStateChanged refresh List");
+                refreshList(mMessageViewModel.getUiMessageLiveData().getValue());
+            }
+        }
     };
-    private View rootView;
 
     {
         mAdapter = onResolveAdapter();
@@ -294,7 +309,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
                     @Override
                     public void run() {
                         InputMode inputMode = mRongExtensionViewModel.getInputModeLiveData().getValue();
-                        if (!inputMode.equals(InputMode.MoreInputMode) && Boolean.TRUE.equals(value)) {
+                        if (!Objects.equals(inputMode, InputMode.MoreInputMode) && Boolean.TRUE.equals(value)) {
                             if (mMessageViewModel.isNormalState()) {
                                 mList.scrollToPosition(mAdapter.getItemCount() - 1);
                             } else {
@@ -364,17 +379,11 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     }
 
     private void refreshList(final List<UiMessage> data) {
-        if (mList.isComputingLayout()) {
-            mList.post(new Runnable() {
-                @Override
-                public void run() {
-                    refreshList(data);
-                }
-            });
-        } else {
+        if (!mList.isComputingLayout() && mList.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
             mAdapter.setDataCollection(data);
+        } else {
+            onScrollStopRefreshList = true;
         }
-
     }
 
     public boolean onBackPressed() {
@@ -464,7 +473,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.rc_conversation_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.rc_conversation_fragment, container, false);
         mList = rootView.findViewById(R.id.rc_message_list);
         mRongExtension = rootView.findViewById(R.id.rc_extension);
         mRefreshLayout = rootView.findViewById(R.id.rc_refresh);
@@ -577,7 +586,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         mRongExtensionViewModel = new ViewModelProvider(this).get(RongExtensionViewModel.class);
         bindConversation(mTargetId, mConversationType, mBundle);
 
-        // KNOTE: 2021/8/25  当初解决高清语音自动下载，现在高清语音下载不需要申请存储权限，删除此处.
+        // NOTE: 2021/8/25  当初解决高清语音自动下载，现在高清语音下载不需要申请存储权限，删除此处.
         onViewCreated = true;
     }
 
@@ -716,6 +725,29 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     }
 
 
+    private void showLoadMessageDialog(final MessageProcessor.GetMessageCallback callback, final List<Message> list) {
+        new AlertDialog.Builder(getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+                .setMessage(getString(R.string.rc_load_local_message))
+                .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (callback != null) {
+                            callback.onSuccess(list, true);
+                        }
+                    }
+                })
+                .setNegativeButton(getString(R.string.rc_cancel), new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (callback != null) {
+                            callback.onErrorAsk(list);
+                        }
+                    }
+                }).show();
+    }
+
     private void closeExpand() {
         if (mRongExtensionViewModel != null) {
             mRongExtensionViewModel.collapseExtensionBoard();
@@ -758,5 +790,4 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     public void setEmptyView(@LayoutRes int emptyId) {
         mAdapter.setEmptyView(emptyId);
     }
-
 }

@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
@@ -37,6 +38,7 @@ import io.rong.imkit.utils.language.RongConfigurationManager;
  * @描述: Activity基类
  */
 public abstract class PictureBaseActivity extends AppCompatActivity {
+    private static final String TAG = PictureBaseActivity.class.getCanonicalName();
     protected PictureSelectionConfig config;
     protected boolean openWhiteStatusBar, numComplete;
     protected int colorPrimary, colorPrimaryDark;
@@ -273,24 +275,28 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      * start to camera、preview、crop
      */
     protected void startOpenCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            Uri imageUri;
-            if (SdkVersionUtils.checkedAndroid_Q()) {
-                imageUri = MediaUtils.createImageUri(getApplicationContext());
-                if (imageUri != null) {
-                    cameraPath = imageUri.toString();
+        try {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+                Uri imageUri;
+                if (SdkVersionUtils.checkedAndroid_Q()) {
+                    imageUri = MediaUtils.createImageUri(getApplicationContext());
+                    if (imageUri != null) {
+                        cameraPath = imageUri.toString();
+                    }
+                } else {
+                    int chooseMode = config.chooseMode == PictureConfig.TYPE_ALL ? PictureConfig.TYPE_IMAGE
+                            : config.chooseMode;
+                    File cameraFile = PictureFileUtils.createCameraFile(getApplicationContext(),
+                            chooseMode, config.cameraFileName, config.suffixType);
+                    cameraPath = cameraFile.getAbsolutePath();
+                    imageUri = PictureFileUtils.parUri(this, cameraFile);
                 }
-            } else {
-                int chooseMode = config.chooseMode == PictureConfig.TYPE_ALL ? PictureConfig.TYPE_IMAGE
-                        : config.chooseMode;
-                File cameraFile = PictureFileUtils.createCameraFile(getApplicationContext(),
-                        chooseMode, config.cameraFileName, config.suffixType);
-                cameraPath = cameraFile.getAbsolutePath();
-                imageUri = PictureFileUtils.parUri(this, cameraFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivityForResult(cameraIntent, PictureConfig.REQUEST_CAMERA);
             }
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-            startActivityForResult(cameraIntent, PictureConfig.REQUEST_CAMERA);
+        } catch (Exception e) {
+            RLog.i(TAG, e.getMessage());
         }
     }
 

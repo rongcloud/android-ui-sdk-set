@@ -10,9 +10,6 @@ import io.rong.imlib.model.Message;
  * 处理，消息列表，历史消息展示条，新消息展示条相关逻辑
  */
 public interface IMessageState {
-    IMessageState historyState = new HistoryState();
-    IMessageState normalState = new NormalState();
-
     /**
      *  处理历史消息
      *
@@ -38,4 +35,8 @@ public interface IMessageState {
     void onScrollToBottom(MessageViewModel viewModel);
 
     void onHistoryBarClick(MessageViewModel viewModel);
+
+    void onClearMessage(MessageViewModel viewModel);
+
+    boolean isNormalState(MessageViewModel viewModel);
 }

@@ -4,7 +4,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-bo-rCN/values-bo-rCN.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/63e6f27c32647d71e407a8fba2b552ea/res/values-bo-rCN/values-bo-rCN.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/9b54873f7f77493ef795cd51d647977d/res/values-bo-rCN/values-bo-rCN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -21,24 +21,7 @@
                     }
                 },
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-5.1.1.301.aar/afb2641497995fe600927d8214895d82/res/values-bo-rCN/values-bo-rCN.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "73",
-                        "endOffsets": "124"
-                    },
-                    "to": {
-                        "startLines": "15",
-                        "startColumns": "4",
-                        "startOffsets": "1626",
-                        "endColumns": "73",
-                        "endOffsets": "1695"
-                    }
-                },
-                {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/5850f1ace9bb64d8d05eda2e3fb1ce2e/res/values-bo-rCN/values-bo-rCN.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/8c09421f85d7ab5d9a80889e16f7e634/res/values-bo-rCN/values-bo-rCN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -52,6 +35,23 @@
                         "startOffsets": "2462,2553,2660,2733,2803,2940,3016,3125,3263,3336,3489,3704,3873,3947,4024,4105,4195,4276,4348,4475,4580,4682",
                         "endColumns": "90,106,72,69,136,75,108,137,72,152,214,168,73,76,80,89,80,71,126,104,101,97",
                         "endOffsets": "2548,2655,2728,2798,2935,3011,3120,3258,3331,3484,3699,3868,3942,4019,4100,4190,4271,4343,4470,4575,4677,4775"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-5.1.1.301.aar/cccef4a3cd099fdd7baeaaaf941f96d9/res/values-bo-rCN/values-bo-rCN.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "73",
+                        "endOffsets": "124"
+                    },
+                    "to": {
+                        "startLines": "15",
+                        "startColumns": "4",
+                        "startOffsets": "1626",
+                        "endColumns": "73",
+                        "endOffsets": "1695"
                     }
                 }
             ]
@@ -60,7 +60,7 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/values-bo-rCN/values-bo-rCN.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/63e6f27c32647d71e407a8fba2b552ea/res/values-bo-rCN/values-bo-rCN.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/9b54873f7f77493ef795cd51d647977d/res/values-bo-rCN/values-bo-rCN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -77,24 +77,7 @@
                     }
                 },
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-5.1.1.301.aar/afb2641497995fe600927d8214895d82/res/values-bo-rCN/values-bo-rCN.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "73",
-                        "endOffsets": "124"
-                    },
-                    "to": {
-                        "startLines": "15",
-                        "startColumns": "4",
-                        "startOffsets": "1626",
-                        "endColumns": "73",
-                        "endOffsets": "1695"
-                    }
-                },
-                {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/5850f1ace9bb64d8d05eda2e3fb1ce2e/res/values-bo-rCN/values-bo-rCN.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/8c09421f85d7ab5d9a80889e16f7e634/res/values-bo-rCN/values-bo-rCN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -108,6 +91,23 @@
                         "startOffsets": "2462,2553,2660,2733,2803,2940,3016,3125,3263,3336,3489,3704,3873,3947,4024,4105,4195,4276,4348,4475,4580,4682",
                         "endColumns": "90,106,72,69,136,75,108,137,72,152,214,168,73,76,80,89,80,71,126,104,101,97",
                         "endOffsets": "2548,2655,2728,2798,2935,3011,3120,3258,3331,3484,3699,3868,3942,4019,4100,4190,4271,4343,4470,4575,4677,4775"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-5.1.1.301.aar/cccef4a3cd099fdd7baeaaaf941f96d9/res/values-bo-rCN/values-bo-rCN.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "73",
+                        "endOffsets": "124"
+                    },
+                    "to": {
+                        "startLines": "15",
+                        "startColumns": "4",
+                        "startOffsets": "1626",
+                        "endColumns": "73",
+                        "endOffsets": "1695"
                     }
                 }
             ]

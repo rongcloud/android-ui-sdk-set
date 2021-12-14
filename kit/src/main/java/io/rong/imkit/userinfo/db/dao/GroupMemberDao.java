@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 
 import java.util.List;
 
+import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.GroupUserInfo;
 
@@ -36,4 +37,7 @@ public interface GroupMemberDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertGroupMembers(List<GroupMember> groupMemberList);
+
+    @Query("select * from group_member limit :limit")
+    List<GroupMember> getLimitGroupMembers(int limit);
 }

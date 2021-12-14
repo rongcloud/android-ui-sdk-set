@@ -9,7 +9,9 @@ import android.view.WindowManager;
 
 import java.io.File;
 
+import io.rong.common.RLog;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
+import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;
 
 public class SightRecordActivity extends RongBaseNoActionbarActivity {
@@ -50,6 +52,8 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
                     SightRecordActivity.this.finish();
                     return;
                 }
+                boolean result = KitStorageUtils.saveMediaToPublicDir(SightRecordActivity.this, file, KitStorageUtils.MediaType.VIDEO);
+                RLog.i(TAG, "RecordSuccess save result" + result);
                 Intent intent = new Intent();
                 intent.putExtra("recordSightUrl", url);
                 intent.putExtra("recordSightTime", recordTime);

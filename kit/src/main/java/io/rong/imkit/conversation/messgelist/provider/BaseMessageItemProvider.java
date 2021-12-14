@@ -114,7 +114,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent> implemen
             ImageView view = holder.getView(isSender ? R.id.rc_right_portrait : R.id.rc_left_portrait);
             UserInfo userInfo = uiMessage.getUserInfo();
             if (userInfo != null && userInfo.getPortraitUri() != null) {
-                RongConfigCenter.featureConfig().getKitImageEngine().loadConversationPortrait(holder.getContext(), uiMessage.getUserInfo().getPortraitUri().toString(), view, uiMessage.getMessage());
+                RongConfigCenter.featureConfig().getKitImageEngine().loadConversationPortrait(holder.getContext(), userInfo.getPortraitUri().toString(), view, uiMessage.getMessage());
             }
             holder.setOnClickListener(R.id.rc_left_portrait, new View.OnClickListener() {
                 @Override

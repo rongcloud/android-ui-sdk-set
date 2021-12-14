@@ -28,38 +28,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
 
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
-        messageViewModel.getPageEventLiveData().removeSource(RongUserInfoManager.getInstance().getAllUsersLiveData());
-        messageViewModel.getPageEventLiveData().addSource(RongUserInfoManager.getInstance().getAllUsersLiveData(), new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                if (users != null && users.size() > 0) {
-                    for (UiMessage item : messageViewModel.getUiMessages()) {
-                        item.onUserInfoUpdate(users);
-                    }
-                    messageViewModel.refreshAllMessage(false);
-                }
-            }
-        });
-        messageViewModel.getPageEventLiveData().removeSource(RongUserInfoManager.getInstance().getAllGroupMembersLiveData());
-        messageViewModel.getPageEventLiveData().addSource(RongUserInfoManager.getInstance().getAllGroupMembersLiveData(), new Observer<List<GroupMember>>() {
-            @Override
-            public void onChanged(List<GroupMember> groupMembers) {
-                if (groupMembers != null && groupMembers.size() > 0) {
-                    boolean isExist = false;
-                    for (GroupMember member : groupMembers) {
-                        if (member.groupId == messageViewModel.getCurTargetId()) {
-                            isExist = true;
-                            for (UiMessage item : messageViewModel.getUiMessages()) {
-                                item.onGroupMemberInfoUpdate(member);
-                            }
-                        }
-                    }
-                    if (isExist) {
-                        messageViewModel.refreshAllMessage(false);
-                    }
-                }
-            }
-        });
+        super.init(messageViewModel, bundle);
     }
 
     @Override

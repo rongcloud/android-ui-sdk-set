@@ -2883,6 +2883,7 @@ string rc_join_chatroom_failure
 string rc_join_group
 string rc_kicked_from_chatroom
 string rc_load_image_failed
+string rc_load_local_message
 string rc_loadmore_loading
 string rc_location_exit_location_sharing
 string rc_location_exit_sharing_confirm
@@ -2922,6 +2923,7 @@ string rc_message_content_sight
 string rc_message_content_sticker
 string rc_message_content_voice
 string rc_message_content_vst
+string rc_message_too_long
 string rc_message_unknown
 string rc_morning_format
 string rc_network_exception

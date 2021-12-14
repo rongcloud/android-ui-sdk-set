@@ -4,6 +4,7 @@ import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.D
 
 import android.os.Bundle;
 
+import java.util.Collections;
 import java.util.List;
 
 import io.rong.imkit.config.RongConfigCenter;
@@ -14,13 +15,14 @@ import io.rong.imkit.event.uievent.ScrollToEndEvent;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
-import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 
 public class HistoryState implements IMessageState {
     private boolean isLoading;
+    private final StateContext context;
 
-    HistoryState() {
+    HistoryState(StateContext context) {
+        this.context = context;
     }
 
     /**
@@ -29,30 +31,34 @@ public class HistoryState implements IMessageState {
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
         long indexTime = 0;
-        if (bundle != null && bundle.get(RouteUtils.INDEX_MESSAGE_TIME) != null) {
-            indexTime = (long) bundle.get(RouteUtils.INDEX_MESSAGE_TIME);
+        if (bundle != null) {
+            indexTime =  bundle.getLong(RouteUtils.INDEX_MESSAGE_TIME, 0);
         }
+
         if (indexTime > 0) {
-            RongIMClient.getInstance().getHistoryMessages(messageViewModel.getCurConversationType(), messageViewModel.getCurTargetId(), indexTime, 5, 5, new RongIMClient.ResultCallback<List<Message>>() {
+
+            MessageProcessor.getMessagesAll(messageViewModel, indexTime, 5, 5, new MessageProcessor.GetMessageCallback() {
                 @Override
-                public void onSuccess(List<Message> messages) {
-                    //不为空且大于0证明还有本地数据
-                    if (messages != null && messages.size() > 0) {
-                        List<Message> result;
-                        //如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
-                        if (messages.size() < DEFAULT_COUNT + 1) {
-                            result = messages;
-                        } else {
-                            result = messages.subList(0, DEFAULT_COUNT);
-                        }
-                        messageViewModel.onGetHistoryMessage(result);
-                        //'5'标识定位消息的下标
-                        messageViewModel.executePageEvent(new ScrollEvent(5));
-                    }
+                public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                    messageViewModel.onGetHistoryMessage(list);
+                    //'5'标识定位消息的下标
+                    messageViewModel.executePageEvent(new ScrollEvent(5));
                 }
 
                 @Override
-                public void onError(RongIMClient.ErrorCode errorCode) {
+                public void onErrorAsk(List<Message> list) {
+
+                }
+
+                @Override
+                public void onErrorAlways(List<Message> list) {
+                    messageViewModel.onGetHistoryMessage(list);
+                    //'5'标识定位消息的下标
+                    messageViewModel.executePageEvent(new ScrollEvent(5));
+                }
+
+                @Override
+                public void onErrorOnlySuccess() {
 
                 }
             });
@@ -63,26 +69,28 @@ public class HistoryState implements IMessageState {
     public void onLoadMore(final MessageViewModel viewModel) {
         if (!isLoading) {
             isLoading = true;
-            RongIMClient.getInstance().getHistoryMessages(viewModel.getCurConversationType(), viewModel.getCurTargetId(), viewModel.getLoadMoreSentTime(), 0, DEFAULT_COUNT, new RongIMClient.ResultCallback<List<Message>>() {
+            MessageProcessor.getMessagesDirection(viewModel, viewModel.getLoadMoreSentTime(), DEFAULT_COUNT, false, new MessageProcessor.GetMessageCallback() {
                 @Override
-                public void onSuccess(List<Message> messages) {
-                    if (messages != null && messages.size() > 0) {
-                        //如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
-                        if (messages.size() < DEFAULT_COUNT + 1) {
-                            viewModel.setState(IMessageState.normalState);
-                            viewModel.onLoadMoreMessage(messages);
-                        } else {
-                            viewModel.onLoadMoreMessage(messages.subList(0, DEFAULT_COUNT));
-                        }
-                    } else {
-                        viewModel.setState(IMessageState.normalState);
-                    }
+                public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                    executeHistoryLoadMore(list, viewModel);
+                }
+
+                @Override
+                public void onErrorAsk(List<Message> list) {
+                    viewModel.onGetHistoryMessage(Collections.<Message>emptyList());
                     viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
                     isLoading = false;
                 }
 
                 @Override
-                public void onError(RongIMClient.ErrorCode errorCode) {
+                public void onErrorAlways(List<Message> list) {
+                    executeHistoryLoadMore(list, viewModel);
+                    isLoading = false;
+                }
+
+                @Override
+                public void onErrorOnlySuccess() {
+                    context.setCurrentState(context.normalState);
                     viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
                     isLoading = false;
                 }
@@ -90,9 +98,20 @@ public class HistoryState implements IMessageState {
         }
     }
 
+    private void executeHistoryLoadMore(List<Message> messageList, MessageViewModel viewModel) {
+        if (messageList.size() < DEFAULT_COUNT) {
+            viewModel.onLoadMoreMessage(messageList);
+            context.setCurrentState(context.normalState);
+        } else {
+            viewModel.onLoadMoreMessage(messageList);
+        }
+        viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
+        isLoading = false;
+    }
+
     @Override
     public void onRefresh(MessageViewModel viewModel) {
-        IMessageState.normalState.onRefresh(viewModel);
+        context.normalState.onRefresh(viewModel);
     }
 
     @Override
@@ -114,33 +133,47 @@ public class HistoryState implements IMessageState {
     public void onNewMessageBarClick(final MessageViewModel viewModel) {
         //拉取 默认值+ 1（11）条记录，如果小于 11 条，则说明本地消息拉取完成
         viewModel.cleanUnreadNewCount();
-        RongIMClient.getInstance().getHistoryMessages(viewModel.getCurConversationType(), viewModel.getCurTargetId(), -1, DEFAULT_COUNT + 1, new RongIMClient.ResultCallback<List<Message>>() {
+
+        MessageProcessor.getMessagesDirection(viewModel, 0, DEFAULT_COUNT + 1, true, new MessageProcessor.GetMessageCallback() {
+
             @Override
-            //返回列表（10，9，8，7，6，按messageId倒序）
-            public void onSuccess(List<Message> messages) {
-                //不为空且大于0证明还有本地数据
-                if (messages != null && messages.size() > 0) {
-                    //如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
-                    if (messages.size() < DEFAULT_COUNT + 1) {
-                        viewModel.onReloadMessage(messages);
-                    } else {
-                        viewModel.onReloadMessage(messages.subList(0, DEFAULT_COUNT));
-                    }
-                    viewModel.executePageEvent(new ScrollToEndEvent());
-                }
-                viewModel.setState(IMessageState.normalState);
+            public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                executeNewMessageBarClick(list, viewModel);
+            }
+
+            @Override
+            public void onErrorAsk(List<Message> list) {
+                context.setCurrentState(context.normalState);
                 viewModel.refreshAllMessage();
             }
 
             @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
+            public void onErrorAlways(List<Message> list) {
+                executeNewMessageBarClick(list, viewModel);
+            }
+
+            @Override
+            public void onErrorOnlySuccess() {
+                context.setCurrentState(context.normalState);
+                viewModel.refreshAllMessage();
             }
         });
     }
 
+    private void executeNewMessageBarClick(List<Message> messageList, MessageViewModel viewModel) {
+        if (messageList.size() < DEFAULT_COUNT + 1) {
+            viewModel.onReloadMessage(messageList);
+        } else {
+            viewModel.onReloadMessage(messageList.subList(0, DEFAULT_COUNT));
+        }
+        viewModel.executePageEvent(new ScrollToEndEvent());
+        context.setCurrentState(context.normalState);
+        viewModel.refreshAllMessage();
+    }
+
     @Override
     public void onNewMentionMessageBarClick(MessageViewModel viewModel) {
-        IMessageState.normalState.onNewMentionMessageBarClick(viewModel);
+        context.normalState.onNewMentionMessageBarClick(viewModel);
     }
 
     /**
@@ -156,7 +189,17 @@ public class HistoryState implements IMessageState {
      */
     @Override
     public void onHistoryBarClick(MessageViewModel viewModel) {
-        IMessageState.normalState.onHistoryBarClick(viewModel);
+        context.normalState.onHistoryBarClick(viewModel);
+    }
+
+    @Override
+    public void onClearMessage(MessageViewModel viewModel) {
+
+    }
+
+    @Override
+    public boolean isNormalState(MessageViewModel viewModel) {
+        return false;
     }
 
 }

@@ -12,27 +12,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.rong.imkit.RongIM;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.db.model.Group;
-import io.rong.imkit.userinfo.db.model.GroupMember;
-import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.TimeUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
-import io.rong.sight.R;
 import io.rong.message.SightMessage;
+import io.rong.sight.R;
 
-public class SightListActivity extends RongBaseNoActionbarActivity {
+public class SightListActivity extends RongBaseNoActionbarActivity implements RongUserInfoManager.UserDataObserver {
     private String targetId;
     private Conversation.ConversationType conversationType;
     private SightListAdapter sightListAdapter;
@@ -46,7 +42,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
         setContentView(R.layout.rc_activity_sight_list);
         Intent intent = getIntent();
         targetId = intent.getStringExtra("targetId");
-        isDestruct = intent.getBooleanExtra("isDestruct",false);
+        isDestruct = intent.getBooleanExtra("isDestruct", false);
         conversationType = Conversation.ConversationType.setValue(intent.getIntExtra("conversationType", 0));
         ListView fileListView = findViewById(R.id.sightList);
         sightListAdapter = new SightListAdapter();
@@ -74,34 +70,19 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
     }
 
     private void initUserInfoChangeListener() {
-        RongUserInfoManager.getInstance().getAllUsersLiveData().observe(this, new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                for (User user : users) {
-                    updateUserInfo(user);
-                }
-            }
-        });
-        RongUserInfoManager.getInstance().getAllGroupMembersLiveData().observe(this, new Observer<List<GroupMember>>() {
-
-            @Override
-            public void onChanged(List<GroupMember> groupMembers) {
-                for (GroupMember groupMember : groupMembers) {
-                    updateGroupUserInfo(groupMember);
-                }
-            }
-        });
+        RongUserInfoManager.getInstance().addUserDataObserver(this);
     }
 
     @Override
     protected void onDestroy() {
+        RongUserInfoManager.getInstance().removeUserDataObserver(this);
         super.onDestroy();
     }
 
     private void setListAdapterData(List<Message> messages, SightListAdapter sightListAdapter) {
         List<ItemData> itemDataList = new ArrayList<>();
         for (Message message : messages) {
-            if (isDestruct != message.getContent().isDestruct()){
+            if (isDestruct != message.getContent().isDestruct()) {
                 continue;
             }
             ItemData data = new ItemData();
@@ -122,11 +103,11 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
         sightListAdapter.notifyDataSetChanged();
     }
 
-    public void updateUserInfo(User userInfo) {
+    public void updateUserInfo(UserInfo userInfo) {
         boolean needUpdate = false;
         for (ItemData itemData : sightListAdapter.getData()) {
-            if (itemData.message.getSenderUserId().equals(userInfo.id)) {
-                itemData.senderName = userInfo.name;
+            if (itemData.message.getSenderUserId().equals(userInfo.getUserId())) {
+                itemData.senderName = userInfo.getName();
                 needUpdate = true;
             }
         }
@@ -135,12 +116,12 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
         }
     }
 
-    public void updateGroupUserInfo(GroupMember groupMember) {
+    public void updateGroupUserInfo(GroupUserInfo groupMember) {
         boolean needUpdate = false;
-        if (groupMember != null && conversationType.equals(Conversation.ConversationType.GROUP) && targetId.equals(groupMember.groupId)) {
+        if (groupMember != null && conversationType.equals(Conversation.ConversationType.GROUP) && targetId.equals(groupMember.getGroupId())) {
             for (ItemData itemData : sightListAdapter.getData()) {
-                if (itemData.message.getSenderUserId().equals(groupMember.userId)) {
-                    itemData.senderName = groupMember.memberName;
+                if (itemData.message.getSenderUserId().equals(groupMember.getUserId())) {
+                    itemData.senderName = groupMember.getNickname();
                     needUpdate = true;
                 }
             }
@@ -148,6 +129,21 @@ public class SightListActivity extends RongBaseNoActionbarActivity {
                 sightListAdapter.notifyDataSetChanged();
             }
         }
+    }
+
+    @Override
+    public void onUserUpdate(UserInfo user) {
+        updateUserInfo(user);
+    }
+
+    @Override
+    public void onGroupUpdate(Group group) {
+
+    }
+
+    @Override
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+        updateGroupUserInfo(groupUserInfo);
     }
 
     private class SightListAdapter extends BaseAdapter {

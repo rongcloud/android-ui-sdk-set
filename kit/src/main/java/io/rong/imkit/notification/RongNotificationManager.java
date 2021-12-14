@@ -19,11 +19,9 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
 
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,7 +32,7 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.RongConversationActivity;
 import io.rong.imkit.model.ConversationKey;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.db.model.User;
+import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.RongCache;
 import io.rong.imlib.MessageTag;
@@ -50,7 +48,7 @@ import io.rong.imlib.model.UserInfo;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.push.common.PushCacheHelper;
 
-public class RongNotificationManager {
+public class RongNotificationManager implements RongUserInfoManager.UserDataObserver {
     //应用在前台，如果没有在会话界面，收消息时每间隔 3s 一次响铃、震动。
     private final static int SOUND_INTERVAL = 3000;
     private static boolean mIsInForeground;
@@ -84,7 +82,7 @@ public class RongNotificationManager {
         IMCenter.getInstance().addConversationStatusListener(new RongIMClient.ConversationStatusListener() {
             @Override
             public void onStatusChanged(ConversationStatus[] conversationStatuses) {
-                String stateType  = "";
+                String stateType = "";
                 String key = "";
                 if (conversationStatuses != null && conversationStatuses.length > 0) {
                     for (ConversationStatus status : conversationStatuses) {
@@ -153,33 +151,9 @@ public class RongNotificationManager {
                 return false;
             }
         });
+        RongUserInfoManager.getInstance().addUserDataObserver(this);
         registerActivityLifecycleCallback();
 
-        RongUserInfoManager.getInstance().getAllUsersLiveData().observeForever(new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                if (users == null || users.isEmpty()) {
-                    return;
-                }
-                Conversation.ConversationType[] types = new Conversation.ConversationType[]{
-                        Conversation.ConversationType.PRIVATE, Conversation.ConversationType.GROUP,
-                        Conversation.ConversationType.DISCUSSION, Conversation.ConversationType.CUSTOMER_SERVICE,
-                        Conversation.ConversationType.CHATROOM, Conversation.ConversationType.SYSTEM
-                };
-                Message message;
-
-                for (User user : users) {
-                    for (Conversation.ConversationType type : types) {
-                        String key = ConversationKey.obtain(user.id, type).getKey();
-                        if (messageMap.containsKey(key)) {
-                            message = messageMap.get(key);
-                            messageMap.remove(key);
-                            prepareToSendNotification(message);
-                        }
-                    }
-                }
-            }
-        });
     }
 
     private void preToNotify(Message message) {
@@ -637,10 +611,9 @@ public class RongNotificationManager {
     }
 
     /**
-     *
      * @param targetId
      * @param conversationType
-     * @param stateType 状态类型 1 免打扰， 2 置顶；
+     * @param stateType        状态类型 1 免打扰， 2 置顶；
      * @return
      */
     private String getKey(String targetId, Conversation.ConversationType conversationType, final String stateType) {
@@ -649,6 +622,37 @@ public class RongNotificationManager {
         stringBuilder.append(stateType);
         stringBuilder.append(targetId);
         return stringBuilder.toString();
+    }
+
+    @Override
+    public void onUserUpdate(UserInfo user) {
+        if (user == null) {
+            return;
+        }
+        Conversation.ConversationType[] types = new Conversation.ConversationType[]{
+                Conversation.ConversationType.PRIVATE, Conversation.ConversationType.GROUP,
+                Conversation.ConversationType.DISCUSSION, Conversation.ConversationType.CUSTOMER_SERVICE,
+                Conversation.ConversationType.CHATROOM, Conversation.ConversationType.SYSTEM
+        };
+        Message message;
+        for (Conversation.ConversationType type : types) {
+            String key = ConversationKey.obtain(user.getUserId(), type).getKey();
+            if (messageMap.containsKey(key)) {
+                message = messageMap.get(key);
+                messageMap.remove(key);
+                prepareToSendNotification(message);
+            }
+        }
+    }
+
+    @Override
+    public void onGroupUpdate(Group group) {
+
+    }
+
+    @Override
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+
     }
 
     private static class SingletonHolder {

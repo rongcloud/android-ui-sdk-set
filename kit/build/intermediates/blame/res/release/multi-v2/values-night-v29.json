@@ -4,7 +4,17 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/values-night-v29/values-night-v29.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/5850f1ace9bb64d8d05eda2e3fb1ce2e/res/values-night-v29/values-night-v29.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/9b54873f7f77493ef795cd51d647977d/res/values-night-v29/values-night-v29.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,107,160",
+                        "endColumns": "51,52,51",
+                        "endOffsets": "102,155,207"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/8c09421f85d7ab5d9a80889e16f7e634/res/values-night-v29/values-night-v29.xml",
                     "from": {
                         "startLines": "2,3,4",
                         "startColumns": "4,4,4",
@@ -18,16 +28,6 @@
                         "startOffsets": "212,265,319",
                         "endColumns": "52,53,52",
                         "endOffsets": "260,314,367"
-                    }
-                },
-                {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/63e6f27c32647d71e407a8fba2b552ea/res/values-night-v29/values-night-v29.xml",
-                    "from": {
-                        "startLines": "2,3,4",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "55,107,160",
-                        "endColumns": "51,52,51",
-                        "endOffsets": "102,155,207"
                     }
                 }
             ]
@@ -36,7 +36,17 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-night-v29/values-night-v29.xml",
             "map": [
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/5850f1ace9bb64d8d05eda2e3fb1ce2e/res/values-night-v29/values-night-v29.xml",
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/9b54873f7f77493ef795cd51d647977d/res/values-night-v29/values-night-v29.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,107,160",
+                        "endColumns": "51,52,51",
+                        "endOffsets": "102,155,207"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/update-3.0.1.300.aar/8c09421f85d7ab5d9a80889e16f7e634/res/values-night-v29/values-night-v29.xml",
                     "from": {
                         "startLines": "2,3,4",
                         "startColumns": "4,4,4",
@@ -50,16 +60,6 @@
                         "startOffsets": "212,265,319",
                         "endColumns": "52,53,52",
                         "endOffsets": "260,314,367"
-                    }
-                },
-                {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/63e6f27c32647d71e407a8fba2b552ea/res/values-night-v29/values-night-v29.xml",
-                    "from": {
-                        "startLines": "2,3,4",
-                        "startColumns": "4,4,4",
-                        "startOffsets": "55,107,160",
-                        "endColumns": "51,52,51",
-                        "endOffsets": "102,155,207"
                     }
                 }
             ]

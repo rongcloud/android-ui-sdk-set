@@ -52,6 +52,7 @@ import io.rong.imkit.feature.publicservice.provider.PublicServiceRichContentMess
 import io.rong.imkit.feature.reference.ReferenceMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.adapter.ProviderManager;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
 
@@ -136,6 +137,7 @@ public class ConversationConfig {
     private int conversationRemoteMessageCount = 10;
     // 进入会话界面，默认显示未读消息数量
     private int conversationShowUnreadMessageCount = 10;
+    private IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType = IRongCoreEnum.ConversationLoadMessageType.ALWAYS;
 
 
     ConversationConfig() {
@@ -230,7 +232,7 @@ public class ConversationConfig {
 
             try {
                 conversationHistoryMessageCount = resources.getInteger(R.integer.rc_conversation_history_message_count);
-                if(conversationHistoryMessageCount > conversationHistoryMessageMaxCount) {
+                if (conversationHistoryMessageCount > conversationHistoryMessageMaxCount) {
                     conversationHistoryMessageCount = conversationHistoryMessageMaxCount;
                 }
             } catch (Exception e) {
@@ -239,7 +241,7 @@ public class ConversationConfig {
 
             try {
                 conversationRemoteMessageCount = resources.getInteger(R.integer.rc_conversation_remote_message_count);
-                if(conversationRemoteMessageCount > conversationRemoteMessageMaxCount) {
+                if (conversationRemoteMessageCount > conversationRemoteMessageMaxCount) {
                     conversationRemoteMessageCount = conversationRemoteMessageMaxCount;
                 }
             } catch (Exception e) {
@@ -248,7 +250,7 @@ public class ConversationConfig {
 
             try {
                 conversationShowUnreadMessageCount = resources.getInteger(R.integer.rc_conversation_show_unread_message_count);
-                if(conversationShowUnreadMessageCount > conversationShowUnreadMessageMaxCount) {
+                if (conversationShowUnreadMessageCount > conversationShowUnreadMessageMaxCount) {
                     conversationShowUnreadMessageCount = conversationShowUnreadMessageMaxCount;
                 }
             } catch (Exception e) {
@@ -305,6 +307,17 @@ public class ConversationConfig {
     public void addMoreClickAction(int index, IClickActions action) {
         if (action != null)
             mMoreClickActions.add(index, action);
+    }
+
+    /**
+     * 移除点击事件
+     *
+     * @param action 移除的点击事件
+     */
+    public void removeMoreClickAction(IClickActions action) {
+        if (action != null) {
+            mMoreClickActions.remove(action);
+        }
     }
 
     /**
@@ -651,5 +664,13 @@ public class ConversationConfig {
 
     public void setEnableMultiDeviceSync(boolean enableMultiDeviceSync) {
         this.enableMultiDeviceSync = enableMultiDeviceSync;
+    }
+
+    public void setConversationLoadMessageType(IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType) {
+        this.conversationLoadMessageType = conversationLoadMessageType;
+    }
+
+    public IRongCoreEnum.ConversationLoadMessageType getConversationLoadMessageType() {
+        return conversationLoadMessageType;
     }
 }

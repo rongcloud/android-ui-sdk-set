@@ -1,38 +1,38 @@
 [
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_tint_default.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_tint_default.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_tint_default.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_tint_spinner.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_tint_spinner.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_tint_spinner.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_tint_switch_track.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_tint_switch_track.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_tint_switch_track.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_tint_btn_checkable.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_tint_btn_checkable.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_tint_btn_checkable.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_tint_edittext.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_tint_edittext.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_tint_edittext.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_tint_seek_thumb.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_tint_seek_thumb.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_tint_seek_thumb.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_btn_colored_borderless_text_material.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_btn_colored_borderless_text_material.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_btn_colored_borderless_text_material.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_color_highlight_material.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_color_highlight_material.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_color_highlight_material.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/build/intermediates/res/merged/release/color-v23/abc_btn_colored_text_material.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/e68488520fe4fcf30a3183dae054ec8e/res/color-v23/abc_btn_colored_text_material.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/appcompat-1.2.0.aar/51d350defb7809d1f366dba26741682f/res/color-v23/abc_btn_colored_text_material.xml"
     }
 ]

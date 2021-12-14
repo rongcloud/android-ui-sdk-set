@@ -64,11 +64,11 @@ public class TextViewUtils {
             return new SpannableStringBuilder("");
         }
         SpannableStringBuilder spannable = new SpannableStringBuilder(content);
-        spannable.setSpan(new ForegroundColorSpan(foregroundColor),
+        final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
+        emojiSpannable.setSpan(new ForegroundColorSpan(foregroundColor),
                 0,
                 content.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
         AndroidEmoji.ensure(emojiSpannable);
         if (spannable.length() < CONTENT_LIMIT_LENGTH) {
             regularContent(emojiSpannable);

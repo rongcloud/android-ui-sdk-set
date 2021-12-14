@@ -406,10 +406,10 @@
     <string name="rc_unknow">UnKnown</string>
     <string name="rc_unread_message">{0} رسالة جديدة</string>
 
-    <string name="rc_android.permission.CAMERA">الكاميرا</string>
+    <string name="rc_android_permission_CAMERA">الكاميرا</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">معلومات الموقع</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">معلومات الموقع</string>
-    <string name="rc_android.permission.RECORD_AUDIO">الميكروفون</string>
+    <string name="rc_android_permission_RECORD_AUDIO">الميكروفون</string>
     <string name="rc_android.permission.READ_EXTERNAL_STORAGE">التخزين</string>
     <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">التخزين</string>
     <string name="rc_android.permission.READ_PHONE_STATE">الهاتف</string>
@@ -488,4 +488,7 @@
 
     <string name="rc_mention_messages">@ %s</string>
     <string name="rc_media_upload_error">لا يمكن تحميل وسائط 0kb.</string>
+    <string name="rc_load_local_message">Network Error，View local history messages?</string>
+
+    <string name="rc_message_too_long">النص الذي أدخلته طويل جدًا بحيث لا يمكن إرساله</string>
 </resources>

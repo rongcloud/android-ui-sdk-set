@@ -31,18 +31,7 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
 
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
-        messageViewModel.getPageEventLiveData().removeSource(RongUserInfoManager.getInstance().getAllUsersLiveData());
-        messageViewModel.getPageEventLiveData().addSource(RongUserInfoManager.getInstance().getAllUsersLiveData(), new Observer<List<User>>() {
-            @Override
-            public void onChanged(List<User> users) {
-                if (users != null && users.size() > 0) {
-                    for (UiMessage item : messageViewModel.getUiMessages()) {
-                        item.onUserInfoUpdate(users);
-                    }
-                    messageViewModel.refreshAllMessage(false);
-                }
-            }
-        });
+        super.init(messageViewModel, bundle);
     }
 
     @Override

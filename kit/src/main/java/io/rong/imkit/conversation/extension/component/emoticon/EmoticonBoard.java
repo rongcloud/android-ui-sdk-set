@@ -150,7 +150,9 @@ public class EmoticonBoard {
 
     public void initEmotionTabs() {
         if (mEmotionTabs != null && mEmotionTabs.size() > 0) {
-            return;
+            if (mScrollTab != null) {
+                mScrollTab.removeAllViews();
+            }
         }
         mEmotionTabs = RongExtensionManager.getInstance().getExtensionConfig().getEmoticonTabs(mConversationType, mTargetId);
         for (IEmoticonTab tab : getAllTabs()) {
@@ -170,6 +172,9 @@ public class EmoticonBoard {
                         tab.getEditInfo().observe(mFragment, new Observer<String>() {
                             @Override
                             public void onChanged(String s) {
+                                if (mExtensionViewModel.getEditTextWidget() == null) {
+                                    return;
+                                }
                                 if (s.equals(EmojiTab.DELETE)) {
                                     mExtensionViewModel.getEditTextWidget().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
                                 } else {

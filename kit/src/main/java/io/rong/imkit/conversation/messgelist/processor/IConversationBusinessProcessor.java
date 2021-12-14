@@ -96,4 +96,20 @@ public interface IConversationBusinessProcessor {
     void onConnectStatusChange(MessageViewModel viewModel, RongIMClient.ConnectionStatusListener.ConnectionStatus status);
 
     void onResume(MessageViewModel viewModel);
+
+    void onLoadMore(MessageViewModel viewModel);
+
+    void onClearMessage(MessageViewModel viewModel);
+
+    void onRefresh(MessageViewModel viewModel);
+
+    void newMessageBarClick(MessageViewModel viewModel);
+
+    void unreadBarClick(MessageViewModel viewModel);
+
+    void newMentionMessageBarClick(MessageViewModel viewModel);
+
+    boolean isNormalState(MessageViewModel viewModel);
+
+    void onScrollToBottom(MessageViewModel viewModel);
 }

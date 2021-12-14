@@ -9,6 +9,7 @@ import androidx.room.Query;
 import java.util.List;
 
 import io.rong.imkit.userinfo.db.model.Group;
+import io.rong.imkit.userinfo.db.model.User;
 
 
 @Dao
@@ -27,4 +28,7 @@ public interface GroupDao {
 
     @Query("delete from `group` where id=:id")
     void deleteGroup(String id);
+
+    @Query("select * from `group` limit :limit")
+    List<Group> getLimitGroups(int limit);
 }

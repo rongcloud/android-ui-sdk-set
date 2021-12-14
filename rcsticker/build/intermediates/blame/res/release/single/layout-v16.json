@@ -1,6 +1,6 @@
 [
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout-v16/notification_template_custom_big.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/core-1.3.1.aar/aa74cbc34b7477b0b9b4922307fe7221/res/layout-v16/notification_template_custom_big.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/core-1.3.1.aar/c9e108bd3680c00c8e33167b79775f86/res/layout-v16/notification_template_custom_big.xml"
     }
 ]

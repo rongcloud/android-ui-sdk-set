@@ -246,7 +246,9 @@ public class RongExtension extends LinearLayout {
     }
 
     public void onPause() {
-        editTextIsFocused = mExtensionViewModel.getEditTextWidget().isFocused();
+        if (mExtensionViewModel.getEditTextWidget() != null) {
+            editTextIsFocused = mExtensionViewModel.getEditTextWidget().isFocused();
+        }
         if (keyboardHeightProvider != null) {
             keyboardHeightProvider.stop();
         }

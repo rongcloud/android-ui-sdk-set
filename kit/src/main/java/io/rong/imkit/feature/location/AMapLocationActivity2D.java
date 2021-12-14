@@ -132,6 +132,7 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
             }
         }
     };
+    private LocationManager locationManager;
 
     @SuppressLint("MissingPermission")
     @Override
@@ -161,21 +162,23 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
         //Bug:关闭位置服务进入到此页面,直接在设置或快捷菜单中再次开启位置服务(非位置服务引导进行的操作),查看位置没有正常加载数据.
         //监听手机位置服务或定位服务开关状态,重新开启需重新定位,进而回调onMyLocationChanged再次刷新位置页面.
         if (PermissionCheckUtil.checkPermissions(this, locationPermissions)) {
-            android.location.LocationManager locationManager = (android.location.LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 0f, gpsListener);
-            locationManager.addGpsStatusListener(new GpsStatus.Listener() {
-                @Override
-                public void onGpsStatusChanged(int event) {
-                    if (event == GpsStatus.GPS_EVENT_STARTED) {
-                        Log.w(TAG, "Gps Started");
-                        LocationDelegate3D.getInstance().updateMyLocation();
-                    } else if (event == GpsStatus.GPS_EVENT_STOPPED) {
-                        Log.w(TAG, "Gps Stopped");
-                    }
-                }
-            });
+            locationManager.addGpsStatusListener(gpsStatusListener);
         }
     }
+
+    private GpsStatus.Listener gpsStatusListener = new GpsStatus.Listener() {
+        @Override
+        public void onGpsStatusChanged(int event) {
+            if (event == GpsStatus.GPS_EVENT_STARTED) {
+                Log.w(TAG, "Gps Started");
+                LocationDelegate3D.getInstance().updateMyLocation();
+            } else if (event == GpsStatus.GPS_EVENT_STOPPED) {
+                Log.w(TAG, "Gps Stopped");
+            }
+        }
+    };
 
     private LocationListener gpsListener = new LocationListener() {
         @Override
@@ -349,6 +352,9 @@ public class AMapLocationActivity2D extends RongBaseActivity implements
             mAMapView.onDestroy();
         }
         LocationDelegate2D.getInstance().setMyLocationChangedListener(null);
+        if (gpsStatusListener != null) {
+            locationManager.removeGpsStatusListener(gpsStatusListener);
+        }
         super.onDestroy();
     }
 

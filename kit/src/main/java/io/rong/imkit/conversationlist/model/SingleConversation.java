@@ -7,17 +7,14 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.db.model.Group;
-import io.rong.imkit.userinfo.db.model.GroupMember;
-import io.rong.imkit.userinfo.db.model.User;
+import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
 
 public class SingleConversation extends BaseUiConversation {
@@ -48,17 +45,14 @@ public class SingleConversation extends BaseUiConversation {
 
 
     @Override
-    public void onUserInfoUpdate(List<User> userList) {
-        if (!TextUtils.isEmpty(mCore.getDraft()) || userList == null) {
+    public void onUserInfoUpdate(UserInfo user) {
+        if (!TextUtils.isEmpty(mCore.getDraft()) || user == null) {
             return; //有草稿时，会话内容里显示草稿，不需要处理用户信息
         }
-        for (User user : userList) {
-            if (user.id.equals(mCore.getTargetId())) {
-                mCore.setConversationTitle(RongUserInfoManager.getInstance().getUserDisplayName(user));
-                mCore.setPortraitUrl(user.portraitUrl);
-                RLog.d(TAG, "onUserInfoUpdate. name:" + mCore.getConversationTitle());
-                break;
-            }
+        if (user.getUserId().equals(mCore.getTargetId())) {
+            mCore.setConversationTitle(RongUserInfoManager.getInstance().getUserDisplayName(user));
+            mCore.setPortraitUrl(user.getPortraitUri() != null ? user.getPortraitUri().toString() : null);
+            RLog.d(TAG, "onUserInfoUpdate. name:" + mCore.getConversationTitle());
         }
     }
 
@@ -72,12 +66,13 @@ public class SingleConversation extends BaseUiConversation {
     }
 
     @Override
-    public void onGroupInfoUpdate(List<Group> groups) {
+    public void onGroupInfoUpdate(Group groups) {
 
     }
 
+
     @Override
-    public void onGroupMemberUpdate(List<GroupMember> groupMembers) {
+    public void onGroupMemberUpdate(GroupUserInfo groupMembers) {
 
     }
 }

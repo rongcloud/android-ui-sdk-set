@@ -32,6 +32,7 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     private View mQuickReplyIcon;
     private boolean isQuickReplyShow;
     private WeakReference<RongExtension> mExtension;
+    private RelativeLayout attachContainer;
 
     @Override
     public void onInit(Context context, String appKey) {
@@ -49,7 +50,7 @@ public class QuickReplyExtensionModule implements IExtensionModule {
         if (provider != null && provider.getPhraseList(type) != null && provider.getPhraseList(type).size() > 0
                 && fragment != null && fragment.getContext() != null) {
             final RongExtensionViewModel rongExtensionViewModel = new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
-            RelativeLayout attachContainer = extension.getContainer(RongExtension.ContainerType.ATTACH);
+            attachContainer = extension.getContainer(RongExtension.ContainerType.ATTACH);
             attachContainer.removeAllViews();
             mQuickReplyIcon = LayoutInflater.from(fragment.getContext()).inflate(R.layout.rc_ext_quick_reply_icon, attachContainer, false);
             attachContainer.addView(mQuickReplyIcon);
@@ -67,7 +68,9 @@ public class QuickReplyExtensionModule implements IExtensionModule {
                 public void onClick(View v) {
                     if (isQuickReplyShow && rongExtensionViewModel.getExtensionBoardState().getValue()) {
                         isQuickReplyShow = false;
-                        rongExtensionViewModel.getEditTextWidget().requestFocus();
+                        if (rongExtensionViewModel.getEditTextWidget() != null) {
+                            rongExtensionViewModel.getEditTextWidget().requestFocus();
+                        }
                         rongExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
                     } else {
                         isQuickReplyShow = true;
@@ -78,7 +81,9 @@ public class QuickReplyExtensionModule implements IExtensionModule {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                                 isQuickReplyShow = false;
-                                rongExtensionViewModel.getEditTextWidget().requestFocus();
+                                if (rongExtensionViewModel.getEditTextWidget() != null) {
+                                    rongExtensionViewModel.getEditTextWidget().requestFocus();
+                                }
                                 rongExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
                             }
                         });
@@ -96,6 +101,15 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     @Override
     public void onDetachedFromExtension() {
         ReferenceManager.getInstance().removeReferenceStatusListener(ReferenceStatusListener);
+        //The following code is used to resolve memory leaks.
+        if (mExtension != null && mExtension.get() != null) {
+            mExtension.get().removeView(attachContainer);
+            attachContainer = null;
+        }
+
+        if (mQuickReplyIcon != null) {
+            mQuickReplyIcon = null;
+        }
     }
 
     @Override
