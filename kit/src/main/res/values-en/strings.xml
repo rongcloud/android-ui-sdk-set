@@ -309,6 +309,8 @@
     <string name="rc_src_file_not_found">Source file does not exist.</string>
     <string name="rc_click_to_play">Click to Play</string>
 
+    <string name="rc_permission_request_failed">The attempt to request permissions has failed</string>
+
     <!-- Combine-->
     <string name="rc_combine_stepwise_forwarding">One-by-One Forward</string>
     <string name="rc_combine_forwarding">Combine and Forward</string>

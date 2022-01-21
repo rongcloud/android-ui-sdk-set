@@ -48,7 +48,8 @@ public class QuickReplyExtensionModule implements IExtensionModule {
             return;
         }
         if (provider != null && provider.getPhraseList(type) != null && provider.getPhraseList(type).size() > 0
-                && fragment != null && fragment.getContext() != null) {
+                && fragment != null && fragment.getContext() != null
+                && !fragment.isDetached()) {
             final RongExtensionViewModel rongExtensionViewModel = new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
             attachContainer = extension.getContainer(RongExtension.ContainerType.ATTACH);
             attachContainer.removeAllViews();

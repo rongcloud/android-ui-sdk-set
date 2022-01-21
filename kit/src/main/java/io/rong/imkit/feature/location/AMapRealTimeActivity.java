@@ -130,8 +130,10 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
             mUserTargetMap.put(userId, userTarget);
 
             UserInfo user = RongUserInfoManager.getInstance().getUserInfo(userId);
-            updateUserInfo(user);
-            updateParticipantTitleText();
+            if (user != null) {
+                updateUserInfo(user);
+                updateParticipantTitleText();
+            }
         }
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(17f);
         mAMap.animateCamera(zoom, null);

@@ -70,7 +70,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                     }
                     RongExtension rongExtension = mRongExtension.get();
                     Fragment fragment = mFragment.get();
-                    if (rongExtension == null || fragment == null) {
+                    if (rongExtension == null || fragment == null || fragment.isDetached()) {
                         return false;
                     }
                     mUiMessage = uiMessage;
@@ -147,6 +147,9 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
 
     @Override
     public void onAttachedToExtension(Fragment fragment, final RongExtension extension) {
+        if (fragment == null || fragment.isDetached()) {
+            return;
+        }
         mFragment = new WeakReference<>(fragment);
         mRongExtension = new WeakReference<>(extension);
         ReferenceInstance referenceInstance;

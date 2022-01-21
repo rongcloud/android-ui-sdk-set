@@ -521,25 +521,12 @@ public class MessageViewModel extends AndroidViewModel implements MessageEventLi
 
     public void onWarnClick(final UiMessage uiMessage) {
         final Message msg = uiMessage.getMessage();
-        RongIMClient.getInstance().deleteMessages(new int[]{msg.getMessageId()}, new RongIMClient.ResultCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean aBoolean) {
-                if (aBoolean) {
-                    int position = findPositionByMessageId(msg.getMessageId());
-                    if (position >= 0) {
-                        mUiMessages.remove(position);
-                        mUiMessageLiveData.setValue(mUiMessages);
-                    }
-                    msg.setMessageId(0);
-                    reSendMessage(msg);
-                }
-            }
-
-            @Override
-            public void onError(RongIMClient.ErrorCode e) {
-
-            }
-        });
+        int position = findPositionByMessageId(msg.getMessageId());
+        if (position >= 0) {
+            mUiMessages.remove(position);
+            mUiMessageLiveData.setValue(mUiMessages);
+        }
+        reSendMessage(msg);
     }
 
     public void onItemClick(UiMessage uiMessage) {

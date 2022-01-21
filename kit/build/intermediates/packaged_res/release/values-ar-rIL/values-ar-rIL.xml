@@ -344,6 +344,7 @@
     <string name="rc_permission_grant_needed">تحتاج إلى تشغيل الأذونات في الإعدادات</string>
     <string name="rc_permission_microphone">ميكروفون</string>
     <string name="rc_permission_microphone_and_camera">ميكروفون، كاميرا</string>
+    <string name="rc_permission_request_failed">فشل في الحصول على إذن</string>
     <string name="rc_picsel_selected_max_time_span_with_param">لا يمكن مشاركة مقاطع الفيديو التي تزيد مدتها عن %s دقيقة</string>
     <string name="rc_picsel_video_corrupted">تعذر مشاركة الفيديو. الملف معطوب</string>
     <string name="rc_picture_audio"> تم رفض الوصول إلى إذن تسجيل النظام </string>

@@ -229,7 +229,12 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         intent.putExtra(RouteUtils.CONVERSATION_TYPE, type.getName().toLowerCase());
         intent.putExtra(RouteUtils.TARGET_ID, targetId);
         intent.putExtra(RouteUtils.MESSAGE_ID, message.getMessageId());
-        PendingIntent pendingIntent = PendingIntent.getActivity(mApplication, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent;
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntent = PendingIntent.getActivity(mApplication, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            pendingIntent = PendingIntent.getActivity(mApplication, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
         if (RongConfigCenter.notificationConfig().getInterceptor() != null) {
             pendingIntent = RongConfigCenter.notificationConfig().getInterceptor().onPendingIntent(pendingIntent, intent);
         }

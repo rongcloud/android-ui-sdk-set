@@ -218,9 +218,10 @@ public class PermissionCheckUtil {
 
     // KNOTE: 2021/8/25 修复权限提示窗权限提示name重复问题
     private static String getNotGrantedPermissionMsg(Context context, String[] permissions, int[] grantResults) {
-        if (permissions == null || permissions.length == 0) {
+        if(checkPermissionResultIncompatible(permissions,grantResults)){
             return "";
         }
+
         try {
             List<String> permissionNameList = new ArrayList<>(permissions.length);
             for (int i = 0; i < permissions.length; i++) {
@@ -393,6 +394,16 @@ public class PermissionCheckUtil {
                     .create()
                     .show();
         }
+    }
+
+    /**
+     * 权限授权回调参数匹配性检测.
+     *
+     * @param grantResults 系统返回的授权结果。
+     * @return {@code true} 参数不匹配;{@code false} 参数检查匹配
+     */
+    public static boolean checkPermissionResultIncompatible(String[] permissions, int[] grantResults) {
+        return grantResults == null || grantResults.length == 0 || permissions == null || permissions.length != grantResults.length;
     }
 
     /**

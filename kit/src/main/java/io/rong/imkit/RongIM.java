@@ -6,8 +6,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
+import androidx.annotation.Nullable;
 import io.rong.common.RLog;
 import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.ConversationListBehaviorListener;
@@ -1225,7 +1228,6 @@ public class RongIM {
      *                    如果发送 SDK 中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
      * @param pushData    远程推送附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback    发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
-     * @group 消息操作
      */
     public void sendMessage(final Conversation.ConversationType type, final String targetId, final MessageContent content, final String pushContent, final String pushData, final IRongCallback.ISendMessageCallback callback) {
         Message message = Message.obtain(targetId, type, content);
@@ -1458,5 +1460,4 @@ public class RongIM {
     private static class SingletonHolder {
         static RongIM sInstance = new RongIM();
     }
-
 }

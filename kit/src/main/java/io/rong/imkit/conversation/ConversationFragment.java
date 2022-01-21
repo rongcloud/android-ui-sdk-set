@@ -69,6 +69,7 @@ import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.MessageProviderPermissionHandler;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.adapter.BaseAdapter;
@@ -107,6 +108,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     protected int activitySoftInputMode = 0;
     //滑动结束是否
     protected boolean onScrollStopRefreshList = false;
+    private boolean bindToConversation = false;
     Observer<List<UiMessage>> mListObserver = new Observer<List<UiMessage>>() {
         @Override
         public void onChanged(List<UiMessage> uiMessages) {
@@ -262,7 +264,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
             if (newState == RecyclerView.SCROLL_STATE_IDLE && onScrollStopRefreshList) {
                 onScrollStopRefreshList = false;
-                RLog.d(TAG,"onScrollStateChanged refresh List");
+                RLog.d(TAG, "onScrollStateChanged refresh List");
                 refreshList(mMessageViewModel.getUiMessageLiveData().getValue());
             }
         }
@@ -290,6 +292,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             mRongExtension.bindToConversation(this, conversationType, targetId);
             mMessageViewModel.bindConversation(conversationType, targetId, bundle);
             subscribeUi();
+            bindToConversation = true;
         } else {
             RLog.e(TAG, "Invalid intent data !!! Must put targetId and conversation type to intent.");
         }
@@ -407,7 +410,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
 
     @Override
     public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-        if (mMessageViewModel != null) {
+        if (mMessageViewModel != null && bindToConversation) {
             mMessageViewModel.onRefresh();
         }
     }
@@ -431,6 +434,13 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
+            if (getContext() != null) {
+                ToastUtils.s(getContext(), getString(R.string.rc_permission_request_failed));
+            }
+            return;
+        }
+
         if (requestCode == REQUEST_MSG_DOWNLOAD_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 HQVoiceMsgDownloadManager.getInstance().resumeDownloadService();
@@ -657,6 +667,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             mRongExtension.onDestroy();
             mRongExtension = null;
         }
+        bindToConversation = false;
     }
 
     private void resetSoftInputMode(int mode) {
@@ -680,7 +691,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
 
     @Override
     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-        if (mMessageViewModel != null) {
+        if (mMessageViewModel != null && bindToConversation) {
             mMessageViewModel.onLoadMore();
         }
     }

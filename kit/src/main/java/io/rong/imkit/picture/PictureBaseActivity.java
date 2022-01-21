@@ -29,6 +29,7 @@ import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 
 
@@ -303,6 +304,14 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
+            if (getContext() != null) {
+                ToastUtils.s(getContext(), getString(R.string.rc_permission_request_failed));
+            }
+            return;
+        }
+
         switch (requestCode) {
             case PictureConfig.APPLY_AUDIO_PERMISSIONS_CODE:
                 // 录音权限

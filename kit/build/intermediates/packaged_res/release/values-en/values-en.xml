@@ -347,6 +347,7 @@
     <string name="rc_permission_grant_needed">You need to enable read and write permissions in the settings</string>
     <string name="rc_permission_microphone">(Microphone).</string>
     <string name="rc_permission_microphone_and_camera">(Microphone、Camera).</string>
+    <string name="rc_permission_request_failed">The attempt to request permissions has failed</string>
     <string name="rc_picsel_selected_max_time_span_with_param">Can\'t share the video longer than %d minutes.</string>
     <string name="rc_picsel_video_corrupted">Unable to share damaged video.</string>
     <string name="rc_picture_audio">Access to system recording permission denied</string>

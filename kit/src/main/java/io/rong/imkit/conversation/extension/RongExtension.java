@@ -246,14 +246,16 @@ public class RongExtension extends LinearLayout {
     }
 
     public void onPause() {
-        if (mExtensionViewModel.getEditTextWidget() != null) {
-            editTextIsFocused = mExtensionViewModel.getEditTextWidget().isFocused();
-        }
         if (keyboardHeightProvider != null) {
             keyboardHeightProvider.stop();
         }
-        if (mPreInputMode == InputMode.TextInput && mBoardContainer != null) {
-            mExtensionViewModel.collapseExtensionBoard();
+        if (mExtensionViewModel != null) {
+            if (mExtensionViewModel.getEditTextWidget() != null) {
+                editTextIsFocused = mExtensionViewModel.getEditTextWidget().isFocused();
+            }
+            if (mPreInputMode == InputMode.TextInput && mBoardContainer != null) {
+                mExtensionViewModel.collapseExtensionBoard();
+            }
         }
     }
 

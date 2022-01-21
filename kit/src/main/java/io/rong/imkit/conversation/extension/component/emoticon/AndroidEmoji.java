@@ -14,6 +14,9 @@ import android.text.style.ReplacementSpan;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.emoji2.text.EmojiCompat;
+
+import io.rong.common.RLog;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -22,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public class AndroidEmoji {
+    private static final String TAG = "AndroidEmoji";
     private static float density;
     private static Context mContext;
     private static final int MAX_DISPLAY_EMOJI = 600;
@@ -187,37 +191,58 @@ public class AndroidEmoji {
     }
 
     public static CharSequence ensure(String input) {
-        if (input == null) {
-            return null;
+        CharSequence cs;
+        try {
+            //如果EmojiCompat未初始化成功,则使用原Emoji方案处理
+            cs = EmojiCompat.get().process(input);
+        } catch (Exception e) {
+            RLog.i(TAG, "ensure input:" + e.toString());
+            cs = input;
         }
 
-        // extract the single chars that will be operated on
-        final char[] chars = input.toCharArray();
-        // create a SpannableStringBuilder instance where the font ranges will be set for emoji characters
-        final SpannableStringBuilder ssb = new SpannableStringBuilder(input);
+        final SpannableStringBuilder ssb = new SpannableStringBuilder(cs);
 
         int codePoint;
-        boolean isSurrogatePair;
-        for (int i = 0; i < chars.length; i++) {
-            if (Character.isHighSurrogate(chars[i])) {
-                continue;
-            } else if (Character.isLowSurrogate(chars[i])) {
-                if (i > 0 && Character.isSurrogatePair(chars[i - 1], chars[i])) {
-                    codePoint = Character.toCodePoint(chars[i - 1], chars[i]);
-                    isSurrogatePair = true;
-                } else {
-                    continue;
+        int start = 0;
+        int offset = start;
+        int rcEmojiCode = 0;
+        while (offset < cs.length()) {
+            if (Character.isHighSurrogate(cs.charAt(offset))) {
+                // 当前为高代理区
+                if (rcEmojiCode != 0) {
+                    // 若不为 ZWJ 的一部分，且命中融云表情，则直接渲染
+                    ssb.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    rcEmojiCode = 0;
+                }
+            } else if (Character.isLowSurrogate(cs.charAt(offset))) {
+                // 当前为低代理区
+                if (offset > 0 && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
+                    codePoint = Character.toCodePoint(cs.charAt(offset - 1), cs.charAt(offset));
+                    if (sEmojiMap.containsKey(codePoint)) {
+                        rcEmojiCode = codePoint;
+                        start = offset - 1;
+                        if (offset == cs.length() - 1) {
+                            // 若当前为字符串结尾，且命中融云表情，则渲染
+                            ssb.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    }
                 }
             } else {
-                codePoint = (int) chars[i];
-                isSurrogatePair = false;
+                codePoint = cs.charAt(offset);
+                if (codePoint == 0x200D) {
+                    // 当前为 ZWJ 表情，即使命中也不用融云渲染
+                    rcEmojiCode = 0;
+                } else {
+                    // 当前为普通字符
+                    if (rcEmojiCode != 0) {
+                        // 若前一个融云表情命中，则使用融云渲染
+                        ssb.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        rcEmojiCode = 0;
+                    }
+                }
             }
-
-            if (sEmojiMap.containsKey(codePoint)) {
-                ssb.setSpan(new EmojiImageSpan(codePoint), isSurrogatePair ? i - 1 : i, i + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
+            offset++;
         }
-
         return ssb;
     }
 
@@ -271,30 +296,55 @@ public class AndroidEmoji {
     }
 
     public static void ensure(Spannable spannable, float textSize) {
-        // extract the single chars that will be operated on
-        final char[] chars = spannable.toString().toCharArray();
-        // create a SpannableStringBuilder instance where the font ranges will be set for emoji characters
+        CharSequence cs;
+        try {
+            //如果EmojiCompat未初始化成功,则使用原Emoji方案处理
+            cs = EmojiCompat.get().process(spannable);
+        } catch (Exception e) {
+            RLog.i(TAG, "ensure spannable:" + e.toString());
+            cs = spannable;
+        }
 
         int codePoint;
-        boolean isSurrogatePair;
-        for (int i = 0; i < chars.length; i++) {
-            if (Character.isHighSurrogate(chars[i])) {
-                continue;
-            } else if (Character.isLowSurrogate(chars[i])) {
-                if (i > 0 && Character.isSurrogatePair(chars[i - 1], chars[i])) {
-                    codePoint = Character.toCodePoint(chars[i - 1], chars[i]);
-                    isSurrogatePair = true;
-                } else {
-                    continue;
+        int start = 0;
+        int offset = start;
+        int rcEmojiCode = 0;
+        while (offset < cs.length()) {
+            if (Character.isHighSurrogate(cs.charAt(offset))) {
+                // 当前为高代理区
+                if (rcEmojiCode != 0) {
+                    // 若不为 ZWJ 的一部分，且命中融云表情，则直接渲染
+                    spannable.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    rcEmojiCode = 0;
+                }
+            } else if (Character.isLowSurrogate(cs.charAt(offset))) {
+                // 当前为低代理区
+                if (offset > 0 && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
+                    codePoint = Character.toCodePoint(cs.charAt(offset - 1), cs.charAt(offset));
+                    if (sEmojiMap.containsKey(codePoint)) {
+                        rcEmojiCode = codePoint;
+                        start = offset - 1;
+                        if (offset == cs.length() - 1) {
+                            // 若当前为字符串结尾，且命中融云表情，则渲染
+                            spannable.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                    }
                 }
             } else {
-                codePoint = (int) chars[i];
-                isSurrogatePair = false;
+                codePoint = cs.charAt(offset);
+                if (codePoint == 0x200D) {
+                    // 当前为 ZWJ 表情，即使命中也不用融云渲染
+                    rcEmojiCode = 0;
+                } else {
+                    // 当前为普通字符
+                    if (rcEmojiCode != 0) {
+                        // 若前一个融云表情命中，则使用融云渲染
+                        spannable.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        rcEmojiCode = 0;
+                    }
+                }
             }
-
-            if (sEmojiMap.containsKey(codePoint)) {
-                spannable.setSpan(new EmojiImageSpan(codePoint, textSize), isSurrogatePair ? i - 1 : i, i + 1, Spanned.SPAN_EXCLUSIVE_INCLUSIVE);
-            }
+            offset++;
         }
     }
 

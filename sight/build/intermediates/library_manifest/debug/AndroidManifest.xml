@@ -11,6 +11,7 @@
     <application>
         <activity
             android:name="io.rong.sight.player.SightPlayerActivity"
+            android:exported="true"
             android:hardwareAccelerated="true"
             android:supportsRtl="true" >
             <intent-filter>

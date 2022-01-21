@@ -4,10 +4,18 @@ import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import androidx.annotation.Nullable;
+import androidx.core.provider.FontRequest;
+import androidx.emoji2.text.DefaultEmojiCompatConfig;
+import androidx.emoji2.text.EmojiCompat;
+import androidx.emoji2.text.FontRequestEmojiCompatConfig;
 
 import io.rong.common.RLog;
 import io.rong.imkit.config.ConversationClickListener;
@@ -67,6 +75,7 @@ public class IMCenter {
     private List<RongIMClient.ConnectCallback> mConnectStatusListener = new CopyOnWriteArrayList<>();
     private List<RongIMClient.SyncConversationReadStatusListener> mSyncConversationReadStatusListeners = new CopyOnWriteArrayList<>();
     private List<RongIMClient.TypingStatusListener> mTypingStatusListeners = new CopyOnWriteArrayList<>();
+    private static final String EMOJI_TTF_FILE_NAME = "NotoColorEmojiCompat.ttf";
     /**
      * 连接状态变化的监听器。
      */
@@ -233,6 +242,7 @@ public class IMCenter {
      * @param isEnablePush 是否使用推送功能
      */
     public static void init(Application application, String appKey, boolean isEnablePush) {
+        initEmojiConfig(application);
         String current = io.rong.common.SystemUtils.getCurrentProcessName(application);
         String mainProcessName = application.getPackageName();
         if (!mainProcessName.equals(current)) {
@@ -402,7 +412,6 @@ public class IMCenter {
      *                    如果发送 SDK 中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
      * @param pushData    远程推送附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback    发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
-     * @group 消息操作
      */
     public void sendMessage(final Conversation.ConversationType type, final String targetId, final MessageContent content, final String pushContent, final String pushData, final IRongCallback.ISendMessageCallback callback) {
         Message message = Message.obtain(targetId, type, content);
@@ -484,7 +493,6 @@ public class IMCenter {
      * @param targetId         会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
      * @param timestamp        时间戳
      * @param callback         发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
-     * @group 消息操作
      */
     public void sendReadReceiptMessage(final Conversation.ConversationType conversationType, final String targetId,
                                        long timestamp, final IRongCallback.ISendMessageCallback callback) {
@@ -526,7 +534,6 @@ public class IMCenter {
      * @param targetId  会话 id
      * @param timestamp 会话中已读的最后一条消息的发送时间戳 {@link Message#getSentTime()}
      * @param callback  回调函数
-     * @group 高级功能
      */
     public void syncConversationReadStatus(final Conversation.ConversationType type, final String targetId, long timestamp, final RongIMClient.OperationCallback callback) {
         RongIMClient.getInstance().syncConversationReadStatus(type, targetId, timestamp, new RongIMClient.OperationCallback() {
@@ -862,7 +869,6 @@ public class IMCenter {
      * @param recordTime       清除消息截止时间戳，【0 <= recordTime <= 当前会话最后一条消息的 sentTime,0 清除所有消息，其他值清除小于等于 recordTime 的消息】。
      * @param cleanRemote      是否删除服务器端消息
      * @param callback         清除消息的回调。
-     * @group 消息操作
      */
     public void cleanHistoryMessages(final Conversation.ConversationType conversationType,
                                      final String targetId,
@@ -1408,7 +1414,6 @@ public class IMCenter {
      *
      * @param url      文件 Url
      * @param callback 回调
-     * @group 数据获取
      */
     public void supportResumeBrokenTransfer(String url, final RongIMClient.ResultCallback<Boolean> callback) {
         RongIMClient.getInstance().supportResumeBrokenTransfer(url, new RongIMClient.ResultCallback<Boolean>() {
@@ -1589,7 +1594,6 @@ public class IMCenter {
     private void filterSentMessage(Message message, RongIMClient.ErrorCode errorCode, final FilterSentListener listener) {
 
         if (errorCode != null && errorCode != RongIMClient.ErrorCode.RC_MSG_REPLACED_SENSITIVE_WORD) {
-
             if (errorCode.equals(RongIMClient.ErrorCode.NOT_IN_DISCUSSION) || errorCode.equals(RongIMClient.ErrorCode.NOT_IN_GROUP)
                     || errorCode.equals(RongIMClient.ErrorCode.NOT_IN_CHATROOM) || errorCode.equals(RongIMClient.ErrorCode.REJECTED_BY_BLACKLIST) || errorCode.equals(RongIMClient.ErrorCode.FORBIDDEN_IN_GROUP)
                     || errorCode.equals(RongIMClient.ErrorCode.FORBIDDEN_IN_CHATROOM) || errorCode.equals(RongIMClient.ErrorCode.KICKED_FROM_CHATROOM)) {
@@ -1619,7 +1623,14 @@ public class IMCenter {
                 insertIncomingMessage(message.getConversationType(), message.getTargetId(), message.getSenderUserId(), receivedStatus, informationMessage, null);
             }
         }
-
+        MessageContent content = message.getContent();
+        if (content == null) {
+            RLog.e(TAG, "filterSentMessage content is null");
+            if (listener != null) {
+                listener.onComplete();
+            }
+            return;
+        }
         MessageTag tag = message.getContent().getClass().getAnnotation(MessageTag.class);
         if (RongConfigCenter.conversationConfig().rc_enable_resend_message && tag != null && (tag.flag() & MessageTag.ISPERSISTED) == MessageTag.ISPERSISTED) {
             // 发送失败的消息存入重发列表
@@ -1770,8 +1781,43 @@ public class IMCenter {
         void onComplete();
     }
 
+    /**
+     * EmojiCompat 初始化配置
+     */
+    private static void initEmojiConfig(Context context) {
+        EmojiCompat.Config config;
+        InputStream inputStream;
+        try {
+            inputStream = context.getResources().getAssets().open(EMOJI_TTF_FILE_NAME);
+        } catch (IOException e) {
+            RLog.i(TAG, "open file:" + e.toString());
+            inputStream = null;
+        }
+
+        try {
+            if (inputStream != null) {
+                config = new LocalEmojiCompatConfig(context);
+            } else {
+                config = DefaultEmojiCompatConfig.create(context);
+            }
+            config.registerInitCallback(new EmojiCompat.InitCallback() {
+                @Override
+                public void onInitialized() {
+                    RLog.i(TAG, "initEmojiConfig initialized");
+                }
+
+                @Override
+                public void onFailed(@Nullable Throwable throwable) {
+                    RLog.i(TAG, "initEmojiConfig initialized  onFailed, " + throwable.getMessage());
+                }
+            });
+            EmojiCompat.init(config);
+        } catch (Exception e) {
+            RLog.i(TAG, "emoji config: " + e.toString());
+        }
+    }
+
     private static class SingletonHolder {
         static IMCenter sInstance = new IMCenter();
     }
-
 }

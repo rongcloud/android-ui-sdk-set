@@ -132,6 +132,8 @@
     <string name="rc_permission_microphone_and_camera">（麦克风，相机）。</string>
     <string name="rc_permission_camera">（相机）。</string>
 
+    <string name="rc_permission_request_failed">获取权限失败</string>
+
     //刷新库
     <string name="srl_content_empty">The content view in SmartRefreshLayout is empty. Do you forget to add it in xml layout file?</string>
     <string name="srl_component_falsify" formatted="false">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>

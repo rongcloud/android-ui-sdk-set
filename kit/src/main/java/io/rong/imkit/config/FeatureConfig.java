@@ -3,6 +3,7 @@ package io.rong.imkit.config;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.http.SslCertificate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ public class FeatureConfig {
     public boolean rc_set_java_script_enabled = true;
     // 在前台非会话页面时，接收到新消息是否响铃
     public boolean rc_sound_in_foreground = true;
+    private SSLInterceptor sSSLInterceptor;
 
     public FeatureConfig() {
         isReferenceEnable = true;
@@ -225,5 +227,20 @@ public class FeatureConfig {
      */
     public void setPreLoadUserCache(boolean preLoadUserCache) {
         this.preLoadUserCache = preLoadUserCache;
+    }
+
+    public SSLInterceptor getSSLInterceptor() {
+        return sSSLInterceptor;
+    }
+
+    /**
+     * @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器
+     */
+    public void setSSLInterceptor(SSLInterceptor sSSLInterceptor) {
+        this.sSSLInterceptor = sSSLInterceptor;
+    }
+
+    public interface SSLInterceptor {
+        boolean check(SslCertificate sslCertificate);
     }
 }

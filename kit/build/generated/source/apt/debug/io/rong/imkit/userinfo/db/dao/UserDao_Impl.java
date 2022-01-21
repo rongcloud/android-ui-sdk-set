@@ -10,11 +10,13 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.rong.imkit.userinfo.db.model.User;
+import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -127,11 +129,31 @@ public final class UserDao_Impl implements UserDao {
           final User _result;
           if(_cursor.moveToFirst()) {
             _result = new User();
-            _result.id = _cursor.getString(_cursorIndexOfId);
-            _result.name = _cursor.getString(_cursorIndexOfName);
-            _result.alias = _cursor.getString(_cursorIndexOfAlias);
-            _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            _result.extra = _cursor.getString(_cursorIndexOfExtra);
+            if (_cursor.isNull(_cursorIndexOfId)) {
+              _result.id = null;
+            } else {
+              _result.id = _cursor.getString(_cursorIndexOfId);
+            }
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _result.name = null;
+            } else {
+              _result.name = _cursor.getString(_cursorIndexOfName);
+            }
+            if (_cursor.isNull(_cursorIndexOfAlias)) {
+              _result.alias = null;
+            } else {
+              _result.alias = _cursor.getString(_cursorIndexOfAlias);
+            }
+            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
+              _result.portraitUrl = null;
+            } else {
+              _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+            }
+            if (_cursor.isNull(_cursorIndexOfExtra)) {
+              _result.extra = null;
+            } else {
+              _result.extra = _cursor.getString(_cursorIndexOfExtra);
+            }
           } else {
             _result = null;
           }
@@ -169,11 +191,31 @@ public final class UserDao_Impl implements UserDao {
       final User _result;
       if(_cursor.moveToFirst()) {
         _result = new User();
-        _result.id = _cursor.getString(_cursorIndexOfId);
-        _result.name = _cursor.getString(_cursorIndexOfName);
-        _result.alias = _cursor.getString(_cursorIndexOfAlias);
-        _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-        _result.extra = _cursor.getString(_cursorIndexOfExtra);
+        if (_cursor.isNull(_cursorIndexOfId)) {
+          _result.id = null;
+        } else {
+          _result.id = _cursor.getString(_cursorIndexOfId);
+        }
+        if (_cursor.isNull(_cursorIndexOfName)) {
+          _result.name = null;
+        } else {
+          _result.name = _cursor.getString(_cursorIndexOfName);
+        }
+        if (_cursor.isNull(_cursorIndexOfAlias)) {
+          _result.alias = null;
+        } else {
+          _result.alias = _cursor.getString(_cursorIndexOfAlias);
+        }
+        if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
+          _result.portraitUrl = null;
+        } else {
+          _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+        }
+        if (_cursor.isNull(_cursorIndexOfExtra)) {
+          _result.extra = null;
+        } else {
+          _result.extra = _cursor.getString(_cursorIndexOfExtra);
+        }
       } else {
         _result = null;
       }
@@ -207,11 +249,31 @@ public final class UserDao_Impl implements UserDao {
           final User _result;
           if(_cursor.moveToFirst()) {
             _result = new User();
-            _result.id = _cursor.getString(_cursorIndexOfId);
-            _result.name = _cursor.getString(_cursorIndexOfName);
-            _result.alias = _cursor.getString(_cursorIndexOfAlias);
-            _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            _result.extra = _cursor.getString(_cursorIndexOfExtra);
+            if (_cursor.isNull(_cursorIndexOfId)) {
+              _result.id = null;
+            } else {
+              _result.id = _cursor.getString(_cursorIndexOfId);
+            }
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _result.name = null;
+            } else {
+              _result.name = _cursor.getString(_cursorIndexOfName);
+            }
+            if (_cursor.isNull(_cursorIndexOfAlias)) {
+              _result.alias = null;
+            } else {
+              _result.alias = _cursor.getString(_cursorIndexOfAlias);
+            }
+            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
+              _result.portraitUrl = null;
+            } else {
+              _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+            }
+            if (_cursor.isNull(_cursorIndexOfExtra)) {
+              _result.extra = null;
+            } else {
+              _result.extra = _cursor.getString(_cursorIndexOfExtra);
+            }
           } else {
             _result = null;
           }
@@ -246,11 +308,31 @@ public final class UserDao_Impl implements UserDao {
           while(_cursor.moveToNext()) {
             final User _item;
             _item = new User();
-            _item.id = _cursor.getString(_cursorIndexOfId);
-            _item.name = _cursor.getString(_cursorIndexOfName);
-            _item.alias = _cursor.getString(_cursorIndexOfAlias);
-            _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            _item.extra = _cursor.getString(_cursorIndexOfExtra);
+            if (_cursor.isNull(_cursorIndexOfId)) {
+              _item.id = null;
+            } else {
+              _item.id = _cursor.getString(_cursorIndexOfId);
+            }
+            if (_cursor.isNull(_cursorIndexOfName)) {
+              _item.name = null;
+            } else {
+              _item.name = _cursor.getString(_cursorIndexOfName);
+            }
+            if (_cursor.isNull(_cursorIndexOfAlias)) {
+              _item.alias = null;
+            } else {
+              _item.alias = _cursor.getString(_cursorIndexOfAlias);
+            }
+            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
+              _item.portraitUrl = null;
+            } else {
+              _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+            }
+            if (_cursor.isNull(_cursorIndexOfExtra)) {
+              _item.extra = null;
+            } else {
+              _item.extra = _cursor.getString(_cursorIndexOfExtra);
+            }
             _result.add(_item);
           }
           return _result;
@@ -284,11 +366,31 @@ public final class UserDao_Impl implements UserDao {
       while(_cursor.moveToNext()) {
         final User _item;
         _item = new User();
-        _item.id = _cursor.getString(_cursorIndexOfId);
-        _item.name = _cursor.getString(_cursorIndexOfName);
-        _item.alias = _cursor.getString(_cursorIndexOfAlias);
-        _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-        _item.extra = _cursor.getString(_cursorIndexOfExtra);
+        if (_cursor.isNull(_cursorIndexOfId)) {
+          _item.id = null;
+        } else {
+          _item.id = _cursor.getString(_cursorIndexOfId);
+        }
+        if (_cursor.isNull(_cursorIndexOfName)) {
+          _item.name = null;
+        } else {
+          _item.name = _cursor.getString(_cursorIndexOfName);
+        }
+        if (_cursor.isNull(_cursorIndexOfAlias)) {
+          _item.alias = null;
+        } else {
+          _item.alias = _cursor.getString(_cursorIndexOfAlias);
+        }
+        if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
+          _item.portraitUrl = null;
+        } else {
+          _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+        }
+        if (_cursor.isNull(_cursorIndexOfExtra)) {
+          _item.extra = null;
+        } else {
+          _item.extra = _cursor.getString(_cursorIndexOfExtra);
+        }
         _result.add(_item);
       }
       return _result;
@@ -296,5 +398,9 @@ public final class UserDao_Impl implements UserDao {
       _cursor.close();
       _statement.release();
     }
+  }
+
+  public static List<Class<?>> getRequiredConverters() {
+    return Collections.emptyList();
   }
 }

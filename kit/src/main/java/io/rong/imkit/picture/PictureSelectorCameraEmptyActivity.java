@@ -22,6 +22,7 @@ import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imkit.utils.PermissionCheckUtil;
 
 /**
  * @author：luck
@@ -169,6 +170,12 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
+            //The condition checking is also made in the super class,so return directly.
+            return;
+        }
+
         switch (requestCode) {
             case PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE:
                 // 存储权限
@@ -183,7 +190,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 break;
             case PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE:
                 // 相机权限
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onTakePhoto();
                 } else {
                     closeActivity();

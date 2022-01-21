@@ -43,6 +43,7 @@ import io.rong.common.RLog;
 import io.rong.common.RongWebView;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
 import io.rong.imkit.feature.location.AMapPreviewActivity;
@@ -204,7 +205,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         intent.setComponent(cn);
         intent.putExtra("Message", message);
         intent.putExtra("SightMessage", sightMessage);
-        intent.putExtra("fromSightListImageVisible",false);
+        intent.putExtra("fromSightListImageVisible", false);
         startActivity(intent);
     }
 
@@ -422,16 +423,26 @@ public class CombineWebViewActivity extends RongBaseActivity {
 
         @Override
         public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(CombineWebViewActivity.this);
-            builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
-            builder.setNegativeButton(R.string.rc_cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    handler.cancel();
-                }
-            });
-            final AlertDialog dialog = builder.create();
-            dialog.show();
+            FeatureConfig.SSLInterceptor interceptor = RongConfigCenter.featureConfig().getSSLInterceptor();
+            boolean check = false;
+            if (interceptor != null) {
+                check = interceptor.check(error.getCertificate());
+            }
+            if (check) {
+                handler.proceed();
+            } else {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(CombineWebViewActivity.this);
+                builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
+                builder.setNegativeButton(R.string.rc_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        handler.cancel();
+                    }
+                });
+
+                final AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
     }
 

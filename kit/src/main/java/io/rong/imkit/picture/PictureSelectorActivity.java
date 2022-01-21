@@ -53,6 +53,7 @@ import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.StringUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.picture.widget.FolderPopWindow;
+import io.rong.imkit.utils.PermissionCheckUtil;
 
 
 public class PictureSelectorActivity extends PictureBaseActivity implements View.OnClickListener,
@@ -651,6 +652,12 @@ public class PictureSelectorActivity extends PictureBaseActivity implements View
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
+            //The condition checking is also made in the super class,so return directly.
+            return;
+        }
+
         switch (requestCode) {
             case PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE:
                 // 存储权限

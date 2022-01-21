@@ -721,7 +721,6 @@ color abc_decor_view_status_guard
 color abc_decor_view_status_guard_light
 color abc_hint_foreground_material_dark
 color abc_hint_foreground_material_light
-color abc_input_method_navigation_guard
 color abc_primary_text_disable_only_material_dark
 color abc_primary_text_disable_only_material_light
 color abc_primary_text_material_dark
@@ -2358,6 +2357,7 @@ id version_layout
 id version_textview
 id video_view
 id view_horizontal
+id view_tree_lifecycle_owner
 id viewpager
 id visible
 id visible_removing_fragment_view_tag
@@ -2604,6 +2604,7 @@ string abc_searchview_description_voice
 string abc_shareactionprovider_share_with
 string abc_shareactionprovider_share_with_application
 string abc_toolbar_collapse_description
+string androidx_startup
 string app_name
 string common_google_play_services_enable_button
 string common_google_play_services_enable_text
@@ -3009,6 +3010,7 @@ string rc_permission_camera
 string rc_permission_grant_needed
 string rc_permission_microphone
 string rc_permission_microphone_and_camera
+string rc_permission_request_failed
 string rc_picsel_selected_max_time_span_with_param
 string rc_picsel_video_corrupted
 string rc_picture_audio

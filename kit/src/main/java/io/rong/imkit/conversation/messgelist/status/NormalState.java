@@ -1,11 +1,12 @@
 package io.rong.imkit.conversation.messgelist.status;
 
+import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
+
 import android.os.Bundle;
 
 import java.util.Collections;
 import java.util.List;
 
-import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.Event;
@@ -15,8 +16,6 @@ import io.rong.imkit.event.uievent.SmoothScrollEvent;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.model.Message;
-
-import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
 
 /**
  * 会话页面当前状态，正常模式
@@ -147,6 +146,12 @@ public class NormalState implements IMessageState {
      */
     @Override
     public void onReceived(MessageViewModel viewModel, UiMessage uiMessage, int left, boolean hasPackage, boolean offline) {
+        //去重处理
+        for (UiMessage item : viewModel.getUiMessages()) {
+            if (item.getMessageId() == uiMessage.getMessageId()) {
+                return;
+            }
+        }
         viewModel.getUiMessages().add(uiMessage);
         viewModel.refreshAllMessage(false);
         viewModel.updateMentionMessage(uiMessage.getMessage());
