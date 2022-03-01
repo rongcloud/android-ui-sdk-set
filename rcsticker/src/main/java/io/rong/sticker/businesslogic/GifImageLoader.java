@@ -2,19 +2,14 @@ package io.rong.sticker.businesslogic;
 
 import android.os.Handler;
 import android.util.LruCache;
-
+import io.rong.sticker.message.StickerMessage;
+import io.rong.sticker.model.Sticker;
+import io.rong.sticker.util.FileUtil;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import io.rong.sticker.message.StickerMessage;
-import io.rong.sticker.model.Sticker;
-import io.rong.sticker.util.FileUtil;
-
-/**
- * Created by luoyanlong on 2018/08/17.
- * 工作线程解码Gif文件
- */
+/** Created by luoyanlong on 2018/08/17. 工作线程解码Gif文件 */
 public class GifImageLoader {
 
     private static final String SEPARATOR = " ";
@@ -22,38 +17,39 @@ public class GifImageLoader {
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    private LruCache<String, byte[]> cache = new LruCache<String, byte[]>(CACHE_SIZE) {
-        @Override
-        protected int sizeOf(String key, byte[] bytes) {
-            return bytes.length;
-        }
+    private LruCache<String, byte[]> cache =
+            new LruCache<String, byte[]>(CACHE_SIZE) {
+                @Override
+                protected int sizeOf(String key, byte[] bytes) {
+                    return bytes.length;
+                }
 
-        @Override
-        protected synchronized byte[] create(String key) {
-            String[] strings = key.split(SEPARATOR);
-            String packageId = strings[0];
-            String stickerId = strings[1];
-            try {
-                return FileUtil.toByteArray(StickerPackageStorageTask
-                        .getStickerImageFilePath(packageId, stickerId));
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-    };
+                @Override
+                protected synchronized byte[] create(String key) {
+                    String[] strings = key.split(SEPARATOR);
+                    String packageId = strings[0];
+                    String stickerId = strings[1];
+                    try {
+                        return FileUtil.toByteArray(
+                                StickerPackageStorageTask.getStickerImageFilePath(
+                                        packageId, stickerId));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        return null;
+                    }
+                }
+            };
 
     private static GifImageLoader instance;
 
-    public synchronized static GifImageLoader getInstance() {
+    public static synchronized GifImageLoader getInstance() {
         if (instance == null) {
             instance = new GifImageLoader();
         }
         return instance;
     }
 
-    private GifImageLoader() {
-    }
+    private GifImageLoader() {}
 
     public void obtain(Sticker sticker, SimpleCallback callback) {
         Worker worker = new Worker(sticker, callback);
@@ -65,9 +61,7 @@ public class GifImageLoader {
         executorService.submit(worker);
     }
 
-    /**
-     * 清空缓存
-     */
+    /** 清空缓存 */
     public void clear() {
         cache.evictAll();
     }
@@ -116,19 +110,21 @@ public class GifImageLoader {
             Handler handler = StickerPackagesUiHandler.getUiHandler();
             if (handler != null) {
                 if (bytes != null) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            onSuccess(bytes);
-                        }
-                    });
+                    handler.post(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    onSuccess(bytes);
+                                }
+                            });
                 } else {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            onFail();
-                        }
-                    });
+                    handler.post(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    onFail();
+                                }
+                            });
                 }
             }
         }
@@ -137,5 +133,4 @@ public class GifImageLoader {
 
         public abstract void onFail();
     }
-
 }

@@ -3,24 +3,19 @@ package io.rong.imkit.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by AMing on 16/2/18.
- * Company RongCloud
- */
+/** Created by AMing on 16/2/18. Company RongCloud */
 public class GroupNotificationMessageData {
 
-
     /**
-     * timestamp : 1456366634327
-     * targetUserDisplayNames : ["android"]
-     * targetUserIds : ["Cz3bcYl2K"]
+     * timestamp : 1456366634327 targetUserDisplayNames : ["android"] targetUserIds : ["Cz3bcYl2K"]
      * operatorNickname : 赵哈哈
      *
-     * 这个是Data里边的Json数据结构;
+     * <p>这个是Data里边的Json数据结构;
      * {"operatorNickname":"田奎","targetUserIds":["wGPkc0VpO"],"targetUserDisplayNames":["郝腾飞"],"timestamp":1477042403674,
      * "data":{"operatorNickname":"田奎","targetUserIds":["wGPkc0VpO"],"targetUserDisplayNames":["郝腾飞"],"timestamp":1477042403674}}
      */
     private long timestamp;
+
     private String operatorNickname;
     private String targetGroupName;
     private List<String> targetUserDisplayNames = new ArrayList<>();
@@ -101,6 +96,4 @@ public class GroupNotificationMessageData {
     public void setNewCreatorName(String newCreatorName) {
         this.newCreatorName = newCreatorName;
     }
-
-
 }

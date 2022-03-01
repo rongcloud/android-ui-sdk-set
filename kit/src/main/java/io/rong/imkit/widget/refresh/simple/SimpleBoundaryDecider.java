@@ -2,30 +2,25 @@ package io.rong.imkit.widget.refresh.simple;
 
 import android.graphics.PointF;
 import android.view.View;
-
 import io.rong.imkit.widget.refresh.listener.ScrollBoundaryDecider;
 import io.rong.imkit.widget.refresh.util.SmartUtil;
 
-
-/**
- * 滚动边界
- * Created by scwang on 2017/7/8.
- */
+/** 滚动边界 Created by scwang on 2017/7/8. */
 public class SimpleBoundaryDecider implements ScrollBoundaryDecider {
 
-    //<editor-fold desc="Internal">
+    // <editor-fold desc="Internal">
     public PointF mActionEvent;
     public ScrollBoundaryDecider boundary;
     public boolean mEnableLoadMoreWhenContentNotFull = true;
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="ScrollBoundaryDecider">
+    // <editor-fold desc="ScrollBoundaryDecider">
     @Override
     public boolean canRefresh(View content) {
         if (boundary != null) {
             return boundary.canRefresh(content);
         }
-        //mActionEvent == null 时 canRefresh 不会动态递归搜索
+        // mActionEvent == null 时 canRefresh 不会动态递归搜索
         return SmartUtil.canRefresh(content, mActionEvent);
     }
 
@@ -34,8 +29,8 @@ public class SimpleBoundaryDecider implements ScrollBoundaryDecider {
         if (boundary != null) {
             return boundary.canLoadMore(content);
         }
-        //mActionEvent == null 时 canLoadMore 不会动态递归搜索
+        // mActionEvent == null 时 canLoadMore 不会动态递归搜索
         return SmartUtil.canLoadMore(content, mActionEvent, mEnableLoadMoreWhenContentNotFull);
     }
-    //</editor-fold>
+    // </editor-fold>
 }

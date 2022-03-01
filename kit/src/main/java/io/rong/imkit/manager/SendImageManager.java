@@ -1,7 +1,19 @@
 package io.rong.imkit.manager;
 
 import android.net.Uri;
-
+import io.rong.common.RLog;
+import io.rong.imkit.IMCenter;
+import io.rong.imkit.R;
+import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.picture.config.PictureMimeType;
+import io.rong.imkit.picture.entity.LocalMedia;
+import io.rong.imlib.IRongCallback;
+import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageContent;
+import io.rong.message.GIFMessage;
+import io.rong.message.ImageMessage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,24 +23,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import io.rong.common.RLog;
-import io.rong.imkit.IMCenter;
-import io.rong.imkit.R;
-import io.rong.imkit.feature.destruct.DestructManager;
-import io.rong.imkit.picture.config.PictureMimeType;
-import io.rong.imkit.picture.entity.LocalMedia;
-import io.rong.imlib.IRongCallback;
-import io.rong.imlib.RongCoreClient;
-import io.rong.imlib.RongIMClient;
-import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Message;
-import io.rong.imlib.model.MessageContent;
-import io.rong.message.GIFMessage;
-import io.rong.message.ImageMessage;
-
-
 public class SendImageManager {
-    private final static String TAG = "SendImageManager";
+    private static final String TAG = "SendImageManager";
 
     private ExecutorService executorService;
     private UploadController uploadController;
@@ -46,7 +42,11 @@ public class SendImageManager {
         uploadController = new UploadController();
     }
 
-    public void sendImage(Conversation.ConversationType conversationType, String targetId, LocalMedia image, boolean isFull) {
+    public void sendImage(
+            Conversation.ConversationType conversationType,
+            String targetId,
+            LocalMedia image,
+            boolean isFull) {
         if (image.getPath() == null) {
             return;
         }
@@ -68,32 +68,41 @@ public class SendImageManager {
                 content.setDestructTime(DestructManager.IMAGE_DESTRUCT_TIME);
             }
         }
-        IMCenter.getInstance().insertOutgoingMessage(conversationType, targetId, Message.SentStatus.SENDING, content, new RongIMClient.ResultCallback<Message>() {
-            @Override
-            public void onSuccess(Message message) {
-                //RongIM.OnSendMessageListener listener = RongContext.getInstance().getOnSendMessageListener();
-                uploadController.execute(message);
-            }
+        IMCenter.getInstance()
+                .insertOutgoingMessage(
+                        conversationType,
+                        targetId,
+                        Message.SentStatus.SENDING,
+                        content,
+                        new RongIMClient.ResultCallback<Message>() {
+                            @Override
+                            public void onSuccess(Message message) {
+                                // RongIM.OnSendMessageListener listener =
+                                // RongContext.getInstance().getOnSendMessageListener();
+                                uploadController.execute(message);
+                            }
 
-            @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-
-            }
-        });
-        //todo 旧版逻辑分 if else 要判断回调
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {}
+                        });
+        // todo 旧版逻辑分 if else 要判断回调
 
     }
 
-    public void cancelSendingImages(Conversation.ConversationType conversationType, String targetId) {
+    public void cancelSendingImages(
+            Conversation.ConversationType conversationType, String targetId) {
         RLog.d(TAG, "cancelSendingImages");
         if (conversationType != null && targetId != null && uploadController != null)
             uploadController.cancel(conversationType, targetId);
     }
 
-    public void cancelSendingImage(Conversation.ConversationType conversationType, String targetId, int messageId) {
+    public void cancelSendingImage(
+            Conversation.ConversationType conversationType, String targetId, int messageId) {
         RLog.d(TAG, "cancelSendingImages");
-        if (conversationType != null && targetId != null && uploadController != null && messageId > 0)
-            uploadController.cancel(conversationType, targetId, messageId);
+        if (conversationType != null
+                && targetId != null
+                && uploadController != null
+                && messageId > 0) uploadController.cancel(conversationType, targetId, messageId);
     }
 
     private class UploadController implements Runnable {
@@ -114,24 +123,23 @@ public class SendImageManager {
             }
         }
 
-
         public void cancel(Conversation.ConversationType conversationType, String targetId) {
             synchronized (pendingMessages) {
-
                 Iterator<Message> it = pendingMessages.iterator();
                 while (it.hasNext()) {
                     Message msg = it.next();
-                    if (msg.getConversationType().equals(conversationType) && msg.getTargetId().equals(targetId)) {
+                    if (msg.getConversationType().equals(conversationType)
+                            && msg.getTargetId().equals(targetId)) {
                         it.remove();
                     }
                 }
 
-                if (pendingMessages.size() == 0)
-                    executingMessage = null;
+                if (pendingMessages.size() == 0) executingMessage = null;
             }
         }
 
-        public void cancel(Conversation.ConversationType conversationType, String targetId, int messageId) {
+        public void cancel(
+                Conversation.ConversationType conversationType, String targetId, int messageId) {
             synchronized (pendingMessages) {
                 int count = pendingMessages.size();
                 for (int i = 0; i < count; i++) {
@@ -143,8 +151,7 @@ public class SendImageManager {
                         break;
                     }
                 }
-                if (pendingMessages.size() == 0)
-                    executingMessage = null;
+                if (pendingMessages.size() == 0) executingMessage = null;
             }
         }
 
@@ -165,43 +172,49 @@ public class SendImageManager {
             boolean isDestruct = false;
             if (executingMessage.getContent() != null)
                 isDestruct = executingMessage.getContent().isDestruct();
-            IMCenter.getInstance().sendMediaMessage(executingMessage, isDestruct ? IMCenter.getInstance().getContext().getString(R.string.rc_conversation_summary_content_burn) : null, null, new IRongCallback.ISendMediaMessageCallback() {
-                @Override
-                public void onAttached(Message message) {
+            IMCenter.getInstance()
+                    .sendMediaMessage(
+                            executingMessage,
+                            isDestruct
+                                    ? IMCenter.getInstance()
+                                            .getContext()
+                                            .getString(
+                                                    R.string.rc_conversation_summary_content_burn)
+                                    : null,
+                            null,
+                            new IRongCallback.ISendMediaMessageCallback() {
+                                @Override
+                                public void onAttached(Message message) {}
 
-                }
+                                @Override
+                                public void onError(Message message, RongIMClient.ErrorCode code) {
+                                    polling();
+                                }
 
-                @Override
-                public void onError(Message message, RongIMClient.ErrorCode code) {
-                    polling();
-                }
+                                @Override
+                                public void onSuccess(Message message) {
+                                    polling();
+                                }
 
-                @Override
-                public void onSuccess(Message message) {
-                    polling();
-                }
+                                @Override
+                                public void onProgress(Message message, int progress) {}
 
-                @Override
-                public void onProgress(Message message, int progress) {
-
-                }
-
-                @Override
-                public void onCanceled(Message message) {
-
-                }
-            });
+                                @Override
+                                public void onCanceled(Message message) {}
+                            });
         }
     }
 
     private ExecutorService getExecutorService() {
         if (executorService == null) {
-            executorService = new ThreadPoolExecutor(1,
-                    Integer.MAX_VALUE,
-                    60,
-                    TimeUnit.SECONDS,
-                    new SynchronousQueue<Runnable>(),
-                    threadFactory());
+            executorService =
+                    new ThreadPoolExecutor(
+                            1,
+                            Integer.MAX_VALUE,
+                            60,
+                            TimeUnit.SECONDS,
+                            new SynchronousQueue<Runnable>(),
+                            threadFactory());
         }
         return executorService;
     }

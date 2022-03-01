@@ -13,10 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.feature.destruct.DestructManager;
@@ -29,6 +25,8 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.SightMessage;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
 public class DestructSightMessageItemProvider extends BaseMessageItemProvider<SightMessage> {
     private static final String TAG = DestructSightMessageItemProvider.class.getSimpleName();
@@ -37,32 +35,48 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
         mConfig.showContentBubble = false;
     }
 
-
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_destruct_sight_message, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_destruct_sight_message, parent, false);
         return new ViewHolder(view.getContext(), view);
     }
 
-
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder,ViewHolder parentHolder, SightMessage sightMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
-        boolean isSender = uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            SightMessage sightMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
+        boolean isSender =
+                uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
         holder.setText(R.id.rc_sight_duration, getSightDuration(sightMessage.getDuration()));
         holder.getConvertView().setTag(uiMessage.getMessage().getUId());
-        holder.setBackgroundRes(R.id.rc_destruct_click, isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+        holder.setBackgroundRes(
+                R.id.rc_destruct_click,
+                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
         holder.setVisible(R.id.fl_send_fire, isSender);
         holder.setVisible(R.id.fl_receiver_fire, !isSender);
         TextView clickHint = holder.getView(R.id.rc_destruct_click_hint);
         if (!isSender) {
-            DestructManager.getInstance().addListener(uiMessage.getMessage().getUId(), new DestructListener(holder, uiMessage), TAG);
+            DestructManager.getInstance()
+                    .addListener(
+                            uiMessage.getMessage().getUId(),
+                            new DestructListener(holder, uiMessage),
+                            TAG);
             boolean isRead = uiMessage.getMessage().getReadTime() > 0;
             holder.setVisible(R.id.tv_receiver_fire, isRead);
             holder.setVisible(R.id.iv_receiver_fire, !isRead);
             if (isRead) {
                 String unFinishTime;
                 if (TextUtils.isEmpty(uiMessage.getDestructTime())) {
-                    unFinishTime = DestructManager.getInstance().getUnFinishTime(uiMessage.getMessage().getUId());
+                    unFinishTime =
+                            DestructManager.getInstance()
+                                    .getUnFinishTime(uiMessage.getMessage().getUId());
                 } else {
                     unFinishTime = uiMessage.getDestructTime();
                 }
@@ -73,14 +87,18 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, SightMessage sightMessage, UiMessage uiMessage, int position,List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            SightMessage sightMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         if (sightMessage != null) {
             if (!RongOperationPermissionUtils.isMediaOperationPermit(holder.getContext())) {
                 return true;
             }
-            String[] permissions = {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            };
+            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
             if (!PermissionCheckUtil.checkPermissions(holder.getContext(), permissions)) {
                 Activity activity = (Activity) holder.getContext();
                 PermissionCheckUtil.requestPermissions(activity, permissions, 100);
@@ -101,7 +119,11 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
             if (intent.resolveActivity(holder.getContext().getPackageManager()) != null) {
                 holder.getContext().startActivity(intent);
             } else {
-                Toast.makeText(holder.getContext(), "Sight Module does not exist.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                                holder.getContext(),
+                                "Sight Module does not exist.",
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
             return true;
         }
@@ -110,9 +132,9 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
 
     @Override
     public Spannable getSummarySpannable(Context context, SightMessage imageMessage) {
-        return new SpannableString(context.getString(R.string.rc_conversation_summary_content_burn));
+        return new SpannableString(
+                context.getString(R.string.rc_conversation_summary_content_burn));
     }
-
 
     @Override
     protected boolean isMessageViewType(MessageContent messageContent) {
@@ -158,8 +180,7 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
     private String getSightDuration(int time) {
         String recordTime;
         int hour, minute, second;
-        if (time <= 0)
-            return "00:00";
+        if (time <= 0) return "00:00";
         else {
             minute = time / 60;
             if (minute < 60) {
@@ -167,8 +188,7 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
                 recordTime = unitFormat(minute) + ":" + unitFormat(second);
             } else {
                 hour = minute / 60;
-                if (hour > 99)
-                    return "99:59:59";
+                if (hour > 99) return "99:59:59";
                 minute = minute % 60;
                 second = time - hour * 3600 - minute * 60;
                 recordTime = unitFormat(hour) + ":" + unitFormat(minute) + ":" + unitFormat(second);
@@ -179,10 +199,8 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
 
     private String unitFormat(int time) {
         String formatTime;
-        if (time >= 0 && time < 10)
-            formatTime = "0" + time;
-        else
-            formatTime = "" + time;
+        if (time >= 0 && time < 10) formatTime = "0" + time;
+        else formatTime = "" + time;
         return formatTime;
     }
 }

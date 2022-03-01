@@ -1,7 +1,6 @@
 package io.rong.imkit.conversation.messgelist.status;
 
 import android.os.Bundle;
-
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.model.UiMessage;
 
@@ -36,15 +35,15 @@ public class StateContext {
         currentState.init(messageViewModel, bundle);
     }
 
-    public void onLoadMore(MessageViewModel viewModel){
+    public void onLoadMore(MessageViewModel viewModel) {
         currentState.onLoadMore(viewModel);
     }
 
-    public void onRefresh(MessageViewModel viewModel){
+    public void onRefresh(MessageViewModel viewModel) {
         currentState.onRefresh(viewModel);
     }
 
-    public  void onNewMessageBarClick(MessageViewModel viewModel) {
+    public void onNewMessageBarClick(MessageViewModel viewModel) {
         currentState.onNewMessageBarClick(viewModel);
     }
 
@@ -68,7 +67,12 @@ public class StateContext {
         return normalState.equals(currentState);
     }
 
-    public void onReceived(MessageViewModel messageViewModel, UiMessage message, int left, boolean hasPackage, boolean offline){
-       currentState.onReceived(messageViewModel, message, left, hasPackage, offline);
+    public void onReceived(
+            MessageViewModel messageViewModel,
+            UiMessage message,
+            int left,
+            boolean hasPackage,
+            boolean offline) {
+        currentState.onReceived(messageViewModel, message, left, hasPackage, offline);
     }
 }

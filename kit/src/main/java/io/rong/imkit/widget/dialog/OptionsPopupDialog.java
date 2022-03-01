@@ -10,9 +10,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
 import io.rong.imkit.R;
-
 
 public class OptionsPopupDialog extends AlertDialog {
 
@@ -33,21 +31,28 @@ public class OptionsPopupDialog extends AlertDialog {
     @Override
     protected void onStart() {
         super.onStart();
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater inflater =
+                (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(R.layout.rc_dialog_popup_options, null);
         ListView mListView = view.findViewById(R.id.rc_list_dialog_popup_options);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(mContext, R.layout.rc_dialog_popup_options_item,
-                R.id.rc_dialog_popup_item_name, arrays);
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        mContext,
+                        R.layout.rc_dialog_popup_options_item,
+                        R.id.rc_dialog_popup_item_name,
+                        arrays);
         mListView.setAdapter(adapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mItemClickedListener != null) {
-                    mItemClickedListener.onOptionsItemClicked(position);
-                    dismiss();
-                }
-            }
-        });
+        mListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        if (mItemClickedListener != null) {
+                            mItemClickedListener.onOptionsItemClicked(position);
+                            dismiss();
+                        }
+                    }
+                });
         setContentView(view);
         if (getWindow() == null) {
             return;
@@ -58,7 +63,8 @@ public class OptionsPopupDialog extends AlertDialog {
         getWindow().setAttributes(layoutParams);
     }
 
-    public OptionsPopupDialog setOptionsPopupDialogListener(OnOptionsItemClickedListener itemListener) {
+    public OptionsPopupDialog setOptionsPopupDialogListener(
+            OnOptionsItemClickedListener itemListener) {
         this.mItemClickedListener = itemListener;
         return this;
     }
@@ -68,12 +74,15 @@ public class OptionsPopupDialog extends AlertDialog {
     }
 
     private int getPopupWidth() {
-        int distanceToBorder = (int) mContext.getResources().getDimension(R.dimen.rc_dialog_margin_to_edge);
+        int distanceToBorder =
+                (int) mContext.getResources().getDimension(R.dimen.rc_dialog_margin_to_edge);
         return getScreenWidth() - 2 * (distanceToBorder);
     }
 
     private int getScreenWidth() {
-        return ((WindowManager) (mContext.getSystemService(Context.WINDOW_SERVICE))).getDefaultDisplay().getWidth();
+        return ((WindowManager) (mContext.getSystemService(Context.WINDOW_SERVICE)))
+                .getDefaultDisplay()
+                .getWidth();
     }
 
     @Override

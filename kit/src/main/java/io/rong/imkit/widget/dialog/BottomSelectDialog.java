@@ -15,20 +15,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
-
+import io.rong.imkit.R;
 import java.io.Serializable;
 
-import io.rong.imkit.R;
-
-/**
- * 底部显示选择菜单对话框。
- * 通过 {@link Builder} 构建对话框。
- */
+/** 底部显示选择菜单对话框。 通过 {@link Builder} 构建对话框。 */
 public class BottomSelectDialog extends DialogFragment implements View.OnClickListener {
     private static final String ARGUMENT_KEY_SELECTIONS = "selections";
     private static final String ARGUMENT_KEY_SELECTIONS_COLOR = "selections_color";
@@ -46,7 +40,10 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View contentView = inflater.inflate(R.layout.rc_dialog_bottom_select, container, false);
         LinearLayout containerLl = contentView.findViewById(R.id.rc_dialog_bottom_container);
         Bundle arguments = getArguments();
@@ -78,8 +75,9 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
             titleView.setTextColor(resources.getColor(R.color.rc_dialog_bottom_text_title_color));
             titleView.setGravity(Gravity.CENTER);
             LinearLayout.LayoutParams layoutParams =
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
-                            , LinearLayout.LayoutParams.WRAP_CONTENT);
+                    new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT);
             int margin = (int) resources.getDimension(R.dimen.rc_dialog_bottom_text_item_margin);
             layoutParams.topMargin = margin;
             layoutParams.bottomMargin = margin;
@@ -107,7 +105,7 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
             }
             Resources resources = getResources();
             int length = mSelections.length;
-            int indexInContainer = hasTitle ? 2 : 0;// 2 = 1个 title + 1个分割线
+            int indexInContainer = hasTitle ? 2 : 0; // 2 = 1个 title + 1个分割线
             for (int i = 0; i < length; i++) {
                 String selectText = mSelections[i];
                 TextView titleView = new TextView(getContext());
@@ -120,9 +118,11 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
                 }
                 titleView.setGravity(Gravity.CENTER);
                 LinearLayout.LayoutParams layoutParams =
-                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
-                                , LinearLayout.LayoutParams.WRAP_CONTENT);
-                int margin = (int) resources.getDimension(R.dimen.rc_dialog_bottom_text_item_margin);
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                int margin =
+                        (int) resources.getDimension(R.dimen.rc_dialog_bottom_text_item_margin);
                 layoutParams.topMargin = margin;
                 layoutParams.bottomMargin = margin;
                 layoutParams.leftMargin = margin;
@@ -147,14 +147,18 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
     private void addSeparateLine(LinearLayout container, int index) {
         View separateView = new View(getContext());
         Resources resources = getResources();
-        int height = Math.max(1, (int) resources.getDimension(R.dimen.rc_dialog_bottom_item_separate_height));
+        int height =
+                Math.max(
+                        1,
+                        (int)
+                                resources.getDimension(
+                                        R.dimen.rc_dialog_bottom_item_separate_height));
         LinearLayout.LayoutParams layoutParams =
-                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT
-                        , height);
-        separateView.setBackgroundColor(resources.getColor(R.color.rc_dialog_bottom_selection_separate_color));
+                new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, height);
+        separateView.setBackgroundColor(
+                resources.getColor(R.color.rc_dialog_bottom_selection_separate_color));
         container.addView(separateView, index, layoutParams);
     }
-
 
     @Override
     public void onStart() {
@@ -178,7 +182,7 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
 
             FragmentActivity activity = getActivity();
             if (activity != null && activity.getWindowManager() != null) {
-                //全屏化对话框
+                // 全屏化对话框
                 DisplayMetrics dm = new DisplayMetrics();
                 activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
             }
@@ -202,8 +206,7 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
     }
 
     /**
-     * 设置点击选项监听。
-     * 当 Activity 发生如转屏的事件导致 Fragment 回收时需要重新设置。
+     * 设置点击选项监听。 当 Activity 发生如转屏的事件导致 Fragment 回收时需要重新设置。
      *
      * @param listener
      */
@@ -212,10 +215,8 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
     }
 
     /**
-     * 构造器。
-     * 通过 {@link #setSelections(String[])} 来设置选项。
-     * 通过 {@link #build()} 创建实例。
-     * 创建实例后通过{@link BottomSelectDialog#setOnSelectListener(OnSelectListener)} 设置监听。
+     * 构造器。 通过 {@link #setSelections(String[])} 来设置选项。 通过 {@link #build()} 创建实例。 创建实例后通过{@link
+     * BottomSelectDialog#setOnSelectListener(OnSelectListener)} 设置监听。
      */
     public static class Builder {
         private String[] mSelections;
@@ -234,8 +235,7 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
         }
 
         /**
-         * 设置选项中的文字的颜色资源（需要是 resource color 资源。）。
-         * 长度必须与 {@link #setSelections(String[])} 一直才能生效。
+         * 设置选项中的文字的颜色资源（需要是 resource color 资源。）。 长度必须与 {@link #setSelections(String[])} 一直才能生效。
          * 当设置值为 0 时，使用默认颜色。
          *
          * @param colors
@@ -247,8 +247,7 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
         }
 
         /**
-         * 设置标题。
-         * 标题可不设置。
+         * 设置标题。 标题可不设置。
          *
          * @param title
          * @return
@@ -269,9 +268,7 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
         }
     }
 
-    /**
-     * 点击选项监听。
-     */
+    /** 点击选项监听。 */
     public interface OnSelectListener extends Serializable {
         /**
          * 当选择选项时回调
@@ -280,5 +277,4 @@ public class BottomSelectDialog extends DialogFragment implements View.OnClickLi
          */
         void onSelect(int index);
     }
-
 }

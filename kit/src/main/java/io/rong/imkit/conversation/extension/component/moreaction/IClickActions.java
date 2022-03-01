@@ -2,14 +2,10 @@ package io.rong.imkit.conversation.extension.component.moreaction;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-
 import androidx.fragment.app.Fragment;
 import io.rong.imkit.model.UiMessage;
 
-/**
- * Created by zwfang on 2018/3/29.
- */
-
+/** Created by zwfang on 2018/3/29. */
 public interface IClickActions {
 
     /**

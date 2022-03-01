@@ -8,13 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.recallEdit.RecallEditCountDownCallBack;
 import io.rong.imkit.feature.recallEdit.RecallEditManager;
@@ -26,23 +21,35 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.RecallNotificationMessage;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
-public class RecallNotificationMessageItemProvider extends BaseNotificationMessageItemProvider<RecallNotificationMessage> {
+public class RecallNotificationMessageItemProvider
+        extends BaseNotificationMessageItemProvider<RecallNotificationMessage> {
     private static final String TAG = "RecallNotificationMessageItemProvider";
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View rootView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_information_notification_message, parent, false);
+        View rootView =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_information_notification_message, parent, false);
         return new RecallEditViewHolder(parent.getContext(), rootView);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, RecallNotificationMessage content, final UiMessage uiMessage, int position, List<UiMessage> list, final IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            RecallNotificationMessage content,
+            final UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            final IViewProviderListener<UiMessage> listener) {
         holder.setText(R.id.rc_msg, getInformation(holder.getContext(), content));
         long validTime = RongConfigCenter.conversationConfig().rc_message_recall_edit_interval;
         long countDownTime = System.currentTimeMillis() - content.getRecallActionTime();
         RecallEditViewHolder viewHolder = (RecallEditViewHolder) holder;
-//        // 判断被复用了，取消上一个 item 的倒计时
+        //        // 判断被复用了，取消上一个 item 的倒计时
         if (!TextUtils.isEmpty(viewHolder.messageId)) {
             RecallEditManager.getInstance().cancelCountDown(viewHolder.messageId);
         }
@@ -50,7 +57,10 @@ public class RecallNotificationMessageItemProvider extends BaseNotificationMessa
         if (content.getRecallActionTime() > 0 && countDownTime < validTime * 1000) {
             if (uiMessage.isEdit()) {
                 TextView tvEdit = holder.getView(R.id.rc_edit);
-                tvEdit.setTextColor(holder.getContext().getResources().getColor(R.color.rc_text_color_primary_inverse));
+                tvEdit.setTextColor(
+                        holder.getContext()
+                                .getResources()
+                                .getColor(R.color.rc_text_color_primary_inverse));
                 tvEdit.setEnabled(false);
             } else {
                 TextView tvEdit = holder.getView(R.id.rc_edit);
@@ -58,20 +68,25 @@ public class RecallNotificationMessageItemProvider extends BaseNotificationMessa
                 tvEdit.setEnabled(true);
             }
             holder.setVisible(R.id.rc_edit, true);
-            RecallEditManager.getInstance().startCountDown(uiMessage.getMessage(), validTime * 1000 - countDownTime, new RecallEditCountDownListener(viewHolder));
-            holder.setOnClickListener(R.id.rc_edit, new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (listener != null) {
-                        listener.onViewClick(MessageClickType.REEDIT_CLICK, uiMessage);
-                    }
-                }
-            });
+            RecallEditManager.getInstance()
+                    .startCountDown(
+                            uiMessage.getMessage(),
+                            validTime * 1000 - countDownTime,
+                            new RecallEditCountDownListener(viewHolder));
+            holder.setOnClickListener(
+                    R.id.rc_edit,
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            if (listener != null) {
+                                listener.onViewClick(MessageClickType.REEDIT_CLICK, uiMessage);
+                            }
+                        }
+                    });
         } else {
             holder.setVisible(R.id.rc_edit, false);
         }
     }
-
 
     @Override
     protected boolean isMessageViewType(MessageContent messageContent) {
@@ -100,7 +115,8 @@ public class RecallNotificationMessageItemProvider extends BaseNotificationMessa
         } else {
             UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorId);
             if (userInfo != null && userInfo.getName() != null) {
-                information = userInfo.getName() + context.getString(R.string.rc_recalled_a_message);
+                information =
+                        userInfo.getName() + context.getString(R.string.rc_recalled_a_message);
             } else {
                 information = operatorId + context.getString(R.string.rc_recalled_a_message);
             }

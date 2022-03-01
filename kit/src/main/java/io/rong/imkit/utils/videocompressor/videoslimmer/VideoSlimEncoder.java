@@ -9,30 +9,23 @@ import android.media.MediaMuxer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
-
 import androidx.annotation.RequiresApi;
-
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.utils.videocompressor.videoslimmer.listner.SlimProgressListener;
 import io.rong.imkit.utils.videocompressor.videoslimmer.muxer.CodecInputSurface;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
-/**
- * trans code for video to mp4
- * mediacodec support  3gp and mp4
- */
+/** trans code for video to mp4 mediacodec support 3gp and mp4 */
 public class VideoSlimEncoder {
     private static final String TAG = "VideoSlimEncoder";
-    private static final boolean VERBOSE = true;           // lots of logging
+    private static final boolean VERBOSE = true; // lots of logging
     private String path;
     private String outputPath;
-    private final static String MIME_TYPE = "video/avc";
+    private static final String MIME_TYPE = "video/avc";
     private MediaCodec.BufferInfo mBufferInfo;
     private MediaMuxer mMuxer;
     private MediaCodec mEncoder;
@@ -45,21 +38,21 @@ public class VideoSlimEncoder {
     // bit rate, in bits per second
     private int mBitRate = -1;
     private static final int MEDIATYPE_NOT_AUDIO_VIDEO = -233;
-    private static int FRAME_RATE = 25;               // 15fps
-    private static int IFRAME_INTERVAL = 10;          // 10 seconds between I-frames
+    private static int FRAME_RATE = 25; // 15fps
+    private static int IFRAME_INTERVAL = 10; // 10 seconds between I-frames
     private final int TIMEOUT_USEC = 2500;
 
-    public VideoSlimEncoder() {
+    public VideoSlimEncoder() {}
 
-    }
-
-
-    /***
-     * trans video and audio  by mediacodec
-     *
-     * */
+    /** trans video and audio by mediacodec */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    public boolean convertVideo(final String sourcePath, String destinationPath, int nwidth, int nheight, int nbitrate, SlimProgressListener listener) {
+    public boolean convertVideo(
+            final String sourcePath,
+            String destinationPath,
+            int nwidth,
+            int nheight,
+            int nbitrate,
+            SlimProgressListener listener) {
         this.path = sourcePath;
         this.outputPath = destinationPath;
 
@@ -67,13 +60,17 @@ public class VideoSlimEncoder {
             return false;
         }
 
-        //get origin video info
+        // get origin video info
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
             if (FileUtils.uriStartWithFile(Uri.parse(sourcePath))) {
                 retriever.setDataSource(sourcePath.substring(7));
             } else if (FileUtils.uriStartWithContent(Uri.parse(sourcePath))) {
-                ParcelFileDescriptor r = IMCenter.getInstance().getContext().getContentResolver().openFileDescriptor(Uri.parse(sourcePath), "r");
+                ParcelFileDescriptor r =
+                        IMCenter.getInstance()
+                                .getContext()
+                                .getContentResolver()
+                                .openFileDescriptor(Uri.parse(sourcePath), "r");
                 retriever.setDataSource(r.getFileDescriptor());
             } else {
                 retriever.setDataSource(sourcePath);
@@ -84,7 +81,11 @@ public class VideoSlimEncoder {
         }
         String width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         String height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-        long duration = Long.valueOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) * 1000;
+        long duration =
+                Long.valueOf(
+                                retriever.extractMetadata(
+                                        MediaMetadataRetriever.METADATA_KEY_DURATION))
+                        * 1000;
 
         long startTime = -1;
         long endTime = -1;
@@ -98,7 +99,6 @@ public class VideoSlimEncoder {
 
         boolean error = false;
         long videoStartTime = -1;
-
 
         File cacheFile = new File(destinationPath);
         File inputFile = new File(path);
@@ -122,12 +122,10 @@ public class VideoSlimEncoder {
                 mMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             } catch (IOException ioe) {
 
-
                 throw new RuntimeException("MediaMuxer creation failed", ioe);
             }
 
             int muxerAudioTrackIndex = 0;
-
 
             int audioIndex = selectTrack(mAudioExtractor, true);
             if (audioIndex >= 0) {
@@ -139,8 +137,7 @@ public class VideoSlimEncoder {
                 // extractor.unselectTrack(muxerAudioTrackIndex);
             }
 
-
-            //mediacodec + surface + opengl
+            // mediacodec + surface + opengl
             if (nwidth != originalWidth || nheight != originalHeight) {
 
                 int videoIndex = selectTrack(extractor, false);
@@ -153,7 +150,6 @@ public class VideoSlimEncoder {
                     boolean decoderDone = false;
                     int videoTrackIndex = MEDIATYPE_NOT_AUDIO_VIDEO;
 
-
                     extractor.selectTrack(videoIndex);
                     if (startTime > 0) {
                         extractor.seekTo(startTime, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
@@ -162,18 +158,14 @@ public class VideoSlimEncoder {
                     }
                     MediaFormat inputFormat = extractor.getTrackFormat(videoIndex);
 
-
                     // init mediacodec  / encoder and decoder
                     prepareEncoder(inputFormat);
-
 
                     ByteBuffer[] decoderInputBuffers = null;
                     ByteBuffer[] encoderOutputBuffers = null;
 
-
                     decoderInputBuffers = mDecoder.getInputBuffers();
                     encoderOutputBuffers = mEncoder.getOutputBuffers();
-
 
                     while (!outputDone) {
                         if (!inputDone) {
@@ -190,10 +182,20 @@ public class VideoSlimEncoder {
                                     }
                                     int chunkSize = extractor.readSampleData(inputBuf, 0);
                                     if (chunkSize < 0) {
-                                        mDecoder.queueInputBuffer(inputBufIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                                        mDecoder.queueInputBuffer(
+                                                inputBufIndex,
+                                                0,
+                                                0,
+                                                0L,
+                                                MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                                         inputDone = true;
                                     } else {
-                                        mDecoder.queueInputBuffer(inputBufIndex, 0, chunkSize, extractor.getSampleTime(), 0);
+                                        mDecoder.queueInputBuffer(
+                                                inputBufIndex,
+                                                0,
+                                                chunkSize,
+                                                extractor.getSampleTime(),
+                                                0);
                                         extractor.advance();
                                     }
                                 }
@@ -203,7 +205,12 @@ public class VideoSlimEncoder {
                             if (eof) {
                                 int inputBufIndex = mDecoder.dequeueInputBuffer(TIMEOUT_USEC);
                                 if (inputBufIndex >= 0) {
-                                    mDecoder.queueInputBuffer(inputBufIndex, 0, 0, 0L, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                                    mDecoder.queueInputBuffer(
+                                            inputBufIndex,
+                                            0,
+                                            0,
+                                            0L,
+                                            MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                                     inputDone = true;
                                 }
                             }
@@ -214,7 +221,8 @@ public class VideoSlimEncoder {
 
                         while (decoderOutputAvailable || encoderOutputAvailable) {
 
-                            int encoderStatus = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
+                            int encoderStatus =
+                                    mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
                             if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                                 encoderOutputAvailable = false;
                             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
@@ -229,7 +237,9 @@ public class VideoSlimEncoder {
                                     mMuxer.start();
                                 }
                             } else if (encoderStatus < 0) {
-                                throw new RuntimeException("unexpected result from mEncoder.dequeueOutputBuffer: " + encoderStatus);
+                                throw new RuntimeException(
+                                        "unexpected result from mEncoder.dequeueOutputBuffer: "
+                                                + encoderStatus);
                             } else {
                                 ByteBuffer encodedData;
                                 if (Build.VERSION.SDK_INT < 21) {
@@ -238,11 +248,14 @@ public class VideoSlimEncoder {
                                     encodedData = mEncoder.getOutputBuffer(encoderStatus);
                                 }
                                 if (encodedData == null) {
-                                    throw new RuntimeException("encoderOutputBuffer " + encoderStatus + " was null");
+                                    throw new RuntimeException(
+                                            "encoderOutputBuffer " + encoderStatus + " was null");
                                 }
                                 if (mBufferInfo.size > 1) {
-                                    if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) == 0) {
-                                        mMuxer.writeSampleData(videoTrackIndex, encodedData, mBufferInfo);
+                                    if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG)
+                                            == 0) {
+                                        mMuxer.writeSampleData(
+                                                videoTrackIndex, encodedData, mBufferInfo);
                                     } else if (videoTrackIndex == MEDIATYPE_NOT_AUDIO_VIDEO) {
                                         byte[] csd = new byte[mBufferInfo.size];
                                         encodedData.limit(mBufferInfo.offset + mBufferInfo.size);
@@ -252,11 +265,17 @@ public class VideoSlimEncoder {
                                         ByteBuffer pps = null;
                                         for (int a = mBufferInfo.size - 1; a >= 0; a--) {
                                             if (a > 3) {
-                                                if (csd[a] == 1 && csd[a - 1] == 0 && csd[a - 2] == 0 && csd[a - 3] == 0) {
+                                                if (csd[a] == 1
+                                                        && csd[a - 1] == 0
+                                                        && csd[a - 2] == 0
+                                                        && csd[a - 3] == 0) {
                                                     sps = ByteBuffer.allocate(a - 3);
-                                                    pps = ByteBuffer.allocate(mBufferInfo.size - (a - 3));
+                                                    pps =
+                                                            ByteBuffer.allocate(
+                                                                    mBufferInfo.size - (a - 3));
                                                     sps.put(csd, 0, a - 3).position(0);
-                                                    pps.put(csd, a - 3, mBufferInfo.size - (a - 3)).position(0);
+                                                    pps.put(csd, a - 3, mBufferInfo.size - (a - 3))
+                                                            .position(0);
                                                     break;
                                                 }
                                             } else {
@@ -264,7 +283,9 @@ public class VideoSlimEncoder {
                                             }
                                         }
 
-                                        MediaFormat newFormat = MediaFormat.createVideoFormat(MIME_TYPE, nwidth, nheight);
+                                        MediaFormat newFormat =
+                                                MediaFormat.createVideoFormat(
+                                                        MIME_TYPE, nwidth, nheight);
                                         if (sps != null && pps != null) {
                                             newFormat.setByteBuffer("csd-0", sps);
                                             newFormat.setByteBuffer("csd-1", pps);
@@ -273,7 +294,9 @@ public class VideoSlimEncoder {
                                         mMuxer.start();
                                     }
                                 }
-                                outputDone = (mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
+                                outputDone =
+                                        (mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                                                != 0;
                                 mEncoder.releaseOutputBuffer(encoderStatus, false);
                             }
                             if (encoderStatus != MediaCodec.INFO_TRY_AGAIN_LATER) {
@@ -281,15 +304,19 @@ public class VideoSlimEncoder {
                             }
 
                             if (!decoderDone) {
-                                int decoderStatus = mDecoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
+                                int decoderStatus =
+                                        mDecoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
                                 if (decoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
                                     decoderOutputAvailable = false;
-                                } else if (decoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+                                } else if (decoderStatus
+                                        == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
 
                                 } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                                     MediaFormat newFormat = mDecoder.getOutputFormat();
                                 } else if (decoderStatus < 0) {
-                                    throw new RuntimeException("unexpected result from mDecoder.dequeueOutputBuffer: " + decoderStatus);
+                                    throw new RuntimeException(
+                                            "unexpected result from mDecoder.dequeueOutputBuffer: "
+                                                    + decoderStatus);
                                 } else {
                                     boolean doRender = false;
 
@@ -321,21 +348,24 @@ public class VideoSlimEncoder {
                                         if (!errorWait) {
 
                                             mInputSurface.drawImage();
-                                            mInputSurface.setPresentationTime(mBufferInfo.presentationTimeUs * 1000);
+                                            mInputSurface.setPresentationTime(
+                                                    mBufferInfo.presentationTimeUs * 1000);
 
                                             if (listener != null) {
-                                                listener.onProgress((float) mBufferInfo.presentationTimeUs / (float) duration * 100);
+                                                listener.onProgress(
+                                                        (float) mBufferInfo.presentationTimeUs
+                                                                / (float) duration
+                                                                * 100);
                                             }
 
                                             mInputSurface.swapBuffers();
-
                                         }
                                     }
-                                    if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
+                                    if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                                            != 0) {
                                         decoderOutputAvailable = false;
 
                                         mEncoder.signalEndOfInputStream();
-
                                     }
                                 }
                             }
@@ -344,21 +374,27 @@ public class VideoSlimEncoder {
                     if (videoTime != -1) {
                         videoStartTime = videoTime;
                     }
-
-
                 }
-
 
                 extractor.unselectTrack(videoIndex);
 
             } else {
-                long videoTime = simpleReadAndWriteTrack(extractor, mMuxer, mBufferInfo, startTime, endTime, false);
+                long videoTime =
+                        simpleReadAndWriteTrack(
+                                extractor, mMuxer, mBufferInfo, startTime, endTime, false);
                 if (videoTime != -1) {
                     videoStartTime = videoTime;
                 }
             }
 
-            writeAudioTrack(mAudioExtractor, mMuxer, mBufferInfo, videoStartTime, endTime, cacheFile, muxerAudioTrackIndex);
+            writeAudioTrack(
+                    mAudioExtractor,
+                    mMuxer,
+                    mBufferInfo,
+                    videoStartTime,
+                    endTime,
+                    cacheFile,
+                    muxerAudioTrackIndex);
 
         } catch (Exception e) {
             error = true;
@@ -369,7 +405,6 @@ public class VideoSlimEncoder {
                 extractor = null;
             }
 
-
             if (mAudioExtractor != null) {
                 mAudioExtractor.release();
                 mAudioExtractor = null;
@@ -378,33 +413,32 @@ public class VideoSlimEncoder {
 
         boolean b = releaseCoder();
 
-        if (error && !b)
-            return false;
-        else
-            return true;
+        if (error && !b) return false;
+        else return true;
     }
-
 
     private boolean checkParmsError(int nwidth, int nheight, int nbitrate) {
 
-        if (nwidth <= 0 || nheight <= 0 || nbitrate <= 0)
-            return true;
-        else
-            return false;
-
+        if (nwidth <= 0 || nheight <= 0 || nbitrate <= 0) return true;
+        else return false;
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private long simpleReadAndWriteTrack(MediaExtractor extractor, MediaMuxer mediaMuxer, MediaCodec.BufferInfo info, long start, long end, boolean isAudio) throws Exception {
+    private long simpleReadAndWriteTrack(
+            MediaExtractor extractor,
+            MediaMuxer mediaMuxer,
+            MediaCodec.BufferInfo info,
+            long start,
+            long end,
+            boolean isAudio)
+            throws Exception {
         int trackIndex = selectTrack(extractor, isAudio);
         if (trackIndex >= 0) {
             extractor.selectTrack(trackIndex);
             MediaFormat trackFormat = extractor.getTrackFormat(trackIndex);
             int muxerTrackIndex = mediaMuxer.addTrack(trackFormat);
 
-            if (!isAudio)
-                mediaMuxer.start();
+            if (!isAudio) mediaMuxer.start();
 
             int maxBufferSize = trackFormat.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE);
             boolean inputDone = false;
@@ -454,15 +488,21 @@ public class VideoSlimEncoder {
         return -1;
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private long writeAudioTrack(MediaExtractor extractor, MediaMuxer mediaMuxer, MediaCodec.BufferInfo info, long start, long end, File file, int muxerTrackIndex) throws Exception {
+    private long writeAudioTrack(
+            MediaExtractor extractor,
+            MediaMuxer mediaMuxer,
+            MediaCodec.BufferInfo info,
+            long start,
+            long end,
+            File file,
+            int muxerTrackIndex)
+            throws Exception {
         int trackIndex = selectTrack(extractor, true);
         if (trackIndex >= 0) {
             extractor.selectTrack(trackIndex);
             MediaFormat trackFormat = extractor.getTrackFormat(trackIndex);
 
-
             int maxBufferSize = trackFormat.getInteger(MediaFormat.KEY_MAX_INPUT_SIZE);
             boolean inputDone = false;
             if (start > 0) {
@@ -510,7 +550,6 @@ public class VideoSlimEncoder {
         }
         return -1;
     }
-
 
     private int selectTrack(MediaExtractor extractor, boolean audio) {
         int numTracks = extractor.getTrackCount();
@@ -530,10 +569,7 @@ public class VideoSlimEncoder {
         return MEDIATYPE_NOT_AUDIO_VIDEO;
     }
 
-
-    /**
-     * Configures encoder and muxer state, and prepares the input Surface.
-     */
+    /** Configures encoder and muxer state, and prepares the input Surface. */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void prepareEncoder(MediaFormat inputFormat) {
         mBufferInfo = new MediaCodec.BufferInfo();
@@ -542,8 +578,8 @@ public class VideoSlimEncoder {
 
         // Set some properties.  Failing to specify some of these can cause the MediaCodec
         // configure() call to throw an unhelpful exception.
-        format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
-                MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+        format.setInteger(
+                MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         format.setInteger(MediaFormat.KEY_BIT_RATE, mBitRate);
         format.setInteger(MediaFormat.KEY_FRAME_RATE, FRAME_RATE);
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL);
@@ -585,13 +621,10 @@ public class VideoSlimEncoder {
         // We're not actually interested in multiplexing audio.  We just want to convert
         // the raw H.264 elementary stream we get from MediaCodec into a .mp4 file.
 
-
         mTrackIndex = -1;
     }
 
-    /**
-     * Releases encoder resources.  May be called after partial / failed initialization.
-     */
+    /** Releases encoder resources. May be called after partial / failed initialization. */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private boolean releaseCoder() {
         if (VERBOSE) RLog.d(TAG, "releasing encoder objects");
@@ -622,6 +655,4 @@ public class VideoSlimEncoder {
         }
         return true;
     }
-
-
 }

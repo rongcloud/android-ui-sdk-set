@@ -1,8 +1,6 @@
 package io.rong.imkit.userinfo.model;
 
-/**
- * 群成员信息实体类，用来存储群成员信息。
- */
+/** 群成员信息实体类，用来存储群成员信息。 */
 public class GroupUserInfo {
     private String mNickname;
     private String mUserId;
@@ -10,6 +8,7 @@ public class GroupUserInfo {
 
     /**
      * 群成员对象
+     *
      * @param groupId 群 Id
      * @param userId 用户 Id
      * @param nickname 该用户在群里的昵称
@@ -36,4 +35,3 @@ public class GroupUserInfo {
         return mUserId;
     }
 }
-

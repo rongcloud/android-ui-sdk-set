@@ -7,21 +7,22 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.InformationNotificationMessage;
+import java.util.List;
 
-public class InformationNotificationMessageItemProvider extends BaseNotificationMessageItemProvider<InformationNotificationMessage> {
+public class InformationNotificationMessageItemProvider
+        extends BaseNotificationMessageItemProvider<InformationNotificationMessage> {
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View rootView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_information_notification_message, parent, false);
+        View rootView =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_information_notification_message, parent, false);
         return new ViewHolder(parent.getContext(), rootView);
     }
 
@@ -36,11 +37,16 @@ public class InformationNotificationMessageItemProvider extends BaseNotification
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder,ViewHolder parentHolder, InformationNotificationMessage content, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            InformationNotificationMessage content,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         holder.setText(R.id.rc_msg, content.getMessage());
     }
-
-
 
     @Override
     public Spannable getSummarySpannable(Context context, InformationNotificationMessage data) {

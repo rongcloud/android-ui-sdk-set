@@ -10,10 +10,8 @@ import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import java.util.List;
-
 import io.rong.imkit.R;
+import java.util.List;
 
 public class SingleChoiceDialog extends Dialog {
 
@@ -30,7 +28,6 @@ public class SingleChoiceDialog extends Dialog {
     protected OnClickListener mCancelClickListener;
 
     private SingleChoiceAdapter<String> mSingleChoiceAdapter;
-
 
     public SingleChoiceDialog(Context context, List<String> list) {
         super(context);
@@ -50,19 +47,21 @@ public class SingleChoiceDialog extends Dialog {
         mRootView.setBackgroundDrawable(new ColorDrawable(0x00000000));
         mTVTitle = findViewById(R.id.rc_cs_tv_title);
         mButtonOK = findViewById(R.id.rc_cs_btn_ok);
-        mButtonOK.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onButtonOK();
-            }
-        });
+        mButtonOK.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onButtonOK();
+                    }
+                });
         mButtonCancel = findViewById(R.id.rc_cs_btn_cancel);
-        mButtonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onButtonCancel();
-            }
-        });
+        mButtonCancel.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onButtonCancel();
+                    }
+                });
 
         mListView = findViewById(R.id.rc_cs_group_dialog_listView);
 
@@ -100,25 +99,27 @@ public class SingleChoiceDialog extends Dialog {
     }
 
     protected void initData() {
-        mSingleChoiceAdapter = new SingleChoiceAdapter<>(mContext, mList,
-                R.drawable.rc_cs_group_checkbox_selector);
+        mSingleChoiceAdapter =
+                new SingleChoiceAdapter<>(
+                        mContext, mList, R.drawable.rc_cs_group_checkbox_selector);
 
         mListView.setAdapter(mSingleChoiceAdapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (position != mSingleChoiceAdapter.getSelectItem()) {
-                    if (!mButtonOK.isEnabled()) {
-                        mButtonOK.setEnabled(true);
+        mListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        if (position != mSingleChoiceAdapter.getSelectItem()) {
+                            if (!mButtonOK.isEnabled()) {
+                                mButtonOK.setEnabled(true);
+                            }
+                            mSingleChoiceAdapter.setSelectItem(position);
+                            mSingleChoiceAdapter.notifyDataSetChanged();
+                        }
                     }
-                    mSingleChoiceAdapter.setSelectItem(position);
-                    mSingleChoiceAdapter.notifyDataSetChanged();
-                }
-            }
-        });
+                });
 
         setListViewHeightBasedOnChildren(mListView);
-
     }
 
     public int getSelectItem() {

@@ -3,13 +3,11 @@ package io.rong.imkit.widget;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-
 import androidx.viewpager.widget.ViewPager;
-
 import io.rong.common.RLog;
 
 public class HackyViewPager extends ViewPager {
-    private final static String TAG = "HackyViewPager";
+    private static final String TAG = "HackyViewPager";
 
     public HackyViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);

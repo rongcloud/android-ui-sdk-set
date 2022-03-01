@@ -18,11 +18,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -36,10 +31,12 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.typingmessage.TypingMessageManager;
 import io.rong.message.HQVoiceMessage;
 import io.rong.message.VoiceMessage;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class AudioRecordManager implements Handler.Callback {
-    private final static String TAG = "AudioRecordManager";
+    private static final String TAG = "AudioRecordManager";
     private static final int RC_SAMPLE_RATE_8000 = 8000;
     private static final int RC_SAMPLE_RATE_16000 = 16000;
     private static final String VOICE_PATH = "/voice/";
@@ -89,7 +86,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     @Override
-    final public boolean handleMessage(android.os.Message msg) {
+    public final boolean handleMessage(android.os.Message msg) {
         RLog.i(TAG, "handleMessage " + msg.what);
         switch (msg.what) {
             case AUDIO_RECORD_EVENT_TIME_OUT:
@@ -120,7 +117,11 @@ public class AudioRecordManager implements Handler.Callback {
         mStateTV = (TextView) view.findViewById(R.id.rc_audio_state_text);
         mTimerTV = (TextView) view.findViewById(R.id.rc_audio_timer);
 
-        mRecordWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        mRecordWindow =
+                new PopupWindow(
+                        view,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT);
         mRecordWindow.showAtLocation(root, Gravity.CENTER, 0, 0);
         mRecordWindow.setFocusable(true);
         mRecordWindow.setOutsideTouchable(false);
@@ -146,7 +147,6 @@ public class AudioRecordManager implements Handler.Callback {
                 mTimerTV.setVisibility(View.GONE);
             }
         }
-
     }
 
     private void setRecordingView() {
@@ -181,21 +181,24 @@ public class AudioRecordManager implements Handler.Callback {
                 if (mContext == null) {
                     return;
                 }
-                TelephonyManager manager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-                manager.listen(new PhoneStateListener() {
-                    @Override
-                    public void onCallStateChanged(int state, String incomingNumber) {
-                        switch (state) {
-                            case TelephonyManager.CALL_STATE_IDLE:
-                            case TelephonyManager.CALL_STATE_OFFHOOK:
-                                break;
-                            case TelephonyManager.CALL_STATE_RINGING:
-                                sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
-                                break;
-                        }
-                        super.onCallStateChanged(state, incomingNumber);
-                    }
-                }, PhoneStateListener.LISTEN_CALL_STATE);
+                TelephonyManager manager =
+                        (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
+                manager.listen(
+                        new PhoneStateListener() {
+                            @Override
+                            public void onCallStateChanged(int state, String incomingNumber) {
+                                switch (state) {
+                                    case TelephonyManager.CALL_STATE_IDLE:
+                                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                                        break;
+                                    case TelephonyManager.CALL_STATE_RINGING:
+                                        sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
+                                        break;
+                                }
+                                super.onCallStateChanged(state, incomingNumber);
+                            }
+                        },
+                        PhoneStateListener.LISTEN_CALL_STATE);
             } catch (SecurityException e) {
                 RLog.e(TAG, "AudioRecordManager", e);
             }
@@ -223,9 +226,9 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     /**
-     * 协议栈默认支持消息大小为 128K, 超过这个限制有可能导致 socket 断开。
-     * 普通语音消息超过 60s 时，会导致消息体大小超过限制，从而导致连接断开。
+     * 协议栈默认支持消息大小为 128K, 超过这个限制有可能导致 socket 断开。 普通语音消息超过 60s 时，会导致消息体大小超过限制，从而导致连接断开。
      * 为了避免以上问题，对外统一废弃此接口。
+     *
      * @param maxVoiceDuration 最大语音时长。
      * @deprecated 接口已废弃。
      */
@@ -233,7 +236,8 @@ public class AudioRecordManager implements Handler.Callback {
         RECORD_INTERVAL = maxVoiceDuration;
     }
 
-    public void startRecord(View rootView, Conversation.ConversationType conversationType, String targetId) {
+    public void startRecord(
+            View rootView, Conversation.ConversationType conversationType, String targetId) {
         if (rootView == null) return;
         this.mRootView = rootView;
         this.mContext = rootView.getContext().getApplicationContext();
@@ -241,26 +245,27 @@ public class AudioRecordManager implements Handler.Callback {
         this.mTargetId = targetId;
         this.mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
-
         if (this.mAfChangeListener != null) {
             mAudioManager.abandonAudioFocus(mAfChangeListener);
             mAfChangeListener = null;
         }
-        this.mAfChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-            public void onAudioFocusChange(int focusChange) {
-                RLog.d(TAG, "OnAudioFocusChangeListener " + focusChange);
-                if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-                    mAudioManager.abandonAudioFocus(mAfChangeListener);
-                    mAfChangeListener = null;
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
+        this.mAfChangeListener =
+                new AudioManager.OnAudioFocusChangeListener() {
+                    public void onAudioFocusChange(int focusChange) {
+                        RLog.d(TAG, "OnAudioFocusChangeListener " + focusChange);
+                        if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+                            mAudioManager.abandonAudioFocus(mAfChangeListener);
+                            mAfChangeListener = null;
+                            mHandler.post(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
+                                        }
+                                    });
                         }
-                    });
-                }
-            }
-        };
+                    }
+                };
         sendEmptyMessage(AUDIO_RECORD_EVENT_TRIGGER);
 
         if (TypingMessageManager.getInstance().isShowMessageTyping()) {
@@ -280,7 +285,8 @@ public class AudioRecordManager implements Handler.Callback {
         sendEmptyMessage(AUDIO_RECORD_EVENT_RELEASE);
     }
 
-    //协议栈 4.x 重构后，socket 层本身有个buffer 的大小，可能 rtc 里对这个大小做了改动，所以普通语音消息超过 128 K 之后会出现协议栈 socket 连接断开导致重连；高清语音不受限制，为了避免歧义，统一口径：语音消息只支持 60 秒
+    // 协议栈 4.x 重构后，socket 层本身有个buffer 的大小，可能 rtc 里对这个大小做了改动，所以普通语音消息超过 128 K 之后会出现协议栈 socket
+    // 连接断开导致重连；高清语音不受限制，为了避免歧义，统一口径：语音消息只支持 60 秒
 
     public void destroyRecord() {
         AudioStateMessage msg = new AudioStateMessage();
@@ -307,7 +313,8 @@ public class AudioRecordManager implements Handler.Callback {
             mMediaRecorder = new MediaRecorder();
             int bpsNb = RongConfigCenter.featureConfig().getAudioNBEncodingBitRate();
             int bpsWb = RongConfigCenter.featureConfig().getAudioWBEncodingBitRate();
-            if (RongConfigCenter.featureConfig().getVoiceMessageType() == IMCenter.VoiceMessageType.HighQuality) {
+            if (RongConfigCenter.featureConfig().getVoiceMessageType()
+                    == IMCenter.VoiceMessageType.HighQuality) {
                 mMediaRecorder.setAudioEncodingBitRate(AUDIO_AA_ENCODING_BIT_RATE);
             } else {
                 mMediaRecorder.setAudioSamplingRate(mSampleRate.value);
@@ -320,7 +327,9 @@ public class AudioRecordManager implements Handler.Callback {
 
             mMediaRecorder.setAudioChannels(1);
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            if (RongConfigCenter.featureConfig().getVoiceMessageType().equals(IMCenter.VoiceMessageType.HighQuality)) {
+            if (RongConfigCenter.featureConfig()
+                    .getVoiceMessageType()
+                    .equals(IMCenter.VoiceMessageType.HighQuality)) {
                 mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
@@ -337,17 +346,21 @@ public class AudioRecordManager implements Handler.Callback {
                 }
             }
             File savePath = SavePathUtils.getSavePath(mContext.getCacheDir());
-            if (!savePath.exists()){
+            if (!savePath.exists()) {
                 throw new FileNotFoundException(savePath.getPath());
             }
-            if (!savePath.canWrite()){
+            if (!savePath.canWrite()) {
                 boolean result = savePath.setWritable(true, true);
-                if (!result){
-                    String msg = new StringBuilder(savePath.getPath()).append(" could not be writable.").toString();
+                if (!result) {
+                    String msg =
+                            new StringBuilder(savePath.getPath())
+                                    .append(" could not be writable.")
+                                    .toString();
                     throw new IOException(msg);
                 }
             }
-            mAudioPath = Uri.fromFile(new File(savePath, System.currentTimeMillis() + "temp.voice"));
+            mAudioPath =
+                    Uri.fromFile(new File(savePath, System.currentTimeMillis() + "temp.voice"));
             mMediaRecorder.setOutputFile(mAudioPath.getPath());
             mMediaRecorder.prepare();
             mMediaRecorder.start();
@@ -391,7 +404,9 @@ public class AudioRecordManager implements Handler.Callback {
             if (file.exists()) {
                 boolean deleteResult = file.delete();
                 if (!deleteResult) {
-                    RLog.e(TAG, "deleteAudioFile delete file failed. path :" + mAudioPath.getPath());
+                    RLog.e(
+                            TAG,
+                            "deleteAudioFile delete file failed. path :" + mAudioPath.getPath());
                 }
             }
         }
@@ -406,59 +421,70 @@ public class AudioRecordManager implements Handler.Callback {
                 return;
             }
             int duration = (int) (SystemClock.elapsedRealtime() - smStartRecTime) / 1000;
-            if (RongConfigCenter.featureConfig().getVoiceMessageType() == IMCenter.VoiceMessageType.HighQuality) {
-                HQVoiceMessage hqVoiceMessage = HQVoiceMessage.obtain(mAudioPath, Math.min(duration, RECORD_INTERVAL));
+            if (RongConfigCenter.featureConfig().getVoiceMessageType()
+                    == IMCenter.VoiceMessageType.HighQuality) {
+                HQVoiceMessage hqVoiceMessage =
+                        HQVoiceMessage.obtain(mAudioPath, Math.min(duration, RECORD_INTERVAL));
                 if (DestructManager.isActive()) {
                     hqVoiceMessage.setDestructTime(DestructManager.VOICE_DESTRUCT_TIME);
                 }
                 Message message = Message.obtain(mTargetId, mConversationType, hqVoiceMessage);
-                IMCenter.getInstance().sendMediaMessage(message, DestructManager.isActive() ? mContext.getResources().getString(R.string.rc_conversation_summary_content_burn) : null, null,
-                        new IRongCallback.ISendMediaMessageCallback() {
-                            @Override
-                            public void onProgress(Message message, int progress) {
+                IMCenter.getInstance()
+                        .sendMediaMessage(
+                                message,
+                                DestructManager.isActive()
+                                        ? mContext.getResources()
+                                                .getString(
+                                                        R.string
+                                                                .rc_conversation_summary_content_burn)
+                                        : null,
+                                null,
+                                new IRongCallback.ISendMediaMessageCallback() {
+                                    @Override
+                                    public void onProgress(Message message, int progress) {}
 
-                            }
+                                    @Override
+                                    public void onCanceled(Message message) {}
 
-                            @Override
-                            public void onCanceled(Message message) {
+                                    @Override
+                                    public void onAttached(Message message) {}
 
-                            }
+                                    @Override
+                                    public void onSuccess(Message message) {}
 
-                            @Override
-                            public void onAttached(Message message) {
-
-                            }
-
-                            @Override
-                            public void onSuccess(Message message) {
-                            }
-
-                            @Override
-                            public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                                RLog.d(TAG, "onError = " + errorCode.toString());
-                            }
-                        });
+                                    @Override
+                                    public void onError(
+                                            Message message, RongIMClient.ErrorCode errorCode) {
+                                        RLog.d(TAG, "onError = " + errorCode.toString());
+                                    }
+                                });
             } else {
-                VoiceMessage voiceMessage = VoiceMessage.obtain(mAudioPath, Math.min(duration, RECORD_INTERVAL));
+                VoiceMessage voiceMessage =
+                        VoiceMessage.obtain(mAudioPath, Math.min(duration, RECORD_INTERVAL));
                 if (DestructManager.isActive()) {
                     voiceMessage.setDestructTime(DestructManager.VOICE_DESTRUCT_TIME);
                 }
-                IMCenter.getInstance().sendMessage(Message.obtain(mTargetId, mConversationType, voiceMessage), DestructManager.isActive() ? mContext.getResources().getString(R.string.rc_conversation_summary_content_burn) : null, null, new IRongCallback.ISendMessageCallback() {
-                    @Override
-                    public void onAttached(Message message) {
+                IMCenter.getInstance()
+                        .sendMessage(
+                                Message.obtain(mTargetId, mConversationType, voiceMessage),
+                                DestructManager.isActive()
+                                        ? mContext.getResources()
+                                                .getString(
+                                                        R.string
+                                                                .rc_conversation_summary_content_burn)
+                                        : null,
+                                null,
+                                new IRongCallback.ISendMessageCallback() {
+                                    @Override
+                                    public void onAttached(Message message) {}
 
-                    }
+                                    @Override
+                                    public void onSuccess(Message message) {}
 
-                    @Override
-                    public void onSuccess(Message message) {
-
-                    }
-
-                    @Override
-                    public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-
-                    }
-                });
+                                    @Override
+                                    public void onError(
+                                            Message message, RongIMClient.ErrorCode errorCode) {}
+                                });
             }
         }
     }
@@ -509,7 +535,10 @@ public class AudioRecordManager implements Handler.Callback {
             return;
         }
         if (bMute) {
-            audioManager.requestAudioFocus(mAfChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+            audioManager.requestAudioFocus(
+                    mAfChangeListener,
+                    AudioManager.STREAM_MUSIC,
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         } else {
             audioManager.abandonAudioFocus(mAfChangeListener);
             mAfChangeListener = null;
@@ -534,18 +563,12 @@ public class AudioRecordManager implements Handler.Callback {
         this.mSampleRate = sampleRate;
     }
 
-    /**
-     * 语音消息采样率
-     */
+    /** 语音消息采样率 */
     public enum SamplingRate {
-        /**
-         * 8KHz
-         */
+        /** 8KHz */
         RC_SAMPLE_RATE_8000(8000),
 
-        /**
-         * 16KHz
-         */
+        /** 16KHz */
         RC_SAMPLE_RATE_16000(16000);
 
         private int value;
@@ -620,15 +643,17 @@ public class AudioRecordManager implements Handler.Callback {
                         mHandler.removeMessages(AUDIO_RECORD_EVENT_SAMPLING);
                     }
                     if (!activityFinished && mHandler != null) {
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                AudioStateMessage message = new AudioStateMessage();
-                                message.what = AUDIO_RECORD_EVENT_SEND_FILE;
-                                message.obj = !checked;
-                                sendMessage(message);
-                            }
-                        }, 500);
+                        mHandler.postDelayed(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        AudioStateMessage message = new AudioStateMessage();
+                                        message.what = AUDIO_RECORD_EVENT_SEND_FILE;
+                                        message.obj = !checked;
+                                        sendMessage(message);
+                                    }
+                                },
+                                500);
                         mCurAudioState = sendingState;
                     } else {
                         stopRec();
@@ -650,16 +675,17 @@ public class AudioRecordManager implements Handler.Callback {
                         message.obj = counter - 1;
                         mHandler.sendMessageDelayed(message, 1000);
                     } else {
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                stopRec();
-                                sendAudioFile();
-                                destroyView();
-                            }
-                        }, 500);
+                        mHandler.postDelayed(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        stopRec();
+                                        sendAudioFile();
+                                        destroyView();
+                                    }
+                                },
+                                500);
                         mCurAudioState = idleState;
-
                     }
                     break;
                 case AUDIO_RECORD_EVENT_ABORT:
@@ -716,14 +742,16 @@ public class AudioRecordManager implements Handler.Callback {
                         message.obj = counter - 1;
                         mHandler.sendMessageDelayed(message, 1000);
                     } else {
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                stopRec();
-                                sendAudioFile();
-                                destroyView();
-                            }
-                        }, 500);
+                        mHandler.postDelayed(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        stopRec();
+                                        sendAudioFile();
+                                        destroyView();
+                                    }
+                                },
+                                500);
                         mCurAudioState = idleState;
                         idleState.enter();
                     }
@@ -746,26 +774,30 @@ public class AudioRecordManager implements Handler.Callback {
                         mHandler.sendMessageDelayed(message, 1000);
                         setTimeoutView(counter);
                     } else {
-                        mHandler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                stopRec();
-                                sendAudioFile();
-                                destroyView();
-                            }
-                        }, 500);
+                        mHandler.postDelayed(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        stopRec();
+                                        sendAudioFile();
+                                        destroyView();
+                                    }
+                                },
+                                500);
                         mCurAudioState = idleState;
                     }
                     break;
                 case AUDIO_RECORD_EVENT_RELEASE:
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            stopRec();
-                            sendAudioFile();
-                            destroyView();
-                        }
-                    }, 500);
+                    mHandler.postDelayed(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    stopRec();
+                                    sendAudioFile();
+                                    destroyView();
+                                }
+                            },
+                            500);
                     mCurAudioState = idleState;
                     idleState.enter();
                     break;
@@ -785,8 +817,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     abstract class IAudioState {
-        void enter() {
-        }
+        void enter() {}
 
         abstract void handleMessage(AudioStateMessage message);
     }

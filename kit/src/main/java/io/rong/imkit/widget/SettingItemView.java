@@ -10,9 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
-
 import io.rong.imkit.R;
 import io.rong.imkit.widget.switchbutton.SwitchButton;
 
@@ -36,7 +34,6 @@ public class SettingItemView extends LinearLayout {
     public SettingItemView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(attrs);
-
     }
 
     public SettingItemView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
@@ -66,7 +63,10 @@ public class SettingItemView extends LinearLayout {
 
         view.setBackgroundResource(R.drawable.rc_setting_item_selector);
 
-        TypedArray ta = attrs == null ? null : getContext().obtainStyledAttributes(attrs, R.styleable.SettingItemView);
+        TypedArray ta =
+                attrs == null
+                        ? null
+                        : getContext().obtainStyledAttributes(attrs, R.styleable.SettingItemView);
         if (ta != null) {
             final int N = ta.getIndexCount();
             for (int i = 0; i < N; i++) {
@@ -122,14 +122,16 @@ public class SettingItemView extends LinearLayout {
                         ivTagImage.setImageDrawable(tagImage);
                     }
                 } else if (attr == R.styleable.SettingItemView_item_tag_image_height) {
-                    float tagImageHeight = ta.getDimension(R.styleable.SettingItemView_item_tag_image_height, 0);
+                    float tagImageHeight =
+                            ta.getDimension(R.styleable.SettingItemView_item_tag_image_height, 0);
                     if (tagImageHeight > 0) {
                         ViewGroup.LayoutParams layoutParamsTagHeight = ivTagImage.getLayoutParams();
                         layoutParamsTagHeight.height = Math.round(tagImageHeight);
                         ivTagImage.setLayoutParams(layoutParamsTagHeight);
                     }
                 } else if (attr == R.styleable.SettingItemView_item_tag_image_width) {
-                    float tagImageWidth = ta.getDimension(R.styleable.SettingItemView_item_tag_image_width, 0);
+                    float tagImageWidth =
+                            ta.getDimension(R.styleable.SettingItemView_item_tag_image_width, 0);
                     if (tagImageWidth > 0) {
                         ViewGroup.LayoutParams layoutParamsTagWidth = ivTagImage.getLayoutParams();
                         layoutParamsTagWidth.width = Math.round(tagImageWidth);
@@ -165,9 +167,7 @@ public class SettingItemView extends LinearLayout {
                 }
             }
         }
-
     }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -211,7 +211,6 @@ public class SettingItemView extends LinearLayout {
         ivTagImage.setImageResource(resId);
     }
 
-
     /**
      * 设置switch 按钮显示隐藏
      *
@@ -234,7 +233,6 @@ public class SettingItemView extends LinearLayout {
     public void setSwitchTouchListener(OnTouchListener listener) {
         sbSwitch.setOnTouchListener(listener);
     }
-
 
     /**
      * 设置 value 值 显示隐藏
@@ -265,9 +263,7 @@ public class SettingItemView extends LinearLayout {
         tvValue.setVisibility(VISIBLE);
     }
 
-    /**
-     * 设置 value 颜色
-     */
+    /** 设置 value 颜色 */
     public TextView getValueView() {
         return tvValue;
     }
@@ -360,9 +356,7 @@ public class SettingItemView extends LinearLayout {
         sbSwitch.setOnCheckedChangeListener(checkedListener);
     }
 
-    /**
-     * 获取当前 switch 状态
-     */
+    /** 获取当前 switch 状态 */
     public boolean isChecked() {
         return sbSwitch.isChecked();
     }

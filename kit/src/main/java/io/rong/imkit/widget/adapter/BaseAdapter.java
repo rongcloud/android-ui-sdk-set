@@ -1,18 +1,14 @@
 package io.rong.imkit.widget.adapter;
 
-
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.collection.SparseArrayCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     private final String TAG = BaseAdapter.class.getSimpleName();
@@ -24,14 +20,11 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     private static final int BASE_ITEM_TYPE_HEADER = -300;
     private static final int BASE_ITEM_TYPE_FOOTER = -400;
     private View mEmptyView;
-    private @LayoutRes
-    int mEmptyId;
+    private @LayoutRes int mEmptyId;
     private SparseArrayCompat<View> mHeaderViews = new SparseArrayCompat<>();
     private SparseArrayCompat<View> mFootViews = new SparseArrayCompat<>();
 
-    public BaseAdapter() {
-
-    }
+    public BaseAdapter() {}
 
     public BaseAdapter(IViewProviderListener<T> listener, ProviderManager<T> providerManager) {
         mListener = listener;
@@ -43,22 +36,20 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         if (isHeaderViewPos(position)) {
             return mHeaderViews.keyAt(position);
         } else if (isFooterViewPos(position)) {
-            return mFootViews.keyAt(position - (getHeadersCount() + (isEmpty() ? 1 : getRealItemCount())));
+            return mFootViews.keyAt(
+                    position - (getHeadersCount() + (isEmpty() ? 1 : getRealItemCount())));
         } else if (isEmpty()) {
             return EMPTY_ITEM_VIEW_TYPE;
         } else {
             int listPosition = position - getHeadersCount();
-            //没有空布局返回真实数值
+            // 没有空布局返回真实数值
             if (mProviderManager != null) {
                 return mProviderManager.getItemViewType(mDataList.get(listPosition), listPosition);
             } else {
-                throw new IllegalArgumentException(
-                        "adapter did not set providerManager");
+                throw new IllegalArgumentException("adapter did not set providerManager");
             }
         }
-
     }
-
 
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -79,7 +70,6 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
             IViewProvider<T> provider = mProviderManager.getProvider(viewType);
             return provider.onCreateViewHolder(parent, viewType);
         }
-
     }
 
     @Override
@@ -93,24 +83,28 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         } else {
             final int listPosition = position - getHeadersCount();
             IViewProvider<T> provider = mProviderManager.getProvider(mDataList.get(listPosition));
-            provider.bindViewHolder(holder, mDataList.get(listPosition), listPosition, mDataList, mListener);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClick(v, holder, listPosition);
-                    }
-                }
-            });
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (mOnItemClickListener != null) {
-                        return mOnItemClickListener.onItemLongClick(v, holder, listPosition);
-                    }
-                    return false;
-                }
-            });
+            provider.bindViewHolder(
+                    holder, mDataList.get(listPosition), listPosition, mDataList, mListener);
+            holder.itemView.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mOnItemClickListener != null) {
+                                mOnItemClickListener.onItemClick(v, holder, listPosition);
+                            }
+                        }
+                    });
+            holder.itemView.setOnLongClickListener(
+                    new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View v) {
+                            if (mOnItemClickListener != null) {
+                                return mOnItemClickListener.onItemLongClick(
+                                        v, holder, listPosition);
+                            }
+                            return false;
+                        }
+                    });
         }
     }
 
@@ -119,10 +113,9 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         if (isEmpty()) {
             return getHeadersCount() + getFootersCount() + 1;
         } else {
-            //没有空布局返回真实数值
+            // 没有空布局返回真实数值
             return getHeadersCount() + getFootersCount() + getRealItemCount();
         }
-
     }
 
     public void setDataCollection(List<T> data) {
@@ -156,7 +149,6 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         void onItemClick(View view, ViewHolder holder, int position);
 
         boolean onItemLongClick(View view, ViewHolder holder, int position);
-
     }
 
     private boolean isHeaderViewPos(int position) {
@@ -201,25 +193,29 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-        WrapperUtils.onAttachedToRecyclerView(this, recyclerView, new WrapperUtils.SpanSizeCallback() {
-            @Override
-            public int getSpanSize(GridLayoutManager layoutManager, GridLayoutManager.SpanSizeLookup oldLookup, int position) {
-                int viewType = getItemViewType(position);
-                if (mHeaderViews.get(viewType) != null) {
-                    return layoutManager.getSpanCount();
-                } else if (mFootViews.get(viewType) != null) {
-                    return layoutManager.getSpanCount();
-                } else if (isEmpty()) {
-                    return layoutManager.getSpanCount();
-                }
-                if (oldLookup != null) {
-                    return oldLookup.getSpanSize(position);
-                }
-                return 1;
-            }
-        });
-
-
+        WrapperUtils.onAttachedToRecyclerView(
+                this,
+                recyclerView,
+                new WrapperUtils.SpanSizeCallback() {
+                    @Override
+                    public int getSpanSize(
+                            GridLayoutManager layoutManager,
+                            GridLayoutManager.SpanSizeLookup oldLookup,
+                            int position) {
+                        int viewType = getItemViewType(position);
+                        if (mHeaderViews.get(viewType) != null) {
+                            return layoutManager.getSpanCount();
+                        } else if (mFootViews.get(viewType) != null) {
+                            return layoutManager.getSpanCount();
+                        } else if (isEmpty()) {
+                            return layoutManager.getSpanCount();
+                        }
+                        if (oldLookup != null) {
+                            return oldLookup.getSpanSize(position);
+                        }
+                        return 1;
+                    }
+                });
     }
 
     @Override
@@ -230,8 +226,5 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
         } else if (isEmpty()) {
             WrapperUtils.setFullSpan(holder);
         }
-
     }
-
-
 }

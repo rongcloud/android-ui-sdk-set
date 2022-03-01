@@ -22,6 +22,7 @@ public class AutoDownloadEntry {
 
     /**
      * 消息
+     *
      * @return 当前设置的消息
      */
     public Message getMessage() {
@@ -30,24 +31,18 @@ public class AutoDownloadEntry {
 
     /**
      * 设置消息
+     *
      * @param message 消息
      */
     public void setMessage(Message message) {
         this.message = message;
     }
 
-    /**
-     * 下载优先级
-     */
+    /** 下载优先级 */
     public enum DownloadPriority {
-        /**
-         * 正常优先级
-         */
+        /** 正常优先级 */
         NORMAL,
-        /**
-         * 高优先级
-         */
+        /** 高优先级 */
         HIGH
-
     }
 }

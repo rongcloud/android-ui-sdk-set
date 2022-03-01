@@ -5,24 +5,20 @@ import android.annotation.TargetApi;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.text.TextUtils;
-
+import io.rong.common.RLog;
+import io.rong.imkit.utils.videocompressor.videoslimmer.VideoSlimEncoder;
+import io.rong.imkit.utils.videocompressor.videoslimmer.listner.SlimProgressListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import io.rong.common.RLog;
-import io.rong.imkit.utils.videocompressor.videoslimmer.VideoSlimEncoder;
-import io.rong.imkit.utils.videocompressor.videoslimmer.listner.SlimProgressListener;
-
 @SuppressLint("NewApi")
 public class VideoController {
-    private final static String TAG = VideoController.class.getSimpleName();
+    private static final String TAG = VideoController.class.getSimpleName();
 
-    private VideoController() {
-
-    }
+    private VideoController() {}
 
     private static class SingletonHolder {
         static VideoController sInstance = new VideoController();
@@ -31,7 +27,6 @@ public class VideoController {
     public static VideoController getInstance() {
         return SingletonHolder.sInstance;
     }
-
 
     public static void copyFile(File src, File dst) {
         FileInputStream fileInputStream = null;
@@ -80,16 +75,16 @@ public class VideoController {
         }
     }
 
-
     /**
      * 不支持content和file，请转换后再使用
      *
-     * @param sourcePath      the source uri for the file as per
+     * @param sourcePath the source uri for the file as per
      * @param destinationPath the destination directory where compressed video is eventually saved
      * @return
      */
     @TargetApi(16)
-    public boolean convertVideo(final String sourcePath, String destinationPath, SlimProgressListener listener) {
+    public boolean convertVideo(
+            final String sourcePath, String destinationPath, SlimProgressListener listener) {
         if (!new File(sourcePath).exists()) {
             return false;
         }
@@ -102,7 +97,8 @@ public class VideoController {
         }
         String width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
         String height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-        String rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+        String rotation =
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
         if (TextUtils.isEmpty(width) || TextUtils.isEmpty(height) || TextUtils.isEmpty(rotation)) {
             return false;
         }
@@ -171,11 +167,13 @@ public class VideoController {
             }
         }
 
-
         int bitrate = (resultWidth / 2) * (resultHeight / 2) * 10;
         int rotateRender = 0;
 
-        if (Build.VERSION.SDK_INT < 18 && resultHeight > resultWidth && resultWidth != originalWidth && resultHeight != originalHeight) {
+        if (Build.VERSION.SDK_INT < 18
+                && resultHeight > resultWidth
+                && resultWidth != originalWidth
+                && resultHeight != originalHeight) {
             int temp = resultHeight;
             resultHeight = resultWidth;
             resultWidth = temp;
@@ -204,12 +202,20 @@ public class VideoController {
         RLog.d(TAG, "Result rotation value is " + rotationValue);
         RLog.d(TAG, "Result render value is " + rotateRender);
 
-        //大于18选择最新的编解码
+        // 大于18选择最新的编解码
         if (resultWidth != 0 && resultHeight != 0 && Build.VERSION.SDK_INT >= 18) {
             try {
                 boolean result;
-                //进行第一次压缩，如果失败，尝试宽高+16进行，第二次压缩，+16是为了防止花屏，第二次压缩失败，则不再继续，返回失败结果
-                result = new VideoSlimEncoder().convertVideo(sourcePath, destinationPath, resultWidth, resultHeight, bitrate, listener);
+                // 进行第一次压缩，如果失败，尝试宽高+16进行，第二次压缩，+16是为了防止花屏，第二次压缩失败，则不再继续，返回失败结果
+                result =
+                        new VideoSlimEncoder()
+                                .convertVideo(
+                                        sourcePath,
+                                        destinationPath,
+                                        resultWidth,
+                                        resultHeight,
+                                        bitrate,
+                                        listener);
                 if (!result) {
                     File file = new File(destinationPath);
                     if (file != null && file.exists()) {
@@ -218,7 +224,15 @@ public class VideoController {
                     }
                     resultWidth += 16;
                     resultHeight += 16;
-                    result = new VideoSlimEncoder().convertVideo(sourcePath, destinationPath, resultWidth, resultHeight, (resultWidth / 2) * (resultHeight / 2) * 10, listener);
+                    result =
+                            new VideoSlimEncoder()
+                                    .convertVideo(
+                                            sourcePath,
+                                            destinationPath,
+                                            resultWidth,
+                                            resultHeight,
+                                            (resultWidth / 2) * (resultHeight / 2) * 10,
+                                            listener);
                 }
                 return result;
             } catch (Exception e) {

@@ -17,26 +17,19 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.AppOpsManagerCompat;
 import androidx.fragment.app.Fragment;
-
+import io.rong.common.RLog;
+import io.rong.imkit.R;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringJoiner;
 
-import io.rong.common.RLog;
-import io.rong.imkit.R;
-
-/**
- * Created by jiangecho on 2016/10/25.
- */
-
+/** Created by jiangecho on 2016/10/25. */
 public class PermissionCheckUtil {
     private static final String TAG = PermissionCheckUtil.class.getSimpleName();
     public static final int REQUEST_CODE_ASK_PERMISSIONS = 100;
@@ -49,7 +42,8 @@ public class PermissionCheckUtil {
         return requestPermissions(fragment, permissions, 0);
     }
 
-    public static boolean requestPermissions(final Fragment fragment, String[] permissions, final int requestCode) {
+    public static boolean requestPermissions(
+            final Fragment fragment, String[] permissions, final int requestCode) {
         if (permissions.length == 0) {
             return true;
         }
@@ -58,18 +52,29 @@ public class PermissionCheckUtil {
         boolean result = false;
 
         for (String permission : permissions) {
-            if ((isFlyme() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) && permission.equals(Manifest.permission.RECORD_AUDIO)) {
-                final SharedPreferences sharedPreferences = fragment.getContext().getSharedPreferences(PROMPT, Context.MODE_PRIVATE);
+            if ((isFlyme() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+                    && permission.equals(Manifest.permission.RECORD_AUDIO)) {
+                final SharedPreferences sharedPreferences =
+                        fragment.getContext().getSharedPreferences(PROMPT, Context.MODE_PRIVATE);
                 boolean isPrompt = sharedPreferences.getBoolean(IS_PROMPT, true);
                 if (isPrompt) {
-                    showPermissionAlert(fragment.getContext(), fragment.getString(R.string.rc_permission_grant_needed) + fragment.getString(R.string.rc_permission_microphone),
+                    showPermissionAlert(
+                            fragment.getContext(),
+                            fragment.getString(R.string.rc_permission_grant_needed)
+                                    + fragment.getString(R.string.rc_permission_microphone),
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (DialogInterface.BUTTON_POSITIVE == which) {
-                                        fragment.startActivity(new Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS));
+                                        fragment.startActivity(
+                                                new Intent(
+                                                        Settings
+                                                                .ACTION_MANAGE_APPLICATIONS_SETTINGS));
                                     } else if (DialogInterface.BUTTON_NEUTRAL == which) {
-                                        SharedPreferences.Editor editor = sharedPreferences.edit().putBoolean(IS_PROMPT, false);
+                                        SharedPreferences.Editor editor =
+                                                sharedPreferences
+                                                        .edit()
+                                                        .putBoolean(IS_PROMPT, false);
                                         editor.commit();
                                     }
                                 }
@@ -85,19 +90,23 @@ public class PermissionCheckUtil {
         if (permissionsNotGranted.size() > 0) {
             final int size = permissionsNotGranted.size();
             if (listener != null) {
-                listener.onRequestPermissionList(fragment.getActivity(), permissionsNotGranted, new IPermissionEventCallback() {
-                    @Override
-                    public void confirmed() {
-                        fragment.requestPermissions(permissionsNotGranted.toArray(new String[size]), requestCode);
-                    }
+                listener.onRequestPermissionList(
+                        fragment.getActivity(),
+                        permissionsNotGranted,
+                        new IPermissionEventCallback() {
+                            @Override
+                            public void confirmed() {
+                                fragment.requestPermissions(
+                                        permissionsNotGranted.toArray(new String[size]),
+                                        requestCode);
+                            }
 
-                    @Override
-                    public void cancelled() {
-
-                    }
-                });
+                            @Override
+                            public void cancelled() {}
+                        });
             } else {
-                fragment.requestPermissions(permissionsNotGranted.toArray(new String[size]), requestCode);
+                fragment.requestPermissions(
+                        permissionsNotGranted.toArray(new String[size]), requestCode);
             }
         } else {
             result = true;
@@ -105,12 +114,14 @@ public class PermissionCheckUtil {
         return result;
     }
 
-    public static boolean requestPermissions(final Activity activity, @NonNull String[] permissions) {
+    public static boolean requestPermissions(
+            final Activity activity, @NonNull String[] permissions) {
         return requestPermissions(activity, permissions, 0);
     }
 
     @TargetApi(23)
-    public static boolean requestPermissions(final Activity activity, @NonNull final String[] permissions, final int requestCode) {
+    public static boolean requestPermissions(
+            final Activity activity, @NonNull final String[] permissions, final int requestCode) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return true;
         }
@@ -131,19 +142,23 @@ public class PermissionCheckUtil {
         if (permissionsNotGranted.size() > 0) {
             final int size = permissionsNotGranted.size();
             if (listener != null) {
-                listener.onRequestPermissionList(activity, permissionsNotGranted, new IPermissionEventCallback() {
-                    @Override
-                    public void confirmed() {
-                        activity.requestPermissions(permissionsNotGranted.toArray(new String[size]), requestCode);
-                    }
+                listener.onRequestPermissionList(
+                        activity,
+                        permissionsNotGranted,
+                        new IPermissionEventCallback() {
+                            @Override
+                            public void confirmed() {
+                                activity.requestPermissions(
+                                        permissionsNotGranted.toArray(new String[size]),
+                                        requestCode);
+                            }
 
-                    @Override
-                    public void cancelled() {
-
-                    }
-                });
+                            @Override
+                            public void cancelled() {}
+                        });
             } else {
-                activity.requestPermissions(permissionsNotGranted.toArray(new String[size]), requestCode);
+                activity.requestPermissions(
+                        permissionsNotGranted.toArray(new String[size]), requestCode);
             }
         } else {
             result = true;
@@ -156,7 +171,8 @@ public class PermissionCheckUtil {
             return true;
         }
         for (String permission : permissions) {
-            if ((isFlyme() || (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)) && permission.equals(Manifest.permission.RECORD_AUDIO)) {
+            if ((isFlyme() || (Build.VERSION.SDK_INT < Build.VERSION_CODES.M))
+                    && permission.equals(Manifest.permission.RECORD_AUDIO)) {
                 RLog.i(TAG, "Build.MODEL = " + Build.MODEL);
                 if ((Build.BRAND.toLowerCase().equals("meizu"))) {
                     // 针对魅族手机，采取双重判断的方式
@@ -194,16 +210,22 @@ public class PermissionCheckUtil {
 
     private static boolean hasRecordPermision(Context context) {
         boolean hasPermission = false;
-        int bufferSizeInBytes = AudioRecord.getMinBufferSize(44100,
-                AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
+        int bufferSizeInBytes =
+                AudioRecord.getMinBufferSize(
+                        44100, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT);
         if (bufferSizeInBytes < 0) {
             RLog.e(TAG, "bufferSizeInBytes = " + bufferSizeInBytes);
             return false;
         }
         AudioRecord audioRecord;
         try {
-            audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, 44100,
-                    AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSizeInBytes);
+            audioRecord =
+                    new AudioRecord(
+                            MediaRecorder.AudioSource.MIC,
+                            44100,
+                            AudioFormat.CHANNEL_IN_STEREO,
+                            AudioFormat.ENCODING_PCM_16BIT,
+                            bufferSizeInBytes);
             audioRecord.startRecording();
             if (audioRecord.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING) {
                 hasPermission = true;
@@ -217,8 +239,9 @@ public class PermissionCheckUtil {
     }
 
     // KNOTE: 2021/8/25 修复权限提示窗权限提示name重复问题
-    private static String getNotGrantedPermissionMsg(Context context, String[] permissions, int[] grantResults) {
-        if(checkPermissionResultIncompatible(permissions,grantResults)){
+    private static String getNotGrantedPermissionMsg(
+            Context context, String[] permissions, int[] grantResults) {
+        if (checkPermissionResultIncompatible(permissions, grantResults)) {
             return "";
         }
 
@@ -226,20 +249,32 @@ public class PermissionCheckUtil {
             List<String> permissionNameList = new ArrayList<>(permissions.length);
             for (int i = 0; i < permissions.length; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                    String permissionName = context.getString(context.getResources().getIdentifier("rc_" + permissions[i], "string", context.getPackageName()), 0);
+                    String permissionName =
+                            context.getString(
+                                    context.getResources()
+                                            .getIdentifier(
+                                                    "rc_" + permissions[i],
+                                                    "string",
+                                                    context.getPackageName()),
+                                    0);
                     if (!permissionNameList.contains(permissionName)) {
                         permissionNameList.add(permissionName);
                     }
                 }
             }
 
-            StringBuilder builder = new StringBuilder(context.getResources().getString(R.string.rc_permission_grant_needed));
+            StringBuilder builder =
+                    new StringBuilder(
+                            context.getResources().getString(R.string.rc_permission_grant_needed));
             return builder.append("(")
                     .append(TextUtils.join(" ", permissionNameList))
                     .append(")")
                     .toString();
         } catch (Resources.NotFoundException e) {
-            RLog.e(TAG, "One of the permissions is not recognized by SDK." + Arrays.toString(permissions));
+            RLog.e(
+                    TAG,
+                    "One of the permissions is not recognized by SDK."
+                            + Arrays.toString(permissions));
         }
 
         return "";
@@ -253,11 +288,20 @@ public class PermissionCheckUtil {
         String permissionValue;
         try {
             for (String permission : permissions) {
-                permissionValue = context.getString(context.getResources().getIdentifier("rc_" + permission, "string", context.getPackageName()), 0);
+                permissionValue =
+                        context.getString(
+                                context.getResources()
+                                        .getIdentifier(
+                                                "rc_" + permission,
+                                                "string",
+                                                context.getPackageName()),
+                                0);
                 permissionsValue.add(permissionValue);
             }
         } catch (Resources.NotFoundException e) {
-            RLog.e(TAG, "one of the permissions is not recognized by SDK." + permissions.toString());
+            RLog.e(
+                    TAG,
+                    "one of the permissions is not recognized by SDK." + permissions.toString());
             return "";
         }
 
@@ -270,7 +314,8 @@ public class PermissionCheckUtil {
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private static void showPermissionAlert(Context context, String content, DialogInterface.OnClickListener listener) {
+    private static void showPermissionAlert(
+            Context context, String content, DialogInterface.OnClickListener listener) {
         new AlertDialog.Builder(context)
                 .setMessage(content)
                 .setPositiveButton(R.string.rc_confirm, listener)
@@ -293,22 +338,35 @@ public class PermissionCheckUtil {
      * @return boolean whether have the permission
      */
     @TargetApi(19)
-    public static boolean canDrawOverlays(final Context context, boolean needOpenPermissionSetting) {
+    public static boolean canDrawOverlays(
+            final Context context, boolean needOpenPermissionSetting) {
         boolean result = true;
         boolean booleanValue;
         if (Build.VERSION.SDK_INT >= 23) {
             try {
-                booleanValue = (Boolean) Settings.class.getDeclaredMethod("canDrawOverlays", Context.class).invoke(null, new Object[]{context});
+                booleanValue =
+                        (Boolean)
+                                Settings.class
+                                        .getDeclaredMethod("canDrawOverlays", Context.class)
+                                        .invoke(null, new Object[] {context});
                 if (!booleanValue && needOpenPermissionSetting) {
                     ArrayList<String> permissionList = new ArrayList<>();
                     permissionList.add(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-                    showPermissionAlert(context, context.getString(R.string.rc_permission_grant_needed) + getNotGrantedPermissionMsg(context, permissionList),
+                    showPermissionAlert(
+                            context,
+                            context.getString(R.string.rc_permission_grant_needed)
+                                    + getNotGrantedPermissionMsg(context, permissionList),
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (DialogInterface.BUTTON_POSITIVE == which) {
-                                        Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                                Uri.parse("package:" + context.getPackageName()));
+                                        Intent intent =
+                                                new Intent(
+                                                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                                        Uri.parse(
+                                                                "package:"
+                                                                        + context
+                                                                                .getPackageName()));
                                         context.startActivity(intent);
                                     }
                                 }
@@ -317,7 +375,11 @@ public class PermissionCheckUtil {
                 RLog.i(TAG, "isFloatWindowOpAllowed allowed: " + booleanValue);
                 return booleanValue;
             } catch (Exception e) {
-                RLog.e(TAG, String.format("getDeclaredMethod:canDrawOverlays! Error:%s, etype:%s", e.getMessage(), e.getClass().getCanonicalName()));
+                RLog.e(
+                        TAG,
+                        String.format(
+                                "getDeclaredMethod:canDrawOverlays! Error:%s, etype:%s",
+                                e.getMessage(), e.getClass().getCanonicalName()));
                 return true;
             }
         } else if (Build.VERSION.SDK_INT < 19) {
@@ -326,9 +388,14 @@ public class PermissionCheckUtil {
             Method method;
             Object systemService = context.getSystemService(Context.APP_OPS_SERVICE);
             try {
-                method = Class.forName("android.app.AppOpsManager").getMethod("checkOp", Integer.TYPE, Integer.TYPE, String.class);
+                method =
+                        Class.forName("android.app.AppOpsManager")
+                                .getMethod("checkOp", Integer.TYPE, Integer.TYPE, String.class);
             } catch (NoSuchMethodException e) {
-                RLog.e(TAG, String.format("NoSuchMethodException method:checkOp! Error:%s", e.getMessage()));
+                RLog.e(
+                        TAG,
+                        String.format(
+                                "NoSuchMethodException method:checkOp! Error:%s", e.getMessage()));
                 method = null;
             } catch (ClassNotFoundException e) {
                 RLog.e(TAG, "canDrawOverlays", e);
@@ -336,10 +403,22 @@ public class PermissionCheckUtil {
             }
             if (method != null) {
                 try {
-                    Integer tmp = (Integer) method.invoke(systemService, new Object[]{24, context.getApplicationInfo().uid, context.getPackageName()});
+                    Integer tmp =
+                            (Integer)
+                                    method.invoke(
+                                            systemService,
+                                            new Object[] {
+                                                24,
+                                                context.getApplicationInfo().uid,
+                                                context.getPackageName()
+                                            });
                     result = tmp != null && tmp == 0;
                 } catch (Exception e) {
-                    RLog.e(TAG, String.format("call checkOp failed: %s etype:%s", e.getMessage(), e.getClass().getCanonicalName()));
+                    RLog.e(
+                            TAG,
+                            String.format(
+                                    "call checkOp failed: %s etype:%s",
+                                    e.getMessage(), e.getClass().getCanonicalName()));
                 }
             }
             RLog.i(TAG, "isFloatWindowOpAllowed allowed: " + result);
@@ -352,31 +431,35 @@ public class PermissionCheckUtil {
         if (opStr == null && Build.VERSION.SDK_INT < 23) {
             return true;
         }
-        return context != null && context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+        return context != null
+                && context.checkCallingOrSelfPermission(permission)
+                        == PackageManager.PERMISSION_GRANTED;
     }
 
-    public static void showRequestPermissionFailedAlter(final Context context, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public static void showRequestPermissionFailedAlter(
+            final Context context, @NonNull String[] permissions, @NonNull int[] grantResults) {
         String content = getNotGrantedPermissionMsg(context, permissions, grantResults);
         if (TextUtils.isEmpty(content)) {
             return;
         }
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case DialogInterface.BUTTON_POSITIVE:
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        Uri uri = Uri.fromParts("package", context.getPackageName(), null);
-                        intent.setData(uri);
-                        context.startActivity(intent);
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE:
-                    default:
-                        break;
-                }
-
-            }
-        };
+        DialogInterface.OnClickListener listener =
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                Intent intent =
+                                        new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package", context.getPackageName(), null);
+                                intent.setData(uri);
+                                context.startActivity(intent);
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                            default:
+                                break;
+                        }
+                    }
+                };
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             new AlertDialog.Builder(context, android.R.style.Theme_Material_Light_Dialog_Alert)
                     .setMessage(content)
@@ -402,8 +485,12 @@ public class PermissionCheckUtil {
      * @param grantResults 系统返回的授权结果。
      * @return {@code true} 参数不匹配;{@code false} 参数检查匹配
      */
-    public static boolean checkPermissionResultIncompatible(String[] permissions, int[] grantResults) {
-        return grantResults == null || grantResults.length == 0 || permissions == null || permissions.length != grantResults.length;
+    public static boolean checkPermissionResultIncompatible(
+            String[] permissions, int[] grantResults) {
+        return grantResults == null
+                || grantResults.length == 0
+                || permissions == null
+                || permissions.length != grantResults.length;
     }
 
     /**
@@ -418,21 +505,20 @@ public class PermissionCheckUtil {
         PermissionCheckUtil.listener = listener;
     }
 
-    /**
-     * SDK申请权限前,用户可以设置此监听，在{@code onRequestPermissionList}方法实现中创建Dialog弹窗,用于向用户解释权限申请的原因.
-     */
+    /** SDK申请权限前,用户可以设置此监听，在{@code onRequestPermissionList}方法实现中创建Dialog弹窗,用于向用户解释权限申请的原因. */
     public interface IRequestPermissionListListener {
         /**
          * @param activity
          * @param permissionsNotGranted
-         * @param callback              用于回调Dialog弹窗的确定和取消事件
+         * @param callback 用于回调Dialog弹窗的确定和取消事件
          */
-        void onRequestPermissionList(Context activity, List<String> permissionsNotGranted, IPermissionEventCallback callback);
+        void onRequestPermissionList(
+                Context activity,
+                List<String> permissionsNotGranted,
+                IPermissionEventCallback callback);
     }
 
-    /**
-     * 权限申请原因解释Dialog的确定和取消的按钮事件通知.
-     */
+    /** 权限申请原因解释Dialog的确定和取消的按钮事件通知. */
     public interface IPermissionEventCallback {
         void confirmed();
 

@@ -6,10 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.ConversationFragment;
 import io.rong.imkit.conversation.extension.RongExtension;
@@ -22,8 +18,8 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.RealTimeLocationConstant;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
-
-import static io.rong.imkit.utils.PermissionCheckUtil.REQUEST_CODE_ASK_PERMISSIONS;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LocationUiRender implements IConversationUIRenderer {
 
@@ -34,59 +30,115 @@ public class LocationUiRender implements IConversationUIRenderer {
     private TextView mRealTimeText;
     private List<String> mLocationShareParticipants;
 
-    private LocationManager.IRealTimeLocationChangedCallback mLocationChangeCallBack = new LocationManager.IRealTimeLocationChangedCallback() {
-        @Override
-        public void onParticipantChanged(List<String> userIdList) {
-            if (mFragment == null || mFragment.getActivity() == null || mFragment.isDetached()) {
-                return;
-            }
-            if (mRealTimeBar == null) {
-                mRealTimeBar = LayoutInflater.from(mFragment.getActivity()).inflate(R.layout.rc_notification_realtime_location, mFragment.getNotificationContainer(), false);
-                mRealTimeText = mRealTimeBar.findViewById(R.id.real_time_location_text);
-                mRealTimeBar.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
+    private LocationManager.IRealTimeLocationChangedCallback mLocationChangeCallBack =
+            new LocationManager.IRealTimeLocationChangedCallback() {
+                @Override
+                public void onParticipantChanged(List<String> userIdList) {
+                    if (mFragment == null
+                            || mFragment.getActivity() == null
+                            || mFragment.isDetached()) {
+                        return;
+                    }
+                    if (mRealTimeBar == null) {
+                        mRealTimeBar =
+                                LayoutInflater.from(mFragment.getActivity())
+                                        .inflate(
+                                                R.layout.rc_notification_realtime_location,
+                                                mFragment.getNotificationContainer(),
+                                                false);
+                        mRealTimeText = mRealTimeBar.findViewById(R.id.real_time_location_text);
+                        mRealTimeBar.setOnClickListener(
+                                new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
 
-                        final RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
-                        if (status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_INCOMING) {
-                            PromptPopupDialog dialog = PromptPopupDialog.newInstance(mFragment.getActivity(), "", mFragment.getActivity().getResources().getString(R.string.rc_real_time_join_notification));
-                            dialog.setPromptButtonClickedListener(new PromptPopupDialog.OnPromptButtonClickedListener() {
-                                @Override
-                                public void onPositiveButtonClicked() {
-                                    checkLocationPermission(mFragment, status);
-                                }
-                            });
-                            dialog.show();
+                                        final RealTimeLocationConstant.RealTimeLocationStatus
+                                                status =
+                                                        RongIMClient.getInstance()
+                                                                .getRealTimeLocationCurrentState(
+                                                                        mConversationType,
+                                                                        mTargetId);
+                                        if (status
+                                                == RealTimeLocationConstant.RealTimeLocationStatus
+                                                        .RC_REAL_TIME_LOCATION_STATUS_INCOMING) {
+                                            PromptPopupDialog dialog =
+                                                    PromptPopupDialog.newInstance(
+                                                            mFragment.getActivity(),
+                                                            "",
+                                                            mFragment
+                                                                    .getActivity()
+                                                                    .getResources()
+                                                                    .getString(
+                                                                            R.string
+                                                                                    .rc_real_time_join_notification));
+                                            dialog.setPromptButtonClickedListener(
+                                                    new PromptPopupDialog
+                                                            .OnPromptButtonClickedListener() {
+                                                        @Override
+                                                        public void onPositiveButtonClicked() {
+                                                            checkLocationPermission(
+                                                                    mFragment, status);
+                                                        }
+                                                    });
+                                            dialog.show();
+                                        } else {
+                                            checkLocationPermission(mFragment, status);
+                                        }
+                                    }
+                                });
+                    }
+                    mLocationShareParticipants = userIdList;
+                    if (userIdList != null) {
+                        if (userIdList.size() == 0) {
+                            mFragment.hideNotificationView(mRealTimeBar);
                         } else {
-                            checkLocationPermission(mFragment, status);
+                            if (userIdList.size() == 1
+                                    && userIdList.contains(
+                                            RongIMClient.getInstance().getCurrentUserId())) {
+                                mRealTimeText.setText(
+                                        mFragment
+                                                .getActivity()
+                                                .getResources()
+                                                .getString(R.string.rc_location_you_are_sharing));
+                            } else if (userIdList.size() == 1
+                                    && !userIdList.contains(
+                                            RongIMClient.getInstance().getCurrentUserId())) {
+                                UserInfo info =
+                                        RongUserInfoManager.getInstance()
+                                                .getUserInfo(userIdList.get(0));
+                                String name = info == null ? userIdList.get(0) : info.getName();
+                                mRealTimeText.setText(
+                                        name
+                                                + mFragment
+                                                        .getActivity()
+                                                        .getResources()
+                                                        .getString(
+                                                                R.string
+                                                                        .rc_location_other_is_sharing));
+                            } else {
+                                mRealTimeText.setText(
+                                        userIdList.size()
+                                                + mFragment
+                                                        .getActivity()
+                                                        .getResources()
+                                                        .getString(
+                                                                R.string
+                                                                        .rc_location_others_are_sharing));
+                            }
+                            mFragment.showNotificationView(mRealTimeBar);
                         }
-                    }
-                });
-            }
-            mLocationShareParticipants = userIdList;
-            if (userIdList != null) {
-                if (userIdList.size() == 0) {
-                    mFragment.hideNotificationView(mRealTimeBar);
-                } else {
-                    if (userIdList.size() == 1 && userIdList.contains(RongIMClient.getInstance().getCurrentUserId())) {
-                        mRealTimeText.setText(mFragment.getActivity().getResources().getString(R.string.rc_location_you_are_sharing));
-                    } else if (userIdList.size() == 1 && !userIdList.contains(RongIMClient.getInstance().getCurrentUserId())) {
-                        UserInfo info = RongUserInfoManager.getInstance().getUserInfo(userIdList.get(0));
-                        String name = info == null ? userIdList.get(0) : info.getName();
-                        mRealTimeText.setText(name + mFragment.getActivity().getResources().getString(R.string.rc_location_other_is_sharing));
                     } else {
-                        mRealTimeText.setText(userIdList.size() + mFragment.getActivity().getResources().getString(R.string.rc_location_others_are_sharing));
+                        mFragment.hideNotificationView(mRealTimeBar);
                     }
-                    mFragment.showNotificationView(mRealTimeBar);
                 }
-            } else {
-                mFragment.hideNotificationView(mRealTimeBar);
-            }
-        }
-    };
+            };
 
     @Override
-    public void init(ConversationFragment fragment, RongExtension extension, Conversation.ConversationType conversationType, String targetId) {
+    public void init(
+            ConversationFragment fragment,
+            RongExtension extension,
+            Conversation.ConversationType conversationType,
+            String targetId) {
         mFragment = fragment;
         mConversationType = conversationType;
         mTargetId = targetId;
@@ -104,43 +156,59 @@ public class LocationUiRender implements IConversationUIRenderer {
             return false;
         }
         boolean isLocationSharing;
-        if (mFragment.getActivity() != null && mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
+        if (mFragment.getActivity() != null
+                && mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
             isLocationSharing = LocationDelegate2D.getInstance().isSharing();
         } else {
             isLocationSharing = LocationDelegate3D.getInstance().isSharing();
         }
 
         if (isLocationSharing) {
-            PromptPopupDialog.newInstance(mFragment.getContext(), mFragment.getString(R.string.rc_location_warning),
-                    mFragment.getString(R.string.rc_location_real_time_exit_notification), mFragment.getString(R.string.rc_dialog_ok))
-                    .setPromptButtonClickedListener(new PromptPopupDialog.OnPromptButtonClickedListener() {
-                        @Override
-                        public void onPositiveButtonClicked() {
-                            mFragment.hideNotificationView(mRealTimeBar);
-                            mFragment.getActivity().finish();
-                        }
-                    }).show();
+            PromptPopupDialog.newInstance(
+                            mFragment.getContext(),
+                            mFragment.getString(R.string.rc_location_warning),
+                            mFragment.getString(R.string.rc_location_real_time_exit_notification),
+                            mFragment.getString(R.string.rc_dialog_ok))
+                    .setPromptButtonClickedListener(
+                            new PromptPopupDialog.OnPromptButtonClickedListener() {
+                                @Override
+                                public void onPositiveButtonClicked() {
+                                    mFragment.hideNotificationView(mRealTimeBar);
+                                    mFragment.getActivity().finish();
+                                }
+                            })
+                    .show();
             return true;
         }
         return false;
     }
 
-    private void checkLocationPermission(ConversationFragment mFragment, RealTimeLocationConstant.RealTimeLocationStatus status) {
-        String[] permissions = new String[]{Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_NETWORK_STATE};
+    private void checkLocationPermission(
+            ConversationFragment mFragment,
+            RealTimeLocationConstant.RealTimeLocationStatus status) {
+        String[] permissions =
+                new String[] {
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_NETWORK_STATE
+                };
 
         if (PermissionCheckUtil.checkPermissions(mFragment.getActivity(), permissions)) {
             joinLocation();
         } else {
-            PermissionCheckUtil.requestPermissions(mFragment, permissions, PermissionCheckUtil.REQUEST_CODE_LOCATION_SHARE);
+            PermissionCheckUtil.requestPermissions(
+                    mFragment, permissions, PermissionCheckUtil.REQUEST_CODE_LOCATION_SHARE);
         }
     }
 
     public void joinLocation() {
-        RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
-        if (status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_INCOMING) {
+        RealTimeLocationConstant.RealTimeLocationStatus status =
+                RongIMClient.getInstance()
+                        .getRealTimeLocationCurrentState(mConversationType, mTargetId);
+        if (status
+                == RealTimeLocationConstant.RealTimeLocationStatus
+                        .RC_REAL_TIME_LOCATION_STATUS_INCOMING) {
             int result;
             if (mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
                 result = LocationDelegate2D.getInstance().joinLocationSharing();
@@ -155,17 +223,28 @@ public class LocationUiRender implements IConversationUIRenderer {
                     intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity.class);
                 }
                 if (mLocationShareParticipants != null) {
-                    intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
+                    intent.putStringArrayListExtra(
+                            "participants", (ArrayList<String>) mLocationShareParticipants);
                 }
                 mFragment.getActivity().startActivity(intent);
             } else if (result == 1) {
-                Toast.makeText(mFragment.getActivity(), R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                                mFragment.getActivity(),
+                                R.string.rc_network_exception,
+                                Toast.LENGTH_SHORT)
+                        .show();
             } else if ((result == 2)) {
-                Toast.makeText(mFragment.getActivity(), R.string.rc_location_sharing_exceed_max, Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                                mFragment.getActivity(),
+                                R.string.rc_location_sharing_exceed_max,
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
         } else {
             Intent intent;
-            if (mFragment == null || mFragment.getContext() == null || mFragment.getActivity() == null) {
+            if (mFragment == null
+                    || mFragment.getContext() == null
+                    || mFragment.getActivity() == null) {
                 return;
             }
             if (mFragment.getContext().getResources().getBoolean(R.bool.rc_location_2D)) {
@@ -174,7 +253,8 @@ public class LocationUiRender implements IConversationUIRenderer {
                 intent = new Intent(mFragment.getActivity(), AMapRealTimeActivity.class);
             }
             if (mLocationShareParticipants != null) {
-                intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
+                intent.putStringArrayListExtra(
+                        "participants", (ArrayList<String>) mLocationShareParticipants);
             }
             mFragment.getActivity().startActivity(intent);
         }
@@ -182,7 +262,9 @@ public class LocationUiRender implements IConversationUIRenderer {
 
     @Override
     public void onDestroy() {
-        if (mFragment != null && mFragment.getActivity() != null && mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
+        if (mFragment != null
+                && mFragment.getActivity() != null
+                && mFragment.getActivity().getResources().getBoolean(R.bool.rc_location_2D)) {
             LocationDelegate2D.getInstance().quitLocationSharing();
             LocationDelegate2D.getInstance().setParticipantChangedListener(null);
             LocationDelegate2D.getInstance().unBindConversation();

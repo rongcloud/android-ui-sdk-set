@@ -2,9 +2,7 @@ package io.rong.imkit.model;
 
 import java.io.Serializable;
 
-/**
- * Created by tiankui on 16/8/1.
- */
+/** Created by tiankui on 16/8/1. */
 public class FileInfo implements Serializable {
     private static final long serialVersionUID = -4830812821556630987L;
 
@@ -54,9 +52,5 @@ public class FileInfo implements Serializable {
         this.fileSize = fileSize;
     }
 
-    public FileInfo() {
-
-    }
-
-
+    public FileInfo() {}
 }

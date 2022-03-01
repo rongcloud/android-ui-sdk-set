@@ -1,22 +1,16 @@
 package io.rong.imkit.utils;
 
 import android.content.Context;
-
+import io.rong.imkit.R;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import io.rong.imkit.R;
-
-/**
- * Created by DragonJ on 15/3/25.
- */
+/** Created by DragonJ on 15/3/25. */
 public class TimeUtils {
-
 
     public static String formatData(Context context, long timeMillis) {
 
-        if (timeMillis == 0)
-            return "";
+        if (timeMillis == 0) return "";
 
         String result;
 
@@ -32,16 +26,12 @@ public class TimeUtils {
             result = fromatDate(timeMillis, "yyyy-MM-dd");
         }
 
-
         return result;
-
     }
-
 
     public static String formatTime(Context context, long timeMillis) {
 
-        if (timeMillis == 0)
-            return "";
+        if (timeMillis == 0) return "";
 
         String result;
 
@@ -57,15 +47,11 @@ public class TimeUtils {
             result = fromatDate(timeMillis, "yyyy-MM-dd HH:mm");
         }
 
-
         return result;
-
     }
-
 
     private static String fromatDate(long timeMillis, String fromat) {
         SimpleDateFormat sdf = new SimpleDateFormat(fromat);
         return sdf.format(new Date(timeMillis));
     }
-
 }

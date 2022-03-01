@@ -9,17 +9,13 @@ import android.text.TextUtils;
 import android.text.style.CharacterStyle;
 import android.util.AttributeSet;
 import android.widget.TextView;
-
+import io.rong.common.RLog;
+import io.rong.imkit.R;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.rong.common.RLog;
-import io.rong.imkit.R;
-
-/**
- * 可设置多行中间省略的及忽略自动换行效果的 TextView
- */
+/** 可设置多行中间省略的及忽略自动换行效果的 TextView */
 public class EllipsizeTextView extends TextView {
     private static final String TAG = "EllipsizeTextView";
     private static final String DEFAULT_ELLIPSIZE_TEXT = "...";
@@ -48,7 +44,6 @@ public class EllipsizeTextView extends TextView {
         }
         ta.recycle();
     }
-
 
     @Override
     public void setMaxLines(int maxLines) {
@@ -97,23 +92,27 @@ public class EllipsizeTextView extends TextView {
 
     private void adjustEllipsizeEndText(Layout layout) {
         final CharSequence originText = mOriginText;
-        final CharSequence restSuffixText = originText.subSequence(
-                originText.length() - mEllipsizeIndex, originText.length());
+        final CharSequence restSuffixText =
+                originText.subSequence(originText.length() - mEllipsizeIndex, originText.length());
 
         final int width = layout.getWidth() - getPaddingLeft() - getPaddingRight();
         final int maxLineCount = Math.max(1, computeMaxLineCount(layout));
         final int lastLineWidth = (int) layout.getLineWidth(maxLineCount - 1);
         final int mLastCharacterIndex = layout.getLineEnd(maxLineCount - 1);
 
-        final int suffixWidth = (int) (Layout.getDesiredWidth(mEllipsizeText, getPaint()) +
-                Layout.getDesiredWidth(restSuffixText, getPaint())) + 1;
+        final int suffixWidth =
+                (int)
+                                (Layout.getDesiredWidth(mEllipsizeText, getPaint())
+                                        + Layout.getDesiredWidth(restSuffixText, getPaint()))
+                        + 1;
 
         mEnableUpdateOriginText = false;
         if (lastLineWidth + suffixWidth > width) {
             final int widthDiff = lastLineWidth + suffixWidth - width;
 
-            final int removedCharacterCount = computeRemovedEllipsizeEndCharacterCount(widthDiff,
-                    originText.subSequence(0, mLastCharacterIndex));
+            final int removedCharacterCount =
+                    computeRemovedEllipsizeEndCharacterCount(
+                            widthDiff, originText.subSequence(0, mLastCharacterIndex));
 
             setText(originText.subSequence(0, mLastCharacterIndex - removedCharacterCount));
             append(mEllipsizeText);
@@ -138,8 +137,9 @@ public class EllipsizeTextView extends TextView {
         return layout.getLineCount();
     }
 
-    //删除多余的字符
-    private int computeRemovedEllipsizeEndCharacterCount(final int widthDiff, final CharSequence text) {
+    // 删除多余的字符
+    private int computeRemovedEllipsizeEndCharacterCount(
+            final int widthDiff, final CharSequence text) {
         if (TextUtils.isEmpty(text)) {
             return 0;
         }
@@ -155,21 +155,24 @@ public class EllipsizeTextView extends TextView {
             codePointIndex--;
             characterIndex = textStr.offsetByCodePoints(0, codePointIndex);
 
-            Range<Integer> characterStyleRange = computeCharacterStyleRange(characterStyleRanges, characterIndex);
+            Range<Integer> characterStyleRange =
+                    computeCharacterStyleRange(characterStyleRanges, characterIndex);
             if (characterStyleRange != null) {
                 characterIndex = characterStyleRange.getLower();
                 codePointIndex = textStr.codePointCount(0, characterIndex);
             }
 
-            currentRemovedWidth = (int) Layout.getDesiredWidth(
-                    text.subSequence(characterIndex, text.length()),
-                    getPaint());
+            currentRemovedWidth =
+                    (int)
+                            Layout.getDesiredWidth(
+                                    text.subSequence(characterIndex, text.length()), getPaint());
         }
 
         return text.length() - textStr.offsetByCodePoints(0, codePointIndex);
     }
 
-    private Range<Integer> computeCharacterStyleRange(List<Range<Integer>> characterStyleRanges, int index) {
+    private Range<Integer> computeCharacterStyleRange(
+            List<Range<Integer>> characterStyleRanges, int index) {
         if (characterStyleRanges == null || characterStyleRanges.isEmpty()) {
             return null;
         }
@@ -185,7 +188,8 @@ public class EllipsizeTextView extends TextView {
 
     private List<Range<Integer>> computeCharacterStyleRanges(CharSequence text) {
         final SpannableStringBuilder ssb = SpannableStringBuilder.valueOf(text);
-        final CharacterStyle[] characterStyles = ssb.getSpans(0, ssb.length(), CharacterStyle.class);
+        final CharacterStyle[] characterStyles =
+                ssb.getSpans(0, ssb.length(), CharacterStyle.class);
 
         if (characterStyles == null || characterStyles.length == 0) {
             return Collections.EMPTY_LIST;
@@ -193,14 +197,15 @@ public class EllipsizeTextView extends TextView {
 
         List<Range<Integer>> ranges = new ArrayList<>();
         for (CharacterStyle characterStyle : characterStyles) {
-            ranges.add(new Range<>(ssb.getSpanStart(characterStyle), ssb.getSpanEnd(characterStyle)));
+            ranges.add(
+                    new Range<>(ssb.getSpanStart(characterStyle), ssb.getSpanEnd(characterStyle)));
         }
 
         return ranges;
     }
 
     /**
-     * @param ellipsizeText  省略提示词
+     * @param ellipsizeText 省略提示词
      * @param ellipsizeIndex 往后数多少位开始省略
      */
     public void setEllipsizeText(CharSequence ellipsizeText, int ellipsizeIndex) {
@@ -245,35 +250,39 @@ public class EllipsizeTextView extends TextView {
      * @param text
      */
     public void setAdaptiveText(final String text) {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                setText(text);
-                setText(adaptiveText(EllipsizeTextView.this));
-            }
-        });
+        post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        setText(text);
+                        setText(adaptiveText(EllipsizeTextView.this));
+                    }
+                });
     }
 
     // 因要通过宽度换行所以宽度必须是具体值才能正常显示
     private String adaptiveText(final TextView textView) {
-        final String originalText = textView.getText().toString(); //原始文本
-        final Paint tvPaint = textView.getPaint();//获取TextView的Paint
-        final float tvWidth = textView.getWidth() - textView.getPaddingLeft() - textView.getPaddingRight(); //TextView的可用宽度
+        final String originalText = textView.getText().toString(); // 原始文本
+        final Paint tvPaint = textView.getPaint(); // 获取TextView的Paint
+        final float tvWidth =
+                textView.getWidth()
+                        - textView.getPaddingLeft()
+                        - textView.getPaddingRight(); // TextView的可用宽度
         int enterCount = 0;
         /*
         记录计算文字宽度时，当前文字是否是该行的首字母
         当是这行的首字母，宽度大于能容纳的宽度就不进行折行显示，返回原文字。防止为了匹配行宽无限换行，造成死循环。
          */
         boolean isFirstCharInLine = true;
-        //将原始文本按行拆分
+        // 将原始文本按行拆分
         String[] originalTextLines = originalText.replaceAll("\r", "").split("\n");
         StringBuilder newTextBuilder = new StringBuilder();
         for (String originalTextLine : originalTextLines) {
-            //文本内容小于TextView宽度，即不换行，不作处理
+            // 文本内容小于TextView宽度，即不换行，不作处理
             if (tvPaint.measureText(originalTextLine) <= tvWidth) {
                 newTextBuilder.append(originalTextLine);
             } else {
-                //如果整行宽度超过控件可用宽度，则按字符测量，在超过可用宽度的前一个字符处手动换行
+                // 如果整行宽度超过控件可用宽度，则按字符测量，在超过可用宽度的前一个字符处手动换行
                 float lineWidth = 0;
                 for (int i = 0; i != originalTextLine.length(); ++i) {
                     char charAt = originalTextLine.charAt(i);
@@ -284,14 +293,14 @@ public class EllipsizeTextView extends TextView {
                         newTextBuilder.append(charAt);
                         isFirstCharInLine = false;
                     } else {
-                        //单行超过TextView可用宽度，并且小于行数减一换行
+                        // 单行超过TextView可用宽度，并且小于行数减一换行
                         if (enterCount < getMaxLines() - 1) {
                             newTextBuilder.append("\n");
                             ++enterCount;
                             isFirstCharInLine = true;
                         }
                         lineWidth = 0;
-                        --i;//该代码作用是将本轮循环回滚，在新的一行重新循环判断该字符
+                        --i; // 该代码作用是将本轮循环回滚，在新的一行重新循环判断该字符
                     }
                 }
             }

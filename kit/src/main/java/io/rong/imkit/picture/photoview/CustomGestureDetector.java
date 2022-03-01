@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright 2011, 2012 Chris Banes.
  * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ */
 package io.rong.imkit.picture.photoview;
 
 import android.content.Context;
@@ -21,9 +21,7 @@ import android.view.ScaleGestureDetector;
 import android.view.VelocityTracker;
 import android.view.ViewConfiguration;
 
-/**
- * Does a whole lot of gesture detecting.
- */
+/** Does a whole lot of gesture detecting. */
 class CustomGestureDetector {
 
     private static final int INVALID_POINTER_ID = -1;
@@ -41,36 +39,34 @@ class CustomGestureDetector {
     private OnGestureListener mListener;
 
     CustomGestureDetector(Context context, OnGestureListener listener) {
-        final ViewConfiguration configuration = ViewConfiguration
-                .get(context);
+        final ViewConfiguration configuration = ViewConfiguration.get(context);
         mMinimumVelocity = configuration.getScaledMinimumFlingVelocity();
         mTouchSlop = configuration.getScaledTouchSlop();
 
         mListener = listener;
-        ScaleGestureDetector.OnScaleGestureListener mScaleListener = new ScaleGestureDetector.OnScaleGestureListener() {
+        ScaleGestureDetector.OnScaleGestureListener mScaleListener =
+                new ScaleGestureDetector.OnScaleGestureListener() {
 
-            @Override
-            public boolean onScale(ScaleGestureDetector detector) {
-                float scaleFactor = detector.getScaleFactor();
+                    @Override
+                    public boolean onScale(ScaleGestureDetector detector) {
+                        float scaleFactor = detector.getScaleFactor();
 
-                if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor))
-                    return false;
+                        if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)) return false;
 
-                mListener.onScale(scaleFactor,
-                        detector.getFocusX(), detector.getFocusY());
-                return true;
-            }
+                        mListener.onScale(scaleFactor, detector.getFocusX(), detector.getFocusY());
+                        return true;
+                    }
 
-            @Override
-            public boolean onScaleBegin(ScaleGestureDetector detector) {
-                return true;
-            }
+                    @Override
+                    public boolean onScaleBegin(ScaleGestureDetector detector) {
+                        return true;
+                    }
 
-            @Override
-            public void onScaleEnd(ScaleGestureDetector detector) {
-                // NO-OP
-            }
-        };
+                    @Override
+                    public void onScaleEnd(ScaleGestureDetector detector) {
+                        // NO-OP
+                    }
+                };
         mDetector = new ScaleGestureDetector(context, mScaleListener);
     }
 
@@ -163,14 +159,13 @@ class CustomGestureDetector {
                         mVelocityTracker.addMovement(ev);
                         mVelocityTracker.computeCurrentVelocity(1000);
 
-                        final float vX = mVelocityTracker.getXVelocity(), vY = mVelocityTracker
-                                .getYVelocity();
+                        final float vX = mVelocityTracker.getXVelocity(),
+                                vY = mVelocityTracker.getYVelocity();
 
                         // If the velocity is greater than minVelocity, call
                         // listener
                         if (Math.max(Math.abs(vX), Math.abs(vY)) >= mMinimumVelocity) {
-                            mListener.onFling(mLastTouchX, mLastTouchY, -vX,
-                                    -vY);
+                            mListener.onFling(mLastTouchX, mLastTouchY, -vX, -vY);
                         }
                     }
                 }
@@ -195,9 +190,8 @@ class CustomGestureDetector {
                 break;
         }
 
-        mActivePointerIndex = ev
-                .findPointerIndex(mActivePointerId != INVALID_POINTER_ID ? mActivePointerId
-                        : 0);
+        mActivePointerIndex =
+                ev.findPointerIndex(mActivePointerId != INVALID_POINTER_ID ? mActivePointerId : 0);
         return true;
     }
 }

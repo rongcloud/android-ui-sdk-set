@@ -5,14 +5,8 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Transaction;
-
-import java.util.List;
-
-import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
-import io.rong.imkit.userinfo.db.model.GroupUserInfo;
-
+import java.util.List;
 
 @Dao
 public interface GroupMemberDao {

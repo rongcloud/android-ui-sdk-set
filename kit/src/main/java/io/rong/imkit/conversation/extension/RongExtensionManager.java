@@ -2,12 +2,6 @@ package io.rong.imkit.conversation.extension;
 
 import android.app.Application;
 import android.content.Context;
-
-import java.lang.reflect.Constructor;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import io.rong.common.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
@@ -15,27 +9,30 @@ import io.rong.imkit.feature.destruct.DestructExtensionModule;
 import io.rong.imkit.feature.forward.ForwardExtensionModule;
 import io.rong.imkit.feature.location.LocationExtensionModule;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
-import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.feature.publicservice.PublicServiceManager;
 import io.rong.imkit.feature.quickreply.QuickReplyExtensionModule;
 import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class RongExtensionManager {
 
-    private final static String TAG = "RongExtensionManager";
-    private final static String DEFAULT_RC_STICKER = "io.rong.sticker.StickerExtensionModule";
-    private final static String DEFAULT_CALL_MODULE = "io.rong.callkit.RongCallModule";
+    private static final String TAG = "RongExtensionManager";
+    private static final String DEFAULT_RC_STICKER = "io.rong.sticker.StickerExtensionModule";
+    private static final String DEFAULT_CALL_MODULE = "io.rong.callkit.RongCallModule";
     private static String mAppKey;
     private static Context mApplicationContext;
     private static List<IExtensionModule> mExtModules = new CopyOnWriteArrayList<>();
-    private static List<IExtensionEventWatcher> mExtensionEventWatcher = new CopyOnWriteArrayList<>();
+    private static List<IExtensionEventWatcher> mExtensionEventWatcher =
+            new CopyOnWriteArrayList<>();
     private static IExtensionConfig mExtensionConfig;
 
-    private RongExtensionManager() {
-    }
+    private RongExtensionManager() {}
 
     public static RongExtensionManager getInstance() {
         return SingletonHolder.sInstance;
@@ -45,7 +42,7 @@ public class RongExtensionManager {
      * 初始化，SDK 在初始化时已调用此方法，用户不需要再调用。
      *
      * @param context 应用上下文.
-     * @param appKey  应用 key.
+     * @param appKey 应用 key.
      */
     public static void init(Context context, String appKey) {
         RLog.d(TAG, "init");
@@ -67,7 +64,8 @@ public class RongExtensionManager {
         if (RongConfigCenter.featureConfig().isDestructEnable()) {
             mExtModules.add(new DestructExtensionModule());
         }
-        Conversation.ConversationType[] types = RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
+        Conversation.ConversationType[] types =
+                RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
         List<Conversation.ConversationType> typeList = Arrays.asList(types);
         if (typeList.contains(Conversation.ConversationType.PUBLIC_SERVICE)
                 || typeList.contains(Conversation.ConversationType.APP_PUBLIC_SERVICE)) {
@@ -81,9 +79,7 @@ public class RongExtensionManager {
         }
     }
 
-    /**
-     * 检查融云表情是否存在
-     */
+    /** 检查融云表情是否存在 */
     private static void checkRCBQ() {
         try {
             Class<?> cls = Class.forName(DEFAULT_RC_STICKER);
@@ -109,7 +105,7 @@ public class RongExtensionManager {
     }
 
     public IExtensionConfig getExtensionConfig() {
-        if(mExtensionConfig == null) {
+        if (mExtensionConfig == null) {
             mExtensionConfig = new DefaultExtensionConfig();
         }
         return mExtensionConfig;
@@ -126,6 +122,7 @@ public class RongExtensionManager {
 
     /**
      * 注册自定义的 {@link IExtensionModule},注册后，可以通过 {@link #getExtensionModules()} 获取已注册的 module
+     *
      * <pre>
      * 注意：
      * 1. 请在 SDK 初始化后 {@link io.rong.imkit.RongIM#init(Application, String, boolean)}，调用此方法注册自定义 {@link IExtensionModule}
@@ -145,8 +142,9 @@ public class RongExtensionManager {
             return;
         }
         RLog.i(TAG, "registerExtensionModule " + extensionModule.getClass().getSimpleName());
-        //当集成了红包，表情美美或融云表情的时候，需要把EMOJI置于list的最前面；
-        if (mExtModules.size() > 0 && (mExtModules.get(0).getClass().getCanonicalName().equals(DEFAULT_RC_STICKER))) {
+        // 当集成了红包，表情美美或融云表情的时候，需要把EMOJI置于list的最前面；
+        if (mExtModules.size() > 0
+                && (mExtModules.get(0).getClass().getCanonicalName().equals(DEFAULT_RC_STICKER))) {
             mExtModules.add(0, extensionModule);
         } else {
             mExtModules.add(extensionModule);
@@ -170,6 +168,7 @@ public class RongExtensionManager {
 
     /**
      * 添加自定义的 {@link IExtensionModule},添加后，可以通过 {@link #getExtensionModules()} 获取已注册的 module
+     *
      * <pre>
      * 注意：
      * 1. 此方法只是把自定义IExtensionModule加入到IExtensionModule列表,不会调用{@link IExtensionModule#onInit(Context, String)}}
@@ -195,6 +194,7 @@ public class RongExtensionManager {
 
     /**
      * 注销 {@link IExtensionModule} 模块
+     *
      * <pre>
      * 注意：
      * 1. 请在 SDK 初始化后 {@link io.rong.imkit.IMCenter#init(Application, String, boolean)} )}，调用此方法反注册注册 {@link IExtensionModule}
@@ -241,9 +241,7 @@ public class RongExtensionManager {
         return mExtensionEventWatcher;
     }
 
-    /**
-     * SDK 断开连接时，已调用此方法，用户不需要再次调用。
-     */
+    /** SDK 断开连接时，已调用此方法，用户不需要再次调用。 */
     public void disconnect() {
         if (mExtModules == null) {
             return;
@@ -254,8 +252,7 @@ public class RongExtensionManager {
     }
 
     /**
-     * SDK 接收到消息时，已调用此方法，用户不需要再次调用。
-     * RongExtModuleManage 会将消息路由到各个 {@link IExtensionModule} 模块。
+     * SDK 接收到消息时，已调用此方法，用户不需要再次调用。 RongExtModuleManage 会将消息路由到各个 {@link IExtensionModule} 模块。
      *
      * @param message 接收到的消息实体。
      */

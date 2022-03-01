@@ -2,26 +2,21 @@ package io.rong.imkit.picture;
 
 import android.app.Activity;
 import android.content.Intent;
-
 import androidx.fragment.app.Fragment;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureConfig;
-import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
 import io.rong.imkit.picture.engine.ImageEngine;
 import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.tools.DoubleUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author：luck
  * @date：2017-5-24 21:30
  * @describe：PictureSelectionModel
  */
-
 public class PictureSelectionModel {
     private PictureSelectionConfig selectionConfig;
     private PictureSelector selector;
@@ -39,16 +34,14 @@ public class PictureSelectionModel {
         selectionConfig.chooseMode = chooseMode;
     }
 
-
     /**
-     * Change the desired orientation of this activity.  If the activity
-     * is currently in the foreground or otherwise impacting the screen
-     * orientation, the screen will immediately be changed (possibly causing
-     * the activity to be restarted). Otherwise, this will be used the next
-     * time the activity is visible.
+     * Change the desired orientation of this activity. If the activity is currently in the
+     * foreground or otherwise impacting the screen orientation, the screen will immediately be
+     * changed (possibly causing the activity to be restarted). Otherwise, this will be used the
+     * next time the activity is visible.
      *
-     * @param requestedOrientation An orientation constant as used in
-     *                             {@link ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
+     * @param requestedOrientation An orientation constant as used in {@link
+     *     ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
      */
     public PictureSelectionModel setRequestedOrientation(int requestedOrientation) {
         selectionConfig.requestedOrientation = requestedOrientation;
@@ -67,7 +60,8 @@ public class PictureSelectionModel {
     }
 
     /**
-     * @param selectionMode PictureSelector Selection model and PictureConfig.MULTIPLE or PictureConfig.SINGLE
+     * @param selectionMode PictureSelector Selection model and PictureConfig.MULTIPLE or
+     *     PictureConfig.SINGLE
      * @return
      */
     public PictureSelectionModel selectionMode(int selectionMode) {
@@ -98,11 +92,12 @@ public class PictureSelectionModel {
      * @return
      */
     public PictureSelectionModel isSingleDirectReturn(boolean isSingleDirectReturn) {
-        selectionConfig.isSingleDirectReturn = selectionConfig.selectionMode
-                == PictureConfig.SINGLE ? isSingleDirectReturn : false;
+        selectionConfig.isSingleDirectReturn =
+                selectionConfig.selectionMode == PictureConfig.SINGLE
+                        ? isSingleDirectReturn
+                        : false;
         return this;
     }
-
 
     /**
      * @param imageSpanCount PictureSelector image span count
@@ -113,10 +108,8 @@ public class PictureSelectionModel {
         return this;
     }
 
-
     /**
-     * Camera custom local file name
-     * # Such as xxx.png
+     * Camera custom local file name # Such as xxx.png
      *
      * @param fileName
      * @return
@@ -125,7 +118,6 @@ public class PictureSelectionModel {
         selectionConfig.cameraFileName = fileName;
         return this;
     }
-
 
     /**
      * @param zoomAnim Picture list zoom anim
@@ -144,7 +136,6 @@ public class PictureSelectionModel {
         selectionConfig.isCamera = isCamera;
         return this;
     }
-
 
     /**
      * @param isGif Whether to open gif
@@ -191,7 +182,6 @@ public class PictureSelectionModel {
         return this;
     }
 
-
     /**
      * @param selectionMedia Select the selected picture set
      * @return
@@ -208,10 +198,9 @@ public class PictureSelectionModel {
         return this;
     }
 
-
     /**
-     * # If you want to handle the Android Q path, if not, just return the uri，
-     * The getAndroidQToPath(); field will be empty
+     * # If you want to handle the Android Q path, if not, just return the uri， The
+     * getAndroidQToPath(); field will be empty
      *
      * @param isAndroidQTransform
      * @return
@@ -220,7 +209,6 @@ public class PictureSelectionModel {
         selectionConfig.isAndroidQTransform = isAndroidQTransform;
         return this;
     }
-
 
     /**
      * Start to select media and wait for result.
@@ -240,13 +228,13 @@ public class PictureSelectionModel {
             } else {
                 activity.startActivityForResult(intent, requestCode);
             }
-            activity.overridePendingTransition(R.anim.rc_picture_anim_enter, R.anim.rc_picture_anim_fade_in);
+            activity.overridePendingTransition(
+                    R.anim.rc_picture_anim_enter, R.anim.rc_picture_anim_fade_in);
         }
     }
 
     /**
-     * # replace for setPictureWindowAnimationStyle();
-     * Start to select media and wait for result.
+     * # replace for setPictureWindowAnimationStyle(); Start to select media and wait for result.
      *
      * @param requestCode Identity of the request Activity or Fragment.
      */
@@ -257,9 +245,12 @@ public class PictureSelectionModel {
             if (activity == null) {
                 return;
             }
-            Intent intent = new Intent(activity, selectionConfig != null && selectionConfig.camera
-                    ? PictureSelectorCameraEmptyActivity.class :
-                    PictureSelectorActivity.class);
+            Intent intent =
+                    new Intent(
+                            activity,
+                            selectionConfig != null && selectionConfig.camera
+                                    ? PictureSelectorCameraEmptyActivity.class
+                                    : PictureSelectorActivity.class);
             Fragment fragment = selector.getFragment();
             if (fragment != null) {
                 fragment.startActivityForResult(intent, requestCode);
@@ -269,7 +260,6 @@ public class PictureSelectionModel {
             activity.overridePendingTransition(enterAnim, exitAnim);
         }
     }
-
 
     /**
      * 不可发送video时长limit

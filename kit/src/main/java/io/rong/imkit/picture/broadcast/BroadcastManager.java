@@ -8,10 +8,8 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,16 +28,15 @@ public class BroadcastManager {
 
     public static BroadcastManager getInstance(Context ctx) {
         BroadcastManager broadcastManager = new BroadcastManager();
-        broadcastManager.localBroadcastManager = LocalBroadcastManager.getInstance(ctx.getApplicationContext());
+        broadcastManager.localBroadcastManager =
+                LocalBroadcastManager.getInstance(ctx.getApplicationContext());
         return broadcastManager;
     }
-
 
     public BroadcastManager intent(Intent intent) {
         this.intent = intent;
         return this;
     }
-
 
     public BroadcastManager action(String action) {
         this.action = action;
@@ -56,7 +53,6 @@ public class BroadcastManager {
         intent.putExtras(bundle);
         return this;
     }
-
 
     public BroadcastManager put(String key, ArrayList<? extends Parcelable> value) {
         createIntent();
@@ -81,7 +77,6 @@ public class BroadcastManager {
         intent.putExtra(key, value);
         return this;
     }
-
 
     public BroadcastManager put(String key, Parcelable value) {
         createIntent();
@@ -155,7 +150,6 @@ public class BroadcastManager {
         return this;
     }
 
-
     public BroadcastManager put(String key, String str) {
         createIntent();
 
@@ -180,7 +174,6 @@ public class BroadcastManager {
             Log.d(TAG, "intent created with action");
         }
     }
-
 
     public void broadcast() {
 
@@ -216,7 +209,6 @@ public class BroadcastManager {
         }
     }
 
-
     public void registerReceiver(BroadcastReceiver br, String... actions) {
         if (actions == null || actions.length <= 0) {
             return;
@@ -224,10 +216,7 @@ public class BroadcastManager {
         registerReceiver(br, Arrays.asList(actions));
     }
 
-
-    /**
-     * @param br
-     */
+    /** @param br */
     public void unregisterReceiver(BroadcastReceiver br) {
         if (null == br) {
             return;

@@ -16,10 +16,10 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
-
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
-
+import io.rong.imkit.picture.config.PictureConfig;
+import io.rong.imkit.picture.config.PictureMimeType;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,15 +27,11 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
 
-import io.rong.imkit.picture.config.PictureConfig;
-import io.rong.imkit.picture.config.PictureMimeType;
-
 /**
  * @author：luck
  * @date：2017-5-30 19:30
  * @describe：PictureFileUtils
  */
-
 public class PictureFileUtils {
 
     public static final String POSTFIX = ".jpg";
@@ -61,31 +57,41 @@ public class PictureFileUtils {
      * @param format
      * @return
      */
-    private static File createMediaFile(Context context, int chooseMode, String fileName, String format) {
+    private static File createMediaFile(
+            Context context, int chooseMode, String fileName, String format) {
         return createOutFile(context, chooseMode, fileName, format);
     }
 
-    private static File createOutFile(Context context, int chooseMode, String fileName, String format) {
+    private static File createOutFile(
+            Context context, int chooseMode, String fileName, String format) {
         String state = Environment.getExternalStorageState();
-        File rootDir = state.equals(Environment.MEDIA_MOUNTED) ? Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
-                : getRootDirFile(context, chooseMode);
-        if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {
-        }
+        File rootDir =
+                state.equals(Environment.MEDIA_MOUNTED)
+                        ? Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+                        : getRootDirFile(context, chooseMode);
+        if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {}
 
         File folderDir = null;
         if (rootDir != null) {
-            folderDir = new File(rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
+            folderDir =
+                    new File(
+                            rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
         }
-        if (folderDir != null && !folderDir.exists() && folderDir.mkdirs()) {
-        }
+        if (folderDir != null && !folderDir.exists() && folderDir.mkdirs()) {}
         boolean isOutFileNameEmpty = TextUtils.isEmpty(fileName);
         switch (chooseMode) {
             case PictureConfig.TYPE_VIDEO:
-                String newFileVideoName = isOutFileNameEmpty ? DateUtils.getInstance().getCreateFileName("VID_") + POST_VIDEO : fileName;
+                String newFileVideoName =
+                        isOutFileNameEmpty
+                                ? DateUtils.getInstance().getCreateFileName("VID_") + POST_VIDEO
+                                : fileName;
                 return new File(folderDir, newFileVideoName);
             default:
                 String suffix = TextUtils.isEmpty(format) ? POSTFIX : format;
-                String newFileImageName = isOutFileNameEmpty ? DateUtils.getInstance().getCreateFileName("IMG_") + suffix : fileName;
+                String newFileImageName =
+                        isOutFileNameEmpty
+                                ? DateUtils.getInstance().getCreateFileName("IMG_") + suffix
+                                : fileName;
                 return new File(folderDir, newFileImageName);
         }
     }
@@ -106,13 +112,10 @@ public class PictureFileUtils {
         }
     }
 
-    /**
-     * TAG for log messages.
-     */
+    /** TAG for log messages. */
     static final String TAG = "PictureFileUtils";
 
-    private PictureFileUtils() {
-    }
+    private PictureFileUtils() {}
 
     /**
      * @param uri The Uri to check.
@@ -150,34 +153,36 @@ public class PictureFileUtils {
     }
 
     /**
-     * Get the value of the data column for this Uri. This is useful for
-     * MediaStore Uris, and other file-based ContentProviders.
+     * Get the value of the data column for this Uri. This is useful for MediaStore Uris, and other
+     * file-based ContentProviders.
      *
-     * @param context       The context.
-     * @param uri           The Uri to query.
-     * @param selection     (Optional) Filter used in the query.
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      * @author paulburke
      */
-    public static String getDataColumn(Context context, Uri uri, String selection,
-                                       String[] selectionArgs) {
+    public static String getDataColumn(
+            Context context, Uri uri, String selection, String[] selectionArgs) {
 
         Cursor cursor = null;
         final String column = "_data";
-        final String[] projection = {
-                column
-        };
+        final String[] projection = {column};
 
         try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
+            cursor =
+                    context.getContentResolver()
+                            .query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
         } catch (IllegalArgumentException ex) {
-            Log.i(TAG, String.format(Locale.getDefault(), "getDataColumn: _data - [%s]", ex.getMessage()));
+            Log.i(
+                    TAG,
+                    String.format(
+                            Locale.getDefault(), "getDataColumn: _data - [%s]", ex.getMessage()));
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -187,15 +192,14 @@ public class PictureFileUtils {
     }
 
     /**
-     * Get a file path from a Uri. This will get the the path for Storage Access
-     * Framework Documents, as well as the _data field for the MediaStore and
-     * other file-based ContentProviders.<br>
+     * Get a file path from a Uri. This will get the the path for Storage Access Framework
+     * Documents, as well as the _data field for the MediaStore and other file-based
+     * ContentProviders.<br>
      * <br>
-     * Callers should check whether the path is local before assuming it
-     * represents a local file.
+     * Callers should check whether the path is local before assuming it represents a local file.
      *
      * @param context The context.
-     * @param uri     The Uri to query.
+     * @param uri The Uri to query.
      * @author paulburke
      */
     @SuppressLint("NewApi")
@@ -211,7 +215,9 @@ public class PictureFileUtils {
 
                 if ("primary".equalsIgnoreCase(type)) {
                     if (SdkVersionUtils.checkedAndroid_Q()) {
-                        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + split[1];
+                        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                                + "/"
+                                + split[1];
                     } else {
                         return Environment.getExternalStorageDirectory() + "/" + split[1];
                     }
@@ -223,8 +229,10 @@ public class PictureFileUtils {
             else if (isDownloadsDocument(uri)) {
 
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                final Uri contentUri =
+                        ContentUris.withAppendedId(
+                                Uri.parse("content://downloads/public_downloads"),
+                                Long.valueOf(id));
 
                 return getDataColumn(context, contentUri, null, null);
             }
@@ -244,9 +252,7 @@ public class PictureFileUtils {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
+                final String[] selectionArgs = new String[] {split[1]};
 
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
@@ -295,11 +301,15 @@ public class PictureFileUtils {
         try {
             ExifInterface exifInterface;
             if (SdkVersionUtils.checkedAndroid_Q()) {
-                exifInterface = new ExifInterface(context.getContentResolver().openInputStream(Uri.parse(path)));
+                exifInterface =
+                        new ExifInterface(
+                                context.getContentResolver().openInputStream(Uri.parse(path)));
             } else {
                 exifInterface = new ExifInterface(path);
             }
-            int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            int orientation =
+                    exifInterface.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
             switch (orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     degree = 90;
@@ -328,12 +338,13 @@ public class PictureFileUtils {
         if (bitmap == null) {
             return null;
         }
-        //旋转图片 动作
+        // 旋转图片 动作
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
         // 创建新的图片
-        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
-                bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        Bitmap resizedBitmap =
+                Bitmap.createBitmap(
+                        bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         return resizedBitmap;
     }
 
@@ -364,7 +375,6 @@ public class PictureFileUtils {
         return rootDir + "/" + filename;
     }
 
-
     public static String getDCIMCameraPath(Context ctx, String mimeType) {
         String absolutePath;
         try {
@@ -375,8 +385,12 @@ public class PictureFileUtils {
                     absolutePath = "%" + ctx.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
                 }
             } else {
-                absolutePath = "%" + Environment.getExternalStoragePublicDirectory
-                        (Environment.DIRECTORY_DCIM).getAbsolutePath() + "/Camera";
+                absolutePath =
+                        "%"
+                                + Environment.getExternalStoragePublicDirectory(
+                                                Environment.DIRECTORY_DCIM)
+                                        .getAbsolutePath()
+                                + "/Camera";
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -389,11 +403,14 @@ public class PictureFileUtils {
      * set empty PictureSelector Cache
      *
      * @param mContext
-     * @param type     image or video ...
+     * @param type image or video ...
      */
     public static void deleteCacheDirFile(Context mContext, int type) {
-        File cutDir = mContext.getExternalFilesDir(type == PictureMimeType.ofImage()
-                ? Environment.DIRECTORY_PICTURES : Environment.DIRECTORY_MOVIES);
+        File cutDir =
+                mContext.getExternalFilesDir(
+                        type == PictureMimeType.ofImage()
+                                ? Environment.DIRECTORY_PICTURES
+                                : Environment.DIRECTORY_MOVIES);
         if (cutDir != null) {
             File[] files = cutDir.listFiles();
             for (File file : files) {
@@ -461,7 +478,7 @@ public class PictureFileUtils {
         Uri imageUri;
         String authority = context.getPackageName() + ".provider";
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
-            //通过FileProvider创建一个content类型的Uri
+            // 通过FileProvider创建一个content类型的Uri
             imageUri = FileProvider.getUriForFile(context, authority, cameraFile);
         } else {
             imageUri = Uri.fromFile(cameraFile);
@@ -510,14 +527,14 @@ public class PictureFileUtils {
         }
     }
 
-
     /**
      * 判断拍照 图片是否旋转
      *
      * @param degree
      * @param path
      */
-    public static String rotateImageToAndroidQ(Context context, int degree, String path, String newFileName) {
+    public static String rotateImageToAndroidQ(
+            Context context, int degree, String path, String newFileName) {
         if (degree > 0) {
             try {
                 // 针对相片有旋转问题的处理方式
@@ -525,15 +542,20 @@ public class PictureFileUtils {
                     BitmapFactory.Options opts = new BitmapFactory.Options();
                     opts.inSampleSize = 2;
                     ParcelFileDescriptor parcelFileDescriptor =
-                            context.getContentResolver()
-                                    .openFileDescriptor(Uri.parse(path), "r");
-                    FileInputStream inputStream = new FileInputStream(parcelFileDescriptor.getFileDescriptor());
-                    Bitmap bitmap = BitmapFactory
-                            .decodeStream(inputStream, null, opts);
+                            context.getContentResolver().openFileDescriptor(Uri.parse(path), "r");
+                    FileInputStream inputStream =
+                            new FileInputStream(parcelFileDescriptor.getFileDescriptor());
+                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, opts);
                     String suffix = PictureFileUtils.extSuffix(inputStream);
                     Bitmap bmp = PictureFileUtils.rotatingImageView(degree, bitmap);
                     if (bmp != null) {
-                        String dir = createDir(context, TextUtils.isEmpty(newFileName) ? DateUtils.getInstance().getCreateFileName("IMG_") + suffix : newFileName);
+                        String dir =
+                                createDir(
+                                        context,
+                                        TextUtils.isEmpty(newFileName)
+                                                ? DateUtils.getInstance().getCreateFileName("IMG_")
+                                                        + suffix
+                                                : newFileName);
                         PictureFileUtils.saveBitmapFile(bmp, new File(dir));
                         return dir;
                     }

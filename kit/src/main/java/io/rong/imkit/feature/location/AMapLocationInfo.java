@@ -1,7 +1,6 @@
 package io.rong.imkit.feature.location;
 
 import android.text.TextUtils;
-
 import org.json.JSONObject;
 
 public class AMapLocationInfo {
@@ -51,8 +50,6 @@ public class AMapLocationInfo {
         this.errorInfo = errorInfo;
     }
 
-
-
     public int getErrorCode() {
         return errorCode;
     }
@@ -60,7 +57,6 @@ public class AMapLocationInfo {
     public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
-
 
     public boolean isOffset() {
         return isOffset;
@@ -217,7 +213,6 @@ public class AMapLocationInfo {
      *
      * @return 门牌号
      * @since 2.3.0
-     *
      */
     public String getNumber() {
         return number;
@@ -228,7 +223,6 @@ public class AMapLocationInfo {
      *
      * @param number
      * @since 2.3.0
-     *
      */
     public void setNumber(String number) {
         this.number = number;
@@ -244,10 +238,9 @@ public class AMapLocationInfo {
 
     /**
      * 获取aoiName
+     *
      * @since 2.4.0
-     *
      * @return aoiName
-     *
      */
     public String getAoiname() {
         return aoiname;
@@ -258,7 +251,6 @@ public class AMapLocationInfo {
      *
      * @param aoiname
      * @since 2.4.0
-     *
      */
     public void setAoiname(String aoiname) {
         this.aoiname = aoiname;

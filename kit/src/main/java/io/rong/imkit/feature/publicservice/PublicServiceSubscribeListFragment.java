@@ -9,9 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
-
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.widget.adapter.BaseListViewAdapter;
@@ -21,15 +19,13 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.publicservice.model.PublicServiceProfile;
 import io.rong.imlib.publicservice.model.PublicServiceProfileList;
 
-/**
- * Created by zhjchen on 4/19/15.
- */
-
+/** Created by zhjchen on 4/19/15. */
 public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
     private PublicServiceListAdapter mAdapter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.rc_fr_public_service_sub_list, container, false);
     }
 
@@ -37,56 +33,88 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         ListView mListView = view.findViewById(R.id.rc_list);
 
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                PublicServiceProfile info = mAdapter.getItem(position);
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        PublicServiceProfile info = mAdapter.getItem(position);
 
-                RongIM.getInstance().startConversation(getActivity(), info.getConversationType(), info.getTargetId(), info.getName());
-            }
-        });
-
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                String[] item = new String[1];
-                final PublicServiceProfile info = mAdapter.getItem(position);
-                if (info.getConversationType() == Conversation.ConversationType.PUBLIC_SERVICE) {
-                    if (getActivity() == null) {
-                        return false;
+                        RongIM.getInstance()
+                                .startConversation(
+                                        getActivity(),
+                                        info.getConversationType(),
+                                        info.getTargetId(),
+                                        info.getName());
                     }
-                    item[0] = getActivity().getString(R.string.rc_pub_service_info_unfollow);
-                    OptionsPopupDialog.newInstance(view.getContext(), item).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
-                        @Override
-                        public void onOptionsItemClicked(int which) {
-                            Conversation.PublicServiceType publicServiceType = null;
-                            if (info.getConversationType() == Conversation.ConversationType.APP_PUBLIC_SERVICE)
-                                publicServiceType = Conversation.PublicServiceType.APP_PUBLIC_SERVICE;
-                            else if (info.getConversationType() == Conversation.ConversationType.PUBLIC_SERVICE)
-                                publicServiceType = Conversation.PublicServiceType.PUBLIC_SERVICE;
-                            else
-                                System.err.print("the public service type is error!!");
+                });
 
-                            RongIMClient.getInstance().unsubscribePublicService(publicServiceType, info.getTargetId(), new RongIMClient.OperationCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    mAdapter.remove(position);
-                                    mAdapter.notifyDataSetChanged();
-                                }
+        mListView.setOnItemLongClickListener(
+                new AdapterView.OnItemLongClickListener() {
 
-                                @Override
-                                public void onError(RongIMClient.ErrorCode coreErrorCode) {
+                    @Override
+                    public boolean onItemLongClick(
+                            AdapterView<?> parent, View view, final int position, long id) {
+                        String[] item = new String[1];
+                        final PublicServiceProfile info = mAdapter.getItem(position);
+                        if (info.getConversationType()
+                                == Conversation.ConversationType.PUBLIC_SERVICE) {
+                            if (getActivity() == null) {
+                                return false;
+                            }
+                            item[0] =
+                                    getActivity().getString(R.string.rc_pub_service_info_unfollow);
+                            OptionsPopupDialog.newInstance(view.getContext(), item)
+                                    .setOptionsPopupDialogListener(
+                                            new OptionsPopupDialog.OnOptionsItemClickedListener() {
+                                                @Override
+                                                public void onOptionsItemClicked(int which) {
+                                                    Conversation.PublicServiceType
+                                                            publicServiceType = null;
+                                                    if (info.getConversationType()
+                                                            == Conversation.ConversationType
+                                                                    .APP_PUBLIC_SERVICE)
+                                                        publicServiceType =
+                                                                Conversation.PublicServiceType
+                                                                        .APP_PUBLIC_SERVICE;
+                                                    else if (info.getConversationType()
+                                                            == Conversation.ConversationType
+                                                                    .PUBLIC_SERVICE)
+                                                        publicServiceType =
+                                                                Conversation.PublicServiceType
+                                                                        .PUBLIC_SERVICE;
+                                                    else
+                                                        System.err.print(
+                                                                "the public service type is error!!");
 
-                                }
-                            });
+                                                    RongIMClient.getInstance()
+                                                            .unsubscribePublicService(
+                                                                    publicServiceType,
+                                                                    info.getTargetId(),
+                                                                    new RongIMClient
+                                                                            .OperationCallback() {
+                                                                        @Override
+                                                                        public void onSuccess() {
+                                                                            mAdapter.remove(
+                                                                                    position);
+                                                                            mAdapter
+                                                                                    .notifyDataSetChanged();
+                                                                        }
+
+                                                                        @Override
+                                                                        public void onError(
+                                                                                RongIMClient
+                                                                                                .ErrorCode
+                                                                                        coreErrorCode) {}
+                                                                    });
+                                                }
+                                            })
+                                    .show();
                         }
-                    }).show();
-                }
-                return true;
-            }
-        });
+                        return true;
+                    }
+                });
 
         mAdapter = new PublicServiceListAdapter(getActivity());
         mListView.setAdapter(mAdapter);
@@ -94,21 +122,20 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
         getDBData();
     }
 
-
     private void getDBData() {
-        RongIMClient.getInstance().getPublicServiceList(new RongIMClient.ResultCallback<PublicServiceProfileList>() {
-            @Override
-            public void onSuccess(PublicServiceProfileList infoList) {
-                mAdapter.clear();
-                mAdapter.addCollection(infoList.getPublicServiceData());
-                mAdapter.notifyDataSetChanged();
-            }
+        RongIMClient.getInstance()
+                .getPublicServiceList(
+                        new RongIMClient.ResultCallback<PublicServiceProfileList>() {
+                            @Override
+                            public void onSuccess(PublicServiceProfileList infoList) {
+                                mAdapter.clear();
+                                mAdapter.addCollection(infoList.getPublicServiceData());
+                                mAdapter.notifyDataSetChanged();
+                            }
 
-            @Override
-            public void onError(RongIMClient.ErrorCode e) {
-
-            }
-        });
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {}
+                        });
     }
 
     private class PublicServiceListAdapter extends BaseListViewAdapter<PublicServiceProfile> {
@@ -149,8 +176,7 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
 
         @Override
         public int getCount() {
-            if (mList == null)
-                return 0;
+            if (mList == null) return 0;
 
             return mList.size();
         }
@@ -165,7 +191,6 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
             return 0;
         }
 
-
         class ViewHolder {
             ImageView portrait;
             TextView name;
@@ -173,12 +198,11 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
         }
     }
 
-//    public void onEvent(Event.PublicServiceFollowableEvent event) {
-//        if (event != null) {
-//            getDBData();
-//        }
-//    }
-
+    //    public void onEvent(Event.PublicServiceFollowableEvent event) {
+    //        if (event != null) {
+    //            getDBData();
+    //        }
+    //    }
 
     @Override
     public void onDestroyView() {

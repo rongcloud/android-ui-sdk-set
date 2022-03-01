@@ -4,14 +4,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.Spannable;
 import android.text.SpannableString;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.moreaction.DeleteClickActions;
@@ -55,25 +47,28 @@ import io.rong.imkit.widget.adapter.ProviderManager;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-/**
- * 会话页面总配置项
- */
+/** 会话页面总配置项 */
 public class ConversationConfig {
 
     private static final int conversationHistoryMessageMaxCount = 100;
-    //离线补偿已读回执，sp 文件名称
+    // 离线补偿已读回执，sp 文件名称
     public static String SP_NAME_READ_RECEIPT_CONFIG = "readReceiptConfig";
-    /**
-     * 多端消息未读数同步，仅支持单群聊
-     */
+    /** 多端消息未读数同步，仅支持单群聊 */
     public static boolean enableMultiDeviceSync = true;
+
     private static int conversationRemoteMessageMaxCount = 100;
     private static int conversationShowUnreadMessageMaxCount = 100;
     private final String TAG = "ConversationConfig";
-    //消息撤回开关
+    // 消息撤回开关
     public boolean rc_enable_recall_message = true;
-    //消息重发开关
+    // 消息重发开关
     public boolean rc_enable_resend_message = true;
     public int rc_message_recall_interval = 120;
     public int rc_message_recall_edit_interval = 300;
@@ -97,31 +92,22 @@ public class ConversationConfig {
     public boolean rc_enable_send_combine_message = false;
     private long rc_custom_service_evaluation_interval = 60 * 1000L;
     private boolean mStopCSWhenQuit = true;
-    /**
-     * 已读回执，仅支持，单，群聊
-     */
+    /** 已读回执，仅支持，单，群聊 */
     private boolean mEnableReadReceipt = true;
-    private Set<Conversation.ConversationType> mSupportReadReceiptConversationTypes = new HashSet<>(4);
-    /**
-     * 单聊是否显示头像
-     */
+
+    private Set<Conversation.ConversationType> mSupportReadReceiptConversationTypes =
+            new HashSet<>(4);
+    /** 单聊是否显示头像 */
     private boolean showReceiverUserTitle = false;
-    /**
-     * 新消息是否显示未读，目前支持 单，群聊
-     */
+    /** 新消息是否显示未读，目前支持 单，群聊 */
     private boolean showNewMessageBar = true;
-    /**
-     * 历史消息是否显示，目前仅支持，单，群聊
-     */
+    /** 历史消息是否显示，目前仅支持，单，群聊 */
     private boolean showHistoryMessageBar = true;
-    /**
-     * 长按是否显示更多
-     */
+    /** 长按是否显示更多 */
     private boolean showMoreClickAction = true;
-    /**
-     * 是否显示，历史消息模板
-     */
+    /** 是否显示，历史消息模板 */
     private boolean showHistoryDividerMessage = true;
+
     private ConversationClickListener mConversationClickListener;
     private ProviderManager<UiMessage> mMessageListProvider = new ProviderManager<>();
     private List<IConversationUIRenderer> mConversationViewProcessors = new ArrayList<>();
@@ -137,8 +123,8 @@ public class ConversationConfig {
     private int conversationRemoteMessageCount = 10;
     // 进入会话界面，默认显示未读消息数量
     private int conversationShowUnreadMessageCount = 10;
-    private IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType = IRongCoreEnum.ConversationLoadMessageType.ALWAYS;
-
+    private IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType =
+            IRongCoreEnum.ConversationLoadMessageType.ALWAYS;
 
     ConversationConfig() {
         initMessageProvider();
@@ -159,17 +145,20 @@ public class ConversationConfig {
                 RLog.e(TAG, "rc_enable_recall_message not get value", e);
             }
             try {
-                rc_message_recall_interval = resources.getInteger(R.integer.rc_message_recall_interval);
+                rc_message_recall_interval =
+                        resources.getInteger(R.integer.rc_message_recall_interval);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_message_recall_interval not get value", e);
             }
             try {
-                rc_message_recall_edit_interval = resources.getInteger(R.integer.rc_message_recall_edit_interval);
+                rc_message_recall_edit_interval =
+                        resources.getInteger(R.integer.rc_message_recall_edit_interval);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_message_recall_edit_interval not get value", e);
             }
             try {
-                rc_chatroom_first_pull_message_count = resources.getInteger(R.integer.rc_chatroom_first_pull_message_count);
+                rc_chatroom_first_pull_message_count =
+                        resources.getInteger(R.integer.rc_chatroom_first_pull_message_count);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_chatroom_first_pull_message_count not get value", e);
             }
@@ -189,37 +178,44 @@ public class ConversationConfig {
                 RLog.e(TAG, "rc_play_audio_continuous not get value", e);
             }
             try {
-                rc_enable_mentioned_message = resources.getBoolean(R.bool.rc_enable_mentioned_message);
+                rc_enable_mentioned_message =
+                        resources.getBoolean(R.bool.rc_enable_mentioned_message);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_enable_mentioned_message not get value", e);
             }
             try {
-                rc_read_receipt_request_interval = resources.getInteger(R.integer.rc_read_receipt_request_interval);
+                rc_read_receipt_request_interval =
+                        resources.getInteger(R.integer.rc_read_receipt_request_interval);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_enable_mentioned_message not get value", e);
             }
             try {
-                rc_media_selector_contain_video = resources.getBoolean(R.bool.rc_media_selector_contain_video);
+                rc_media_selector_contain_video =
+                        resources.getBoolean(R.bool.rc_media_selector_contain_video);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_media_selector_contain_video not get value", e);
             }
             try {
-                rc_enable_automatic_download_voice_msg = resources.getBoolean(R.bool.rc_enable_automatic_download_voice_msg);
+                rc_enable_automatic_download_voice_msg =
+                        resources.getBoolean(R.bool.rc_enable_automatic_download_voice_msg);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_enable_automatic_download_voice_msg not get value", e);
             }
             try {
-                rc_gifmsg_auto_download_size = resources.getInteger(R.integer.rc_gifmsg_auto_download_size);
+                rc_gifmsg_auto_download_size =
+                        resources.getInteger(R.integer.rc_gifmsg_auto_download_size);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_gifmsg_auto_download_size not get value", e);
             }
             try {
-                rc_max_message_selected_count = resources.getInteger(R.integer.rc_max_message_selected_count);
+                rc_max_message_selected_count =
+                        resources.getInteger(R.integer.rc_max_message_selected_count);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_max_message_selected_count not get value", e);
             }
             try {
-                rc_enable_send_combine_message = resources.getBoolean(R.bool.rc_enable_send_combine_message);
+                rc_enable_send_combine_message =
+                        resources.getBoolean(R.bool.rc_enable_send_combine_message);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_enable_send_combine_message not get value", e);
             }
@@ -231,7 +227,8 @@ public class ConversationConfig {
             }
 
             try {
-                conversationHistoryMessageCount = resources.getInteger(R.integer.rc_conversation_history_message_count);
+                conversationHistoryMessageCount =
+                        resources.getInteger(R.integer.rc_conversation_history_message_count);
                 if (conversationHistoryMessageCount > conversationHistoryMessageMaxCount) {
                     conversationHistoryMessageCount = conversationHistoryMessageMaxCount;
                 }
@@ -240,7 +237,8 @@ public class ConversationConfig {
             }
 
             try {
-                conversationRemoteMessageCount = resources.getInteger(R.integer.rc_conversation_remote_message_count);
+                conversationRemoteMessageCount =
+                        resources.getInteger(R.integer.rc_conversation_remote_message_count);
                 if (conversationRemoteMessageCount > conversationRemoteMessageMaxCount) {
                     conversationRemoteMessageCount = conversationRemoteMessageMaxCount;
                 }
@@ -249,7 +247,8 @@ public class ConversationConfig {
             }
 
             try {
-                conversationShowUnreadMessageCount = resources.getInteger(R.integer.rc_conversation_show_unread_message_count);
+                conversationShowUnreadMessageCount =
+                        resources.getInteger(R.integer.rc_conversation_show_unread_message_count);
                 if (conversationShowUnreadMessageCount > conversationShowUnreadMessageMaxCount) {
                     conversationShowUnreadMessageCount = conversationShowUnreadMessageMaxCount;
                 }
@@ -300,13 +299,12 @@ public class ConversationConfig {
     }
 
     /**
-     * @param index  添加位置
+     * @param index 添加位置
      * @param action 添加点击更多事件
      * @return
      */
     public void addMoreClickAction(int index, IClickActions action) {
-        if (action != null)
-            mMoreClickActions.add(index, action);
+        if (action != null) mMoreClickActions.add(index, action);
     }
 
     /**
@@ -330,9 +328,7 @@ public class ConversationConfig {
         mConversationViewProcessors.add(processor);
     }
 
-    /**
-     * @return ConversationFragment 处理器
-     */
+    /** @return ConversationFragment 处理器 */
     public List<IConversationUIRenderer> getViewProcessors() {
         return mConversationViewProcessors;
     }
@@ -352,7 +348,7 @@ public class ConversationConfig {
      * 替换已有的模板
      *
      * @param oldProviderClass 旧模板 class 类
-     * @param provider         新模板
+     * @param provider 新模板
      */
     public void replaceMessageProvider(Class oldProviderClass, IMessageProvider provider) {
         mMessageListProvider.replaceProvider(oldProviderClass, provider);
@@ -367,12 +363,9 @@ public class ConversationConfig {
         if (index != -1) {
             mConversationSummaryProviders.set(index, provider);
         }
-
     }
 
-    /**
-     * @return 获得消息模板列表
-     */
+    /** @return 获得消息模板列表 */
     public ProviderManager<UiMessage> getMessageListProvider() {
         return mMessageListProvider;
     }
@@ -380,13 +373,14 @@ public class ConversationConfig {
     /**
      * 获得消息展示信息
      *
-     * @param context        上下文
+     * @param context 上下文
      * @param messageContent 消息类型
      * @return
      */
     public Spannable getMessageSummary(Context context, MessageContent messageContent) {
         Spannable spannable = new SpannableString("");
-        Spannable defaultSpannable = defaultMessageProvider.getSummarySpannable(context, messageContent);
+        Spannable defaultSpannable =
+                defaultMessageProvider.getSummarySpannable(context, messageContent);
         if (messageContent == null) {
             return spannable;
         }
@@ -413,16 +407,13 @@ public class ConversationConfig {
         return false;
     }
 
-    /**
-     * @param showReceiverUserTitle 单聊是否显示用户昵称
-     */
+    /** @param showReceiverUserTitle 单聊是否显示用户昵称 */
     public void setShowReceiverUserTitle(boolean showReceiverUserTitle) {
         this.showReceiverUserTitle = showReceiverUserTitle;
     }
 
     /**
-     * 单聊是否显示用户昵称
-     * 仅支持配置单聊属性
+     * 单聊是否显示用户昵称 仅支持配置单聊属性
      *
      * @param type 会话类型
      * @return 是否显示
@@ -438,37 +429,27 @@ public class ConversationConfig {
         return true;
     }
 
-    /**
-     * @return 长按是否显示更多选项
-     */
+    /** @return 长按是否显示更多选项 */
     public boolean isShowMoreClickAction() {
         return showMoreClickAction;
     }
 
-    /**
-     * @param showMoreClickAction 长按是否显示更多选项
-     */
+    /** @param showMoreClickAction 长按是否显示更多选项 */
     public void setShowMoreClickAction(boolean showMoreClickAction) {
         this.showMoreClickAction = showMoreClickAction;
     }
 
-    /**
-     * @return 是否显示历史消息模板
-     */
+    /** @return 是否显示历史消息模板 */
     public boolean isShowHistoryDividerMessage() {
         return showHistoryDividerMessage;
     }
 
-    /**
-     * @param showHistoryDividerMessage 是否显示历史消息模板
-     */
+    /** @param showHistoryDividerMessage 是否显示历史消息模板 */
     public void setShowHistoryDividerMessage(boolean showHistoryDividerMessage) {
         this.showHistoryDividerMessage = showHistoryDividerMessage;
     }
 
-    /**
-     * @param showNewMessageBar 新消息是否显示未读气泡，目前仅支持单群聊（聊天室等，设置无效）
-     */
+    /** @param showNewMessageBar 新消息是否显示未读气泡，目前仅支持单群聊（聊天室等，设置无效） */
     public void setShowNewMessageBar(boolean showNewMessageBar) {
         this.showNewMessageBar = showNewMessageBar;
     }
@@ -509,9 +490,7 @@ public class ConversationConfig {
         return false;
     }
 
-    /**
-     * @param showNewMentionMessageBar 是否显示会话页面右上角的未读 @ 消息数提示，仅支持设置群组
-     */
+    /** @param showNewMentionMessageBar 是否显示会话页面右上角的未读 @ 消息数提示，仅支持设置群组 */
     public void setShowNewMentionMessageBar(boolean showNewMentionMessageBar) {
         this.showNewMentionMessageBar = showNewMentionMessageBar;
     }
@@ -540,9 +519,7 @@ public class ConversationConfig {
         this.conversationShowUnreadMessageCount = conversationShowUnreadMessageCount;
     }
 
-    /**
-     * @param showHistoryMessageBar 是否显示历史未读消息气泡，仅支持设置私聊，群组
-     */
+    /** @param showHistoryMessageBar 是否显示历史未读消息气泡，仅支持设置私聊，群组 */
     public void setShowHistoryMessageBar(boolean showHistoryMessageBar) {
         this.showHistoryMessageBar = showHistoryMessageBar;
     }
@@ -575,8 +552,7 @@ public class ConversationConfig {
     }
 
     /**
-     * 获取会话页面长按消息，弹出框里点击"更多"选项时，底部需要显示的条目。
-     * 可以通过对此列表的增删，进行自定义显示。
+     * 获取会话页面长按消息，弹出框里点击"更多"选项时，底部需要显示的条目。 可以通过对此列表的增删，进行自定义显示。
      *
      * @return 当前设置的点击"更多"时底部显示的条目列表。
      */
@@ -666,7 +642,8 @@ public class ConversationConfig {
         this.enableMultiDeviceSync = enableMultiDeviceSync;
     }
 
-    public void setConversationLoadMessageType(IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType) {
+    public void setConversationLoadMessageType(
+            IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType) {
         this.conversationLoadMessageType = conversationLoadMessageType;
     }
 

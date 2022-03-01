@@ -1,12 +1,9 @@
 package io.rong.imkit.feature.publicservice;
 
 import android.content.Intent;
-
 import androidx.fragment.app.Fragment;
 
-/**
- * Created by DragonJ on 15/3/19.
- */
+/** Created by DragonJ on 15/3/19. */
 public abstract class DispatchResultFragment extends Fragment {
 
     @Override
@@ -25,7 +22,6 @@ public abstract class DispatchResultFragment extends Fragment {
         }
 
         super.onActivityResult(requestCode, resultCode, data);
-
     }
 
     public void startActivityForResult(Fragment fragment, Intent intent, int requestCode) {
@@ -47,10 +43,9 @@ public abstract class DispatchResultFragment extends Fragment {
         startActivityForResult(intent, ((index + 1) << 12) + (requestCode & 0xfff));
     }
 
-
     private int getFragmentOffset(int offset, Fragment targetFragment, Fragment parentFragment) {
-        if (parentFragment == null || parentFragment.getChildFragmentManager().getFragments() == null)
-            return 0;
+        if (parentFragment == null
+                || parentFragment.getChildFragmentManager().getFragments() == null) return 0;
 
         for (Fragment item : parentFragment.getChildFragmentManager().getFragments()) {
             offset++;
@@ -66,20 +61,17 @@ public abstract class DispatchResultFragment extends Fragment {
 
     private Fragment getOffsetFragment(int offset, Fragment fragment) {
 
-        if (offset == 0)
-            return fragment;
+        if (offset == 0) return fragment;
 
         for (Fragment item : getChildFragmentManager().getFragments()) {
-            if (--offset == 0)
-                return item;
+            if (--offset == 0) return item;
 
-            if (item.getChildFragmentManager().getFragments() != null && item.getChildFragmentManager().getFragments().size() > 0) {
+            if (item.getChildFragmentManager().getFragments() != null
+                    && item.getChildFragmentManager().getFragments().size() > 0) {
                 return getOffsetFragment(offset, item);
             }
         }
 
         return null;
     }
-
-
 }

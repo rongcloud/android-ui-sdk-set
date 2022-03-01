@@ -1,13 +1,11 @@
 package io.rong.imkit.activity;
 
 import android.os.Bundle;
-
-import java.util.ArrayList;
-
 import io.rong.imkit.R;
 import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
 import io.rong.message.ReferenceMessage;
+import java.util.ArrayList;
 
 public class CombinePicturePagerActivity extends PicturePagerActivity {
     @Override
@@ -31,12 +29,16 @@ public class CombinePicturePagerActivity extends PicturePagerActivity {
         mViewPager.registerOnPageChangeCallback(mPageChangeListener);
         mImageAdapter = new ImageAdapter();
         isFirstTime = true;
-        //只显示1张照片
+        // 只显示1张照片
         ArrayList<ImageInfo> lists = new ArrayList<>();
-        lists.add(new ImageInfo(mMessage, mCurrentImageMessage.getThumUri(),
-                mCurrentImageMessage.getLocalUri() == null ? mCurrentImageMessage.getRemoteUri() : mCurrentImageMessage.getLocalUri()));
+        lists.add(
+                new ImageInfo(
+                        mMessage,
+                        mCurrentImageMessage.getThumUri(),
+                        mCurrentImageMessage.getLocalUri() == null
+                                ? mCurrentImageMessage.getRemoteUri()
+                                : mCurrentImageMessage.getLocalUri()));
         mImageAdapter.addData(lists, true);
         mViewPager.setAdapter(mImageAdapter);
-
     }
 }

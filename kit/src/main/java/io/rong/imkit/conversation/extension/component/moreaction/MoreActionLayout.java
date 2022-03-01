@@ -4,15 +4,10 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.fragment.app.Fragment;
-
 import java.util.List;
 
-/**
- * Created by zwfang on 2018/3/29.
- */
-
+/** Created by zwfang on 2018/3/29. */
 public class MoreActionLayout extends ViewGroup {
 
     private Context context;
@@ -67,12 +62,13 @@ public class MoreActionLayout extends ViewGroup {
                 final IClickActions action = actions.get(i);
                 ClickImageView view = new ClickImageView(context);
                 view.setImageDrawable(actions.get(i).obtainDrawable(context));
-                view.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        action.onClick(fragment);
-                    }
-                });
+                view.setOnClickListener(
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                action.onClick(fragment);
+                            }
+                        });
                 addView(view, i);
             }
             invalidate();

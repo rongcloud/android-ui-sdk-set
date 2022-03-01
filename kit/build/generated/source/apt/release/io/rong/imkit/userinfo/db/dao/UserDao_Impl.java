@@ -10,13 +10,11 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.rong.imkit.userinfo.db.model.User;
-import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -33,7 +31,7 @@ public final class UserDao_Impl implements UserDao {
     this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
       @Override
       public String createQuery() {
-        return "INSERT OR REPLACE INTO `user` (`id`,`name`,`alias`,`portraitUri`,`extra`) VALUES (?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `user` (`id`,`name`,`portraitUri`,`extra`) VALUES (?,?,?,?)";
       }
 
       @Override
@@ -48,20 +46,15 @@ public final class UserDao_Impl implements UserDao {
         } else {
           stmt.bindString(2, value.name);
         }
-        if (value.alias == null) {
+        if (value.portraitUrl == null) {
           stmt.bindNull(3);
         } else {
-          stmt.bindString(3, value.alias);
-        }
-        if (value.portraitUrl == null) {
-          stmt.bindNull(4);
-        } else {
-          stmt.bindString(4, value.portraitUrl);
+          stmt.bindString(3, value.portraitUrl);
         }
         if (value.extra == null) {
-          stmt.bindNull(5);
+          stmt.bindNull(4);
         } else {
-          stmt.bindString(5, value.extra);
+          stmt.bindString(4, value.extra);
         }
       }
     };
@@ -123,37 +116,15 @@ public final class UserDao_Impl implements UserDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
           final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
           final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
           final User _result;
           if(_cursor.moveToFirst()) {
             _result = new User();
-            if (_cursor.isNull(_cursorIndexOfId)) {
-              _result.id = null;
-            } else {
-              _result.id = _cursor.getString(_cursorIndexOfId);
-            }
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _result.name = null;
-            } else {
-              _result.name = _cursor.getString(_cursorIndexOfName);
-            }
-            if (_cursor.isNull(_cursorIndexOfAlias)) {
-              _result.alias = null;
-            } else {
-              _result.alias = _cursor.getString(_cursorIndexOfAlias);
-            }
-            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-              _result.portraitUrl = null;
-            } else {
-              _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            }
-            if (_cursor.isNull(_cursorIndexOfExtra)) {
-              _result.extra = null;
-            } else {
-              _result.extra = _cursor.getString(_cursorIndexOfExtra);
-            }
+            _result.id = _cursor.getString(_cursorIndexOfId);
+            _result.name = _cursor.getString(_cursorIndexOfName);
+            _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+            _result.extra = _cursor.getString(_cursorIndexOfExtra);
           } else {
             _result = null;
           }
@@ -185,37 +156,15 @@ public final class UserDao_Impl implements UserDao {
     try {
       final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
       final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-      final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
       final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
       final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
       final User _result;
       if(_cursor.moveToFirst()) {
         _result = new User();
-        if (_cursor.isNull(_cursorIndexOfId)) {
-          _result.id = null;
-        } else {
-          _result.id = _cursor.getString(_cursorIndexOfId);
-        }
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _result.name = null;
-        } else {
-          _result.name = _cursor.getString(_cursorIndexOfName);
-        }
-        if (_cursor.isNull(_cursorIndexOfAlias)) {
-          _result.alias = null;
-        } else {
-          _result.alias = _cursor.getString(_cursorIndexOfAlias);
-        }
-        if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-          _result.portraitUrl = null;
-        } else {
-          _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-        }
-        if (_cursor.isNull(_cursorIndexOfExtra)) {
-          _result.extra = null;
-        } else {
-          _result.extra = _cursor.getString(_cursorIndexOfExtra);
-        }
+        _result.id = _cursor.getString(_cursorIndexOfId);
+        _result.name = _cursor.getString(_cursorIndexOfName);
+        _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+        _result.extra = _cursor.getString(_cursorIndexOfExtra);
       } else {
         _result = null;
       }
@@ -243,37 +192,15 @@ public final class UserDao_Impl implements UserDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
           final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
           final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
           final User _result;
           if(_cursor.moveToFirst()) {
             _result = new User();
-            if (_cursor.isNull(_cursorIndexOfId)) {
-              _result.id = null;
-            } else {
-              _result.id = _cursor.getString(_cursorIndexOfId);
-            }
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _result.name = null;
-            } else {
-              _result.name = _cursor.getString(_cursorIndexOfName);
-            }
-            if (_cursor.isNull(_cursorIndexOfAlias)) {
-              _result.alias = null;
-            } else {
-              _result.alias = _cursor.getString(_cursorIndexOfAlias);
-            }
-            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-              _result.portraitUrl = null;
-            } else {
-              _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            }
-            if (_cursor.isNull(_cursorIndexOfExtra)) {
-              _result.extra = null;
-            } else {
-              _result.extra = _cursor.getString(_cursorIndexOfExtra);
-            }
+            _result.id = _cursor.getString(_cursorIndexOfId);
+            _result.name = _cursor.getString(_cursorIndexOfName);
+            _result.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+            _result.extra = _cursor.getString(_cursorIndexOfExtra);
           } else {
             _result = null;
           }
@@ -301,38 +228,16 @@ public final class UserDao_Impl implements UserDao {
         try {
           final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
           final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
           final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
           final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
           final List<User> _result = new ArrayList<User>(_cursor.getCount());
           while(_cursor.moveToNext()) {
             final User _item;
             _item = new User();
-            if (_cursor.isNull(_cursorIndexOfId)) {
-              _item.id = null;
-            } else {
-              _item.id = _cursor.getString(_cursorIndexOfId);
-            }
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _item.name = null;
-            } else {
-              _item.name = _cursor.getString(_cursorIndexOfName);
-            }
-            if (_cursor.isNull(_cursorIndexOfAlias)) {
-              _item.alias = null;
-            } else {
-              _item.alias = _cursor.getString(_cursorIndexOfAlias);
-            }
-            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-              _item.portraitUrl = null;
-            } else {
-              _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            }
-            if (_cursor.isNull(_cursorIndexOfExtra)) {
-              _item.extra = null;
-            } else {
-              _item.extra = _cursor.getString(_cursorIndexOfExtra);
-            }
+            _item.id = _cursor.getString(_cursorIndexOfId);
+            _item.name = _cursor.getString(_cursorIndexOfName);
+            _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
+            _item.extra = _cursor.getString(_cursorIndexOfExtra);
             _result.add(_item);
           }
           return _result;
@@ -346,61 +251,5 @@ public final class UserDao_Impl implements UserDao {
         _statement.release();
       }
     });
-  }
-
-  @Override
-  public List<User> getLimitUsers(final int limit) {
-    final String _sql = "select * from user limit ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, limit);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-      final int _cursorIndexOfAlias = CursorUtil.getColumnIndexOrThrow(_cursor, "alias");
-      final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
-      final int _cursorIndexOfExtra = CursorUtil.getColumnIndexOrThrow(_cursor, "extra");
-      final List<User> _result = new ArrayList<User>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final User _item;
-        _item = new User();
-        if (_cursor.isNull(_cursorIndexOfId)) {
-          _item.id = null;
-        } else {
-          _item.id = _cursor.getString(_cursorIndexOfId);
-        }
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _item.name = null;
-        } else {
-          _item.name = _cursor.getString(_cursorIndexOfName);
-        }
-        if (_cursor.isNull(_cursorIndexOfAlias)) {
-          _item.alias = null;
-        } else {
-          _item.alias = _cursor.getString(_cursorIndexOfAlias);
-        }
-        if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-          _item.portraitUrl = null;
-        } else {
-          _item.portraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-        }
-        if (_cursor.isNull(_cursorIndexOfExtra)) {
-          _item.extra = null;
-        } else {
-          _item.extra = _cursor.getString(_cursorIndexOfExtra);
-        }
-        _result.add(_item);
-      }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
-  }
-
-  public static List<Class<?>> getRequiredConverters() {
-    return Collections.emptyList();
   }
 }

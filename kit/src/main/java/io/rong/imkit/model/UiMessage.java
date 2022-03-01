@@ -1,18 +1,10 @@
 package io.rong.imkit.model;
 
-
 import android.net.Uri;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.rong.common.RLog;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.db.model.GroupMember;
-import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -21,26 +13,23 @@ import io.rong.imlib.model.MessageConfig;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.UserInfo;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UiMessage extends UiBaseBean {
     private final String TAG = UiMessage.class.getSimpleName();
     private Message message;
     private UserInfo userInfo;
-    private @State.Value
-    int state;
+    private @State.Value int state;
     private int progress;
     private String destructTime;
     private boolean isPlaying;
     private boolean isEdit;
     private boolean isSelected;
     private String nickname;
-    /**
-     * TextMessage 和 ReferenceMessage 的 content 字段
-     */
+    /** TextMessage 和 ReferenceMessage 的 content 字段 */
     private SpannableStringBuilder contentSpannable;
-    /**
-     * ReferenceMessage 的 referMsg 为 TextMessage 时 的 content 字段
-     */
+    /** ReferenceMessage 的 referMsg 为 TextMessage 时 的 content 字段 */
     private SpannableStringBuilder referenceContentSpannable;
 
     public UiMessage(Message message) {
@@ -68,7 +57,9 @@ public class UiMessage extends UiBaseBean {
             userInfo = new UserInfo(message.getSenderUserId(), message.getSenderUserId(), null);
         }
         if (message.getConversationType().equals(Conversation.ConversationType.GROUP)) {
-            GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(message.getTargetId(), message.getSenderUserId());
+            GroupUserInfo groupUserInfo =
+                    RongUserInfoManager.getInstance()
+                            .getGroupUserInfo(message.getTargetId(), message.getSenderUserId());
             if (groupUserInfo != null && !TextUtils.isEmpty(groupUserInfo.getNickname())) {
                 nickname = groupUserInfo.getNickname();
             }
@@ -416,7 +407,6 @@ public class UiMessage extends UiBaseBean {
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
-
 
     public String getDisplayName() {
         return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, nickname);

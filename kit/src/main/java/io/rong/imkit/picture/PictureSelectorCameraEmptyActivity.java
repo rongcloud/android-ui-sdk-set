@@ -5,14 +5,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
@@ -23,6 +17,9 @@ import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author：luck
@@ -34,10 +31,9 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (PermissionChecker
-                .checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) &&
-                PermissionChecker
-                        .checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                && PermissionChecker.checkSelfPermission(
+                        this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             onTakePhoto();
         } else {
             ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
@@ -46,7 +42,6 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         }
         setTheme(R.style.Picture_Theme_Translucent);
     }
-
 
     @Override
     public int getResourceId() {
@@ -58,23 +53,20 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         super.initWidgets();
     }
 
-    /**
-     * 启动相机
-     */
+    /** 启动相机 */
     private void onTakePhoto() {
         // 启动相机拍照,先判断手机是否有拍照权限
-        if (PermissionChecker
-                .checkSelfPermission(this, Manifest.permission.CAMERA)) {
+        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA)) {
             startCamera();
         } else {
-            PermissionChecker.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA}, PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE);
+            PermissionChecker.requestPermissions(
+                    this,
+                    new String[] {Manifest.permission.CAMERA},
+                    PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE);
         }
     }
 
-    /**
-     * 根据类型启动相应相机
-     */
+    /** 根据类型启动相应相机 */
     private void startCamera() {
         switch (config.chooseMode) {
             case PictureConfig.TYPE_ALL:
@@ -103,13 +95,11 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         }
     }
 
-
     /**
      * 拍照后处理结果
      *
      * @param data
      */
-
     private void requestCamera(Intent data) {
         // on take photo success
         String mimeType = null;
@@ -121,12 +111,13 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         int[] newSize = new int[2];
         final File file = new File(cameraPath);
         if (!isAndroidQ) {
-            new PictureMediaScannerConnection(getApplicationContext(), cameraPath, new PictureMediaScannerConnection.ScanListener() {
-                @Override
-                public void onScanFinish() {
-
-                }
-            });
+            new PictureMediaScannerConnection(
+                    getApplicationContext(),
+                    cameraPath,
+                    new PictureMediaScannerConnection.ScanListener() {
+                        @Override
+                        public void onScanFinish() {}
+                    });
         }
         LocalMedia media = new LocalMedia();
         mimeType = PictureMimeType.fileToType(file);
@@ -168,11 +159,12 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
-            //The condition checking is also made in the super class,so return directly.
+            // The condition checking is also made in the super class,so return directly.
             return;
         }
 
@@ -190,7 +182,8 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                 break;
             case PictureConfig.APPLY_CAMERA_PERMISSIONS_CODE:
                 // 相机权限
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     onTakePhoto();
                 } else {
                     closeActivity();

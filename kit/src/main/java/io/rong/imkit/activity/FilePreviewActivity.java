@@ -1,6 +1,7 @@
 package io.rong.imkit.activity;
 
-import android.Manifest;
+import static android.widget.Toast.makeText;
+
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -16,14 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.core.content.FileProvider;
-
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
@@ -32,7 +26,6 @@ import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
 import io.rong.imkit.event.actionevent.MessageEventListener;
 import io.rong.imkit.utils.FileTypeUtils;
-import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
@@ -43,9 +36,10 @@ import io.rong.message.FileMessage;
 import io.rong.message.MediaMessageContent;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
-
-import static android.widget.Toast.makeText;
-
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FilePreviewActivity extends RongBaseActivity implements View.OnClickListener {
     public static final int NOT_DOWNLOAD = 0;
@@ -57,7 +51,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     public static final int DOWNLOAD_SUCCESS = 6;
     public static final int DOWNLOAD_PAUSE = 7;
     public static final int REQUEST_CODE_PERMISSION = 104;
-    private final static String TAG = "FilePreviewActivity";
+    private static final String TAG = "FilePreviewActivity";
     private static final String TXT_FILE = ".txt";
     private static final String APK_FILE = ".apk";
     protected FileDownloadInfo mFileDownloadInfo;
@@ -75,37 +69,45 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     private FrameLayout contentContainer;
     private DownloadInfo info = null;
     private long downloadedFileLength;
-    private IRongCoreCallback.ResultCallback<DownloadInfo> callback = new DownloadInfoCallBack(this);
-    private RongIMClient.OnRecallMessageListener mRecallListener = new RongIMClient.OnRecallMessageListener() {
-        @Override
-        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
-            if (mMessage == null) {
-                return false;
-            }
-            int messageId = mMessage.getMessageId();
-            if (messageId == message.getMessageId()) {
-                new AlertDialog.Builder(FilePreviewActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
-                        .setMessage(getString(R.string.rc_recall_success))
-                        .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
+    private IRongCoreCallback.ResultCallback<DownloadInfo> callback =
+            new DownloadInfoCallBack(this);
+    private RongIMClient.OnRecallMessageListener mRecallListener =
+            new RongIMClient.OnRecallMessageListener() {
+                @Override
+                public boolean onMessageRecalled(
+                        Message message, RecallNotificationMessage recallNotificationMessage) {
+                    if (mMessage == null) {
+                        return false;
+                    }
+                    int messageId = mMessage.getMessageId();
+                    if (messageId == message.getMessageId()) {
+                        new AlertDialog.Builder(
+                                        FilePreviewActivity.this,
+                                        AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+                                .setMessage(getString(R.string.rc_recall_success))
+                                .setPositiveButton(
+                                        getString(R.string.rc_dialog_ok),
+                                        new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
-                        .setCancelable(false)
-                        .show();
-            }
-            return false;
-        }
-    };
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finish();
+                                            }
+                                        })
+                                .setCancelable(false)
+                                .show();
+                    }
+                    return false;
+                }
+            };
     private boolean getInfoNow = false;
-    private MessageEventListener mEventListener = new BaseMessageEvent() {
-        @Override
-        public void onDownloadMessage(DownloadEvent event) {
-            updateDownloadStatus(event);
-        }
-    };
+    private MessageEventListener mEventListener =
+            new BaseMessageEvent() {
+                @Override
+                public void onDownloadMessage(DownloadEvent event) {
+                    updateDownloadStatus(event);
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,7 +151,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         mMessage = getIntent().getParcelableExtra("Message");
         mProgress = getIntent().getIntExtra("Progress", 0);
 
-        if(mFileMessage == null || mMessage == null) {
+        if (mFileMessage == null || mMessage == null) {
             RLog.e(TAG, "message is null, return directly!");
             return;
         }
@@ -228,7 +230,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
 
     private void getFileInfo() {
         RLog.d("getDownloadInfo", "getFileInfo start");
-        RongCoreClient.getInstance().getDownloadInfo(String.valueOf(mMessage.getMessageId()), callback);
+        RongCoreClient.getInstance()
+                .getDownloadInfo(String.valueOf(mMessage.getMessageId()), callback);
     }
 
     protected void refreshDownloadState() {
@@ -237,53 +240,89 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
                 break;
             case DOWNLOADING:
-                downloadedFileLength = (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
-                mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_tv) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                        + "/" + FileTypeUtils.formatFileSize(mFileSize) + ")");
+                downloadedFileLength =
+                        (long)
+                                (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0)
+                                        + 0.5f);
+                mFileSizeView.setText(
+                        getString(R.string.rc_ac_file_download_progress_tv)
+                                + "("
+                                + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                + "/"
+                                + FileTypeUtils.formatFileSize(mFileSize)
+                                + ")");
                 mFileButton.setText(getString(R.string.rc_cancel));
                 break;
             case DOWNLOADED:
                 mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
                 break;
             case DOWNLOAD_SUCCESS:
-//                mDownloadProgressView.setVisibility(View.GONE);
+                //                mDownloadProgressView.setVisibility(View.GONE);
                 mFileButton.setVisibility(View.VISIBLE);
                 mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
-                makeText(FilePreviewActivity.this, getString(R.string.rc_ac_file_preview_downloaded) + mFileDownloadInfo.path, Toast.LENGTH_SHORT).show();
+                makeText(
+                                FilePreviewActivity.this,
+                                getString(R.string.rc_ac_file_preview_downloaded)
+                                        + mFileDownloadInfo.path,
+                                Toast.LENGTH_SHORT)
+                        .show();
                 break;
             case DOWNLOAD_ERROR:
-                long downloadedFileLength = (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
-                mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_pause) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                        + "/" + FileTypeUtils.formatFileSize(mFileSize) + ")");
+                long downloadedFileLength =
+                        (long)
+                                (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0)
+                                        + 0.5f);
+                mFileSizeView.setText(
+                        getString(R.string.rc_ac_file_download_progress_pause)
+                                + "("
+                                + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                + "/"
+                                + FileTypeUtils.formatFileSize(mFileSize)
+                                + ")");
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
-                Toast toast = makeText(FilePreviewActivity.this, getString(R.string.rc_ac_file_preview_download_error), Toast.LENGTH_SHORT);
+                Toast toast =
+                        makeText(
+                                FilePreviewActivity.this,
+                                getString(R.string.rc_ac_file_preview_download_error),
+                                Toast.LENGTH_SHORT);
                 if (mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
                     toast.show();
                 }
                 mToasts.add(toast);
                 break;
             case DOWNLOAD_CANCEL:
-//                mDownloadProgressView.setVisibility(View.GONE);
-//                mFileDownloadProgressBar.setProgress(0);
+                //                mDownloadProgressView.setVisibility(View.GONE);
+                //                mFileDownloadProgressBar.setProgress(0);
                 mFileButton.setVisibility(View.VISIBLE);
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
-                makeText(FilePreviewActivity.this, getString(R.string.rc_ac_file_preview_download_cancel), Toast.LENGTH_SHORT).show();
+                makeText(
+                                FilePreviewActivity.this,
+                                getString(R.string.rc_ac_file_preview_download_cancel),
+                                Toast.LENGTH_SHORT)
+                        .show();
                 break;
             case DELETED:
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
                 break;
             case DOWNLOAD_PAUSE:
-                downloadedFileLength = (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
-//                mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
-                mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_pause) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                        + "/" + FileTypeUtils.formatFileSize(mFileSize) + ")");
+                downloadedFileLength =
+                        (long)
+                                (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0)
+                                        + 0.5f);
+                //                mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
+                mFileSizeView.setText(
+                        getString(R.string.rc_ac_file_download_progress_pause)
+                                + "("
+                                + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                + "/"
+                                + FileTypeUtils.formatFileSize(mFileSize)
+                                + ")");
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
                 break;
         }
-
     }
 
     private void setViewStatusForResumeTransfer() {
@@ -307,23 +346,38 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 case DOWNLOADING:
                     mFileDownloadInfo.state = DOWNLOAD_PAUSE;
                     IMCenter.getInstance().pauseDownloadMediaMessage(mMessage, null);
-                    downloadedFileLength = (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
-                    mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_pause) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                            + "/" + FileTypeUtils.formatFileSize(mFileSize) + ")");
-                    mFileButton.setText(getResources().getString(R.string.rc_ac_file_preview_download_resume));
+                    downloadedFileLength =
+                            (long)
+                                    (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0)
+                                            + 0.5f);
+                    mFileSizeView.setText(
+                            getString(R.string.rc_ac_file_download_progress_pause)
+                                    + "("
+                                    + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                    + "/"
+                                    + FileTypeUtils.formatFileSize(mFileSize)
+                                    + ")");
+                    mFileButton.setText(
+                            getResources().getString(R.string.rc_ac_file_preview_download_resume));
                     break;
                 case DOWNLOAD_PAUSE:
-                    if (IMCenter.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.NETWORK_UNAVAILABLE) {
-                        makeText(FilePreviewActivity.this, getString(R.string.rc_notice_network_unavailable), Toast.LENGTH_SHORT).show();
+                    if (IMCenter.getInstance().getCurrentConnectionStatus()
+                            == RongIMClient.ConnectionStatusListener.ConnectionStatus
+                                    .NETWORK_UNAVAILABLE) {
+                        makeText(
+                                        FilePreviewActivity.this,
+                                        getString(R.string.rc_notice_network_unavailable),
+                                        Toast.LENGTH_SHORT)
+                                .show();
                         return;
                     }
                     mFileDownloadInfo.state = DOWNLOADING;
                     downloadFile();
-                    if (mFileDownloadInfo.state != DOWNLOAD_ERROR && mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
+                    if (mFileDownloadInfo.state != DOWNLOAD_ERROR
+                            && mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
                         mFileButton.setText(getResources().getString(R.string.rc_cancel));
                     }
                     break;
-
             }
         }
     }
@@ -335,13 +389,24 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
             refreshDownloadState();
             return;
         }
-        if (IMCenter.getInstance().getCurrentConnectionStatus() != RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
-            makeText(FilePreviewActivity.this, getString(R.string.rc_notice_network_unavailable), Toast.LENGTH_SHORT).show();
+        if (IMCenter.getInstance().getCurrentConnectionStatus()
+                != RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
+            makeText(
+                            FilePreviewActivity.this,
+                            getString(R.string.rc_notice_network_unavailable),
+                            Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
         MediaMessageContent mediaMessage = (MediaMessageContent) (mMessage.getContent());
-        if (mediaMessage != null && (mediaMessage.getMediaUrl() == null || TextUtils.isEmpty(mediaMessage.getMediaUrl().toString()))) {
-            makeText(FilePreviewActivity.this, getString(R.string.rc_ac_file_url_error), Toast.LENGTH_SHORT).show();
+        if (mediaMessage != null
+                && (mediaMessage.getMediaUrl() == null
+                        || TextUtils.isEmpty(mediaMessage.getMediaUrl().toString()))) {
+            makeText(
+                            FilePreviewActivity.this,
+                            getString(R.string.rc_ac_file_url_error),
+                            Toast.LENGTH_SHORT)
+                    .show();
             finish();
             return;
         }
@@ -362,12 +427,20 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(intent);
                 } else {
-                    makeText(FilePreviewActivity.this, getString(R.string.rc_ac_file_preview_can_not_open_file), Toast.LENGTH_SHORT).show();
+                    makeText(
+                                    FilePreviewActivity.this,
+                                    getString(R.string.rc_ac_file_preview_can_not_open_file),
+                                    Toast.LENGTH_SHORT)
+                            .show();
                 }
             }
         } catch (Exception e) {
             RLog.e(TAG, "openFile", e);
-            makeText(FilePreviewActivity.this, getString(R.string.rc_ac_file_preview_can_not_open_file), Toast.LENGTH_SHORT).show();
+            makeText(
+                            FilePreviewActivity.this,
+                            getString(R.string.rc_ac_file_preview_can_not_open_file),
+                            Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
@@ -376,9 +449,15 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         // KNOTE: 2021/8/18下载文件使用应用私有目录  不需要存储权限
         mFileDownloadInfo.state = DOWNLOADING;
         mFileButton.setText(getResources().getString(R.string.rc_cancel));
-        downloadedFileLength = (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
-        mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_tv) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                + "/" + FileTypeUtils.formatFileSize(mFileSize) + ")");
+        downloadedFileLength =
+                (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
+        mFileSizeView.setText(
+                getString(R.string.rc_ac_file_download_progress_tv)
+                        + "("
+                        + FileTypeUtils.formatFileSize(downloadedFileLength)
+                        + "/"
+                        + FileTypeUtils.formatFileSize(mFileSize)
+                        + ")");
         IMCenter.getInstance().downloadMediaMessage(mMessage, null);
     }
 
@@ -392,7 +471,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         }
 
         if (fileMessage != null) {
-            if (fileMessage.getLocalPath() != null && !TextUtils.isEmpty(fileMessage.getLocalPath().toString())) {
+            if (fileMessage.getLocalPath() != null
+                    && !TextUtils.isEmpty(fileMessage.getLocalPath().toString())) {
                 fileMessage.setLocalPath(null);
                 mFileMessage.setLocalPath(null);
                 IMCenter.getInstance().refreshMessage(mMessage);
@@ -416,22 +496,28 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
      * 处理三种情况
      *
      * @param fileName 文件名
-     * @param uri      文件Uri
+     * @param uri 文件Uri
      */
     private void processTxtFile(String fileName, Uri uri) {
         Intent webIntent = new Intent(this, RongWebviewActivity.class);
         webIntent.setPackage(getPackageName());
-        //如果是content
+        // 如果是content
         if (FileUtils.uriStartWithContent(uri)) {
             webIntent.putExtra("url", uri.toString());
         } else {
-            //File开头
+            // File开头
             String path = uri.toString();
             if (FileUtils.uriStartWithFile(uri)) {
                 path = path.substring(7);
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri txtUri = FileProvider.getUriForFile(this, this.getApplicationContext().getPackageName() + getResources().getString(R.string.rc_authorities_fileprovider), new File(path));
+                Uri txtUri =
+                        FileProvider.getUriForFile(
+                                this,
+                                this.getApplicationContext().getPackageName()
+                                        + getResources()
+                                                .getString(R.string.rc_authorities_fileprovider),
+                                new File(path));
                 webIntent.putExtra("url", txtUri.toString());
             } else {
                 webIntent.putExtra("url", "file://" + path);
@@ -448,36 +534,49 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
      */
     private void processApkFile(Uri uri) {
         if (FileUtils.uriStartWithContent(uri)) {
-            Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(uri,
-                    "application/vnd.android.package-archive");
+            Intent intent =
+                    new Intent(Intent.ACTION_VIEW)
+                            .setDataAndType(uri, "application/vnd.android.package-archive");
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             startActivity(intent);
         } else {
-            //File开头
+            // File开头
             String path = uri.toString();
             if (FileUtils.uriStartWithFile(uri)) {
                 path = path.substring(7);
             }
             File file = new File(path);
             if (!file.exists()) {
-                makeText(FilePreviewActivity.this, getString(R.string.rc_file_not_exist), Toast.LENGTH_SHORT).show();
+                makeText(
+                                FilePreviewActivity.this,
+                                getString(R.string.rc_file_not_exist),
+                                Toast.LENGTH_SHORT)
+                        .show();
                 return;
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Uri downloaded_apk;
                 try {
-                    downloaded_apk = FileProvider.getUriForFile(this, getPackageName() + getString(R.string.rc_authorities_fileprovider), file);
+                    downloaded_apk =
+                            FileProvider.getUriForFile(
+                                    this,
+                                    getPackageName()
+                                            + getString(R.string.rc_authorities_fileprovider),
+                                    file);
                 } catch (Exception e) {
                     throw new RuntimeException("Please check IMKit Manifest FileProvider config.");
                 }
-                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(downloaded_apk,
-                        "application/vnd.android.package-archive");
+                Intent intent =
+                        new Intent(Intent.ACTION_VIEW)
+                                .setDataAndType(
+                                        downloaded_apk, "application/vnd.android.package-archive");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
             } else {
                 Intent installIntent = new Intent(Intent.ACTION_VIEW);
                 installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                installIntent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+                installIntent.setDataAndType(
+                        Uri.fromFile(file), "application/vnd.android.package-archive");
                 startActivity(installIntent);
             }
         }
@@ -547,11 +646,14 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                             return;
                         if (event.getMessage().getContent() instanceof FileMessage) {
                             mFileMessage = (FileMessage) event.getMessage().getContent();
-                            mFileMessage.setLocalPath(Uri.parse(mFileMessage.getLocalPath().toString()));
+                            mFileMessage.setLocalPath(
+                                    Uri.parse(mFileMessage.getLocalPath().toString()));
                             mFileDownloadInfo.path = mFileMessage.getLocalPath().toString();
                         } else {
-                            ReferenceMessage referenceMessage = (ReferenceMessage) event.getMessage().getContent();
-                            mFileMessage.setLocalPath(Uri.parse(referenceMessage.getLocalPath().toString()));
+                            ReferenceMessage referenceMessage =
+                                    (ReferenceMessage) event.getMessage().getContent();
+                            mFileMessage.setLocalPath(
+                                    Uri.parse(referenceMessage.getLocalPath().toString()));
                             mFileDownloadInfo.path = referenceMessage.getLocalPath().toString();
                         }
 
@@ -588,7 +690,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         return mMessage;
     }
 
-    private static class DownloadInfoCallBack extends IRongCoreCallback.ResultCallback<DownloadInfo> {
+    private static class DownloadInfoCallBack
+            extends IRongCoreCallback.ResultCallback<DownloadInfo> {
         WeakReference<FilePreviewActivity> weakActivity;
 
         public DownloadInfoCallBack(FilePreviewActivity activity) {
@@ -609,15 +712,14 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
             activity.getInfoNow = false;
             activity.setViewStatusForResumeTransfer();
             activity.getFileDownloadInfoForResumeTransfer();
-            activity.mFileButton.setBackgroundResource(R.drawable.rc_ac_btn_file_download_open_button);
+            activity.mFileButton.setBackgroundResource(
+                    R.drawable.rc_ac_btn_file_download_open_button);
             activity.mFileButton.setEnabled(true);
             RLog.d("getDownloadInfo", "getFileInfo finish");
         }
 
         @Override
-        public void onError(IRongCoreEnum.CoreErrorCode e) {
-
-        }
+        public void onError(IRongCoreEnum.CoreErrorCode e) {}
     }
 
     public class FileDownloadInfo {
@@ -625,6 +727,4 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         public int progress;
         public String path;
     }
-
-
 }

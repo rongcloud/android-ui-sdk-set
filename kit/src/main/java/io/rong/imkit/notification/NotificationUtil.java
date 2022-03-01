@@ -14,55 +14,62 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.text.TextUtils;
-
 import androidx.annotation.RequiresApi;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 
-/**
- * Created by jiangecho on 2016/11/29.
- */
-
+/** Created by jiangecho on 2016/11/29. */
 public class NotificationUtil {
     private final String TAG = NotificationUtil.class.getSimpleName();
     private final String CHANNEL_ID = "RCChannel";
     private final int SOUND_INTERVAL = 3000;
     private long mLastSoundTime;
 
-    private NotificationUtil() {
-
-    }
+    private NotificationUtil() {}
 
     public static NotificationUtil getInstance() {
         return SingletonHolder.sInstance;
     }
 
     /**
-     * @param context        上下文
-     * @param title          标题
-     * @param content        内容
-     * @param pendingIntent  PendingIntent
+     * @param context 上下文
+     * @param title 标题
+     * @param content 内容
+     * @param pendingIntent PendingIntent
      * @param notificationId 通知 id
-     * @param defaults       控制通知属性， 对应public Builder setDefaults(int defaults)
+     * @param defaults 控制通知属性， 对应public Builder setDefaults(int defaults)
      */
-    public void showNotification(Context context, String title, String content, PendingIntent pendingIntent, int notificationId, int defaults) {
+    public void showNotification(
+            Context context,
+            String title,
+            String content,
+            PendingIntent pendingIntent,
+            int notificationId,
+            int defaults) {
         Notification notification;
-        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager nm =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                NotificationChannel channel = RongConfigCenter.notificationConfig().getNotificationChannel();
+                NotificationChannel channel =
+                        RongConfigCenter.notificationConfig().getNotificationChannel();
                 if (channel == null) {
                     channel = getDefaultChannel(context);
                 }
                 if (RongConfigCenter.notificationConfig().getInterceptor() != null) {
-                    channel = RongConfigCenter.notificationConfig().getInterceptor().onRegisterChannel(getDefaultChannel(context));
+                    channel =
+                            RongConfigCenter.notificationConfig()
+                                    .getInterceptor()
+                                    .onRegisterChannel(getDefaultChannel(context));
                 }
                 nm.createNotificationChannel(channel);
-                notification = createNotification(context, title, content, pendingIntent, defaults, channel.getId());
+                notification =
+                        createNotification(
+                                context, title, content, pendingIntent, defaults, channel.getId());
             } else {
-                notification = createNotification(context, title, content, pendingIntent, defaults, null);
+                notification =
+                        createNotification(context, title, content, pendingIntent, defaults, null);
             }
 
             if (notification != null) {
@@ -75,8 +82,10 @@ public class NotificationUtil {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public NotificationChannel getDefaultChannel(Context context) {
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        String channelName = context.getResources().getString(R.string.rc_notification_channel_name);
-        NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, channelName, importance);
+        String channelName =
+                context.getResources().getString(R.string.rc_notification_channel_name);
+        NotificationChannel notificationChannel =
+                new NotificationChannel(CHANNEL_ID, channelName, importance);
         notificationChannel.enableLights(true);
         notificationChannel.setLightColor(Color.GREEN);
         if (System.currentTimeMillis() - mLastSoundTime < SOUND_INTERVAL) {
@@ -86,20 +95,42 @@ public class NotificationUtil {
         return notificationChannel;
     }
 
-    public void showNotification(Context context, String title, String content, PendingIntent intent, int notificationId) {
+    public void showNotification(
+            Context context,
+            String title,
+            String content,
+            PendingIntent intent,
+            int notificationId) {
         showNotification(context, title, content, intent, notificationId, Notification.DEFAULT_ALL);
     }
 
     public void clearNotification(Context context, int notificationId) {
-        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager nm =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.cancel(notificationId);
     }
 
-    private Notification createNotification(Context context, String title, String content, PendingIntent pendingIntent, int defaults, String channelId) {
-        String tickerText = context.getResources().getString(context.getResources().getIdentifier("rc_notification_ticker_text", "string", context.getPackageName()));
+    private Notification createNotification(
+            Context context,
+            String title,
+            String content,
+            PendingIntent pendingIntent,
+            int defaults,
+            String channelId) {
+        String tickerText =
+                context.getResources()
+                        .getString(
+                                context.getResources()
+                                        .getIdentifier(
+                                                "rc_notification_ticker_text",
+                                                "string",
+                                                context.getPackageName()));
         Notification notification;
         boolean isLollipop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-        int smallIcon = context.getResources().getIdentifier("notification_small_icon", "drawable", context.getPackageName());
+        int smallIcon =
+                context.getResources()
+                        .getIdentifier(
+                                "notification_small_icon", "drawable", context.getPackageName());
 
         if (smallIcon <= 0 || !isLollipop) {
             smallIcon = context.getApplicationInfo().icon;
@@ -108,8 +139,13 @@ public class NotificationUtil {
         Drawable loadIcon = context.getApplicationInfo().loadIcon((context.getPackageManager()));
         Bitmap appIcon = null;
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && loadIcon instanceof AdaptiveIconDrawable) {
-                appIcon = Bitmap.createBitmap(loadIcon.getIntrinsicWidth(), loadIcon.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                    && loadIcon instanceof AdaptiveIconDrawable) {
+                appIcon =
+                        Bitmap.createBitmap(
+                                loadIcon.getIntrinsicWidth(),
+                                loadIcon.getIntrinsicHeight(),
+                                Bitmap.Config.ARGB_8888);
                 final Canvas canvas = new Canvas(appIcon);
                 loadIcon.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                 loadIcon.draw(canvas);

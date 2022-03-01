@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 
-@Entity(tableName = "group_member", primaryKeys = {"group_id", "user_id"})
+@Entity(
+        tableName = "group_member",
+        primaryKeys = {"group_id", "user_id"})
 public class GroupMember {
     public GroupMember(@NonNull String groupId, @NonNull String userId, String memberName) {
         this.groupId = groupId;

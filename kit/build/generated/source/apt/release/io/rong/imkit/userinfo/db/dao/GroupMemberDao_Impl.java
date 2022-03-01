@@ -10,13 +10,11 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.rong.imkit.userinfo.db.model.GroupMember;
-import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -165,23 +163,11 @@ public final class GroupMemberDao_Impl implements GroupMemberDao {
           while(_cursor.moveToNext()) {
             final GroupMember _item;
             final String _tmpGroupId;
-            if (_cursor.isNull(_cursorIndexOfGroupId)) {
-              _tmpGroupId = null;
-            } else {
-              _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
-            }
+            _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
             final String _tmpUserId;
-            if (_cursor.isNull(_cursorIndexOfUserId)) {
-              _tmpUserId = null;
-            } else {
-              _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
-            }
+            _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
             final String _tmpMemberName;
-            if (_cursor.isNull(_cursorIndexOfMemberName)) {
-              _tmpMemberName = null;
-            } else {
-              _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
-            }
+            _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
             _item = new GroupMember(_tmpGroupId,_tmpUserId,_tmpMemberName);
             _result.add(_item);
           }
@@ -214,23 +200,11 @@ public final class GroupMemberDao_Impl implements GroupMemberDao {
           while(_cursor.moveToNext()) {
             final GroupMember _item;
             final String _tmpGroupId;
-            if (_cursor.isNull(_cursorIndexOfGroupId)) {
-              _tmpGroupId = null;
-            } else {
-              _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
-            }
+            _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
             final String _tmpUserId;
-            if (_cursor.isNull(_cursorIndexOfUserId)) {
-              _tmpUserId = null;
-            } else {
-              _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
-            }
+            _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
             final String _tmpMemberName;
-            if (_cursor.isNull(_cursorIndexOfMemberName)) {
-              _tmpMemberName = null;
-            } else {
-              _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
-            }
+            _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
             _item = new GroupMember(_tmpGroupId,_tmpUserId,_tmpMemberName);
             _result.add(_item);
           }
@@ -272,23 +246,11 @@ public final class GroupMemberDao_Impl implements GroupMemberDao {
       final GroupMember _result;
       if(_cursor.moveToFirst()) {
         final String _tmpGroupId;
-        if (_cursor.isNull(_cursorIndexOfGroupId)) {
-          _tmpGroupId = null;
-        } else {
-          _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
-        }
+        _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
         final String _tmpUserId;
-        if (_cursor.isNull(_cursorIndexOfUserId)) {
-          _tmpUserId = null;
-        } else {
-          _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
-        }
+        _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
         final String _tmpMemberName;
-        if (_cursor.isNull(_cursorIndexOfMemberName)) {
-          _tmpMemberName = null;
-        } else {
-          _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
-        }
+        _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
         _result = new GroupMember(_tmpGroupId,_tmpUserId,_tmpMemberName);
       } else {
         _result = null;
@@ -298,52 +260,5 @@ public final class GroupMemberDao_Impl implements GroupMemberDao {
       _cursor.close();
       _statement.release();
     }
-  }
-
-  @Override
-  public List<GroupMember> getLimitGroupMembers(final int limit) {
-    final String _sql = "select * from group_member limit ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, limit);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfGroupId = CursorUtil.getColumnIndexOrThrow(_cursor, "group_id");
-      final int _cursorIndexOfUserId = CursorUtil.getColumnIndexOrThrow(_cursor, "user_id");
-      final int _cursorIndexOfMemberName = CursorUtil.getColumnIndexOrThrow(_cursor, "member_name");
-      final List<GroupMember> _result = new ArrayList<GroupMember>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final GroupMember _item;
-        final String _tmpGroupId;
-        if (_cursor.isNull(_cursorIndexOfGroupId)) {
-          _tmpGroupId = null;
-        } else {
-          _tmpGroupId = _cursor.getString(_cursorIndexOfGroupId);
-        }
-        final String _tmpUserId;
-        if (_cursor.isNull(_cursorIndexOfUserId)) {
-          _tmpUserId = null;
-        } else {
-          _tmpUserId = _cursor.getString(_cursorIndexOfUserId);
-        }
-        final String _tmpMemberName;
-        if (_cursor.isNull(_cursorIndexOfMemberName)) {
-          _tmpMemberName = null;
-        } else {
-          _tmpMemberName = _cursor.getString(_cursorIndexOfMemberName);
-        }
-        _item = new GroupMember(_tmpGroupId,_tmpUserId,_tmpMemberName);
-        _result.add(_item);
-      }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
-  }
-
-  public static List<Class<?>> getRequiredConverters() {
-    return Collections.emptyList();
   }
 }

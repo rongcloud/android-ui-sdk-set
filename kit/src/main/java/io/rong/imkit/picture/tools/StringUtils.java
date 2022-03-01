@@ -4,16 +4,12 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 import android.widget.TextView;
-
-import java.util.regex.Pattern;
-
 import io.rong.imkit.R;
-
+import java.util.regex.Pattern;
 
 /**
  * @author：luck
- * @data：2017/5/25 19:12
- * @描述: String Utils
+ * @data：2017/5/25 19:12 @描述: String Utils
  */
 public class StringUtils {
 
@@ -22,7 +18,10 @@ public class StringUtils {
         String str = tv.getContext().getString(R.string.rc_picture_empty_title);
         String sumText = str + text;
         Spannable placeSpan = new SpannableString(sumText);
-        placeSpan.setSpan(new RelativeSizeSpan(0.8f), str.length(), sumText.length(),
+        placeSpan.setSpan(
+                new RelativeSizeSpan(0.8f),
+                str.length(),
+                sumText.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tv.setText(placeSpan);
     }
@@ -37,5 +36,4 @@ public class StringUtils {
         Pattern pattern = Pattern.compile("^[-\\+]?[\\d]+$");
         return pattern.matcher(str).matches() ? Integer.valueOf(str) : 0;
     }
-
 }

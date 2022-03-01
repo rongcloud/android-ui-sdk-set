@@ -3,13 +3,10 @@ package io.rong.imkit.feature.customservice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-
 import androidx.fragment.app.Fragment;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
-
 
 public class EvaluatePlugin implements IPluginModule, CSEvaluateDialog.EvaluateClickListener {
     private CSEvaluateDialog mEvaluateDialog;
@@ -31,7 +28,8 @@ public class EvaluatePlugin implements IPluginModule, CSEvaluateDialog.EvaluateC
 
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
-        mEvaluateDialog = new CSEvaluateDialog(currentFragment.getActivity(), extension.getTargetId());
+        mEvaluateDialog =
+                new CSEvaluateDialog(currentFragment.getActivity(), extension.getTargetId());
         mEvaluateDialog.showStarMessage(mResolvedButton);
         mEvaluateDialog.setClickListener(this);
         extension.collapseExtension();
@@ -50,7 +48,5 @@ public class EvaluatePlugin implements IPluginModule, CSEvaluateDialog.EvaluateC
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {}
 }

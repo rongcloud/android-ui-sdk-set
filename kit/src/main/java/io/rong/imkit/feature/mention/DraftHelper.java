@@ -1,19 +1,15 @@
 package io.rong.imkit.feature.mention;
 
 import android.text.TextUtils;
-
 import androidx.annotation.Nullable;
-
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Created by luoyanlong on 2018/11/23.
- * 保存草稿时如果有@信息，把MentionBlock序列化保存起来，
+ * Created by luoyanlong on 2018/11/23. 保存草稿时如果有@信息，把MentionBlock序列化保存起来，
  * 之后可通过反序列化添加到RongMentionManager中
  */
 public class DraftHelper {
@@ -38,10 +34,7 @@ public class DraftHelper {
         }
     }
 
-    /**
-     * 没有@信息用普通文本保存
-     * 有@信息用json格式保存
-     */
+    /** 没有@信息用普通文本保存 有@信息用json格式保存 */
     public static String encode(String content, String mentionBlocks) {
         if (TextUtils.isEmpty(mentionBlocks)) {
             // 没有@信息用普通文本保存
@@ -67,7 +60,7 @@ public class DraftHelper {
     public void restoreMentionInfo() {
         if (mentionBlocks != null) {
             for (MentionBlock mentionBlock : mentionBlocks) {
-//                RongMentionManager.getInstance().addMentionBlock(mentionBlock);
+                //                RongMentionManager.getInstance().addMentionBlock(mentionBlock);
             }
         }
     }
@@ -96,5 +89,4 @@ public class DraftHelper {
             return null;
         }
     }
-
 }

@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 20220120
-        versionName "5.1.8_opensource"
+        versionCode 20220301
+        versionName "5.2.0_opensource"
         buildConfigField "String", "IMSDK_VER", "${IMSDK_VER}"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -16,9 +16,15 @@ android {
     }
 
     buildTypes {
+        debug{
+            buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("long", "VERSION_CODE", "${defaultConfig.versionCode}")
+            buildConfigField("String","VERSION_NAME","\"${defaultConfig.versionName}\"")
         }
     }
 
@@ -26,6 +32,16 @@ android {
         main {
             jniLibs.srcDirs = ['libs']
         }
+    }
+
+    packagingOptions {
+        doNotStrip "*/armeabi/*.so"
+        doNotStrip "*/armeabi-v7a/*.so"
+        doNotStrip "*/arm64-v8a/*.so"
+        doNotStrip "*/x86/*.so"
+        doNotStrip "*/x86_64/*.so"
+        doNotStrip "*/mips/*.so"
+        doNotStrip "*/mips64/*.so"
     }
 
     lintOptions {
@@ -36,7 +52,7 @@ android {
 
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
-    api 'cn.rongcloud.sdk:im_lib:5.1.8'
+    api 'cn.rongcloud.sdk:im_lib:5.2.0'
     // 基础布局
     api 'androidx.appcompat:appcompat:1.2.0'
     api 'androidx.fragment:fragment:1.2.5'
@@ -67,7 +83,7 @@ def OUTPUT_PATH = "build/libs/"
 // 执行 gradle makeJar 后生成发布的 kit.jar
 // 执行脚本前，lib 如果有修改，要重新先编译 lib，否则，发布的版本 lib 非最新的
 task makeJar(type: Jar) {
-    from zipTree(file('build/intermediates/packaged-classes/release/classes.jar'))
+    from zipTree(file('build/intermediates/aar_main_jar/release/classes.jar'))
     // 去除编译生成的临时文件
     exclude('**/BuildConfig.class')
     exclude('**/BuildConfig\$*.class')

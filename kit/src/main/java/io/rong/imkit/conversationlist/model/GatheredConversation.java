@@ -7,7 +7,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -19,8 +18,7 @@ import io.rong.imlib.model.UserInfo;
 
 public class GatheredConversation extends BaseUiConversation {
     public Conversation.ConversationType mGatheredType;
-    private String mLastTargetId;  // 聚合会话里最新一条会话的 targetId. 聚会会话内容里需要拼接此 targetId 对应的名称。
-
+    private String mLastTargetId; // 聚合会话里最新一条会话的 targetId. 聚会会话内容里需要拼接此 targetId 对应的名称。
 
     public GatheredConversation(Context context, Conversation conversation) {
         super(context, conversation);
@@ -32,27 +30,34 @@ public class GatheredConversation extends BaseUiConversation {
     }
 
     /**
-     * 会话聚合后，会话列表中显示信息如下：
-     * - 会话默认头像
-     * - 聚合会话中最近一条消息的会话名称（如：单聊为用户名、群聊为群名称）、消息内容、消息发送时间
-     * - 显示最近一条消息状态包括：发送中、发送失败、消息已读
-     * - 如会话中最后一条为草稿消息时，则显示为[草稿]
+     * 会话聚合后，会话列表中显示信息如下： - 会话默认头像 - 聚合会话中最近一条消息的会话名称（如：单聊为用户名、群聊为群名称）、消息内容、消息发送时间 -
+     * 显示最近一条消息状态包括：发送中、发送失败、消息已读 - 如会话中最后一条为草稿消息时，则显示为[草稿]
      */
     @Override
     void buildConversationContent() {
         SpannableStringBuilder builder = new SpannableStringBuilder();
         String targetName;
         String preStr;
-        //前缀字符，如【有人@我】【草稿】
+        // 前缀字符，如【有人@我】【草稿】
         SpannableString mPreString;
         if (mCore.getMentionedCount() > 0) {
             preStr = mContext.getString(R.string.rc_conversation_summary_content_mentioned);
             mPreString = new SpannableString(preStr);
-            mPreString.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(R.color.rc_warning_color)), 0, preStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mPreString.setSpan(
+                    new ForegroundColorSpan(
+                            mContext.getResources().getColor(R.color.rc_warning_color)),
+                    0,
+                    preStr.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else if (!TextUtils.isEmpty(mCore.getDraft())) {
             preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
             mPreString = new SpannableString(preStr);
-            mPreString.setSpan(new ForegroundColorSpan(mContext.getResources().getColor(R.color.rc_warning_color)), 0, preStr.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            mPreString.setSpan(
+                    new ForegroundColorSpan(
+                            mContext.getResources().getColor(R.color.rc_warning_color)),
+                    0,
+                    preStr.length(),
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         } else {
             mPreString = new SpannableString("");
         }
@@ -65,8 +70,13 @@ public class GatheredConversation extends BaseUiConversation {
         }
 
         builder.append(mPreString)
-                .append(targetName).append(COLON_SPLIT)
-                .append(TextUtils.isEmpty(mCore.getDraft()) ? RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore.getLatestMessage()) : mCore.getDraft());
+                .append(targetName)
+                .append(COLON_SPLIT)
+                .append(
+                        TextUtils.isEmpty(mCore.getDraft())
+                                ? RongConfigCenter.conversationConfig()
+                                        .getMessageSummary(mContext, mCore.getLatestMessage())
+                                : mCore.getDraft());
         mConversationContent = builder;
     }
 
@@ -75,7 +85,11 @@ public class GatheredConversation extends BaseUiConversation {
         if (user != null && !mGatheredType.equals(Conversation.ConversationType.GROUP)) {
             if (user.getUserId().equals(mLastTargetId)) {
                 SpannableStringBuilder builder = new SpannableStringBuilder();
-                builder.append(RongUserInfoManager.getInstance().getUserDisplayName(user)).append(COLON_SPLIT).append(RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore.getLatestMessage()));
+                builder.append(RongUserInfoManager.getInstance().getUserDisplayName(user))
+                        .append(COLON_SPLIT)
+                        .append(
+                                RongConfigCenter.conversationConfig()
+                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
                 mConversationContent = builder;
             }
         }
@@ -86,20 +100,23 @@ public class GatheredConversation extends BaseUiConversation {
         if (group != null && mGatheredType.equals(Conversation.ConversationType.GROUP)) {
             if (group != null && group.getId().equals(mLastTargetId)) {
                 SpannableStringBuilder builder = new SpannableStringBuilder();
-                builder.append(group.getName()).append(COLON_SPLIT).append(RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore.getLatestMessage()));
+                builder.append(group.getName())
+                        .append(COLON_SPLIT)
+                        .append(
+                                RongConfigCenter.conversationConfig()
+                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
                 mConversationContent = builder;
             }
         }
     }
 
     @Override
-    public void onGroupMemberUpdate(GroupUserInfo groupMember) {
-
-    }
+    public void onGroupMemberUpdate(GroupUserInfo groupMember) {}
 
     @Override
     public void onConversationUpdate(Conversation conversation) {
-        if (conversation != null && conversation.getConversationType().equals(mGatheredType)
+        if (conversation != null
+                && conversation.getConversationType().equals(mGatheredType)
                 && conversation.getSentTime() >= mCore.getSentTime()) {
             mCore = conversation;
             mLastTargetId = conversation.getTargetId();

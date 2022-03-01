@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imlib.RongIMClient;
@@ -52,38 +51,42 @@ public class CSEvaluateDialog extends AlertDialog {
         }
         for (int i = 0; i < linearLayout.getChildCount(); i++) {
             View child = linearLayout.getChildAt(i);
-            child.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    v.setSelected(true);
-                    int index = linearLayout.indexOfChild(v);
-                    if (index == 0) {
-                        linearLayout.getChildAt(1).setSelected(false);
-                        mResolved = true;
-                    } else {
-                        mResolved = false;
-                        linearLayout.getChildAt(0).setSelected(false);
-                    }
-                }
-            });
+            child.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            v.setSelected(true);
+                            int index = linearLayout.indexOfChild(v);
+                            if (index == 0) {
+                                linearLayout.getChildAt(1).setSelected(false);
+                                mResolved = true;
+                            } else {
+                                mResolved = false;
+                                linearLayout.getChildAt(0).setSelected(false);
+                            }
+                        }
+                    });
         }
 
-        findViewById(R.id.rc_btn_cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mClickListener != null)
-                    mClickListener.onEvaluateCanceled();
-            }
-        });
+        findViewById(R.id.rc_btn_cancel)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mClickListener != null) mClickListener.onEvaluateCanceled();
+                            }
+                        });
 
-        findViewById(R.id.rc_btn_ok).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RongIMClient.getInstance().evaluateCustomService(mTargetId, mResolved, "");
-                if (mClickListener != null)
-                    mClickListener.onEvaluateSubmit();
-            }
-        });
+        findViewById(R.id.rc_btn_ok)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                RongIMClient.getInstance()
+                                        .evaluateCustomService(mTargetId, mResolved, "");
+                                if (mClickListener != null) mClickListener.onEvaluateSubmit();
+                            }
+                        });
     }
 
     /**
@@ -97,44 +100,48 @@ public class CSEvaluateDialog extends AlertDialog {
         final LinearLayout linearLayout = findViewById(R.id.rc_cs_stars);
         for (int i = 0; i < linearLayout.getChildCount(); i++) {
             View child = linearLayout.getChildAt(i);
-            child.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int index = linearLayout.indexOfChild(v);
-                    int count = linearLayout.getChildCount();
-                    mStars = index + 1;
-                    if (!v.isSelected()) {
-                        while (index >= 0) {
-                            linearLayout.getChildAt(index).setSelected(true);
-                            index--;
+            child.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int index = linearLayout.indexOfChild(v);
+                            int count = linearLayout.getChildCount();
+                            mStars = index + 1;
+                            if (!v.isSelected()) {
+                                while (index >= 0) {
+                                    linearLayout.getChildAt(index).setSelected(true);
+                                    index--;
+                                }
+                            } else {
+                                index++;
+                                while (index < count) {
+                                    linearLayout.getChildAt(index).setSelected(false);
+                                    index++;
+                                }
+                            }
                         }
-                    } else {
-                        index++;
-                        while (index < count) {
-                            linearLayout.getChildAt(index).setSelected(false);
-                            index++;
-                        }
-                    }
-                }
-            });
+                    });
         }
 
-        findViewById(R.id.rc_btn_cancel).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mClickListener != null)
-                    mClickListener.onEvaluateCanceled();
-            }
-        });
+        findViewById(R.id.rc_btn_cancel)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mClickListener != null) mClickListener.onEvaluateCanceled();
+                            }
+                        });
 
-        findViewById(R.id.rc_btn_ok).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                RongIMClient.getInstance().evaluateCustomService(mTargetId, mStars, null, dialogId);
-                if (mClickListener != null)
-                    mClickListener.onEvaluateSubmit();
-            }
-        });
+        findViewById(R.id.rc_btn_ok)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                RongIMClient.getInstance()
+                                        .evaluateCustomService(mTargetId, mStars, null, dialogId);
+                                if (mClickListener != null) mClickListener.onEvaluateSubmit();
+                            }
+                        });
     }
 
     /**
@@ -143,7 +150,9 @@ public class CSEvaluateDialog extends AlertDialog {
      * @param resolvedOption 是否显示已解决问题选项
      */
     public void showStarMessage(boolean resolvedOption) {
-        LinearLayout view = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.rc_cs_evaluate, null);
+        LinearLayout view =
+                (LinearLayout)
+                        LayoutInflater.from(getContext()).inflate(R.layout.rc_cs_evaluate, null);
         setView(view);
         show();
         if (getWindow() != null) {
@@ -174,87 +183,111 @@ public class CSEvaluateDialog extends AlertDialog {
             progressLayout.setVisibility(View.GONE);
         }
 
-        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-            @Override
-            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                if (ratingBar.getId() == R.id.rc_rating_bar) {
-                    if (rating >= 5) {
-                        mStars = 5;
-                        evaluateLevel.setText(R.string.rc_cs_very_satisfactory);
-                    } else if (rating >= 4 && rating < 5) {
-                        mStars = 4;
-                        evaluateLevel.setText(R.string.rc_cs_satisfactory);
-                    } else if (rating >= 3 && rating < 4) {
-                        mStars = 3;
-                        evaluateLevel.setText(R.string.rc_cs_average);
-                    } else if (rating >= 2 && rating < 3) {
-                        mStars = 2;
-                        evaluateLevel.setText(R.string.rc_cs_unsatisfactory);
-                    } else {
-                        mStars = 1;
-                        evaluateLevel.setText(R.string.rc_cs_very_unsatisfactory);
+        ratingBar.setOnRatingBarChangeListener(
+                new RatingBar.OnRatingBarChangeListener() {
+                    @Override
+                    public void onRatingChanged(
+                            RatingBar ratingBar, float rating, boolean fromUser) {
+                        if (ratingBar.getId() == R.id.rc_rating_bar) {
+                            if (rating >= 5) {
+                                mStars = 5;
+                                evaluateLevel.setText(R.string.rc_cs_very_satisfactory);
+                            } else if (rating >= 4 && rating < 5) {
+                                mStars = 4;
+                                evaluateLevel.setText(R.string.rc_cs_satisfactory);
+                            } else if (rating >= 3 && rating < 4) {
+                                mStars = 3;
+                                evaluateLevel.setText(R.string.rc_cs_average);
+                            } else if (rating >= 2 && rating < 3) {
+                                mStars = 2;
+                                evaluateLevel.setText(R.string.rc_cs_unsatisfactory);
+                            } else {
+                                mStars = 1;
+                                evaluateLevel.setText(R.string.rc_cs_very_unsatisfactory);
+                            }
+                        }
                     }
-                }
-            }
-        });
-        evaluateLevel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        resolvedBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSolveStatus = CustomServiceConfig.CSEvaSolveStatus.RESOLVED;
-                resolvedBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_resolved_hover));
-                resolvingBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_follow));
-                unresolvedBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_unresolved));
-            }
-        });
-        resolvingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSolveStatus = CustomServiceConfig.CSEvaSolveStatus.RESOLVING;
-                resolvedBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_resolved));
-                resolvingBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_follow_hover));
-                unresolvedBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_unresolved));
-            }
-        });
-        unresolvedBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSolveStatus = CustomServiceConfig.CSEvaSolveStatus.UNRESOLVED;
-                resolvedBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_resolved));
-                resolvingBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_follow));
-                unresolvedBtn.setImageDrawable(v.getResources().getDrawable(R.drawable.rc_cs_unresolved_hover));
-            }
-        });
-        edit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        closeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                InputMethodManager imm = (InputMethodManager) edit.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(edit.getWindowToken(), 0);
-                if (mClickListener != null)
-                    mClickListener.onEvaluateCanceled();
-            }
-        });
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                InputMethodManager imm = (InputMethodManager) edit.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(edit.getWindowToken(), 0);
-                RongIMClient.getInstance().evaluateCustomService(mTargetId, mStars, mSolveStatus, edit.getText().toString(), null);
-                if (mClickListener != null)
-                    mClickListener.onEvaluateSubmit();
-            }
-        });
+                });
+        evaluateLevel.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {}
+                });
+        resolvedBtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSolveStatus = CustomServiceConfig.CSEvaSolveStatus.RESOLVED;
+                        resolvedBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_resolved_hover));
+                        resolvingBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_follow));
+                        unresolvedBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_unresolved));
+                    }
+                });
+        resolvingBtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSolveStatus = CustomServiceConfig.CSEvaSolveStatus.RESOLVING;
+                        resolvedBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_resolved));
+                        resolvingBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_follow_hover));
+                        unresolvedBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_unresolved));
+                    }
+                });
+        unresolvedBtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mSolveStatus = CustomServiceConfig.CSEvaSolveStatus.UNRESOLVED;
+                        resolvedBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_resolved));
+                        resolvingBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_follow));
+                        unresolvedBtn.setImageDrawable(
+                                v.getResources().getDrawable(R.drawable.rc_cs_unresolved_hover));
+                    }
+                });
+        edit.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {}
+                });
+        closeBtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        InputMethodManager imm =
+                                (InputMethodManager)
+                                        edit.getContext()
+                                                .getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(edit.getWindowToken(), 0);
+                        if (mClickListener != null) mClickListener.onEvaluateCanceled();
+                    }
+                });
+        submitBtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        InputMethodManager imm =
+                                (InputMethodManager)
+                                        edit.getContext()
+                                                .getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(edit.getWindowToken(), 0);
+                        RongIMClient.getInstance()
+                                .evaluateCustomService(
+                                        mTargetId,
+                                        mStars,
+                                        mSolveStatus,
+                                        edit.getText().toString(),
+                                        null);
+                        if (mClickListener != null) mClickListener.onEvaluateSubmit();
+                    }
+                });
     }
 
     public void destroy() {

@@ -11,13 +11,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
-
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
@@ -25,14 +21,13 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.entity.LocalMediaFolder;
 import io.rong.imkit.picture.tools.AnimUtils;
 import io.rong.imkit.picture.tools.ScreenUtils;
-
+import java.util.List;
 
 /**
  * @author：luck
  * @date：2017-5-25 17:02
  * @describe：文件目录PopupWindow
  */
-
 public class FolderPopWindow extends PopupWindow {
     private Context context;
     private View window;
@@ -59,7 +54,8 @@ public class FolderPopWindow extends PopupWindow {
         this.setOutsideTouchable(true);
         this.update();
         this.drawableUp = ContextCompat.getDrawable(context, R.drawable.rc_picture_icon_wechat_up);
-        this.drawableDown = ContextCompat.getDrawable(context, R.drawable.rc_picture_icon_wechat_down);
+        this.drawableDown =
+                ContextCompat.getDrawable(context, R.drawable.rc_picture_icon_wechat_down);
         this.maxHeight = (int) (ScreenUtils.getScreenHeight(context) * 0.6);
         initView();
     }
@@ -70,19 +66,22 @@ public class FolderPopWindow extends PopupWindow {
         recyclerView = window.findViewById(R.id.folder_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
-        rootViewBg.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        rootViewBg.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismiss();
+                    }
+                });
     }
 
     public void bindFolder(List<LocalMediaFolder> folders) {
         adapter.bindFolderData(folders);
         ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
-        lp.height = folders != null && folders.size() > 8 ? maxHeight
-                : ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.height =
+                folders != null && folders.size() > 8
+                        ? maxHeight
+                        : ViewGroup.LayoutParams.WRAP_CONTENT;
     }
 
     public void setArrowImageView(ImageView ivArrowView) {
@@ -107,7 +106,8 @@ public class FolderPopWindow extends PopupWindow {
         }
     }
 
-    public void setOnItemClickListener(PictureAlbumDirectoryAdapter.OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener(
+            PictureAlbumDirectoryAdapter.OnItemClickListener onItemClickListener) {
         adapter.setOnItemClickListener(onItemClickListener);
     }
 
@@ -128,21 +128,19 @@ public class FolderPopWindow extends PopupWindow {
         }
     }
 
-    /**
-     * 在android4.1.1和4.1.2版本关闭PopWindow
-     */
+    /** 在android4.1.1和4.1.2版本关闭PopWindow */
     private void dismiss4Pop() {
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                FolderPopWindow.super.dismiss();
-            }
-        });
+        new Handler()
+                .post(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                FolderPopWindow.super.dismiss();
+                            }
+                        });
     }
 
-    /**
-     * 设置选中状态
-     */
+    /** 设置选中状态 */
     public void notifyDataCheckedStatus(List<LocalMedia> medias) {
         try {
             // 获取选中图片
@@ -152,7 +150,7 @@ public class FolderPopWindow extends PopupWindow {
             }
             if (medias.size() > 0) {
                 for (LocalMediaFolder folder : folders) {
-                    int num = 0;// 记录当前相册下有多少张是选中的
+                    int num = 0; // 记录当前相册下有多少张是选中的
                     List<LocalMedia> images = folder.getImages();
                     for (LocalMedia media : images) {
                         String path = media.getPath();

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-
 import io.rong.common.RLog;
 
 public class AutoDownloadNetWorkChangeReceiver extends BroadcastReceiver {
@@ -13,7 +12,8 @@ public class AutoDownloadNetWorkChangeReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = null;
         try {
             networkInfo = cm.getActiveNetworkInfo();
@@ -21,8 +21,10 @@ public class AutoDownloadNetWorkChangeReceiver extends BroadcastReceiver {
             RLog.e(TAG, "onReceive", e);
         }
 
-        boolean networkAvailable = networkInfo != null && (networkInfo.isAvailable() && networkInfo.isConnected());
-        if ((ConnectivityManager.CONNECTIVITY_ACTION).equals(intent.getAction()) && networkAvailable) {
+        boolean networkAvailable =
+                networkInfo != null && (networkInfo.isAvailable() && networkInfo.isConnected());
+        if ((ConnectivityManager.CONNECTIVITY_ACTION).equals(intent.getAction())
+                && networkAvailable) {
             HQVoiceMsgDownloadManager.getInstance().resumeDownloadService();
         } else {
             HQVoiceMsgDownloadManager.getInstance().pauseDownloadService();

@@ -1,20 +1,14 @@
 package io.rong.imkit.feature.location;
 
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.model.Marker;
-
 import io.rong.imkit.R;
 
-
-/**
- * 位置消息 marker 信息窗口适配器
- */
+/** 位置消息 marker 信息窗口适配器 */
 public class AmapInfoWindowAdapter implements AMap.InfoWindowAdapter {
 
     private Context context;
@@ -25,7 +19,8 @@ public class AmapInfoWindowAdapter implements AMap.InfoWindowAdapter {
 
     @Override
     public View getInfoWindow(Marker marker) {
-        View view = LayoutInflater.from(context).inflate(R.layout.rc_location_marker_info_window, null);
+        View view =
+                LayoutInflater.from(context).inflate(R.layout.rc_location_marker_info_window, null);
         setViewContent(marker, view);
         return view;
     }

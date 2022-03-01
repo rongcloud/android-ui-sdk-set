@@ -3,7 +3,6 @@ package io.rong.imkit.widget.adapter;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,19 +80,16 @@ public abstract class BaseListViewAdapter<T> extends android.widget.BaseAdapter 
 
     @Override
     public int getCount() {
-        if (mList == null)
-            return 0;
+        if (mList == null) return 0;
 
         return mList.size();
     }
 
     @Override
     public T getItem(int position) {
-        if (mList == null)
-            return null;
+        if (mList == null) return null;
 
-        if (position >= mList.size())
-            return null;
+        if (position >= mList.size()) return null;
 
         return mList.get(position);
     }
@@ -113,6 +109,4 @@ public abstract class BaseListViewAdapter<T> extends android.widget.BaseAdapter 
     protected abstract View newView(Context context, int position, ViewGroup group);
 
     protected abstract void bindView(View v, int position, T data);
-
-
 }

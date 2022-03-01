@@ -13,17 +13,10 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.ViewPagerAdapter;
@@ -36,14 +29,17 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.observable.ImagesObservable;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author：luck
- * @data：2016/1/29 下午21:50
- * @描述:图片预览
+ * @data：2016/1/29 下午21:50 @描述:图片预览
  */
-public class PicturePreviewActivity extends PictureBaseActivity implements
-        View.OnClickListener, ViewPagerAdapter.OnCallBackActivity {
+public class PicturePreviewActivity extends PictureBaseActivity
+        implements View.OnClickListener, ViewPagerAdapter.OnCallBackActivity {
     protected ImageView picture_left_back;
     protected TextView mTvPictureOk;
     protected ViewPager2 viewPager;
@@ -61,26 +57,29 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     protected Handler mHandler;
     protected FrameLayout selectBarLayout, topLayout;
     protected CheckBox mCbOriginal;
-    private BroadcastReceiver commonBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            switch (action) {
-                case BroadcastAction.ACTION_CLOSE_PREVIEW:
-                    // 压缩完后关闭预览界面
-                    dismissDialog();
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            onBackPressed();
-                        }
-                    }, 150);
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    private BroadcastReceiver commonBroadcastReceiver =
+            new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String action = intent.getAction();
+                    switch (action) {
+                        case BroadcastAction.ACTION_CLOSE_PREVIEW:
+                            // 压缩完后关闭预览界面
+                            dismissDialog();
+                            mHandler.postDelayed(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            onBackPressed();
+                                        }
+                                    },
+                                    150);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            };
 
     @Override
     public int getResourceId() {
@@ -107,15 +106,15 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         selectBarLayout.setOnClickListener(this);
         position = getIntent().getIntExtra(PictureConfig.EXTRA_POSITION, 0);
         btnCheck.setOnClickListener(this);
-        selectImages = getIntent().
-                getParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST);
-        is_bottom_preview = getIntent().
-                getBooleanExtra(PictureConfig.EXTRA_BOTTOM_PREVIEW, false);
+        selectImages = getIntent().getParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST);
+        is_bottom_preview = getIntent().getBooleanExtra(PictureConfig.EXTRA_BOTTOM_PREVIEW, false);
         // 底部预览按钮过来
         images.clear();
         if (is_bottom_preview) {
-            images.addAll(getIntent().
-                    <LocalMedia>getParcelableArrayListExtra(PictureConfig.EXTRA_PREVIEW_SELECT_LIST));
+            images.addAll(
+                    getIntent()
+                            .<LocalMedia>getParcelableArrayListExtra(
+                                    PictureConfig.EXTRA_PREVIEW_SELECT_LIST));
         } else {
             images.addAll(ImagesObservable.getInstance().readPreviewMediaData());
         }
@@ -130,29 +129,29 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         boolean eqVideo = PictureMimeType.eqVideo(media.getMimeType());
         mCbOriginal.setVisibility(eqVideo ? View.GONE : View.VISIBLE);
         mCbOriginal.setChecked(config.isCheckOriginalImage);
-        mCbOriginal.setText(getString(R.string.rc_picture_original_image_size, getSize(media.getSize())));
-        mCbOriginal.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                config.isCheckOriginalImage = isChecked;
-            }
-        });
+        mCbOriginal.setText(
+                getString(R.string.rc_picture_original_image_size, getSize(media.getSize())));
+        mCbOriginal.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        config.isCheckOriginalImage = isChecked;
+                    }
+                });
     }
 
-    /**
-     * 动态设置相册主题
-     */
+    /** 动态设置相册主题 */
     @Override
     public void initPictureSelectorStyle() {
-        mCbOriginal.setButtonDrawable(ContextCompat
-                .getDrawable(this, R.drawable.rc_picture_original_checkbox));
+        mCbOriginal.setButtonDrawable(
+                ContextCompat.getDrawable(this, R.drawable.rc_picture_original_checkbox));
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        BroadcastManager.getInstance(this).registerReceiver(commonBroadcastReceiver,
-                BroadcastAction.ACTION_CLOSE_PREVIEW);
+        BroadcastManager.getInstance(this)
+                .registerReceiver(commonBroadcastReceiver, BroadcastAction.ACTION_CLOSE_PREVIEW);
     }
 
     @Override
@@ -171,8 +170,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         super.onDestroy();
         ImagesObservable.getInstance().clearPreviewMediaData();
         if (commonBroadcastReceiver != null) {
-            BroadcastManager.getInstance(this).unregisterReceiver(commonBroadcastReceiver,
-                    BroadcastAction.ACTION_CLOSE_PREVIEW);
+            BroadcastManager.getInstance(this)
+                    .unregisterReceiver(
+                            commonBroadcastReceiver, BroadcastAction.ACTION_CLOSE_PREVIEW);
             commonBroadcastReceiver = null;
         }
         if (mHandler != null) {
@@ -185,29 +185,31 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
     }
 
-    /**
-     * 初始化ViewPage数据
-     */
+    /** 初始化ViewPage数据 */
     private void initViewPageAdapterData() {
         // adapter = new PictureSimpleFragmentAdapter(config, images, this, this);
         adapter = new ViewPagerAdapter(config, images, this, this);
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                super.onPageSelected(position);
-                LocalMedia media = images.get(position);
-                index = media.getPosition();
-                if (config.checkNumMode) {
-                    check.setText(MessageFormat.format("{0}", media.getNum()));
-                    notifyCheckChanged(media);
-                }
-                onImageChecked(position);
-                boolean eqVideo = PictureMimeType.eqVideo(media.getMimeType());
-                mCbOriginal.setVisibility(eqVideo ? View.GONE : View.VISIBLE);
-                mCbOriginal.setChecked(config.isCheckOriginalImage);
-                mCbOriginal.setText(getString(R.string.rc_picture_original_image_size, getSize(media.getSize())));
-            }
-        });
+        viewPager.registerOnPageChangeCallback(
+                new ViewPager2.OnPageChangeCallback() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        super.onPageSelected(position);
+                        LocalMedia media = images.get(position);
+                        index = media.getPosition();
+                        if (config.checkNumMode) {
+                            check.setText(MessageFormat.format("{0}", media.getNum()));
+                            notifyCheckChanged(media);
+                        }
+                        onImageChecked(position);
+                        boolean eqVideo = PictureMimeType.eqVideo(media.getMimeType());
+                        mCbOriginal.setVisibility(eqVideo ? View.GONE : View.VISIBLE);
+                        mCbOriginal.setChecked(config.isCheckOriginalImage);
+                        mCbOriginal.setText(
+                                getString(
+                                        R.string.rc_picture_original_image_size,
+                                        getSize(media.getSize())));
+                    }
+                });
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(position, false);
         onSelectNumChange(false);
@@ -230,9 +232,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
     }
 
-    /**
-     * 选择按钮更新
-     */
+    /** 选择按钮更新 */
     private void notifyCheckChanged(LocalMedia imageBean) {
         if (config.checkNumMode) {
             check.setText("");
@@ -259,16 +259,21 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
     }
 
-    /**
-     * 更新图片选择数量
-     */
-
+    /** 更新图片选择数量 */
     protected void onSelectNumChange(boolean isRefresh) {
         this.refresh = isRefresh;
         boolean enable = selectImages.size() != 0;
-        mTvPictureOk.setTextColor(selectImages.size() > 0 ? getResources().getColor(R.color.rc_main_theme) : getResources().getColor(R.color.rc_main_theme_lucency));
-        mTvPictureOk.setText(config.selectionMode == PictureConfig.SINGLE || !enable ? getString(R.string.rc_picture_send) :
-                getString(R.string.rc_picture_send_num) + "(" + selectImages.size() + ")");
+        mTvPictureOk.setTextColor(
+                selectImages.size() > 0
+                        ? getResources().getColor(R.color.rc_main_theme)
+                        : getResources().getColor(R.color.rc_main_theme_lucency));
+        mTvPictureOk.setText(
+                config.selectionMode == PictureConfig.SINGLE || !enable
+                        ? getString(R.string.rc_picture_send)
+                        : getString(R.string.rc_picture_send_num)
+                                + "("
+                                + selectImages.size()
+                                + ")");
         if (enable) {
             mTvPictureOk.setEnabled(true);
             mTvPictureOk.setSelected(true);
@@ -303,7 +308,8 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         if (isRefresh) {
             Bundle bundle = new Bundle();
             bundle.putInt("position", index);
-            bundle.putParcelableArrayList("selectImages", (ArrayList<? extends Parcelable>) selectImages);
+            bundle.putParcelableArrayList(
+                    "selectImages", (ArrayList<? extends Parcelable>) selectImages);
             BroadcastManager.getInstance(this)
                     .action(BroadcastAction.ACTION_SELECTED_DATA)
                     .extras(bundle)
@@ -316,9 +322,7 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
      *
      * @param media
      */
-    protected void onPageSelectedChange(LocalMedia media) {
-
-    }
+    protected void onPageSelectedChange(LocalMedia media) {}
 
     @Override
     public void onClick(View view) {
@@ -334,11 +338,15 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
             LocalMedia currentMedia = images.get(position);
             if (PictureMimeType.eqVideo(currentMedia.getMimeType())) {
                 int maxDuration = config.videoDurationLimit;
-                if (maxDuration < 1)
-                    maxDuration = PictureConfig.DEFAULT_VIDEO_DURATION_LIMIT;
+                if (maxDuration < 1) maxDuration = PictureConfig.DEFAULT_VIDEO_DURATION_LIMIT;
                 if (TimeUnit.MILLISECONDS.toSeconds(currentMedia.getDuration()) > maxDuration) {
                     new AlertDialog.Builder(PicturePreviewActivity.this)
-                            .setMessage(getResources().getString(R.string.rc_picsel_selected_max_time_span_with_param, maxDuration / 60))
+                            .setMessage(
+                                    getResources()
+                                            .getString(
+                                                    R.string
+                                                            .rc_picsel_selected_max_time_span_with_param,
+                                                    maxDuration / 60))
                             .setPositiveButton(R.string.rc_confirm, null)
                             .setCancelable(false)
                             .create()
@@ -365,8 +373,10 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         if (config.minSelectNum > 0) {
             if (size < config.minSelectNum && config.selectionMode == PictureConfig.MULTIPLE) {
                 boolean eqImg = PictureMimeType.eqImage(mimeType);
-                String str = eqImg ? getString(R.string.rc_picture_min_img_num, config.minSelectNum)
-                        : getString(R.string.rc_picture_min_video_num, config.minSelectNum);
+                String str =
+                        eqImg
+                                ? getString(R.string.rc_picture_min_img_num, config.minSelectNum)
+                                : getString(R.string.rc_picture_min_video_num, config.minSelectNum);
                 ToastUtils.s(getContext(), str);
                 return;
             }
@@ -388,8 +398,11 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
                 check.setSelected(false);
             }
             if (selectImages.size() >= config.maxSelectNum && isChecked) {
-                ToastUtils.s(getContext(), getString(R.string.rc_picture_message_max_num_fir)
-                        + config.maxSelectNum + getString(R.string.rc_picture_message_max_num_sec));
+                ToastUtils.s(
+                        getContext(),
+                        getString(R.string.rc_picture_message_max_num_fir)
+                                + config.maxSelectNum
+                                + getString(R.string.rc_picture_message_max_num_sec));
                 check.setSelected(false);
                 return;
             }
@@ -419,15 +432,15 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
         }
     }
 
-    /**
-     * 单选图片
-     */
+    /** 单选图片 */
     private void singleRadioMediaImage() {
-        LocalMedia media = selectImages != null && selectImages.size() > 0 ? selectImages.get(0) : null;
+        LocalMedia media =
+                selectImages != null && selectImages.size() > 0 ? selectImages.get(0) : null;
         if (media != null) {
             Bundle bundle = new Bundle();
             bundle.putInt("position", media.getPosition());
-            bundle.putParcelableArrayList("selectImages", (ArrayList<? extends Parcelable>) selectImages);
+            bundle.putParcelableArrayList(
+                    "selectImages", (ArrayList<? extends Parcelable>) selectImages);
             BroadcastManager.getInstance(this)
                     .action(BroadcastAction.ACTION_SELECTED_DATA)
                     .extras(bundle)
@@ -442,13 +455,9 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
      * @param isAddRemove
      * @param media
      */
-    protected void onSelectedChange(boolean isAddRemove, LocalMedia media) {
+    protected void onSelectedChange(boolean isAddRemove, LocalMedia media) {}
 
-    }
-
-    /**
-     * 更新选择的顺序
-     */
+    /** 更新选择的顺序 */
     private void subSelectPosition() {
         for (int index = 0, len = selectImages.size(); index < len; index++) {
             LocalMedia media = selectImages.get(index);
@@ -460,5 +469,4 @@ public class PicturePreviewActivity extends PictureBaseActivity implements
     public void onActivityBackPressed() {
         onBackPressed();
     }
-
 }

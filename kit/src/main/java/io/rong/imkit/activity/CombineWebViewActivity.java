@@ -26,17 +26,6 @@ import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import org.json.JSONObject;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.RLog;
@@ -58,11 +47,19 @@ import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.SightMessage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import org.json.JSONObject;
 
 public class CombineWebViewActivity extends RongBaseActivity {
     public static final String TYPE_LOCAL = "local";
     public static final String TYPE_MEDIA = "media";
-    private final static String TAG = CombineWebViewActivity.class.getSimpleName();
+    private static final String TAG = CombineWebViewActivity.class.getSimpleName();
     // WebView加载视频时的默认背景宽高
     private static final int VIDEO_WIDTH = 300;
     private static final int VIDEO_HEIGHT = 600;
@@ -77,29 +74,34 @@ public class CombineWebViewActivity extends RongBaseActivity {
     private int mMessageId;
     private String mPrevUrl;
     private boolean mWebViewError = false;
-    private RongIMClient.OnRecallMessageListener mRecallMessageListener = new RongIMClient.OnRecallMessageListener() {
-        @Override
-        public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
-            if (mMessageId != -1 && mMessageId == message.getMessageId()) {
-                new AlertDialog.Builder(CombineWebViewActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
-                        .setMessage(getString(R.string.rc_recall_success))
-                        .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
+    private RongIMClient.OnRecallMessageListener mRecallMessageListener =
+            new RongIMClient.OnRecallMessageListener() {
+                @Override
+                public boolean onMessageRecalled(
+                        Message message, RecallNotificationMessage recallNotificationMessage) {
+                    if (mMessageId != -1 && mMessageId == message.getMessageId()) {
+                        new AlertDialog.Builder(
+                                        CombineWebViewActivity.this,
+                                        AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+                                .setMessage(getString(R.string.rc_recall_success))
+                                .setPositiveButton(
+                                        getString(R.string.rc_dialog_ok),
+                                        new DialogInterface.OnClickListener() {
 
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        })
-                        .setCancelable(false)
-                        .show();
-            }
-            return false;
-        }
-    };
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finish();
+                                            }
+                                        })
+                                .setCancelable(false)
+                                .show();
+                    }
+                    return false;
+                }
+            };
 
     private static boolean isImageFile(byte[] data) {
-        if (data == null || data.length == 0)
-            return false;
+        if (data == null || data.length == 0) return false;
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -147,7 +149,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         // 允许小视频自动播放
         mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
 
-        //允许混合内容 解决部分手机https请求里面加载不出http的图片
+        // 允许混合内容 解决部分手机https请求里面加载不出http的图片
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
@@ -168,7 +170,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         if (mTitleBar != null && !TextUtils.isEmpty(title)) {
             mTitleBar.setTitle(title);
         }
-//        onCreateActionbar(new ActionBar());
+        //        onCreateActionbar(new ActionBar());
     }
 
     private void openSight(JSONObject jsonObj) {
@@ -187,7 +189,9 @@ public class CombineWebViewActivity extends RongBaseActivity {
         sightMessage.setMediaUrl(Uri.parse(mediaUrl));
         sightMessage.setDuration(duration);
         if (new IsSightFileExists(sightMessage).invoke()) {
-            String sightPath = LibStorageUtils.getMediaDownloadDir(getApplicationContext(), LibStorageUtils.VIDEO);
+            String sightPath =
+                    LibStorageUtils.getMediaDownloadDir(
+                            getApplicationContext(), LibStorageUtils.VIDEO);
             String name = DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
             if (sightPath.startsWith("file://")) {
                 sightPath = sightPath.substring(7);
@@ -200,7 +204,9 @@ public class CombineWebViewActivity extends RongBaseActivity {
         message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
         message.setConversationType(Conversation.ConversationType.PRIVATE);
 
-        ComponentName cn = new ComponentName(CombineWebViewActivity.this, "io.rong.sight.player.SightPlayerActivity");
+        ComponentName cn =
+                new ComponentName(
+                        CombineWebViewActivity.this, "io.rong.sight.player.SightPlayerActivity");
         Intent intent = new Intent();
         intent.setComponent(cn);
         intent.putExtra("Message", message);
@@ -234,18 +240,24 @@ public class CombineWebViewActivity extends RongBaseActivity {
     // 根据链接地址，获取合并转发消息下载路径
     public String getCombineFilePath(String uri) {
         return FileUtils.getCachePath(IMCenter.getInstance().getContext())
-                + File.separator + COMBINE_FILE_PATH + File.separator;
+                + File.separator
+                + COMBINE_FILE_PATH
+                + File.separator;
     }
 
     private void openFile(JSONObject jsonObj) {
         Log.e("openFile", jsonObj.toString());
-//        Intent intent = new Intent(RongKitIntent.RONG_INTENT_ACTION_OPENWEBFILE);
-//        intent.setPackage(getPackageName());
-//        intent.putExtra("fileUrl", jsonObj.optString("fileUrl"));
-//        intent.putExtra("fileName", jsonObj.optString("fileName"));
-//        intent.putExtra("fileSize", jsonObj.optString("fileSize"));
-//        startActivity(intent);
-        RouteUtils.routeToWebFilePreviewActivity(this, jsonObj.optString("fileUrl"), jsonObj.optString("fileName"), jsonObj.optString("fileSize"));
+        //        Intent intent = new Intent(RongKitIntent.RONG_INTENT_ACTION_OPENWEBFILE);
+        //        intent.setPackage(getPackageName());
+        //        intent.putExtra("fileUrl", jsonObj.optString("fileUrl"));
+        //        intent.putExtra("fileName", jsonObj.optString("fileName"));
+        //        intent.putExtra("fileSize", jsonObj.optString("fileSize"));
+        //        startActivity(intent);
+        RouteUtils.routeToWebFilePreviewActivity(
+                this,
+                jsonObj.optString("fileUrl"),
+                jsonObj.optString("fileName"),
+                jsonObj.optString("fileSize"));
     }
 
     private void openMap(JSONObject jsonObj) {
@@ -338,7 +350,12 @@ public class CombineWebViewActivity extends RongBaseActivity {
                     File dir = new File(file.getParent());
                     boolean successMkdir = dir.mkdirs();
                     boolean isCreateNewFile = file.createNewFile();
-                    RLog.d(TAG, "DownloadTask successMkdir:" + successMkdir + ",isCreateNewFile:" + isCreateNewFile);
+                    RLog.d(
+                            TAG,
+                            "DownloadTask successMkdir:"
+                                    + successMkdir
+                                    + ",isCreateNewFile:"
+                                    + isCreateNewFile);
                 }
                 out = new FileOutputStream(file);
                 byte[] buffer = new byte[10 * 1024];
@@ -365,12 +382,10 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
 
         @Override
-        protected void onPreExecute() {
-        }
+        protected void onPreExecute() {}
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-        }
+        protected void onPostExecute(Void aVoid) {}
     }
 
     private class CombineWebViewClient extends WebViewClient {
@@ -383,7 +398,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
             } else {
                 if (TYPE_MEDIA.equals(mType)
                         && url != null
-                        && (url.toLowerCase().startsWith("http") || url.toLowerCase().startsWith("ftp"))) {
+                        && (url.toLowerCase().startsWith("http")
+                                || url.toLowerCase().startsWith("ftp"))) {
                     String filePath = CombineMessageUtils.getInstance().getCombineFilePath(url);
                     if (new File(filePath).exists()) {
                         url = Uri.parse("file://" + filePath).toString();
@@ -402,7 +418,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
             RLog.d(TAG, "onPageStarted url:" + url);
             if (TYPE_MEDIA.equals(mType)
                     && url != null
-                    && (url.toLowerCase().startsWith("http") || url.toLowerCase().startsWith("ftp"))) {
+                    && (url.toLowerCase().startsWith("http")
+                            || url.toLowerCase().startsWith("ftp"))) {
                 String filePath = CombineMessageUtils.getInstance().getCombineFilePath(url);
                 if (!new File(filePath).exists()) {
                     new DownloadTask().execute(url, filePath);
@@ -411,7 +428,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
 
         @Override
-        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+        public void onReceivedError(
+                WebView view, int errorCode, String description, String failingUrl) {
             RLog.d(TAG, "onReceivedError errorCode:" + errorCode);
             mWebViewError = true;
             mProgress.setVisibility(View.GONE);
@@ -422,8 +440,10 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
 
         @Override
-        public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-            FeatureConfig.SSLInterceptor interceptor = RongConfigCenter.featureConfig().getSSLInterceptor();
+        public void onReceivedSslError(
+                WebView view, final SslErrorHandler handler, SslError error) {
+            FeatureConfig.SSLInterceptor interceptor =
+                    RongConfigCenter.featureConfig().getSSLInterceptor();
             boolean check = false;
             if (interceptor != null) {
                 check = interceptor.check(error.getCertificate());
@@ -431,14 +451,17 @@ public class CombineWebViewActivity extends RongBaseActivity {
             if (check) {
                 handler.proceed();
             } else {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(CombineWebViewActivity.this);
+                final AlertDialog.Builder builder =
+                        new AlertDialog.Builder(CombineWebViewActivity.this);
                 builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
-                builder.setNegativeButton(R.string.rc_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        handler.cancel();
-                    }
-                });
+                builder.setNegativeButton(
+                        R.string.rc_cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                handler.cancel();
+                            }
+                        });
 
                 final AlertDialog dialog = builder.create();
                 dialog.show();
@@ -495,7 +518,6 @@ public class CombineWebViewActivity extends RongBaseActivity {
             // 使用一像素替换的话会在打开视频时出现一条黑线，折中使用300*600作为该背景大小
             return Bitmap.createBitmap(VIDEO_WIDTH, VIDEO_HEIGHT, Bitmap.Config.ALPHA_8);
         }
-
     }
 
     private class JsInterface {
@@ -544,8 +566,11 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
 
         public boolean invoke() {
-            String sightPath = LibStorageUtils.getMediaDownloadDir(getApplicationContext(), LibStorageUtils.VIDEO);
-            String name = DeviceUtils.ShortMD5(Base64.NO_WRAP, sightMessage.getMediaUrl().toString());
+            String sightPath =
+                    LibStorageUtils.getMediaDownloadDir(
+                            getApplicationContext(), LibStorageUtils.VIDEO);
+            String name =
+                    DeviceUtils.ShortMD5(Base64.NO_WRAP, sightMessage.getMediaUrl().toString());
             if (sightPath.startsWith("file://")) {
                 sightPath = sightPath.substring(7);
             }

@@ -1,6 +1,5 @@
 package io.rong.imkit.userinfo;
 
-
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.model.UserInfo;
 
@@ -9,8 +8,7 @@ public class UserDataDelegate {
     private UserDataProvider.GroupInfoProvider mGroupInfoProvider;
     private UserDataProvider.GroupUserInfoProvider mGroupUserInfoProvider;
 
-    UserDataDelegate() {
-    }
+    UserDataDelegate() {}
 
     public void setUserInfoProvider(UserDataProvider.UserInfoProvider provider) {
         mUserInfoProvider = provider;
@@ -29,11 +27,12 @@ public class UserDataDelegate {
     }
 
     public GroupUserInfo getGroupUserInfo(String groupId, String userId) {
-        return mGroupUserInfoProvider != null ? mGroupUserInfoProvider.getGroupUserInfo(groupId, userId) : null;
+        return mGroupUserInfoProvider != null
+                ? mGroupUserInfoProvider.getGroupUserInfo(groupId, userId)
+                : null;
     }
 
     public io.rong.imlib.model.Group getGroupInfo(String groupId) {
         return mGroupInfoProvider != null ? mGroupInfoProvider.getGroupInfo(groupId) : null;
     }
-
 }

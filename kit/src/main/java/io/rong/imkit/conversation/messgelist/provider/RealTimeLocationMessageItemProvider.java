@@ -12,10 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.feature.location.AMapRealTimeActivity;
 import io.rong.imkit.feature.location.AMapRealTimeActivity2D;
@@ -32,47 +28,72 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.RealTimeLocationStartMessage;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
+import java.util.ArrayList;
+import java.util.List;
 
-public class RealTimeLocationMessageItemProvider extends BaseMessageItemProvider<RealTimeLocationStartMessage> implements IMessageProviderPermissionHandler {
+public class RealTimeLocationMessageItemProvider
+        extends BaseMessageItemProvider<RealTimeLocationStartMessage>
+        implements IMessageProviderPermissionHandler {
 
-    String[] permissions = {Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_NETWORK_STATE,
-            Manifest.permission.READ_PHONE_STATE};
+    String[] permissions = {
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_NETWORK_STATE,
+        Manifest.permission.READ_PHONE_STATE
+    };
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_share_location_message, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_share_location_message, parent, false);
         return new ViewHolder(parent.getContext(), view);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, RealTimeLocationStartMessage realTimeLocationStartMessage, final UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            RealTimeLocationStartMessage realTimeLocationStartMessage,
+            final UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         final Message message = uiMessage.getMessage();
         final TextView view = holder.getView(R.id.rc_location);
         if (message.getMessageDirection() == Message.MessageDirection.SEND) {
-            Drawable drawable = view.getResources().getDrawable(R.drawable.rc_icon_rt_message_right);
+            Drawable drawable =
+                    view.getResources().getDrawable(R.drawable.rc_icon_rt_message_right);
             drawable.setBounds(0, 0, 29, 41);
             view.setBackgroundResource(R.drawable.rc_ic_bubble_right);
             view.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, drawable, null);
-            view.setText(holder.getContext()
-                    .getResources()
-                    .getString(R.string.rc_real_time_location_sharing));
+            view.setText(
+                    holder.getContext()
+                            .getResources()
+                            .getString(R.string.rc_real_time_location_sharing));
         } else {
             Drawable drawable = view.getResources().getDrawable(R.drawable.rc_icon_rt_message_left);
             drawable.setBounds(0, 0, 29, 41);
             view.setBackgroundResource(R.drawable.rc_ic_bubble_left);
             view.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null);
-            view.setText(holder.getContext()
-                    .getResources()
-                    .getString(R.string.rc_real_time_location_sharing));
+            view.setText(
+                    holder.getContext()
+                            .getResources()
+                            .getString(R.string.rc_real_time_location_sharing));
         }
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, RealTimeLocationStartMessage realTimeLocationStartMessage, final UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            RealTimeLocationStartMessage realTimeLocationStartMessage,
+            final UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         if (!PermissionCheckUtil.checkPermissions(holder.getContext(), permissions)) {
-            MessageProviderPermissionHandler.getInstance().addMessageContent(RealTimeLocationStartMessage.class, permissions);
+            MessageProviderPermissionHandler.getInstance()
+                    .addMessageContent(RealTimeLocationStartMessage.class, permissions);
             return false;
         }
 
@@ -89,29 +110,36 @@ public class RealTimeLocationMessageItemProvider extends BaseMessageItemProvider
     @Override
     public Spannable getSummarySpannable(Context context, RealTimeLocationStartMessage data) {
         if (data != null && data.getContent() != null) {
-            return new SpannableString(context.getResources().getString(R.string.rc_real_time_location_start));
+            return new SpannableString(
+                    context.getResources().getString(R.string.rc_real_time_location_start));
         }
 
         return null;
     }
 
     private void showPromptPopupDialog(final Context context, final UiMessage uiMessage) {
-        PromptPopupDialog dialog = PromptPopupDialog.newInstance(context, "",
-                context.getResources().getString(R.string.rc_real_time_join_notification));
-        dialog.setPromptButtonClickedListener(new PromptPopupDialog.OnPromptButtonClickedListener() {
-            @Override
-            public void onPositiveButtonClicked() {
-                joinMap(context, uiMessage);
-            }
-        });
+        PromptPopupDialog dialog =
+                PromptPopupDialog.newInstance(
+                        context,
+                        "",
+                        context.getResources().getString(R.string.rc_real_time_join_notification));
+        dialog.setPromptButtonClickedListener(
+                new PromptPopupDialog.OnPromptButtonClickedListener() {
+                    @Override
+                    public void onPositiveButtonClicked() {
+                        joinMap(context, uiMessage);
+                    }
+                });
         dialog.show();
     }
 
     private void joinMap(Context context, UiMessage uiMessage) {
         Message message = uiMessage.getMessage();
-        List<String> mLocationShareParticipants = RongIMClient.getInstance()
-                .getRealTimeLocationParticipants(message.getConversationType(), message.getTargetId());
-        //int result = LocationManager.getInstance().joinLocationSharing();
+        List<String> mLocationShareParticipants =
+                RongIMClient.getInstance()
+                        .getRealTimeLocationParticipants(
+                                message.getConversationType(), message.getTargetId());
+        // int result = LocationManager.getInstance().joinLocationSharing();
         int result;
         if (context.getResources().getBoolean(R.bool.rc_location_2D)) {
             result = LocationDelegate2D.getInstance().joinLocationSharing();
@@ -127,20 +155,24 @@ public class RealTimeLocationMessageItemProvider extends BaseMessageItemProvider
                 intent = new Intent(context, AMapRealTimeActivity.class);
             }
             if (mLocationShareParticipants != null) {
-                intent.putStringArrayListExtra("participants", (ArrayList<String>) mLocationShareParticipants);
+                intent.putStringArrayListExtra(
+                        "participants", (ArrayList<String>) mLocationShareParticipants);
             }
             context.startActivity(intent);
         } else if (result == 1) {
             Toast.makeText(context, R.string.rc_network_exception, Toast.LENGTH_SHORT).show();
         } else if ((result == 2)) {
-            Toast.makeText(context, R.string.rc_location_sharing_exceed_max, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.rc_location_sharing_exceed_max, Toast.LENGTH_SHORT)
+                    .show();
         }
     }
 
     @Override
-    public void handleRequestPermissionsResult(Activity activity, UiMessage uiMessage, String[] permissions, int[] grantResults) {
+    public void handleRequestPermissionsResult(
+            Activity activity, UiMessage uiMessage, String[] permissions, int[] grantResults) {
         if (!PermissionCheckUtil.checkPermissions(activity, permissions)) {
-            PermissionCheckUtil.showRequestPermissionFailedAlter(activity, permissions, grantResults);
+            PermissionCheckUtil.showRequestPermissionFailedAlter(
+                    activity, permissions, grantResults);
         } else {
             showPromptPopupDialog(activity, uiMessage);
         }

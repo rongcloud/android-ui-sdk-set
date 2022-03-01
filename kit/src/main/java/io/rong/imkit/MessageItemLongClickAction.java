@@ -1,16 +1,10 @@
 package io.rong.imkit;
 
 import android.content.Context;
-
+import io.rong.imkit.model.UiMessage;
 import java.util.Objects;
 
-import io.rong.imkit.model.UiMessage;
-
-
-/**
- * Created by jiangecho on 2017/3/16.
- */
-
+/** Created by jiangecho on 2017/3/16. */
 public class MessageItemLongClickAction {
 
     public static class Builder {
@@ -20,8 +14,7 @@ public class MessageItemLongClickAction {
         private Filter filter;
         private int priority;
 
-        public Builder() {
-        }
+        public Builder() {}
 
         public Builder title(String title) {
             this.title = title;
@@ -61,14 +54,16 @@ public class MessageItemLongClickAction {
         }
 
         public MessageItemLongClickAction build() {
-            MessageItemLongClickAction action = new MessageItemLongClickAction(this.titleResId,
-                    this.title, this.listener, this.filter);
+            MessageItemLongClickAction action =
+                    new MessageItemLongClickAction(
+                            this.titleResId, this.title, this.listener, this.filter);
             action.priority = priority;
             return action;
         }
     }
 
-    private MessageItemLongClickAction(int titleResId, String title, MessageItemLongClickListener listener, Filter filter) {
+    private MessageItemLongClickAction(
+            int titleResId, String title, MessageItemLongClickListener listener, Filter filter) {
         this.titleResId = titleResId;
         this.title = title;
         this.listener = listener;
@@ -102,7 +97,6 @@ public class MessageItemLongClickAction {
          * @return 返回true，表示显示
          */
         boolean filter(UiMessage message);
-
     }
 
     @Override

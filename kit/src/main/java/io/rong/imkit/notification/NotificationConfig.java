@@ -5,7 +5,6 @@ import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Build;
-
 import io.rong.imlib.model.Message;
 
 public class NotificationConfig {
@@ -35,8 +34,8 @@ public class NotificationConfig {
     /**
      * 本地通知拦截器
      *
-     * @param interceptor 通知拦截器
-     * @Deprecated 5.1.4版本废弃，请使用{{@link #setInterceptor(DefaultInterceptor)}}
+     * @param interceptor 通知拦截器 @Deprecated 5.1.4版本废弃，请使用{{@link
+     *     #setInterceptor(DefaultInterceptor)}}
      */
     @Deprecated
     public void setInterceptor(Interceptor interceptor) {
@@ -68,22 +67,17 @@ public class NotificationConfig {
         this.mOtherPageAction = action;
     }
 
-
-    /**
-     * 通知标题的类型
-     */
+    /** 通知标题的类型 */
     public enum TitleType {
-        APP_NAME,   //应用名称
+        APP_NAME, // 应用名称
         TARGET_NAME; // 消息目标 Id 的名称
     }
 
-    /**
-     * 在前台非会话页面，接受到消息时的行为
-     */
+    /** 在前台非会话页面，接受到消息时的行为 */
     public enum ForegroundOtherPageAction {
-        Silent, //静默
-        Sound,  //震动或响铃，根据系统设置决定
-        Notification //弹通知，和后台时的行为一致。
+        Silent, // 静默
+        Sound, // 震动或响铃，根据系统设置决定
+        Notification // 弹通知，和后台时的行为一致。
     }
 
     public interface Interceptor {
@@ -96,16 +90,14 @@ public class NotificationConfig {
         boolean isNotificationIntercepted(Message message);
 
         /**
-         * 设置本地通知 PendingIntent 时的回调。
-         * 应用层可通过此方法更改 PendingIntent 里的设置，以便自定义本地通知的点击行为。
-         * 点击本地通知时，SDK 默认跳转到对应会话页面。
+         * 设置本地通知 PendingIntent 时的回调。 应用层可通过此方法更改 PendingIntent 里的设置，以便自定义本地通知的点击行为。 点击本地通知时，SDK
+         * 默认跳转到对应会话页面。
          *
          * @param pendingIntent SDK 默认 PendingIntent
-         * @param intent        pendingIntent 里携带的 intent。
-         *                      可通过 intent 获取以下信息:
-         *                      intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
-         *                      intent.getStringExtra(RouteUtils.TARGET_ID);
-         *                      intent.getIntExtra(RouteUtils.MESSAGE_ID, -1);
+         * @param intent pendingIntent 里携带的 intent。 可通过 intent 获取以下信息:
+         *     intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
+         *     intent.getStringExtra(RouteUtils.TARGET_ID);
+         *     intent.getIntExtra(RouteUtils.MESSAGE_ID, -1);
          * @return 本地通知里需配置的 PendingIntent.
          */
         PendingIntent onPendingIntent(PendingIntent pendingIntent, Intent intent);

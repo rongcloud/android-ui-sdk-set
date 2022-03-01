@@ -6,9 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
-
 import io.rong.imkit.R;
 import io.rong.imkit.widget.refresh.api.RefreshFooter;
 import io.rong.imkit.widget.refresh.api.RefreshHeader;
@@ -39,7 +37,6 @@ public class RongRefreshHeader extends SimpleComponent implements RefreshHeader,
         }
     }
 
-
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -61,11 +58,11 @@ public class RongRefreshHeader extends SimpleComponent implements RefreshHeader,
     }
 
     @Override
-    public void onStartAnimator(@NonNull RefreshLayout refreshLayout, int height, int maxDragHeight) {
+    public void onStartAnimator(
+            @NonNull RefreshLayout refreshLayout, int height, int maxDragHeight) {
         Drawable drawable = mProgressView.getDrawable();
         if (drawable instanceof Animatable) {
             ((Animatable) drawable).start();
         }
     }
-
 }

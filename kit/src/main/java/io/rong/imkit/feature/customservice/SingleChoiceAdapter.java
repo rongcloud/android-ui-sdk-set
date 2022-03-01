@@ -7,11 +7,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
+import io.rong.imkit.R;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.rong.imkit.R;
 
 public class SingleChoiceAdapter<T> extends BaseAdapter {
 
@@ -25,18 +23,15 @@ public class SingleChoiceAdapter<T> extends BaseAdapter {
         init(context, checkBoxResourceId);
     }
 
-    public SingleChoiceAdapter(Context context, List<T> objects,
-                               int checkBoxResourceId) {
+    public SingleChoiceAdapter(Context context, List<T> objects, int checkBoxResourceId) {
         init(context, checkBoxResourceId);
         if (objects != null) {
             mObjects = objects;
         }
-
     }
 
     private void init(Context context, int checkBoResourceId) {
-        mInflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mCheckBoxResourceID = checkBoResourceId;
     }
 
@@ -52,7 +47,6 @@ public class SingleChoiceAdapter<T> extends BaseAdapter {
             mSelectItem = selectItem;
             notifyDataSetChanged();
         }
-
     }
 
     public int getSelectItem() {
@@ -85,13 +79,10 @@ public class SingleChoiceAdapter<T> extends BaseAdapter {
         ViewHolder viewHolder;
 
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.rc_cs_item_single_choice,
-                    null);
+            convertView = mInflater.inflate(R.layout.rc_cs_item_single_choice, null);
             viewHolder = new ViewHolder();
-            viewHolder.mTextView = convertView
-                    .findViewById(R.id.rc_cs_tv_group_name);
-            viewHolder.mCheckBox = convertView
-                    .findViewById(R.id.rc_cs_group_checkBox);
+            viewHolder.mTextView = convertView.findViewById(R.id.rc_cs_tv_group_name);
+            viewHolder.mCheckBox = convertView.findViewById(R.id.rc_cs_group_checkBox);
             convertView.setTag(viewHolder);
 
             if (mCheckBoxResourceID != 0) {
@@ -118,5 +109,4 @@ public class SingleChoiceAdapter<T> extends BaseAdapter {
         public TextView mTextView;
         public CheckBox mCheckBox;
     }
-
 }

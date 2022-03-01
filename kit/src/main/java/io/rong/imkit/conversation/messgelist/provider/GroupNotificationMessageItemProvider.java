@@ -7,12 +7,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
@@ -24,19 +18,34 @@ import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.GroupNotificationMessage;
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-public class GroupNotificationMessageItemProvider extends BaseNotificationMessageItemProvider<GroupNotificationMessage> {
+public class GroupNotificationMessageItemProvider
+        extends BaseNotificationMessageItemProvider<GroupNotificationMessage> {
     private static final String TAG = "GroupNotificationMessageItemProvider";
-
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_group_information_notification_message, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(
+                                R.layout.rc_item_group_information_notification_message,
+                                parent,
+                                false);
         return new ViewHolder(parent.getContext(), view);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, GroupNotificationMessage groupNotificationMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            GroupNotificationMessage groupNotificationMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         try {
             if (groupNotificationMessage != null && uiMessage != null) {
                 if (groupNotificationMessage.getData() == null) {
@@ -53,7 +62,9 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                 String operatorUserId = groupNotificationMessage.getOperatorUserId();
                 String currentUserId = RongIM.getInstance().getCurrentUserId();
                 UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
-                String operatorNickname = RongUserInfoManager.getInstance().getUserDisplayName(userInfo, data.getOperatorNickname());
+                String operatorNickname =
+                        RongUserInfoManager.getInstance()
+                                .getUserDisplayName(userInfo, data.getOperatorNickname());
                 if (TextUtils.isEmpty(operatorNickname)) {
                     operatorNickname = groupNotificationMessage.getOperatorUserId();
                 }
@@ -84,7 +95,9 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                 if (!TextUtils.isEmpty(operation))
                     if (operation.equals("Add")) {
                         if (operatorUserId.equals(memberUserId)) {
-                            holder.setText(R.id.rc_msg, memberName + context.getString(R.string.rc_item_join_group));
+                            holder.setText(
+                                    R.id.rc_msg,
+                                    memberName + context.getString(R.string.rc_item_join_group));
                         } else {
                             String inviteName;
                             String invitedName;
@@ -94,11 +107,24 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                             } else {
                                 invitedName = memberName;
                             }
-                            if (!groupNotificationMessage.getOperatorUserId().equals(RongIM.getInstance().getCurrentUserId())) {
+                            if (!groupNotificationMessage
+                                    .getOperatorUserId()
+                                    .equals(RongIM.getInstance().getCurrentUserId())) {
                                 inviteName = operatorNickname;
-                                inviteMsg = inviteName + context.getString(R.string.rc_item_invitation) + " " + invitedName + " " + context.getString(R.string.rc_join_group);
+                                inviteMsg =
+                                        inviteName
+                                                + context.getString(R.string.rc_item_invitation)
+                                                + " "
+                                                + invitedName
+                                                + " "
+                                                + context.getString(R.string.rc_join_group);
                             } else {
-                                inviteMsg = context.getString(R.string.rc_item_you_invitation) + " " + invitedName + " " + context.getString(R.string.rc_join_group);
+                                inviteMsg =
+                                        context.getString(R.string.rc_item_you_invitation)
+                                                + " "
+                                                + invitedName
+                                                + " "
+                                                + context.getString(R.string.rc_join_group);
                             }
                             holder.setText(R.id.rc_msg, inviteMsg);
                         }
@@ -109,26 +135,47 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                             for (String userId : memberIdList) {
                                 if (currentUserId.equals(userId)) {
                                     operator = operatorNickname;
-                                    holder.setText(R.id.rc_msg, context.getString(R.string.rc_item_you_remove_self) + " " + operator
-                                            + " " + context.getString(R.string.rc_item_remove));
+                                    holder.setText(
+                                            R.id.rc_msg,
+                                            context.getString(R.string.rc_item_you_remove_self)
+                                                    + " "
+                                                    + operator
+                                                    + " "
+                                                    + context.getString(R.string.rc_item_remove));
                                 } else {
                                     String removeMsg;
                                     if (!operatorUserId.equals(currentUserId)) {
                                         operator = operatorNickname;
                                         kickedName = memberName;
-                                        removeMsg = operator + context.getString(R.string.rc_item_remove_group_member)
-                                                + " " + kickedName + " " + context.getString(R.string.rc_item_remove);
+                                        removeMsg =
+                                                operator
+                                                        + context.getString(
+                                                                R.string
+                                                                        .rc_item_remove_group_member)
+                                                        + " "
+                                                        + kickedName
+                                                        + " "
+                                                        + context.getString(
+                                                                R.string.rc_item_remove);
                                     } else {
                                         kickedName = memberName;
-                                        removeMsg = context.getString(R.string.rc_item_you_remove_group_member) +
-                                                " " + kickedName + " " + context.getString(R.string.rc_item_remove);
+                                        removeMsg =
+                                                context.getString(
+                                                                R.string
+                                                                        .rc_item_you_remove_group_member)
+                                                        + " "
+                                                        + kickedName
+                                                        + " "
+                                                        + context.getString(
+                                                                R.string.rc_item_remove);
                                     }
                                     holder.setText(R.id.rc_msg, removeMsg);
                                 }
                             }
                         }
                     } else if (operation.equals("Create")) {
-                        GroupNotificationMessageData createGroupData = new GroupNotificationMessageData();
+                        GroupNotificationMessageData createGroupData =
+                                new GroupNotificationMessageData();
                         try {
                             createGroupData = jsonToBean(groupNotificationMessage.getData());
                         } catch (Exception e) {
@@ -145,9 +192,14 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                         }
                         holder.setText(R.id.rc_msg, createMsg);
                     } else if (operation.equals("Dismiss")) {
-                        holder.setText(R.id.rc_msg, operatorNickname + context.getString(R.string.rc_item_dismiss_groups));
+                        holder.setText(
+                                R.id.rc_msg,
+                                operatorNickname
+                                        + context.getString(R.string.rc_item_dismiss_groups));
                     } else if (operation.equals("Quit")) {
-                        holder.setText(R.id.rc_msg, operatorNickname + context.getString(R.string.rc_item_quit_groups));
+                        holder.setText(
+                                R.id.rc_msg,
+                                operatorNickname + context.getString(R.string.rc_item_quit_groups));
                     } else if (operation.equals("Rename")) {
                         String operator;
                         String groupName;
@@ -155,10 +207,19 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                         if (!operatorUserId.equals(currentUserId)) {
                             operator = operatorNickname;
                             groupName = data.getTargetGroupName();
-                            changeMsg = operator + context.getString(R.string.rc_item_change_group_name) + "\"" + groupName + "\"";
+                            changeMsg =
+                                    operator
+                                            + context.getString(R.string.rc_item_change_group_name)
+                                            + "\""
+                                            + groupName
+                                            + "\"";
                         } else {
                             groupName = data.getTargetGroupName();
-                            changeMsg = context.getString(R.string.rc_item_you_change_group_name) + "\"" + groupName + "\"";
+                            changeMsg =
+                                    context.getString(R.string.rc_item_you_change_group_name)
+                                            + "\""
+                                            + groupName
+                                            + "\"";
                         }
                         holder.setText(R.id.rc_msg, changeMsg);
                     } else {
@@ -222,7 +283,8 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
     }
 
     @Override
-    public Spannable getSummarySpannable(Context context, GroupNotificationMessage groupNotificationMessage) {
+    public Spannable getSummarySpannable(
+            Context context, GroupNotificationMessage groupNotificationMessage) {
         try {
             GroupNotificationMessageData data;
             if (groupNotificationMessage == null || groupNotificationMessage.getData() == null)
@@ -238,7 +300,9 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
             String currentUserId = RongIM.getInstance().getCurrentUserId();
 
             UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
-            String operatorNickname = RongUserInfoManager.getInstance().getUserDisplayName(userInfo, data.getOperatorNickname());
+            String operatorNickname =
+                    RongUserInfoManager.getInstance()
+                            .getUserDisplayName(userInfo, data.getOperatorNickname());
             if (TextUtils.isEmpty(operatorNickname)) {
                 operatorNickname = groupNotificationMessage.getOperatorUserId();
             }
@@ -266,13 +330,16 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                 }
             }
 
-
             SpannableString spannableStringSummary = new SpannableString("");
             switch (operation) {
                 case "Add":
                     try {
                         if (operatorUserId.equals(memberUserId)) {
-                            spannableStringSummary = new SpannableString(operatorNickname + context.getString(R.string.rc_item_join_group));
+                            spannableStringSummary =
+                                    new SpannableString(
+                                            operatorNickname
+                                                    + context.getString(
+                                                            R.string.rc_item_join_group));
                         } else {
                             String inviteName;
                             String invitedName;
@@ -284,9 +351,20 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                             }
                             if (!operatorUserId.equals(currentUserId)) {
                                 inviteName = operatorNickname;
-                                invitationMsg = inviteName + context.getString(R.string.rc_item_invitation) + " " + invitedName + " " + context.getString(R.string.rc_join_group);
+                                invitationMsg =
+                                        inviteName
+                                                + context.getString(R.string.rc_item_invitation)
+                                                + " "
+                                                + invitedName
+                                                + " "
+                                                + context.getString(R.string.rc_join_group);
                             } else {
-                                invitationMsg = context.getString(R.string.rc_item_you_invitation) + " " + invitedName + " " + context.getString(R.string.rc_join_group);
+                                invitationMsg =
+                                        context.getString(R.string.rc_item_you_invitation)
+                                                + " "
+                                                + invitedName
+                                                + " "
+                                                + context.getString(R.string.rc_join_group);
                             }
                             spannableStringSummary = new SpannableString(invitationMsg);
                         }
@@ -294,33 +372,57 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
                         RLog.e(TAG, "getContentSummary", e);
                     }
                     break;
-                case "Kicked": {
-                    String operator;
-                    String kickedName;
-                    if (memberIdList != null) {
-                        for (String userId : memberIdList) {
-                            if (currentUserId.equals(userId)) {
-                                operator = operatorNickname;
-                                spannableStringSummary = new SpannableString(context.getString(R.string.rc_item_you_remove_self) + " " + operator
-                                        + " " + context.getString(R.string.rc_item_remove));
-                            } else {
-                                String removeMsg;
-                                if (!operatorUserId.equals(currentUserId)) {
+                case "Kicked":
+                    {
+                        String operator;
+                        String kickedName;
+                        if (memberIdList != null) {
+                            for (String userId : memberIdList) {
+                                if (currentUserId.equals(userId)) {
                                     operator = operatorNickname;
-                                    kickedName = memberName;
-                                    removeMsg = operator + context.getString(R.string.rc_item_remove_group_member)
-                                            + " " + kickedName + " " + context.getString(R.string.rc_item_remove);
+                                    spannableStringSummary =
+                                            new SpannableString(
+                                                    context.getString(
+                                                                    R.string
+                                                                            .rc_item_you_remove_self)
+                                                            + " "
+                                                            + operator
+                                                            + " "
+                                                            + context.getString(
+                                                                    R.string.rc_item_remove));
                                 } else {
-                                    kickedName = memberName;
-                                    removeMsg = context.getString(R.string.rc_item_you_remove_group_member) +
-                                            " " + kickedName + " " + context.getString(R.string.rc_item_remove);
+                                    String removeMsg;
+                                    if (!operatorUserId.equals(currentUserId)) {
+                                        operator = operatorNickname;
+                                        kickedName = memberName;
+                                        removeMsg =
+                                                operator
+                                                        + context.getString(
+                                                                R.string
+                                                                        .rc_item_remove_group_member)
+                                                        + " "
+                                                        + kickedName
+                                                        + " "
+                                                        + context.getString(
+                                                                R.string.rc_item_remove);
+                                    } else {
+                                        kickedName = memberName;
+                                        removeMsg =
+                                                context.getString(
+                                                                R.string
+                                                                        .rc_item_you_remove_group_member)
+                                                        + " "
+                                                        + kickedName
+                                                        + " "
+                                                        + context.getString(
+                                                                R.string.rc_item_remove);
+                                    }
+                                    spannableStringSummary = new SpannableString(removeMsg);
                                 }
-                                spannableStringSummary = new SpannableString(removeMsg);
                             }
                         }
+                        break;
                     }
-                    break;
-                }
                 case "Create":
                     String name;
                     String createMsg;
@@ -334,26 +436,42 @@ public class GroupNotificationMessageItemProvider extends BaseNotificationMessag
 
                     break;
                 case "Dismiss":
-                    spannableStringSummary = new SpannableString(operatorNickname + context.getString(R.string.rc_item_dismiss_groups));
+                    spannableStringSummary =
+                            new SpannableString(
+                                    operatorNickname
+                                            + context.getString(R.string.rc_item_dismiss_groups));
                     break;
                 case "Quit":
-                    spannableStringSummary = new SpannableString(operatorNickname + context.getString(R.string.rc_item_quit_groups));
+                    spannableStringSummary =
+                            new SpannableString(
+                                    operatorNickname
+                                            + context.getString(R.string.rc_item_quit_groups));
                     break;
-                case "Rename": {
-                    String operator;
-                    String groupName;
-                    String changeMsg;
-                    if (!operatorUserId.equals(currentUserId)) {
-                        operator = operatorNickname;
-                        groupName = data.getTargetGroupName();
-                        changeMsg = operator + context.getString(R.string.rc_item_change_group_name) + "\"" + groupName + "\"";
-                    } else {
-                        groupName = data.getTargetGroupName();
-                        changeMsg = context.getString(R.string.rc_item_you_change_group_name) + "\"" + groupName + "\"";
+                case "Rename":
+                    {
+                        String operator;
+                        String groupName;
+                        String changeMsg;
+                        if (!operatorUserId.equals(currentUserId)) {
+                            operator = operatorNickname;
+                            groupName = data.getTargetGroupName();
+                            changeMsg =
+                                    operator
+                                            + context.getString(R.string.rc_item_change_group_name)
+                                            + "\""
+                                            + groupName
+                                            + "\"";
+                        } else {
+                            groupName = data.getTargetGroupName();
+                            changeMsg =
+                                    context.getString(R.string.rc_item_you_change_group_name)
+                                            + "\""
+                                            + groupName
+                                            + "\"";
+                        }
+                        spannableStringSummary = new SpannableString(changeMsg);
+                        break;
                     }
-                    spannableStringSummary = new SpannableString(changeMsg);
-                    break;
-                }
             }
 
             return spannableStringSummary;

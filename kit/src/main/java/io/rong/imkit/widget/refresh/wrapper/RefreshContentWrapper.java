@@ -1,5 +1,11 @@
 package io.rong.imkit.widget.refresh.wrapper;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static io.rong.imkit.widget.refresh.util.SmartUtil.isContentView;
+import static io.rong.imkit.widget.refresh.util.SmartUtil.isTransformedTouchPointInView;
+import static io.rong.imkit.widget.refresh.util.SmartUtil.measureViewHeight;
+import static io.rong.imkit.widget.refresh.util.SmartUtil.scrollListBy;
+
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.graphics.PointF;
@@ -10,16 +16,10 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.Space;
-
 import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingChild;
 import androidx.core.view.NestedScrollingParent;
 import androidx.viewpager.widget.ViewPager;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
 import io.rong.imkit.R;
 import io.rong.imkit.widget.refresh.api.RefreshContent;
 import io.rong.imkit.widget.refresh.api.RefreshKernel;
@@ -27,23 +27,17 @@ import io.rong.imkit.widget.refresh.listener.CoordinatorLayoutListener;
 import io.rong.imkit.widget.refresh.listener.ScrollBoundaryDecider;
 import io.rong.imkit.widget.refresh.simple.SimpleBoundaryDecider;
 import io.rong.imkit.widget.refresh.util.DesignUtil;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static io.rong.imkit.widget.refresh.util.SmartUtil.isContentView;
-import static io.rong.imkit.widget.refresh.util.SmartUtil.isTransformedTouchPointInView;
-import static io.rong.imkit.widget.refresh.util.SmartUtil.measureViewHeight;
-import static io.rong.imkit.widget.refresh.util.SmartUtil.scrollListBy;
-
-
-/**
- * 刷新内容包装
- * Created by scwang on 2017/5/26.
- */
+/** 刷新内容包装 Created by scwang on 2017/5/26. */
 @SuppressWarnings("WeakerAccess")
-public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutListener, AnimatorUpdateListener {
+public class RefreshContentWrapper
+        implements RefreshContent, CoordinatorLayoutListener, AnimatorUpdateListener {
 
-    protected View mContentView;//直接内容视图
-    protected View mOriginalContentView;//被包裹的原真实视图
+    protected View mContentView; // 直接内容视图
+    protected View mOriginalContentView; // 被包裹的原真实视图
     protected View mScrollableView;
     protected View mFixedHeader;
     protected View mFixedFooter;
@@ -56,12 +50,13 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
         this.mContentView = mOriginalContentView = mScrollableView = view;
     }
 
-    //<editor-fold desc="findScrollableView">
+    // <editor-fold desc="findScrollableView">
     protected void findScrollableView(View content, RefreshKernel kernel) {
         View scrollableView = null;
         boolean isInEditMode = mContentView.isInEditMode();
-        while (scrollableView == null || (scrollableView instanceof NestedScrollingParent
-                && !(scrollableView instanceof NestedScrollingChild))) {
+        while (scrollableView == null
+                || (scrollableView instanceof NestedScrollingParent
+                        && !(scrollableView instanceof NestedScrollingChild))) {
             content = findScrollableViewInternal(content, scrollableView == null);
             if (content == scrollableView) {
                 break;
@@ -123,9 +118,9 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
         }
         return orgScrollableView;
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="implements">
+    // <editor-fold desc="implements">
     @NonNull
     public View getView() {
         return mContentView;
@@ -190,16 +185,16 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
         PointF point = new PointF(e.getX(), e.getY());
         point.offset(-mContentView.getLeft(), -mContentView.getTop());
         if (mScrollableView != mContentView) {
-            //如果内容视图不是 ScrollableView 说明使用了Layout嵌套内容，需要动态搜索 ScrollableView
+            // 如果内容视图不是 ScrollableView 说明使用了Layout嵌套内容，需要动态搜索 ScrollableView
             mScrollableView = findScrollableViewByPoint(mContentView, point, mScrollableView);
         }
         if (mScrollableView == mContentView) {
-            //如果内容视图就是 ScrollableView 就不需要使用事件来动态搜索 而浪费CPU时间和性能了
-//            mBoundaryAdapter.setActionEvent(null);
+            // 如果内容视图就是 ScrollableView 就不需要使用事件来动态搜索 而浪费CPU时间和性能了
+            //            mBoundaryAdapter.setActionEvent(null);
             mBoundaryAdapter.mActionEvent = null;
         } else {
             mBoundaryAdapter.mActionEvent = point;
-//            mBoundaryAdapter.setActionEvent(mMotionEvent);
+            //            mBoundaryAdapter.setActionEvent(mMotionEvent);
         }
     }
 
@@ -213,7 +208,8 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
             ViewGroup frameLayout = new FrameLayout(mContentView.getContext());
             int index = kernel.getRefreshLayout().getLayout().indexOfChild(mContentView);
             kernel.getRefreshLayout().getLayout().removeView(mContentView);
-            frameLayout.addView(mContentView, 0, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
+            frameLayout.addView(
+                    mContentView, 0, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
             ViewGroup.LayoutParams layoutParams = mContentView.getLayoutParams();
             kernel.getRefreshLayout().getLayout().addView(frameLayout, index, layoutParams);
             mContentView = frameLayout;
@@ -259,7 +255,8 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
     @Override
     public AnimatorUpdateListener scrollContentWhenFinished(final int spinner) {
         if (mScrollableView != null && spinner != 0) {
-            if ((spinner < 0 && mScrollableView.canScrollVertically(1)) || (spinner > 0 && mScrollableView.canScrollVertically(-1))) {
+            if ((spinner < 0 && mScrollableView.canScrollVertically(1))
+                    || (spinner > 0 && mScrollableView.canScrollVertically(-1))) {
                 mLastSpinner = spinner;
                 return this;
             }
@@ -278,11 +275,11 @@ public class RefreshContentWrapper implements RefreshContent, CoordinatorLayoutL
                 mScrollableView.scrollBy(0, (int) dy);
             }
         } catch (Throwable e) {
-            //根据用户反馈，此处可能会有BUG
+            // 根据用户反馈，此处可能会有BUG
             e.printStackTrace();
         }
         mLastSpinner = value;
     }
-    //</editor-fold>
+    // </editor-fold>
 
 }

@@ -6,25 +6,21 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.text.TextUtils;
-
 import androidx.fragment.app.Fragment;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imlib.IRongCallback;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.model.Message;
 import io.rong.message.HQVoiceMessage;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class HQVoiceMsgDownloadManager {
 
@@ -35,9 +31,7 @@ public class HQVoiceMsgDownloadManager {
     private Future<?> future = null;
     private List<AutoDownloadEntry> errorList = null;
 
-    private HQVoiceMsgDownloadManager() {
-
-    }
+    private HQVoiceMsgDownloadManager() {}
 
     public void init(final Context context) {
         AutoDownloadNetWorkChangeReceiver autoDownloadNetWorkChangeReceiver;
@@ -48,24 +42,37 @@ public class HQVoiceMsgDownloadManager {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.getApplicationContext().registerReceiver(autoDownloadNetWorkChangeReceiver, intentFilter);
+            context.getApplicationContext()
+                    .registerReceiver(autoDownloadNetWorkChangeReceiver, intentFilter);
         } catch (Exception e) {
             RLog.e(TAG, "registerReceiver Exception", e);
         }
         downloadHQVoiceMessage();
-        final String[] writePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        IMCenter.getInstance().addOnReceiveMessageListener(new RongIMClient.OnReceiveMessageWrapperListener() {
-            @Override
-            public boolean onReceived(Message message, int left, boolean hasPackage, boolean offline) {
-                if (!offline && message.getContent() instanceof HQVoiceMessage
-                        && RongConfigCenter.conversationListConfig().isEnableAutomaticDownloadHQVoice()) {
-                    if (PermissionCheckUtil.checkPermissions(context, writePermission)) {
-                        enqueue(new AutoDownloadEntry(message, AutoDownloadEntry.DownloadPriority.NORMAL));
-                    }
-                }
-                return false;
-            }
-        });
+        final String[] writePermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        IMCenter.getInstance()
+                .addOnReceiveMessageListener(
+                        new RongIMClient.OnReceiveMessageWrapperListener() {
+                            @Override
+                            public boolean onReceived(
+                                    Message message,
+                                    int left,
+                                    boolean hasPackage,
+                                    boolean offline) {
+                                if (!offline
+                                        && message.getContent() instanceof HQVoiceMessage
+                                        && RongConfigCenter.conversationListConfig()
+                                                .isEnableAutomaticDownloadHQVoice()) {
+                                    if (PermissionCheckUtil.checkPermissions(
+                                            context, writePermission)) {
+                                        enqueue(
+                                                new AutoDownloadEntry(
+                                                        message,
+                                                        AutoDownloadEntry.DownloadPriority.NORMAL));
+                                    }
+                                }
+                                return false;
+                            }
+                        });
     }
 
     private static class HQVoiceMsgDownloadManagerHolder {
@@ -133,64 +140,86 @@ public class HQVoiceMsgDownloadManager {
         }
         AutoDownloadEntry autoDownloadEntry = null;
         if (autoDownloadQueue.getAutoDownloadEntryHashMap().containsKey(message.getUId())) {
-            autoDownloadEntry = autoDownloadQueue.getAutoDownloadEntryHashMap().get(message.getUId());
+            autoDownloadEntry =
+                    autoDownloadQueue.getAutoDownloadEntryHashMap().get(message.getUId());
         }
         return autoDownloadEntry;
     }
 
     private void downloadHQVoiceMessage() {
-        future = executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                //noinspection InfiniteLoopStatement
-                while (true) {
-                    synchronized (autoDownloadQueue) {
-                        if (autoDownloadQueue.isEmpty()) {
-                            try {
-                                autoDownloadQueue.wait();
-                            } catch (InterruptedException e) {
-                                RLog.e(TAG, "downloadHQVoiceMessage e:" + e.toString());
-                                Thread.currentThread().interrupt();
+        future =
+                executorService.submit(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                //noinspection InfiniteLoopStatement
+                                while (true) {
+                                    synchronized (autoDownloadQueue) {
+                                        if (autoDownloadQueue.isEmpty()) {
+                                            try {
+                                                autoDownloadQueue.wait();
+                                            } catch (InterruptedException e) {
+                                                RLog.e(
+                                                        TAG,
+                                                        "downloadHQVoiceMessage e:" + e.toString());
+                                                Thread.currentThread().interrupt();
+                                            }
+                                        }
+                                    }
+
+                                    Message message = dequeue();
+                                    IMCenter.getInstance()
+                                            .downloadMediaMessage(
+                                                    message,
+                                                    new IRongCallback
+                                                            .IDownloadMediaMessageCallback() {
+                                                        @Override
+                                                        public void onSuccess(Message message) {
+                                                            RLog.d(
+                                                                    TAG,
+                                                                    "downloadMediaMessage success");
+                                                            if (errorList != null) {
+                                                                errorList.remove(
+                                                                        getMsgEntry(message));
+                                                            }
+                                                            removeUidInHashMap(message.getUId());
+                                                        }
+
+                                                        @Override
+                                                        public void onProgress(
+                                                                Message message, int progress) {
+                                                            RLog.d(
+                                                                    TAG,
+                                                                    "downloadMediaMessage onProgress");
+                                                        }
+
+                                                        @Override
+                                                        public void onError(
+                                                                Message message,
+                                                                RongIMClient.ErrorCode code) {
+                                                            if (errorList != null
+                                                                    && !errorList.contains(
+                                                                            getMsgEntry(message))) {
+                                                                errorList.add(getMsgEntry(message));
+                                                                RLog.i(
+                                                                        TAG,
+                                                                        "onError = "
+                                                                                + code.getValue()
+                                                                                + " errorList size = "
+                                                                                + errorList.size());
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onCanceled(Message message) {}
+                                                    });
+                                }
                             }
-                        }
-                    }
-
-                    Message message = dequeue();
-                    IMCenter.getInstance().downloadMediaMessage(message, new IRongCallback.IDownloadMediaMessageCallback() {
-                        @Override
-                        public void onSuccess(Message message) {
-                            RLog.d(TAG, "downloadMediaMessage success");
-                            if (errorList != null) {
-                                errorList.remove(getMsgEntry(message));
-                            }
-                            removeUidInHashMap(message.getUId());
-                        }
-
-                        @Override
-                        public void onProgress(Message message, int progress) {
-                            RLog.d(TAG, "downloadMediaMessage onProgress");
-                        }
-
-                        @Override
-                        public void onError(Message message, RongIMClient.ErrorCode code) {
-                            if (errorList != null && !errorList.contains(getMsgEntry(message))) {
-                                errorList.add(getMsgEntry(message));
-                                RLog.i(TAG, "onError = " + code.getValue() + " errorList size = " + errorList.size());
-                            }
-                        }
-
-                        @Override
-                        public void onCanceled(Message message) {
-
-                        }
-                    });
-                }
-            }
-        });
+                        });
     }
 
     void pauseDownloadService() {
-        //TODO 网络中断后处理
+        // TODO 网络中断后处理
     }
 
     public void resumeDownloadService() {

@@ -10,13 +10,11 @@ import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.rong.imkit.userinfo.db.model.Group;
-import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -112,23 +110,11 @@ public final class GroupDao_Impl implements GroupDao {
           while(_cursor.moveToNext()) {
             final Group _item;
             final String _tmpId;
-            if (_cursor.isNull(_cursorIndexOfId)) {
-              _tmpId = null;
-            } else {
-              _tmpId = _cursor.getString(_cursorIndexOfId);
-            }
+            _tmpId = _cursor.getString(_cursorIndexOfId);
             final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
+            _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpPortraitUrl;
-            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-              _tmpPortraitUrl = null;
-            } else {
-              _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            }
+            _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
             _item = new Group(_tmpId,_tmpName,_tmpPortraitUrl);
             _result.add(_item);
           }
@@ -166,23 +152,11 @@ public final class GroupDao_Impl implements GroupDao {
           final Group _result;
           if(_cursor.moveToFirst()) {
             final String _tmpId;
-            if (_cursor.isNull(_cursorIndexOfId)) {
-              _tmpId = null;
-            } else {
-              _tmpId = _cursor.getString(_cursorIndexOfId);
-            }
+            _tmpId = _cursor.getString(_cursorIndexOfId);
             final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
+            _tmpName = _cursor.getString(_cursorIndexOfName);
             final String _tmpPortraitUrl;
-            if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-              _tmpPortraitUrl = null;
-            } else {
-              _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-            }
+            _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
             _result = new Group(_tmpId,_tmpName,_tmpPortraitUrl);
           } else {
             _result = null;
@@ -219,23 +193,11 @@ public final class GroupDao_Impl implements GroupDao {
       final Group _result;
       if(_cursor.moveToFirst()) {
         final String _tmpId;
-        if (_cursor.isNull(_cursorIndexOfId)) {
-          _tmpId = null;
-        } else {
-          _tmpId = _cursor.getString(_cursorIndexOfId);
-        }
+        _tmpId = _cursor.getString(_cursorIndexOfId);
         final String _tmpName;
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _tmpName = null;
-        } else {
-          _tmpName = _cursor.getString(_cursorIndexOfName);
-        }
+        _tmpName = _cursor.getString(_cursorIndexOfName);
         final String _tmpPortraitUrl;
-        if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-          _tmpPortraitUrl = null;
-        } else {
-          _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-        }
+        _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
         _result = new Group(_tmpId,_tmpName,_tmpPortraitUrl);
       } else {
         _result = null;
@@ -245,52 +207,5 @@ public final class GroupDao_Impl implements GroupDao {
       _cursor.close();
       _statement.release();
     }
-  }
-
-  @Override
-  public List<Group> getLimitGroups(final int limit) {
-    final String _sql = "select * from `group` limit ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, limit);
-    __db.assertNotSuspendingTransaction();
-    final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
-    try {
-      final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-      final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-      final int _cursorIndexOfPortraitUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "portraitUri");
-      final List<Group> _result = new ArrayList<Group>(_cursor.getCount());
-      while(_cursor.moveToNext()) {
-        final Group _item;
-        final String _tmpId;
-        if (_cursor.isNull(_cursorIndexOfId)) {
-          _tmpId = null;
-        } else {
-          _tmpId = _cursor.getString(_cursorIndexOfId);
-        }
-        final String _tmpName;
-        if (_cursor.isNull(_cursorIndexOfName)) {
-          _tmpName = null;
-        } else {
-          _tmpName = _cursor.getString(_cursorIndexOfName);
-        }
-        final String _tmpPortraitUrl;
-        if (_cursor.isNull(_cursorIndexOfPortraitUrl)) {
-          _tmpPortraitUrl = null;
-        } else {
-          _tmpPortraitUrl = _cursor.getString(_cursorIndexOfPortraitUrl);
-        }
-        _item = new Group(_tmpId,_tmpName,_tmpPortraitUrl);
-        _result.add(_item);
-      }
-      return _result;
-    } finally {
-      _cursor.close();
-      _statement.release();
-    }
-  }
-
-  public static List<Class<?>> getRequiredConverters() {
-    return Collections.emptyList();
   }
 }

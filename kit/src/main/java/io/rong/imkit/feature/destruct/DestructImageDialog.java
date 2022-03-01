@@ -11,21 +11,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.RongUtils;
 
-
-/**
- * BaseDialogFragment
- * Created by lvhongzhen on 18/8/21.
- */
+/** BaseDialogFragment Created by lvhongzhen on 18/8/21. */
 public class DestructImageDialog extends DialogFragment implements View.OnClickListener {
     private static final String TAG = "ImageVideoDialogFragment";
     protected Dialog mDialog;
@@ -52,10 +46,12 @@ public class DestructImageDialog extends DialogFragment implements View.OnClickL
         setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Dialog_MinWidth);
     }
 
-
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.rc_dialog_destruct_image, container, false);
         initView();
         return mRootView;
@@ -79,7 +75,6 @@ public class DestructImageDialog extends DialogFragment implements View.OnClickL
         mAlbum.setOnClickListener(this);
     }
 
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -94,8 +89,10 @@ public class DestructImageDialog extends DialogFragment implements View.OnClickL
             if (getActivity() != null) {
                 getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
             }
-            dialogWindow.setLayout((int) (dm.widthPixels * getScreenWidthProportion()), ViewGroup.LayoutParams.WRAP_CONTENT);
-            //设置竖直方向偏移量
+            dialogWindow.setLayout(
+                    (int) (dm.widthPixels * getScreenWidthProportion()),
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            // 设置竖直方向偏移量
             WindowManager.LayoutParams attributes = dialogWindow.getAttributes();
             attributes.gravity = getGravity();
             attributes.x = -RongUtils.dip2px(getHorizontalMovement());
@@ -107,7 +104,6 @@ public class DestructImageDialog extends DialogFragment implements View.OnClickL
     protected int getGravity() {
         return Gravity.BOTTOM;
     }
-
 
     /**
      * 屏幕占比
@@ -139,7 +135,13 @@ public class DestructImageDialog extends DialogFragment implements View.OnClickL
     public void show(FragmentManager manager) {
         if (!hasSight && !hasImage) {
             if (getContext() != null) {
-                Toast.makeText(getContext(), getContext().getResources().getString(R.string.rc_dialog_no_plugin_warning), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                                getContext(),
+                                getContext()
+                                        .getResources()
+                                        .getString(R.string.rc_dialog_no_plugin_warning),
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
             return;
         }
@@ -152,18 +154,15 @@ public class DestructImageDialog extends DialogFragment implements View.OnClickL
         } catch (IllegalStateException e) {
             RLog.e(TAG, "show", e);
         }
-
     }
 
     @Override
     public void onClick(View v) {
         int i = v.getId();
         if (i == R.id.tv_sight) {
-            if (mListener != null)
-                mListener.onSightClick(v);
+            if (mListener != null) mListener.onSightClick(v);
         } else if (i == R.id.tv_album) {
-            if (mListener != null)
-                mListener.onImageClick(v);
+            if (mListener != null) mListener.onImageClick(v);
         }
         hideDialog();
     }

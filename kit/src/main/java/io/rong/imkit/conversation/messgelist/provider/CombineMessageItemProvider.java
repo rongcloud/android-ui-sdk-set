@@ -9,10 +9,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import java.io.File;
-import java.util.List;
-
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.CombineWebViewActivity;
@@ -24,18 +20,28 @@ import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
-
+import java.io.File;
+import java.util.List;
 
 public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineMessage> {
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_combine_message, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_combine_message, parent, false);
         return new ViewHolder(view.getContext(), view);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder,ViewHolder parentHolder, CombineMessage combineMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            CombineMessage combineMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         String title = getTitle(combineMessage);
         combineMessage.setTitle(title);
         holder.setText(R.id.title, combineMessage.getTitle());
@@ -53,12 +59,20 @@ public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineM
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, CombineMessage combineMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            CombineMessage combineMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         String type = CombineWebViewActivity.TYPE_LOCAL;
         Uri uri = combineMessage.getLocalPath();
         if ((uri == null || !new File(uri.toString().substring(7)).exists())
                 && combineMessage.getMediaUrl() != null) {
-            String filePath = CombineMessageUtils.getInstance().getCombineFilePath(combineMessage.getMediaUrl().toString());
+            String filePath =
+                    CombineMessageUtils.getInstance()
+                            .getCombineFilePath(combineMessage.getMediaUrl().toString());
             if (new File(filePath).exists()) {
                 uri = Uri.parse("file://" + filePath);
             } else {
@@ -75,11 +89,14 @@ public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineM
                     .show();
             return false;
         }
-        RouteUtils.routeToCombineWebViewActivity(holder.getContext(), uiMessage.getMessage().getMessageId(), uri.toString(), type, combineMessage.getTitle());
+        RouteUtils.routeToCombineWebViewActivity(
+                holder.getContext(),
+                uiMessage.getMessage().getMessageId(),
+                uri.toString(),
+                type,
+                combineMessage.getTitle());
         return false;
     }
-
-
 
     @Override
     protected boolean isMessageViewType(MessageContent messageContent) {
@@ -101,10 +118,19 @@ public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineM
             if (nameList == null) return title;
 
             if (nameList.size() == 1) {
-                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of), nameList.get(0));
+                title =
+                        String.format(
+                                context.getString(R.string.rc_combine_the_group_chat_of),
+                                nameList.get(0));
             } else if (nameList.size() == 2) {
-                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of),
-                        nameList.get(0) + " " + context.getString(R.string.rc_combine_and) + " " + nameList.get(1));
+                title =
+                        String.format(
+                                context.getString(R.string.rc_combine_the_group_chat_of),
+                                nameList.get(0)
+                                        + " "
+                                        + context.getString(R.string.rc_combine_and)
+                                        + " "
+                                        + nameList.get(1));
             }
         }
         if (TextUtils.isEmpty(title)) {
@@ -112,5 +138,4 @@ public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineM
         }
         return title;
     }
-
 }

@@ -16,7 +16,6 @@ public class ValueOf {
         return value;
     }
 
-
     public static double toDouble(Object o) {
 
         return toDouble(o, 0);
@@ -53,14 +52,12 @@ public class ValueOf {
             value = defaultValue;
         }
 
-
         return value;
     }
 
     public static long toLong(Object o) {
         return toLong(o, 0);
     }
-
 
     public static float toFloat(Object o, long defaultValue) {
         if (o == null) {
@@ -74,14 +71,12 @@ public class ValueOf {
             value = defaultValue;
         }
 
-
         return value;
     }
 
     public static float toFloat(Object o) {
         return toFloat(o, 0);
     }
-
 
     public static int toInt(Object o, int defaultValue) {
         if (o == null) {
@@ -108,9 +103,7 @@ public class ValueOf {
 
     public static boolean toBoolean(Object o) {
         return toBoolean(o, false);
-
     }
-
 
     public static boolean toBoolean(Object o, boolean defaultValue) {
         if (o == null) {
@@ -120,9 +113,9 @@ public class ValueOf {
         try {
             String s = o.toString().trim();
             if ("false".equals(s.trim())) {
-                value =  false;
+                value = false;
             } else {
-                value =  true;
+                value = true;
             }
         } catch (Exception e) {
             value = defaultValue;
@@ -131,12 +124,11 @@ public class ValueOf {
         return value;
     }
 
-
     public static <T> T to(Object o, T defaultValue) {
         if (o == null) {
             return defaultValue;
         }
-        T value = (T)o;
+        T value = (T) o;
         return (T) value;
     }
 }

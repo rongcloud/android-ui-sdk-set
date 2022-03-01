@@ -17,11 +17,11 @@ limitations under the License.
 package io.rong.imkit.picture.widget.longimage;
 
 import android.graphics.PointF;
-
 import java.io.Serializable;
 
 /**
- * Wraps the scale, center and orientation of a displayed image for easy restoration on screen rotate.
+ * Wraps the scale, center and orientation of a displayed image for easy restoration on screen
+ * rotate.
  */
 public class ImageViewState implements Serializable {
 
@@ -51,5 +51,4 @@ public class ImageViewState implements Serializable {
     public int getOrientation() {
         return orientation;
     }
-
 }

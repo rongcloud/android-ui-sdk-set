@@ -2,18 +2,15 @@ package io.rong.imkit.feature.location;
 
 import android.content.Context;
 import android.text.TextUtils;
-
 import com.amap.api.maps2d.CoordinateConverter;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.netlocation.AMapNetworkLocationClient;
-
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.RealTimeLocationConstant;
 import io.rong.imlib.location.RealTimeLocationType;
 import io.rong.imlib.model.Conversation;
+import java.util.List;
 
 public class LocationDelegate2D {
 
@@ -34,13 +31,11 @@ public class LocationDelegate2D {
 
     private LoopThread mLoopThread;
 
-
     private static class SingletonHolder {
         private static final LocationDelegate2D INSTANCE = new LocationDelegate2D();
     }
 
-    private LocationDelegate2D() {
-    }
+    private LocationDelegate2D() {}
 
     public static LocationDelegate2D getInstance() {
         return SingletonHolder.INSTANCE;
@@ -53,70 +48,102 @@ public class LocationDelegate2D {
         return true;
     }
 
-    public void bindConversation(Context context, Conversation.ConversationType conversationType, String targetId) {
+    public void bindConversation(
+            Context context, Conversation.ConversationType conversationType, String targetId) {
         mContext = context.getApplicationContext();
         mConversationType = conversationType;
         mTargetId = targetId;
         mLocationParser = new AMapLocationParser();
-        RongIMClient.getInstance().addRealTimeLocationListener(mConversationType, mTargetId, new RongIMClient.RealTimeLocationListener() {
-            @Override
-            public void onStatusChange(RealTimeLocationConstant.RealTimeLocationStatus status) {
-                RLog.d(TAG, "onStatusChange status = " + status.getMessage());
-                sendOnParticipantChanged();
-            }
+        RongIMClient.getInstance()
+                .addRealTimeLocationListener(
+                        mConversationType,
+                        mTargetId,
+                        new RongIMClient.RealTimeLocationListener() {
+                            @Override
+                            public void onStatusChange(
+                                    RealTimeLocationConstant.RealTimeLocationStatus status) {
+                                RLog.d(TAG, "onStatusChange status = " + status.getMessage());
+                                sendOnParticipantChanged();
+                            }
 
-            @Override
-            public void onReceiveLocationWithType(double latitude, double longitude, RealTimeLocationType type, String userId) {
-                RLog.d(TAG, "onReceiveLocationWithType userId = " + userId + "; latitude = " + latitude + "; longitude = " + longitude + ",type = " + type);
-                if (type == RealTimeLocationType.WGS84 && (latitude != 0 || longitude != 0)) {
-                    LatLng sourceLatLng = new LatLng(latitude, longitude);
-                    CoordinateConverter converter = new CoordinateConverter();
-                    converter.from(CoordinateConverter.CoordType.GPS);
-                    converter.coord(sourceLatLng);
-                    LatLng desLatLng = converter.convert();
-                    if (userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
-                        mLatLng = new LatLng(desLatLng.latitude, desLatLng.longitude);
-                    }
-                    sendOnLocationChanged(desLatLng.latitude, desLatLng.longitude, userId);
-                } else {
-                    if (userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
-                        mLatLng = new LatLng(latitude, longitude);
-                    }
-                    sendOnLocationChanged(latitude, longitude, userId);
-                }
+                            @Override
+                            public void onReceiveLocationWithType(
+                                    double latitude,
+                                    double longitude,
+                                    RealTimeLocationType type,
+                                    String userId) {
+                                RLog.d(
+                                        TAG,
+                                        "onReceiveLocationWithType userId = "
+                                                + userId
+                                                + "; latitude = "
+                                                + latitude
+                                                + "; longitude = "
+                                                + longitude
+                                                + ",type = "
+                                                + type);
+                                if (type == RealTimeLocationType.WGS84
+                                        && (latitude != 0 || longitude != 0)) {
+                                    LatLng sourceLatLng = new LatLng(latitude, longitude);
+                                    CoordinateConverter converter = new CoordinateConverter();
+                                    converter.from(CoordinateConverter.CoordType.GPS);
+                                    converter.coord(sourceLatLng);
+                                    LatLng desLatLng = converter.convert();
+                                    if (userId.equals(
+                                            RongIMClient.getInstance().getCurrentUserId())) {
+                                        mLatLng =
+                                                new LatLng(desLatLng.latitude, desLatLng.longitude);
+                                    }
+                                    sendOnLocationChanged(
+                                            desLatLng.latitude, desLatLng.longitude, userId);
+                                } else {
+                                    if (userId.equals(
+                                            RongIMClient.getInstance().getCurrentUserId())) {
+                                        mLatLng = new LatLng(latitude, longitude);
+                                    }
+                                    sendOnLocationChanged(latitude, longitude, userId);
+                                }
+                            }
 
-            }
+                            @Override
+                            public void onReceiveLocation(
+                                    double latitude, double longitude, String userId) {
+                                RLog.d(
+                                        TAG,
+                                        "onReceiveLocation userId = "
+                                                + userId
+                                                + "; latitude = "
+                                                + latitude
+                                                + "; longitude = "
+                                                + longitude);
+                                if (userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
+                                    mLatLng = new LatLng(latitude, longitude);
+                                }
+                                sendOnLocationChanged(latitude, longitude, userId);
+                            }
 
-            @Override
-            public void onReceiveLocation(double latitude, double longitude, String userId) {
-                RLog.d(TAG, "onReceiveLocation userId = " + userId + "; latitude = " + latitude + "; longitude = " + longitude);
-                if (userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
-                    mLatLng = new LatLng(latitude, longitude);
-                }
-                sendOnLocationChanged(latitude, longitude, userId);
-            }
+                            @Override
+                            public void onParticipantsJoin(String userId) {
+                                RLog.d(TAG, "onParticipantsJoin userId = " + userId);
+                                sendOnParticipantChanged();
+                                sendOnParticipantJoinSharing(userId);
+                            }
 
-            @Override
-            public void onParticipantsJoin(String userId) {
-                RLog.d(TAG, "onParticipantsJoin userId = " + userId);
-                sendOnParticipantChanged();
-                sendOnParticipantJoinSharing(userId);
-            }
+                            @Override
+                            public void onParticipantsQuit(String userId) {
+                                RLog.d(TAG, "onParticipantsQuit userId = " + userId);
+                                sendOnParticipantChanged();
+                                sendOnParticipantQuitSharing(userId);
+                            }
 
-            @Override
-            public void onParticipantsQuit(String userId) {
-                RLog.d(TAG, "onParticipantsQuit userId = " + userId);
-                sendOnParticipantChanged();
-                sendOnParticipantQuitSharing(userId);
-            }
-
-            @Override
-            public void onError(RealTimeLocationConstant.RealTimeLocationErrorCode errorCode) {
-                RLog.d(TAG, "RealTimeLocationErrorCode errorCode = " + errorCode);
-                stopMyLocationInLoop();
-                sendOnRealTimeLocationError(errorCode);
-            }
-        });
+                            @Override
+                            public void onError(
+                                    RealTimeLocationConstant.RealTimeLocationErrorCode errorCode) {
+                                RLog.d(TAG, "RealTimeLocationErrorCode errorCode = " + errorCode);
+                                stopMyLocationInLoop();
+                                sendOnRealTimeLocationError(errorCode);
+                            }
+                        });
     }
 
     public void unBindConversation() {
@@ -126,7 +153,9 @@ public class LocationDelegate2D {
     public void setParticipantChangedListener(IRealTimeLocationStateListener listener) {
         mParticipantChangedListener = listener;
         if (mParticipantChangedListener != null) {
-            mParticipantChangedListener.onParticipantChanged(RongIMClient.getInstance().getRealTimeLocationParticipants(mConversationType, mTargetId));
+            mParticipantChangedListener.onParticipantChanged(
+                    RongIMClient.getInstance()
+                            .getRealTimeLocationParticipants(mConversationType, mTargetId));
         }
     }
 
@@ -144,24 +173,36 @@ public class LocationDelegate2D {
         mLocationChangedListener = listener;
         if (mLocationChangedListener != null) {
             if (mLatLng != null) {
-                mLocationChangedListener.onLocationChanged(mLatLng.latitude, mLatLng.longitude, RongIMClient.getInstance().getCurrentUserId());
+                mLocationChangedListener.onLocationChanged(
+                        mLatLng.latitude,
+                        mLatLng.longitude,
+                        RongIMClient.getInstance().getCurrentUserId());
             }
         }
     }
 
     public int joinLocationSharing() {
-        RongIMClient.ConnectionStatusListener.ConnectionStatus state = RongIMClient.getInstance().getCurrentConnectionStatus();
+        RongIMClient.ConnectionStatusListener.ConnectionStatus state =
+                RongIMClient.getInstance().getCurrentConnectionStatus();
         if (state != RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
             return 1;
         }
-        RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
+        RealTimeLocationConstant.RealTimeLocationStatus status =
+                RongIMClient.getInstance()
+                        .getRealTimeLocationCurrentState(mConversationType, mTargetId);
         switch (status) {
             case RC_REAL_TIME_LOCATION_STATUS_IDLE:
                 RongIMClient.getInstance().startRealTimeLocation(mConversationType, mTargetId);
                 break;
             case RC_REAL_TIME_LOCATION_STATUS_INCOMING:
-                int errorCode = RongIMClient.getInstance().joinRealTimeLocation(mConversationType, mTargetId).getValue();
-                if (errorCode == RealTimeLocationConstant.RealTimeLocationErrorCode.RC_REAL_TIME_LOCATION_EXCEED_MAX_PARTICIPANT.getValue()) {
+                int errorCode =
+                        RongIMClient.getInstance()
+                                .joinRealTimeLocation(mConversationType, mTargetId)
+                                .getValue();
+                if (errorCode
+                        == RealTimeLocationConstant.RealTimeLocationErrorCode
+                                .RC_REAL_TIME_LOCATION_EXCEED_MAX_PARTICIPANT
+                                .getValue()) {
                     return 2;
                 }
                 break;
@@ -173,9 +214,15 @@ public class LocationDelegate2D {
 
     public void quitLocationSharing() {
         RLog.d(TAG, "quitLocationSharing");
-        RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
-        if (status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_CONNECTED
-                || status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_OUTGOING) {
+        RealTimeLocationConstant.RealTimeLocationStatus status =
+                RongIMClient.getInstance()
+                        .getRealTimeLocationCurrentState(mConversationType, mTargetId);
+        if (status
+                        == RealTimeLocationConstant.RealTimeLocationStatus
+                                .RC_REAL_TIME_LOCATION_STATUS_CONNECTED
+                || status
+                        == RealTimeLocationConstant.RealTimeLocationStatus
+                                .RC_REAL_TIME_LOCATION_STATUS_OUTGOING) {
             RongIMClient.getInstance().quitRealTimeLocation(mConversationType, mTargetId);
             stopMyLocationInLoop();
             mLatLng = null;
@@ -203,14 +250,22 @@ public class LocationDelegate2D {
     }
 
     public boolean isSharing() {
-        RealTimeLocationConstant.RealTimeLocationStatus status = RongIMClient.getInstance().getRealTimeLocationCurrentState(mConversationType, mTargetId);
-        return status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_CONNECTED
-                || status == RealTimeLocationConstant.RealTimeLocationStatus.RC_REAL_TIME_LOCATION_STATUS_OUTGOING;
+        RealTimeLocationConstant.RealTimeLocationStatus status =
+                RongIMClient.getInstance()
+                        .getRealTimeLocationCurrentState(mConversationType, mTargetId);
+        return status
+                        == RealTimeLocationConstant.RealTimeLocationStatus
+                                .RC_REAL_TIME_LOCATION_STATUS_CONNECTED
+                || status
+                        == RealTimeLocationConstant.RealTimeLocationStatus
+                                .RC_REAL_TIME_LOCATION_STATUS_OUTGOING;
     }
 
     private void sendOnParticipantChanged() {
         if (mContext != null && mParticipantChangedListener != null) {
-            List<String> userIdList = RongIMClient.getInstance().getRealTimeLocationParticipants(mConversationType, mTargetId);
+            List<String> userIdList =
+                    RongIMClient.getInstance()
+                            .getRealTimeLocationParticipants(mConversationType, mTargetId);
             mParticipantChangedListener.onParticipantChanged(userIdList);
         }
     }
@@ -221,7 +276,8 @@ public class LocationDelegate2D {
         }
     }
 
-    private void sendOnRealTimeLocationError(RealTimeLocationConstant.RealTimeLocationErrorCode code) {
+    private void sendOnRealTimeLocationError(
+            RealTimeLocationConstant.RealTimeLocationErrorCode code) {
         if (mContext != null && mLocationChangedListener != null) {
             mLocationChangedListener.onError(code);
         }
@@ -278,8 +334,13 @@ public class LocationDelegate2D {
                     } else {
                         realTimeLocationType = RealTimeLocationType.WGS84;
                     }
-                    RongIMClient.getInstance().updateRealTimeLocationStatus(mConversationType, mTargetId,
-                            locInfo.getLat(), locInfo.getLng(), realTimeLocationType);
+                    RongIMClient.getInstance()
+                            .updateRealTimeLocationStatus(
+                                    mConversationType,
+                                    mTargetId,
+                                    locInfo.getLat(),
+                                    locInfo.getLng(),
+                                    realTimeLocationType);
                     mMyLastLatLng = locInfo;
                 }
                 try {

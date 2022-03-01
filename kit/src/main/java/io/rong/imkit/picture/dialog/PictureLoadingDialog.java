@@ -1,13 +1,10 @@
 package io.rong.imkit.picture.dialog;
 
-
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Window;
-
 import io.rong.imkit.R;
-
 
 public class PictureLoadingDialog extends Dialog {
 
@@ -18,7 +15,6 @@ public class PictureLoadingDialog extends Dialog {
         Window window = getWindow();
         window.setWindowAnimations(R.style.PictureThemeDialogWindowStyle);
     }
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

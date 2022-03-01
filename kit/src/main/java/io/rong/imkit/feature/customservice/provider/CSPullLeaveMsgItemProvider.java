@@ -15,14 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.processor.ConversationProcessorFactory;
 import io.rong.imkit.conversation.messgelist.provider.BaseNotificationMessageItemProvider;
-import io.rong.imkit.feature.customservice.CustomServiceBusinessProcessor;
 import io.rong.imkit.feature.customservice.CSLeaveMessageActivity;
+import io.rong.imkit.feature.customservice.CustomServiceBusinessProcessor;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
@@ -31,31 +28,57 @@ import io.rong.imlib.cs.CustomServiceConfig;
 import io.rong.imlib.cs.message.CSPullLeaveMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
+import java.util.List;
 
-public class CSPullLeaveMsgItemProvider extends BaseNotificationMessageItemProvider<CSPullLeaveMessage> {
+public class CSPullLeaveMsgItemProvider
+        extends BaseNotificationMessageItemProvider<CSPullLeaveMessage> {
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_information_notification_message, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_information_notification_message, parent, false);
         return new ViewHolder(parent.getContext(), view);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder,ViewHolder parentHolder, CSPullLeaveMessage csPullLeaveMessage, final UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            CSPullLeaveMessage csPullLeaveMessage,
+            final UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         if (csPullLeaveMessage != null) {
             String content = csPullLeaveMessage.getContent();
             if (!TextUtils.isEmpty(content)) {
                 SpannableStringBuilder builder = new SpannableStringBuilder();
-                String filter = holder.getContext().getResources().getString(R.string.rc_cs_leave_message);
+                String filter =
+                        holder.getContext().getResources().getString(R.string.rc_cs_leave_message);
                 int startPos = content.indexOf(filter);
                 if (startPos >= 0) {
-                    SpannableString filterString = new SpannableString(content.substring(startPos, startPos + filter.length()));
-                    filterString.setSpan(new ForegroundColorSpan(holder.getContext().getResources().getColor(R.color.rc_voice_color)), 0, filterString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    filterString.setSpan(new Clickable(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            onLeaveMessageClicked(v, uiMessage);
-                        }
-                    }), 0, filterString.length(), Spanned.SPAN_MARK_MARK);
+                    SpannableString filterString =
+                            new SpannableString(
+                                    content.substring(startPos, startPos + filter.length()));
+                    filterString.setSpan(
+                            new ForegroundColorSpan(
+                                    holder.getContext()
+                                            .getResources()
+                                            .getColor(R.color.rc_voice_color)),
+                            0,
+                            filterString.length(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    filterString.setSpan(
+                            new Clickable(
+                                    new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            onLeaveMessageClicked(v, uiMessage);
+                                        }
+                                    }),
+                            0,
+                            filterString.length(),
+                            Spanned.SPAN_MARK_MARK);
 
                     String preText = content.substring(0, startPos);
                     String endText = content.substring(startPos + filter.length());
@@ -77,19 +100,26 @@ public class CSPullLeaveMsgItemProvider extends BaseNotificationMessageItemProvi
 
     private void onLeaveMessageClicked(View v, UiMessage message) {
         Intent intent;
-        CustomServiceBusinessProcessor processor = (CustomServiceBusinessProcessor) ConversationProcessorFactory.getInstance()
-                .getProcessor(Conversation.ConversationType.CUSTOMER_SERVICE);
+        CustomServiceBusinessProcessor processor =
+                (CustomServiceBusinessProcessor)
+                        ConversationProcessorFactory.getInstance()
+                                .getProcessor(Conversation.ConversationType.CUSTOMER_SERVICE);
         if (processor == null || processor.getCustomServiceConfig() == null) {
             return;
         }
         if (processor.getCustomServiceConfig() != null
-                && processor.getCustomServiceConfig().leaveMessageConfigType.equals(CustomServiceConfig.CSLeaveMessageType.WEB)) {
-            RouteUtils.routeToWebActivity(v.getContext(), processor.getCustomServiceConfig().uri.toString());
+                && processor
+                        .getCustomServiceConfig()
+                        .leaveMessageConfigType
+                        .equals(CustomServiceConfig.CSLeaveMessageType.WEB)) {
+            RouteUtils.routeToWebActivity(
+                    v.getContext(), processor.getCustomServiceConfig().uri.toString());
         } else if (processor.getCustomServiceConfig() != null) {
             intent = new Intent(v.getContext(), CSLeaveMessageActivity.class);
             intent.putExtra("targetId", message.getMessage().getTargetId());
             Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList("itemList", processor.getCustomServiceConfig().leaveMessageNativeInfo);
+            bundle.putParcelableArrayList(
+                    "itemList", processor.getCustomServiceConfig().leaveMessageNativeInfo);
             intent.putExtras(bundle);
             v.getContext().startActivity(intent);
         }

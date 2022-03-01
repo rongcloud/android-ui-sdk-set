@@ -2,7 +2,6 @@ package io.rong.imkit.feature.location;
 
 import android.content.Intent;
 import android.os.Bundle;
-
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdateFactory;
 import com.amap.api.maps.MapView;
@@ -10,7 +9,6 @@ import com.amap.api.maps.model.CameraPosition;
 import com.amap.api.maps.model.LatLng;
 import com.amap.api.maps.model.Marker;
 import com.amap.api.maps.model.MarkerOptions;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
@@ -50,14 +48,23 @@ public class AMapPreviewActivity extends RongBaseActivity {
         double lat = locationMessage.getLat();
         double lng = locationMessage.getLng();
         String poi = locationMessage.getPoi();
-        MarkerOptions markerOptions = new MarkerOptions().anchor(0.5f, 0.5f)
-                .position(new LatLng(lat, lng)).title(poi)
-                .snippet(lat + "," + lng).draggable(false);
+        MarkerOptions markerOptions =
+                new MarkerOptions()
+                        .anchor(0.5f, 0.5f)
+                        .position(new LatLng(lat, lng))
+                        .title(poi)
+                        .snippet(lat + "," + lng)
+                        .draggable(false);
         Marker marker = amap.addMarker(markerOptions);
         amap.setInfoWindowAdapter(new AmapInfoWindowAdapter(AMapPreviewActivity.this));
         marker.showInfoWindow();
-        amap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                .target(new LatLng(lat, lng)).zoom(16).bearing(0).build()));
+        amap.moveCamera(
+                CameraUpdateFactory.newCameraPosition(
+                        new CameraPosition.Builder()
+                                .target(new LatLng(lat, lng))
+                                .zoom(16)
+                                .bearing(0)
+                                .build()));
     }
 
     @Override
@@ -66,27 +73,21 @@ public class AMapPreviewActivity extends RongBaseActivity {
         super.onDestroy();
     }
 
-    /**
-     * 方法必须重写
-     */
+    /** 方法必须重写 */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mAMapView.onSaveInstanceState(outState);
     }
 
-    /**
-     * 方法必须重写
-     */
+    /** 方法必须重写 */
     @Override
     protected void onPause() {
         super.onPause();
         mAMapView.onPause();
     }
 
-    /**
-     * 方法必须重写
-     */
+    /** 方法必须重写 */
     @Override
     protected void onResume() {
         super.onResume();

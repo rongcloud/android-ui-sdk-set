@@ -1,5 +1,7 @@
 package io.rong.imkit.feature.publicservice;
 
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,12 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.fragment.app.Fragment;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.IExtensionModule;
 import io.rong.imkit.conversation.extension.RongExtension;
@@ -27,8 +24,8 @@ import io.rong.imlib.publicservice.message.PublicServiceCommandMessage;
 import io.rong.imlib.publicservice.model.PublicServiceMenu;
 import io.rong.imlib.publicservice.model.PublicServiceMenuItem;
 import io.rong.imlib.publicservice.model.PublicServiceProfile;
-
-import static android.view.View.VISIBLE;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PublicServiceExtensionModule implements IExtensionModule {
     private Fragment mFragment;
@@ -41,9 +38,7 @@ public class PublicServiceExtensionModule implements IExtensionModule {
     private LinearLayout mMenuContainer;
 
     @Override
-    public void onInit(Context context, String appKey) {
-
-    }
+    public void onInit(Context context, String appKey) {}
 
     @Override
     public void onAttachedToExtension(Fragment fragment, RongExtension extension) {
@@ -71,8 +66,12 @@ public class PublicServiceExtensionModule implements IExtensionModule {
                 inputMenuList.add(inputMenu);
             }
 
-            RelativeLayout extensionContainer = mRongExtension.getContainer(RongExtension.ContainerType.INPUT);
-            LinearLayout menuBar = (LinearLayout) LayoutInflater.from(mFragment.getContext()).inflate(R.layout.rc_ext_public_service_menu, null);
+            RelativeLayout extensionContainer =
+                    mRongExtension.getContainer(RongExtension.ContainerType.INPUT);
+            LinearLayout menuBar =
+                    (LinearLayout)
+                            LayoutInflater.from(mFragment.getContext())
+                                    .inflate(R.layout.rc_ext_public_service_menu, null);
             mContentContainer = menuBar.findViewById(R.id.rc_menu_container);
             mInputToggleBtn = menuBar.findViewById(R.id.rc_switch_button);
             mInputToggleBtn.setOnClickListener(mInputToggleClickListener);
@@ -86,8 +85,15 @@ public class PublicServiceExtensionModule implements IExtensionModule {
             mMenuContainer.removeAllViews();
             for (int i = 0; i < inputMenuList.size(); i++) {
                 final InputMenu inputMenu = inputMenuList.get(i);
-                RelativeLayout menuItem = (RelativeLayout) LayoutInflater.from(mFragment.getContext()).inflate(R.layout.rc_ext_menu_item, null);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
+                RelativeLayout menuItem =
+                        (RelativeLayout)
+                                LayoutInflater.from(mFragment.getContext())
+                                        .inflate(R.layout.rc_ext_menu_item, null);
+                LinearLayout.LayoutParams lp =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                1.0f);
                 menuItem.setLayoutParams(lp);
                 TextView title = menuItem.findViewById(R.id.rc_menu_title);
                 title.setText(inputMenu.title);
@@ -100,24 +106,27 @@ public class PublicServiceExtensionModule implements IExtensionModule {
                 mMenuItemList.add(menuItem);
                 mMenuContainer.addView(menuItem);
                 final int rootIndex = i;
-                menuItem.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        List<String> subMenuList = inputMenu.subMenuList;
-                        if (subMenuList != null && subMenuList.size() > 0) {
-                            InputSubMenu subMenu = new InputSubMenu(v.getContext(), subMenuList);
-                            subMenu.setOnItemClickListener(new ISubMenuItemClickListener() {
-                                @Override
-                                public void onClick(int index) {
-                                    onMenuClick(rootIndex, index);
+                menuItem.setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                List<String> subMenuList = inputMenu.subMenuList;
+                                if (subMenuList != null && subMenuList.size() > 0) {
+                                    InputSubMenu subMenu =
+                                            new InputSubMenu(v.getContext(), subMenuList);
+                                    subMenu.setOnItemClickListener(
+                                            new ISubMenuItemClickListener() {
+                                                @Override
+                                                public void onClick(int index) {
+                                                    onMenuClick(rootIndex, index);
+                                                }
+                                            });
+                                    subMenu.showAtLocation(v);
+                                } else {
+                                    onMenuClick(rootIndex, -1);
                                 }
-                            });
-                            subMenu.showAtLocation(v);
-                        } else {
-                            onMenuClick(rootIndex, -1);
-                        }
-                    }
-                });
+                            }
+                        });
 
                 if (i == inputMenuList.size() - 1) {
                     mContentContainer.removeAllViews();
@@ -139,33 +148,42 @@ public class PublicServiceExtensionModule implements IExtensionModule {
             return mMenuContainer;
         }
         mMenuContainer = new LinearLayout(mFragment.getActivity());
-        RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        RelativeLayout.LayoutParams rlp =
+                new RelativeLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mMenuContainer.setLayoutParams(rlp);
         mMenuContainer.setOrientation(LinearLayout.HORIZONTAL);
         return mMenuContainer;
     }
 
-    View.OnClickListener mInputToggleClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (isMenuMode) {
-                mContentContainer.removeAllViews();
-                mContentContainer.addView(mRongExtension.getInputPanel().getRootView());
-                mInputToggleBtn.setImageDrawable(v.getContext().getResources().getDrawable(R.drawable.rc_ext_public_service_menu_mode));
-            } else {
-                mContentContainer.removeAllViews();
-                getRealMenuContainer().removeAllViews();
-                for (int i = 0; i < mMenuItemList.size(); i++) {
-                    getRealMenuContainer().addView(mMenuItemList.get(i));
-                    if (i == mMenuItemList.size() - 1) {
-                        mContentContainer.addView(mMenuContainer);
+    View.OnClickListener mInputToggleClickListener =
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (isMenuMode) {
+                        mContentContainer.removeAllViews();
+                        mContentContainer.addView(mRongExtension.getInputPanel().getRootView());
+                        mInputToggleBtn.setImageDrawable(
+                                v.getContext()
+                                        .getResources()
+                                        .getDrawable(R.drawable.rc_ext_public_service_menu_mode));
+                    } else {
+                        mContentContainer.removeAllViews();
+                        getRealMenuContainer().removeAllViews();
+                        for (int i = 0; i < mMenuItemList.size(); i++) {
+                            getRealMenuContainer().addView(mMenuItemList.get(i));
+                            if (i == mMenuItemList.size() - 1) {
+                                mContentContainer.addView(mMenuContainer);
+                            }
+                        }
+                        mInputToggleBtn.setImageDrawable(
+                                v.getContext()
+                                        .getResources()
+                                        .getDrawable(R.drawable.rc_ext_public_service_input_mode));
                     }
+                    isMenuMode = !isMenuMode;
                 }
-                mInputToggleBtn.setImageDrawable(v.getContext().getResources().getDrawable(R.drawable.rc_ext_public_service_input_mode));
-            }
-            isMenuMode = !isMenuMode;
-        }
-    };
+            };
 
     private void onMenuClick(int root, int sub) {
         if (mPublicServiceProfile != null && mRongExtension != null) {
@@ -176,14 +194,17 @@ public class PublicServiceExtensionModule implements IExtensionModule {
                 item = item.getSubMenuItems().get(sub);
             }
             if (item.getType().equals(PublicServiceMenu.PublicServiceMenuItemType.View)) {
-                IPublicServiceMenuClickListener menuClickListener = PublicServiceManager.getInstance().getPublicServiceMenuClickListener();
-                if (menuClickListener == null || !menuClickListener.onClick(conversationType, targetId, item)) {
+                IPublicServiceMenuClickListener menuClickListener =
+                        PublicServiceManager.getInstance().getPublicServiceMenuClickListener();
+                if (menuClickListener == null
+                        || !menuClickListener.onClick(conversationType, targetId, item)) {
                     RouteUtils.routeToWebActivity(mRongExtension.getContext(), item.getUrl());
                 }
             }
 
             PublicServiceCommandMessage msg = PublicServiceCommandMessage.obtain(item);
-            RongIMClient.getInstance().sendMessage(conversationType, targetId, msg, null, null, null);
+            RongIMClient.getInstance()
+                    .sendMessage(conversationType, targetId, msg, null, null, null);
         }
     }
 
@@ -196,9 +217,7 @@ public class PublicServiceExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onReceivedMessage(Message message) {
-
-    }
+    public void onReceivedMessage(Message message) {}
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {

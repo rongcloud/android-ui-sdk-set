@@ -40,36 +40,38 @@ public class InputSurface {
         }
 
         int[] attribList = {
-                EGL14.EGL_RED_SIZE, 8,
-                EGL14.EGL_GREEN_SIZE, 8,
-                EGL14.EGL_BLUE_SIZE, 8,
-                EGL14.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                EGL_RECORDABLE_ANDROID, 1,
-                EGL14.EGL_NONE
+            EGL14.EGL_RED_SIZE,
+            8,
+            EGL14.EGL_GREEN_SIZE,
+            8,
+            EGL14.EGL_BLUE_SIZE,
+            8,
+            EGL14.EGL_RENDERABLE_TYPE,
+            EGL_OPENGL_ES2_BIT,
+            EGL_RECORDABLE_ANDROID,
+            1,
+            EGL14.EGL_NONE
         };
         EGLConfig[] configs = new EGLConfig[1];
         int[] numConfigs = new int[1];
-        if (!EGL14.eglChooseConfig(mEGLDisplay, attribList, 0, configs, 0, configs.length,
-                numConfigs, 0)) {
+        if (!EGL14.eglChooseConfig(
+                mEGLDisplay, attribList, 0, configs, 0, configs.length, numConfigs, 0)) {
             throw new RuntimeException("unable to find RGB888+recordable ES2 EGL config");
         }
 
-        int[] attrib_list = {
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
-                EGL14.EGL_NONE
-        };
+        int[] attrib_list = {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
 
-        mEGLContext = EGL14.eglCreateContext(mEGLDisplay, configs[0], EGL14.EGL_NO_CONTEXT, attrib_list, 0);
+        mEGLContext =
+                EGL14.eglCreateContext(
+                        mEGLDisplay, configs[0], EGL14.EGL_NO_CONTEXT, attrib_list, 0);
         checkEglError("eglCreateContext");
         if (mEGLContext == null) {
             throw new RuntimeException("null context");
         }
 
-        int[] surfaceAttribs = {
-                EGL14.EGL_NONE
-        };
-        mEGLSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, configs[0], mSurface,
-                surfaceAttribs, 0);
+        int[] surfaceAttribs = {EGL14.EGL_NONE};
+        mEGLSurface =
+                EGL14.eglCreateWindowSurface(mEGLDisplay, configs[0], mSurface, surfaceAttribs, 0);
         checkEglError("eglCreateWindowSurface");
         if (mEGLSurface == null) {
             throw new RuntimeException("surface was null");
@@ -78,7 +80,8 @@ public class InputSurface {
 
     public void release() {
         if (EGL14.eglGetCurrentContext().equals(mEGLContext)) {
-            EGL14.eglMakeCurrent(mEGLDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
+            EGL14.eglMakeCurrent(
+                    mEGLDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
         }
         EGL14.eglDestroySurface(mEGLDisplay, mEGLSurface);
         EGL14.eglDestroyContext(mEGLDisplay, mEGLContext);

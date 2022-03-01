@@ -7,7 +7,8 @@ public class DeleteEvent {
     private String mTargetId;
     private int[] mMessageIds;
 
-    public DeleteEvent(Conversation.ConversationType conversationType, String targetId, int[] messageIds) {
+    public DeleteEvent(
+            Conversation.ConversationType conversationType, String targetId, int[] messageIds) {
         this.mConversationType = conversationType;
         this.mTargetId = targetId;
         this.mMessageIds = messageIds;

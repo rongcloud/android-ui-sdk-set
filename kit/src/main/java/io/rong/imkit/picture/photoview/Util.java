@@ -5,8 +5,7 @@ import android.widget.ImageView;
 
 class Util {
 
-    static void checkZoomLevels(float minZoom, float midZoom,
-                                float maxZoom) {
+    static void checkZoomLevels(float minZoom, float midZoom, float maxZoom) {
         if (minZoom >= midZoom) {
             throw new IllegalArgumentException(
                     "Minimum zoom has to be less than Medium zoom. Call setMinimumZoom() with a more appropriate value");
@@ -32,6 +31,7 @@ class Util {
     }
 
     static int getPointerIndex(int action) {
-        return (action & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+        return (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
     }
 }

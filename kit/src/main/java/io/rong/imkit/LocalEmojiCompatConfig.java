@@ -3,19 +3,18 @@ package io.rong.imkit;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
-
-import java.io.InputStream;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.text.MetadataRepo;
+import java.io.InputStream;
 
 /**
  * 用于本地加载字体库.
  *
- * @see <a href="https://juejin.cn/post/6966858553583730718#heading-15">https://juejin.cn/post/6966858553583730718#heading-15</a>
+ * @see <a
+ *     href="https://juejin.cn/post/6966858553583730718#heading-15">https://juejin.cn/post/6966858553583730718#heading-15</a>
  */
 public class LocalEmojiCompatConfig extends EmojiCompat.Config {
 
@@ -35,7 +34,7 @@ public class LocalEmojiCompatConfig extends EmojiCompat.Config {
         @RequiresApi(19)
         public void load(@NonNull EmojiCompat.MetadataRepoLoaderCallback loaderCallback) {
             Preconditions.checkNotNull(loaderCallback, "loaderCallback cannot be null");
-            //开启子线程执行任务
+            // 开启子线程执行任务
             final InitRunnable runnable = new InitRunnable(mContext, loaderCallback);
             final Thread thread = new Thread(runnable);
             thread.setDaemon(false);
@@ -56,9 +55,11 @@ public class LocalEmojiCompatConfig extends EmojiCompat.Config {
         @Override
         public void run() {
             try {
-                //构建 MetadataRepo
-                final Typeface typeface = Typeface.createFromAsset(mContext.getAssets(), "NotoColorEmojiCompat.ttf");
-                final InputStream inputStream = mContext.getResources().getAssets().open("NotoColorEmojiCompat.ttf");
+                // 构建 MetadataRepo
+                final Typeface typeface =
+                        Typeface.createFromAsset(mContext.getAssets(), "NotoColorEmojiCompat.ttf");
+                final InputStream inputStream =
+                        mContext.getResources().getAssets().open("NotoColorEmojiCompat.ttf");
                 final MetadataRepo metadataRepo = MetadataRepo.create(typeface, inputStream);
                 mLoaderCallback.onLoaded(metadataRepo);
             } catch (Throwable t) {
@@ -67,4 +68,3 @@ public class LocalEmojiCompatConfig extends EmojiCompat.Config {
         }
     }
 }
-

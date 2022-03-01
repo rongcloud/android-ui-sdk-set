@@ -1,6 +1,5 @@
 package io.rong.imkit.conversation.extension.component.emoticon;
 
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -12,12 +11,9 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ReplacementSpan;
 import android.util.DisplayMetrics;
-
 import androidx.annotation.NonNull;
 import androidx.emoji2.text.EmojiCompat;
-
 import io.rong.common.RLog;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,16 +31,37 @@ public class AndroidEmoji {
         sEmojiList = new ArrayList<>();
         mContext = context.getApplicationContext();
 
-        int[] codes = context.getResources().getIntArray(context.getResources().getIdentifier("rc_emoji_code", "array", context.getPackageName()));
-        TypedArray array = context.getResources().obtainTypedArray(context.getResources().getIdentifier("rc_emoji_res", "array", context.getPackageName()));
-        TypedArray strArray = context.getResources().obtainTypedArray(context.getResources().getIdentifier("rc_emoji_description", "array", context.getPackageName()));
+        int[] codes =
+                context.getResources()
+                        .getIntArray(
+                                context.getResources()
+                                        .getIdentifier(
+                                                "rc_emoji_code",
+                                                "array",
+                                                context.getPackageName()));
+        TypedArray array =
+                context.getResources()
+                        .obtainTypedArray(
+                                context.getResources()
+                                        .getIdentifier(
+                                                "rc_emoji_res", "array", context.getPackageName()));
+        TypedArray strArray =
+                context.getResources()
+                        .obtainTypedArray(
+                                context.getResources()
+                                        .getIdentifier(
+                                                "rc_emoji_description",
+                                                "array",
+                                                context.getPackageName()));
         if (codes.length != array.length()) {
             throw new RuntimeException("Emoji resource init fail.");
         }
 
         int i = -1;
         while (++i < codes.length) {
-            EmojiInfo emoji = new EmojiInfo(codes[i], array.getResourceId(i, -1), strArray.getResourceId(i, -1));
+            EmojiInfo emoji =
+                    new EmojiInfo(
+                            codes[i], array.getResourceId(i, -1), strArray.getResourceId(i, -1));
             sEmojiMap.put(codes[i], emoji);
             sEmojiList.add(emoji);
         }
@@ -89,26 +106,26 @@ public class AndroidEmoji {
         }
 
         /**
-         * A constant indicating that the bottom of this span should be aligned
-         * with the bottom of the surrounding text, i.e., at the same level as the
-         * lowest descender in the text.
+         * A constant indicating that the bottom of this span should be aligned with the bottom of
+         * the surrounding text, i.e., at the same level as the lowest descender in the text.
          */
         public static final int ALIGN_BOTTOM = 0;
 
-
         /**
-         * Your subclass must implement this method to provide the bitmap
-         * to be drawn.  The dimensions of the bitmap must be the same
-         * from each call to the next.
+         * Your subclass must implement this method to provide the bitmap to be drawn. The
+         * dimensions of the bitmap must be the same from each call to the next.
          */
         public Drawable getDrawable() {
             return mDrawable;
         }
 
         @Override
-        public int getSize(@NonNull Paint paint, CharSequence text,
-                           int start, int end,
-                           Paint.FontMetricsInt fm) {
+        public int getSize(
+                @NonNull Paint paint,
+                CharSequence text,
+                int start,
+                int end,
+                Paint.FontMetricsInt fm) {
             Drawable d = getCachedDrawable();
             Rect rect = d.getBounds();
 
@@ -124,16 +141,22 @@ public class AndroidEmoji {
         }
 
         @Override
-        public void draw(Canvas canvas, CharSequence text,
-                         int start, int end, float x,
-                         int top, int y, int bottom, @NonNull Paint paint) {
+        public void draw(
+                Canvas canvas,
+                CharSequence text,
+                int start,
+                int end,
+                float x,
+                int top,
+                int y,
+                int bottom,
+                @NonNull Paint paint) {
             Drawable b = getCachedDrawable();
             canvas.save();
 
             int transY = bottom - b.getBounds().bottom;
 
             transY -= density;
-
 
             canvas.translate(x, transY);
             b.draw(canvas);
@@ -144,8 +167,7 @@ public class AndroidEmoji {
             WeakReference<Drawable> wr = mDrawableRef;
             Drawable d = null;
 
-            if (wr != null)
-                d = wr.get();
+            if (wr != null) d = wr.get();
 
             if (d == null) {
                 d = getDrawable();
@@ -167,7 +189,8 @@ public class AndroidEmoji {
 
         // extract the single chars that will be operated on
         final char[] chars = input.toCharArray();
-        // create a SpannableStringBuilder instance where the font ranges will be set for emoji characters
+        // create a SpannableStringBuilder instance where the font ranges will be set for emoji
+        // characters
 
         int codePoint;
         for (int i = 0; i < chars.length; i++) {
@@ -193,7 +216,7 @@ public class AndroidEmoji {
     public static CharSequence ensure(String input) {
         CharSequence cs;
         try {
-            //如果EmojiCompat未初始化成功,则使用原Emoji方案处理
+            // 如果EmojiCompat未初始化成功,则使用原Emoji方案处理
             cs = EmojiCompat.get().process(input);
         } catch (Exception e) {
             RLog.i(TAG, "ensure input:" + e.toString());
@@ -211,19 +234,28 @@ public class AndroidEmoji {
                 // 当前为高代理区
                 if (rcEmojiCode != 0) {
                     // 若不为 ZWJ 的一部分，且命中融云表情，则直接渲染
-                    ssb.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    ssb.setSpan(
+                            new EmojiImageSpan(rcEmojiCode),
+                            start,
+                            offset,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     rcEmojiCode = 0;
                 }
             } else if (Character.isLowSurrogate(cs.charAt(offset))) {
                 // 当前为低代理区
-                if (offset > 0 && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
+                if (offset > 0
+                        && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
                     codePoint = Character.toCodePoint(cs.charAt(offset - 1), cs.charAt(offset));
                     if (sEmojiMap.containsKey(codePoint)) {
                         rcEmojiCode = codePoint;
                         start = offset - 1;
                         if (offset == cs.length() - 1) {
                             // 若当前为字符串结尾，且命中融云表情，则渲染
-                            ssb.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            ssb.setSpan(
+                                    new EmojiImageSpan(rcEmojiCode),
+                                    start,
+                                    offset + 1,
+                                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                 }
@@ -236,7 +268,11 @@ public class AndroidEmoji {
                     // 当前为普通字符
                     if (rcEmojiCode != 0) {
                         // 若前一个融云表情命中，则使用融云渲染
-                        ssb.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        ssb.setSpan(
+                                new EmojiImageSpan(rcEmojiCode),
+                                start,
+                                offset,
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         rcEmojiCode = 0;
                     }
                 }
@@ -245,7 +281,6 @@ public class AndroidEmoji {
         }
         return ssb;
     }
-
 
     public static boolean isEmoji(String input) {
 
@@ -276,21 +311,22 @@ public class AndroidEmoji {
             }
         }
 
-//        if (length >= 2) {
-//
-//            if (Character.isLowSurrogate(chars[length - 1])) {
-//
-//                if (Character.isSurrogatePair(chars[length - 2], chars[length - 1])) {
-//                    codePoint = Character.toCodePoint(chars[length - 2], chars[length - 1]);
-//                } else {
-//                    codePoint = (int) chars[length - 1];
-//                }
-//            }
-//
-//            if (sEmojiMap.containsKey(codePoint)) {
-//                return true;
-//            }
-//        }
+        //        if (length >= 2) {
+        //
+        //            if (Character.isLowSurrogate(chars[length - 1])) {
+        //
+        //                if (Character.isSurrogatePair(chars[length - 2], chars[length - 1])) {
+        //                    codePoint = Character.toCodePoint(chars[length - 2], chars[length -
+        // 1]);
+        //                } else {
+        //                    codePoint = (int) chars[length - 1];
+        //                }
+        //            }
+        //
+        //            if (sEmojiMap.containsKey(codePoint)) {
+        //                return true;
+        //            }
+        //        }
 
         return false;
     }
@@ -298,7 +334,7 @@ public class AndroidEmoji {
     public static void ensure(Spannable spannable, float textSize) {
         CharSequence cs;
         try {
-            //如果EmojiCompat未初始化成功,则使用原Emoji方案处理
+            // 如果EmojiCompat未初始化成功,则使用原Emoji方案处理
             cs = EmojiCompat.get().process(spannable);
         } catch (Exception e) {
             RLog.i(TAG, "ensure spannable:" + e.toString());
@@ -314,19 +350,28 @@ public class AndroidEmoji {
                 // 当前为高代理区
                 if (rcEmojiCode != 0) {
                     // 若不为 ZWJ 的一部分，且命中融云表情，则直接渲染
-                    spannable.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    spannable.setSpan(
+                            new EmojiImageSpan(rcEmojiCode),
+                            start,
+                            offset,
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                     rcEmojiCode = 0;
                 }
             } else if (Character.isLowSurrogate(cs.charAt(offset))) {
                 // 当前为低代理区
-                if (offset > 0 && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
+                if (offset > 0
+                        && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
                     codePoint = Character.toCodePoint(cs.charAt(offset - 1), cs.charAt(offset));
                     if (sEmojiMap.containsKey(codePoint)) {
                         rcEmojiCode = codePoint;
                         start = offset - 1;
                         if (offset == cs.length() - 1) {
                             // 若当前为字符串结尾，且命中融云表情，则渲染
-                            spannable.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            spannable.setSpan(
+                                    new EmojiImageSpan(rcEmojiCode),
+                                    start,
+                                    offset + 1,
+                                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     }
                 }
@@ -339,7 +384,11 @@ public class AndroidEmoji {
                     // 当前为普通字符
                     if (rcEmojiCode != 0) {
                         // 若前一个融云表情命中，则使用融云渲染
-                        spannable.setSpan(new EmojiImageSpan(rcEmojiCode), start, offset, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        spannable.setSpan(
+                                new EmojiImageSpan(rcEmojiCode),
+                                start,
+                                offset,
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         rcEmojiCode = 0;
                     }
                 }
@@ -403,7 +452,8 @@ public class AndroidEmoji {
                         resultSpanStr.append("[");
                         EmojiInfo emojiInfo = sEmojiMap.get(codePoint);
                         if (emojiInfo != null) {
-                            resultSpanStr.append(mContext.getResources().getString(emojiInfo.strId));
+                            resultSpanStr.append(
+                                    mContext.getResources().getString(emojiInfo.strId));
                         }
                         resultSpanStr.append("]");
                     } else {
@@ -420,7 +470,8 @@ public class AndroidEmoji {
         return resultSpanStr == null ? null : resultSpanStr.toString();
     }
 
-    private static StringBuilder appendSpanStr(boolean isSurrogatePair, StringBuilder resultSpanStr, char[] chars, int index) {
+    private static StringBuilder appendSpanStr(
+            boolean isSurrogatePair, StringBuilder resultSpanStr, char[] chars, int index) {
         if (resultSpanStr == null) {
             return null;
         }
@@ -455,7 +506,6 @@ public class AndroidEmoji {
         return drawable;
     }
 
-
     private static class EmojiInfo {
         public EmojiInfo(int code, int resId) {
             this.code = code;
@@ -472,6 +522,4 @@ public class AndroidEmoji {
         int resId;
         int strId;
     }
-
-
 }

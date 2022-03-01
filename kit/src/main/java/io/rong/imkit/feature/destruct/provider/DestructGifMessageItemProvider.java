@@ -9,10 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.activity.GIFPreviewActivity;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
@@ -24,6 +20,8 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.GIFMessage;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
 public class DestructGifMessageItemProvider extends BaseMessageItemProvider<GIFMessage> {
     private static final String TAG = DestructGifMessageItemProvider.class.getSimpleName();
@@ -34,28 +32,45 @@ public class DestructGifMessageItemProvider extends BaseMessageItemProvider<GIFM
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_destruct_image_message, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_destruct_image_message, parent, false);
         return new ViewHolder(view.getContext(), view);
     }
 
-
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, GIFMessage message, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
-        boolean isSender = uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            GIFMessage message,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
+        boolean isSender =
+                uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
         holder.getConvertView().setTag(uiMessage.getMessage().getUId());
-        holder.setBackgroundRes(R.id.rc_destruct_click, isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+        holder.setBackgroundRes(
+                R.id.rc_destruct_click,
+                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
         holder.setVisible(R.id.fl_send_fire, isSender);
         holder.setVisible(R.id.fl_receiver_fire, !isSender);
         TextView clickHint = holder.getView(R.id.rc_destruct_click_hint);
         if (!isSender) {
-            DestructManager.getInstance().addListener(uiMessage.getMessage().getUId(), new DestructListener(holder, uiMessage), TAG);
+            DestructManager.getInstance()
+                    .addListener(
+                            uiMessage.getMessage().getUId(),
+                            new DestructListener(holder, uiMessage),
+                            TAG);
             boolean isRead = uiMessage.getMessage().getReadTime() > 0;
             holder.setVisible(R.id.tv_receiver_fire, isRead);
             holder.setVisible(R.id.iv_receiver_fire, !isRead);
             if (isRead) {
                 String unFinishTime;
                 if (TextUtils.isEmpty(uiMessage.getDestructTime())) {
-                    unFinishTime = DestructManager.getInstance().getUnFinishTime(uiMessage.getMessage().getUId());
+                    unFinishTime =
+                            DestructManager.getInstance()
+                                    .getUnFinishTime(uiMessage.getMessage().getUId());
                 } else {
                     unFinishTime = uiMessage.getDestructTime();
                 }
@@ -65,9 +80,14 @@ public class DestructGifMessageItemProvider extends BaseMessageItemProvider<GIFM
         }
     }
 
-
     @Override
-    protected boolean onItemClick(ViewHolder holder, GIFMessage imageMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            GIFMessage imageMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         Intent intent = new Intent(holder.getContext(), GIFPreviewActivity.class);
         intent.putExtra("message", uiMessage.getMessage());
         holder.getContext().startActivity(intent);
@@ -76,9 +96,9 @@ public class DestructGifMessageItemProvider extends BaseMessageItemProvider<GIFM
 
     @Override
     public Spannable getSummarySpannable(Context context, GIFMessage imageMessage) {
-        return new SpannableString(context.getString(R.string.rc_conversation_summary_content_burn));
+        return new SpannableString(
+                context.getString(R.string.rc_conversation_summary_content_burn));
     }
-
 
     @Override
     protected boolean isMessageViewType(MessageContent messageContent) {
@@ -120,5 +140,4 @@ public class DestructGifMessageItemProvider extends BaseMessageItemProvider<GIFM
             }
         }
     }
-
 }

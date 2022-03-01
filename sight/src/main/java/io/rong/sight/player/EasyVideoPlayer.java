@@ -33,28 +33,33 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.CheckResult;
 import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
-
-import java.io.File;
-import java.io.IOException;
-
 import io.rong.common.RLog;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.sight.R;
-
+import java.io.File;
+import java.io.IOException;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class EasyVideoPlayer extends FrameLayout implements IUserMethods, TextureView.SurfaceTextureListener,
-        MediaPlayer.OnPreparedListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnCompletionListener,
-        MediaPlayer.OnVideoSizeChangedListener, MediaPlayer.OnErrorListener, View.OnClickListener, View.OnLongClickListener, SeekBar.OnSeekBarChangeListener, MediaPlayer.OnInfoListener {
+public class EasyVideoPlayer extends FrameLayout
+        implements IUserMethods,
+                TextureView.SurfaceTextureListener,
+                MediaPlayer.OnPreparedListener,
+                MediaPlayer.OnBufferingUpdateListener,
+                MediaPlayer.OnCompletionListener,
+                MediaPlayer.OnVideoSizeChangedListener,
+                MediaPlayer.OnErrorListener,
+                View.OnClickListener,
+                View.OnLongClickListener,
+                SeekBar.OnSeekBarChangeListener,
+                MediaPlayer.OnInfoListener {
 
     public static final String TAG = "Sight-EasyVideoPlayer";
     private static final int UPDATE_INTERVAL = 100;
@@ -66,7 +71,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     public static final int PLAYER_STATUS_CLOSE = 6;
     private int currentPlayerStatus;
     private int beforePausePlayerStatus;
-
 
     private AudioManager audioManager;
     private AudioManager.OnAudioFocusChangeListener audioFocusChangeListener;
@@ -106,30 +110,31 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private int currentPos;
     private boolean isLongClickable;
     // Runnable used to run code on an interval to update counters and seeker
-    private final Runnable mUpdateCounters = new Runnable() {
-        @Override
-        public void run() {
-            if (mHandler == null || !mIsPrepared || mSeeker == null || mPlayer == null)
-                return;
-            int pos = mPlayer.getCurrentPosition();
-            final int dur = mPlayer.getDuration();
-            if ("oppo".equals(Build.BRAND.toLowerCase()) && "OPPO R9sk".equals(Build.MODEL)) {
-                if (pos <= currentPos) {
-                    pos = currentPos;
-                }
-            }
-            if (pos > dur) pos = dur;
-            mCurrent.setText(Util.getDurationString(pos));
-            //mTime.setText(Util.getDurationString(Math.round(dur)));
-            mSeeker.setProgress(pos);
-            mSeeker.setMax(dur);
+    private final Runnable mUpdateCounters =
+            new Runnable() {
+                @Override
+                public void run() {
+                    if (mHandler == null || !mIsPrepared || mSeeker == null || mPlayer == null)
+                        return;
+                    int pos = mPlayer.getCurrentPosition();
+                    final int dur = mPlayer.getDuration();
+                    if ("oppo".equals(Build.BRAND.toLowerCase())
+                            && "OPPO R9sk".equals(Build.MODEL)) {
+                        if (pos <= currentPos) {
+                            pos = currentPos;
+                        }
+                    }
+                    if (pos > dur) pos = dur;
+                    mCurrent.setText(Util.getDurationString(pos));
+                    // mTime.setText(Util.getDurationString(Math.round(dur)));
+                    mSeeker.setProgress(pos);
+                    mSeeker.setMax(dur);
 
-            if (mProgressCallback != null)
-                mProgressCallback.onVideoProgressUpdate(pos, dur);
-            if (mHandler != null)
-                mHandler.postDelayed(this, UPDATE_INTERVAL);
-        }
-    };
+                    if (mProgressCallback != null)
+                        mProgressCallback.onVideoProgressUpdate(pos, dur);
+                    if (mHandler != null) mHandler.postDelayed(this, UPDATE_INTERVAL);
+                }
+            };
 
     public EasyVideoPlayer(Context context) {
         super(context);
@@ -155,12 +160,13 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mAutoFullscreen = false;
         mLoop = false;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-            @Override
-            public void onAudioFocusChange(int focusChange) {
-                // do nothing
-            }
-        };
+        audioFocusChangeListener =
+                new AudioManager.OnAudioFocusChangeListener() {
+                    @Override
+                    public void onAudioFocusChange(int focusChange) {
+                        // do nothing
+                    }
+                };
     }
 
     // View events
@@ -182,8 +188,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mPlayer.setOnInfoListener(this);
 
         // Instantiate and add TextureView for rendering
-        final FrameLayout.LayoutParams textureLp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
+        final FrameLayout.LayoutParams textureLp =
+                new LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         textureLp.gravity = Gravity.CENTER;
         mTextureView = new TextureView(getContext());
         addView(mTextureView, textureLp);
@@ -194,9 +201,12 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         // Instantiate and add click frame (used to toggle controls)
         mClickFrame = new FrameLayout(getContext());
         //noinspection RedundantCast
-        // ((FrameLayout) mClickFrame).setForeground(Util.resolveDrawable(getContext(), R.attr.selectableItemBackground));
-        addView(mClickFrame, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        // ((FrameLayout) mClickFrame).setForeground(Util.resolveDrawable(getContext(),
+        // R.attr.selectableItemBackground));
+        addView(
+                mClickFrame,
+                new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         initPlayView();
         initCloseView();
         initSightListView();
@@ -205,8 +215,9 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         if (mControlsFrame == null) {
             return;
         }
-        final FrameLayout.LayoutParams controlsLp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        final FrameLayout.LayoutParams controlsLp =
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         controlsLp.gravity = Gravity.BOTTOM;
         addView(mControlsFrame, controlsLp);
         mControlsFrame.setVisibility(View.INVISIBLE);
@@ -215,15 +226,15 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             mControlsFrame.setVisibility(View.GONE);
             mClickFrame.setOnLongClickListener(null);
         } else {
-            mClickFrame.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    toggleControls();
-                }
-            });
+            mClickFrame.setOnClickListener(
+                    new OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            toggleControls();
+                        }
+                    });
             mClickFrame.setOnLongClickListener(isLongClickable ? this : null);
         }
-
 
         // Retrieve controls
         mSeeker = mControlsFrame.findViewById(R.id.seeker);
@@ -234,7 +245,6 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
         mTime = mControlsFrame.findViewById(R.id.time);
         mTime.setText(Util.getDurationString(0));
-
 
         mBtnPlayPause = mControlsFrame.findViewById(R.id.btnPlayPause);
         mBtnPlayPause.setOnClickListener(this);
@@ -248,58 +258,64 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     private void initPlayView() {
         mImageViewPlay = new ImageView(getContext());
-        FrameLayout.LayoutParams imageViewPlayParam = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams imageViewPlayParam =
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         imageViewPlayParam.gravity = Gravity.CENTER;
         mImageViewPlay.setImageResource(R.drawable.rc_ic_sight_player_paly);
         addView(mImageViewPlay, imageViewPlayParam);
         mImageViewPlay.setVisibility(View.GONE);
-        mImageViewPlay.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                start();
-            }
-        });
+        mImageViewPlay.setOnClickListener(
+                new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        start();
+                    }
+                });
     }
 
     private void initCloseView() {
         mImageViewClose = new ImageView(getContext());
-        FrameLayout.LayoutParams imageViewCloseParam = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams imageViewCloseParam =
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         imageViewCloseParam.gravity = Gravity.TOP | Gravity.LEFT;
         int iconPadding = (int) getResources().getDimension(R.dimen.sight_record_icon_padding);
         mImageViewClose.setImageResource(R.drawable.rc_ic_sight_close);
-        mImageViewClose.setPadding(iconPadding,iconPadding,iconPadding,iconPadding);
+        mImageViewClose.setPadding(iconPadding, iconPadding, iconPadding, iconPadding);
         addView(mImageViewClose, imageViewCloseParam);
         mImageViewClose.setVisibility(View.GONE);
         currentPlayerStatus = PLAYER_STATUS_CLOSE;
-        mImageViewClose.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mCallback != null) {
-                    mCallback.onClose();
-                }
-            }
-        });
+        mImageViewClose.setOnClickListener(
+                new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mCallback != null) {
+                            mCallback.onClose();
+                        }
+                    }
+                });
     }
 
     private void initSightListView() {
         mImageViewSightList = new ImageView(getContext());
-        FrameLayout.LayoutParams imageViewSightListParam = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams imageViewSightListParam =
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         imageViewSightListParam.gravity = Gravity.TOP | Gravity.RIGHT;
         int iconMargin = (int) getResources().getDimension(R.dimen.sight_record_top_icon_margin);
         imageViewSightListParam.setMargins(0, iconMargin, iconMargin, 0);
         mImageViewSightList.setImageResource(R.drawable.rc_ic_sight_list);
         addView(mImageViewSightList, imageViewSightListParam);
-        mImageViewSightList.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mCallback != null) {
-                    mCallback.onSightListRequest();
-                }
-            }
-        });
+        mImageViewSightList.setOnClickListener(
+                new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mCallback != null) {
+                            mCallback.onSightListRequest();
+                        }
+                    }
+                });
     }
 
     @Override
@@ -348,8 +364,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mSeeker.setEnabled(false);
         mPlayer.reset();
         currentPlayerStatus = PLAYER_STATUS_PREPARING;
-        if (mCallback != null)
-            mCallback.onPreparing(this);
+        if (mCallback != null) mCallback.onPreparing(this);
         try {
             setSourceInternal();
         } catch (IOException e) {
@@ -358,14 +373,19 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     }
 
     private void setSourceInternal() throws IOException {
-        if (mSource.getScheme() != null &&
-                (mSource.getScheme().equals("http") || mSource.getScheme().equals("https"))) {
+        if (mSource.getScheme() != null
+                && (mSource.getScheme().equals("http") || mSource.getScheme().equals("https"))) {
             RLog.d(TAG, "Loading web URI: " + mSource.toString());
             mPlayer.setDataSource(mSource.toString());
-        } else if (mSource.getScheme() != null && (mSource.getScheme().equals("file") && mSource.getPath().contains("/android_assets/"))) {
+        } else if (mSource.getScheme() != null
+                && (mSource.getScheme().equals("file")
+                        && mSource.getPath().contains("/android_assets/"))) {
             RLog.d(TAG, "Loading assets URI: " + mSource.toString());
             AssetFileDescriptor afd;
-            afd = getContext().getAssets().openFd(mSource.toString().replace("file:///android_assets/", ""));
+            afd =
+                    getContext()
+                            .getAssets()
+                            .openFd(mSource.toString().replace("file:///android_assets/", ""));
             mPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             afd.close();
         } else if (mSource.getScheme() != null && mSource.getScheme().equals("asset")) {
@@ -385,8 +405,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         if (!mSurfaceAvailable || mSource == null || mPlayer == null || mIsPrepared) {
             return;
         }
-        if (mCallback != null)
-            mCallback.onPreparing(this);
+        if (mCallback != null) mCallback.onPreparing(this);
         try {
             mPlayer.setSurface(mSurface);
             setSourceInternal();
@@ -420,16 +439,20 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mControlsFrame.setAlpha(0f);
         mControlsFrame.setVisibility(View.VISIBLE);
         mImageViewClose.setVisibility(View.VISIBLE);
-        mControlsFrame.animate().alpha(1f)
+        mControlsFrame
+                .animate()
+                .alpha(1f)
                 .setInterpolator(new DecelerateInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        if (mAutoFullscreen) {
-                            setFullscreen(false);
-                        }
-                    }
-                }).start();
+                .setListener(
+                        new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                if (mAutoFullscreen) {
+                                    setFullscreen(false);
+                                }
+                            }
+                        })
+                .start();
     }
 
     @Override
@@ -440,20 +463,23 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mControlsFrame.animate().cancel();
         mControlsFrame.setAlpha(1f);
         mControlsFrame.setVisibility(View.VISIBLE);
-        mControlsFrame.animate().alpha(0f)
+        mControlsFrame
+                .animate()
+                .alpha(0f)
                 .setInterpolator(new DecelerateInterpolator())
-                .setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        setFullscreen(true);
+                .setListener(
+                        new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                setFullscreen(true);
 
-                        if (mControlsFrame != null) {
-                            mImageViewClose.setVisibility(View.INVISIBLE);
-                            mControlsFrame.setVisibility(View.INVISIBLE);
-                        }
-
-                    }
-                }).start();
+                                if (mControlsFrame != null) {
+                                    mImageViewClose.setVisibility(View.INVISIBLE);
+                                    mControlsFrame.setVisibility(View.INVISIBLE);
+                                }
+                            }
+                        })
+                .start();
     }
 
     @CheckResult
@@ -476,12 +502,13 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     public void enableControls(boolean andShow) {
         mControlsDisabled = false;
         if (andShow) showControls();
-        mClickFrame.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggleControls();
-            }
-        });
+        mClickFrame.setOnClickListener(
+                new OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        toggleControls();
+                    }
+                });
         mClickFrame.setClickable(true);
     }
 
@@ -522,7 +549,10 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void start() {
         if (mPlayer == null) return;
-        audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+        audioManager.requestAudioFocus(
+                audioFocusChangeListener,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         mPlayer.start();
         currentPlayerStatus = PLAYER_STATUS_STARTED;
         if (mCallback != null) mCallback.onStarted(this);
@@ -540,9 +570,12 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         mPlayer.seekTo(pos);
     }
 
-    public void setVolume(@FloatRange(from = 0f, to = 1f) float leftVolume, @FloatRange(from = 0f, to = 1f) float rightVolume) {
+    public void setVolume(
+            @FloatRange(from = 0f, to = 1f) float leftVolume,
+            @FloatRange(from = 0f, to = 1f) float rightVolume) {
         if (mPlayer == null || !mIsPrepared) {
-            throw new IllegalStateException("You cannot use setVolume(float, float) until the player is prepared.");
+            throw new IllegalStateException(
+                    "You cannot use setVolume(float, float) until the player is prepared.");
         }
         mPlayer.setVolume(leftVolume, rightVolume);
     }
@@ -615,8 +648,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void setLoop(boolean loop) {
         mLoop = loop;
-        if (mPlayer != null)
-            mPlayer.setLooping(loop);
+        if (mPlayer != null) mPlayer.setLooping(loop);
     }
 
     // Surface listeners
@@ -654,8 +686,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     }
 
     @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-    }
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {}
 
     // Media player listeners
 
@@ -664,10 +695,10 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         RLog.d(TAG, "onPrepared()");
         mIsPrepared = true;
         currentPlayerStatus = PLAYER_STATUS_PREPARED;
-        if (mCallback != null)
-            mCallback.onPrepared(this);
+        if (mCallback != null) mCallback.onPrepared(this);
         mCurrent.setText(Util.getDurationString(0));
-        mTime.setText(Util.getDurationString(Math.round(mediaPlayer.getDuration() * 1f / 1000) * 1000));
+        mTime.setText(
+                Util.getDurationString(Math.round(mediaPlayer.getDuration() * 1f / 1000) * 1000));
         mSeeker.setProgress(0);
         mSeeker.setMax(mediaPlayer.getDuration());
         setControlsEnabled(true);
@@ -690,8 +721,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     @Override
     public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
         RLog.d(TAG, "Buffering: " + percent + "%");
-        if (mCallback != null)
-            mCallback.onBuffering(percent);
+        if (mCallback != null) mCallback.onBuffering(percent);
         if (mSeeker != null) {
             if (percent == 100) {
                 mSeeker.setSecondaryProgress(0);
@@ -777,8 +807,7 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
             if (mPlayer.isPlaying()) {
                 pause();
             } else {
-                if (mHideControlsOnPlay && !mControlsDisabled)
-                    hideControls();
+                if (mHideControlsOnPlay && !mControlsDisabled) hideControls();
                 start();
             }
         }
@@ -826,19 +855,23 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     private void setFitToFillAspectRatio(MediaPlayer mp, int videoWidth, int videoHeight) {
         if (mp != null && mTextureView != null) {
-            int screenWidth = ((Activity) getContext()).getWindowManager().getDefaultDisplay().getWidth();
-            int screenHeight = ((Activity) getContext()).getWindowManager().getDefaultDisplay().getHeight();
+            int screenWidth =
+                    ((Activity) getContext()).getWindowManager().getDefaultDisplay().getWidth();
+            int screenHeight =
+                    ((Activity) getContext()).getWindowManager().getDefaultDisplay().getHeight();
             android.view.ViewGroup.LayoutParams videoParams = mTextureView.getLayoutParams();
             if (videoWidth > videoHeight) {
-                int screenWidthFillHeight = screenWidth * videoHeight / videoWidth;     //按屏幕宽度缩放后的视频高度
-                int screenFitHeight = Math.min(screenHeight, screenWidthFillHeight);    //屏幕高度能承载视频高度
-                videoParams.width = screenWidth * screenFitHeight / screenWidthFillHeight;//按照屏幕高度缩放后的屏幕宽度
+                int screenWidthFillHeight = screenWidth * videoHeight / videoWidth; // 按屏幕宽度缩放后的视频高度
+                int screenFitHeight = Math.min(screenHeight, screenWidthFillHeight); // 屏幕高度能承载视频高度
+                videoParams.width =
+                        screenWidth * screenFitHeight / screenWidthFillHeight; // 按照屏幕高度缩放后的屏幕宽度
                 videoParams.height = screenFitHeight;
             } else {
-                int screenHeightFillWith = screenHeight * videoWidth / videoHeight;     //按屏幕高度缩放后的视频宽度
-                int screenFitWidth = Math.min(screenWidth, screenHeightFillWith);       //屏幕宽度能承载视频宽度
+                int screenHeightFillWith = screenHeight * videoWidth / videoHeight; // 按屏幕高度缩放后的视频宽度
+                int screenFitWidth = Math.min(screenWidth, screenHeightFillWith); // 屏幕宽度能承载视频宽度
                 videoParams.width = screenFitWidth;
-                videoParams.height = screenHeight * screenFitWidth / screenHeightFillWith;//按照屏幕宽度缩放后的屏幕高度
+                videoParams.height =
+                        screenHeight * screenFitWidth / screenHeightFillWith; // 按照屏幕宽度缩放后的屏幕高度
             }
             mTextureView.setLayoutParams(videoParams);
         }
@@ -877,7 +910,10 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
         } else throw new RuntimeException(e);
     }
 
-    private static void setTint(@NonNull SeekBar seekBar, @ColorInt int thumbTintColor, @ColorInt int progressTintColor) {
+    private static void setTint(
+            @NonNull SeekBar seekBar,
+            @ColorInt int thumbTintColor,
+            @ColorInt int progressTintColor) {
         ColorStateList thumbColor = ColorStateList.valueOf(thumbTintColor);
         ColorStateList progressColor = ColorStateList.valueOf(progressTintColor);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -918,15 +954,17 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     private void setFullscreen(boolean fullscreen) {
         if (mAutoFullscreen) {
             int flags = !fullscreen ? 0 : View.SYSTEM_UI_FLAG_LOW_PROFILE;
-            //ViewCompat.setFitsSystemWindows(mControlsFrame, !fullscreen);
+            // ViewCompat.setFitsSystemWindows(mControlsFrame, !fullscreen);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                flags |= View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+                flags |=
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
                 if (fullscreen) {
-                    flags |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE;
+                    flags |=
+                            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE;
                 }
             }
 
@@ -954,33 +992,54 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
 
     @Override
     public boolean onLongClick(View view) {
-        String[] items = new String[]{getContext().getString(R.string.rc_save_video)};
-        OptionsPopupDialog.newInstance(getContext(), items).setOptionsPopupDialogListener(new OptionsPopupDialog.OnOptionsItemClickedListener() {
-            @Override
-            public void onOptionsItemClicked(int which) {
-                if (which == 0) {
-                    if (checkGrantedPermission()) return;
-                    RLog.i(TAG, "onLongClick mSource = " + mSource);
-                    if (mSource == null || TextUtils.isEmpty(mSource.toString())) {
-                        return;
-                    }
-                    File file = new File(mSource.getPath());
-                    boolean result = KitStorageUtils.saveMediaToPublicDir(getContext(), file, KitStorageUtils.MediaType.VIDEO);
-                    if (result) {
-                        Toast.makeText(getContext(), getContext().getString(R.string.rc_save_video_success), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getContext(), getContext().getString(R.string.rc_src_file_not_found), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-
-
-        }).show();
+        String[] items = new String[] {getContext().getString(R.string.rc_save_video)};
+        OptionsPopupDialog.newInstance(getContext(), items)
+                .setOptionsPopupDialogListener(
+                        new OptionsPopupDialog.OnOptionsItemClickedListener() {
+                            @Override
+                            public void onOptionsItemClicked(int which) {
+                                if (which == 0) {
+                                    if (checkGrantedPermission()) return;
+                                    RLog.i(TAG, "onLongClick mSource = " + mSource);
+                                    if (mSource == null || TextUtils.isEmpty(mSource.toString())) {
+                                        return;
+                                    }
+                                    File file = new File(mSource.getPath());
+                                    boolean result =
+                                            KitStorageUtils.saveMediaToPublicDir(
+                                                    getContext(),
+                                                    file,
+                                                    KitStorageUtils.MediaType.VIDEO);
+                                    if (result) {
+                                        Toast.makeText(
+                                                        getContext(),
+                                                        getContext()
+                                                                .getString(
+                                                                        R.string
+                                                                                .rc_save_video_success),
+                                                        Toast.LENGTH_SHORT)
+                                                .show();
+                                    } else {
+                                        Toast.makeText(
+                                                        getContext(),
+                                                        getContext()
+                                                                .getString(
+                                                                        R.string
+                                                                                .rc_src_file_not_found),
+                                                        Toast.LENGTH_SHORT)
+                                                .show();
+                                    }
+                                }
+                            }
+                        })
+                .show();
         return true;
     }
 
     private boolean checkGrantedPermission() {
-        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] permissions = {
+            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
         if (PermissionCheckUtil.requestPermissions((Activity) getContext(), permissions)) {
             return false;
         }
@@ -992,20 +1051,21 @@ public class EasyVideoPlayer extends FrameLayout implements IUserMethods, Textur
     }
 
     public void setplayBtnVisible(int visible) {
-        if (mBtnPlayPause != null)
-            mBtnPlayPause.setVisibility(visible);
+        if (mBtnPlayPause != null) mBtnPlayPause.setVisibility(visible);
     }
 
     public void setSeekBarClickable(boolean pIsClickable) {
         if (mSeeker != null) {
-            mSeeker.setOnTouchListener(pIsClickable ? null : new OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    return true;
-                }
-            });
+            mSeeker.setOnTouchListener(
+                    pIsClickable
+                            ? null
+                            : new OnTouchListener() {
+                                @Override
+                                public boolean onTouch(View v, MotionEvent event) {
+                                    return true;
+                                }
+                            });
         }
-
     }
 
     public void setLongClickable(boolean isLongClickable) {

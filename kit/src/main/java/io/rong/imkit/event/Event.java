@@ -11,5 +11,4 @@ public class Event {
             this.state = state;
         }
     }
-
 }

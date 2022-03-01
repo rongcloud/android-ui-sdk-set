@@ -1,0 +1,20 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="io.rong.recognizer" >
+4
+5    <uses-sdk
+6        android:minSdkVersion="19"
+6-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/recognizer/src/main/AndroidManifest.xml
+7        android:targetSdkVersion="29" />
+7-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/recognizer/src/main/AndroidManifest.xml
+8    <!-- 录音 -->
+9    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+9-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/recognizer/src/main/AndroidManifest.xml:4:5-71
+9-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/recognizer/src/main/AndroidManifest.xml:4:22-68
+10
+11    <application android:supportsRtl="true" >
+11-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/recognizer/src/main/AndroidManifest.xml:6:5-9:19
+11-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/recognizer/src/main/AndroidManifest.xml:7:9-35
+12    </application>
+13
+14</manifest>

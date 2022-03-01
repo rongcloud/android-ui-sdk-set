@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.picture.widget.BaseDialogFragment;
@@ -14,7 +13,6 @@ import io.rong.imkit.picture.widget.BaseDialogFragment;
  *
  * @author jenny_zhou
  */
-
 public class BottomMenuDialog extends BaseDialogFragment implements View.OnClickListener {
 
     Button step;
@@ -59,7 +57,7 @@ public class BottomMenuDialog extends BaseDialogFragment implements View.OnClick
 
     @Override
     public void bindData() {
-        //no data need to bind
+        // no data need to bind
     }
 
     @Override
@@ -81,7 +79,6 @@ public class BottomMenuDialog extends BaseDialogFragment implements View.OnClick
         if (listener != null) {
             listener.onClick(v);
         }
-
     }
 
     public View.OnClickListener getConfirmListener() {

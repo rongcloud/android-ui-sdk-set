@@ -693,7 +693,6 @@ bool abc_action_bar_embed_tabs
 bool abc_allow_stacked_button_bar
 bool abc_config_actionMenuItemAllCaps
 bool rc_enable_automatic_download_voice_msg
-bool rc_enable_background_location_permission
 bool rc_enable_mentioned_message
 bool rc_enable_message_recall
 bool rc_enable_send_combine_message
@@ -721,6 +720,7 @@ color abc_decor_view_status_guard
 color abc_decor_view_status_guard_light
 color abc_hint_foreground_material_dark
 color abc_hint_foreground_material_light
+color abc_input_method_navigation_guard
 color abc_primary_text_disable_only_material_dark
 color abc_primary_text_disable_only_material_light
 color abc_primary_text_material_dark
@@ -855,7 +855,6 @@ color rc_emoji_grid_item_bg
 color rc_ext_menu_item_text_color
 color rc_extension_normal
 color rc_file_preview_name
-color rc_gif_item_pre_progress_color
 color rc_gray
 color rc_image_count_down
 color rc_item_background_color
@@ -893,6 +892,7 @@ color rc_secondary_color
 color rc_speech_tv
 color rc_text_color_primary_inverse
 color rc_text_main_color
+color rc_unread_bg_color
 color rc_voice_color
 color rc_warning_color
 color rc_white_color
@@ -1562,6 +1562,7 @@ drawable rc_selected
 drawable rc_selector_item_hover
 drawable rc_selector_item_hover_bottom
 drawable rc_selector_item_hover_top
+drawable rc_selector_item_unread
 drawable rc_selector_multi_forward
 drawable rc_selector_selected
 drawable rc_selector_title_back_press
@@ -2010,7 +2011,6 @@ id popup_dialog_button_ok
 id popup_dialog_message
 id popup_dialog_prompt_button
 id popup_dialog_title
-id popuplayout
 id portrait
 id position
 id postLayout
@@ -2343,7 +2343,6 @@ id version_layout
 id version_textview
 id video_view
 id view_horizontal
-id view_tree_lifecycle_owner
 id viewpager
 id visible
 id visible_removing_fragment_view_tag
@@ -2515,7 +2514,6 @@ layout rc_item_reference_message
 layout rc_item_rich_content_message
 layout rc_item_sight_message
 layout rc_item_voice_message
-layout rc_keyboard_popupwindow
 layout rc_listitem_forward_select_member
 layout rc_location_2d_activity
 layout rc_location_map_nearby_info_item
@@ -2592,7 +2590,6 @@ string abc_searchview_description_voice
 string abc_shareactionprovider_share_with
 string abc_shareactionprovider_share_with_application
 string abc_toolbar_collapse_description
-string androidx_startup
 string app_name
 string common_google_play_services_enable_button
 string common_google_play_services_enable_text
@@ -2938,7 +2935,6 @@ string rc_join_chatroom_failure
 string rc_join_group
 string rc_kicked_from_chatroom
 string rc_load_image_failed
-string rc_load_local_message
 string rc_loadmore_loading
 string rc_location_exit_location_sharing
 string rc_location_exit_sharing_confirm
@@ -2978,7 +2974,6 @@ string rc_message_content_sight
 string rc_message_content_sticker
 string rc_message_content_voice
 string rc_message_content_vst
-string rc_message_too_long
 string rc_message_unknown
 string rc_morning_format
 string rc_network_exception

@@ -1,11 +1,9 @@
 package io.rong.imkit.subconversationlist;
 
 import android.app.Application;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-
 import io.rong.imlib.model.Conversation;
 
 public class SubConversationListVMFactory extends ViewModelProvider.AndroidViewModelFactory {
@@ -13,7 +11,8 @@ public class SubConversationListVMFactory extends ViewModelProvider.AndroidViewM
     private Conversation.ConversationType mConversationType;
     private String mTargetId;
 
-    public SubConversationListVMFactory(Application application, Conversation.ConversationType type) {
+    public SubConversationListVMFactory(
+            Application application, Conversation.ConversationType type) {
         super(application);
         mApplication = application;
         mConversationType = type;

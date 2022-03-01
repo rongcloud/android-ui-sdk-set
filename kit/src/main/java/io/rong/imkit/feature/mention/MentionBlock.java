@@ -1,8 +1,6 @@
 package io.rong.imkit.feature.mention;
 
-
 import androidx.annotation.NonNull;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -16,7 +14,8 @@ public class MentionBlock {
     public JSONObject toJson() {
         JSONObject jsonObject = new JSONObject();
         try {
-            return jsonObject.putOpt("userId", userId)
+            return jsonObject
+                    .putOpt("userId", userId)
                     .putOpt("name", name)
                     .putOpt("offset", offset)
                     .putOpt("start", start)
@@ -31,7 +30,8 @@ public class MentionBlock {
     public String toString() {
         JSONObject jsonObject = new JSONObject();
         try {
-            return jsonObject.putOpt("userId", userId)
+            return jsonObject
+                    .putOpt("userId", userId)
                     .putOpt("name", name)
                     .putOpt("offset", offset)
                     .putOpt("start", start)

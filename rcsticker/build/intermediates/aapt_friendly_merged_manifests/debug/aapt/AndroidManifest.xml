@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.rong.sticker" >
+
+    <uses-sdk
+        android:minSdkVersion="19"
+        android:targetSdkVersion="29" />
+
+    <application>
+        <activity
+            android:name="io.rong.sticker.mysticker.MyStickerActivity"
+            android:screenOrientation="portrait" />
+    </application>
+
+</manifest>

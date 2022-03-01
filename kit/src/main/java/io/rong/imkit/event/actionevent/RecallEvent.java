@@ -9,7 +9,11 @@ public class RecallEvent {
     private int messageId;
     private RecallNotificationMessage message;
 
-    public RecallEvent(Conversation.ConversationType conversationType, String targetId, int messageId, RecallNotificationMessage message) {
+    public RecallEvent(
+            Conversation.ConversationType conversationType,
+            String targetId,
+            int messageId,
+            RecallNotificationMessage message) {
         this.conversationType = conversationType;
         this.targetId = targetId;
         this.messageId = messageId;

@@ -8,11 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.utils.RongUtils;
+import java.util.List;
 
 public class InputSubMenu {
     private PopupWindow mPopupWindow;
@@ -23,7 +21,11 @@ public class InputSubMenu {
     public InputSubMenu(Context context, List<String> menus) {
         mInflater = LayoutInflater.from(context);
         container = (ViewGroup) mInflater.inflate(R.layout.rc_ext_sub_menu_container, null);
-        mPopupWindow = new PopupWindow(container, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindow =
+                new PopupWindow(
+                        container,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
         setupSubMenus(container, menus);
     }
 
@@ -64,14 +66,15 @@ public class InputSubMenu {
                 divider.setVisibility(View.VISIBLE);
             }
             view.setTag(i);
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int index = (int) v.getTag();
-                    mOnClickListener.onClick(index);
-                    mPopupWindow.dismiss();
-                }
-            });
+            view.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int index = (int) v.getTag();
+                            mOnClickListener.onClick(index);
+                            mPopupWindow.dismiss();
+                        }
+                    });
             viewGroup.addView(view);
         }
     }

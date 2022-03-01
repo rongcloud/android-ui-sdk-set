@@ -7,14 +7,12 @@ import java.util.concurrent.TimeUnit;
 public class DateUtils {
     private SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd_HHmmssSS");
 
-    private DateUtils() {
-
-    }
+    private DateUtils() {}
 
     private static class SingletonHolder {
         static DateUtils sInstance = new DateUtils();
     }
-    
+
     public static DateUtils getInstance() {
         return SingletonHolder.sInstance;
     }
@@ -43,12 +41,13 @@ public class DateUtils {
      * @return
      */
     public String formatDurationTime(long duration) {
-        return String.format(Locale.getDefault(), "%02d:%02d",
+        return String.format(
+                Locale.getDefault(),
+                "%02d:%02d",
                 TimeUnit.MILLISECONDS.toMinutes(duration),
                 TimeUnit.MILLISECONDS.toSeconds(duration)
                         - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration)));
     }
-
 
     /**
      * 根据时间戳创建文件名

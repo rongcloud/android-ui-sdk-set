@@ -1,9 +1,6 @@
 package io.rong.sticker.model;
 
-/**
- * Created by luoyanlong on 2018/08/10.
- * 一个表情
- */
+/** Created by luoyanlong on 2018/08/10. 一个表情 */
 public class Sticker {
 
     private String stickerId;

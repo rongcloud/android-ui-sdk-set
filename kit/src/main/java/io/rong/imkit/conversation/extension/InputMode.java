@@ -15,5 +15,4 @@ public enum InputMode {
     RecognizeMode,
     /*常用语输入状态*/
     QuickReplyMode
-
 }

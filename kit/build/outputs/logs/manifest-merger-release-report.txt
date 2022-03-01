@@ -3,21 +3,9 @@ manifest
 ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
 INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
 INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
-INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
 	package
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:2:5-28
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
-		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
-	android:versionName
-		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
-		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
-	android:versionCode
-		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
-		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:1-140:12
 		INJECTED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:1:11-69

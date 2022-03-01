@@ -6,23 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
 import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.entity.LocalMediaFolder;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author：luck
  * @date：2016-12-11 17:02
  * @describe：文件夹目录
  */
-public class PictureAlbumDirectoryAdapter extends RecyclerView.Adapter<PictureAlbumDirectoryAdapter.ViewHolder> {
+public class PictureAlbumDirectoryAdapter
+        extends RecyclerView.Adapter<PictureAlbumDirectoryAdapter.ViewHolder> {
     private List<LocalMediaFolder> folders = new ArrayList<>();
     private PictureSelectionConfig config;
 
@@ -36,7 +34,6 @@ public class PictureAlbumDirectoryAdapter extends RecyclerView.Adapter<PictureAl
         notifyDataSetChanged();
     }
 
-
     public List<LocalMediaFolder> getFolderData() {
         if (folders == null) {
             folders = new ArrayList<>();
@@ -46,8 +43,9 @@ public class PictureAlbumDirectoryAdapter extends RecyclerView.Adapter<PictureAl
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.rc_picture_album_folder_item, parent, false);
+        View itemView =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_picture_album_folder_item, parent, false);
         return new ViewHolder(itemView);
     }
 
@@ -62,26 +60,31 @@ public class PictureAlbumDirectoryAdapter extends RecyclerView.Adapter<PictureAl
         holder.tvSign.setVisibility(checkedNum > 0 ? View.VISIBLE : View.INVISIBLE);
         holder.itemView.setSelected(isChecked);
         if (config != null && config.imageEngine != null) {
-            config.imageEngine
-                    .loadFolderImage(holder.itemView.getContext(),
-                            imagePath, holder.ivFirstImage);
+            config.imageEngine.loadFolderImage(
+                    holder.itemView.getContext(), imagePath, holder.ivFirstImage);
         }
         Context context = holder.itemView.getContext();
-        String firstTitle = folder.getOfAllType() != -1 ? context.getString(R.string.rc_picture_camera_roll) : name;
-        holder.tvFolderName.setText(context.getString(R.string.rc_picture_camera_roll_num, firstTitle, imageNum));
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onItemClickListener != null) {
-                    for (LocalMediaFolder mediaFolder : folders) {
-                        mediaFolder.setChecked(false);
+        String firstTitle =
+                folder.getOfAllType() != -1
+                        ? context.getString(R.string.rc_picture_camera_roll)
+                        : name;
+        holder.tvFolderName.setText(
+                context.getString(R.string.rc_picture_camera_roll_num, firstTitle, imageNum));
+        holder.itemView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (onItemClickListener != null) {
+                            for (LocalMediaFolder mediaFolder : folders) {
+                                mediaFolder.setChecked(false);
+                            }
+                            folder.setChecked(true);
+                            notifyDataSetChanged();
+                            onItemClickListener.onItemClick(
+                                    folder.isCameraFolder(), folder.getName(), folder.getImages());
+                        }
                     }
-                    folder.setChecked(true);
-                    notifyDataSetChanged();
-                    onItemClickListener.onItemClick(folder.isCameraFolder(), folder.getName(), folder.getImages());
-                }
-            }
-        });
+                });
     }
 
     @Override

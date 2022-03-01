@@ -8,11 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ViewFlipper;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-
 import io.rong.imkit.R;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
@@ -36,12 +34,13 @@ public class RongBaseActivity extends AppCompatActivity {
         setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
         super.setContentView(R.layout.rc_base_activity_layout);
         mTitleBar = findViewById(R.id.rc_title_bar);
-        mTitleBar.setOnBackClickListener(new TitleBar.OnBackClickListener() {
-            @Override
-            public void onBackClick() {
-                finish();
-            }
-        });
+        mTitleBar.setOnBackClickListener(
+                new TitleBar.OnBackClickListener() {
+                    @Override
+                    public void onBackClick() {
+                        finish();
+                    }
+                });
         mTitleBar.setBackgroundColor(getResources().getColor(R.color.rc_white_color));
         mContentView = findViewById(R.id.rc_base_container);
     }
@@ -49,13 +48,18 @@ public class RongBaseActivity extends AppCompatActivity {
     @Override
     public void setContentView(int resId) {
         View view = LayoutInflater.from(this).inflate(resId, null);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, 1);
+        LinearLayout.LayoutParams lp =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        1);
         mContentView.addView(view, lp);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
             ToastUtils.s(this, getString(R.string.rc_permission_request_failed));
             return;
@@ -70,6 +74,10 @@ public class RongBaseActivity extends AppCompatActivity {
 
     public void initStatusBar(int colorResId) {
         StatusBarUtil.setRootViewFitsSystemWindows(this, true);
-        StatusBarUtil.setStatusBarColor(this, colorResId == 0 ? getResources().getColor(R.color.rc_background_main_color) : getResources().getColor(colorResId)); //Color.parseColor("#F5F6F9")
+        StatusBarUtil.setStatusBarColor(
+                this,
+                colorResId == 0
+                        ? getResources().getColor(R.color.rc_background_main_color)
+                        : getResources().getColor(colorResId)); // Color.parseColor("#F5F6F9")
     }
 }

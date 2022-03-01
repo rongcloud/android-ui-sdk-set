@@ -9,32 +9,23 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.view.ContextThemeWrapper;
-
-import java.util.Locale;
-
 import io.rong.imkit.R;
 import io.rong.imlib.RongIMClient;
+import java.util.Locale;
 
-/**
- * Created by CaoHaiyang on 2017/9/25.
- */
-
+/** Created by CaoHaiyang on 2017/9/25. */
 public class RongConfigurationManager {
     private static String RONG_CONFIG = "RongKitConfiguration";
     private static String FILE_MAX_SIZE = "FileMaxSize";
     private static boolean isInit = false;
 
-    private RongConfigurationManager() {
-
-    }
+    private RongConfigurationManager() {}
 
     private static class SingletonHolder {
         static RongConfigurationManager sInstance = new RongConfigurationManager();
     }
 
-    /**
-     * 监听系统语言的切换，避免应用语言根随系统语言的切换而切换
-     */
+    /** 监听系统语言的切换，避免应用语言根随系统语言的切换而切换 */
     private static class SystemConfigurationChangedReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -59,8 +50,9 @@ public class RongConfigurationManager {
             filter.addAction(Intent.ACTION_LOCALE_CHANGED);
             context.registerReceiver(new SystemConfigurationChangedReceiver(), filter);
 
-            //初始化时将应用语言重新设置为之前设置的语言
-            LangUtils.RCLocale locale = RongConfigurationManager.getInstance().getAppLocale(context);
+            // 初始化时将应用语言重新设置为之前设置的语言
+            LangUtils.RCLocale locale =
+                    RongConfigurationManager.getInstance().getAppLocale(context);
             RongConfigurationManager.getInstance().switchLocale(locale, context);
             isInit = true;
         }
@@ -70,14 +62,14 @@ public class RongConfigurationManager {
      * 设置发送文件时,支持发送的文件最大值。
      *
      * @param context 上下文
-     * @param size    支持发送的文件最大值,单位兆。
+     * @param size 支持发送的文件最大值,单位兆。
      */
     public void setFileMaxSize(Context context, int size) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(RONG_CONFIG, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(RONG_CONFIG, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(FILE_MAX_SIZE, size).apply();
     }
-
 
     /**
      * 获取发送文件时支持的文件最大值。
@@ -89,7 +81,8 @@ public class RongConfigurationManager {
         if (context == null) {
             return 100;
         }
-        SharedPreferences sharedPreferences = context.getSharedPreferences(RONG_CONFIG, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences =
+                context.getSharedPreferences(RONG_CONFIG, Context.MODE_PRIVATE);
         return sharedPreferences.getInt(FILE_MAX_SIZE, 100);
     }
 

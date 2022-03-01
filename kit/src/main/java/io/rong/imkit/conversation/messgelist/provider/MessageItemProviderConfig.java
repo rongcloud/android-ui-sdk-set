@@ -1,8 +1,6 @@
 package io.rong.imkit.conversation.messgelist.provider;
 
-/**
- * 消息展示配置类，可在 BaseMessageItemProvider 的 子类构造方法中，配置参数
- */
+/** 消息展示配置类，可在 BaseMessageItemProvider 的 子类构造方法中，配置参数 */
 public class MessageItemProviderConfig {
     /**
      * 是否显示头像。
@@ -39,15 +37,12 @@ public class MessageItemProviderConfig {
     public boolean showSummaryWithName = true;
 
     /**
-     * 单聊会话中是否在消息旁边显示已读回执状态。
-     * 默认不显示
+     * 单聊会话中是否在消息旁边显示已读回执状态。 默认不显示
      *
      * @return 是否显示
      */
     public boolean showReadState = false;
 
-    /**
-     * @return 是否需要展示气泡
-     */
+    /** @return 是否需要展示气泡 */
     public boolean showContentBubble = true;
 }

@@ -3,7 +3,6 @@ package io.rong.imkit.picture.tools;
 import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
-
 import java.lang.reflect.Field;
 
 /**
@@ -12,9 +11,7 @@ import java.lang.reflect.Field;
  * @describe：ScreenUtils
  */
 public class ScreenUtils {
-    /**
-     * dp2px
-     */
+    /** dp2px */
     public static int dip2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dpValue * scale + 0.5f);
@@ -39,7 +36,8 @@ public class ScreenUtils {
             Object o = c.newInstance();
             Field field = c.getField("status_bar_height");
             int x = (Integer) field.get(o);
-            statusBarHeight = context.getApplicationContext().getResources().getDimensionPixelSize(x);
+            statusBarHeight =
+                    context.getApplicationContext().getResources().getDimensionPixelSize(x);
         } catch (Exception e) {
             e.printStackTrace();
         }

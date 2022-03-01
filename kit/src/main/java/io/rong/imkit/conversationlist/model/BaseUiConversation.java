@@ -2,7 +2,6 @@ package io.rong.imkit.conversationlist.model;
 
 import android.content.Context;
 import android.text.Spannable;
-
 import io.rong.common.RLog;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.RongIMClient;
@@ -41,7 +40,4 @@ public abstract class BaseUiConversation {
     public abstract void onGroupMemberUpdate(GroupUserInfo groupMember);
 
     public abstract void onConversationUpdate(Conversation conversation);
-
 }
-
-

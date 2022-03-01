@@ -6,7 +6,6 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -31,7 +30,6 @@ public class RoundCornerLinearLayout extends LinearLayout {
         float radius = 15;
         path.addRoundRect(rect, radius, radius, Path.Direction.CW);
         path.close();
-
     }
 
     @Override

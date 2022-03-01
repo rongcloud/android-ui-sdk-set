@@ -9,21 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-
 import androidx.annotation.DrawableRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
-
 import io.rong.imkit.picture.tools.ScreenUtils;
 
-
-/**
- * Created by lhz on 2020/11/30
- */
-
+/** Created by lhz on 2020/11/30 */
 public abstract class BaseDialogFragment extends DialogFragment {
     protected View mRootView;
     protected Dialog mDialog;
@@ -44,8 +38,10 @@ public abstract class BaseDialogFragment extends DialogFragment {
             dialogWindow.setBackgroundDrawableResource(getBackgroundDrawableRes());
             DisplayMetrics dm = new DisplayMetrics();
             getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-            dialogWindow.setLayout((int) (dm.widthPixels * getScreenWidthProportion()), getScreenHeightProportion());
-            //设置竖直方向偏移量
+            dialogWindow.setLayout(
+                    (int) (dm.widthPixels * getScreenWidthProportion()),
+                    getScreenHeightProportion());
+            // 设置竖直方向偏移量
             WindowManager.LayoutParams attributes = dialogWindow.getAttributes();
             attributes.gravity = getGravity();
             attributes.x = -ScreenUtils.dip2px(getContext(), getHorizontalMovement());
@@ -54,20 +50,16 @@ public abstract class BaseDialogFragment extends DialogFragment {
         }
     }
 
-
     protected int getGravity() {
         return Gravity.CENTER;
     }
 
-    /**
-     * @return 占屏幕高度的多少
-     */
+    /** @return 占屏幕高度的多少 */
     protected int getScreenHeightProportion() {
         return ViewGroup.LayoutParams.WRAP_CONTENT;
     }
 
-    protected @DrawableRes
-    int getBackgroundDrawableRes() {
+    protected @DrawableRes int getBackgroundDrawableRes() {
         return android.R.color.transparent;
     }
 
@@ -108,7 +100,10 @@ public abstract class BaseDialogFragment extends DialogFragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         mRootView = inflater.inflate(getContentView(), container, false);
         findView();
         initView();
@@ -122,6 +117,5 @@ public abstract class BaseDialogFragment extends DialogFragment {
 
     public abstract void bindData();
 
-    protected abstract @LayoutRes
-    int getContentView();
+    protected abstract @LayoutRes int getContentView();
 }

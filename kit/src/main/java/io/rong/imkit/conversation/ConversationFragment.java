@@ -20,7 +20,6 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,15 +30,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.MessageItemLongClickAction;
@@ -84,15 +74,23 @@ import io.rong.imkit.widget.refresh.listener.OnRefreshListener;
 import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
-/**
- * @author lvz
- */
-public class ConversationFragment extends Fragment implements OnRefreshListener, View.OnClickListener, OnLoadMoreListener, IViewProviderListener<UiMessage> {
-    /**
-     * 开启合并转发的选择会话界面
-     **/
+/** @author lvz */
+public class ConversationFragment extends Fragment
+        implements OnRefreshListener,
+                View.OnClickListener,
+                OnLoadMoreListener,
+                IViewProviderListener<UiMessage> {
+    /** 开启合并转发的选择会话界面 */
     public static final int REQUEST_CODE_FORWARD = 104;
+
     private static final int REQUEST_MSG_DOWNLOAD_PERMISSION = 1000;
     private final String TAG = ConversationFragment.class.getSimpleName();
     protected SmartRefreshLayout mRefreshLayout;
@@ -106,175 +104,218 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     protected TextView mUnreadHistoryMessageNum;
     protected TextView mUnreadMentionMessageNum;
     protected int activitySoftInputMode = 0;
-    //滑动结束是否
+    // 滑动结束是否
     protected boolean onScrollStopRefreshList = false;
     private boolean bindToConversation = false;
-    Observer<List<UiMessage>> mListObserver = new Observer<List<UiMessage>>() {
-        @Override
-        public void onChanged(List<UiMessage> uiMessages) {
-            refreshList(uiMessages);
-        }
-    };
-    Observer<Integer> mNewMessageUnreadObserver = new Observer<Integer>() {
-        @Override
-        public void onChanged(Integer count) {
-            if (RongConfigCenter.conversationConfig().isShowNewMessageBar(mMessageViewModel.getCurConversationType())) {
-                if (count != null && count > 0) {
-                    mNewMessageNum.setVisibility(View.VISIBLE);
-                    mNewMessageNum.setText(count > 99 ? "99+" : String.valueOf(count));
-                } else {
-                    mNewMessageNum.setVisibility(View.INVISIBLE);
+    Observer<List<UiMessage>> mListObserver =
+            new Observer<List<UiMessage>>() {
+                @Override
+                public void onChanged(List<UiMessage> uiMessages) {
+                    refreshList(uiMessages);
                 }
-            }
-        }
-    };
-    Observer<Integer> mHistoryMessageUnreadObserver = new Observer<Integer>() {
-        @Override
-        public void onChanged(Integer count) {
-            if (RongConfigCenter.conversationConfig().isShowHistoryMessageBar(mMessageViewModel.getCurConversationType())) {
-                if (count != null && count > 0) {
-                    mUnreadHistoryMessageNum.setVisibility(View.VISIBLE);
-                    mUnreadHistoryMessageNum.setText(MessageFormat.format(getString(R.string.rc_unread_message), count > 99 ? "99+" : count));
-                } else {
-                    mUnreadHistoryMessageNum.setVisibility(View.GONE);
-                }
-            }
-        }
-    };
-    Observer<Integer> mNewMentionMessageUnreadObserver = new Observer<Integer>() {
-        @Override
-        public void onChanged(Integer count) {
-            if (RongConfigCenter.conversationConfig().isShowNewMentionMessageBar(mMessageViewModel.getCurConversationType())) {
-                if (count != null && count > 0) {
-                    mUnreadMentionMessageNum.setVisibility(View.VISIBLE);
-                    mUnreadMentionMessageNum.setText(getString(R.string.rc_mention_messages, "(" + count + ")"));
-                } else {
-                    mUnreadMentionMessageNum.setVisibility(View.GONE);
-                }
-            }
-        }
-    };
-    Observer<PageEvent> mPageObserver = new Observer<PageEvent>() {
-        @Override
-        public void onChanged(PageEvent event) {
-            //优先透传给各模块的 view 处理中心进行处理，如果返回 true, 代表事件被消费，不再处理。
-            for (IConversationUIRenderer processor : RongConfigCenter.conversationConfig().getViewProcessors()) {
-                if (processor.handlePageEvent(event)) {
-                    return;
-                }
-            }
-            if (event instanceof Event.RefreshEvent) {
-                if (((Event.RefreshEvent) event).state.equals(RefreshState.RefreshFinish)) {
-                    mRefreshLayout.finishRefresh();
-                } else if (((Event.RefreshEvent) event).state.equals(RefreshState.LoadFinish)) {
-                    mRefreshLayout.finishLoadMore();
-                }
-            } else if (event instanceof ToastEvent) {
-                String msg = ((ToastEvent) event).getMessage();
-                if (!TextUtils.isEmpty(msg)) {
-                    Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
-                }
-            } else if (event instanceof ScrollToEndEvent) {
-                mList.scrollToPosition(mAdapter.getItemCount() - 1);
-            } else if (event instanceof ScrollMentionEvent) {
-                mMessageViewModel.onScrolled(mList, 0, 0, mAdapter.getHeadersCount(), mAdapter.getFootersCount());
-            } else if (event instanceof ScrollEvent) {
-                if (mList.getLayoutManager() instanceof LinearLayoutManager) {
-                    ((LinearLayoutManager) mList.getLayoutManager()).scrollToPositionWithOffset(mAdapter.getHeadersCount() + ((ScrollEvent) event).getPosition(), 0);
-                }
-            } else if (event instanceof SmoothScrollEvent) {
-                if (mList.getLayoutManager() instanceof LinearLayoutManager) {
-                    ((LinearLayoutManager) mList.getLayoutManager()).scrollToPositionWithOffset(mAdapter.getHeadersCount() + ((SmoothScrollEvent) event).getPosition(), 0);
-                }
-            } else if (event instanceof ShowLongClickDialogEvent) {
-                final MessageItemLongClickBean bean = ((ShowLongClickDialogEvent) event).getBean();
-                final List<MessageItemLongClickAction> messageItemLongClickActions = bean.getMessageItemLongClickActions();
-                Collections.sort(
-                        messageItemLongClickActions,
-                        new Comparator<MessageItemLongClickAction>() {
-                            @Override
-                            public int compare(
-                                    MessageItemLongClickAction lhs, MessageItemLongClickAction rhs) {
-                                // desc sort
-                                return rhs.priority - lhs.priority;
-                            }
-                        });
-                List<String> titles = new ArrayList<>();
-                for (MessageItemLongClickAction action : messageItemLongClickActions) {
-                    titles.add(action.getTitle(getContext()));
-                }
-
-                OptionsPopupDialog dialog =
-                        OptionsPopupDialog.newInstance(
-                                getContext(), titles.toArray(new String[titles.size()]))
-                                .setOptionsPopupDialogListener(
-                                        new OptionsPopupDialog.OnOptionsItemClickedListener() {
-                                            @Override
-                                            public void onOptionsItemClicked(int which) {
-                                                messageItemLongClickActions
-                                                        .get(which)
-                                                        .listener
-                                                        .onMessageItemLongClick(
-                                                                getContext(), bean.getUiMessage());
-                                            }
-                                        });
-                MessageItemLongClickActionManager.getInstance().setLongClickDialog(dialog);
-                MessageItemLongClickActionManager.getInstance()
-                        .setLongClickMessage(bean.getUiMessage().getMessage());
-                dialog.setOnDismissListener(
-                        new DialogInterface.OnDismissListener() {
-                            @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                MessageItemLongClickActionManager.getInstance()
-                                        .setLongClickDialog(null);
-                                MessageItemLongClickActionManager.getInstance()
-                                        .setLongClickMessage(null);
-                            }
-                        });
-                dialog.show();
-            } else if (event instanceof PageDestroyEvent) {
-                FragmentManager fm = getChildFragmentManager();
-                if (fm.getBackStackEntryCount() > 0) {
-                    fm.popBackStack();
-                } else {
-                    if (getActivity() != null) {
-                        getActivity().finish();
+            };
+    Observer<Integer> mNewMessageUnreadObserver =
+            new Observer<Integer>() {
+                @Override
+                public void onChanged(Integer count) {
+                    if (RongConfigCenter.conversationConfig()
+                            .isShowNewMessageBar(mMessageViewModel.getCurConversationType())) {
+                        if (count != null && count > 0) {
+                            mNewMessageNum.setVisibility(View.VISIBLE);
+                            mNewMessageNum.setText(count > 99 ? "99+" : String.valueOf(count));
+                        } else {
+                            mNewMessageNum.setVisibility(View.INVISIBLE);
+                        }
                     }
                 }
-            } else if (event instanceof ShowWarningDialogEvent) {
-                onWarningDialog(((ShowWarningDialogEvent) event).getMessage());
-            } else if (event instanceof ShowLoadMessageDialogEvent) {
-                showLoadMessageDialog(((ShowLoadMessageDialogEvent) event).getCallback(), ((ShowLoadMessageDialogEvent) event).getList());
-            }
-        }
-    };
+            };
+    Observer<Integer> mHistoryMessageUnreadObserver =
+            new Observer<Integer>() {
+                @Override
+                public void onChanged(Integer count) {
+                    if (RongConfigCenter.conversationConfig()
+                            .isShowHistoryMessageBar(mMessageViewModel.getCurConversationType())) {
+                        if (count != null && count > 0) {
+                            mUnreadHistoryMessageNum.setVisibility(View.VISIBLE);
+                            mUnreadHistoryMessageNum.setText(
+                                    MessageFormat.format(
+                                            getString(R.string.rc_unread_message),
+                                            count > 99 ? "99+" : count));
+                        } else {
+                            mUnreadHistoryMessageNum.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            };
+    Observer<Integer> mNewMentionMessageUnreadObserver =
+            new Observer<Integer>() {
+                @Override
+                public void onChanged(Integer count) {
+                    if (RongConfigCenter.conversationConfig()
+                            .isShowNewMentionMessageBar(
+                                    mMessageViewModel.getCurConversationType())) {
+                        if (count != null && count > 0) {
+                            mUnreadMentionMessageNum.setVisibility(View.VISIBLE);
+                            mUnreadMentionMessageNum.setText(
+                                    getString(R.string.rc_mention_messages, "(" + count + ")"));
+                        } else {
+                            mUnreadMentionMessageNum.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            };
+    Observer<PageEvent> mPageObserver =
+            new Observer<PageEvent>() {
+                @Override
+                public void onChanged(PageEvent event) {
+                    // 优先透传给各模块的 view 处理中心进行处理，如果返回 true, 代表事件被消费，不再处理。
+                    for (IConversationUIRenderer processor :
+                            RongConfigCenter.conversationConfig().getViewProcessors()) {
+                        if (processor.handlePageEvent(event)) {
+                            return;
+                        }
+                    }
+                    if (event instanceof Event.RefreshEvent) {
+                        if (((Event.RefreshEvent) event).state.equals(RefreshState.RefreshFinish)) {
+                            mRefreshLayout.finishRefresh();
+                        } else if (((Event.RefreshEvent) event)
+                                .state.equals(RefreshState.LoadFinish)) {
+                            mRefreshLayout.finishLoadMore();
+                        }
+                    } else if (event instanceof ToastEvent) {
+                        String msg = ((ToastEvent) event).getMessage();
+                        if (!TextUtils.isEmpty(msg)) {
+                            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                        }
+                    } else if (event instanceof ScrollToEndEvent) {
+                        mList.scrollToPosition(mAdapter.getItemCount() - 1);
+                    } else if (event instanceof ScrollMentionEvent) {
+                        mMessageViewModel.onScrolled(
+                                mList,
+                                0,
+                                0,
+                                mAdapter.getHeadersCount(),
+                                mAdapter.getFootersCount());
+                    } else if (event instanceof ScrollEvent) {
+                        if (mList.getLayoutManager() instanceof LinearLayoutManager) {
+                            ((LinearLayoutManager) mList.getLayoutManager())
+                                    .scrollToPositionWithOffset(
+                                            mAdapter.getHeadersCount()
+                                                    + ((ScrollEvent) event).getPosition(),
+                                            0);
+                        }
+                    } else if (event instanceof SmoothScrollEvent) {
+                        if (mList.getLayoutManager() instanceof LinearLayoutManager) {
+                            ((LinearLayoutManager) mList.getLayoutManager())
+                                    .scrollToPositionWithOffset(
+                                            mAdapter.getHeadersCount()
+                                                    + ((SmoothScrollEvent) event).getPosition(),
+                                            0);
+                        }
+                    } else if (event instanceof ShowLongClickDialogEvent) {
+                        final MessageItemLongClickBean bean =
+                                ((ShowLongClickDialogEvent) event).getBean();
+                        final List<MessageItemLongClickAction> messageItemLongClickActions =
+                                bean.getMessageItemLongClickActions();
+                        Collections.sort(
+                                messageItemLongClickActions,
+                                new Comparator<MessageItemLongClickAction>() {
+                                    @Override
+                                    public int compare(
+                                            MessageItemLongClickAction lhs,
+                                            MessageItemLongClickAction rhs) {
+                                        // desc sort
+                                        return rhs.priority - lhs.priority;
+                                    }
+                                });
+                        List<String> titles = new ArrayList<>();
+                        for (MessageItemLongClickAction action : messageItemLongClickActions) {
+                            titles.add(action.getTitle(getContext()));
+                        }
+
+                        OptionsPopupDialog dialog =
+                                OptionsPopupDialog.newInstance(
+                                                getContext(),
+                                                titles.toArray(new String[titles.size()]))
+                                        .setOptionsPopupDialogListener(
+                                                new OptionsPopupDialog
+                                                        .OnOptionsItemClickedListener() {
+                                                    @Override
+                                                    public void onOptionsItemClicked(int which) {
+                                                        messageItemLongClickActions
+                                                                .get(which)
+                                                                .listener
+                                                                .onMessageItemLongClick(
+                                                                        getContext(),
+                                                                        bean.getUiMessage());
+                                                    }
+                                                });
+                        MessageItemLongClickActionManager.getInstance().setLongClickDialog(dialog);
+                        MessageItemLongClickActionManager.getInstance()
+                                .setLongClickMessage(bean.getUiMessage().getMessage());
+                        dialog.setOnDismissListener(
+                                new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialog) {
+                                        MessageItemLongClickActionManager.getInstance()
+                                                .setLongClickDialog(null);
+                                        MessageItemLongClickActionManager.getInstance()
+                                                .setLongClickMessage(null);
+                                    }
+                                });
+                        dialog.show();
+                    } else if (event instanceof PageDestroyEvent) {
+                        FragmentManager fm = getChildFragmentManager();
+                        if (fm.getBackStackEntryCount() > 0) {
+                            fm.popBackStack();
+                        } else {
+                            if (getActivity() != null) {
+                                getActivity().finish();
+                            }
+                        }
+                    } else if (event instanceof ShowWarningDialogEvent) {
+                        onWarningDialog(((ShowWarningDialogEvent) event).getMessage());
+                    } else if (event instanceof ShowLoadMessageDialogEvent) {
+                        showLoadMessageDialog(
+                                ((ShowLoadMessageDialogEvent) event).getCallback(),
+                                ((ShowLoadMessageDialogEvent) event).getList());
+                    }
+                }
+            };
     private LinearLayout mNotificationContainer;
     private boolean onViewCreated = false;
     private String mTargetId;
     private Bundle mBundle;
     private Conversation.ConversationType mConversationType;
-    private final RecyclerView.OnScrollListener mScrollListener = new RecyclerView.OnScrollListener() {
-        @Override
-        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-            mMessageViewModel.onScrolled(recyclerView, dx, dy, mAdapter.getHeadersCount(), mAdapter.getFootersCount());
-        }
+    private final RecyclerView.OnScrollListener mScrollListener =
+            new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    mMessageViewModel.onScrolled(
+                            recyclerView,
+                            dx,
+                            dy,
+                            mAdapter.getHeadersCount(),
+                            mAdapter.getFootersCount());
+                }
 
-        @Override
-        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-            if (newState == RecyclerView.SCROLL_STATE_IDLE && onScrollStopRefreshList) {
-                onScrollStopRefreshList = false;
-                RLog.d(TAG, "onScrollStateChanged refresh List");
-                refreshList(mMessageViewModel.getUiMessageLiveData().getValue());
-            }
-        }
-    };
+                @Override
+                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE && onScrollStopRefreshList) {
+                        onScrollStopRefreshList = false;
+                        RLog.d(TAG, "onScrollStateChanged refresh List");
+                        refreshList(mMessageViewModel.getUiMessageLiveData().getValue());
+                    }
+                }
+            };
 
     {
         mAdapter = onResolveAdapter();
     }
 
-    public void initConversation(String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
+    public void initConversation(
+            String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
         if (onViewCreated) {
             bindConversation(targetId, conversationType, bundle);
         } else {
@@ -284,9 +325,11 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         }
     }
 
-    private void bindConversation(String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
+    private void bindConversation(
+            String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
         if (conversationType != null && !TextUtils.isEmpty(targetId)) {
-            for (IConversationUIRenderer processor : RongConfigCenter.conversationConfig().getViewProcessors()) {
+            for (IConversationUIRenderer processor :
+                    RongConfigCenter.conversationConfig().getViewProcessors()) {
                 processor.init(this, mRongExtension, conversationType, targetId);
             }
             mRongExtension.bindToConversation(this, conversationType, targetId);
@@ -294,40 +337,61 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             subscribeUi();
             bindToConversation = true;
         } else {
-            RLog.e(TAG, "Invalid intent data !!! Must put targetId and conversation type to intent.");
+            RLog.e(
+                    TAG,
+                    "Invalid intent data !!! Must put targetId and conversation type to intent.");
         }
     }
 
     private void subscribeUi() {
         mMessageViewModel.getPageEventLiveData().observeForever(mPageObserver);
         mMessageViewModel.getUiMessageLiveData().observeForever(mListObserver);
-        mMessageViewModel.getNewMessageUnreadLiveData().observe(getViewLifecycleOwner(), mNewMessageUnreadObserver);
-        mMessageViewModel.getHistoryMessageUnreadLiveData().observe(getViewLifecycleOwner(), mHistoryMessageUnreadObserver);
-        mMessageViewModel.getNewMentionMessageUnreadLiveData().observe(getViewLifecycleOwner(), mNewMentionMessageUnreadObserver);
-        mRongExtensionViewModel.getExtensionBoardState().observe(getViewLifecycleOwner(), new Observer<Boolean>() {
-            @Override
-            public void onChanged(final Boolean value) {
-                RLog.d(TAG, "scroll to the bottom");
-                mList.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        InputMode inputMode = mRongExtensionViewModel.getInputModeLiveData().getValue();
-                        if (!Objects.equals(inputMode, InputMode.MoreInputMode) && Boolean.TRUE.equals(value)) {
-                            if (mMessageViewModel.isNormalState()) {
-                                mList.scrollToPosition(mAdapter.getItemCount() - 1);
-                            } else {
-                                mMessageViewModel.newMessageBarClick();
+        mMessageViewModel
+                .getNewMessageUnreadLiveData()
+                .observe(getViewLifecycleOwner(), mNewMessageUnreadObserver);
+        mMessageViewModel
+                .getHistoryMessageUnreadLiveData()
+                .observe(getViewLifecycleOwner(), mHistoryMessageUnreadObserver);
+        mMessageViewModel
+                .getNewMentionMessageUnreadLiveData()
+                .observe(getViewLifecycleOwner(), mNewMentionMessageUnreadObserver);
+        mRongExtensionViewModel
+                .getExtensionBoardState()
+                .observe(
+                        getViewLifecycleOwner(),
+                        new Observer<Boolean>() {
+                            @Override
+                            public void onChanged(final Boolean value) {
+                                RLog.d(TAG, "scroll to the bottom");
+                                mList.postDelayed(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                InputMode inputMode =
+                                                        mRongExtensionViewModel
+                                                                .getInputModeLiveData()
+                                                                .getValue();
+                                                if (!Objects.equals(
+                                                                inputMode, InputMode.MoreInputMode)
+                                                        && Boolean.TRUE.equals(value)) {
+                                                    if (mMessageViewModel.isNormalState()) {
+                                                        mList.scrollToPosition(
+                                                                mAdapter.getItemCount() - 1);
+                                                    } else {
+                                                        mMessageViewModel.newMessageBarClick();
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        150);
                             }
-                        }
-                    }
-                }, 150);
-            }
-        });
+                        });
     }
 
     @Override
     public void onViewClick(int clickType, UiMessage data) {
-        if (MessageProviderPermissionHandler.getInstance().handleMessageClickPermission(data, this)) {
+        if (MessageProviderPermissionHandler.getInstance()
+                .handleMessageClickPermission(data, this)) {
             return;
         }
 
@@ -366,9 +430,7 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         }
     }
 
-    /**
-     * 在通知区域显示一个view
-     */
+    /** 在通知区域显示一个view */
     public void showNotificationView(View notificationView) {
         if (notificationView == null) {
             return;
@@ -382,7 +444,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     }
 
     private void refreshList(final List<UiMessage> data) {
-        if (!mList.isComputingLayout() && mList.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
+        if (!mList.isComputingLayout()
+                && mList.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
             mAdapter.setDataCollection(data);
         } else {
             onScrollStopRefreshList = true;
@@ -391,7 +454,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
 
     public boolean onBackPressed() {
         boolean result = false;
-        for (IConversationUIRenderer processor : RongConfigCenter.conversationConfig().getViewProcessors()) {
+        for (IConversationUIRenderer processor :
+                RongConfigCenter.conversationConfig().getViewProcessors()) {
             boolean temp = processor.onBackPressed();
             if (temp) {
                 result = true;
@@ -433,7 +497,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
             if (getContext() != null) {
                 ToastUtils.s(getContext(), getString(R.string.rc_permission_request_failed));
@@ -445,13 +510,15 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 HQVoiceMsgDownloadManager.getInstance().resumeDownloadService();
             } else {
-                PermissionCheckUtil.showRequestPermissionFailedAlter(this.getContext(), permissions, grantResults);
+                PermissionCheckUtil.showRequestPermissionFailedAlter(
+                        this.getContext(), permissions, grantResults);
             }
             return;
         } else if (requestCode == PermissionCheckUtil.REQUEST_CODE_LOCATION_SHARE) {
             if (PermissionCheckUtil.checkPermissions(getActivity(), permissions)) {
                 LocationUiRender locationUiRender = null;
-                for (IConversationUIRenderer processor : RongConfigCenter.conversationConfig().getViewProcessors()) {
+                for (IConversationUIRenderer processor :
+                        RongConfigCenter.conversationConfig().getViewProcessors()) {
                     if (processor instanceof LocationUiRender) {
                         locationUiRender = (LocationUiRender) processor;
                         break;
@@ -463,26 +530,33 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
                 }
             } else {
                 if (getActivity() != null) {
-                    PermissionCheckUtil.showRequestPermissionFailedAlter(getActivity(), permissions, grantResults);
+                    PermissionCheckUtil.showRequestPermissionFailedAlter(
+                            getActivity(), permissions, grantResults);
                 }
             }
-        } else if (requestCode == MessageProviderPermissionHandler.REQUEST_CODE_ITEM_PROVIDER_PERMISSIONS) {
-            MessageProviderPermissionHandler.getInstance().onRequestPermissionsResult(getActivity(), permissions, grantResults);
+        } else if (requestCode
+                == MessageProviderPermissionHandler.REQUEST_CODE_ITEM_PROVIDER_PERMISSIONS) {
+            MessageProviderPermissionHandler.getInstance()
+                    .onRequestPermissionsResult(getActivity(), permissions, grantResults);
         }
 
-        if (requestCode == PermissionCheckUtil.REQUEST_CODE_ASK_PERMISSIONS && grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            PermissionCheckUtil.showRequestPermissionFailedAlter(this.getContext(), permissions, grantResults);
+        if (requestCode == PermissionCheckUtil.REQUEST_CODE_ASK_PERMISSIONS
+                && grantResults.length > 0
+                && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+            PermissionCheckUtil.showRequestPermissionFailedAlter(
+                    this.getContext(), permissions, grantResults);
         } else {
             mRongExtension.onRequestPermissionResult(requestCode, permissions, grantResults);
         }
     }
 
-    /**
-     * findId，绑定监听
-     */
+    /** findId，绑定监听 */
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.rc_conversation_fragment, container, false);
         mList = rootView.findViewById(R.id.rc_message_list);
         mRongExtension = rootView.findViewById(R.id.rc_extension);
@@ -498,54 +572,65 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         if (mList != null) {
             mList.setLayoutManager(mLinearLayoutManager);
         }
-        mRefreshLayout.setOnTouchListener(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                closeExpand();
-                return false;
-            }
-        });
-        mAdapter.setItemClickListener(new BaseAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, ViewHolder holder, int position) {
-                closeExpand();
-            }
+        mRefreshLayout.setOnTouchListener(
+                new View.OnTouchListener() {
+                    @SuppressLint("ClickableViewAccessibility")
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        closeExpand();
+                        return false;
+                    }
+                });
+        mAdapter.setItemClickListener(
+                new BaseAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, ViewHolder holder, int position) {
+                        closeExpand();
+                    }
 
-            @Override
-            public boolean onItemLongClick(View view, ViewHolder holder, int position) {
-                return false;
-            }
-        });
-        //关闭动画
+                    @Override
+                    public boolean onItemLongClick(View view, ViewHolder holder, int position) {
+                        return false;
+                    }
+                });
+        // 关闭动画
         if (mList != null) {
             mList.setAdapter(mAdapter);
             mList.addOnScrollListener(mScrollListener);
             mList.setItemAnimator(null);
-            final GestureDetector gd = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-                    closeExpand();
-                    return super.onScroll(e1, e2, distanceX, distanceY);
+            final GestureDetector gd =
+                    new GestureDetector(
+                            getContext(),
+                            new GestureDetector.SimpleOnGestureListener() {
+                                @Override
+                                public boolean onScroll(
+                                        MotionEvent e1,
+                                        MotionEvent e2,
+                                        float distanceX,
+                                        float distanceY) {
+                                    closeExpand();
+                                    return super.onScroll(e1, e2, distanceX, distanceY);
+                                }
+                            });
+            mList.addOnItemTouchListener(
+                    new RecyclerView.OnItemTouchListener() {
+                        @Override
+                        public boolean onInterceptTouchEvent(
+                                @NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                            return gd.onTouchEvent(e);
+                        }
 
-                }
-            });
-            mList.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-                @Override
-                public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                    return gd.onTouchEvent(e);
-                }
+                        @Override
+                        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                            // Do nothing
+                        }
 
-                @Override
-                public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                    // Do nothing
-                }
-
-                @Override
-                public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-                    // Do nothing
-                }
-            });
+                        @Override
+                        public void onRequestDisallowInterceptTouchEvent(
+                                boolean disallowIntercept) {
+                            // Do nothing
+                        }
+                    });
         }
 
         mRefreshLayout.setNestedScrollingEnabled(false);
@@ -566,7 +651,9 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if (getActivity() == null || getActivity().getIntent() == null) {
-            RLog.e(TAG, "Must put targetId and conversation type to intent when start conversation.");
+            RLog.e(
+                    TAG,
+                    "Must put targetId and conversation type to intent when start conversation.");
             return;
         }
         if (!IMCenter.getInstance().isInitialized()) {
@@ -581,7 +668,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         if (mConversationType == null) {
             String type = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
             if (type != null) {
-                mConversationType = Conversation.ConversationType.valueOf(type.toUpperCase(Locale.US));
+                mConversationType =
+                        Conversation.ConversationType.valueOf(type.toUpperCase(Locale.US));
             }
         }
         if (mBundle == null) {
@@ -607,15 +695,18 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
             return;
         }
         mMessageViewModel.onResume();
-        getView().setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_UP && keyCode == KeyEvent.KEYCODE_BACK) {
-                    return onBackPressed();
-                }
-                return false;
-            }
-        });
+        getView()
+                .setOnKeyListener(
+                        new View.OnKeyListener() {
+                            @Override
+                            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                                if (event.getAction() == KeyEvent.ACTION_UP
+                                        && keyCode == KeyEvent.KEYCODE_BACK) {
+                                    return onBackPressed();
+                                }
+                                return false;
+                            }
+                        });
         mRongExtension.onResume();
     }
 
@@ -651,7 +742,8 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        for (IConversationUIRenderer processor : RongConfigCenter.conversationConfig().getViewProcessors()) {
+        for (IConversationUIRenderer processor :
+                RongConfigCenter.conversationConfig().getViewProcessors()) {
             processor.onDestroy();
         }
         mList.removeOnScrollListener(mScrollListener);
@@ -659,7 +751,9 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         if (mMessageViewModel != null) {
             mMessageViewModel.getPageEventLiveData().removeObserver(mPageObserver);
             mMessageViewModel.getUiMessageLiveData().removeObserver(mListObserver);
-            mMessageViewModel.getNewMentionMessageUnreadLiveData().removeObserver(mNewMentionMessageUnreadObserver);
+            mMessageViewModel
+                    .getNewMentionMessageUnreadLiveData()
+                    .removeObserver(mNewMentionMessageUnreadObserver);
             mMessageViewModel.onDestroy();
         }
 
@@ -696,13 +790,9 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         }
     }
 
-
     /**
-     * 提示dialog.
-     * 例如"加入聊天室失败"的dialog
-     * 用户自定义此dialog的步骤:
-     * 1.定义一个类继承自 ConversationFragment
-     * 2.重写 onWarningDialog
+     * 提示dialog. 例如"加入聊天室失败"的dialog 用户自定义此dialog的步骤: 1.定义一个类继承自 ConversationFragment 2.重写
+     * onWarningDialog
      *
      * @param msg dialog 提示
      */
@@ -719,44 +809,51 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         TextView tv = window.findViewById(R.id.rc_cs_msg);
         tv.setText(msg);
 
-        window.findViewById(R.id.rc_btn_ok).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                alertDialog.dismiss();
-                FragmentManager fm = getChildFragmentManager();
-                if (fm.getBackStackEntryCount() > 0) {
-                    fm.popBackStack();
-                } else {
-                    if (getActivity() != null) {
-                        getActivity().finish();
-                    }
-                }
-            }
-        });
+        window.findViewById(R.id.rc_btn_ok)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                alertDialog.dismiss();
+                                FragmentManager fm = getChildFragmentManager();
+                                if (fm.getBackStackEntryCount() > 0) {
+                                    fm.popBackStack();
+                                } else {
+                                    if (getActivity() != null) {
+                                        getActivity().finish();
+                                    }
+                                }
+                            }
+                        });
     }
 
-
-    private void showLoadMessageDialog(final MessageProcessor.GetMessageCallback callback, final List<Message> list) {
+    private void showLoadMessageDialog(
+            final MessageProcessor.GetMessageCallback callback, final List<Message> list) {
         new AlertDialog.Builder(getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
                 .setMessage(getString(R.string.rc_load_local_message))
-                .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
+                .setPositiveButton(
+                        getString(R.string.rc_dialog_ok),
+                        new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (callback != null) {
-                            callback.onSuccess(list, true);
-                        }
-                    }
-                })
-                .setNegativeButton(getString(R.string.rc_cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (callback != null) {
+                                    callback.onSuccess(list, true);
+                                }
+                            }
+                        })
+                .setNegativeButton(
+                        getString(R.string.rc_cancel),
+                        new DialogInterface.OnClickListener() {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (callback != null) {
-                            callback.onErrorAsk(list);
-                        }
-                    }
-                }).show();
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (callback != null) {
+                                    callback.onErrorAsk(list);
+                                }
+                            }
+                        })
+                .show();
     }
 
     private void closeExpand() {
@@ -774,30 +871,22 @@ public class ConversationFragment extends Fragment implements OnRefreshListener,
         return new MessageListAdapter(this);
     }
 
-    /**
-     * @param view 自定义列表 header view
-     */
+    /** @param view 自定义列表 header view */
     public void addHeaderView(View view) {
         mAdapter.addHeaderView(view);
     }
 
-    /**
-     * @param view 自定义列表 footer view
-     */
+    /** @param view 自定义列表 footer view */
     public void addFooterView(View view) {
         mAdapter.addFootView(view);
     }
 
-    /**
-     * @param view 自定义列表 空数据 view
-     */
+    /** @param view 自定义列表 空数据 view */
     public void setEmptyView(View view) {
         mAdapter.setEmptyView(view);
     }
 
-    /**
-     * @param emptyId 自定义列表 空数据的 LayoutId
-     */
+    /** @param emptyId 自定义列表 空数据的 LayoutId */
     public void setEmptyView(@LayoutRes int emptyId) {
         mAdapter.setEmptyView(emptyId);
     }

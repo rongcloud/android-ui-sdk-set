@@ -3,25 +3,21 @@ package io.rong.imkit.picture;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
+import io.rong.imkit.picture.config.PictureConfig;
+import io.rong.imkit.picture.entity.LocalMedia;
+import io.rong.imkit.picture.tools.DoubleUtils;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.rong.imkit.picture.config.PictureConfig;
-import io.rong.imkit.picture.entity.LocalMedia;
-import io.rong.imkit.picture.tools.DoubleUtils;
 
 /**
  * @author：luck
  * @date：2017-5-24 22:30
  * @describe：PictureSelector
  */
-
 public final class PictureSelector {
 
     private final WeakReference<Activity> mActivity;
@@ -76,8 +72,6 @@ public final class PictureSelector {
         return new PictureSelectionModel(this, chooseMode, true);
     }
 
-
-
     /**
      * @param data
      * @return Selector Multiple LocalMedia
@@ -85,7 +79,9 @@ public final class PictureSelector {
     public static List<LocalMedia> obtainMultipleResult(Intent data) {
         List<LocalMedia> result = new ArrayList<>();
         if (data != null) {
-            result = (List<LocalMedia>) data.getSerializableExtra(PictureConfig.EXTRA_RESULT_SELECTION);
+            result =
+                    (List<LocalMedia>)
+                            data.getSerializableExtra(PictureConfig.EXTRA_RESULT_SELECTION);
             if (result == null) {
                 result = new ArrayList<>();
             }
@@ -104,13 +100,13 @@ public final class PictureSelector {
 
     /**
      * @param bundle
-     * @return get Selector  LocalMedia
+     * @return get Selector LocalMedia
      */
     public static List<LocalMedia> obtainSelectorList(Bundle bundle) {
         List<LocalMedia> selectionMedias;
         if (bundle != null) {
-            selectionMedias = (List<LocalMedia>) bundle
-                    .getSerializable(PictureConfig.EXTRA_SELECT_LIST);
+            selectionMedias =
+                    (List<LocalMedia>) bundle.getSerializable(PictureConfig.EXTRA_SELECT_LIST);
             return selectionMedias;
         }
         selectionMedias = new ArrayList<>();
@@ -119,7 +115,7 @@ public final class PictureSelector {
 
     /**
      * @param selectedImages
-     * @return put Selector  LocalMedia
+     * @return put Selector LocalMedia
      */
     public static void saveSelectorList(Bundle outState, List<LocalMedia> selectedImages) {
         outState.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);
@@ -138,21 +134,15 @@ public final class PictureSelector {
         }
     }
 
-
-    /**
-     * @return Activity.
-     */
+    /** @return Activity. */
     @Nullable
     Activity getActivity() {
         return mActivity.get();
     }
 
-    /**
-     * @return Fragment.
-     */
+    /** @return Fragment. */
     @Nullable
     Fragment getFragment() {
         return mFragment != null ? mFragment.get() : null;
     }
-
 }

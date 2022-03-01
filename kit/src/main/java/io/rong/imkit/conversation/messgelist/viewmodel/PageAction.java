@@ -32,13 +32,11 @@ public class PageAction {
     }
 
     public <T> T get(Class<T> clazz) {
-        if (obj == null)
-            return null;
+        if (obj == null) return null;
         if (obj.getClass().equals(clazz)) {
             return (T) obj;
         } else {
             return null;
         }
     }
-
 }

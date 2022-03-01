@@ -8,22 +8,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.Nullable;
-
-import java.lang.ref.WeakReference;
-
 import io.rong.imlib.model.Conversation;
 import io.rong.message.SightMessage;
 import io.rong.sight.R;
-
+import java.lang.ref.WeakReference;
 
 public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback {
 
     private EasyVideoPlayer mPlayer;
-    static private Conversation.ConversationType conversationType;
-    static private String targetId;
-    static private boolean isFromSightList;
+    private static Conversation.ConversationType conversationType;
+    private static String targetId;
+    private static boolean isFromSightList;
     static boolean fromSightListImageVisible = true;
     private EasyVideoCallback mVideoCallback;
     private int playBtnVisible = View.VISIBLE;
@@ -44,9 +40,15 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
         super.onAttach(activity);
     }
 
-    public static PlaybackVideoFragment newInstance(SightMessage sightMessage, String outputUri, String id,
-                                                    Conversation.ConversationType type, boolean fromSightList,
-                                                    boolean sightListImageVisible, int initialPosition, int initialPlayerStatus) {
+    public static PlaybackVideoFragment newInstance(
+            SightMessage sightMessage,
+            String outputUri,
+            String id,
+            Conversation.ConversationType type,
+            boolean fromSightList,
+            boolean sightListImageVisible,
+            int initialPosition,
+            int initialPlayerStatus) {
         PlaybackVideoFragment fragment = new PlaybackVideoFragment();
         mPlaybackVideoFragment = new WeakReference<>(fragment);
         fragment.setRetainInstance(true);
@@ -66,7 +68,6 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
     @Override
@@ -79,7 +80,8 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.rc_fragment_sight_palyer, container, false);
     }
 
@@ -93,7 +95,8 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
         mPlayer.setSource(Uri.parse(getArguments().getString("output_uri")));
         mPlayer.setInitialPosition(mInitialPosition);
         boolean needAutoPlay = true;
-        if (mInitialPlayerStatus == EasyVideoPlayer.PLAYER_STATUS_PAUSED || mInitialPlayerStatus == EasyVideoPlayer.PLAYER_STATUS_COMPLETION) {
+        if (mInitialPlayerStatus == EasyVideoPlayer.PLAYER_STATUS_PAUSED
+                || mInitialPlayerStatus == EasyVideoPlayer.PLAYER_STATUS_COMPLETION) {
             needAutoPlay = false;
         }
         mPlayer.setAutoPlay(needAutoPlay);
@@ -107,7 +110,6 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
             setLongClickable(true);
         }
     }
-
 
     @Override
     public void onDestroyView() {
@@ -179,8 +181,7 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
             Intent intent = new Intent(getActivity(), SightListActivity.class);
             intent.putExtra("conversationType", conversationType.getValue());
             intent.putExtra("targetId", targetId);
-            if (mSightMessage != null)
-                intent.putExtra("isDestruct", mSightMessage.isDestruct());
+            if (mSightMessage != null) intent.putExtra("isDestruct", mSightMessage.isDestruct());
             startActivity(intent);
         }
     }

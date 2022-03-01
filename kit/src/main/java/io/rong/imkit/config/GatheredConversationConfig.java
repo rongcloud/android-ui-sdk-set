@@ -1,11 +1,9 @@
 package io.rong.imkit.config;
 
 import android.net.Uri;
-
+import io.rong.imlib.model.Conversation;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.rong.imlib.model.Conversation;
 
 public class GatheredConversationConfig {
     private Map<Conversation.ConversationType, Integer> mTitleMap;
@@ -24,7 +22,8 @@ public class GatheredConversationConfig {
         return mTitleMap.get(conversationType);
     }
 
-    public void setGatherConversationPortrait(Conversation.ConversationType conversationType, Uri resUri) {
+    public void setGatherConversationPortrait(
+            Conversation.ConversationType conversationType, Uri resUri) {
         mPortraitMap.put(conversationType, resUri);
     }
 

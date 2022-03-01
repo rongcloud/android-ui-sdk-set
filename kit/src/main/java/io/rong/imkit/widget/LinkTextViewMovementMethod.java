@@ -40,7 +40,8 @@ public class LinkTextViewMovementMethod extends LinkMovementMethod {
                 off = layout.getOffsetForHorizontal(line, x);
             } catch (ArrayIndexOutOfBoundsException arrayIndexOutOfBoundsException) {
                 // This happens for bidi text on Android 7-8.
-                // See https://android.googlesource.com/platform/frameworks/base/+/821e9bd5cc2be4b3210cb0226e40ba0f42b51aed
+                // See
+                // https://android.googlesource.com/platform/frameworks/base/+/821e9bd5cc2be4b3210cb0226e40ba0f42b51aed
                 return true;
             }
 
@@ -49,16 +50,14 @@ public class LinkTextViewMovementMethod extends LinkMovementMethod {
             if (link.length != 0) {
                 if (action == MotionEvent.ACTION_UP) {
                     long actionUpTime = System.currentTimeMillis();
-                    if (actionUpTime - mLastActionDownTime > ViewConfiguration.getLongPressTimeout()) {
+                    if (actionUpTime - mLastActionDownTime
+                            > ViewConfiguration.getLongPressTimeout()) {
                         return true;
                     }
                     String url = null;
-                    if (link[0] instanceof URLSpan)
-                        url = ((URLSpan) link[0]).getURL();
-                    if (mListener != null && mListener.onLinkClick(url))
-                        return true;
-                    else
-                        link[0].onClick(widget);
+                    if (link[0] instanceof URLSpan) url = ((URLSpan) link[0]).getURL();
+                    if (mListener != null && mListener.onLinkClick(url)) return true;
+                    else link[0].onClick(widget);
                 } else {
                     mLastActionDownTime = System.currentTimeMillis();
                 }

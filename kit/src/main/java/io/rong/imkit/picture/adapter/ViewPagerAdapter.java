@@ -8,13 +8,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import java.io.File;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.picture.PictureVideoPlayActivity;
 import io.rong.imkit.picture.config.PictureMimeType;
@@ -26,13 +21,13 @@ import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.widget.longimage.ImageSource;
 import io.rong.imkit.picture.widget.longimage.SubsamplingScaleImageView;
+import java.io.File;
+import java.util.List;
 
 /**
  * @author：luck
- * @data：2018/1/27 下午7:50
- * @描述:图片预览
+ * @data：2018/1/27 下午7:50 @描述:图片预览
  */
-
 public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.PictureViewHolder> {
     private List<LocalMedia> images;
     private Context mContext;
@@ -40,14 +35,15 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.Pict
     private PictureSelectionConfig config;
 
     public interface OnCallBackActivity {
-        /**
-         * 关闭预览Activity
-         */
+        /** 关闭预览Activity */
         void onActivityBackPressed();
     }
 
-    public ViewPagerAdapter(PictureSelectionConfig config, List<LocalMedia> images, Context context,
-                            OnCallBackActivity onBackPressed) {
+    public ViewPagerAdapter(
+            PictureSelectionConfig config,
+            List<LocalMedia> images,
+            Context context,
+            OnCallBackActivity onBackPressed) {
         super();
         this.config = config;
         this.images = images;
@@ -58,8 +54,9 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.Pict
     @NonNull
     @Override
     public PictureViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View contentView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.rc_picture_image_preview, parent, false);
+        View contentView =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_picture_image_preview, parent, false);
         return new PictureViewHolder(contentView);
     }
 
@@ -78,48 +75,53 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.Pict
             // 压缩过的gif就不是gif了
             if (isGif) {
                 if (config != null && config.imageEngine != null) {
-                    config.imageEngine.loadAsGifImage
-                            (holder.imageView.getContext(), path, holder.imageView);
+                    config.imageEngine.loadAsGifImage(
+                            holder.imageView.getContext(), path, holder.imageView);
                 }
             } else {
                 if (config != null && config.imageEngine != null) {
                     if (eqLongImg) {
-                        displayLongPic(SdkVersionUtils.checkedAndroid_Q()
-                                ? Uri.parse(path) : Uri.fromFile(new File(path)), holder.longImg);
+                        displayLongPic(
+                                SdkVersionUtils.checkedAndroid_Q()
+                                        ? Uri.parse(path)
+                                        : Uri.fromFile(new File(path)),
+                                holder.longImg);
                     } else {
-                        config.imageEngine.loadImage
-                                (holder.imageView.getContext(), path, holder.imageView);
+                        config.imageEngine.loadImage(
+                                holder.imageView.getContext(), path, holder.imageView);
                     }
                 }
             }
-            holder.imageView.setOnViewTapListener(new OnViewTapListener() {
-                @Override
-                public void onViewTap(View view, float x, float y) {
-                    if (onBackPressed != null) {
-                        onBackPressed.onActivityBackPressed();
-                    }
-                }
-            });
-            holder.longImg.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onBackPressed != null) {
-                        onBackPressed.onActivityBackPressed();
-                    }
-                }
-            });
-            holder.iv_play.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("video_path", path);
-                    intent.putExtras(bundle);
-                    intent.setClass(mContext, PictureVideoPlayActivity.class);
-                    mContext.startActivity(intent);
-                }
-            });
-
+            holder.imageView.setOnViewTapListener(
+                    new OnViewTapListener() {
+                        @Override
+                        public void onViewTap(View view, float x, float y) {
+                            if (onBackPressed != null) {
+                                onBackPressed.onActivityBackPressed();
+                            }
+                        }
+                    });
+            holder.longImg.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (onBackPressed != null) {
+                                onBackPressed.onActivityBackPressed();
+                            }
+                        }
+                    });
+            holder.iv_play.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("video_path", path);
+                            intent.putExtras(bundle);
+                            intent.setClass(mContext, PictureVideoPlayActivity.class);
+                            mContext.startActivity(intent);
+                        }
+                    });
         }
     }
 
@@ -127,7 +129,6 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.Pict
     public int getItemCount() {
         return images != null ? images.size() : 0;
     }
-
 
     /**
      * 加载长图

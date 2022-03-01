@@ -13,11 +13,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
-
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -32,7 +28,7 @@ import io.rong.imkit.widget.glide.RoundedCornersTransform;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
-
+import java.util.List;
 
 public class LocationMessageItemProvider extends BaseMessageItemProvider<LocationMessage> {
     private static final String TAG = LocationMessageItemProvider.class.getSimpleName();
@@ -46,25 +42,41 @@ public class LocationMessageItemProvider extends BaseMessageItemProvider<Locatio
         if (context != null) {
             Resources resources = context.getResources();
             try {
-                THUMB_WIDTH = resources.getInteger(resources.getIdentifier("rc_location_thumb_width", "integer", context.getPackageName()));
-                THUMB_HEIGHT = resources.getInteger(resources.getIdentifier("rc_location_thumb_height", "integer", context.getPackageName()));
+                THUMB_WIDTH =
+                        resources.getInteger(
+                                resources.getIdentifier(
+                                        "rc_location_thumb_width",
+                                        "integer",
+                                        context.getPackageName()));
+                THUMB_HEIGHT =
+                        resources.getInteger(
+                                resources.getIdentifier(
+                                        "rc_location_thumb_height",
+                                        "integer",
+                                        context.getPackageName()));
             } catch (Resources.NotFoundException e) {
                 e.printStackTrace();
             }
         }
-
-
     }
-
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_location_message, null);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_location_message, null);
         return new ViewHolder(parent.getContext(), view);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, LocationMessage locationMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            LocationMessage locationMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         final Uri uri = locationMessage.getImgUri();
         RLog.d(TAG, "uri = " + uri);
         ImageView img = holder.getView(R.id.rc_img);
@@ -77,7 +89,10 @@ public class LocationMessageItemProvider extends BaseMessageItemProvider<Locatio
         } else {
             int px = ScreenUtils.dip2px(IMCenter.getInstance().getContext(), 8);
             RoundedCornersTransform roundedTransform;
-            if (uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND)) {
+            if (uiMessage
+                    .getMessage()
+                    .getMessageDirection()
+                    .equals(Message.MessageDirection.SEND)) {
                 roundedTransform = new RoundedCornersTransform(px, 0, px, px);
             } else {
                 roundedTransform = new RoundedCornersTransform(0, px, px, px);
@@ -91,14 +106,22 @@ public class LocationMessageItemProvider extends BaseMessageItemProvider<Locatio
         }
         TextView address = holder.getView(R.id.rc_location_content);
         address.setText(locationMessage.getPoi());
-        FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(address.getLayoutParams().width, ViewGroup.LayoutParams.WRAP_CONTENT);
+        FrameLayout.LayoutParams param =
+                new FrameLayout.LayoutParams(
+                        address.getLayoutParams().width, ViewGroup.LayoutParams.WRAP_CONTENT);
         param.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         param.width = RongUtils.dip2px(THUMB_WIDTH / 2);
         address.setLayoutParams(param);
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, LocationMessage locationMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            LocationMessage locationMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         try {
             String clsName = "com.amap.api.netlocation.AMapNetworkLocationClient";
             Class<?> locationCls = Class.forName(clsName);
@@ -127,6 +150,7 @@ public class LocationMessageItemProvider extends BaseMessageItemProvider<Locatio
 
     @Override
     public Spannable getSummarySpannable(Context context, LocationMessage locationMessage) {
-        return new SpannableString(context.getResources().getString(R.string.rc_message_content_location));
+        return new SpannableString(
+                context.getResources().getString(R.string.rc_message_content_location));
     }
 }

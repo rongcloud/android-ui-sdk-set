@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
 import io.rong.imkit.picture.PicturePreviewActivity;
 import io.rong.imkit.picture.PictureVideoPlayActivity;
-
 
 /**
  * @author：luck

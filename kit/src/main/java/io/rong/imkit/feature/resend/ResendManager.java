@@ -3,23 +3,19 @@ package io.rong.imkit.feature.resend;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
-
-import java.util.Hashtable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.message.MediaMessageContent;
 import io.rong.message.ReferenceMessage;
+import java.util.Hashtable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-/**
- * 用于管理重新发送
- */
+/** 用于管理重新发送 */
 public class ResendManager {
 
     private final String TAG = "ResendManager";
@@ -30,24 +26,25 @@ public class ResendManager {
     private ConcurrentLinkedQueue<Integer> mMessageQueue;
     private Handler mResendHandler;
 
-
     private ResendManager() {
         mMessageMap = new Hashtable<>();
         mMessageQueue = new ConcurrentLinkedQueue<>();
         HandlerThread resendThread = new HandlerThread("RESEND_WORK");
         resendThread.start();
         mResendHandler = new Handler(resendThread.getLooper());
-        IMCenter.getInstance().addConnectionStatusListener(new RongIMClient.ConnectionStatusListener() {
-            @Override
-            public void onChanged(ConnectionStatus connectionStatus) {
-                if (connectionStatus.equals(ConnectionStatus.CONNECTED)) {
-                    // 开始发送缓存队列因发送失败需要重发的消息
-                    ResendManager.getInstance().beginResend();
-                } else if (connectionStatus.equals(ConnectionStatus.SIGN_OUT)) {
-                    ResendManager.getInstance().removeAllResendMessage();
-                }
-            }
-        });
+        IMCenter.getInstance()
+                .addConnectionStatusListener(
+                        new RongIMClient.ConnectionStatusListener() {
+                            @Override
+                            public void onChanged(ConnectionStatus connectionStatus) {
+                                if (connectionStatus.equals(ConnectionStatus.CONNECTED)) {
+                                    // 开始发送缓存队列因发送失败需要重发的消息
+                                    ResendManager.getInstance().beginResend();
+                                } else if (connectionStatus.equals(ConnectionStatus.SIGN_OUT)) {
+                                    ResendManager.getInstance().removeAllResendMessage();
+                                }
+                            }
+                        });
     }
 
     private static class ResendManagerHolder {
@@ -58,52 +55,58 @@ public class ResendManager {
         return ResendManagerHolder.instance;
     }
 
-    public void addResendMessage(final Message message, final RongIMClient.ErrorCode errorCode, final AddResendMessageCallBack callBack) {
-        mResendHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (errorCode == null) {
-                    return;
-                }
-                if (isResendErrorCode(errorCode)) {
-                    if (!mMessageMap.containsKey(message.getMessageId())) {
-                        RLog.d(TAG, "addResendMessage : id=" + message.getMessageId());
-                        if (mMessageMap != null && mMessageQueue != null) {
-                            mMessageMap.put(message.getMessageId(), message);
-                            mMessageQueue.add(message.getMessageId());
-                            beginResend();
-                            message.setSentStatus(Message.SentStatus.SENDING);
+    public void addResendMessage(
+            final Message message,
+            final RongIMClient.ErrorCode errorCode,
+            final AddResendMessageCallBack callBack) {
+        mResendHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (errorCode == null) {
+                            return;
                         }
+                        if (isResendErrorCode(errorCode)) {
+                            if (!mMessageMap.containsKey(message.getMessageId())) {
+                                RLog.d(TAG, "addResendMessage : id=" + message.getMessageId());
+                                if (mMessageMap != null && mMessageQueue != null) {
+                                    mMessageMap.put(message.getMessageId(), message);
+                                    mMessageQueue.add(message.getMessageId());
+                                    beginResend();
+                                    message.setSentStatus(Message.SentStatus.SENDING);
+                                }
+                            }
+                        }
+                        callBack.onComplete(message, errorCode);
                     }
-                }
-                callBack.onComplete(message, errorCode);
-            }
-        });
+                });
     }
 
     public void removeResendMessage(final int messageId) {
-        mResendHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (mMessageMap != null) {
-                    mMessageMap.remove(messageId);
-                    mMessageQueue.remove(messageId);
-                }
-            }
-        });
+        mResendHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMessageMap != null) {
+                            mMessageMap.remove(messageId);
+                            mMessageQueue.remove(messageId);
+                        }
+                    }
+                });
     }
 
     public void removeAllResendMessage() {
-        mResendHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (mMessageMap != null) {
-                    mMessageMap.clear();
-                    mMessageQueue.clear();
-                    mIsProcessing = false;
-                }
-            }
-        });
+        mResendHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMessageMap != null) {
+                            mMessageMap.clear();
+                            mMessageQueue.clear();
+                            mIsProcessing = false;
+                        }
+                    }
+                });
     }
 
     public boolean needResend(int messageId) {
@@ -114,66 +117,77 @@ public class ResendManager {
     }
 
     public void beginResend() {
-        mResendHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (mMessageMap == null || mMessageMap.size() == 0) {
-                    RLog.i(TAG, "beginResend onChanged no message need resend");
-                    mIsProcessing = false;
-                    return;
-                }
-                if (mIsProcessing) {
-                    RLog.i(TAG, "beginResend ConnectionStatus is resending");
-                    return;
-                }
-                mIsProcessing = true;
-                loopResendMessage();
-            }
-        });
-    }
-
-    private void loopResendMessage() {
-        mResendHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                final Integer idInteger = mMessageQueue.peek();
-                RLog.d(TAG, "beginResend: messageId = " + idInteger);
-                if (idInteger == null
-                        || IMCenter.getInstance().getCurrentConnectionStatus() != RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED) {
-                    mIsProcessing = false;
-                    return;
-                }
-                resendMessage(mMessageMap.get(idInteger), new ReSendMessageCallback() {
+        mResendHandler.post(
+                new Runnable() {
                     @Override
-                    public void onCancel(Message message) {
-                        removeResendMessage(idInteger);
-                        loopResendMessage();
-                    }
-
-
-                    @Override
-                    public void onAttached(Message message) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(Message message) {
-                        RLog.i(TAG, "resendMessage success messageId = " + message.getMessageId());
-                        removeResendMessage(idInteger);
-                        loopResendMessage();
-                    }
-
-                    @Override
-                    public void onError(Message message, RongIMClient.ErrorCode coreErrorCode) {
-                        RLog.i(TAG, "resendMessage success messageId = " + message.getMessageId());
-                        if (!isResendErrorCode(coreErrorCode)) {
-                            removeResendMessage(idInteger);
+                    public void run() {
+                        if (mMessageMap == null || mMessageMap.size() == 0) {
+                            RLog.i(TAG, "beginResend onChanged no message need resend");
+                            mIsProcessing = false;
+                            return;
                         }
+                        if (mIsProcessing) {
+                            RLog.i(TAG, "beginResend ConnectionStatus is resending");
+                            return;
+                        }
+                        mIsProcessing = true;
                         loopResendMessage();
                     }
                 });
-            }
-        }, TIME_DELAY);
+    }
+
+    private void loopResendMessage() {
+        mResendHandler.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        final Integer idInteger = mMessageQueue.peek();
+                        RLog.d(TAG, "beginResend: messageId = " + idInteger);
+                        if (idInteger == null
+                                || IMCenter.getInstance().getCurrentConnectionStatus()
+                                        != RongIMClient.ConnectionStatusListener.ConnectionStatus
+                                                .CONNECTED) {
+                            mIsProcessing = false;
+                            return;
+                        }
+                        resendMessage(
+                                mMessageMap.get(idInteger),
+                                new ReSendMessageCallback() {
+                                    @Override
+                                    public void onCancel(Message message) {
+                                        removeResendMessage(idInteger);
+                                        loopResendMessage();
+                                    }
+
+                                    @Override
+                                    public void onAttached(Message message) {}
+
+                                    @Override
+                                    public void onSuccess(Message message) {
+                                        RLog.i(
+                                                TAG,
+                                                "resendMessage success messageId = "
+                                                        + message.getMessageId());
+                                        removeResendMessage(idInteger);
+                                        loopResendMessage();
+                                    }
+
+                                    @Override
+                                    public void onError(
+                                            Message message, RongIMClient.ErrorCode coreErrorCode) {
+                                        RLog.i(
+                                                TAG,
+                                                "resendMessage success messageId = "
+                                                        + message.getMessageId());
+                                        if (!isResendErrorCode(coreErrorCode)) {
+                                            removeResendMessage(idInteger);
+                                        }
+                                        loopResendMessage();
+                                    }
+                                });
+                    }
+                },
+                TIME_DELAY);
     }
 
     /**
@@ -206,36 +220,37 @@ public class ResendManager {
         }
         if (message.getContent() instanceof ImageMessage) {
             ImageMessage imageMessage = (ImageMessage) message.getContent();
-            if (imageMessage.getRemoteUri() != null && !imageMessage.getRemoteUri().toString().startsWith("file")) {
+            if (imageMessage.getRemoteUri() != null
+                    && !imageMessage.getRemoteUri().toString().startsWith("file")) {
                 IMCenter.getInstance().sendMessage(message, null, null, callback);
             } else {
-                IMCenter.getInstance().sendMediaMessage(message, null, null, new IRongCallback.ISendMediaMessageCallback() {
+                IMCenter.getInstance()
+                        .sendMediaMessage(
+                                message,
+                                null,
+                                null,
+                                new IRongCallback.ISendMediaMessageCallback() {
 
-                    @Override
-                    public void onAttached(Message message) {
+                                    @Override
+                                    public void onAttached(Message message) {}
 
-                    }
+                                    @Override
+                                    public void onSuccess(Message message) {
+                                        callback.onSuccess(message);
+                                    }
 
-                    @Override
-                    public void onSuccess(Message message) {
-                        callback.onSuccess(message);
-                    }
+                                    @Override
+                                    public void onError(
+                                            Message message, RongIMClient.ErrorCode errorCode) {
+                                        callback.onError(message, errorCode);
+                                    }
 
-                    @Override
-                    public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                        callback.onError(message, errorCode);
-                    }
+                                    @Override
+                                    public void onProgress(Message message, int i) {}
 
-                    @Override
-                    public void onProgress(Message message, int i) {
-
-                    }
-
-                    @Override
-                    public void onCanceled(Message message) {
-
-                    }
-                });
+                                    @Override
+                                    public void onCanceled(Message message) {}
+                                });
             }
         } else if (message.getContent() instanceof LocationMessage) {
             IMCenter.getInstance().sendLocationMessage(message, null, null, callback);
@@ -246,32 +261,34 @@ public class ResendManager {
             if (mediaMessageContent.getMediaUrl() != null) {
                 IMCenter.getInstance().sendMessage(message, null, null, callback);
             } else {
-                IMCenter.getInstance().sendMediaMessage(message, null, null, new IRongCallback.ISendMediaMessageCallback() {
-                    @Override
-                    public void onProgress(Message message, int progress) {
+                IMCenter.getInstance()
+                        .sendMediaMessage(
+                                message,
+                                null,
+                                null,
+                                new IRongCallback.ISendMediaMessageCallback() {
+                                    @Override
+                                    public void onProgress(Message message, int progress) {}
 
-                    }
+                                    @Override
+                                    public void onCanceled(Message message) {
+                                        callback.onCancel(message);
+                                    }
 
-                    @Override
-                    public void onCanceled(Message message) {
-                        callback.onCancel(message);
-                    }
+                                    @Override
+                                    public void onAttached(Message message) {}
 
-                    @Override
-                    public void onAttached(Message message) {
+                                    @Override
+                                    public void onSuccess(Message message) {
+                                        callback.onSuccess(message);
+                                    }
 
-                    }
-
-                    @Override
-                    public void onSuccess(Message message) {
-                        callback.onSuccess(message);
-                    }
-
-                    @Override
-                    public void onError(Message message, RongIMClient.ErrorCode errorCode) {
-                        callback.onError(message, errorCode);
-                    }
-                });
+                                    @Override
+                                    public void onError(
+                                            Message message, RongIMClient.ErrorCode errorCode) {
+                                        callback.onError(message, errorCode);
+                                    }
+                                });
             }
         } else {
             IMCenter.getInstance().sendMessage(message, null, null, callback);

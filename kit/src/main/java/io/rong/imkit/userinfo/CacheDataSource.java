@@ -1,14 +1,12 @@
 package io.rong.imkit.userinfo;
 
 import androidx.annotation.NonNull;
-
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.StringUtils;
 import io.rong.imkit.widget.cache.RongCache;
-
 
 public class CacheDataSource {
     private final String TAG = CacheDataSource.class.getSimpleName();
@@ -18,7 +16,8 @@ public class CacheDataSource {
 
     CacheDataSource() {
         mUserCache = new RongCache<>(RongConfigCenter.featureConfig().getUserCacheMaxCount());
-        mGroupMemberCache = new RongCache<>(RongConfigCenter.featureConfig().getGroupMemberCacheMaxCount());
+        mGroupMemberCache =
+                new RongCache<>(RongConfigCenter.featureConfig().getGroupMemberCacheMaxCount());
         mGroupCache = new RongCache<>(RongConfigCenter.featureConfig().getGroupCacheMaxCount());
     }
 
@@ -33,7 +32,6 @@ public class CacheDataSource {
             return mGroupCache.get(groupId);
         }
     }
-
 
     GroupMember getGroupUserInfo(final String groupId, final String userId) {
         synchronized (mGroupMemberCache) {
@@ -60,6 +58,4 @@ public class CacheDataSource {
             mGroupCache.put(group.id, group);
         }
     }
-
-
 }

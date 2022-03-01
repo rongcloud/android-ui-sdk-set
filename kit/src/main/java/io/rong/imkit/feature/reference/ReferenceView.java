@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
@@ -25,10 +24,7 @@ import io.rong.imlib.model.UserInfo;
 import io.rong.message.FileMessage;
 import io.rong.message.RichContentMessage;
 
-/**
- * 引用控件
- * Created by JL on 2018/3/28.
- */
+/** 引用控件 Created by JL on 2018/3/28. */
 @SuppressLint("ViewConstructor")
 public class ReferenceView extends FrameLayout {
     private Context mContext;
@@ -45,25 +41,30 @@ public class ReferenceView extends FrameLayout {
     }
 
     private void initView(Context context, ViewGroup parent) {
-        mReferenceView = LayoutInflater.from(context).inflate(R.layout.rc_reference_ext_attach_view, parent, false);
+        mReferenceView =
+                LayoutInflater.from(context)
+                        .inflate(R.layout.rc_reference_ext_attach_view, parent, false);
 
         ImageView cancelButton = mReferenceView.findViewById(R.id.rc_reference_cancel);
         mReferenceSenderName = mReferenceView.findViewById(R.id.rc_reference_sender_name);
         mReferenceContent = mReferenceView.findViewById(R.id.rc_reference_content);
-        cancelButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mCancelListener != null) {
-                    mCancelListener.onCanceled();
-                }
-            }
-        });
+        cancelButton.setOnClickListener(
+                new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mCancelListener != null) {
+                            mCancelListener.onCanceled();
+                        }
+                    }
+                });
     }
 
     private void initData(UiMessage uiMessage) {
         Message message = uiMessage.getMessage();
         if (message != null) {
-            Spannable content = RongConfigCenter.conversationConfig().getMessageSummary(mContext, message.getContent());
+            Spannable content =
+                    RongConfigCenter.conversationConfig()
+                            .getMessageSummary(mContext, message.getContent());
             MessageContent messageContent = message.getContent();
             String fileName;
             String fileTile;
@@ -93,14 +94,23 @@ public class ReferenceView extends FrameLayout {
     }
 
     private String getDisplayName(UiMessage uiMessage) {
-        if (uiMessage.getMessage().getConversationType().equals(Conversation.ConversationType.GROUP)) {
-            GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(uiMessage.getMessage().getTargetId(), uiMessage.getMessage().getSenderUserId());
+        if (uiMessage
+                .getMessage()
+                .getConversationType()
+                .equals(Conversation.ConversationType.GROUP)) {
+            GroupUserInfo groupUserInfo =
+                    RongUserInfoManager.getInstance()
+                            .getGroupUserInfo(
+                                    uiMessage.getMessage().getTargetId(),
+                                    uiMessage.getMessage().getSenderUserId());
             if (groupUserInfo != null) {
                 return groupUserInfo.getNickname() + "：";
             }
         }
 
-        UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(uiMessage.getMessage().getSenderUserId());
+        UserInfo userInfo =
+                RongUserInfoManager.getInstance()
+                        .getUserInfo(uiMessage.getMessage().getSenderUserId());
         if (userInfo != null) {
             return RongUserInfoManager.getInstance().getUserDisplayName(userInfo) + "：";
         }

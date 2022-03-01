@@ -1,9 +1,7 @@
 package io.rong.imkit.widget.adapter;
 
 import androidx.collection.SparseArrayCompat;
-
 import java.util.List;
-
 
 public class ProviderManager<T> {
     private final int DEFAULT_ITEM_VIEW_TYPE = -100;
@@ -43,15 +41,10 @@ public class ProviderManager<T> {
         mProviders.put(viewType, provider);
     }
 
-    /**
-     * 设置默认模板。当找不到和 viewType 对应的模板时，使用此默认模板进行 ui 处理。
-     */
+    /** 设置默认模板。当找不到和 viewType 对应的模板时，使用此默认模板进行 ui 处理。 */
     public void setDefaultProvider(IViewProvider<T> defaultProvider) {
         mDefaultProvider = defaultProvider;
     }
-
-
-
 
     public void removeProvider(IViewProvider<T> provider) {
         if (provider == null) {
@@ -86,7 +79,6 @@ public class ProviderManager<T> {
         }
     }
 
-
     public IViewProvider<T> getProvider(int viewType) {
         IViewProvider<T> provider = mProviders.get(viewType);
         if (provider == null) {
@@ -98,7 +90,6 @@ public class ProviderManager<T> {
     public int getItemViewType(IViewProvider<T> provider) {
         return mProviders.indexOfValue(provider);
     }
-
 
     public int getItemViewType(T item, int position) {
         int count = mProviders.size();

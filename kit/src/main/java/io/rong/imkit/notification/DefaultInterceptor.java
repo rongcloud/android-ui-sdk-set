@@ -3,7 +3,6 @@ package io.rong.imkit.notification;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Intent;
-
 import io.rong.imlib.model.Message;
 
 public abstract class DefaultInterceptor implements NotificationConfig.Interceptor {
@@ -19,16 +18,14 @@ public abstract class DefaultInterceptor implements NotificationConfig.Intercept
     }
 
     /**
-     * 设置本地通知 PendingIntent 时的回调。
-     * 应用层可通过此方法更改 PendingIntent 里的设置，以便自定义本地通知的点击行为。
-     * 点击本地通知时，SDK 默认跳转到对应会话页面。
+     * 设置本地通知 PendingIntent 时的回调。 应用层可通过此方法更改 PendingIntent 里的设置，以便自定义本地通知的点击行为。 点击本地通知时，SDK
+     * 默认跳转到对应会话页面。
      *
      * @param pendingIntent SDK 默认 PendingIntent
-     * @param intent        pendingIntent 里携带的 intent。
-     *                      可通过 intent 获取以下信息:
-     *                      intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
-     *                      intent.getStringExtra(RouteUtils.TARGET_ID);
-     *                      intent.getParcelableExtra(RouteUtils.MESSAGE);
+     * @param intent pendingIntent 里携带的 intent。 可通过 intent 获取以下信息:
+     *     intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
+     *     intent.getStringExtra(RouteUtils.TARGET_ID);
+     *     intent.getParcelableExtra(RouteUtils.MESSAGE);
      * @return 本地通知里需配置的 PendingIntent.
      */
     @Override

@@ -4,10 +4,8 @@ import android.annotation.TargetApi;
 import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.view.Surface;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
@@ -73,32 +71,30 @@ public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
         }
 
         int[] attribList = {
-                EGL10.EGL_RED_SIZE, 8,
-                EGL10.EGL_GREEN_SIZE, 8,
-                EGL10.EGL_BLUE_SIZE, 8,
-                EGL10.EGL_ALPHA_SIZE, 8,
-                EGL10.EGL_SURFACE_TYPE, EGL10.EGL_PBUFFER_BIT,
-                EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                EGL10.EGL_NONE
+            EGL10.EGL_RED_SIZE, 8,
+            EGL10.EGL_GREEN_SIZE, 8,
+            EGL10.EGL_BLUE_SIZE, 8,
+            EGL10.EGL_ALPHA_SIZE, 8,
+            EGL10.EGL_SURFACE_TYPE, EGL10.EGL_PBUFFER_BIT,
+            EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+            EGL10.EGL_NONE
         };
         EGLConfig[] configs = new EGLConfig[1];
         int[] numConfigs = new int[1];
         if (!mEGL.eglChooseConfig(mEGLDisplay, attribList, configs, configs.length, numConfigs)) {
             throw new RuntimeException("unable to find RGB888+pbuffer EGL config");
         }
-        int[] attrib_list = {
-                EGL_CONTEXT_CLIENT_VERSION, 2,
-                EGL10.EGL_NONE
-        };
-        mEGLContext = mEGL.eglCreateContext(mEGLDisplay, configs[0], EGL10.EGL_NO_CONTEXT, attrib_list);
+        int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
+        mEGLContext =
+                mEGL.eglCreateContext(mEGLDisplay, configs[0], EGL10.EGL_NO_CONTEXT, attrib_list);
         checkEglError("eglCreateContext");
         if (mEGLContext == null) {
             throw new RuntimeException("null context");
         }
         int[] surfaceAttribs = {
-                EGL10.EGL_WIDTH, width,
-                EGL10.EGL_HEIGHT, height,
-                EGL10.EGL_NONE
+            EGL10.EGL_WIDTH, width,
+            EGL10.EGL_HEIGHT, height,
+            EGL10.EGL_NONE
         };
         mEGLSurface = mEGL.eglCreatePbufferSurface(mEGLDisplay, configs[0], surfaceAttribs);
         checkEglError("eglCreatePbufferSurface");
@@ -110,7 +106,11 @@ public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
     public void release() {
         if (mEGL != null) {
             if (mEGL.eglGetCurrentContext().equals(mEGLContext)) {
-                mEGL.eglMakeCurrent(mEGLDisplay, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
+                mEGL.eglMakeCurrent(
+                        mEGLDisplay,
+                        EGL10.EGL_NO_SURFACE,
+                        EGL10.EGL_NO_SURFACE,
+                        EGL10.EGL_NO_CONTEXT);
             }
             mEGL.eglDestroySurface(mEGLDisplay, mEGLSurface);
             mEGL.eglDestroyContext(mEGLDisplay, mEGLContext);
@@ -181,7 +181,8 @@ public class OutputSurface implements SurfaceTexture.OnFrameAvailableListener {
 
     public ByteBuffer getFrame() {
         mPixelBuf.rewind();
-        GLES20.glReadPixels(0, 0, mWidth, mHeight, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, mPixelBuf);
+        GLES20.glReadPixels(
+                0, 0, mWidth, mHeight, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, mPixelBuf);
         return mPixelBuf;
     }
 

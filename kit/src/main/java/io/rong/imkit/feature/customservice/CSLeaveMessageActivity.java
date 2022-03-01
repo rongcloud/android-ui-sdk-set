@@ -1,6 +1,5 @@
 package io.rong.imkit.feature.customservice;
 
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -18,16 +17,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -40,6 +31,11 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.model.CSLMessageItem;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.InformationNotificationMessage;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
     private static final String TAG = "CSLeaveMessageActivity";
@@ -65,66 +61,94 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
         LinearLayout container = (LinearLayout) findViewById(R.id.rc_content);
         addItemToContainer(container);
         mMessageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
-        mMessageViewModel.getPageEventLiveData().observe(this, new Observer<PageEvent>() {
-            @Override
-            public void onChanged(PageEvent pageEvent) {
-                if (pageEvent instanceof CSQuitEvent) {
-                    String message = ((CSQuitEvent) pageEvent).mContent;
-                    showDialog(message);
-                }
-            }
-        });
+        mMessageViewModel
+                .getPageEventLiveData()
+                .observe(
+                        this,
+                        new Observer<PageEvent>() {
+                            @Override
+                            public void onChanged(PageEvent pageEvent) {
+                                if (pageEvent instanceof CSQuitEvent) {
+                                    String message = ((CSQuitEvent) pageEvent).mContent;
+                                    showDialog(message);
+                                }
+                            }
+                        });
 
         TextView submitBtn = (TextView) findViewById(R.id.rc_submit_message);
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isContentValid()) {
-                    Map<String, String> map = new HashMap<>();
-                    for (EditText editText : mEditList) {
-                        String name = (String) editText.getTag();
-                        map.put(name, editText.getText().toString());
+        submitBtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (isContentValid()) {
+                            Map<String, String> map = new HashMap<>();
+                            for (EditText editText : mEditList) {
+                                String name = (String) editText.getTag();
+                                map.put(name, editText.getText().toString());
+                            }
+
+                            RongIMClient.getInstance()
+                                    .leaveMessageCustomService(
+                                            mTargetId,
+                                            map,
+                                            new RongIMClient.OperationCallback() {
+                                                @Override
+                                                public void onSuccess() {
+                                                    InformationNotificationMessage
+                                                            notificationMessage =
+                                                                    new InformationNotificationMessage(
+                                                                            getResources()
+                                                                                    .getString(
+                                                                                            R.string
+                                                                                                    .rc_cs_message_submited));
+                                                    IMCenter.getInstance()
+                                                            .insertIncomingMessage(
+                                                                    Conversation.ConversationType
+                                                                            .CUSTOMER_SERVICE,
+                                                                    mTargetId,
+                                                                    RongIMClient.getInstance()
+                                                                            .getCurrentUserId(),
+                                                                    null,
+                                                                    notificationMessage,
+                                                                    null);
+                                                    finish();
+                                                }
+
+                                                @Override
+                                                public void onError(
+                                                        RongIMClient.ErrorCode coreErrorCode) {}
+                                            });
+                        }
                     }
+                });
 
-                    RongIMClient.getInstance().leaveMessageCustomService(mTargetId, map, new RongIMClient.OperationCallback() {
-                        @Override
-                        public void onSuccess() {
-                            InformationNotificationMessage notificationMessage = new InformationNotificationMessage(getResources().getString(R.string.rc_cs_message_submited));
-                            IMCenter.getInstance().insertIncomingMessage(Conversation.ConversationType.CUSTOMER_SERVICE, mTargetId, RongIMClient.getInstance().getCurrentUserId(), null, notificationMessage, null);
-                            finish();
-                        }
-
-                        @Override
-                        public void onError(RongIMClient.ErrorCode coreErrorCode) {
-
-                        }
-                    });
-                }
-            }
-        });
-
-        cancelBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideSoftInputKeyboard();
-                finish();
-            }
-        });
+        cancelBtn.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        hideSoftInputKeyboard();
+                        finish();
+                    }
+                });
     }
 
     private void addItemToContainer(LinearLayout parent) {
         LinearLayout.LayoutParams params;
-        if (mItemList == null)
-            return;
+        if (mItemList == null) return;
 
         for (int i = 0; i < mItemList.size(); i++) {
             CSLMessageItem item = mItemList.get(i);
             LinearLayout itemContainer = new LinearLayout(this);
             if (item.getType().equals("text")) {
-                params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, RongUtils.dip2px(45));
+                params =
+                        new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, RongUtils.dip2px(45));
                 itemContainer.setOrientation(LinearLayout.HORIZONTAL);
             } else {
-                params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params =
+                        new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT);
                 itemContainer.setOrientation(LinearLayout.VERTICAL);
             }
             if (i > 0) {
@@ -134,7 +158,9 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
             itemContainer.setLayoutParams(params);
 
             TextView view = new TextView(this);
-            params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, RongUtils.dip2px(45));
+            params =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, RongUtils.dip2px(45));
             params.setMargins(RongUtils.dip2px(14), 0, 0, 0);
             view.setLayoutParams(params);
             view.setTextColor(getResources().getColor(R.color.rc_text_main_color));
@@ -143,9 +169,11 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
             view.setText(item.getTitle());
             itemContainer.addView(view);
 
-
             EditText editText = new EditText(this);
-            params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            params =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT);
 
             editText.setHint(item.getDefaultText());
             editText.setBackgroundColor(0);
@@ -159,14 +187,18 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
                 params.setMargins(0, 0, 0, 0);
                 editText.setGravity(Gravity.TOP | Gravity.LEFT);
                 editText.setPadding(RongUtils.dip2px(14), 0, 0, 0);
-                editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+                editText.setInputType(
+                        InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                 editText.setMinLines(3);
                 editText.setMaxEms(item.getMax());
                 editText.setVerticalScrollBarEnabled(true);
                 editText.setMaxLines(3);
-                editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(item.getMax())});
+                editText.setFilters(
+                        new InputFilter[] {new InputFilter.LengthFilter(item.getMax())});
             }
-            editText.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.rc_font_secondary_size));
+            editText.setTextSize(
+                    TypedValue.COMPLEX_UNIT_PX,
+                    getResources().getDimension(R.dimen.rc_font_secondary_size));
             editText.setTextColor(getResources().getColor(R.color.rc_text_main_color));
             editText.setTag(item.getName());
             editText.setLayoutParams(params);
@@ -177,9 +209,7 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
         }
     }
 
-    /**
-     * 检查输入的内容是否符合要求。
-     */
+    /** 检查输入的内容是否符合要求。 */
     public boolean isContentValid() {
         for (EditText editText : mEditList) {
             String tag = (String) editText.getTag();
@@ -193,7 +223,11 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
                 return false;
             }
             if (config.isRequired() && TextUtils.isEmpty(editText.getText().toString())) {
-                Toast.makeText(getBaseContext(), config.getMessage().get(CSLMessageItem.RemindType.EMPTY.getName()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                                getBaseContext(),
+                                config.getMessage().get(CSLMessageItem.RemindType.EMPTY.getName()),
+                                Toast.LENGTH_SHORT)
+                        .show();
                 return false;
             } else if (config.getVerification() != null && editText.getText().length() > 0) {
                 boolean isValid = true;
@@ -203,11 +237,21 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
                     isValid = isEmail(editText.getText().toString());
                 }
                 if (!isValid) {
-                    Toast.makeText(getBaseContext(), config.getMessage().get(CSLMessageItem.RemindType.WRONG_FORMAT.getName()), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                                    getBaseContext(),
+                                    config.getMessage()
+                                            .get(CSLMessageItem.RemindType.WRONG_FORMAT.getName()),
+                                    Toast.LENGTH_SHORT)
+                            .show();
                     return false;
                 }
             } else if (config.getMax() > 0 && editText.length() > config.getMax()) {
-                Toast.makeText(getBaseContext(), config.getMessage().get(CSLMessageItem.RemindType.OVER_LENGTH.getName()), Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                                getBaseContext(),
+                                config.getMessage()
+                                        .get(CSLMessageItem.RemindType.OVER_LENGTH.getName()),
+                                Toast.LENGTH_SHORT)
+                        .show();
                 return false;
             }
         }
@@ -216,8 +260,7 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
 
     public CSLMessageItem getItemConfig(String name) {
         for (CSLMessageItem item : mItemList) {
-            if (item.getName().equals(name))
-                return item;
+            if (item.getName().equals(name)) return item;
         }
         return null;
     }
@@ -229,7 +272,8 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
      * @return 验证结果
      */
     private boolean isMobile(String phoneNumber) {
-        String MOBLIE_PHONE_PATTERN = "^((13[0-9])|(15[0-9])|(18[0-9])|(14[7])|(17[0|6|7|8]))\\d{8}$";
+        String MOBLIE_PHONE_PATTERN =
+                "^((13[0-9])|(15[0-9])|(18[0-9])|(14[7])|(17[0|6|7|8]))\\d{8}$";
         Pattern p = Pattern.compile(MOBLIE_PHONE_PATTERN);
         Matcher m = p.matcher(phoneNumber);
         return m.matches();
@@ -242,7 +286,8 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
      * @return 验证结果
      */
     public boolean isEmail(String email) {
-        String str = "^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$";
+        String str =
+                "^([a-zA-Z0-9_\\-\\.]+)@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.)|(([a-zA-Z0-9\\-]+\\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\\]?)$";
         Pattern p = Pattern.compile(str);
         Matcher m = p.matcher(email);
 
@@ -260,22 +305,26 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
             TextView tv = (TextView) window.findViewById(R.id.rc_cs_msg);
             tv.setText(content);
 
-            window.findViewById(R.id.rc_btn_ok).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    alertDialog.dismiss();
-                    hideSoftInputKeyboard();
-                    finish();
-                }
-            });
+            window.findViewById(R.id.rc_btn_ok)
+                    .setOnClickListener(
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    alertDialog.dismiss();
+                                    hideSoftInputKeyboard();
+                                    finish();
+                                }
+                            });
         }
     }
 
     private void hideSoftInputKeyboard() {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm =
+                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm.isActive() && getCurrentFocus() != null) {
             if (getCurrentFocus().getWindowToken() != null) {
-                imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+                imm.hideSoftInputFromWindow(
+                        getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
         }
     }
@@ -284,5 +333,4 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
-
 }

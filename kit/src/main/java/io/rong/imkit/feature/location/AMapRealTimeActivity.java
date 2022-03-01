@@ -18,9 +18,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
-
 import com.amap.api.maps.AMap;
 import com.amap.api.maps.CameraUpdate;
 import com.amap.api.maps.CameraUpdateFactory;
@@ -36,11 +34,6 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
@@ -53,9 +46,12 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.RealTimeLocationConstant;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
-        ILocationChangedListener, RongUserInfoManager.UserDataObserver {
+public class AMapRealTimeActivity extends RongBaseNoActionbarActivity
+        implements ILocationChangedListener, RongUserInfoManager.UserDataObserver {
 
     private static final String TAG = "AMapRealTimeActivity";
     private static final int REQUEST_OPEN_LOCATION_SERVICE = 50;
@@ -82,29 +78,35 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         mAMapView = findViewById(R.id.rc_ext_amap);
         mAMapView.onCreate(savedInstanceState);
         View exitView = findViewById(R.id.rc_toolbar_close);
-        exitView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PromptPopupDialog dialog = PromptPopupDialog.newInstance(v.getContext(), "",
-                        getString(R.string.rc_location_exit_location_sharing),
-                        getString(R.string.rc_location_exit_sharing_confirm));
-                dialog.setPromptButtonClickedListener(new PromptPopupDialog.OnPromptButtonClickedListener() {
+        exitView.setOnClickListener(
+                new View.OnClickListener() {
                     @Override
-                    public void onPositiveButtonClicked() {
-                        LocationDelegate3D.getInstance().quitLocationSharing();
+                    public void onClick(View v) {
+                        PromptPopupDialog dialog =
+                                PromptPopupDialog.newInstance(
+                                        v.getContext(),
+                                        "",
+                                        getString(R.string.rc_location_exit_location_sharing),
+                                        getString(R.string.rc_location_exit_sharing_confirm));
+                        dialog.setPromptButtonClickedListener(
+                                new PromptPopupDialog.OnPromptButtonClickedListener() {
+                                    @Override
+                                    public void onPositiveButtonClicked() {
+                                        LocationDelegate3D.getInstance().quitLocationSharing();
+                                        finish();
+                                    }
+                                });
+                        dialog.show();
+                    }
+                });
+        View closeView = findViewById(R.id.rc_toolbar_hide);
+        closeView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                         finish();
                     }
                 });
-                dialog.show();
-            }
-        });
-        View closeView = findViewById(R.id.rc_toolbar_hide);
-        closeView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
         mTitleBar = findViewById(R.id.rc_user_icons);
         mUserText = findViewById(R.id.rc_user_text);
 
@@ -116,8 +118,6 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
 
         checkMapPermission();
         RongUserInfoManager.getInstance().addUserDataObserver(this);
-
-
     }
 
     private void initMap() {
@@ -139,12 +139,17 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         mAMap.animateCamera(zoom, null);
 
         LocationDelegate3D.getInstance().setLocationChangedListener(this);
-        LocationDelegate3D.getInstance().setMyLocationChangedListener(new IMyLocationChangedListener() {
-            @Override
-            public void onMyLocationChanged(AMapLocationInfo locInfo) {
-                updateParticipantMarker(locInfo.getLat(), locInfo.getLng(), RongIMClient.getInstance().getCurrentUserId());
-            }
-        });
+        LocationDelegate3D.getInstance()
+                .setMyLocationChangedListener(
+                        new IMyLocationChangedListener() {
+                            @Override
+                            public void onMyLocationChanged(AMapLocationInfo locInfo) {
+                                updateParticipantMarker(
+                                        locInfo.getLat(),
+                                        locInfo.getLng(),
+                                        RongIMClient.getInstance().getCurrentUserId());
+                            }
+                        });
         LocationDelegate3D.getInstance().updateMyLocationInLoop(5);
     }
 
@@ -153,7 +158,9 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         UserTarget userTarget = mUserTargetMap.get(userId);
         if (userTarget != null) {
             setAvatar(userTarget.getTargetView(), user.getPortraitUri().toString(), null);
-            View iconView = LayoutInflater.from(AMapRealTimeActivity.this).inflate(R.layout.rc_location_realtime_marker_icon, null);
+            View iconView =
+                    LayoutInflater.from(AMapRealTimeActivity.this)
+                            .inflate(R.layout.rc_location_realtime_marker_icon, null);
             ImageView imageView = iconView.findViewById(android.R.id.icon);
             ImageView locImageView = iconView.findViewById(android.R.id.icon1);
             if (userId.equals(RongIMClient.getInstance().getCurrentUserId())) {
@@ -161,7 +168,10 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
             } else {
                 locImageView.setImageResource(R.drawable.rc_location_rt_loc_other);
             }
-            setAvatar(imageView, user.getPortraitUri().toString(), new PictureRequestListener(userTarget, iconView));
+            setAvatar(
+                    imageView,
+                    user.getPortraitUri().toString(),
+                    new PictureRequestListener(userTarget, iconView));
         }
     }
 
@@ -207,9 +217,7 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
     }
 
     @Override
-    public void onSharingTerminated() {
-
-    }
+    public void onSharingTerminated() {}
 
     private void setAvatar(ImageView imageView, String url, RequestListener<Drawable> listener) {
         Glide.with(imageView)
@@ -242,20 +250,23 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
 
         // set target icon view.
         userTarget.setTargetView(new ImageView(this));
-        userTarget.getTargetView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UserTarget user = mUserTargetMap.get(userId);
-                LatLng latLng = null;
-                if (user != null) {
-                    latLng = user.getTargetMarker().getPosition();
-                }
-                if (latLng != null) {
-                    CameraUpdate update = CameraUpdateFactory.changeLatLng(latLng);
-                    mAMap.animateCamera(update, null);
-                }
-            }
-        });
+        userTarget
+                .getTargetView()
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                UserTarget user = mUserTargetMap.get(userId);
+                                LatLng latLng = null;
+                                if (user != null) {
+                                    latLng = user.getTargetMarker().getPosition();
+                                }
+                                if (latLng != null) {
+                                    CameraUpdate update = CameraUpdateFactory.changeLatLng(latLng);
+                                    mAMap.animateCamera(update, null);
+                                }
+                            }
+                        });
         float scale = Resources.getSystem().getDisplayMetrics().density;
         int hw = (int) (40 * scale + 0.5f);
         int pd = (int) (2 * scale + 0.5f);
@@ -266,7 +277,9 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         mTitleBar.addView(userTarget.getTargetView());
 
         // set target aMap marker.
-        View iconView = LayoutInflater.from(AMapRealTimeActivity.this).inflate(R.layout.rc_location_realtime_marker_icon, null);
+        View iconView =
+                LayoutInflater.from(AMapRealTimeActivity.this)
+                        .inflate(R.layout.rc_location_realtime_marker_icon, null);
         ImageView locImageView = iconView.findViewById(android.R.id.icon1);
 
         ImageView avatar = iconView.findViewById(android.R.id.icon);
@@ -276,62 +289,75 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         } else {
             locImageView.setImageResource(R.drawable.rc_location_rt_loc_other);
         }
-        MarkerOptions markerOptions = new MarkerOptions().anchor(0.5f, 0.5f).icon(BitmapDescriptorFactory.fromView(iconView));
+        MarkerOptions markerOptions =
+                new MarkerOptions()
+                        .anchor(0.5f, 0.5f)
+                        .icon(BitmapDescriptorFactory.fromView(iconView));
         userTarget.setTargetMarker(mAMap.addMarker(markerOptions));
         return userTarget;
     }
 
     private void removeParticipantTitleIcon(final UserTarget userTarget) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mTitleBar.removeView(userTarget.getTargetView());
-            }
-        });
+        mHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mTitleBar.removeView(userTarget.getTargetView());
+                    }
+                });
     }
 
     private void updateParticipantTitleText() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (mUserTargetMap.size() == 0) {
-                    RLog.e(TAG, "mUserTargetMap size is 0 ");
-                } else {
-                    mUserText.setText(mUserTargetMap.size() + getResources().getString(R.string.rc_location_others_sharing));
-                }
-            }
-        });
+        mHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mUserTargetMap.size() == 0) {
+                            RLog.e(TAG, "mUserTargetMap size is 0 ");
+                        } else {
+                            mUserText.setText(
+                                    mUserTargetMap.size()
+                                            + getResources()
+                                                    .getString(
+                                                            R.string.rc_location_others_sharing));
+                        }
+                    }
+                });
     }
 
-    private void updateParticipantMarker(final double latitude, final double longitude, final String userId) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                UserTarget target = mUserTargetMap.get(userId);
-                if (target == null) {
-                    target = createUserTargetById(userId);
-                    mUserTargetMap.put(userId, target);
-                    UserInfo user = RongUserInfoManager.getInstance().getUserInfo(userId);
-                    if (user != null) {
-                        updateUserInfo(user);
-                    }
-                    if (!mParticipants.contains(userId)) {
-                        mParticipants.add(userId);
-                    }
-                }
+    private void updateParticipantMarker(
+            final double latitude, final double longitude, final String userId) {
+        mHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        UserTarget target = mUserTargetMap.get(userId);
+                        if (target == null) {
+                            target = createUserTargetById(userId);
+                            mUserTargetMap.put(userId, target);
+                            UserInfo user = RongUserInfoManager.getInstance().getUserInfo(userId);
+                            if (user != null) {
+                                updateUserInfo(user);
+                            }
+                            if (!mParticipants.contains(userId)) {
+                                mParticipants.add(userId);
+                            }
+                        }
 
-                target.getTargetMarker().setPosition(new LatLng(latitude, longitude));
-                updateParticipantTitleText();
-                if (userId.equals(RongIMClient.getInstance().getCurrentUserId())
-                        && !mHasAnimate
-                        && latitude != 0
-                        && longitude != 0) {
-                    CameraUpdate update = CameraUpdateFactory.changeLatLng(new LatLng(latitude, longitude));
-                    mAMap.animateCamera(update, null);
-                    mHasAnimate = true;
-                }
-            }
-        });
+                        target.getTargetMarker().setPosition(new LatLng(latitude, longitude));
+                        updateParticipantTitleText();
+                        if (userId.equals(RongIMClient.getInstance().getCurrentUserId())
+                                && !mHasAnimate
+                                && latitude != 0
+                                && longitude != 0) {
+                            CameraUpdate update =
+                                    CameraUpdateFactory.changeLatLng(
+                                            new LatLng(latitude, longitude));
+                            mAMap.animateCamera(update, null);
+                            mHasAnimate = true;
+                        }
+                    }
+                });
     }
 
     private void removeParticipantMarker(final UserTarget userTarget) {
@@ -348,14 +374,10 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
     }
 
     @Override
-    public void onGroupUpdate(Group group) {
-
-    }
+    public void onGroupUpdate(Group group) {}
 
     @Override
-    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
-
-    }
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {}
 
     private class UserTarget {
         private ImageView targetView;
@@ -378,27 +400,21 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         }
     }
 
-    /**
-     * 方法必须重写
-     */
+    /** 方法必须重写 */
     @Override
     protected void onResume() {
         super.onResume();
         mAMapView.onResume();
     }
 
-    /**
-     * 方法必须重写
-     */
+    /** 方法必须重写 */
     @Override
     protected void onPause() {
         super.onPause();
         mAMapView.onPause();
     }
 
-    /**
-     * 方法必须重写
-     */
+    /** 方法必须重写 */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -423,74 +439,102 @@ public class AMapRealTimeActivity extends RongBaseNoActionbarActivity implements
         }
 
         @Override
-        public boolean onLoadFailed(GlideException e, Object o, Target<Drawable> target, boolean b) {
+        public boolean onLoadFailed(
+                GlideException e, Object o, Target<Drawable> target, boolean b) {
             return false;
         }
 
         @Override
-        public boolean onResourceReady(Drawable drawable, Object o, Target<Drawable> target, DataSource dataSource, boolean b) {
+        public boolean onResourceReady(
+                Drawable drawable,
+                Object o,
+                Target<Drawable> target,
+                DataSource dataSource,
+                boolean b) {
             // 加载成功
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    userTarget.getTargetMarker().setIcon(BitmapDescriptorFactory.fromView(iconView));
-                }
-            }, 500);
+            mHandler.postDelayed(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            userTarget
+                                    .getTargetMarker()
+                                    .setIcon(BitmapDescriptorFactory.fromView(iconView));
+                        }
+                    },
+                    500);
             return false;
         }
     }
 
-    /**
-     * 检查位置服务是否开启、后台位置权限引导
-     */
+    /** 检查位置服务是否开启、后台位置权限引导 */
     private void checkMapPermission() {
         if (RongUtils.isLocationServiceEnabled(this)) {
             initMap();
         } else {
-            new android.app.AlertDialog.Builder(this).
-                    setTitle(getString(R.string.rc_location_sevice_dialog_title))
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.rc_location_sevice_dialog_title))
                     .setMessage(getString(R.string.rc_location_sevice_dialog_messgae))
-                    .setPositiveButton(getString(R.string.rc_location_sevice_dialog_confirm), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            try {
-                                Intent intent = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivityForResult(intent, REQUEST_OPEN_LOCATION_SERVICE);
-                            } catch (Exception e) {
-                                Intent intent = new Intent(ACTION_SETTINGS);
-                                startActivityForResult(intent, REQUEST_OPEN_LOCATION_SERVICE);
-                            }
-
-                        }
-                    }).create().show();
+                    .setPositiveButton(
+                            getString(R.string.rc_location_sevice_dialog_confirm),
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    try {
+                                        Intent intent = new Intent(ACTION_LOCATION_SOURCE_SETTINGS);
+                                        startActivityForResult(
+                                                intent, REQUEST_OPEN_LOCATION_SERVICE);
+                                    } catch (Exception e) {
+                                        Intent intent = new Intent(ACTION_SETTINGS);
+                                        startActivityForResult(
+                                                intent, REQUEST_OPEN_LOCATION_SERVICE);
+                                    }
+                                }
+                            })
+                    .create()
+                    .show();
 
             return;
         }
 
-        boolean isEnableBackgroundLocation = getResources().getBoolean(R.bool.rc_enable_background_location_permission);
+        boolean isEnableBackgroundLocation =
+                getResources().getBoolean(R.bool.rc_enable_background_location_permission);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
                 && isEnableBackgroundLocation
-                && !PermissionCheckUtil.checkPermissions(this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION})) {
+                && !PermissionCheckUtil.checkPermissions(
+                        this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION})) {
 
-            new android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
+            new android.app.AlertDialog.Builder(
+                            this, android.R.style.Theme_DeviceDefault_Light_Dialog_Alert)
                     .setMessage("应用在后台仍想访问您的位置信息，在设置中选择始终允许")
-                    .setPositiveButton("设置", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+                    .setPositiveButton(
+                            "设置",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
 
-                            Intent intent = new Intent();
-                            intent.setAction(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            intent.setData(Uri.parse("package:" + AMapRealTimeActivity.this.getPackageName()));
-                            startActivity(intent);
-                        }
-                    }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.dismiss();
-                }
-            }).show();
+                                    Intent intent = new Intent();
+                                    intent.setAction(
+                                            android.provider.Settings
+                                                    .ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    intent.setData(
+                                            Uri.parse(
+                                                    "package:"
+                                                            + AMapRealTimeActivity.this
+                                                                    .getPackageName()));
+                                    startActivity(intent);
+                                }
+                            })
+                    .setNegativeButton(
+                            "取消",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                    .show();
         }
     }
 }

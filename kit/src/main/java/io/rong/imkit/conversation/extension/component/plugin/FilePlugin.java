@@ -4,11 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -48,7 +46,7 @@ public class FilePlugin implements IPluginModule {
             mContext = activity.getApplicationContext();
         }
 
-        //Android11以上设备(无论target多少)不可访问Android/data/...和Android/obb/...目录及其所有子目录,影响不大,忽略.
+        // Android11以上设备(无论target多少)不可访问Android/data/...和Android/obb/...目录及其所有子目录,影响不大,忽略.
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
@@ -60,28 +58,41 @@ public class FilePlugin implements IPluginModule {
         if (requestCode == REQUEST_FILE) {
             if (data != null) {
                 final Uri uri = data.getData();
-                int takeFlags = data.getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                int takeFlags =
+                        data.getFlags()
+                                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 mContext.getContentResolver().takePersistableUriPermission(uri, takeFlags);
-                ExecutorHelper.getInstance().diskIO().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            FileMessage fileMessage = FileMessage.obtain(mContext, uri);
-                            if (fileMessage != null) {
-                                final Message message = Message.obtain(targetId, conversationType, fileMessage);
-                                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
-                            }
-                        } catch (Exception e) {
-                            RLog.e(TAG, "select file exception" + e);
-                        }
-                    }
-                });
-
+                ExecutorHelper.getInstance()
+                        .diskIO()
+                        .execute(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            FileMessage fileMessage =
+                                                    FileMessage.obtain(mContext, uri);
+                                            if (fileMessage != null) {
+                                                final Message message =
+                                                        Message.obtain(
+                                                                targetId,
+                                                                conversationType,
+                                                                fileMessage);
+                                                IMCenter.getInstance()
+                                                        .sendMediaMessage(
+                                                                message,
+                                                                null,
+                                                                null,
+                                                                (IRongCallback
+                                                                                .ISendMediaMessageCallback)
+                                                                        null);
+                                            }
+                                        } catch (Exception e) {
+                                            RLog.e(TAG, "select file exception" + e);
+                                        }
+                                    }
+                                });
             }
         }
     }
-
-
 }

@@ -4,11 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.http.SslCertificate;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.GlideKitImageEngine;
 import io.rong.imkit.IMCenter;
@@ -16,21 +11,24 @@ import io.rong.imkit.KitImageEngine;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.quickreply.IQuickReplyProvider;
 import io.rong.imlib.model.Conversation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class FeatureConfig {
 
-    private final static String TAG = "FeatureConfig";
+    private static final String TAG = "FeatureConfig";
     private static String KIT_VERSION = "4.1.0.98";
-    //<!--是否支持消息引用功能，默认打开，聊天页面长按消息支持引用（目前仅支持文本消息、文件消息、图文消息、图片消息、引用消息的引用）-->
-    private boolean isReferenceEnable; //引用
-    private boolean isDestructEnable; //阅后即焚
-    private boolean isQuickReplyEnable; //快捷回复
+    // <!--是否支持消息引用功能，默认打开，聊天页面长按消息支持引用（目前仅支持文本消息、文件消息、图文消息、图片消息、引用消息的引用）-->
+    private boolean isReferenceEnable; // 引用
+    private boolean isDestructEnable; // 阅后即焚
+    private boolean isQuickReplyEnable; // 快捷回复
     private IQuickReplyProvider quickReplyProvider;
     private IMCenter.VoiceMessageType voiceMessageType;
     private List<Conversation.ConversationType> readReceiptSupportTypes;
-    //设置 AMR_NB 语音消息的码率 (单位 bps)[rc_audio_encoding_bit_rate]
+    // 设置 AMR_NB 语音消息的码率 (单位 bps)[rc_audio_encoding_bit_rate]
     private int audioNBEncodingBitRate;
-    //设置 AMR_WB 语音消息的码率 (单位 bps)[rc_audio_wb_encoding_bit_rate]
+    // 设置 AMR_WB 语音消息的码率 (单位 bps)[rc_audio_wb_encoding_bit_rate]
     private int audioWBEncodingBitRate;
 
     private KitImageEngine mKitImageEngine;
@@ -65,12 +63,14 @@ public class FeatureConfig {
         if (context != null) {
             Resources resources = context.getResources();
             try {
-                rc_wipe_out_notification_message = resources.getBoolean(R.bool.rc_wipe_out_notification_message);
+                rc_wipe_out_notification_message =
+                        resources.getBoolean(R.bool.rc_wipe_out_notification_message);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_wipe_out_notification_message not get value", e);
             }
             try {
-                rc_set_java_script_enabled = resources.getBoolean(R.bool.rc_set_java_script_enabled);
+                rc_set_java_script_enabled =
+                        resources.getBoolean(R.bool.rc_set_java_script_enabled);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_set_java_script_enabled not get value", e);
             }
@@ -86,7 +86,6 @@ public class FeatureConfig {
             }
         }
     }
-
 
     public boolean isReferenceEnable() {
         return isReferenceEnable;
@@ -113,8 +112,7 @@ public class FeatureConfig {
     }
 
     public void setKitImageEngine(KitImageEngine engine) {
-        if (engine != null)
-            this.mKitImageEngine = engine;
+        if (engine != null) this.mKitImageEngine = engine;
     }
 
     public void setVoiceMessageType(IMCenter.VoiceMessageType type) {
@@ -173,58 +171,42 @@ public class FeatureConfig {
         quickReplyProvider = provider;
     }
 
-    /**
-     * @return 用户信息内存最大值
-     */
+    /** @return 用户信息内存最大值 */
     public int getUserCacheMaxCount() {
         return userCacheMaxCount;
     }
 
-    /**
-     * @param userCacheMaxCount 设置用户信息最大值，sdk 初始化前有效
-     */
+    /** @param userCacheMaxCount 设置用户信息最大值，sdk 初始化前有效 */
     public void setUserCacheMaxCount(int userCacheMaxCount) {
         this.userCacheMaxCount = userCacheMaxCount;
     }
 
-    /**
-     * @return 群组信息内存最大值
-     */
+    /** @return 群组信息内存最大值 */
     public int getGroupCacheMaxCount() {
         return groupCacheMaxCount;
     }
 
-    /**
-     * @param groupCacheMaxCount 设置群组信息最大值，sdk 初始化前有效
-     */
+    /** @param groupCacheMaxCount 设置群组信息最大值，sdk 初始化前有效 */
     public void setGroupCacheMaxCount(int groupCacheMaxCount) {
         this.groupCacheMaxCount = groupCacheMaxCount;
     }
 
-    /**
-     * @return 群成员信息内存最大值
-     */
+    /** @return 群成员信息内存最大值 */
     public int getGroupMemberCacheMaxCount() {
         return groupMemberCacheMaxCount;
     }
 
-    /**
-     * @param groupMemberCacheMaxCount 设置群成员信息最大值，sdk 初始化前有效
-     */
+    /** @param groupMemberCacheMaxCount 设置群成员信息最大值，sdk 初始化前有效 */
     public void setGroupMemberCacheMaxCount(int groupMemberCacheMaxCount) {
         this.groupMemberCacheMaxCount = groupMemberCacheMaxCount;
     }
 
-    /**
-     * @return 是否预加载用户缓存
-     */
+    /** @return 是否预加载用户缓存 */
     public boolean isPreLoadUserCache() {
         return preLoadUserCache;
     }
 
-    /**
-     * @param preLoadUserCache 是否预加载用户缓存
-     */
+    /** @param preLoadUserCache 是否预加载用户缓存 */
     public void setPreLoadUserCache(boolean preLoadUserCache) {
         this.preLoadUserCache = preLoadUserCache;
     }
@@ -233,9 +215,7 @@ public class FeatureConfig {
         return sSSLInterceptor;
     }
 
-    /**
-     * @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器
-     */
+    /** @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器 */
     public void setSSLInterceptor(SSLInterceptor sSSLInterceptor) {
         this.sSSLInterceptor = sSSLInterceptor;
     }

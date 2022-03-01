@@ -1,15 +1,15 @@
 package io.rong.imkit.conversation.messgelist.viewmodel;
 
-import java.util.List;
-
 import io.rong.imkit.MessageItemLongClickAction;
 import io.rong.imkit.model.UiMessage;
+import java.util.List;
 
 public class MessageItemLongClickBean {
     private List<MessageItemLongClickAction> messageItemLongClickActions;
     private UiMessage uiMessage;
 
-    public MessageItemLongClickBean(List<MessageItemLongClickAction> messageItemLongClickActions, UiMessage uiMessage) {
+    public MessageItemLongClickBean(
+            List<MessageItemLongClickAction> messageItemLongClickActions, UiMessage uiMessage) {
         this.messageItemLongClickActions = messageItemLongClickActions;
         this.uiMessage = uiMessage;
     }

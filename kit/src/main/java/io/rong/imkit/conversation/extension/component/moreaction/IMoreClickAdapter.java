@@ -1,28 +1,21 @@
 package io.rong.imkit.conversation.extension.component.moreaction;
 
 import android.view.ViewGroup;
-
 import androidx.fragment.app.Fragment;
-
 import java.util.List;
 
-/**
- * Created by zwfang on 2018/4/8.
- */
-
+/** Created by zwfang on 2018/4/8. */
 public interface IMoreClickAdapter {
     /**
      * 显示底部更多点击事件布局
      *
      * @param viewGroup 父布局
-     * @param fragment  当前fragment
-     * @param actions   点击事件
+     * @param fragment 当前fragment
+     * @param actions 点击事件
      */
     void bindView(ViewGroup viewGroup, Fragment fragment, List<IClickActions> actions);
 
-    /**
-     * 隐藏底部点击事件
-     */
+    /** 隐藏底部点击事件 */
     void hideMoreActionLayout();
 
     /**

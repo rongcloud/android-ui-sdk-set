@@ -11,25 +11,22 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.model.Conversation;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class EmoticonBoard {
     private final String TAG = EmoticonBoard.class.getSimpleName();
@@ -54,22 +51,27 @@ public class EmoticonBoard {
     private RongExtensionViewModel mExtensionViewModel;
     private Fragment mFragment;
     private ViewGroup mRoot;
-    private View.OnClickListener tabClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int count = mScrollTab.getChildCount();
-            if (count > 0) {
-                for (int i = 0; i < count; i++) {
-                    if (v.equals(mScrollTab.getChildAt(i))) {
-                        mViewPager.setCurrentItem(i);
-                        break;
+    private View.OnClickListener tabClickListener =
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int count = mScrollTab.getChildCount();
+                    if (count > 0) {
+                        for (int i = 0; i < count; i++) {
+                            if (v.equals(mScrollTab.getChildAt(i))) {
+                                mViewPager.setCurrentItem(i);
+                                break;
+                            }
+                        }
                     }
                 }
-            }
-        }
-    };
+            };
 
-    public EmoticonBoard(Fragment fragment, ViewGroup parent, Conversation.ConversationType type, String targetId) {
+    public EmoticonBoard(
+            Fragment fragment,
+            ViewGroup parent,
+            Conversation.ConversationType type,
+            String targetId) {
         mFragment = fragment;
         mRoot = parent;
         mConversationType = type;
@@ -84,29 +86,33 @@ public class EmoticonBoard {
     }
 
     private void initView(Context context, ViewGroup parent) {
-        mContainer = LayoutInflater.from(context).inflate(R.layout.rc_ext_emoticon_tab_container, parent, false);
+        mContainer =
+                LayoutInflater.from(context)
+                        .inflate(R.layout.rc_ext_emoticon_tab_container, parent, false);
         mViewPager = mContainer.findViewById(R.id.rc_view_pager);
         mScrollTab = mContainer.findViewById(R.id.rc_emotion_scroll_tab);
         mTabAdd = mContainer.findViewById(R.id.rc_emoticon_tab_add);
         mTabAdd.setVisibility(mAddEnabled ? View.VISIBLE : View.GONE);
-        mTabAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEmoticonClickListener != null) {
-                    mEmoticonClickListener.onAddClick(v);
-                }
-            }
-        });
+        mTabAdd.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mEmoticonClickListener != null) {
+                            mEmoticonClickListener.onAddClick(v);
+                        }
+                    }
+                });
         mTabSetting = mContainer.findViewById(R.id.rc_emoticon_tab_setting);
         mTabSetting.setVisibility(mSettingEnabled ? View.VISIBLE : View.GONE);
-        mTabSetting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mEmoticonSettingClickListener != null) {
-                    mEmoticonSettingClickListener.onSettingClick(v);
-                }
-            }
-        });
+        mTabSetting.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mEmoticonSettingClickListener != null) {
+                            mEmoticonSettingClickListener.onSettingClick(v);
+                        }
+                    }
+                });
         LinearLayout tabBar = mContainer.findViewById(R.id.rc_emotion_tab_bar);
         if (mTabBarEnabled) {
             tabBar.setVisibility(View.VISIBLE);
@@ -120,23 +126,21 @@ public class EmoticonBoard {
         mAdapter = new TabPagerAdapter();
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(6);
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        mViewPager.addOnPageChangeListener(
+                new ViewPager.OnPageChangeListener() {
+                    @Override
+                    public void onPageScrolled(
+                            int position, float positionOffset, int positionOffsetPixels) {}
 
-            }
+                    @Override
+                    public void onPageSelected(int position) {
+                        onPageChanged(mSelected, position);
+                        mSelected = position;
+                    }
 
-            @Override
-            public void onPageSelected(int position) {
-                onPageChanged(mSelected, position);
-                mSelected = position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
+                    @Override
+                    public void onPageScrollStateChanged(int state) {}
+                });
         int index;
         if (mCurrentTab != null && (index = getIndex(mCurrentTab)) >= 0) {
             mCurrentTab = null;
@@ -154,7 +158,10 @@ public class EmoticonBoard {
                 mScrollTab.removeAllViews();
             }
         }
-        mEmotionTabs = RongExtensionManager.getInstance().getExtensionConfig().getEmoticonTabs(mConversationType, mTargetId);
+        mEmotionTabs =
+                RongExtensionManager.getInstance()
+                        .getExtensionConfig()
+                        .getEmoticonTabs(mConversationType, mTargetId);
         for (IEmoticonTab tab : getAllTabs()) {
             View view = getTabIcon(mFragment.getContext(), tab);
             mScrollTab.addView(view);
@@ -169,20 +176,35 @@ public class EmoticonBoard {
             if (tabList != null && tabList.size() > 0) {
                 for (IEmoticonTab tab : tabList) {
                     if (tab.getEditInfo() != null) {
-                        tab.getEditInfo().observe(mFragment, new Observer<String>() {
-                            @Override
-                            public void onChanged(String s) {
-                                if (mExtensionViewModel.getEditTextWidget() == null) {
-                                    return;
-                                }
-                                if (s.equals(EmojiTab.DELETE)) {
-                                    mExtensionViewModel.getEditTextWidget().dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-                                } else {
-                                    int start = mExtensionViewModel.getEditTextWidget().getSelectionStart();
-                                    mExtensionViewModel.getEditTextWidget().getText().insert(start, s);
-                                }
-                            }
-                        });
+                        tab.getEditInfo()
+                                .observe(
+                                        mFragment,
+                                        new Observer<String>() {
+                                            @Override
+                                            public void onChanged(String s) {
+                                                if (mExtensionViewModel.getEditTextWidget()
+                                                        == null) {
+                                                    return;
+                                                }
+                                                if (s.equals(EmojiTab.DELETE)) {
+                                                    mExtensionViewModel
+                                                            .getEditTextWidget()
+                                                            .dispatchKeyEvent(
+                                                                    new KeyEvent(
+                                                                            KeyEvent.ACTION_DOWN,
+                                                                            KeyEvent.KEYCODE_DEL));
+                                                } else {
+                                                    int start =
+                                                            mExtensionViewModel
+                                                                    .getEditTextWidget()
+                                                                    .getSelectionStart();
+                                                    mExtensionViewModel
+                                                            .getEditTextWidget()
+                                                            .getText()
+                                                            .insert(start, s);
+                                                }
+                                            }
+                                        });
                     }
                 }
             }
@@ -235,8 +257,7 @@ public class EmoticonBoard {
             mEmotionTabs.put(tag, tabs);
         } else {
             int count = tabs.size();
-            if (index <= count)
-                tabs.add(index, tab);
+            if (index <= count) tabs.add(index, tab);
         }
         int idx = getIndex(tab);
         if (mAdapter != null && mViewPager != null) {
@@ -311,7 +332,8 @@ public class EmoticonBoard {
         }
     }
 
-    public void addExtraTab(Context context, Drawable drawable, View.OnClickListener clickListener) {
+    public void addExtraTab(
+            Context context, Drawable drawable, View.OnClickListener clickListener) {
         mExtraTabBarItem = getTabIcon(context, drawable);
         mExtraTabBarItem.setOnClickListener(clickListener);
     }
@@ -334,7 +356,8 @@ public class EmoticonBoard {
 
     private View getTabIcon(Context context, Drawable drawable) {
         View item = LayoutInflater.from(context).inflate(R.layout.rc_ext_emoticon_tab_item, null);
-        item.setLayoutParams(new RelativeLayout.LayoutParams(RongUtils.dip2px(60), RongUtils.dip2px(36)));
+        item.setLayoutParams(
+                new RelativeLayout.LayoutParams(RongUtils.dip2px(60), RongUtils.dip2px(36)));
         ImageView iv = item.findViewById(R.id.rc_emoticon_tab_iv);
         iv.setImageDrawable(drawable);
         item.setOnClickListener(tabClickListener);
@@ -350,7 +373,10 @@ public class EmoticonBoard {
             }
             if (cur >= 0) {
                 ViewGroup curView = (ViewGroup) mScrollTab.getChildAt(cur);
-                curView.setBackgroundColor(curView.getContext().getResources().getColor(R.color.rc_EmoticonTab_bg_select_color));
+                curView.setBackgroundColor(
+                        curView.getContext()
+                                .getResources()
+                                .getColor(R.color.rc_EmoticonTab_bg_select_color));
                 int w = curView.getMeasuredWidth();
                 if (w != 0) {
                     int screenW = RongUtils.getScreenWidth();

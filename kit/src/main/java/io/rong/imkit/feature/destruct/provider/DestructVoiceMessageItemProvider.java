@@ -12,13 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.core.text.TextUtilsCompat;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
-import java.util.Locale;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.conversation.messgelist.provider.MessageClickType;
@@ -31,6 +25,9 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.VoiceMessage;
+import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.Locale;
 
 public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessage> {
     private static final String TAG = DestructVoiceMessageItemProvider.class.getSimpleName();
@@ -42,26 +39,44 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View textView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_destruct_hq_voice_message, parent, false);
+        View textView =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_destruct_hq_voice_message, parent, false);
         return new ViewHolder(parent.getContext(), textView);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(final ViewHolder holder,ViewHolder parentHolder, VoiceMessage message, final UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            final ViewHolder holder,
+            ViewHolder parentHolder,
+            VoiceMessage message,
+            final UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         holder.getConvertView().setTag(uiMessage.getMessage().getUId());
-        boolean isSender = uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND);
-        holder.setBackgroundRes(R.id.rc_voice_bg, isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+        boolean isSender =
+                uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND);
+        holder.setBackgroundRes(
+                R.id.rc_voice_bg,
+                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
         holder.setVisible(R.id.fl_send_fire, isSender);
         holder.setVisible(R.id.fl_receiver_fire, !isSender);
         if (!isSender) {
-            DestructManager.getInstance().addListener(uiMessage.getMessage().getUId(), new DestructListener(holder, uiMessage), TAG);
+            DestructManager.getInstance()
+                    .addListener(
+                            uiMessage.getMessage().getUId(),
+                            new DestructListener(holder, uiMessage),
+                            TAG);
             boolean isRead = uiMessage.getMessage().getReadTime() > 0;
             holder.setVisible(R.id.tv_receiver_fire, isRead);
             holder.setVisible(R.id.iv_receiver_fire, !isRead);
             if (isRead) {
                 String unFinishTime;
                 if (TextUtils.isEmpty(uiMessage.getDestructTime())) {
-                    unFinishTime = DestructManager.getInstance().getUnFinishTime(uiMessage.getMessage().getUId());
+                    unFinishTime =
+                            DestructManager.getInstance()
+                                    .getUnFinishTime(uiMessage.getMessage().getUId());
                 } else {
                     unFinishTime = uiMessage.getDestructTime();
                 }
@@ -74,25 +89,32 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
         minWidth = (int) (minWidth * scale + 0.5f);
         maxWidth = (int) (maxWidth * scale + 0.5f);
         int duration = AudioRecordManager.getInstance().getMaxVoiceDuration();
-        holder.getView(R.id.rc_voice_bg).getLayoutParams().width = minWidth + (maxWidth - minWidth) / duration * message.getDuration();
-        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == LayoutDirection.RTL) {
+        holder.getView(R.id.rc_voice_bg).getLayoutParams().width =
+                minWidth + (maxWidth - minWidth) / duration * message.getDuration();
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
+                == LayoutDirection.RTL) {
             holder.setText(R.id.rc_duration, String.format("\"%s", message.getDuration()));
         } else {
             holder.setText(R.id.rc_duration, String.format("%s\"", message.getDuration()));
         }
 
         if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND) {
-            AnimationDrawable animationDrawable = (AnimationDrawable) holder.getContext().getResources().getDrawable(R.drawable.rc_an_voice_send);
+            AnimationDrawable animationDrawable =
+                    (AnimationDrawable)
+                            holder.getContext()
+                                    .getResources()
+                                    .getDrawable(R.drawable.rc_an_voice_send);
             holder.setVisible(R.id.rc_voice, false);
             holder.setVisible(R.id.rc_voice_send, true);
-            ((TextView) holder.getView(R.id.rc_duration)).setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) holder.getView(R.id.rc_duration).getLayoutParams();
+            ((TextView) holder.getView(R.id.rc_duration))
+                    .setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams lp =
+                    (LinearLayout.LayoutParams) holder.getView(R.id.rc_duration).getLayoutParams();
             lp.setMarginEnd(12);
             holder.getView(R.id.rc_duration).setLayoutParams(lp);
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice_send, animationDrawable);
-                if (animationDrawable != null)
-                    animationDrawable.start();
+                if (animationDrawable != null) animationDrawable.start();
             } else {
                 holder.setImageResource(R.id.rc_voice, R.drawable.rc_voice_send_play3);
             }
@@ -100,34 +122,44 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
             holder.setVisible(R.id.rc_voice_download_error, false);
             holder.setVisible(R.id.rc_download_progress, false);
         } else {
-            AnimationDrawable animationDrawable = (AnimationDrawable) holder.getContext().getResources().getDrawable(R.drawable.rc_an_voice_receive);
+            AnimationDrawable animationDrawable =
+                    (AnimationDrawable)
+                            holder.getContext()
+                                    .getResources()
+                                    .getDrawable(R.drawable.rc_an_voice_receive);
             holder.setVisible(R.id.rc_voice, true);
             holder.setVisible(R.id.rc_voice_send, false);
-            ((TextView) holder.getView(R.id.rc_duration)).setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) holder.getView(R.id.rc_duration).getLayoutParams();
+            ((TextView) holder.getView(R.id.rc_duration))
+                    .setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams lp =
+                    (LinearLayout.LayoutParams) holder.getView(R.id.rc_duration).getLayoutParams();
             lp.setMarginStart(12);
             holder.getView(R.id.rc_duration).setLayoutParams(lp);
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice, animationDrawable);
-                if (animationDrawable != null)
-                    animationDrawable.start();
+                if (animationDrawable != null) animationDrawable.start();
             } else {
                 holder.setImageResource(R.id.rc_voice, R.drawable.rc_voice_receive_play3);
             }
-            holder.setVisible(R.id.rc_voice_unread, !uiMessage.getMessage().getReceivedStatus().isListened());
+            holder.setVisible(
+                    R.id.rc_voice_unread, !uiMessage.getMessage().getReceivedStatus().isListened());
         }
-
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, VoiceMessage message, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            VoiceMessage message,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         if (listener != null) {
             listener.onViewClick(MessageClickType.AUDIO_CLICK, uiMessage);
             return true;
         }
         return false;
     }
-
 
     @Override
     protected boolean isMessageViewType(MessageContent messageContent) {
@@ -136,7 +168,8 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
 
     @Override
     public Spannable getSummarySpannable(Context context, VoiceMessage message) {
-        return new SpannableString(context.getString(R.string.rc_conversation_summary_content_burn));
+        return new SpannableString(
+                context.getString(R.string.rc_conversation_summary_content_burn));
     }
 
     private static class DestructListener implements RongIMClient.DestructCountDownTimerListener {

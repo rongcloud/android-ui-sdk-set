@@ -1,5 +1,6 @@
 package io.rong.sticker.util;
 
+import io.rong.common.rlog.RLog;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,13 +13,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
-import io.rong.common.rlog.RLog;
-
-/**
- * Created by luoyanlong on 2018/08/15.
- */
+/** Created by luoyanlong on 2018/08/15. */
 public class FileUtil {
     private static final String TAG = "FileUtil";
+
     public static void writeStringToFile(String content, File file) {
         BufferedWriter writer = null;
         try {
@@ -28,8 +26,7 @@ public class FileUtil {
             e.printStackTrace();
         } finally {
             try {
-                if (writer != null)
-                    writer.close();
+                if (writer != null) writer.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -85,11 +82,10 @@ public class FileUtil {
     }
 
     public static void recursiveDelete(File file) {
-        if (!file.exists())
-            return;
+        if (!file.exists()) return;
         if (file.isDirectory()) {
             for (File f : file.listFiles()) {
-                //call recursively
+                // call recursively
                 recursiveDelete(f);
             }
         }
@@ -98,5 +94,4 @@ public class FileUtil {
             RLog.e(TAG, "recursiveDelete unSuccessfully");
         }
     }
-
 }

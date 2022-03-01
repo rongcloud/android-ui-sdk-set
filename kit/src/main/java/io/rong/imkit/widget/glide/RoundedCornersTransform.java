@@ -6,13 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
-
 import androidx.annotation.NonNull;
-
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.bumptech.glide.util.Util;
-
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -38,12 +35,14 @@ public class RoundedCornersTransform extends BitmapTransformation {
     }
 
     @Override
-    protected Bitmap transform(@NonNull BitmapPool pool, @NonNull Bitmap source, int outWidth, int outHeight) {
+    protected Bitmap transform(
+            @NonNull BitmapPool pool, @NonNull Bitmap source, int outWidth, int outHeight) {
         Bitmap outBitmap = pool.get(source.getWidth(), source.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(outBitmap);
         Paint paint = new Paint();
-        //关联画笔绘制的原图bitmap
-        BitmapShader shader = new BitmapShader(source, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+        // 关联画笔绘制的原图bitmap
+        BitmapShader shader =
+                new BitmapShader(source, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         paint.setShader(shader);
         paint.setAntiAlias(true);
 
@@ -63,7 +62,11 @@ public class RoundedCornersTransform extends BitmapTransformation {
         // 右下
         r = radius[2];
         canvas.save();
-        canvas.clipRect(canvas.getWidth() / 2, canvas.getHeight() / 2, canvas.getWidth(), canvas.getHeight());
+        canvas.clipRect(
+                canvas.getWidth() / 2,
+                canvas.getHeight() / 2,
+                canvas.getWidth(),
+                canvas.getHeight());
         canvas.drawRoundRect(rectF, r, r, paint);
         canvas.restore();
         // 左下

@@ -2,16 +2,13 @@ package io.rong.imkit.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.language.LangUtils;
 import io.rong.imkit.utils.language.RongConfigurationManager;
-
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class RongDateUtils {
 
@@ -47,7 +44,7 @@ public class RongDateUtils {
         Calendar calendarTarget = Calendar.getInstance();
         calendarTarget.setTime(date);
 
-        if (calendarTarget.before(calendarYesterday)) {// 是否在calendarT之前
+        if (calendarTarget.before(calendarYesterday)) { // 是否在calendarT之前
             return OTHER;
         } else if (calendarTarget.before(calendarToday)) {
             return YESTERDAY;
@@ -89,12 +86,12 @@ public class RongDateUtils {
     }
 
     public static boolean isTime24Hour(Context context) {
-        String timeFormat = android.provider.Settings.System.getString(context.getContentResolver(),
-                android.provider.Settings.System.TIME_12_24);
+        String timeFormat =
+                android.provider.Settings.System.getString(
+                        context.getContentResolver(), android.provider.Settings.System.TIME_12_24);
 
         return timeFormat != null && timeFormat.equals("24");
     }
-
 
     private static String getTimeString(long dateMillis, Context context) {
         if (dateMillis <= 0) {
@@ -109,22 +106,22 @@ public class RongDateUtils {
             Calendar calendarTime = Calendar.getInstance();
             calendarTime.setTimeInMillis(dateMillis);
             int hour = calendarTime.get(Calendar.HOUR);
-            if (calendarTime.get(Calendar.AM_PM) == Calendar.AM) { //AM
-                if (hour < 6) { //凌晨
+            if (calendarTime.get(Calendar.AM_PM) == Calendar.AM) { // AM
+                if (hour < 6) { // 凌晨
                     if (hour == 0) {
                         hour = 12;
                     }
                     formatTime = context.getResources().getString(R.string.rc_date_morning);
-                } else { //上午
+                } else { // 上午
                     formatTime = context.getResources().getString(R.string.rc_date_am);
                 }
-            } else {//PM
-                if (hour == 0) { //中午
+            } else { // PM
+                if (hour == 0) { // 中午
                     formatTime = context.getResources().getString(R.string.rc_date_noon);
                     hour = 12;
-                } else if (hour <= 5) { //下午
+                } else if (hour <= 5) { // 下午
                     formatTime = context.getResources().getString(R.string.rc_date_pm);
-                } else {//晚上
+                } else { // 晚上
                     formatTime = context.getResources().getString(R.string.rc_date_night);
                 }
             }
@@ -137,7 +134,8 @@ public class RongDateUtils {
             }
             timeStr = hour + ":" + minuteStr;
 
-            if (RongConfigurationManager.getInstance().getLanguageLocal(context) == LangUtils.RCLocale.LOCALE_CHINA) {
+            if (RongConfigurationManager.getInstance().getLanguageLocal(context)
+                    == LangUtils.RCLocale.LOCALE_CHINA) {
                 formatTime = formatTime + SPACE_CHAR + timeStr;
             } else {
                 formatTime = timeStr + SPACE_CHAR + formatTime;
@@ -182,10 +180,10 @@ public class RongDateUtils {
                 break;
 
             case OTHER:
-                if (year == yearCur) {//同年
-                    if (month == monthCur && weekInMonth == weekInMonthCur) {//同月同周
+                if (year == yearCur) { // 同年
+                    if (month == monthCur && weekInMonth == weekInMonthCur) { // 同月同周
                         formatDate = getWeekDay(context, calendardate.get(Calendar.DAY_OF_WEEK));
-                    } else { //不同月
+                    } else { // 不同月
                         formatDate = formatDate(date, "M/d");
                     }
                 } else {
@@ -203,7 +201,6 @@ public class RongDateUtils {
         return formatDate;
     }
 
-
     public static String getConversationListFormatDate(long dateMillis, Context context) {
         return getDateTimeString(dateMillis, false, context);
     }
@@ -214,9 +211,9 @@ public class RongDateUtils {
 
     /**
      * @param currentTime 当前时间
-     * @param preTime     之前的某个时间
-     * @param interval    时间间隔
-     * @return true 间隔大于interval秒  false 小于等于
+     * @param preTime 之前的某个时间
+     * @param interval 时间间隔
+     * @return true 间隔大于interval秒 false 小于等于
      */
     public static boolean isShowChatTime(long currentTime, long preTime, int interval) {
 
@@ -244,5 +241,4 @@ public class RongDateUtils {
 
         return "";
     }
-
 }

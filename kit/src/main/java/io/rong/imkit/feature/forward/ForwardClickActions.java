@@ -5,14 +5,8 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.View;
-
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.ConversationFragment;
@@ -22,6 +16,9 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ForwardClickActions implements IClickActions {
     private static final String TAG = ForwardClickActions.class.getSimpleName();
@@ -33,44 +30,49 @@ public class ForwardClickActions implements IClickActions {
 
     @Override
     public void onClick(final Fragment fragment) {
-        if (fragment == null || fragment.getActivity() == null || fragment.getActivity().isFinishing()) {
+        if (fragment == null
+                || fragment.getActivity() == null
+                || fragment.getActivity().isFinishing()) {
             RLog.e(TAG, "onClick activity is null or finishing.");
             return;
         }
         final WeakReference<Fragment> fragmentWeakReference = new WeakReference<>(fragment);
 
         final BottomMenuDialog dialog = new BottomMenuDialog();
-        dialog.setConfirmListener(new View.OnClickListener() {
-            @TargetApi(Build.VERSION_CODES.M)
-            @Override
-            public void onClick(View arg0) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-                if (fragmentWeakReference.get() != null) {
-                    startSelectConversationActivity(fragmentWeakReference.get(), 0);
-                }
-            }
-        });
-        dialog.setMiddleListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-                if (fragmentWeakReference.get() != null) {
-                    startSelectConversationActivity(fragmentWeakReference.get(), 1);
-                }
-            }
-        });
-        dialog.setCancelListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
+        dialog.setConfirmListener(
+                new View.OnClickListener() {
+                    @TargetApi(Build.VERSION_CODES.M)
+                    @Override
+                    public void onClick(View arg0) {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                        if (fragmentWeakReference.get() != null) {
+                            startSelectConversationActivity(fragmentWeakReference.get(), 0);
+                        }
+                    }
+                });
+        dialog.setMiddleListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View arg0) {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                        if (fragmentWeakReference.get() != null) {
+                            startSelectConversationActivity(fragmentWeakReference.get(), 1);
+                        }
+                    }
+                });
+        dialog.setCancelListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                    }
+                });
         dialog.show(fragment.getChildFragmentManager());
     }
 
@@ -86,13 +88,14 @@ public class ForwardClickActions implements IClickActions {
             return;
         }
         final ConversationFragment fragment = (ConversationFragment) pFragment;
-        MessageViewModel messageViewModel = new ViewModelProvider(pFragment).get(MessageViewModel.class);
+        MessageViewModel messageViewModel =
+                new ViewModelProvider(pFragment).get(MessageViewModel.class);
         List<Message> messageList = new ArrayList<>();
         for (UiMessage uiMessage : messageViewModel.getSelectedUiMessages()) {
             messageList.add(uiMessage.getMessage());
         }
-        List<Message> messages = ForwardManager.filterMessagesList(
-                fragment.getContext(), messageList, index);
+        List<Message> messages =
+                ForwardManager.filterMessagesList(fragment.getContext(), messageList, index);
         if (messages.isEmpty()) {
             RLog.e(TAG, "startSelectConversationActivity the size of messages is 0!");
             return;
@@ -101,17 +104,14 @@ public class ForwardClickActions implements IClickActions {
         for (Message msg : messages) {
             messageIds.add(msg.getMessageId());
         }
-        RouteUtils.routeToForwardSelectConversationActivity(pFragment, index == 0 ? ForwardType.SINGLE : ForwardType.MULTI, messageIds);
+        RouteUtils.routeToForwardSelectConversationActivity(
+                pFragment, index == 0 ? ForwardType.SINGLE : ForwardType.MULTI, messageIds);
     }
 
     public enum ForwardType {
-        /**
-         * 单条转发
-         */
+        /** 单条转发 */
         SINGLE(0),
-        /**
-         * 合并转发
-         */
+        /** 合并转发 */
         MULTI(1);
 
         int value;

@@ -17,16 +17,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
-import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
-
-import io.rong.imkit.R;
 
 public class ViewHolder extends RecyclerView.ViewHolder {
     private SparseArray<View> mViews;
@@ -40,16 +35,13 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         mViews = new SparseArray<>();
     }
 
-
     public static ViewHolder createViewHolder(Context context, View itemView) {
         ViewHolder holder = new ViewHolder(context, itemView);
         return holder;
     }
 
-    public static ViewHolder createViewHolder(Context context,
-                                              ViewGroup parent, int layoutId) {
-        View itemView = LayoutInflater.from(context).inflate(layoutId, parent,
-                false);
+    public static ViewHolder createViewHolder(Context context, ViewGroup parent, int layoutId) {
+        View itemView = LayoutInflater.from(context).inflate(layoutId, parent, false);
         return createViewHolder(context, itemView);
     }
 
@@ -76,8 +68,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         return mConvertView;
     }
 
-
-    /****以下为辅助方法*****/
+    // 以下为辅助方法
 
     /**
      * 设置TextView的值
@@ -112,13 +103,13 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 
     public ViewHolder setImageUri(int viewId, Uri uri) {
         ImageView view = getView(viewId);
-        Glide.with(mContext).load(uri)
+        Glide.with(mContext)
+                .load(uri)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                 .centerCrop()
                 .into(view);
         return this;
     }
-
 
     public ViewHolder setImageBitmap(int viewId, Bitmap bitmap) {
         ImageView view = getView(viewId);
@@ -128,7 +119,8 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 
     public ViewHolder setImageBitmapCircle(int viewId, int resId) {
         ImageView view = getView(viewId);
-        Glide.with(mContext).load(resId)
+        Glide.with(mContext)
+                .load(resId)
                 .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .into(view);
         return this;
@@ -169,7 +161,6 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         view.setTextColor(mContext.getResources().getColor(textColorRes));
         return this;
     }
-
 
     public ViewHolder setVisible(int viewId, boolean visible) {
         View view = getView(viewId);
@@ -254,37 +245,28 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-
-    /**
-     * 关于事件的
-     */
-    public ViewHolder setOnClickListener(int viewId,
-                                         View.OnClickListener listener) {
+    /** 关于事件的 */
+    public ViewHolder setOnClickListener(int viewId, View.OnClickListener listener) {
         View view = getView(viewId);
         view.setOnClickListener(listener);
         return this;
     }
 
-    public ViewHolder setOnTouchListener(int viewId,
-                                         View.OnTouchListener listener) {
+    public ViewHolder setOnTouchListener(int viewId, View.OnTouchListener listener) {
         View view = getView(viewId);
         view.setOnTouchListener(listener);
         return this;
     }
 
-    public ViewHolder setOnLongClickListener(int viewId,
-                                             View.OnLongClickListener listener) {
+    public ViewHolder setOnLongClickListener(int viewId, View.OnLongClickListener listener) {
         View view = getView(viewId);
         view.setOnLongClickListener(listener);
         return this;
     }
 
-    public ViewHolder setPadding(int viewId,
-                                 int left, int top, int right, int bottom) {
+    public ViewHolder setPadding(int viewId, int left, int top, int right, int bottom) {
         View view = getView(viewId);
         view.setPadding(left, top, right, bottom);
         return this;
     }
-
-
 }

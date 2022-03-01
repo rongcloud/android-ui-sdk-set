@@ -1,14 +1,14 @@
 package io.rong.imkit.manager.hqvoicemessage;
 
+import io.rong.imlib.model.Message;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import io.rong.imlib.model.Message;
 
 class AutoDownloadQueue {
 
     private ConcurrentLinkedQueue<AutoDownloadEntry> highPriority = new ConcurrentLinkedQueue<>();
     private ConcurrentLinkedQueue<AutoDownloadEntry> normalPriority = new ConcurrentLinkedQueue<>();
-    private HashMap<String,AutoDownloadEntry> autoDownloadEntryHashMap = new HashMap<>();
+    private HashMap<String, AutoDownloadEntry> autoDownloadEntryHashMap = new HashMap<>();
     private static final int MAX_QUEUE_COUNT = 100;
 
     void enqueue(AutoDownloadEntry autoDownloadEntry) {
@@ -20,7 +20,7 @@ class AutoDownloadQueue {
             highPriority.add(autoDownloadEntry);
         }
         if (!autoDownloadEntryHashMap.containsKey(message.getUId())) {
-            autoDownloadEntryHashMap.put(message.getUId(),autoDownloadEntry);
+            autoDownloadEntryHashMap.put(message.getUId(), autoDownloadEntry);
         }
 
         int doubleQueueSize = normalPriority.size() + highPriority.size();
@@ -57,6 +57,6 @@ class AutoDownloadQueue {
     }
 
     HashMap<String, AutoDownloadEntry> getAutoDownloadEntryHashMap() {
-         return autoDownloadEntryHashMap;
+        return autoDownloadEntryHashMap;
     }
- }
+}

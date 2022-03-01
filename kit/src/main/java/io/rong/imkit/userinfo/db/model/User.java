@@ -1,15 +1,10 @@
 package io.rong.imkit.userinfo.db.model;
 
 import android.net.Uri;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
-import java.net.URL;
-
 import io.rong.imlib.model.UserInfo;
 
 @Entity(tableName = "user")
@@ -31,9 +26,7 @@ public class User {
     @ColumnInfo(name = "extra")
     public String extra;
 
-    public User() {
-
-    }
+    public User() {}
 
     public User(String id, String name, Uri portraitUrl) {
         this.id = id;
@@ -52,5 +45,4 @@ public class User {
         }
         this.extra = info.getExtra();
     }
-
 }

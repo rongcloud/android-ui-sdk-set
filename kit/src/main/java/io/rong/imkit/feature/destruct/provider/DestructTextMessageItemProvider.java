@@ -10,10 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
-
-import java.lang.ref.WeakReference;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
@@ -29,6 +25,8 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.TextMessage;
+import java.lang.ref.WeakReference;
+import java.util.List;
 
 public class DestructTextMessageItemProvider extends BaseMessageItemProvider<TextMessage> {
     private static final String TAG = DestructTextMessageItemProvider.class.getSimpleName();
@@ -40,16 +38,30 @@ public class DestructTextMessageItemProvider extends BaseMessageItemProvider<Tex
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View textView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_destruct_text_message, parent, false);
+        View textView =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_destruct_text_message, parent, false);
         return new ViewHolder(parent.getContext(), textView);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, TextMessage message, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            TextMessage message,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         holder.getConvertView().setTag(uiMessage.getMessage().getUId());
-        boolean isSender = uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
-        holder.setBackgroundRes(R.id.tv_unread, isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
-        holder.setBackgroundRes(R.id.rc_text, isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+        boolean isSender =
+                uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
+        holder.setBackgroundRes(
+                R.id.tv_unread,
+                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+        holder.setBackgroundRes(
+                R.id.rc_text,
+                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
         if (isSender) {
             holder.setVisible(R.id.tv_unread, false);
             holder.setVisible(R.id.rc_text, true);
@@ -59,8 +71,12 @@ public class DestructTextMessageItemProvider extends BaseMessageItemProvider<Tex
         } else {
             holder.setVisible(R.id.fl_send_fire, false);
             holder.setVisible(R.id.fl_receiver_fire, true);
-            DestructManager.getInstance().addListener(uiMessage.getMessage().getUId(), new DestructListener(holder, uiMessage), TAG);
-            //getReadTime>0，证明已读，开始倒计时
+            DestructManager.getInstance()
+                    .addListener(
+                            uiMessage.getMessage().getUId(),
+                            new DestructListener(holder, uiMessage),
+                            TAG);
+            // getReadTime>0，证明已读，开始倒计时
             if (uiMessage.getMessage().getReadTime() > 0) {
                 holder.setVisible(R.id.tv_unread, false);
                 holder.setVisible(R.id.rc_text, true);
@@ -68,7 +84,9 @@ public class DestructTextMessageItemProvider extends BaseMessageItemProvider<Tex
                 holder.setVisible(R.id.iv_receiver_fire, false);
                 String unFinishTime;
                 if (TextUtils.isEmpty(uiMessage.getDestructTime())) {
-                    unFinishTime = DestructManager.getInstance().getUnFinishTime(uiMessage.getMessage().getUId());
+                    unFinishTime =
+                            DestructManager.getInstance()
+                                    .getUnFinishTime(uiMessage.getMessage().getUId());
                 } else {
                     unFinishTime = uiMessage.getDestructTime();
                 }
@@ -85,8 +103,16 @@ public class DestructTextMessageItemProvider extends BaseMessageItemProvider<Tex
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, TextMessage message, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
-        if (message != null && message.isDestruct() && !(uiMessage.getMessage().getReadTime() > 0)) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            TextMessage message,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
+        if (message != null
+                && message.isDestruct()
+                && !(uiMessage.getMessage().getReadTime() > 0)) {
             holder.setVisible(R.id.tv_unread, false);
             holder.setVisible(R.id.rc_text, true);
             holder.setVisible(R.id.tv_receiver_fire, true);
@@ -97,66 +123,82 @@ public class DestructTextMessageItemProvider extends BaseMessageItemProvider<Tex
         return true;
     }
 
-    private void processTextView(final ViewHolder holder, TextMessage message, final UiMessage uiMessage, int position) {
+    private void processTextView(
+            final ViewHolder holder, TextMessage message, final UiMessage uiMessage, int position) {
         final TextView view = holder.getView(R.id.rc_text);
         view.setTag(uiMessage.getMessageId());
         if (uiMessage.getContentSpannable() == null) {
-            SpannableStringBuilder spannable = TextViewUtils.getSpannable(message.getContent(), new TextViewUtils.RegularCallBack() {
-                @Override
-                public void finish(SpannableStringBuilder spannable) {
-                    uiMessage.setContentSpannable(spannable);
-                    if (view.getTag().equals(uiMessage.getMessageId())) {
-                        view.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                view.setText(uiMessage.getContentSpannable());
-                            }
-                        });
-                    }
-                }
-            });
+            SpannableStringBuilder spannable =
+                    TextViewUtils.getSpannable(
+                            message.getContent(),
+                            new TextViewUtils.RegularCallBack() {
+                                @Override
+                                public void finish(SpannableStringBuilder spannable) {
+                                    uiMessage.setContentSpannable(spannable);
+                                    if (view.getTag().equals(uiMessage.getMessageId())) {
+                                        view.post(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        view.setText(
+                                                                uiMessage.getContentSpannable());
+                                                    }
+                                                });
+                                    }
+                                }
+                            });
             uiMessage.setContentSpannable(spannable);
         }
         view.setText(uiMessage.getContentSpannable());
-        view.setMovementMethod(new LinkTextViewMovementMethod(new ILinkClickListener() {
-            @Override
-            public boolean onLinkClick(String link) {
-                boolean result = false;
-                if (RongConfigCenter.conversationConfig().getConversationClickListener() != null) {
-                    result = RongConfigCenter.conversationConfig().getConversationClickListener().onMessageLinkClick(holder.getContext(), link, uiMessage.getMessage());
-                }
-                if (result)
-                    return true;
-                String str = link.toLowerCase();
-                if (str.startsWith("http") || str.startsWith("https")) {
-                    RouteUtils.routeToWebActivity(view.getContext(), link);
-                    result = true;
-                }
+        view.setMovementMethod(
+                new LinkTextViewMovementMethod(
+                        new ILinkClickListener() {
+                            @Override
+                            public boolean onLinkClick(String link) {
+                                boolean result = false;
+                                if (RongConfigCenter.conversationConfig()
+                                                .getConversationClickListener()
+                                        != null) {
+                                    result =
+                                            RongConfigCenter.conversationConfig()
+                                                    .getConversationClickListener()
+                                                    .onMessageLinkClick(
+                                                            holder.getContext(),
+                                                            link,
+                                                            uiMessage.getMessage());
+                                }
+                                if (result) return true;
+                                String str = link.toLowerCase();
+                                if (str.startsWith("http") || str.startsWith("https")) {
+                                    RouteUtils.routeToWebActivity(view.getContext(), link);
+                                    result = true;
+                                }
 
-                return result;
-            }
-        }));
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ViewParent parent = view.getParent().getParent();
-                if (parent instanceof View) {
-                    ((View) parent).performClick();
-                }
-            }
-        });
-        view.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                ViewParent parent = view.getParent().getParent();
-                if (parent instanceof View) {
-                    return ((View) parent).performLongClick();
-                }
-                return false;
-            }
-        });
+                                return result;
+                            }
+                        }));
+        view.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ViewParent parent = view.getParent().getParent();
+                        if (parent instanceof View) {
+                            ((View) parent).performClick();
+                        }
+                    }
+                });
+        view.setOnLongClickListener(
+                new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        ViewParent parent = view.getParent().getParent();
+                        if (parent instanceof View) {
+                            return ((View) parent).performLongClick();
+                        }
+                        return false;
+                    }
+                });
     }
-
 
     @Override
     protected boolean isMessageViewType(MessageContent messageContent) {
@@ -165,7 +207,8 @@ public class DestructTextMessageItemProvider extends BaseMessageItemProvider<Tex
 
     @Override
     public Spannable getSummarySpannable(Context context, TextMessage message) {
-        return new SpannableString(context.getString(R.string.rc_conversation_summary_content_burn));
+        return new SpannableString(
+                context.getString(R.string.rc_conversation_summary_content_burn));
     }
 
     private static class DestructListener implements RongIMClient.DestructCountDownTimerListener {

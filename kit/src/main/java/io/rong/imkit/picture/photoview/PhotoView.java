@@ -1,4 +1,4 @@
-/*******************************************************************************
+/*
  * Copyright 2011, 2012 Chris Banes.
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *******************************************************************************/
+ */
 package io.rong.imkit.picture.photoview;
 
 import android.annotation.TargetApi;
@@ -26,8 +26,8 @@ import android.view.GestureDetector;
 import android.widget.ImageView;
 
 /**
- * A zoomable {@link ImageView}. See {@link PhotoViewAttacher} for most of the details on how the zooming
- * is accomplished
+ * A zoomable {@link ImageView}. See {@link PhotoViewAttacher} for most of the details on how the
+ * zooming is accomplished
  */
 public class PhotoView extends ImageView {
 
@@ -55,10 +55,10 @@ public class PhotoView extends ImageView {
 
     private void init() {
         attacher = new PhotoViewAttacher(this);
-        //We always pose as a Matrix scale type, though we can change to another scale type
-        //via the attacher
+        // We always pose as a Matrix scale type, though we can change to another scale type
+        // via the attacher
         super.setScaleType(ScaleType.MATRIX);
-        //apply the previously applied scale type
+        // apply the previously applied scale type
         if (pendingScaleType != null) {
             setScaleType(pendingScaleType);
             pendingScaleType = null;

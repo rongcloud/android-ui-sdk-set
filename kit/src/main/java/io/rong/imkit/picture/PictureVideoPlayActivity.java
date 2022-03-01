@@ -11,19 +11,18 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 
-
 /**
  * @author：luck
- * @data：2017/8/28 下午11:00
- * @描述: 视频播放类
+ * @data：2017/8/28 下午11:00 @描述: 视频播放类
  */
-public class PictureVideoPlayActivity extends PictureBaseActivity implements
-        MediaPlayer.OnErrorListener, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener, View.OnClickListener {
+public class PictureVideoPlayActivity extends PictureBaseActivity
+        implements MediaPlayer.OnErrorListener,
+                MediaPlayer.OnPreparedListener,
+                MediaPlayer.OnCompletionListener,
+                View.OnClickListener {
     private final String TAG = PictureVideoPlayActivity.class.getCanonicalName();
     private String video_path = "";
     private ImageView picture_left_back;
@@ -59,15 +58,16 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
 
     @Override
     protected void attachBaseContext(Context newBase) {
-        super.attachBaseContext(new ContextWrapper(newBase) {
-            @Override
-            public Object getSystemService(String name) {
-                if (Context.AUDIO_SERVICE.equals(name)) {
-                    return getApplicationContext().getSystemService(name);
-                }
-                return super.getSystemService(name);
-            }
-        });
+        super.attachBaseContext(
+                new ContextWrapper(newBase) {
+                    @Override
+                    public Object getSystemService(String name) {
+                        if (Context.AUDIO_SERVICE.equals(name)) {
+                            return getApplicationContext().getSystemService(name);
+                        }
+                        return super.getSystemService(name);
+                    }
+                });
     }
 
     @Override
@@ -122,7 +122,6 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
         if (null != iv_play) {
             iv_play.setVisibility(View.VISIBLE);
         }
-
     }
 
     @Override
@@ -138,16 +137,17 @@ public class PictureVideoPlayActivity extends PictureBaseActivity implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        mp.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-            @Override
-            public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
-                    // video started
-                    mVideoView.setBackgroundColor(Color.TRANSPARENT);
-                    return true;
-                }
-                return false;
-            }
-        });
+        mp.setOnInfoListener(
+                new MediaPlayer.OnInfoListener() {
+                    @Override
+                    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                        if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                            // video started
+                            mVideoView.setBackgroundColor(Color.TRANSPARENT);
+                            return true;
+                        }
+                        return false;
+                    }
+                });
     }
 }

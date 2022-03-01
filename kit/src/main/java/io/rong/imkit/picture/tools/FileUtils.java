@@ -28,10 +28,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
 import io.rong.common.RLog;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -48,13 +45,10 @@ import java.util.Locale;
  */
 public class FileUtils {
 
-    /**
-     * TAG for log messages.
-     */
+    /** TAG for log messages. */
     static final String TAG = "FileUtils";
 
-    private FileUtils() {
-    }
+    private FileUtils() {}
 
     /**
      * @param uri The Uri to check.
@@ -92,34 +86,36 @@ public class FileUtils {
     }
 
     /**
-     * Get the value of the data column for this Uri. This is useful for
-     * MediaStore Uris, and other file-based ContentProviders.
+     * Get the value of the data column for this Uri. This is useful for MediaStore Uris, and other
+     * file-based ContentProviders.
      *
-     * @param context       The context.
-     * @param uri           The Uri to query.
-     * @param selection     (Optional) Filter used in the query.
+     * @param context The context.
+     * @param uri The Uri to query.
+     * @param selection (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      * @author paulburke
      */
-    public static String getDataColumn(Context context, Uri uri, String selection,
-                                       String[] selectionArgs) {
+    public static String getDataColumn(
+            Context context, Uri uri, String selection, String[] selectionArgs) {
 
         Cursor cursor = null;
         final String column = "_data";
-        final String[] projection = {
-                column
-        };
+        final String[] projection = {column};
 
         try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                    null);
+            cursor =
+                    context.getContentResolver()
+                            .query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
         } catch (IllegalArgumentException ex) {
-            Log.i(TAG, String.format(Locale.getDefault(), "getDataColumn: _data - [%s]", ex.getMessage()));
+            Log.i(
+                    TAG,
+                    String.format(
+                            Locale.getDefault(), "getDataColumn: _data - [%s]", ex.getMessage()));
         } finally {
             if (cursor != null) {
                 cursor.close();
@@ -129,15 +125,14 @@ public class FileUtils {
     }
 
     /**
-     * Get a file path from a Uri. This will get the the path for Storage Access
-     * Framework Documents, as well as the _data field for the MediaStore and
-     * other file-based ContentProviders.<br>
+     * Get a file path from a Uri. This will get the the path for Storage Access Framework
+     * Documents, as well as the _data field for the MediaStore and other file-based
+     * ContentProviders.<br>
      * <br>
-     * Callers should check whether the path is local before assuming it
-     * represents a local file.
+     * Callers should check whether the path is local before assuming it represents a local file.
      *
      * @param context The context.
-     * @param uri     The Uri to query.
+     * @param uri The Uri to query.
      * @author paulburke
      */
     @SuppressLint("NewApi")
@@ -152,8 +147,9 @@ public class FileUtils {
                 final String type = split[0];
 
                 if ("primary".equalsIgnoreCase(type)) {
-                    return context
-                            .getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + split[1];
+                    return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                            + "/"
+                            + split[1];
                 }
 
                 // TODO handle non-primary volumes
@@ -162,8 +158,10 @@ public class FileUtils {
             else if (isDownloadsDocument(uri)) {
 
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                final Uri contentUri =
+                        ContentUris.withAppendedId(
+                                Uri.parse("content://downloads/public_downloads"),
+                                Long.valueOf(id));
 
                 return getDataColumn(context, contentUri, null, null);
             }
@@ -183,9 +181,7 @@ public class FileUtils {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{
-                        split[1]
-                };
+                final String[] selectionArgs = new String[] {split[1]};
 
                 return getDataColumn(context, contentUri, selection, selectionArgs);
             }
@@ -207,7 +203,6 @@ public class FileUtils {
 
         return null;
     }
-
 
     public static boolean isGifForSuffix(String suffix) {
         if (suffix == null) return false;
@@ -232,20 +227,17 @@ public class FileUtils {
      */
     public static boolean isHttp(String path) {
         if (!TextUtils.isEmpty(path)) {
-            if (path.startsWith("http")
-                    || path.startsWith("https")) {
+            if (path.startsWith("http") || path.startsWith("https")) {
                 return true;
             }
         }
         return false;
     }
 
-
     /**
-     * Copies one file into the other with the given paths.
-     * In the event that the paths are the same, trying to copy one file to the other
-     * will cause both files to become null.
-     * Simply skipping this step if the paths are identical.
+     * Copies one file into the other with the given paths. In the event that the paths are the
+     * same, trying to copy one file to the other will cause both files to become null. Simply
+     * skipping this step if the paths are identical.
      */
     public static boolean copyFile(FileInputStream fileInputStream, String outFilePath) {
         if (fileInputStream == null) {
@@ -293,7 +285,6 @@ public class FileUtils {
             }
         }
     }
-
 
     public static String extSuffix(InputStream input) {
         try {

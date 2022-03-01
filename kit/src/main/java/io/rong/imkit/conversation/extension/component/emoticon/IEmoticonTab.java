@@ -4,9 +4,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.lifecycle.LiveData;
-
 
 public interface IEmoticonTab {
 
@@ -35,6 +33,7 @@ public interface IEmoticonTab {
 
     /**
      * 返回 tab 页对应输入框的更新信息
+     *
      * @return 输入到 EditText 的 LiveData
      */
     LiveData<String> getEditInfo();

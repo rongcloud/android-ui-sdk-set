@@ -9,14 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureConfig;
@@ -31,12 +25,13 @@ import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.language.RongConfigurationManager;
-
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author：luck
- * @data：2018/3/28 下午1:00
- * @描述: Activity基类
+ * @data：2018/3/28 下午1:00 @描述: Activity基类
  */
 public abstract class PictureBaseActivity extends AppCompatActivity {
     private static final String TAG = PictureBaseActivity.class.getCanonicalName();
@@ -50,7 +45,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected Handler mHandler;
     protected View container;
 
-
     /**
      * 获取布局文件
      *
@@ -58,12 +52,9 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      */
     public abstract int getResourceId();
 
-    protected void initWidgets() {
-    }
+    protected void initWidgets() {}
 
-    protected void initPictureSelectorStyle() {
-
-    }
+    protected void initPictureSelectorStyle() {}
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -100,17 +91,19 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         return this;
     }
 
-    /**
-     * 获取配置参数
-     */
+    /** 获取配置参数 */
     private void initConfig() {
         // 已选图片列表
-        selectionMedias = config.selectionMedias == null ? new ArrayList<LocalMedia>() : config.selectionMedias;
+        selectionMedias =
+                config.selectionMedias == null
+                        ? new ArrayList<LocalMedia>()
+                        : config.selectionMedias;
         openWhiteStatusBar = AttrsUtils.getTypeValueBoolean(this, R.attr.picture_statusFontColor);
 
         numComplete = AttrsUtils.getTypeValueBoolean(this, R.attr.picture_style_numComplete);
 
-        config.checkNumMode = AttrsUtils.getTypeValueBoolean(this, R.attr.picture_style_checkNumMode);
+        config.checkNumMode =
+                AttrsUtils.getTypeValueBoolean(this, R.attr.picture_style_checkNumMode);
 
         // 标题栏背景色
         colorPrimary = AttrsUtils.getTypeValueColor(this, R.attr.colorPrimary);
@@ -127,10 +120,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         outState.putParcelable(PictureConfig.EXTRA_CONFIG, config);
     }
 
-
-    /**
-     * loading dialog
-     */
+    /** loading dialog */
     protected void showPleaseDialog() {
         if (!isFinishing()) {
             dismissDialog();
@@ -139,13 +129,10 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * dismiss dialog
-     */
+    /** dismiss dialog */
     protected void dismissDialog() {
         try {
-            if (dialog != null
-                    && dialog.isShowing()) {
+            if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
                 dialog = null;
             }
@@ -163,7 +150,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected void handlerResult(List<LocalMedia> result) {
         onResult(result);
     }
-
 
     /**
      * 如果没有任何相册，先创建一个最近相册出来
@@ -230,9 +216,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         closeActivity();
     }
 
-    /**
-     * Close Activity
-     */
+    /** Close Activity */
     protected void closeActivity() {
         finish();
         if (config.camera) {
@@ -248,7 +232,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         dismissDialog();
     }
 
-
     /**
      * 删除部分手机 拍照在DCIM也生成一张的问题
      *
@@ -259,22 +242,21 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected void removeImage(int id, boolean eqVideo) {
         try {
             ContentResolver cr = getContentResolver();
-            Uri uri = eqVideo ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                    : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-            String selection = eqVideo ? MediaStore.Video.Media._ID + "=?"
-                    : MediaStore.Images.Media._ID + "=?";
-            cr.delete(uri,
-                    selection,
-                    new String[]{Long.toString(id)});
+            Uri uri =
+                    eqVideo
+                            ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                            : MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+            String selection =
+                    eqVideo
+                            ? MediaStore.Video.Media._ID + "=?"
+                            : MediaStore.Images.Media._ID + "=?";
+            cr.delete(uri, selection, new String[] {Long.toString(id)});
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-    /**
-     * start to camera、preview、crop
-     */
+    /** start to camera、preview、crop */
     protected void startOpenCamera() {
         try {
             Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -286,10 +268,16 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                         cameraPath = imageUri.toString();
                     }
                 } else {
-                    int chooseMode = config.chooseMode == PictureConfig.TYPE_ALL ? PictureConfig.TYPE_IMAGE
-                            : config.chooseMode;
-                    File cameraFile = PictureFileUtils.createCameraFile(getApplicationContext(),
-                            chooseMode, config.cameraFileName, config.suffixType);
+                    int chooseMode =
+                            config.chooseMode == PictureConfig.TYPE_ALL
+                                    ? PictureConfig.TYPE_IMAGE
+                                    : config.chooseMode;
+                    File cameraFile =
+                            PictureFileUtils.createCameraFile(
+                                    getApplicationContext(),
+                                    chooseMode,
+                                    config.cameraFileName,
+                                    config.suffixType);
                     cameraPath = cameraFile.getAbsolutePath();
                     imageUri = PictureFileUtils.parUri(this, cameraFile);
                 }
@@ -302,7 +290,8 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {

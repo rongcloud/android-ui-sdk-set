@@ -10,13 +10,11 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import io.rong.imkit.R;
 
 public class EmojiTab implements IEmoticonTab {
@@ -39,9 +37,7 @@ public class EmojiTab implements IEmoticonTab {
     }
 
     @Override
-    public void onTableSelected(int position) {
-
-    }
+    public void onTableSelected(int position) {}
 
     @Override
     public LiveData<String> getEditInfo() {
@@ -52,7 +48,14 @@ public class EmojiTab implements IEmoticonTab {
         int count = AndroidEmoji.getEmojiSize();
 
         try {
-            mEmojiCountPerPage = context.getResources().getInteger(context.getResources().getIdentifier("rc_extension_emoji_count_per_page", "integer", context.getPackageName()));
+            mEmojiCountPerPage =
+                    context.getResources()
+                            .getInteger(
+                                    context.getResources()
+                                            .getIdentifier(
+                                                    "rc_extension_emoji_count_per_page",
+                                                    "integer",
+                                                    context.getPackageName()));
         } catch (Exception e) {
             mEmojiCountPerPage = 20;
         }
@@ -65,13 +68,14 @@ public class EmojiTab implements IEmoticonTab {
         mLayoutInflater = LayoutInflater.from(context);
 
         viewPager.setAdapter(new EmojiPagerAdapter(pages));
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                onIndicatorChanged(mPreIndex, position);
-                mPreIndex = position;
-            }
-        });
+        viewPager.registerOnPageChangeCallback(
+                new ViewPager2.OnPageChangeCallback() {
+                    @Override
+                    public void onPageSelected(int position) {
+                        onIndicatorChanged(mPreIndex, position);
+                        mPreIndex = position;
+                    }
+                });
         viewPager.setOffscreenPageLimit(1);
 
         initIndicator(pages, mIndicator);
@@ -91,35 +95,41 @@ public class EmojiTab implements IEmoticonTab {
         @NonNull
         @Override
         public EmojiViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            GridView gridView = (GridView) mLayoutInflater.inflate(R.layout.rc_ext_emoji_grid_view, parent, false);
+            GridView gridView =
+                    (GridView)
+                            mLayoutInflater.inflate(R.layout.rc_ext_emoji_grid_view, parent, false);
             return new EmojiViewHolder(gridView);
         }
 
         @Override
         public void onBindViewHolder(@NonNull EmojiViewHolder holder, int position) {
             GridView gridView = holder.gridView;
-            gridView.setAdapter(new EmojiAdapter(position * mEmojiCountPerPage, AndroidEmoji.getEmojiSize()));
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    int index = position + mPreIndex * mEmojiCountPerPage;
-                    if (position == mEmojiCountPerPage) {
-                        mEmojiLiveData.setValue(DELETE);
-                    } else {
-                        if (index >= AndroidEmoji.getEmojiSize()) {
-                            mEmojiLiveData.setValue(DELETE);
-                        } else {
-                            int code = AndroidEmoji.getEmojiCode(index);
-                            char[] chars = Character.toChars(code);
-                            StringBuilder key = new StringBuilder(Character.toString(chars[0]));
-                            for (int i = 1; i < chars.length; i++) {
-                                key.append(chars[i]);
+            gridView.setAdapter(
+                    new EmojiAdapter(position * mEmojiCountPerPage, AndroidEmoji.getEmojiSize()));
+            gridView.setOnItemClickListener(
+                    new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(
+                                AdapterView<?> parent, View view, int position, long id) {
+                            int index = position + mPreIndex * mEmojiCountPerPage;
+                            if (position == mEmojiCountPerPage) {
+                                mEmojiLiveData.setValue(DELETE);
+                            } else {
+                                if (index >= AndroidEmoji.getEmojiSize()) {
+                                    mEmojiLiveData.setValue(DELETE);
+                                } else {
+                                    int code = AndroidEmoji.getEmojiCode(index);
+                                    char[] chars = Character.toChars(code);
+                                    StringBuilder key =
+                                            new StringBuilder(Character.toString(chars[0]));
+                                    for (int i = 1; i < chars.length; i++) {
+                                        key.append(chars[i]);
+                                    }
+                                    mEmojiLiveData.setValue(key.toString());
+                                }
                             }
-                            mEmojiLiveData.setValue(key.toString());
                         }
-                    }
-                }
-            });
+                    });
         }
 
         @Override
@@ -127,7 +137,6 @@ public class EmojiTab implements IEmoticonTab {
             return count;
         }
     }
-
 
     private class EmojiAdapter extends BaseAdapter {
         int count;
@@ -166,7 +175,8 @@ public class EmojiTab implements IEmoticonTab {
             if (position == mEmojiCountPerPage || position + index == AndroidEmoji.getEmojiSize()) {
                 viewHolder.emojiIV.setImageResource(R.drawable.rc_icon_emoji_delete);
             } else {
-                viewHolder.emojiIV.setImageDrawable(AndroidEmoji.getEmojiDrawable(parent.getContext(), index + position));
+                viewHolder.emojiIV.setImageDrawable(
+                        AndroidEmoji.getEmojiDrawable(parent.getContext(), index + position));
             }
 
             return convertView;
@@ -175,7 +185,8 @@ public class EmojiTab implements IEmoticonTab {
 
     private void initIndicator(int pages, LinearLayout indicator) {
         for (int i = 0; i < pages; i++) {
-            ImageView imageView = (ImageView) mLayoutInflater.inflate(R.layout.rc_ext_indicator, null);
+            ImageView imageView =
+                    (ImageView) mLayoutInflater.inflate(R.layout.rc_ext_indicator, null);
             imageView.setImageResource(R.drawable.rc_ext_indicator);
             indicator.addView(imageView);
         }

@@ -1,7 +1,7 @@
 package io.rong.imkit.feature.customservice.event;
 
-import io.rong.imkit.feature.customservice.CSEvaluateDialog;
 import io.rong.imkit.event.uievent.PageEvent;
+import io.rong.imkit.feature.customservice.CSEvaluateDialog;
 
 public class CSEvaluateEvent implements PageEvent {
     public CSEvaluateDialog.EvaluateDialogType mDialogType;

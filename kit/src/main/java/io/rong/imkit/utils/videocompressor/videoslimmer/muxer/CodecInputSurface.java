@@ -9,13 +9,9 @@ import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.os.Build;
 import android.view.Surface;
-
 import androidx.annotation.RequiresApi;
-
-import java.nio.ByteBuffer;
-
 import io.rong.imkit.utils.videocompressor.videoslimmer.render.TextureRenderer;
-
+import java.nio.ByteBuffer;
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListener {
@@ -31,9 +27,7 @@ public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListene
     private ByteBuffer mPixelBuf;
     private TextureRenderer mTextureRender;
 
-    /**
-     * Creates a CodecInputSurface from a Surface.
-     */
+    /** Creates a CodecInputSurface from a Surface. */
     public CodecInputSurface(Surface surface) {
         if (surface == null) {
             throw new NullPointerException();
@@ -41,7 +35,6 @@ public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListene
 
         mSurface = surface;
         eglSetup();
-
     }
 
     public void createRender() {
@@ -52,9 +45,7 @@ public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListene
         mDrawSurface = new Surface(mSurfaceTexture);
     }
 
-    /**
-     * Prepares EGL.  We want a GLES 2.0 context and a surface that supports recording.
-     */
+    /** Prepares EGL. We want a GLES 2.0 context and a surface that supports recording. */
     private void eglSetup() {
         mEGLDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         if (mEGLDisplay == EGL14.EGL_NO_DISPLAY) {
@@ -67,35 +58,37 @@ public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListene
 
         // Configure EGL for recording and OpenGL ES 2.0.
         int[] attribList = {
-                EGL14.EGL_RED_SIZE, 8,
-                EGL14.EGL_GREEN_SIZE, 8,
-                EGL14.EGL_BLUE_SIZE, 8,
-                EGL14.EGL_ALPHA_SIZE, 8,
-                EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT,
-                EGL_RECORDABLE_ANDROID, 1,
-                EGL14.EGL_NONE
+            EGL14.EGL_RED_SIZE,
+            8,
+            EGL14.EGL_GREEN_SIZE,
+            8,
+            EGL14.EGL_BLUE_SIZE,
+            8,
+            EGL14.EGL_ALPHA_SIZE,
+            8,
+            EGL14.EGL_RENDERABLE_TYPE,
+            EGL14.EGL_OPENGL_ES2_BIT,
+            EGL_RECORDABLE_ANDROID,
+            1,
+            EGL14.EGL_NONE
         };
         EGLConfig[] configs = new EGLConfig[1];
         int[] numConfigs = new int[1];
-        EGL14.eglChooseConfig(mEGLDisplay, attribList, 0, configs, 0, configs.length,
-                numConfigs, 0);
+        EGL14.eglChooseConfig(
+                mEGLDisplay, attribList, 0, configs, 0, configs.length, numConfigs, 0);
         checkEglError("eglCreateContext RGB888+recordable ES2");
 
         // Configure context for OpenGL ES 2.0.
-        int[] attrib_list = {
-                EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
-                EGL14.EGL_NONE
-        };
-        mEGLContext = EGL14.eglCreateContext(mEGLDisplay, configs[0], EGL14.EGL_NO_CONTEXT,
-                attrib_list, 0);
+        int[] attrib_list = {EGL14.EGL_CONTEXT_CLIENT_VERSION, 2, EGL14.EGL_NONE};
+        mEGLContext =
+                EGL14.eglCreateContext(
+                        mEGLDisplay, configs[0], EGL14.EGL_NO_CONTEXT, attrib_list, 0);
         checkEglError("eglCreateContext");
 
         // Create a window surface, and attach it to the Surface we received.
-        int[] surfaceAttribs = {
-                EGL14.EGL_NONE
-        };
-        mEGLSurface = EGL14.eglCreateWindowSurface(mEGLDisplay, configs[0], mSurface,
-                surfaceAttribs, 0);
+        int[] surfaceAttribs = {EGL14.EGL_NONE};
+        mEGLSurface =
+                EGL14.eglCreateWindowSurface(mEGLDisplay, configs[0], mSurface, surfaceAttribs, 0);
         checkEglError("eglCreateWindowSurface");
     }
 
@@ -106,7 +99,6 @@ public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListene
     public void changeFragmentShader(String fragmentShader) {
         mTextureRender.changeFragmentShader(fragmentShader);
     }
-
 
     public void awaitNewImage() {
         final int TIMEOUT_MS = 5000;
@@ -149,13 +141,13 @@ public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListene
     }
 
     /**
-     * Discards all resources held by this class, notably the EGL context.  Also releases the
-     * Surface that was passed to our constructor.
+     * Discards all resources held by this class, notably the EGL context. Also releases the Surface
+     * that was passed to our constructor.
      */
     public void release() {
         if (mEGLDisplay != EGL14.EGL_NO_DISPLAY) {
-            EGL14.eglMakeCurrent(mEGLDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
-                    EGL14.EGL_NO_CONTEXT);
+            EGL14.eglMakeCurrent(
+                    mEGLDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
             EGL14.eglDestroySurface(mEGLDisplay, mEGLSurface);
             EGL14.eglDestroyContext(mEGLDisplay, mEGLContext);
             EGL14.eglReleaseThread();
@@ -171,35 +163,27 @@ public class CodecInputSurface implements SurfaceTexture.OnFrameAvailableListene
         mSurface = null;
     }
 
-    /**
-     * Makes our EGL context and surface current.
-     */
+    /** Makes our EGL context and surface current. */
     public void makeCurrent() {
         EGL14.eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext);
         checkEglError("eglMakeCurrent");
     }
 
-    /**
-     * Calls eglSwapBuffers.  Use this to "publish" the current frame.
-     */
+    /** Calls eglSwapBuffers. Use this to "publish" the current frame. */
     public boolean swapBuffers() {
         boolean result = EGL14.eglSwapBuffers(mEGLDisplay, mEGLSurface);
         checkEglError("eglSwapBuffers");
         return result;
     }
 
-    /**
-     * Sends the presentation time stamp to EGL.  Time is expressed in nanoseconds.
-     */
+    /** Sends the presentation time stamp to EGL. Time is expressed in nanoseconds. */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void setPresentationTime(long nsecs) {
         EGLExt.eglPresentationTimeANDROID(mEGLDisplay, mEGLSurface, nsecs);
         checkEglError("eglPresentationTimeANDROID");
     }
 
-    /**
-     * Checks for EGL errors.  Throws an exception if one is found.
-     */
+    /** Checks for EGL errors. Throws an exception if one is found. */
     private void checkEglError(String msg) {
         int error;
         if ((error = EGL14.eglGetError()) != EGL14.EGL_SUCCESS) {

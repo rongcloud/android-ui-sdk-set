@@ -19,17 +19,14 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.common.RongWebView;
 import io.rong.imkit.R;
-import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
+import java.util.List;
 
 public class RongWebviewActivity extends RongBaseActivity {
-    private final static String TAG = "RongWebviewActivity";
+    private static final String TAG = "RongWebviewActivity";
 
     private String mPrevUrl;
     protected RongWebView mWebView;
@@ -99,7 +96,8 @@ public class RongWebviewActivity extends RongBaseActivity {
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             if (mPrevUrl != null) {
                 if (!mPrevUrl.equals(url)) {
-                    if (!(url.toLowerCase().startsWith("http://") || url.toLowerCase().startsWith("https://"))) {
+                    if (!(url.toLowerCase().startsWith("http://")
+                            || url.toLowerCase().startsWith("https://"))) {
                         Intent intent = new Intent("android.intent.action.VIEW");
                         Uri content_url = Uri.parse(url);
                         intent.setData(content_url);
@@ -127,15 +125,18 @@ public class RongWebviewActivity extends RongBaseActivity {
         }
 
         @Override
-        public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+        public void onReceivedSslError(
+                WebView view, final SslErrorHandler handler, SslError error) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(RongWebviewActivity.this);
             builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
-            builder.setNegativeButton(R.string.rc_cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    handler.cancel();
-                }
-            });
+            builder.setNegativeButton(
+                    R.string.rc_cancel,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.cancel();
+                        }
+                    });
             final AlertDialog dialog = builder.create();
             dialog.show();
         }
@@ -177,8 +178,12 @@ public class RongWebviewActivity extends RongBaseActivity {
     private class RongWebViewDownLoadListener implements DownloadListener {
 
         @Override
-        public void onDownloadStart(String url, String userAgent,
-                                    String contentDisposition, String mimetype, long contentLength) {
+        public void onDownloadStart(
+                String url,
+                String userAgent,
+                String contentDisposition,
+                String mimetype,
+                long contentLength) {
             Uri uri = Uri.parse(url);
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             if (checkIntent(RongWebviewActivity.this, intent)) {

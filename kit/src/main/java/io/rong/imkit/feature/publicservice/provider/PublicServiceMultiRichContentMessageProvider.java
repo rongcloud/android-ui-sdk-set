@@ -11,13 +11,8 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
@@ -28,24 +23,41 @@ import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.publicservice.message.PublicServiceMultiRichContentMessage;
 import io.rong.message.RichContentItem;
+import java.util.ArrayList;
+import java.util.List;
 
-public class PublicServiceMultiRichContentMessageProvider extends BaseMessageItemProvider<PublicServiceMultiRichContentMessage> {
+public class PublicServiceMultiRichContentMessageProvider
+        extends BaseMessageItemProvider<PublicServiceMultiRichContentMessage> {
 
     @Override
-    protected io.rong.imkit.widget.adapter.ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_public_service_multi_rich_content_message, parent, false);
+    protected io.rong.imkit.widget.adapter.ViewHolder onCreateMessageContentViewHolder(
+            ViewGroup parent, int viewType) {
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(
+                                R.layout.rc_item_public_service_multi_rich_content_message,
+                                parent,
+                                false);
         MyViewHolder holder = new MyViewHolder(view.getContext(), view);
         holder.height = view.getMeasuredHeight();
         return holder;
     }
 
     @Override
-    protected void bindMessageContentViewHolder(final io.rong.imkit.widget.adapter.ViewHolder holder, io.rong.imkit.widget.adapter.ViewHolder parentHolder, PublicServiceMultiRichContentMessage content, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            final io.rong.imkit.widget.adapter.ViewHolder holder,
+            io.rong.imkit.widget.adapter.ViewHolder parentHolder,
+            PublicServiceMultiRichContentMessage content,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         final ArrayList<RichContentItem> msgList = content.getMessages();
 
         if (msgList.size() > 0) {
-            holder.setText(R.id.rc_txt,msgList.get(0).getTitle());
-            Glide.with(holder.getContext()).load(msgList.get(0).getImageUrl())
+            holder.setText(R.id.rc_txt, msgList.get(0).getTitle());
+            Glide.with(holder.getContext())
+                    .load(msgList.get(0).getImageUrl())
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .into((ImageView) holder.getView(R.id.rc_img));
         }
@@ -53,20 +65,23 @@ public class PublicServiceMultiRichContentMessageProvider extends BaseMessageIte
         int height;
         ViewGroup.LayoutParams params = holder.getConvertView().getLayoutParams();
 
-        PublicAccountMsgAdapter mAdapter = new PublicAccountMsgAdapter(holder.getContext(), msgList);
+        PublicAccountMsgAdapter mAdapter =
+                new PublicAccountMsgAdapter(holder.getContext(), msgList);
         ListView lv = holder.getView(R.id.rc_list);
         lv.setAdapter(mAdapter);
 
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        lv.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
 
-                RichContentItem item = msgList.get(position + 1);
-                RouteUtils.routeToWebActivity(holder.getContext(),item.getUrl());
-            }
-        });
+                        RichContentItem item = msgList.get(position + 1);
+                        RouteUtils.routeToWebActivity(holder.getContext(), item.getUrl());
+                    }
+                });
 
-        height = getListViewHeight(lv) + ((MyViewHolder)holder).height;
+        height = getListViewHeight(lv) + ((MyViewHolder) holder).height;
         params.height = height;
         params.width = RongUtils.getScreenWidth() - RongUtils.dip2px(32);
 
@@ -84,19 +99,25 @@ public class PublicServiceMultiRichContentMessageProvider extends BaseMessageIte
         }
         return totalHeight;
     }
+
     @Override
-    public Spannable getSummarySpannable(Context context, PublicServiceMultiRichContentMessage richContentMessage) {
+    public Spannable getSummarySpannable(
+            Context context, PublicServiceMultiRichContentMessage richContentMessage) {
         List<RichContentItem> list = richContentMessage.getMessages();
         if (list.size() > 0)
             return new SpannableString(richContentMessage.getMessages().get(0).getTitle());
-        else
-            return null;
+        else return null;
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, PublicServiceMultiRichContentMessage content, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
-        if (content.getMessages().size() == 0)
-            return true;
+    protected boolean onItemClick(
+            ViewHolder holder,
+            PublicServiceMultiRichContentMessage content,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
+        if (content.getMessages().size() == 0) return true;
 
         String url = content.getMessages().get(0).getUrl();
         RouteUtils.routeToWebActivity(holder.getContext(), url);
@@ -136,8 +157,7 @@ public class PublicServiceMultiRichContentMessageProvider extends BaseMessageIte
 
         @Override
         public RichContentItem getItem(int position) {
-            if (itemList.size() == 0)
-                return null;
+            if (itemList.size() == 0) return null;
 
             return itemList.get(position + 1);
         }
@@ -149,19 +169,19 @@ public class PublicServiceMultiRichContentMessageProvider extends BaseMessageIte
 
         public View getView(int position, View convertView, ViewGroup parent) {
 
-            View providerConvertView = inflater.inflate(R.layout.rc_item_public_service_message, parent, false);
+            View providerConvertView =
+                    inflater.inflate(R.layout.rc_item_public_service_message, parent, false);
 
             ImageView iv = providerConvertView.findViewById(R.id.rc_img);
             TextView tv = providerConvertView.findViewById(R.id.rc_txt);
             View divider = providerConvertView.findViewById(R.id.rc_divider);
 
-            if (itemList.size() == 0)
-                return null;
+            if (itemList.size() == 0) return null;
 
             String title = itemList.get(position + 1).getTitle();
-            if (title != null)
-                tv.setText(title);
-            Glide.with(providerConvertView.getContext()).load(itemList.get(position + 1).getImageUrl())
+            if (title != null) tv.setText(title);
+            Glide.with(providerConvertView.getContext())
+                    .load(itemList.get(position + 1).getImageUrl())
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .into(iv);
             if (position == getCount() - 1) {

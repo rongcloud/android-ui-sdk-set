@@ -1,7 +1,6 @@
 package io.rong.imkit.feature.customservice.event;
 
 import android.view.View;
-
 import io.rong.imkit.event.uievent.PageEvent;
 
 public class CSWarningEvent implements PageEvent {
@@ -10,6 +9,7 @@ public class CSWarningEvent implements PageEvent {
 
     /**
      * 客服提示事件
+     *
      * @param mCSMessage 提示的内容
      * @param mClickListener 页面处理该事件时的点击回调
      */

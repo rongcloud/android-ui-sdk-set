@@ -1,6 +1,7 @@
 package io.rong.imkit.activity;
 
-import android.Manifest;
+import static android.widget.Toast.makeText;
+
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
@@ -13,17 +14,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.core.content.FileProvider;
-
-import java.io.File;
-
 import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.FileTypeUtils;
-import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreCallback;
@@ -31,9 +27,7 @@ import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.DownloadInfo;
-
-import static android.widget.Toast.makeText;
-
+import java.io.File;
 
 public class WebFilePreviewActivity extends RongBaseActivity implements View.OnClickListener {
     public static final int NOT_DOWNLOAD = 0;
@@ -45,13 +39,13 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
     public static final int DOWNLOAD_SUCCESS = 6;
     public static final int DOWNLOAD_PAUSE = 7;
     public static final int REQUEST_CODE_PERMISSION = 104;
-    private final static String TAG = "WebFilePreviewActivity";
+    private static final String TAG = "WebFilePreviewActivity";
     private static final String PATH = "webfile";
     private static final String TXT_FILE = ".txt";
     private static final String APK_FILE = ".apk";
     //    private ProgressBar mFileDownloadProgressBar;
-//    private LinearLayout mDownloadProgressView;
-//    protected TextView mDownloadProgressTextView;
+    //    private LinearLayout mDownloadProgressView;
+    //    protected TextView mDownloadProgressTextView;
     protected View mCancel;
     protected FileDownloadInfo mFileDownloadInfo;
     private ImageView mFileTypeImage;
@@ -88,9 +82,9 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileNameView = findViewById(R.id.rc_ac_tv_file_name);
         mFileSizeView = findViewById(R.id.rc_ac_tv_file_size);
         mFileButton = findViewById(R.id.rc_ac_btn_download_button);
-//        mDownloadProgressView = findViewById(R.id.rc_ac_ll_progress_view);
-//        mDownloadProgressTextView = findViewById(R.id.rc_ac_tv_download_progress);
-//        mFileDownloadProgressBar = findViewById(R.id.rc_ac_pb_download_progress);
+        //        mDownloadProgressView = findViewById(R.id.rc_ac_ll_progress_view);
+        //        mDownloadProgressTextView = findViewById(R.id.rc_ac_tv_download_progress);
+        //        mFileDownloadProgressBar = findViewById(R.id.rc_ac_pb_download_progress);
 
         mTitleBar.setTitle(R.string.rc_ac_file_download_preview);
         mTitleBar.setRightVisible(false);
@@ -115,64 +109,69 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileDownloadInfo.uid = RongUtils.md5(mFileDownloadInfo.fileName + mFileDownloadInfo.size);
         mFileDownloadInfo.path = FileUtils.getCachePath(this, PATH);
 
-        mFileTypeImage.setImageResource(FileTypeUtils.fileTypeImageId(this, mFileDownloadInfo.fileName));
+        mFileTypeImage.setImageResource(
+                FileTypeUtils.fileTypeImageId(this, mFileDownloadInfo.fileName));
         mFileNameView.setText(mFileDownloadInfo.fileName);
         mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
         mFileButton.setOnClickListener(this);
-//        mCancel.setOnClickListener(this);
+        //        mCancel.setOnClickListener(this);
 
         mAttachFile = new File(mFileDownloadInfo.path, mFileDownloadInfo.fileName);
         if (mAttachFile.exists()) {
             mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
         }
 
-        IMCenter.getInstance().supportResumeBrokenTransfer(mFileDownloadInfo.url, new RongIMClient.ResultCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean aBoolean) {
-                supportResumeTransfer = aBoolean ? SupportResumeStatus.SUPPORT : SupportResumeStatus.NOT_SUPPORT;
-                getFileDownloadInfo();
-            }
+        IMCenter.getInstance()
+                .supportResumeBrokenTransfer(
+                        mFileDownloadInfo.url,
+                        new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                supportResumeTransfer =
+                                        aBoolean
+                                                ? SupportResumeStatus.SUPPORT
+                                                : SupportResumeStatus.NOT_SUPPORT;
+                                getFileDownloadInfo();
+                            }
 
-            @Override
-            public void onError(RongIMClient.ErrorCode e) {
-                mFileDownloadInfo.state = DOWNLOAD_ERROR;
-                refreshDownloadState();
-            }
-        });
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {
+                                mFileDownloadInfo.state = DOWNLOAD_ERROR;
+                                refreshDownloadState();
+                            }
+                        });
     }
 
     private void getFileDownloadInfo() {
         pausedPath = FileUtils.getTempFilePath(this, mFileDownloadInfo.uid);
 
-        getFileInfo(new IRongCoreCallback.ResultCallback<DownloadInfo>() {
-            @Override
-            public void onSuccess(DownloadInfo downloadInfo) {
-                mDownloadInfo = downloadInfo;
-                if ((!mAttachFile.exists())) {
-                    if (mDownloadInfo != null) {
-                        FileUtils.removeFile(pausedPath);
-                    }
-                    mFileDownloadInfo.state = NOT_DOWNLOAD;
-                } else {
-                    if (mDownloadInfo == null) {//已经下载完毕
-                        mFileDownloadInfo.state = DOWNLOADED;
-                    } else {//正在下载/暂停下载
-                        if (mDownloadInfo.isDownLoading()) {
-                            mFileDownloadInfo.state = DOWNLOADING;
+        getFileInfo(
+                new IRongCoreCallback.ResultCallback<DownloadInfo>() {
+                    @Override
+                    public void onSuccess(DownloadInfo downloadInfo) {
+                        mDownloadInfo = downloadInfo;
+                        if ((!mAttachFile.exists())) {
+                            if (mDownloadInfo != null) {
+                                FileUtils.removeFile(pausedPath);
+                            }
+                            mFileDownloadInfo.state = NOT_DOWNLOAD;
                         } else {
-                            mFileDownloadInfo.state = DOWNLOAD_PAUSE;
+                            if (mDownloadInfo == null) { // 已经下载完毕
+                                mFileDownloadInfo.state = DOWNLOADED;
+                            } else { // 正在下载/暂停下载
+                                if (mDownloadInfo.isDownLoading()) {
+                                    mFileDownloadInfo.state = DOWNLOADING;
+                                } else {
+                                    mFileDownloadInfo.state = DOWNLOAD_PAUSE;
+                                }
+                            }
                         }
+                        refreshDownloadState();
                     }
-                }
-                refreshDownloadState();
-            }
 
-            @Override
-            public void onError(IRongCoreEnum.CoreErrorCode e) {
-
-            }
-        });
-
+                    @Override
+                    public void onError(IRongCoreEnum.CoreErrorCode e) {}
+                });
     }
 
     protected void refreshDownloadState() {
@@ -181,13 +180,21 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
                 break;
             case DOWNLOADING:
-//                mDownloadProgressView.setVisibility(View.VISIBLE);
-//                mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
-                downloadedFileLength = (long) (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0) + 0.5f);
-                mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_tv) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                        + "/" + FileTypeUtils.formatFileSize(mFileDownloadInfo.size) + ")");
+                //                mDownloadProgressView.setVisibility(View.VISIBLE);
+                //                mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
+                downloadedFileLength =
+                        (long)
+                                (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0)
+                                        + 0.5f);
+                mFileSizeView.setText(
+                        getString(R.string.rc_ac_file_download_progress_tv)
+                                + "("
+                                + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                + "/"
+                                + FileTypeUtils.formatFileSize(mFileDownloadInfo.size)
+                                + ")");
                 if (supportResumeTransfer == SupportResumeStatus.SUPPORT) {
-//                    mDownloadProgressTextView.setVisibility(View.GONE);
+                    //                    mDownloadProgressTextView.setVisibility(View.GONE);
                     mFileButton.setText(getString(R.string.rc_cancel));
                 } else {
                     mFileButton.setVisibility(View.GONE);
@@ -197,54 +204,85 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                 mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
                 break;
             case DOWNLOAD_SUCCESS:
-//                mDownloadProgressView.setVisibility(View.GONE);
+                //                mDownloadProgressView.setVisibility(View.GONE);
                 mFileButton.setVisibility(View.VISIBLE);
                 mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
-                makeText(WebFilePreviewActivity.this, getString(
-                        R.string.rc_ac_file_preview_downloaded) + mFileDownloadInfo.path, Toast.LENGTH_SHORT).show();
+                makeText(
+                                WebFilePreviewActivity.this,
+                                getString(R.string.rc_ac_file_preview_downloaded)
+                                        + mFileDownloadInfo.path,
+                                Toast.LENGTH_SHORT)
+                        .show();
                 break;
             case DOWNLOAD_ERROR:
                 if (supportResumeTransfer == SupportResumeStatus.SUPPORT) {
-//                    mDownloadProgressView.setVisibility(View.VISIBLE);
-//                    mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
-                    long downloadedFileLength = (long) (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0) + 0.5f);
-                    mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_pause) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                            + "/" + FileTypeUtils.formatFileSize(mFileDownloadInfo.size) + ")");
+                    //                    mDownloadProgressView.setVisibility(View.VISIBLE);
+                    //
+                    // mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
+                    long downloadedFileLength =
+                            (long)
+                                    (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0)
+                                            + 0.5f);
+                    mFileSizeView.setText(
+                            getString(R.string.rc_ac_file_download_progress_pause)
+                                    + "("
+                                    + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                    + "/"
+                                    + FileTypeUtils.formatFileSize(mFileDownloadInfo.size)
+                                    + ")");
                     mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
                 } else {
-//                    mDownloadProgressView.setVisibility(View.GONE);
+                    //                    mDownloadProgressView.setVisibility(View.GONE);
                     mFileButton.setVisibility(View.VISIBLE);
                     mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
                     mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
                 }
-                makeText(WebFilePreviewActivity.this, getString(
-                        R.string.rc_ac_file_preview_download_error), Toast.LENGTH_SHORT).show();
+                makeText(
+                                WebFilePreviewActivity.this,
+                                getString(R.string.rc_ac_file_preview_download_error),
+                                Toast.LENGTH_SHORT)
+                        .show();
                 break;
             case DOWNLOAD_CANCEL:
-//                mDownloadProgressView.setVisibility(View.GONE);
-//                mFileDownloadProgressBar.setProgress(0);
+                //                mDownloadProgressView.setVisibility(View.GONE);
+                //                mFileDownloadProgressBar.setProgress(0);
                 mFileButton.setVisibility(View.VISIBLE);
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
-                makeText(WebFilePreviewActivity.this, getString(
-                        R.string.rc_ac_file_preview_download_cancel), Toast.LENGTH_SHORT).show();
+                makeText(
+                                WebFilePreviewActivity.this,
+                                getString(R.string.rc_ac_file_preview_download_cancel),
+                                Toast.LENGTH_SHORT)
+                        .show();
                 break;
             case DELETED:
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
                 break;
             case DOWNLOAD_PAUSE:
-//                mDownloadProgressView.setVisibility(View.VISIBLE);
+                //                mDownloadProgressView.setVisibility(View.VISIBLE);
                 if (mDownloadInfo != null) {
-                    mFileDownloadInfo.progress = (int) (100L * mDownloadInfo.currentFileLength() / mDownloadInfo.getLength());
+                    mFileDownloadInfo.progress =
+                            (int)
+                                    (100L
+                                            * mDownloadInfo.currentFileLength()
+                                            / mDownloadInfo.getLength());
                     downloadedFileLength = mDownloadInfo.currentFileLength();
                 } else {
-                    downloadedFileLength = (long) (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0) + 0.5f);
+                    downloadedFileLength =
+                            (long)
+                                    (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0)
+                                            + 0.5f);
                 }
-//                mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
-                mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_pause) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                        + "/" + FileTypeUtils.formatFileSize(mFileDownloadInfo.size) + ")");
+                //                mFileDownloadProgressBar.setProgress(mFileDownloadInfo.progress);
+                mFileSizeView.setText(
+                        getString(R.string.rc_ac_file_download_progress_pause)
+                                + "("
+                                + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                + "/"
+                                + FileTypeUtils.formatFileSize(mFileDownloadInfo.size)
+                                + ")");
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
                 break;
         }
@@ -273,25 +311,42 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                 case DOWNLOADING:
                     mFileDownloadInfo.state = DOWNLOAD_PAUSE;
                     RongIMClient.getInstance().pauseDownloadMediaFile(mFileDownloadInfo.uid, null);
-                    mFileButton.setText(getResources().getString(R.string.rc_ac_file_preview_download_resume));
+                    mFileButton.setText(
+                            getResources().getString(R.string.rc_ac_file_preview_download_resume));
                     if (mDownloadInfo != null) {
                         downloadedFileLength = mDownloadInfo.currentFileLength();
                     } else {
-                        downloadedFileLength = (long) (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0) + 0.5f);
+                        downloadedFileLength =
+                                (long)
+                                        (mFileDownloadInfo.size
+                                                        * (mFileDownloadInfo.progress / 100.0)
+                                                + 0.5f);
                     }
-                    mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_pause) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                            + "/" + FileTypeUtils.formatFileSize(mFileDownloadInfo.size) + ")");
+                    mFileSizeView.setText(
+                            getString(R.string.rc_ac_file_download_progress_pause)
+                                    + "("
+                                    + FileTypeUtils.formatFileSize(downloadedFileLength)
+                                    + "/"
+                                    + FileTypeUtils.formatFileSize(mFileDownloadInfo.size)
+                                    + ")");
 
                     break;
                 case DOWNLOAD_PAUSE:
-                    if (IMCenter.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.NETWORK_UNAVAILABLE) {
-                        makeText(WebFilePreviewActivity.this, getString(R.string.rc_notice_network_unavailable), Toast.LENGTH_SHORT).show();
+                    if (IMCenter.getInstance().getCurrentConnectionStatus()
+                            == RongIMClient.ConnectionStatusListener.ConnectionStatus
+                                    .NETWORK_UNAVAILABLE) {
+                        makeText(
+                                        WebFilePreviewActivity.this,
+                                        getString(R.string.rc_notice_network_unavailable),
+                                        Toast.LENGTH_SHORT)
+                                .show();
                         return;
                     }
                     if (supportResumeTransfer == SupportResumeStatus.SUPPORT) {
                         mFileDownloadInfo.state = DOWNLOADING;
                         downloadFile();
-                        if (mFileDownloadInfo.state != DOWNLOAD_ERROR && mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
+                        if (mFileDownloadInfo.state != DOWNLOAD_ERROR
+                                && mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
                             mFileButton.setText(getResources().getString(R.string.rc_cancel));
                         }
                     }
@@ -301,31 +356,39 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
     }
 
     private void startToDownload() {
-        if (IMCenter.getInstance().getCurrentConnectionStatus() == RongIMClient.ConnectionStatusListener.ConnectionStatus.NETWORK_UNAVAILABLE) {
-            makeText(WebFilePreviewActivity.this,
-                    getString(R.string.rc_notice_network_unavailable), Toast.LENGTH_SHORT).show();
+        if (IMCenter.getInstance().getCurrentConnectionStatus()
+                == RongIMClient.ConnectionStatusListener.ConnectionStatus.NETWORK_UNAVAILABLE) {
+            makeText(
+                            WebFilePreviewActivity.this,
+                            getString(R.string.rc_notice_network_unavailable),
+                            Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
         if (supportResumeTransfer == SupportResumeStatus.NOT_SET) {
-            IMCenter.getInstance().supportResumeBrokenTransfer(mFileDownloadInfo.url, new RongIMClient.ResultCallback<Boolean>() {
-                @Override
-                public void onSuccess(Boolean aBoolean) {
-                    if (mFileDownloadInfo.state == NOT_DOWNLOAD
-                            || mFileDownloadInfo.state == DELETED
-                            || mFileDownloadInfo.state == DOWNLOAD_ERROR
-                            || mFileDownloadInfo.state == DOWNLOAD_CANCEL) {
-                        supportResumeTransfer = SupportResumeStatus.valueOf(aBoolean ? 1 : 0);
-                        downloadFile();
-                    }
-                }
+            IMCenter.getInstance()
+                    .supportResumeBrokenTransfer(
+                            mFileDownloadInfo.url,
+                            new RongIMClient.ResultCallback<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean aBoolean) {
+                                    if (mFileDownloadInfo.state == NOT_DOWNLOAD
+                                            || mFileDownloadInfo.state == DELETED
+                                            || mFileDownloadInfo.state == DOWNLOAD_ERROR
+                                            || mFileDownloadInfo.state == DOWNLOAD_CANCEL) {
+                                        supportResumeTransfer =
+                                                SupportResumeStatus.valueOf(aBoolean ? 1 : 0);
+                                        downloadFile();
+                                    }
+                                }
 
-                @Override
-                public void onError(RongIMClient.ErrorCode e) {
-                    mFileDownloadInfo.state = DOWNLOAD_ERROR;
-                    refreshDownloadState();
-                }
-            });
+                                @Override
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    mFileDownloadInfo.state = DOWNLOAD_ERROR;
+                                    refreshDownloadState();
+                                }
+                            });
         } else {
             if (mFileDownloadInfo.state == NOT_DOWNLOAD
                     || mFileDownloadInfo.state == DOWNLOAD_ERROR
@@ -342,66 +405,84 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileDownloadInfo.state = DOWNLOADING;
         if (supportResumeTransfer == SupportResumeStatus.SUPPORT) {
             mFileButton.setText(getResources().getString(R.string.rc_cancel));
-//            mCancel.setVisibility(View.GONE);
-//            mDownloadProgressView.setVisibility(View.VISIBLE);
-//            mDownloadProgressTextView.setVisibility(View.GONE);
+            //            mCancel.setVisibility(View.GONE);
+            //            mDownloadProgressView.setVisibility(View.VISIBLE);
+            //            mDownloadProgressTextView.setVisibility(View.GONE);
             if (mDownloadInfo != null) {
                 downloadedFileLength = mDownloadInfo.currentFileLength();
             } else {
-                downloadedFileLength = (long) (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0) + 0.5f);
+                downloadedFileLength =
+                        (long)
+                                (mFileDownloadInfo.size * (mFileDownloadInfo.progress / 100.0)
+                                        + 0.5f);
             }
-            mFileSizeView.setText(getString(R.string.rc_ac_file_download_progress_tv) + "(" + FileTypeUtils.formatFileSize(downloadedFileLength)
-                    + "/" + FileTypeUtils.formatFileSize(mFileDownloadInfo.size) + ")");
+            mFileSizeView.setText(
+                    getString(R.string.rc_ac_file_download_progress_tv)
+                            + "("
+                            + FileTypeUtils.formatFileSize(downloadedFileLength)
+                            + "/"
+                            + FileTypeUtils.formatFileSize(mFileDownloadInfo.size)
+                            + ")");
         } else {
             mFileButton.setVisibility(View.GONE);
-//            mDownloadProgressView.setVisibility(View.VISIBLE);
-//            mDownloadProgressTextView.setText(getString(R.string.rc_ac_file_download_progress_tv,
-//                    FileTypeUtils.formatFileSize(0), FileTypeUtils.formatFileSize(mFileDownloadInfo.size)));
+            //            mDownloadProgressView.setVisibility(View.VISIBLE);
+            //
+            // mDownloadProgressTextView.setText(getString(R.string.rc_ac_file_download_progress_tv,
+            //                    FileTypeUtils.formatFileSize(0),
+            // FileTypeUtils.formatFileSize(mFileDownloadInfo.size)));
         }
 
-        RongIMClient.getInstance().downloadMediaFile(mFileDownloadInfo.uid, mFileDownloadInfo.url,
-                mFileDownloadInfo.fileName, mFileDownloadInfo.path, new IRongCallback.IDownloadMediaFileCallback() {
+        RongIMClient.getInstance()
+                .downloadMediaFile(
+                        mFileDownloadInfo.uid,
+                        mFileDownloadInfo.url,
+                        mFileDownloadInfo.fileName,
+                        mFileDownloadInfo.path,
+                        new IRongCallback.IDownloadMediaFileCallback() {
 
-                    @Override
-                    public void onFileNameChanged(String newFileName) {
-                        mFileDownloadInfo.fileName = newFileName;
-                    }
+                            @Override
+                            public void onFileNameChanged(String newFileName) {
+                                mFileDownloadInfo.fileName = newFileName;
+                            }
 
-                    @Override
-                    public void onSuccess() {
-                        mFileDownloadInfo.state = DOWNLOAD_SUCCESS;
-                        try {
-                            mAttachFile = new File(mFileDownloadInfo.path, mFileDownloadInfo.fileName);
-                        } catch (Exception e) {
-                            RLog.e(TAG, "downloadFile" + e);
-                        }
-                        refreshDownloadState();
-                    }
+                            @Override
+                            public void onSuccess() {
+                                mFileDownloadInfo.state = DOWNLOAD_SUCCESS;
+                                try {
+                                    mAttachFile =
+                                            new File(
+                                                    mFileDownloadInfo.path,
+                                                    mFileDownloadInfo.fileName);
+                                } catch (Exception e) {
+                                    RLog.e(TAG, "downloadFile" + e);
+                                }
+                                refreshDownloadState();
+                            }
 
-                    @Override
-                    public void onProgress(int progress) {
-                        if (mFileDownloadInfo.state != DOWNLOAD_CANCEL
-                                && mFileDownloadInfo.state != DOWNLOAD_PAUSE) {
-                            mFileDownloadInfo.progress = progress;
-                            mFileDownloadInfo.state = DOWNLOADING;
-                            refreshDownloadState();
-                        }
-                    }
+                            @Override
+                            public void onProgress(int progress) {
+                                if (mFileDownloadInfo.state != DOWNLOAD_CANCEL
+                                        && mFileDownloadInfo.state != DOWNLOAD_PAUSE) {
+                                    mFileDownloadInfo.progress = progress;
+                                    mFileDownloadInfo.state = DOWNLOADING;
+                                    refreshDownloadState();
+                                }
+                            }
 
-                    @Override
-                    public void onError(RongIMClient.ErrorCode code) {
-                        if (mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
-                            mFileDownloadInfo.state = DOWNLOAD_ERROR;
-                            refreshDownloadState();
-                        }
-                    }
+                            @Override
+                            public void onError(RongIMClient.ErrorCode code) {
+                                if (mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
+                                    mFileDownloadInfo.state = DOWNLOAD_ERROR;
+                                    refreshDownloadState();
+                                }
+                            }
 
-                    @Override
-                    public void onCanceled() {
-                        mFileDownloadInfo.state = DOWNLOAD_CANCEL;
-                        refreshDownloadState();
-                    }
-                });
+                            @Override
+                            public void onCanceled() {
+                                mFileDownloadInfo.state = DOWNLOAD_CANCEL;
+                                refreshDownloadState();
+                            }
+                        });
     }
 
     public void openFile(String fileName, String fileSavePath) {
@@ -412,12 +493,18 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(intent);
                 } else {
-                    makeText(WebFilePreviewActivity.this,
-                            getString(R.string.rc_ac_file_preview_can_not_open_file), Toast.LENGTH_SHORT).show();
+                    makeText(
+                                    WebFilePreviewActivity.this,
+                                    getString(R.string.rc_ac_file_preview_can_not_open_file),
+                                    Toast.LENGTH_SHORT)
+                            .show();
                 }
             } catch (Exception e) {
-                makeText(WebFilePreviewActivity.this,
-                        getString(R.string.rc_ac_file_preview_can_not_open_file), Toast.LENGTH_SHORT).show();
+                makeText(
+                                WebFilePreviewActivity.this,
+                                getString(R.string.rc_ac_file_preview_can_not_open_file),
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
         }
     }
@@ -427,9 +514,11 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
             Intent webIntent = new Intent(this, RongWebviewActivity.class);
             webIntent.setPackage(getPackageName());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri uri = FileProvider.getUriForFile(this,
-                        getPackageName() + getString(R.string.rc_authorities_fileprovider),
-                        new File(fileSavePath));
+                Uri uri =
+                        FileProvider.getUriForFile(
+                                this,
+                                getPackageName() + getString(R.string.rc_authorities_fileprovider),
+                                new File(fileSavePath));
                 webIntent.putExtra("url", uri.toString());
             } else {
                 webIntent.putExtra("url", "file://" + fileSavePath);
@@ -440,25 +529,36 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         } else if (fileSavePath.endsWith(APK_FILE)) {
             File file = new File(fileSavePath);
             if (!file.exists()) {
-                makeText(WebFilePreviewActivity.this, getString(R.string.rc_file_not_exist), Toast.LENGTH_SHORT).show();
+                makeText(
+                                WebFilePreviewActivity.this,
+                                getString(R.string.rc_file_not_exist),
+                                Toast.LENGTH_SHORT)
+                        .show();
                 return false;
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 Uri downloaded_apk;
                 try {
-                    downloaded_apk = FileProvider.getUriForFile(this,
-                            getPackageName() + getString(R.string.rc_authorities_fileprovider), file);
+                    downloaded_apk =
+                            FileProvider.getUriForFile(
+                                    this,
+                                    getPackageName()
+                                            + getString(R.string.rc_authorities_fileprovider),
+                                    file);
                 } catch (Exception e) {
                     throw new RuntimeException("Please check IMKit Manifest FileProvider config.");
                 }
-                Intent intent = new Intent(Intent.ACTION_VIEW).setDataAndType(downloaded_apk,
-                        "application/vnd.android.package-archive");
+                Intent intent =
+                        new Intent(Intent.ACTION_VIEW)
+                                .setDataAndType(
+                                        downloaded_apk, "application/vnd.android.package-archive");
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
             } else {
                 Intent installIntent = new Intent(Intent.ACTION_VIEW);
                 installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                installIntent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+                installIntent.setDataAndType(
+                        Uri.fromFile(file), "application/vnd.android.package-archive");
                 startActivity(installIntent);
             }
             return true;
@@ -508,5 +608,4 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         String uid;
         long size;
     }
-
 }

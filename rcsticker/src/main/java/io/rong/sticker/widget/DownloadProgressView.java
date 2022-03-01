@@ -1,26 +1,19 @@
 package io.rong.sticker.widget;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-
 import android.util.AttributeSet;
 import android.view.View;
-
 import androidx.annotation.IntDef;
-
+import io.rong.sticker.R;
 import java.lang.annotation.Retention;
 
-import io.rong.sticker.R;
-
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
-/**
- * Created by luoyanlong on 2018/08/21.
- * 下载进度控件
- */
+/** Created by luoyanlong on 2018/08/21. 下载进度控件 */
 public class DownloadProgressView extends View {
 
     private Paint bgPaint;
@@ -43,12 +36,14 @@ public class DownloadProgressView extends View {
 
     private void init() {
         bgPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        strokeWidth = getResources().getDimensionPixelOffset(R.dimen.download_progress_stroke_width);
+        strokeWidth =
+                getResources().getDimensionPixelOffset(R.dimen.download_progress_stroke_width);
         bgPaint.setStrokeWidth(strokeWidth);
 
         tvPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         tvPaint.setColor(0xff999999);
-        tvPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.download_progress_text_size));
+        tvPaint.setTextSize(
+                getResources().getDimensionPixelSize(R.dimen.download_progress_text_size));
         tvPaint.setTextAlign(Paint.Align.CENTER);
 
         rectF = new RectF();
@@ -74,7 +69,8 @@ public class DownloadProgressView extends View {
             drawText(canvas, getResources().getString(R.string.download_sticker));
         } else {
             drawDownloading(canvas);
-            tvPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.download_progress_text_size));
+            tvPaint.setTextSize(
+                    getResources().getDimensionPixelSize(R.dimen.download_progress_text_size));
             tvPaint.setColor(0x50333333);
             String text = progress + "%";
             drawText(canvas, text);
@@ -119,8 +115,7 @@ public class DownloadProgressView extends View {
 
     @Retention(SOURCE)
     @IntDef({NOT_DOWNLOAD, DOWNLOADING})
-    public @interface Status {
-    }
+    public @interface Status {}
 
     public static final int NOT_DOWNLOAD = 0;
     public static final int DOWNLOADING = 1;

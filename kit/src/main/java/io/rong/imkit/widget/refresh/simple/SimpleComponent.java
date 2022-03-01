@@ -1,18 +1,16 @@
 package io.rong.imkit.widget.refresh.simple;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
-
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import io.rong.imkit.widget.refresh.SmartRefreshLayout;
 import io.rong.imkit.widget.refresh.api.RefreshComponent;
 import io.rong.imkit.widget.refresh.api.RefreshFooter;
@@ -23,12 +21,9 @@ import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imkit.widget.refresh.constant.SpinnerStyle;
 import io.rong.imkit.widget.refresh.listener.OnStateChangedListener;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-
 /**
- * Component 初步实现
- * 实现 Header 和 Footer 时，继承 ComponentAbstract 的话可以少写很多接口方法
- * Created by scwang on 2018/2/6.
+ * Component 初步实现 实现 Header 和 Footer 时，继承 ComponentAbstract 的话可以少写很多接口方法 Created by scwang on
+ * 2018/2/6.
  */
 public abstract class SimpleComponent extends RelativeLayout implements RefreshComponent {
 
@@ -40,13 +35,18 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
         this(wrapped, wrapped instanceof RefreshComponent ? (RefreshComponent) wrapped : null);
     }
 
-    protected SimpleComponent(@NonNull View wrappedView, @Nullable RefreshComponent wrappedInternal) {
+    protected SimpleComponent(
+            @NonNull View wrappedView, @Nullable RefreshComponent wrappedInternal) {
         super(wrappedView.getContext(), null, 0);
         this.mWrappedView = wrappedView;
         this.mWrappedInternal = wrappedInternal;
-        if (this instanceof RefreshFooter && mWrappedInternal instanceof RefreshHeader && mWrappedInternal.getSpinnerStyle() == SpinnerStyle.MatchLayout) {
+        if (this instanceof RefreshFooter
+                && mWrappedInternal instanceof RefreshHeader
+                && mWrappedInternal.getSpinnerStyle() == SpinnerStyle.MatchLayout) {
             wrappedInternal.getView().setScaleY(-1);
-        } else if (this instanceof RefreshHeader && mWrappedInternal instanceof RefreshFooter && mWrappedInternal.getSpinnerStyle() == SpinnerStyle.MatchLayout) {
+        } else if (this instanceof RefreshHeader
+                && mWrappedInternal instanceof RefreshFooter
+                && mWrappedInternal.getSpinnerStyle() == SpinnerStyle.MatchLayout) {
             wrappedInternal.getView().setScaleY(-1);
         }
     }
@@ -60,7 +60,7 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
         if (!super.equals(obj)) {
             if (obj instanceof RefreshComponent) {
                 final RefreshComponent thisView = this;
-                return thisView.getView() == ((RefreshComponent)obj).getView();
+                return thisView.getView() == ((RefreshComponent) obj).getView();
             }
             return false;
         }
@@ -86,7 +86,7 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
     }
 
     @Override
-    public void setPrimaryColors(@ColorInt int ... colors) {
+    public void setPrimaryColors(@ColorInt int... colors) {
         if (mWrappedInternal != null && mWrappedInternal != this) {
             mWrappedInternal.setPrimaryColors(colors);
         }
@@ -129,14 +129,17 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
         } else if (mWrappedView != null) {
             ViewGroup.LayoutParams params = mWrappedView.getLayoutParams();
             if (params instanceof SmartRefreshLayout.LayoutParams) {
-                kernel.requestDrawBackgroundFor(this, ((SmartRefreshLayout.LayoutParams) params).backgroundColor);
+                kernel.requestDrawBackgroundFor(
+                        this, ((SmartRefreshLayout.LayoutParams) params).backgroundColor);
             }
         }
     }
 
     @Override
     public boolean isSupportHorizontalDrag() {
-        return mWrappedInternal != null && mWrappedInternal != this && mWrappedInternal.isSupportHorizontalDrag();
+        return mWrappedInternal != null
+                && mWrappedInternal != this
+                && mWrappedInternal.isSupportHorizontalDrag();
     }
 
     @Override
@@ -147,7 +150,8 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
     }
 
     @Override
-    public void onMoving(boolean isDragging, float percent, int offset, int height, int maxDragHeight) {
+    public void onMoving(
+            boolean isDragging, float percent, int offset, int height, int maxDragHeight) {
         if (mWrappedInternal != null && mWrappedInternal != this) {
             mWrappedInternal.onMoving(isDragging, percent, offset, height, maxDragHeight);
         }
@@ -161,14 +165,18 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
     }
 
     @Override
-    public void onStartAnimator(@NonNull RefreshLayout refreshLayout, int height, int maxDragHeight) {
+    public void onStartAnimator(
+            @NonNull RefreshLayout refreshLayout, int height, int maxDragHeight) {
         if (mWrappedInternal != null && mWrappedInternal != this) {
             mWrappedInternal.onStartAnimator(refreshLayout, height, maxDragHeight);
         }
     }
 
     @Override
-    public void onStateChanged(@NonNull RefreshLayout refreshLayout, @NonNull RefreshState oldState, @NonNull RefreshState newState) {
+    public void onStateChanged(
+            @NonNull RefreshLayout refreshLayout,
+            @NonNull RefreshState oldState,
+            @NonNull RefreshState newState) {
         if (mWrappedInternal != null && mWrappedInternal != this) {
             if (this instanceof RefreshFooter && mWrappedInternal instanceof RefreshHeader) {
                 if (oldState.isFooter) {
@@ -194,6 +202,7 @@ public abstract class SimpleComponent extends RelativeLayout implements RefreshC
 
     @SuppressLint("RestrictedApi")
     public boolean setNoMoreData(boolean noMoreData) {
-        return mWrappedInternal instanceof RefreshFooter && ((RefreshFooter) mWrappedInternal).setNoMoreData(noMoreData);
+        return mWrappedInternal instanceof RefreshFooter
+                && ((RefreshFooter) mWrappedInternal).setNoMoreData(noMoreData);
     }
 }

@@ -1,0 +1,255 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="io.rong.imkit" >
+4
+5    <uses-sdk
+6        android:minSdkVersion="19"
+6-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
+7        android:targetSdkVersion="29" />
+7-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml
+8    <!-- 访问相册，访问文件系统等 -->
+9    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+9-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:4:5-80
+9-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:4:22-77
+10    <!-- 拍照 -->
+11    <uses-permission android:name="android.permission.CAMERA" />
+11-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:6:5-65
+11-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:6:22-62
+12    <!-- 拍照等 -->
+13    <uses-permission android:name="android.permission.VIBRATE" />
+13-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:8:5-66
+13-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:8:22-63
+14    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+14-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:9:5-73
+14-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:9:22-70
+15    <!-- 网络 -->
+16    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+16-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:11:5-76
+16-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:11:22-73
+17    <uses-permission android:name="android.permission.INTERNET" />
+17-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:12:5-67
+17-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:12:22-64
+18    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+18-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:13:5-79
+18-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:13:22-76
+19    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+19-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:14:5-76
+19-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:14:22-73
+20    <!-- 录音权限，语音消息使用 -->
+21    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+21-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:16:5-71
+21-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:16:22-68
+22
+23    <application android:supportsRtl="true" >
+23-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:18:5-139:19
+23-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:18:18-44
+24        <activity
+24-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:19:9-21:52
+25            android:name="io.rong.imkit.conversationlist.RongConversationListActivity"
+25-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:20:13-87
+26            android:screenOrientation="portrait" />
+26-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:21:13-49
+27        <activity
+27-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:22:9-24:52
+28            android:name="io.rong.imkit.conversation.RongConversationActivity"
+28-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:23:13-66
+29            android:screenOrientation="portrait" />
+29-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:24:13-49
+30        <activity
+30-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:26:9-28:52
+31            android:name="io.rong.imkit.subconversationlist.RongSubConversationListActivity"
+31-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:27:13-80
+32            android:screenOrientation="portrait" />
+32-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:28:13-49
+33        <activity
+33-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:29:9-31:52
+34            android:name="io.rong.imkit.feature.mention.MentionMemberSelectActivity"
+34-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:30:13-72
+35            android:screenOrientation="portrait" />
+35-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:31:13-49
+36        <activity
+36-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:33:9-35:52
+37            android:name="io.rong.imkit.feature.location.AMapLocationActivity"
+37-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:34:13-79
+38            android:screenOrientation="portrait" />
+38-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:35:13-49
+39        <activity
+39-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:37:9-39:52
+40            android:name="io.rong.imkit.feature.location.AMapLocationActivity2D"
+40-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:38:13-81
+41            android:screenOrientation="portrait" />
+41-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:39:13-49
+42        <activity
+42-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:40:9-42:52
+43            android:name="io.rong.imkit.feature.location.AMapPreviewActivity"
+43-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:41:13-78
+44            android:screenOrientation="portrait" />
+44-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:42:13-49
+45        <activity
+45-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:43:9-45:52
+46            android:name="io.rong.imkit.feature.location.AMapPreviewActivity2D"
+46-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:44:13-80
+47            android:screenOrientation="portrait" />
+47-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:45:13-49
+48        <activity
+48-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:47:9-49:52
+49            android:name="io.rong.imkit.feature.location.AMapRealTimeActivity"
+49-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:48:13-66
+50            android:screenOrientation="portrait" />
+50-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:49:13-49
+51        <activity
+51-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:51:9-53:52
+52            android:name="io.rong.imkit.feature.location.AMapRealTimeActivity2D"
+52-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:52:13-68
+53            android:screenOrientation="portrait" />
+53-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:53:13-49
+54        <activity
+54-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:55:9-57:52
+55            android:name="io.rong.imkit.activity.RongWebviewActivity"
+55-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:56:13-57
+56            android:screenOrientation="portrait" />
+56-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:57:13-49
+57        <activity
+57-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:59:9-66:20
+58            android:name="io.rong.imkit.activity.FilePreviewActivity"
+58-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:60:13-57
+59            android:exported="false"
+59-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:61:13-37
+60            android:screenOrientation="portrait" >
+60-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:62:13-49
+61            <intent-filter>
+61-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:63:13-65:29
+62                <category android:name="android.intent.category.DEFAULT" />
+62-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:64:17-76
+62-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:64:27-73
+63            </intent-filter>
+64        </activity>
+65        <activity
+65-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:68:9-76:20
+66            android:name="io.rong.imkit.activity.PicturePagerActivity"
+66-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:69:13-58
+67            android:configChanges="orientation|keyboardHidden|screenSize"
+67-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:70:13-74
+68            android:exported="false"
+68-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:71:13-37
+69            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+69-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:72:13-71
+70            <intent-filter>
+70-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:63:13-65:29
+71                <category android:name="android.intent.category.DEFAULT" />
+71-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:64:17-76
+71-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:64:27-73
+72            </intent-filter>
+73        </activity>
+74        <activity
+74-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:77:9-79:52
+75            android:name="io.rong.imkit.activity.ForwardSelectConversationActivity"
+75-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:78:13-71
+76            android:screenOrientation="portrait" />
+76-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:79:13-49
+77        <activity
+77-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:81:9-84:52
+78            android:name="io.rong.imkit.activity.CombineWebViewActivity"
+78-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:82:13-60
+79            android:exported="false"
+79-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:83:13-37
+80            android:screenOrientation="portrait" />
+80-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:84:13-49
+81        <activity
+81-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:86:9-89:52
+82            android:name="io.rong.imkit.activity.WebFilePreviewActivity"
+82-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:87:13-73
+83            android:exported="false"
+83-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:88:13-37
+84            android:screenOrientation="portrait" />
+84-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:89:13-49
+85        <activity
+85-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:91:9-94:74
+86            android:name="io.rong.imkit.activity.CombinePicturePagerActivity"
+86-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:92:13-78
+87            android:exported="false"
+87-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:93:13-37
+88            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+88-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:94:13-71
+89        <activity
+89-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:95:9-98:74
+90            android:name="io.rong.imkit.activity.GIFPreviewActivity"
+90-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:96:13-69
+91            android:exported="false"
+91-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:97:13-37
+92            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+92-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:98:13-71
+93
+94        <!-- start图库配置项 -->
+95        <provider
+95-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:102:9-110:20
+96            android:name="io.rong.imkit.picture.PictureFileProvider"
+96-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:103:13-56
+97            android:authorities="${applicationId}.provider"
+97-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:104:13-60
+98            android:exported="false"
+98-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:105:13-37
+99            android:grantUriPermissions="true" >
+99-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:106:13-47
+100            <meta-data
+100-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:107:13-109:56
+101                android:name="android.support.FILE_PROVIDER_PATHS"
+101-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:108:17-67
+102                android:resource="@xml/rc_file_path" />
+102-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:109:17-53
+103        </provider>
+104
+105        <activity
+105-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:112:9-115:52
+106            android:name="io.rong.imkit.picture.PictureSelectorActivity"
+106-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:113:13-60
+107            android:configChanges="orientation|keyboardHidden|screenSize"
+107-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:114:13-74
+108            android:screenOrientation="portrait" />
+108-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:115:13-49
+109        <activity
+109-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:116:9-120:64
+110            android:name="io.rong.imkit.picture.PictureSelectorCameraEmptyActivity"
+110-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:117:13-71
+111            android:configChanges="orientation|keyboardHidden|screenSize"
+111-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:118:13-74
+112            android:screenOrientation="portrait"
+112-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:119:13-49
+113            android:theme="@style/Picture.Theme.Translucent" />
+113-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:120:13-61
+114        <activity
+114-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:122:9-125:52
+115            android:name="io.rong.imkit.picture.PicturePreviewActivity"
+115-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:123:13-59
+116            android:configChanges="orientation|keyboardHidden|screenSize"
+116-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:124:13-74
+117            android:screenOrientation="portrait" />
+117-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:125:13-49
+118        <activity
+118-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:126:9-129:52
+119            android:name="io.rong.imkit.picture.PictureVideoPlayActivity"
+119-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:127:13-61
+120            android:configChanges="orientation|keyboardHidden|screenSize"
+120-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:128:13-74
+121            android:screenOrientation="portrait" />
+121-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:129:13-49
+122        <!-- end图库配置项 -->
+123
+124        <activity
+124-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:132:9-135:71
+125            android:name="io.rong.imkit.feature.location.SearchLocationActivity"
+125-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:133:13-81
+126            android:screenOrientation="portrait"
+126-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:134:13-49
+127            android:windowSoftInputMode="stateVisible|adjustResize" />
+127-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:135:13-68
+128
+129        <meta-data
+129-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:136:9-138:59
+130            android:name="rc.imkit"
+130-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:137:13-36
+131            android:value="io.rong.imkit.IMKitBuildVar" />
+131-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/kit/src/main/AndroidManifest.xml:138:13-56
+132    </application>
+133
+134</manifest>

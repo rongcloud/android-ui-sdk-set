@@ -9,60 +9,35 @@ import android.text.TextUtils;
  * @date：2017-5-24 16:21
  * @describe：Media Entity
  */
-
 public class LocalMedia implements Parcelable {
-    /**
-     * original path
-     */
+    /** original path */
     private String path;
-    /**
-     * video duration
-     */
+    /** video duration */
     private long duration;
-    /**
-     * If the selected
-     */
+    /** If the selected */
     private boolean isChecked;
-    /**
-     * media position of list
-     */
+    /** media position of list */
     public int position;
-    /**
-     * The media number of qq choose styles
-     */
+    /** The media number of qq choose styles */
     private int num;
-    /**
-     * The media resource type
-     */
+    /** The media resource type */
     private String mimeType;
 
-    /**
-     * Gallery selection mode
-     */
+    /** Gallery selection mode */
     private int chooseModel;
 
-    /**
-     * image or video width
-     */
+    /** image or video width */
     private int width;
-    /**
-     * image or video height
-     */
+    /** image or video height */
     private int height;
 
-    /**
-     * file size
-     */
+    /** file size */
     private long size;
 
-    /**
-     * Whether the original image is displayed
-     */
+    /** Whether the original image is displayed */
     private boolean isOriginal;
 
-    public LocalMedia() {
-
-    }
+    public LocalMedia() {}
 
     public LocalMedia(String path, long duration, int chooseModel, String mimeType) {
         this.path = path;
@@ -71,7 +46,14 @@ public class LocalMedia implements Parcelable {
         this.mimeType = mimeType;
     }
 
-    public LocalMedia(String path, long duration, int chooseModel, String mimeType, int width, int height, long size) {
+    public LocalMedia(
+            String path,
+            long duration,
+            int chooseModel,
+            String mimeType,
+            int width,
+            int height,
+            long size) {
         this.path = path;
         this.duration = duration;
         this.chooseModel = chooseModel;
@@ -81,8 +63,8 @@ public class LocalMedia implements Parcelable {
         this.size = size;
     }
 
-    public LocalMedia(String path, long duration,
-                      boolean isChecked, int position, int num, int chooseModel) {
+    public LocalMedia(
+            String path, long duration, boolean isChecked, int position, int num, int chooseModel) {
         this.path = path;
         this.duration = duration;
         this.isChecked = isChecked;
@@ -107,7 +89,6 @@ public class LocalMedia implements Parcelable {
         this.duration = duration;
     }
 
-
     public boolean isChecked() {
         return isChecked;
     }
@@ -115,7 +96,6 @@ public class LocalMedia implements Parcelable {
     public void setChecked(boolean checked) {
         isChecked = checked;
     }
-
 
     public int getPosition() {
         return position;
@@ -215,15 +195,16 @@ public class LocalMedia implements Parcelable {
         this.isOriginal = in.readByte() != 0;
     }
 
-    public static final Creator<LocalMedia> CREATOR = new Creator<LocalMedia>() {
-        @Override
-        public LocalMedia createFromParcel(Parcel source) {
-            return new LocalMedia(source);
-        }
+    public static final Creator<LocalMedia> CREATOR =
+            new Creator<LocalMedia>() {
+                @Override
+                public LocalMedia createFromParcel(Parcel source) {
+                    return new LocalMedia(source);
+                }
 
-        @Override
-        public LocalMedia[] newArray(int size) {
-            return new LocalMedia[size];
-        }
-    };
+                @Override
+                public LocalMedia[] newArray(int size) {
+                    return new LocalMedia[size];
+                }
+            };
 }

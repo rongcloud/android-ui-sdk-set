@@ -9,7 +9,8 @@ import android.net.Uri;
  * @date：2019-12-03 10:41
  * @describe：刷新相册
  */
-public class PictureMediaScannerConnection implements MediaScannerConnection.MediaScannerConnectionClient {
+public class PictureMediaScannerConnection
+        implements MediaScannerConnection.MediaScannerConnectionClient {
     public interface ScanListener {
         void onScanFinish();
     }

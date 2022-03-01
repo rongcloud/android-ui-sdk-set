@@ -1,5 +1,8 @@
 package io.rong.imkit.widget.refresh.util;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import android.content.res.Resources;
 import android.graphics.PointF;
 import android.os.Build;
@@ -10,7 +13,6 @@ import android.webkit.WebView;
 import android.widget.AbsListView;
 import android.widget.ListView;
 import android.widget.ScrollView;
-
 import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingChild;
 import androidx.core.view.NestedScrollingParent;
@@ -18,16 +20,9 @@ import androidx.core.view.ScrollingView;
 import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
-
 import io.rong.imkit.R;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-
-/**
- * SmartUtil
- * Created by scwang on 2018/3/5.
- */
+/** SmartUtil Created by scwang on 2018/3/5. */
 public class SmartUtil implements Interpolator {
 
     public static int INTERPOLATOR_VISCOUS_FLUID = 0;
@@ -39,7 +34,7 @@ public class SmartUtil implements Interpolator {
         this.type = type;
     }
 
-    //<editor-fold desc="内容工具">
+    // <editor-fold desc="内容工具">
     public static int measureViewHeight(View view) {
         ViewGroup.LayoutParams p = view.getLayoutParams();
         if (p == null) {
@@ -110,22 +105,22 @@ public class SmartUtil implements Interpolator {
             ((RecyclerView) scrollableView).fling(0, velocity);
         }
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="滚动判断">
+    // <editor-fold desc="滚动判断">
 
     /**
      * 判断内容是否可以刷新
      *
      * @param targetView 内容视图
-     * @param touch      按压事件位置
+     * @param touch 按压事件位置
      * @return 是否可以刷新
      */
     public static boolean canRefresh(@NonNull View targetView, PointF touch) {
         if (targetView.canScrollVertically(-1) && targetView.getVisibility() == View.VISIBLE) {
             return false;
         }
-        //touch == null 时 canRefresh 不会动态递归搜索
+        // touch == null 时 canRefresh 不会动态递归搜索
         if (targetView instanceof ViewGroup && touch != null) {
             ViewGroup viewGroup = (ViewGroup) targetView;
             final int childCount = viewGroup.getChildCount();
@@ -150,8 +145,8 @@ public class SmartUtil implements Interpolator {
     /**
      * 判断内容视图是否可以加载更多
      *
-     * @param targetView  内容视图
-     * @param touch       按压事件位置
+     * @param targetView 内容视图
+     * @param touch 按压事件位置
      * @param contentFull 内容是否填满页面 (未填满时，会通过canScrollUp自动判断)
      * @return 是否可以刷新
      */
@@ -159,8 +154,10 @@ public class SmartUtil implements Interpolator {
         if (targetView.canScrollVertically(1) && targetView.getVisibility() == View.VISIBLE) {
             return false;
         }
-        //touch == null 时 canLoadMore 不会动态递归搜索
-        if (targetView instanceof ViewGroup && touch != null && !SmartUtil.isScrollableView(targetView)) {
+        // touch == null 时 canLoadMore 不会动态递归搜索
+        if (targetView instanceof ViewGroup
+                && touch != null
+                && !SmartUtil.isScrollableView(targetView)) {
             ViewGroup viewGroup = (ViewGroup) targetView;
             final int childCount = viewGroup.getChildCount();
             PointF point = new PointF();
@@ -180,32 +177,35 @@ public class SmartUtil implements Interpolator {
         }
         return (contentFull || targetView.canScrollVertically(-1));
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="transform Point">
+    // <editor-fold desc="transform Point">
 
-    public static boolean isTransformedTouchPointInView(@NonNull View group, @NonNull View child, float x, float y, PointF outLocalPoint) {
+    public static boolean isTransformedTouchPointInView(
+            @NonNull View group, @NonNull View child, float x, float y, PointF outLocalPoint) {
         if (child.getVisibility() != View.VISIBLE) {
             return false;
         }
         final float[] point = new float[2];
         point[0] = x;
         point[1] = y;
-//        transformPointToViewLocal(group, child, point);
+        //        transformPointToViewLocal(group, child, point);
         point[0] += group.getScrollX() - child.getLeft();
         point[1] += group.getScrollY() - child.getTop();
-//        final boolean isInView = pointInView(child, point[0], point[1], 0);
-        final boolean isInView = point[0] >= 0 && point[1] >= 0
-                && point[0] < (child.getWidth())
-                && point[1] < ((child.getHeight()));
+        //        final boolean isInView = pointInView(child, point[0], point[1], 0);
+        final boolean isInView =
+                point[0] >= 0
+                        && point[1] >= 0
+                        && point[0] < (child.getWidth())
+                        && point[1] < ((child.getHeight()));
         if (isInView && outLocalPoint != null) {
             outLocalPoint.set(point[0] - x, point[1] - y);
         }
         return isInView;
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="像素密度">
+    // <editor-fold desc="像素密度">
     private static float density = Resources.getSystem().getDisplayMetrics().density;
 
     /**
@@ -227,12 +227,10 @@ public class SmartUtil implements Interpolator {
     public static float px2dp(int pxValue) {
         return (pxValue / density);
     }
-    //</editor-fold>
+    // </editor-fold>
 
-    //<editor-fold desc="ViscousFluidInterpolator">
-    /**
-     * Controls the viscous fluid effect (how much of it).
-     */
+    // <editor-fold desc="ViscousFluidInterpolator">
+    /** Controls the viscous fluid effect (how much of it). */
     private static final float VISCOUS_FLUID_SCALE = 8.0f;
 
     private static final float VISCOUS_FLUID_NORMALIZE;
@@ -250,7 +248,7 @@ public class SmartUtil implements Interpolator {
         if (x < 1.0f) {
             x -= (1.0f - (float) Math.exp(-x));
         } else {
-            float start = 0.36787944117f;   // 1/e == exp(-1)
+            float start = 0.36787944117f; // 1/e == exp(-1)
             x = 1.0f - (float) Math.exp(1.0f - x);
             x = start + x * (1.0f - start);
         }
@@ -268,6 +266,6 @@ public class SmartUtil implements Interpolator {
         }
         return interpolated;
     }
-    //</editor-fold>
+    // </editor-fold>
 
 }

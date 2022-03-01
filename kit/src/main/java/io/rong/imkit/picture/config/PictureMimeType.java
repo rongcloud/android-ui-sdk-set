@@ -1,24 +1,19 @@
 package io.rong.imkit.picture.config;
 
-
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-
-import java.io.File;
-
 import io.rong.imkit.R;
-
+import java.io.File;
 
 /**
  * @author：luck
  * @date：2017-5-24 17:02
  * @describe：图片列表
  */
-
 public final class PictureMimeType {
     public static final int ofAll() {
         return PictureConfig.TYPE_ALL;
@@ -31,7 +26,6 @@ public final class PictureMimeType {
     public static final int ofVideo() {
         return PictureConfig.TYPE_VIDEO;
     }
-
 
     public static final String ofPNG() {
         return MIME_TYPE_PNG;
@@ -69,16 +63,16 @@ public final class PictureMimeType {
         return MIME_TYPE_AVI;
     }
 
-    private final static String MIME_TYPE_PNG = "image/png";
-    private final static String MIME_TYPE_JPEG = "image/jpeg";
-    private final static String MIME_TYPE_BMP = "image/bmp";
-    private final static String MIME_TYPE_GIF = "image/gif";
-    private final static String MIME_TYPE_WEBP = "image/webp";
+    private static final String MIME_TYPE_PNG = "image/png";
+    private static final String MIME_TYPE_JPEG = "image/jpeg";
+    private static final String MIME_TYPE_BMP = "image/bmp";
+    private static final String MIME_TYPE_GIF = "image/gif";
+    private static final String MIME_TYPE_WEBP = "image/webp";
 
-    private final static String MIME_TYPE_3GP = "video/3gp";
-    private final static String MIME_TYPE_MP4 = "video/mp4";
-    private final static String MIME_TYPE_MPEG = "video/mpeg";
-    private final static String MIME_TYPE_AVI = "video/avi";
+    private static final String MIME_TYPE_3GP = "video/3gp";
+    private static final String MIME_TYPE_MP4 = "video/mp4";
+    private static final String MIME_TYPE_MPEG = "video/mpeg";
+    private static final String MIME_TYPE_AVI = "video/avi";
 
     @Deprecated
     public static int isPictureType(String pictureType) {
@@ -146,7 +140,6 @@ public final class PictureMimeType {
         return mimeType != null && mimeType.startsWith(MIME_TYPE_PREFIX_VIDEO);
     }
 
-
     /**
      * 是否是图片
      *
@@ -176,12 +169,21 @@ public final class PictureMimeType {
     public static String fileToType(File file) {
         if (file != null) {
             String name = file.getName();
-            if (name.endsWith(".mp4") || name.endsWith(".avi")
-                    || name.endsWith(".3gpp") || name.endsWith(".3gp") || name.endsWith(".mov")) {
+            if (name.endsWith(".mp4")
+                    || name.endsWith(".avi")
+                    || name.endsWith(".3gpp")
+                    || name.endsWith(".3gp")
+                    || name.endsWith(".mov")) {
                 return MIME_TYPE_VIDEO;
-            } else if (name.endsWith(".PNG") || name.endsWith(".png") || name.endsWith(".jpeg")
-                    || name.endsWith(".gif") || name.endsWith(".GIF") || name.endsWith(".jpg")
-                    || name.endsWith(".webp") || name.endsWith(".WEBP") || name.endsWith(".JPEG")
+            } else if (name.endsWith(".PNG")
+                    || name.endsWith(".png")
+                    || name.endsWith(".jpeg")
+                    || name.endsWith(".gif")
+                    || name.endsWith(".GIF")
+                    || name.endsWith(".jpg")
+                    || name.endsWith(".webp")
+                    || name.endsWith(".WEBP")
+                    || name.endsWith(".JPEG")
                     || name.endsWith(".bmp")) {
                 return MIME_TYPE_IMAGE;
             }
@@ -237,11 +239,19 @@ public final class PictureMimeType {
      */
     public static String getMimeType(Context context, Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-            Cursor cursor = context.getApplicationContext().getContentResolver().query(uri,
-                    new String[]{MediaStore.Files.FileColumns.MIME_TYPE}, null, null, null);
+            Cursor cursor =
+                    context.getApplicationContext()
+                            .getContentResolver()
+                            .query(
+                                    uri,
+                                    new String[] {MediaStore.Files.FileColumns.MIME_TYPE},
+                                    null,
+                                    null,
+                                    null);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE);
+                    int columnIndex =
+                            cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE);
                     if (columnIndex > -1) {
                         return cursor.getString(columnIndex);
                     }
@@ -267,7 +277,6 @@ public final class PictureMimeType {
             return PictureConfig.TYPE_IMAGE;
         }
     }
-
 
     /**
      * 获取图片后缀
@@ -340,15 +349,14 @@ public final class PictureMimeType {
         }
     }
 
-    public final static String JPEG = ".jpg";
+    public static final String JPEG = ".jpg";
 
-    public final static String PNG = ".png";
+    public static final String PNG = ".png";
 
-    public final static String DCIM = "DCIM/Camera";
-    public final static String MIME_TYPE_IMAGE = "image/jpeg";
-    public final static String MIME_TYPE_VIDEO = "video/mp4";
+    public static final String DCIM = "DCIM/Camera";
+    public static final String MIME_TYPE_IMAGE = "image/jpeg";
+    public static final String MIME_TYPE_VIDEO = "video/mp4";
 
-    public final static String MIME_TYPE_PREFIX_IMAGE = "image";
-    public final static String MIME_TYPE_PREFIX_VIDEO = "video";
-
+    public static final String MIME_TYPE_PREFIX_IMAGE = "image";
+    public static final String MIME_TYPE_PREFIX_VIDEO = "video";
 }

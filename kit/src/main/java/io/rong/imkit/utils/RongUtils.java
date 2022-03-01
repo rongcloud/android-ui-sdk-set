@@ -23,7 +23,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
-
+import io.rong.common.LibStorageUtils;
+import io.rong.common.RLog;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +33,6 @@ import java.lang.reflect.Field;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import io.rong.common.LibStorageUtils;
-import io.rong.common.RLog;
-
 public class RongUtils {
     private static final String TAG = RongUtils.class.getSimpleName();
 
@@ -42,8 +40,8 @@ public class RongUtils {
 
     public static int screenWidth;
     public static int screenHeight;
-    public static int screenMin;// 宽高中，小的一边
-    public static int screenMax;// 宽高中，较大的值
+    public static int screenMin; // 宽高中，小的一边
+    public static int screenMax; // 宽高中，较大的值
 
     public static float density;
     public static float scaleDensity;
@@ -59,7 +57,6 @@ public class RongUtils {
     private static String KEY_KEYBOARD_HEIGHT = "KEY_BROADCAST_HEIGHT";
     private static int TEMP_KEYBOARD_HEIGHT = -1;
     private static int TEMP_KEYBOARD_ORIENTATION = -1;
-
 
     public static int dip2px(float dipValue) {
         return (int) (dipValue * density + 0.5f);
@@ -105,7 +102,14 @@ public class RongUtils {
         densityDpi = dm.densityDpi;
         statusbarheight = getStatusBarHeight(context);
         navbarheight = getNavBarHeight(context);
-        Log.d(TAG, "screenWidth=" + screenWidth + " screenHeight=" + screenHeight + " density=" + density);
+        Log.d(
+                TAG,
+                "screenWidth="
+                        + screenWidth
+                        + " screenHeight="
+                        + screenHeight
+                        + " density="
+                        + density);
     }
 
     public static int getStatusBarHeight(Context context) {
@@ -169,14 +173,19 @@ public class RongUtils {
 
     public static Uri getUriFromDrawableRes(Context context, int id) {
         Resources resources = context.getResources();
-        String path = ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
-                + resources.getResourcePackageName(id) + "/"
-                + resources.getResourceTypeName(id) + "/"
-                + resources.getResourceEntryName(id);
+        String path =
+                ContentResolver.SCHEME_ANDROID_RESOURCE
+                        + "://"
+                        + resources.getResourcePackageName(id)
+                        + "/"
+                        + resources.getResourceTypeName(id)
+                        + "/"
+                        + resources.getResourceEntryName(id);
         return Uri.parse(path);
     }
 
-    public static Bitmap getResizedBitmap(Context context, Uri uri, int widthLimit, int heightLimit) throws IOException {
+    public static Bitmap getResizedBitmap(Context context, Uri uri, int widthLimit, int heightLimit)
+            throws IOException {
 
         String path;
         Bitmap result;
@@ -184,7 +193,14 @@ public class RongUtils {
         if (uri.getScheme().equals("file")) {
             path = uri.getPath();
         } else if (uri.getScheme().equals("content")) {
-            Cursor cursor = context.getContentResolver().query(uri, new String[]{MediaStore.Images.Media.DATA}, null, null, null);
+            Cursor cursor =
+                    context.getContentResolver()
+                            .query(
+                                    uri,
+                                    new String[] {MediaStore.Images.Media.DATA},
+                                    null,
+                                    null,
+                                    null);
             cursor.moveToFirst();
             path = cursor.getString(0);
             cursor.close();
@@ -215,7 +231,6 @@ public class RongUtils {
         while (width / 2 > widthLimit) {
             width /= 2;
             sampleW <<= 1;
-
         }
 
         while (height / 2 > heightLimit) {
@@ -282,19 +297,28 @@ public class RongUtils {
 
         matrix.postScale(Math.min(xS, yS), Math.min(xS, yS));
         try {
-            result = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            result =
+                    Bitmap.createBitmap(
+                            bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         } catch (OutOfMemoryError e) {
             RLog.e(TAG, "getResizedBitmap", e);
-            Log.e("ResourceCompressHandler", "OOM" + "Height:" + bitmap.getHeight() + "Width:" + bitmap.getHeight() + "matrix:" + xS + " " + yS);
+            Log.e(
+                    "ResourceCompressHandler",
+                    "OOM"
+                            + "Height:"
+                            + bitmap.getHeight()
+                            + "Width:"
+                            + bitmap.getHeight()
+                            + "matrix:"
+                            + xS
+                            + " "
+                            + yS);
             return null;
         }
         return result;
     }
 
-
-    /**
-     * 获取视频文件的时长(时间戳)
-     */
+    /** 获取视频文件的时长(时间戳) */
     public static int getVideoDuration(Context context, String videoPath) {
         try {
             MediaPlayer mp = MediaPlayer.create(context, Uri.parse(videoPath));
@@ -307,9 +331,7 @@ public class RongUtils {
         }
     }
 
-    /**
-     * md5加密
-     */
+    /** md5加密 */
     public static String md5(Object object) {
         byte[] hash;
         try {
@@ -342,17 +364,17 @@ public class RongUtils {
         return bytes;
     }
 
-    /**
-     * 获取应用程序名称
-     */
+    /** 获取应用程序名称 */
     @Deprecated
     public static String getAppName(Context context) {
         return LibStorageUtils.getAppName(context);
     }
 
     public static boolean isDestroy(Activity activity) {
-        if (activity == null || activity.isFinishing() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
-                && activity.isDestroyed()) {
+        if (activity == null
+                || activity.isFinishing()
+                || Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
+                        && activity.isDestroyed()) {
             return true;
         } else {
             return false;
@@ -361,45 +383,53 @@ public class RongUtils {
 
     /**
      * 检查是否开启定位服务
-     * <p>
-     * 检查定位服务是否开启的方法在不同的系统版本上不一样
+     *
+     * <p>检查定位服务是否开启的方法在不同的系统版本上不一样
      *
      * @return
      */
     public static boolean isLocationServiceEnabled(Context context) {
         boolean isLocationServiceEnabled = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            LocationManager locationManager =
+                    (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             if (locationManager != null) {
                 isLocationServiceEnabled = locationManager.isLocationEnabled();
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             try {
-                isLocationServiceEnabled = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE) != Settings.Secure.LOCATION_MODE_OFF;
+                isLocationServiceEnabled =
+                        Settings.Secure.getInt(
+                                        context.getContentResolver(), Settings.Secure.LOCATION_MODE)
+                                != Settings.Secure.LOCATION_MODE_OFF;
             } catch (Settings.SettingNotFoundException e) {
             }
         } else {
-            isLocationServiceEnabled = !TextUtils.isEmpty(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED));
+            isLocationServiceEnabled =
+                    !TextUtils.isEmpty(
+                            Settings.Secure.getString(
+                                    context.getContentResolver(),
+                                    Settings.Secure.LOCATION_PROVIDERS_ALLOWED));
         }
 
         return isLocationServiceEnabled;
     }
 
-    /**
-     * 是否正在通话中
-     */
+    /** 是否正在通话中 */
     public static boolean phoneIsInUse(Context context) {
         if (context == null) {
             return false;
         }
-        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager mTelephonyManager =
+                (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         int state = mTelephonyManager.getCallState();
         return state != TelephonyManager.CALL_STATE_IDLE;
     }
 
     public static int getSaveKeyBoardHeight(Context context, int orientation) {
         if (TEMP_KEYBOARD_HEIGHT == -1 || orientation != TEMP_KEYBOARD_ORIENTATION) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(RONG_IM_KIT, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences =
+                    context.getSharedPreferences(RONG_IM_KIT, Context.MODE_PRIVATE);
             int height = sharedPreferences.getInt(getKeyboardHeightKey(context, orientation), 0);
             TEMP_KEYBOARD_HEIGHT = height;
             TEMP_KEYBOARD_ORIENTATION = orientation;
@@ -413,8 +443,12 @@ public class RongUtils {
         if (TEMP_KEYBOARD_HEIGHT != height || orientation != TEMP_KEYBOARD_ORIENTATION) {
             TEMP_KEYBOARD_HEIGHT = height;
             TEMP_KEYBOARD_ORIENTATION = orientation;
-            SharedPreferences sharedPreferences = context.getSharedPreferences(RONG_IM_KIT, Context.MODE_PRIVATE);
-            sharedPreferences.edit().putInt(getKeyboardHeightKey(context, orientation), height).apply();
+            SharedPreferences sharedPreferences =
+                    context.getSharedPreferences(RONG_IM_KIT, Context.MODE_PRIVATE);
+            sharedPreferences
+                    .edit()
+                    .putInt(getKeyboardHeightKey(context, orientation), height)
+                    .apply();
         }
     }
 

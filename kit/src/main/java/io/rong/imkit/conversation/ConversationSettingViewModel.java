@@ -2,13 +2,11 @@ package io.rong.imkit.conversation;
 
 import android.app.Application;
 import android.text.TextUtils;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.model.OperationResult;
 import io.rong.imkit.notification.RongNotificationManager;
@@ -19,7 +17,6 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ErrorCode;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Conversation.ConversationNotificationStatus;
-import io.rong.imlib.model.Conversation.ConversationType;
 import io.rong.imlib.model.ConversationStatus;
 
 public class ConversationSettingViewModel extends AndroidViewModel {
@@ -33,82 +30,128 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         super(application);
     }
 
-    public ConversationSettingViewModel(Application application, Conversation.ConversationType conversationType, String targetId) {
+    public ConversationSettingViewModel(
+            Application application,
+            Conversation.ConversationType conversationType,
+            String targetId) {
         super(application);
         mConversationType = conversationType;
         mTargetId = targetId;
         mOperationResult = new MutableLiveData<>();
         mTopStatus = new MutableLiveData<>();
         mNotificationStatus = new MutableLiveData<>();
-        RongCoreClient.getInstance().getConversationTopStatus(targetId, conversationType, new IRongCoreCallback.ResultCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean aBoolean) {
-                mTopStatus.postValue(aBoolean);
-            }
+        RongCoreClient.getInstance()
+                .getConversationTopStatus(
+                        targetId,
+                        conversationType,
+                        new IRongCoreCallback.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                mTopStatus.postValue(aBoolean);
+                            }
 
-            @Override
-            public void onError(IRongCoreEnum.CoreErrorCode e) {
-
-            }
-        });
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {}
+                        });
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
-        RongNotificationManager.getInstance().getConversationNotificationStatus(conversationType, targetId, new RongIMClient.ResultCallback<ConversationNotificationStatus>() {
-            @Override
-            public void onSuccess(ConversationNotificationStatus conversationNotificationStatus) {
-                mNotificationStatus.postValue(conversationNotificationStatus);
-            }
+        RongNotificationManager.getInstance()
+                .getConversationNotificationStatus(
+                        conversationType,
+                        targetId,
+                        new RongIMClient.ResultCallback<ConversationNotificationStatus>() {
+                            @Override
+                            public void onSuccess(
+                                    ConversationNotificationStatus conversationNotificationStatus) {
+                                mNotificationStatus.postValue(conversationNotificationStatus);
+                            }
 
-            @Override
-            public void onError(ErrorCode coreErrorCode) {
-            }
-        });
+                            @Override
+                            public void onError(ErrorCode coreErrorCode) {}
+                        });
     }
 
     public void clearMessages(long recordTime, boolean clearRemote) {
-        IMCenter.getInstance().cleanHistoryMessages(mConversationType, mTargetId, recordTime, clearRemote, new RongIMClient.OperationCallback() {
-            @Override
-            public void onSuccess() {
-                mOperationResult.postValue(new OperationResult(OperationResult.Action.CLEAR_CONVERSATION_MESSAGES, OperationResult.SUCCESS));
-            }
+        IMCenter.getInstance()
+                .cleanHistoryMessages(
+                        mConversationType,
+                        mTargetId,
+                        recordTime,
+                        clearRemote,
+                        new RongIMClient.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                mOperationResult.postValue(
+                                        new OperationResult(
+                                                OperationResult.Action.CLEAR_CONVERSATION_MESSAGES,
+                                                OperationResult.SUCCESS));
+                            }
 
-            @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                mOperationResult.postValue(new OperationResult(OperationResult.Action.CLEAR_CONVERSATION_MESSAGES, errorCode.getValue()));
-            }
-        });
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                mOperationResult.postValue(
+                                        new OperationResult(
+                                                OperationResult.Action.CLEAR_CONVERSATION_MESSAGES,
+                                                errorCode.getValue()));
+                            }
+                        });
         // 清除远端消息
-        RongIMClient.getInstance().cleanRemoteHistoryMessages(
-                mConversationType,
-                mTargetId, System.currentTimeMillis(),
-                null);
+        RongIMClient.getInstance()
+                .cleanRemoteHistoryMessages(
+                        mConversationType, mTargetId, System.currentTimeMillis(), null);
     }
 
     public void setConversationTop(final boolean isTop, boolean shouldCreateNewConversation) {
-        IMCenter.getInstance().setConversationToTop(mConversationType, mTargetId, isTop, shouldCreateNewConversation, new RongIMClient.ResultCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean aBoolean) {
-                mOperationResult.postValue(new OperationResult(OperationResult.Action.SET_TOP, OperationResult.SUCCESS));
-            }
+        IMCenter.getInstance()
+                .setConversationToTop(
+                        mConversationType,
+                        mTargetId,
+                        isTop,
+                        shouldCreateNewConversation,
+                        new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                mOperationResult.postValue(
+                                        new OperationResult(
+                                                OperationResult.Action.SET_TOP,
+                                                OperationResult.SUCCESS));
+                            }
 
-            @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                mOperationResult.postValue(new OperationResult(OperationResult.Action.SET_TOP, errorCode.getValue()));
-            }
-        });
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                mOperationResult.postValue(
+                                        new OperationResult(
+                                                OperationResult.Action.SET_TOP,
+                                                errorCode.getValue()));
+                            }
+                        });
     }
 
     public void setNotificationStatus(final Conversation.ConversationNotificationStatus status) {
-        IMCenter.getInstance().setConversationNotificationStatus(mConversationType, mTargetId, status, new RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>() {
-            @Override
-            public void onSuccess(Conversation.ConversationNotificationStatus conversationNotificationStatus) {
-                mOperationResult.postValue(new OperationResult(OperationResult.Action.SET_NOTIFICATION_STATUS, OperationResult.SUCCESS));
-            }
+        IMCenter.getInstance()
+                .setConversationNotificationStatus(
+                        mConversationType,
+                        mTargetId,
+                        status,
+                        new RongIMClient.ResultCallback<
+                                Conversation.ConversationNotificationStatus>() {
+                            @Override
+                            public void onSuccess(
+                                    Conversation.ConversationNotificationStatus
+                                            conversationNotificationStatus) {
+                                mOperationResult.postValue(
+                                        new OperationResult(
+                                                OperationResult.Action.SET_NOTIFICATION_STATUS,
+                                                OperationResult.SUCCESS));
+                            }
 
-            @Override
-            public void onError(RongIMClient.ErrorCode errorCode) {
-                mOperationResult.postValue(new OperationResult(OperationResult.Action.SET_NOTIFICATION_STATUS, errorCode.getValue()));
-            }
-        });
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                mOperationResult.postValue(
+                                        new OperationResult(
+                                                OperationResult.Action.SET_NOTIFICATION_STATUS,
+                                                errorCode.getValue()));
+                            }
+                        });
     }
 
     public MutableLiveData<Boolean> getTopStatus() {
@@ -128,7 +171,10 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         private Conversation.ConversationType conversationType;
         private Application application;
 
-        public Factory(Application application, Conversation.ConversationType conversationType, String targetId) {
+        public Factory(
+                Application application,
+                Conversation.ConversationType conversationType,
+                String targetId) {
             this.conversationType = conversationType;
             this.targetId = targetId;
             this.application = application;
@@ -138,30 +184,45 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         @Override
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             try {
-                return modelClass.getConstructor(Application.class, Conversation.ConversationType.class, String.class).newInstance(application, conversationType, targetId);
+                return modelClass
+                        .getConstructor(
+                                Application.class,
+                                Conversation.ConversationType.class,
+                                String.class)
+                        .newInstance(application, conversationType, targetId);
             } catch (Exception e) {
                 throw new RuntimeException("Cannot create an instance of " + modelClass, e);
             }
         }
     }
 
-    private RongIMClient.ConversationStatusListener mConversationStatusListener = new RongIMClient.ConversationStatusListener() {
-        @Override
-        public void onStatusChanged(ConversationStatus[] conversationStatuses) {
-            if (conversationStatuses != null && conversationStatuses.length > 0) {
-                for (ConversationStatus status : conversationStatuses) {
-                    if (status.getConversationType() == mConversationType && status.getTargetId().equals(mTargetId)) {
-                        if (status.getStatus() != null && !TextUtils.isEmpty(status.getStatus().get(ConversationStatus.TOP_KEY))) {
-                            mTopStatus.postValue(status.isTop());
-                        }
-                        if (status.getStatus() != null && !TextUtils.isEmpty(status.getStatus().get(ConversationStatus.NOTIFICATION_KEY))) {
-                            mNotificationStatus.postValue(status.getNotifyStatus());
+    private RongIMClient.ConversationStatusListener mConversationStatusListener =
+            new RongIMClient.ConversationStatusListener() {
+                @Override
+                public void onStatusChanged(ConversationStatus[] conversationStatuses) {
+                    if (conversationStatuses != null && conversationStatuses.length > 0) {
+                        for (ConversationStatus status : conversationStatuses) {
+                            if (status.getConversationType() == mConversationType
+                                    && status.getTargetId().equals(mTargetId)) {
+                                if (status.getStatus() != null
+                                        && !TextUtils.isEmpty(
+                                                status.getStatus()
+                                                        .get(ConversationStatus.TOP_KEY))) {
+                                    mTopStatus.postValue(status.isTop());
+                                }
+                                if (status.getStatus() != null
+                                        && !TextUtils.isEmpty(
+                                                status.getStatus()
+                                                        .get(
+                                                                ConversationStatus
+                                                                        .NOTIFICATION_KEY))) {
+                                    mNotificationStatus.postValue(status.getNotifyStatus());
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
-    };
+            };
 
     @Override
     protected void onCleared() {

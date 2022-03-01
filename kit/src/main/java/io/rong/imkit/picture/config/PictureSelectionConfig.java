@@ -3,17 +3,13 @@ package io.rong.imkit.picture.config;
 import android.content.pm.ActivityInfo;
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import androidx.annotation.StyleRes;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.R;
 import io.rong.imkit.picture.engine.ImageEngine;
 import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.tools.PictureFileUtils;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public final class PictureSelectionConfig implements Parcelable {
     public int chooseMode;
@@ -23,8 +19,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public String specifiedFormat;
     public int requestedOrientation;
     public boolean isAndroidQTransform;
-    @StyleRes
-    public int themeStyleId;
+    @StyleRes public int themeStyleId;
     public int selectionMode;
     public int maxSelectNum;
     public int minSelectNum;
@@ -83,8 +78,7 @@ public final class PictureSelectionConfig implements Parcelable {
         private static final PictureSelectionConfig INSTANCE = new PictureSelectionConfig();
     }
 
-    public PictureSelectionConfig() {
-    }
+    public PictureSelectionConfig() {}
 
     @Override
     public int describeContents() {
@@ -142,15 +136,16 @@ public final class PictureSelectionConfig implements Parcelable {
         this.videoDurationLimit = in.readInt();
     }
 
-    public static final Creator<PictureSelectionConfig> CREATOR = new Creator<PictureSelectionConfig>() {
-        @Override
-        public PictureSelectionConfig createFromParcel(Parcel source) {
-            return new PictureSelectionConfig(source);
-        }
+    public static final Creator<PictureSelectionConfig> CREATOR =
+            new Creator<PictureSelectionConfig>() {
+                @Override
+                public PictureSelectionConfig createFromParcel(Parcel source) {
+                    return new PictureSelectionConfig(source);
+                }
 
-        @Override
-        public PictureSelectionConfig[] newArray(int size) {
-            return new PictureSelectionConfig[size];
-        }
-    };
+                @Override
+                public PictureSelectionConfig[] newArray(int size) {
+                    return new PictureSelectionConfig[size];
+                }
+            };
 }

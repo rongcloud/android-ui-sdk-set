@@ -2,7 +2,6 @@ package io.rong.imkit.conversationlist;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
 import io.rong.imkit.utils.RouteUtils;

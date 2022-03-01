@@ -3,10 +3,7 @@ package io.rong.sticker.businesslogic;
 import io.rong.sticker.model.Sticker;
 import io.rong.sticker.util.DownloadUtil;
 
-/**
- * Created by luoyanlong on 2018/08/22.
- * 下载一个表情
- */
+/** Created by luoyanlong on 2018/08/22. 下载一个表情 */
 public class StickerDownloadTask {
 
     private String packageId;
@@ -21,7 +18,8 @@ public class StickerDownloadTask {
         Sticker sticker = StickerPackageApiTask.getStickerSync(packageId, stickerId);
         if (sticker != null) {
             DownloadUtil downloadThumb = new DownloadUtil(sticker.getThumbUrl());
-            String savePath = StickerPackageStorageTask.getStickerThumbFilePath(packageId, stickerId);
+            String savePath =
+                    StickerPackageStorageTask.getStickerThumbFilePath(packageId, stickerId);
             downloadThumb.download(savePath);
             sticker.setLocalThumbUrl(savePath);
             DownloadUtil downloadImage = new DownloadUtil(sticker.getUrl());
@@ -30,5 +28,4 @@ public class StickerDownloadTask {
             sticker.setLocalUrl(savePath);
         }
     }
-
 }

@@ -1,26 +1,19 @@
 package io.rong.imkit.model;
 
 import android.text.TextUtils;
-
 import io.rong.common.RLog;
 import io.rong.imlib.model.Conversation;
 
-/**
- * Created by zhjchen on 4/29/15.
- */
-
+/** Created by zhjchen on 4/29/15. */
 public final class ConversationKey {
 
-    private final static String SEPARATOR = "#@6RONG_CLOUD9@#";
+    private static final String SEPARATOR = "#@6RONG_CLOUD9@#";
 
     private String key;
     private String targetId;
     private Conversation.ConversationType type;
 
-    private ConversationKey() {
-
-    }
-
+    private ConversationKey() {}
 
     public static ConversationKey obtain(String targetId, Conversation.ConversationType type) {
 
@@ -45,7 +38,8 @@ public final class ConversationKey {
                 conversationKey.setTargetId(array[0]);
 
                 try {
-                    conversationKey.setType(Conversation.ConversationType.setValue(Integer.parseInt(array[1])));
+                    conversationKey.setType(
+                            Conversation.ConversationType.setValue(Integer.parseInt(array[1])));
                 } catch (NumberFormatException e) {
                     RLog.e("ConversationKey ", "NumberFormatException");
                     return null;
@@ -57,7 +51,6 @@ public final class ConversationKey {
 
         return null;
     }
-
 
     public String getKey() {
         return key;
@@ -82,6 +75,4 @@ public final class ConversationKey {
     public void setType(Conversation.ConversationType type) {
         this.type = type;
     }
-
-
 }

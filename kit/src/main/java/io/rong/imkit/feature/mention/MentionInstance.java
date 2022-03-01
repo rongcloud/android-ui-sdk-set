@@ -1,10 +1,8 @@
 package io.rong.imkit.feature.mention;
 
 import android.widget.EditText;
-
-import java.util.List;
-
 import io.rong.imlib.model.Conversation;
+import java.util.List;
 
 public class MentionInstance {
     public Conversation.ConversationType conversationType;

@@ -1,0 +1,150 @@
+com/felipecsl/gifimageview/library/GifDecoder.java
+ com.felipecsl.gifimageview.library.GifDecoder
+ com.felipecsl.gifimageview.library.GifDecoder$BitmapProvider
+io/rong/sticker/StickerExtensionModule.java
+ io.rong.sticker.StickerExtensionModule
+ io.rong.sticker.StickerExtensionModule$1
+ io.rong.sticker.StickerExtensionModule$SettingClickListener
+io/rong/sticker/businesslogic/StickerPackagesUiHandler.java
+ io.rong.sticker.businesslogic.StickerPackagesUiHandler
+io/rong/sticker/util/SHA1Util.java
+ io.rong.sticker.util.SHA1Util
+io/rong/sticker/widget/StickerGridItemView.java
+ io.rong.sticker.widget.StickerGridItemView
+io/rong/sticker/model/StickerPackageDownloadUrlInfo.java
+ io.rong.sticker.model.StickerPackageDownloadUrlInfo
+io/rong/sticker/businesslogic/StickerSendMessageTask.java
+ io.rong.sticker.businesslogic.StickerSendMessageTask
+io/rong/sticker/businesslogic/StickerPackageStorageTask.java
+ io.rong.sticker.businesslogic.StickerPackageStorageTask
+io/rong/sticker/db/StickerPackageTable.java
+ io.rong.sticker.db.StickerPackageTable
+io/rong/sticker/message/StickerMessageItemProvider.java
+ io.rong.sticker.message.StickerMessageItemProvider
+ io.rong.sticker.message.StickerMessageItemProvider$1
+com/felipecsl/gifimageview/library/GifHeaderParser.java
+ com.felipecsl.gifimageview.library.GifHeaderParser
+io/rong/sticker/businesslogic/StickerPackageDbTask.java
+ io.rong.sticker.businesslogic.StickerPackageDbTask
+io/rong/sticker/businesslogic/StickerPackageIconDownloadTask.java
+ io.rong.sticker.businesslogic.StickerPackageIconDownloadTask
+io/rong/sticker/widget/StickerPopupWindow.java
+ io.rong.sticker.widget.StickerPopupWindow
+ io.rong.sticker.widget.StickerPopupWindow$1
+ io.rong.sticker.widget.StickerPopupWindow$2
+ io.rong.sticker.widget.StickerPopupWindow$Background
+io/rong/sticker/emoticontab/RecommendTab.java
+ io.rong.sticker.emoticontab.RecommendTab
+ io.rong.sticker.emoticontab.RecommendTab$1
+ io.rong.sticker.emoticontab.RecommendTab$RecommendPackageAdapter
+ io.rong.sticker.emoticontab.RecommendTab$RecommendPackageAdapter$1
+ io.rong.sticker.emoticontab.RecommendTab$RecommendPackageAdapter$1$1
+ io.rong.sticker.emoticontab.RecommendTab$RecommendPackageAdapter$1$1$1
+ io.rong.sticker.emoticontab.RecommendTab$RecommendPackageAdapter$1$1$2
+ io.rong.sticker.emoticontab.RecommendTab$RecommendPackageAdapter$1$2
+ io.rong.sticker.emoticontab.RecommendTab$RecommendPackageAdapter$1$2$1
+ io.rong.sticker.emoticontab.RecommendTab$RecommendViewHolder
+io/rong/sticker/mysticker/MyStickerActivity.java
+ io.rong.sticker.mysticker.MyStickerActivity
+ io.rong.sticker.mysticker.MyStickerActivity$1
+io/rong/sticker/model/StickerPackageInfo.java
+ io.rong.sticker.model.StickerPackageInfo
+io/rong/sticker/model/FullResponse.java
+ io.rong.sticker.model.FullResponse
+io/rong/sticker/model/Sticker.java
+ io.rong.sticker.model.Sticker
+io/rong/sticker/util/ZipUtil.java
+ io.rong.sticker.util.ZipUtil
+io/rong/sticker/businesslogic/StickerPackageDeleteTask.java
+ io.rong.sticker.businesslogic.StickerPackageDeleteTask
+com/felipecsl/gifimageview/library/GifHeader.java
+ com.felipecsl.gifimageview.library.GifHeader
+io/rong/sticker/businesslogic/StickerPackageApiTask.java
+ io.rong.sticker.businesslogic.StickerPackageApiTask
+ io.rong.sticker.businesslogic.StickerPackageApiTask$Worker
+com/felipecsl/gifimageview/library/GifFrame.java
+ com.felipecsl.gifimageview.library.GifFrame
+io/rong/sticker/widget/DownloadProgressView.java
+ io.rong.sticker.widget.DownloadProgressView
+ io.rong.sticker.widget.DownloadProgressView$Status
+io/rong/sticker/businesslogic/StickerPackageSortTask.java
+ io.rong.sticker.businesslogic.StickerPackageSortTask
+io/rong/sticker/model/BaseResponse.java
+ io.rong.sticker.model.BaseResponse
+com/felipecsl/gifimageview/library/GifImageView.java
+ com.felipecsl.gifimageview.library.GifImageView
+ com.felipecsl.gifimageview.library.GifImageView$1
+ com.felipecsl.gifimageview.library.GifImageView$2
+ com.felipecsl.gifimageview.library.GifImageView$OnAnimationStart
+ com.felipecsl.gifimageview.library.GifImageView$OnAnimationStop
+ com.felipecsl.gifimageview.library.GifImageView$OnFrameAvailable
+io/rong/sticker/widget/StickerGridView.java
+ io.rong.sticker.widget.StickerGridView
+ io.rong.sticker.widget.StickerGridView$1
+ io.rong.sticker.widget.StickerGridView$GestureTap
+io/rong/sticker/businesslogic/GifImageLoader.java
+ io.rong.sticker.businesslogic.GifImageLoader
+ io.rong.sticker.businesslogic.GifImageLoader$1
+ io.rong.sticker.businesslogic.GifImageLoader$Callback
+ io.rong.sticker.businesslogic.GifImageLoader$SimpleCallback
+ io.rong.sticker.businesslogic.GifImageLoader$SimpleCallback$1
+ io.rong.sticker.businesslogic.GifImageLoader$SimpleCallback$2
+ io.rong.sticker.businesslogic.GifImageLoader$Worker
+io/rong/sticker/mysticker/MyStickerListAdapter.java
+ io.rong.sticker.mysticker.MyStickerListAdapter
+ io.rong.sticker.mysticker.MyStickerListAdapter$OnNoStickerListener
+ io.rong.sticker.mysticker.MyStickerListAdapter$ViewHolder
+ io.rong.sticker.mysticker.MyStickerListAdapter$ViewHolder$1
+io/rong/sticker/util/HttpUtil.java
+ io.rong.sticker.util.HttpUtil
+ io.rong.sticker.util.HttpUtil$Callback
+ io.rong.sticker.util.HttpUtil$ResultType
+io/rong/sticker/businesslogic/StickerPackageDownloadTask.java
+ io.rong.sticker.businesslogic.StickerPackageDownloadTask
+ io.rong.sticker.businesslogic.StickerPackageDownloadTask$1
+ io.rong.sticker.businesslogic.StickerPackageDownloadTask$1$1
+ io.rong.sticker.businesslogic.StickerPackageDownloadTask$ZipListener
+io/rong/sticker/model/StickerPackagesConfigInfo.java
+ io.rong.sticker.model.StickerPackagesConfigInfo
+io/rong/sticker/model/Event.java
+ io.rong.sticker.model.Event
+ io.rong.sticker.model.Event$AddPackageEvent
+ io.rong.sticker.model.Event$RemovePackageEvent
+io/rong/sticker/widget/StickerMessageItemView.java
+ io.rong.sticker.widget.StickerMessageItemView
+io/rong/sticker/util/FileUtil.java
+ io.rong.sticker.util.FileUtil
+io/rong/sticker/db/StickerTable.java
+ io.rong.sticker.db.StickerTable
+io/rong/sticker/widget/IndicatorView.java
+ io.rong.sticker.widget.IndicatorView
+io/rong/sticker/emoticontab/StickersTab.java
+ io.rong.sticker.emoticontab.StickersTab
+ io.rong.sticker.emoticontab.StickersTab$1
+ io.rong.sticker.emoticontab.StickersTab$GridViewAdapter
+ io.rong.sticker.emoticontab.StickersTab$StickerPagerAdapter
+ io.rong.sticker.emoticontab.StickersTab$StickerPagerViewHolder
+io/rong/sticker/db/PreloadStickerPackageDeleteTable.java
+ io.rong.sticker.db.PreloadStickerPackageDeleteTable
+io/rong/sticker/model/StickerPackage.java
+ io.rong.sticker.model.StickerPackage
+io/rong/sticker/businesslogic/StickerPackagesConfigTask.java
+ io.rong.sticker.businesslogic.StickerPackagesConfigTask
+ io.rong.sticker.businesslogic.StickerPackagesConfigTask$1
+ io.rong.sticker.businesslogic.StickerPackagesConfigTask$2
+io/rong/sticker/businesslogic/StickerDownloadTask.java
+ io.rong.sticker.businesslogic.StickerDownloadTask
+io/rong/sticker/businesslogic/PreloadPackageDownloadTask.java
+ io.rong.sticker.businesslogic.PreloadPackageDownloadTask
+io/rong/sticker/util/DownloadUtil.java
+ io.rong.sticker.util.DownloadUtil
+ io.rong.sticker.util.DownloadUtil$DownloadListener
+io/rong/sticker/BuildConfig.java
+ io.rong.sticker.BuildConfig
+io/rong/sticker/message/StickerMessage.java
+ io.rong.sticker.message.StickerMessage
+ io.rong.sticker.message.StickerMessage$1
+com/felipecsl/gifimageview/library/SimpleBitmapProvider.java
+ com.felipecsl.gifimageview.library.SimpleBitmapProvider
+io/rong/sticker/db/StickerDbHelper.java
+ io.rong.sticker.db.StickerDbHelper

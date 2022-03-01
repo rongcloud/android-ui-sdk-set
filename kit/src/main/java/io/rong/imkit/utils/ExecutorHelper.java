@@ -2,9 +2,7 @@ package io.rong.imkit.utils;
 
 import android.os.Handler;
 import android.os.Looper;
-
 import androidx.annotation.NonNull;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -14,7 +12,8 @@ public class ExecutorHelper {
     private final Executor mUiExecutor;
     private final Executor mCompressExecutor;
 
-    ExecutorHelper(Executor diskIO, Executor networkIO, Executor mainThread, Executor compressExecutor) {
+    ExecutorHelper(
+            Executor diskIO, Executor networkIO, Executor mainThread, Executor compressExecutor) {
         this.mDiskIO = diskIO;
         this.mNetworkIO = networkIO;
         this.mUiExecutor = mainThread;
@@ -22,8 +21,11 @@ public class ExecutorHelper {
     }
 
     public ExecutorHelper() {
-        this(new DisIOExecutor(), new NetExecutor(),
-                new MainThreadExecutor(), new CompressExecutor());
+        this(
+                new DisIOExecutor(),
+                new NetExecutor(),
+                new MainThreadExecutor(),
+                new CompressExecutor());
     }
 
     private static class SingletonHolder {
@@ -85,9 +87,7 @@ public class ExecutorHelper {
         }
     }
 
-    /**
-     * 无核心线程，使用后 60 秒自动释放,视频压缩，正则替换
-     */
+    /** 无核心线程，使用后 60 秒自动释放,视频压缩，正则替换 */
     private static class CompressExecutor implements Executor {
         private final Executor mCompressExecutor;
 
@@ -100,5 +100,4 @@ public class ExecutorHelper {
             mCompressExecutor.execute(command);
         }
     }
-
 }

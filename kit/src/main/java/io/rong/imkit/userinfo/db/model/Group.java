@@ -5,8 +5,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.nio.file.attribute.GroupPrincipal;
-
 @Entity(tableName = "group")
 public class Group {
     @PrimaryKey

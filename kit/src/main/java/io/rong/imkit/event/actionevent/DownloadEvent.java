@@ -1,18 +1,15 @@
 package io.rong.imkit.event.actionevent;
 
 import androidx.annotation.IntDef;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 public class DownloadEvent {
     @IntDef({SUCCESS, PROGRESS, ERROR, CANCEL, PAUSE, START})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Event {
-    }
+    public @interface Event {}
 
     public static final int SUCCESS = 0;
     public static final int PROGRESS = 1;
@@ -21,9 +18,7 @@ public class DownloadEvent {
     public static final int PAUSE = 4;
     public static final int START = 5;
 
-
-    private @Event
-    int event;
+    private @Event int event;
     private Message message;
     private RongIMClient.ErrorCode code;
     private int progress;
@@ -40,15 +35,15 @@ public class DownloadEvent {
         this(event, message, 0, code);
     }
 
-    public DownloadEvent(@Event int event, Message message, int progress, RongIMClient.ErrorCode code) {
+    public DownloadEvent(
+            @Event int event, Message message, int progress, RongIMClient.ErrorCode code) {
         this.event = event;
         this.message = message;
         this.progress = progress;
         this.code = code;
     }
 
-    public @Event
-    int getEvent() {
+    public @Event int getEvent() {
         return event;
     }
 

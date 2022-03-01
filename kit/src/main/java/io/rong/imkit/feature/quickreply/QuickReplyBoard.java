@@ -9,17 +9,14 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-
-import java.util.List;
-
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.TextMessage;
+import java.util.List;
 
 public class QuickReplyBoard {
     private final AdapterView.OnItemClickListener mListener;
@@ -29,33 +26,45 @@ public class QuickReplyBoard {
     private Conversation.ConversationType mConversationType;
     private String mTargetId;
 
-
-    public QuickReplyBoard(@NonNull Context context, ViewGroup parent, List<String> phraseList, AdapterView.OnItemClickListener listener) {
+    public QuickReplyBoard(
+            @NonNull Context context,
+            ViewGroup parent,
+            List<String> phraseList,
+            AdapterView.OnItemClickListener listener) {
         mPhraseList = phraseList;
         mListener = listener;
         initView(context, parent);
     }
 
     private void initView(Context context, ViewGroup parent) {
-        mRootView = LayoutInflater.from(context).inflate(R.layout.rc_ext_quick_reply_list, parent, false);
+        mRootView =
+                LayoutInflater.from(context)
+                        .inflate(R.layout.rc_ext_quick_reply_list, parent, false);
         mListView = mRootView.findViewById(R.id.rc_list);
         PhrasesAdapter adapter = new PhrasesAdapter();
         mListView.setAdapter(adapter);
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String text = mPhraseList.get(position);
-                TextMessage textMessage = TextMessage.obtain(text);
-                IMCenter.getInstance().sendMessage(Message.obtain(mTargetId, mConversationType, textMessage), null, null, null);
-                if(mListener != null){
-                    mListener.onItemClick(parent, view, position, id);
-                }
-            }
-        });
+        mListView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(
+                            AdapterView<?> parent, View view, int position, long id) {
+                        String text = mPhraseList.get(position);
+                        TextMessage textMessage = TextMessage.obtain(text);
+                        IMCenter.getInstance()
+                                .sendMessage(
+                                        Message.obtain(mTargetId, mConversationType, textMessage),
+                                        null,
+                                        null,
+                                        null);
+                        if (mListener != null) {
+                            mListener.onItemClick(parent, view, position, id);
+                        }
+                    }
+                });
     }
 
     public void setAttachedConversation(RongExtension extension) {
-        if(extension != null) {
+        if (extension != null) {
             mConversationType = extension.getConversationType();
             mTargetId = extension.getTargetId();
         }
@@ -84,9 +93,18 @@ public class QuickReplyBoard {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_ext_quick_reply_list_item, null);
-                int height = (int) parent.getContext().getResources().getDimension(R.dimen.rc_extension_board_height) / 5;
-                RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height);
+                convertView =
+                        LayoutInflater.from(parent.getContext())
+                                .inflate(R.layout.rc_ext_quick_reply_list_item, null);
+                int height =
+                        (int)
+                                        parent.getContext()
+                                                .getResources()
+                                                .getDimension(R.dimen.rc_extension_board_height)
+                                / 5;
+                RelativeLayout.LayoutParams layoutParams =
+                        new RelativeLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, height);
                 convertView.setLayoutParams(layoutParams);
             }
             TextView tvPhrases = convertView.findViewById(R.id.rc_phrases_tv);

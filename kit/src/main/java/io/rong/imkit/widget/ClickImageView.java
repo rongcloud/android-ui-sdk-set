@@ -6,13 +6,9 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-
 import io.rong.imkit.R;
 
-/**
- * Created by zwfang on 2018/3/30.
- */
-
+/** Created by zwfang on 2018/3/30. */
 public class ClickImageView extends RelativeLayout {
 
     private ImageView imageView;
@@ -30,9 +26,12 @@ public class ClickImageView extends RelativeLayout {
     private void initView(Context context) {
         imageView = new ImageView(context);
         int width = context.getResources().getDimensionPixelSize(R.dimen.rc_ext_more_imgage_width);
-        int height = context.getResources().getDimensionPixelOffset(R.dimen.rc_ext_more_imgage_height);
+        int height =
+                context.getResources().getDimensionPixelOffset(R.dimen.rc_ext_more_imgage_height);
         imageView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
-        LayoutParams params = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LayoutParams params =
+                new LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(CENTER_IN_PARENT);
         addView(imageView, params);
     }

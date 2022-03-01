@@ -1,9 +1,8 @@
 package io.rong.imkit.feature.customservice.event;
 
-import java.util.List;
-
 import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imlib.cs.model.CSGroupItem;
+import java.util.List;
 
 public class CSSelectGroupEvent implements PageEvent {
     public List<CSGroupItem> mGroupList;

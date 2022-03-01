@@ -1,11 +1,10 @@
 package io.rong.imkit.feature.location;
 
+import io.rong.common.RLog;
 import org.json.JSONObject;
 
-import io.rong.common.RLog;
-
 public class AMapLocationParser {
-    private final static String TAG = "AMapLocationParser";
+    private static final String TAG = "AMapLocationParser";
 
     public AMapLocationInfo parserApsJsonResp(String str) {
         if (str == null) {

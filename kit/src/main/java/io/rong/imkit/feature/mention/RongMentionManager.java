@@ -1,16 +1,8 @@
 package io.rong.imkit.feature.mention;
 
-
 import android.content.Context;
 import android.text.TextUtils;
 import android.widget.EditText;
-
-import org.json.JSONArray;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
 import io.rong.common.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -21,6 +13,10 @@ import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+import org.json.JSONArray;
 
 public class RongMentionManager {
     private static String TAG = "RongMentionManager";
@@ -33,15 +29,14 @@ public class RongMentionManager {
         static RongMentionManager sInstance = new RongMentionManager();
     }
 
-    private RongMentionManager() {
-
-    }
+    private RongMentionManager() {}
 
     public static RongMentionManager getInstance() {
         return SingletonHolder.sInstance;
     }
 
-    public void createInstance(Conversation.ConversationType conversationType, String targetId, EditText editText) {
+    public void createInstance(
+            Conversation.ConversationType conversationType, String targetId, EditText editText) {
         RLog.i(TAG, "createInstance");
         if (!RongConfigCenter.conversationConfig().rc_enable_mentioned_message) {
             RLog.e(TAG, "rc_enable_mentioned_message is disable");
@@ -61,7 +56,8 @@ public class RongMentionManager {
         stack.add(mentionInstance);
     }
 
-    public void destroyInstance(Conversation.ConversationType conversationType, String targetId, EditText editText) {
+    public void destroyInstance(
+            Conversation.ConversationType conversationType, String targetId, EditText editText) {
         RLog.i(TAG, "destroyInstance");
         if (!RongConfigCenter.conversationConfig().rc_enable_mentioned_message) {
             RLog.e(TAG, "rc_enable_mentioned_message is disable");
@@ -76,7 +72,8 @@ public class RongMentionManager {
         }
     }
 
-    public void mentionMember(Conversation.ConversationType conversationType, String targetId, String userId) {
+    public void mentionMember(
+            Conversation.ConversationType conversationType, String targetId, String userId) {
         RLog.d(TAG, "mentionMember " + userId);
         if (TextUtils.isEmpty(userId)
                 || conversationType == null
@@ -86,7 +83,8 @@ public class RongMentionManager {
             return;
         }
         MentionInstance mentionInstance = stack.get(0);
-        if (!conversationType.equals(mentionInstance.conversationType) || !targetId.equals(mentionInstance.targetId)) {
+        if (!conversationType.equals(mentionInstance.conversationType)
+                || !targetId.equals(mentionInstance.targetId)) {
             RLog.e(TAG, "Invalid conversationType or targetId");
             return;
         }
@@ -98,7 +96,8 @@ public class RongMentionManager {
         }
 
         if (conversationType == Conversation.ConversationType.GROUP) {
-            GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(targetId, userId);
+            GroupUserInfo groupUserInfo =
+                    RongUserInfoManager.getInstance().getGroupUserInfo(targetId, userId);
             if (groupUserInfo != null) {
                 userInfo.setName(groupUserInfo.getNickname());
             }
@@ -140,7 +139,7 @@ public class RongMentionManager {
 
     /**
      * @param userInfo 用户信息
-     * @param from     0 代表来自会话界面，1 来着群成员选择界面。
+     * @param from 0 代表来自会话界面，1 来着群成员选择界面。
      */
     private void addMentionedMember(UserInfo userInfo, int from) {
         if (!stack.isEmpty()) {
@@ -148,11 +147,13 @@ public class RongMentionManager {
             EditText editText = mentionInstance.inputEditText;
             if (userInfo != null && editText != null) {
                 String mentionContent;
-                mentionContent = from == 0 ? "@" + userInfo.getName() + " " : userInfo.getName() + " ";
+                mentionContent =
+                        from == 0 ? "@" + userInfo.getName() + " " : userInfo.getName() + " ";
                 int len = mentionContent.length();
                 int cursorPos = editText.getSelectionStart();
 
-                MentionBlock brokenBlock = getBrokenMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
+                MentionBlock brokenBlock =
+                        getBrokenMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
                 if (brokenBlock != null) {
                     mentionInstance.mentionBlocks.remove(brokenBlock);
                 }
@@ -171,7 +172,7 @@ public class RongMentionManager {
 
                 editText.getEditableText().insert(cursorPos, mentionContent);
                 editText.setSelection(cursorPos + len);
-                //@某人的时候弹出软键盘
+                // @某人的时候弹出软键盘
                 if (mAddMentionedMemberListener != null) {
                     mAddMentionedMemberListener.onAddMentionedMember(userInfo, from);
                 }
@@ -216,12 +217,19 @@ public class RongMentionManager {
      * 当输入框文本变化时，回调此方法。
      *
      * @param conversationType 会话类型
-     * @param targetId         目标 id
-     * @param cursorPos        输入文本时，光标位置初始位置
-     * @param offset           文本的变化量：增加时为正数，减少是为负数
-     * @param text             文本内容
+     * @param targetId 目标 id
+     * @param cursorPos 输入文本时，光标位置初始位置
+     * @param offset 文本的变化量：增加时为正数，减少是为负数
+     * @param text 文本内容
      */
-    public void onTextChanged(Context context, Conversation.ConversationType conversationType, String targetId, int cursorPos, int offset, String text, EditText editText) {
+    public void onTextChanged(
+            Context context,
+            Conversation.ConversationType conversationType,
+            String targetId,
+            int cursorPos,
+            int offset,
+            String text,
+            EditText editText) {
         RLog.d(TAG, "onTextEdit " + cursorPos + ", " + text);
 
         if (stack == null || stack.isEmpty()) {
@@ -240,7 +248,7 @@ public class RongMentionManager {
             RLog.w(TAG, "onTextEdit ignore conversation.");
             return;
         }
-        //判断单个字符是否是@
+        // 判断单个字符是否是@
         if (offset == 1) {
             if (!TextUtils.isEmpty(text)) {
                 boolean showMention = false;
@@ -251,23 +259,29 @@ public class RongMentionManager {
                 } else {
                     String preChar = text.substring(cursorPos - 1, cursorPos);
                     str = text.substring(cursorPos, cursorPos + 1);
-                    if (str.equals("@") && !preChar.matches("^[a-zA-Z]*") && !preChar.matches("^\\d+$")) {
+                    if (str.equals("@")
+                            && !preChar.matches("^[a-zA-Z]*")
+                            && !preChar.matches("^\\d+$")) {
                         showMention = true;
                     }
                 }
-                if (showMention && (mMentionedInputListener == null
-                        || !mMentionedInputListener.onMentionedInput(conversationType, targetId))) {
-                    RouteUtils.routeToMentionMemberSelectActivity(context, targetId, conversationType);
+                if (showMention
+                        && (mMentionedInputListener == null
+                                || !mMentionedInputListener.onMentionedInput(
+                                        conversationType, targetId))) {
+                    RouteUtils.routeToMentionMemberSelectActivity(
+                            context, targetId, conversationType);
                 }
             }
         }
 
-        //判断输入光标位置是否破坏已有的“@块”。
-        MentionBlock brokenBlock = getBrokenMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
+        // 判断输入光标位置是否破坏已有的“@块”。
+        MentionBlock brokenBlock =
+                getBrokenMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
         if (brokenBlock != null) {
             mentionInstance.mentionBlocks.remove(brokenBlock);
         }
-        //改变所有有效“@块”位置。
+        // 改变所有有效“@块”位置。
         offsetMentionedBlocks(cursorPos, offset, mentionInstance.mentionBlocks);
     }
 
@@ -294,14 +308,16 @@ public class RongMentionManager {
             }
             if (!userIds.isEmpty()) {
                 curInstance.mentionBlocks.clear();
-                MentionedInfo mentionedInfo = new MentionedInfo(MentionedInfo.MentionedType.PART, userIds, null);
+                MentionedInfo mentionedInfo =
+                        new MentionedInfo(MentionedInfo.MentionedType.PART, userIds, null);
                 messageContent.setMentionedInfo(mentionedInfo);
                 message.setContent(messageContent);
             }
         }
     }
 
-    public void onDeleteClick(Conversation.ConversationType type, String targetId, EditText editText, int cursorPos) {
+    public void onDeleteClick(
+            Conversation.ConversationType type, String targetId, EditText editText, int cursorPos) {
         RLog.d(TAG, "onTextEdit " + cursorPos);
 
         if (!stack.isEmpty() && cursorPos > 0) {
@@ -317,7 +333,8 @@ public class RongMentionManager {
                 RLog.w(TAG, "not found editText");
                 return;
             }
-            MentionBlock deleteBlock = getDeleteMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
+            MentionBlock deleteBlock =
+                    getDeleteMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
             if (deleteBlock != null) {
                 mentionInstance.mentionBlocks.remove(deleteBlock);
                 String delText = deleteBlock.name;
@@ -342,10 +359,11 @@ public class RongMentionManager {
 
     /**
      * 设置群组成员提供者。
-     * <p/>
-     * '@' 功能和VoIP功能在选人界面,需要知道群组内成员信息,开发者需要设置该提供者。 开发者需要在回调中获取到群成员信息
-     * 并通过{@link IGroupMemberCallback}中的方法设置到 sdk 中
-     * <p/>
+     *
+     * <p>'@' 功能和VoIP功能在选人界面,需要知道群组内成员信息,开发者需要设置该提供者。 开发者需要在回调中获取到群成员信息 并通过{@link
+     * IGroupMemberCallback}中的方法设置到 sdk 中
+     *
+     * <p>
      *
      * @param groupMembersProvider 群组成员提供者。
      */

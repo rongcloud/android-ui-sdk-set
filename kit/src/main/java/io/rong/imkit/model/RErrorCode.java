@@ -1,8 +1,7 @@
 package io.rong.imkit.model;
 
 public enum RErrorCode {
-    NO_INFO_IN_DB(1000, "no info in db.")
-    ;
+    NO_INFO_IN_DB(1000, "no info in db.");
 
     private int code;
     private String message;

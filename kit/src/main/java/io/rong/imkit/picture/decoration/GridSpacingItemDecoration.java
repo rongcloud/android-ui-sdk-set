@@ -2,15 +2,12 @@ package io.rong.imkit.picture.decoration;
 
 import android.graphics.Rect;
 import android.view.View;
-
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author：luck
- * @data：2016/12/27 下午23:50
- * @描述:图片预览
+ * @data：2016/12/27 下午23:50 @描述:图片预览
  */
-
 public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
 
     private int spanCount;
@@ -24,7 +21,8 @@ public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
     }
 
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    public void getItemOffsets(
+            Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         int position = parent.getChildAdapterPosition(view);
         int column = position % spanCount;
         if (includeEdge) {

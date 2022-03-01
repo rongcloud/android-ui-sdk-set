@@ -1,9 +1,7 @@
 package io.rong.imkit.conversation.messgelist.provider;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -13,30 +11,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-
-import java.util.List;
-
-import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.GIFPreviewActivity;
-import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ScreenUtils;
-import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.widget.CircleProgressView;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.GIFMessage;
+import java.util.List;
 
 public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> {
 
@@ -50,12 +41,21 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_item_gif_message, parent, false);
+        View view =
+                LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.rc_item_gif_message, parent, false);
         return new ViewHolder(view.getContext(), view);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(ViewHolder holder, ViewHolder parentHolder, GIFMessage gifMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(
+            ViewHolder holder,
+            ViewHolder parentHolder,
+            GIFMessage gifMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         final ImageView imageView = holder.getView(R.id.rc_img);
         measureLayoutParams(imageView, gifMessage.getWidth(), gifMessage.getHeight());
         CircleProgressView loadingProgress = holder.getView(R.id.rc_gif_progress);
@@ -67,7 +67,9 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
         int progress = uiMessage.getProgress();
         if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND) {
             if ((progress > 0 && progress < 100)
-                    || (uiMessage.getState() == State.ERROR) && ResendManager.getInstance().needResend(uiMessage.getMessage().getMessageId())) {
+                    || (uiMessage.getState() == State.ERROR)
+                            && ResendManager.getInstance()
+                                    .needResend(uiMessage.getMessage().getMessageId())) {
                 loadingProgress.setProgress(progress, true);
                 loadingProgress.setVisibility(View.VISIBLE);
                 holder.setVisible(R.id.rc_pre_progress, false);
@@ -153,9 +155,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
                     holder.setVisible(R.id.rc_length, true);
                     holder.setText(R.id.rc_length, formatSize(gifMessage.getGifDataSize()));
                 }
-
             }
-
         }
     }
 
@@ -172,7 +172,13 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
     }
 
     @Override
-    protected boolean onItemClick(ViewHolder holder, GIFMessage gifMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(
+            ViewHolder holder,
+            GIFMessage gifMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         ImageView startDownLoad = holder.getView(R.id.rc_start_download);
         ImageView downLoadFailed = holder.getView(R.id.rc_download_failed);
         TextView length = holder.getView(R.id.rc_length);
@@ -187,7 +193,8 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
             downLoadFailed.setVisibility(View.GONE);
             downLoad(uiMessage.getMessage(), holder);
             return true;
-        } else if (preProgress.getVisibility() != View.VISIBLE && loadingProgress.getVisibility() != View.VISIBLE) {
+        } else if (preProgress.getVisibility() != View.VISIBLE
+                && loadingProgress.getVisibility() != View.VISIBLE) {
             if (gifMessage != null) {
                 Intent intent = new Intent(holder.getContext(), GIFPreviewActivity.class);
                 intent.putExtra("message", uiMessage.getMessage());
@@ -216,9 +223,8 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
         }
     }
 
-
-    //图片消息最小值为 158 X 158，最大值为 240 X 240
-    //缩放逻辑同普通图片一致
+    // 图片消息最小值为 158 X 158，最大值为 240 X 240
+    // 缩放逻辑同普通图片一致
     private void measureLayoutParams(View view, int width, int height) {
         if (minSize == null) {
             minSize = ScreenUtils.dip2px(view.getContext(), 79);
@@ -278,11 +284,18 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
 
     @Override
     public Spannable getSummarySpannable(Context context, GIFMessage gifMessage) {
-        return new SpannableString(context.getString(R.string.rc_conversation_summary_content_image));
+        return new SpannableString(
+                context.getString(R.string.rc_conversation_summary_content_image));
     }
 
     @Override
-    protected boolean onItemLongClick(ViewHolder holder, GIFMessage gifMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemLongClick(
+            ViewHolder holder,
+            GIFMessage gifMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
         if (holder.getView(R.id.rc_download_failed).getVisibility() == View.VISIBLE
                 || holder.getView(R.id.rc_pre_progress).getVisibility() == View.VISIBLE) {
             return true;

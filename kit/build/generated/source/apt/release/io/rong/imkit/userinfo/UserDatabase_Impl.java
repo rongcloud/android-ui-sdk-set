@@ -1,13 +1,10 @@
 package io.rong.imkit.userinfo;
 
-import androidx.annotation.NonNull;
 import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomOpenHelper;
 import androidx.room.RoomOpenHelper.Delegate;
 import androidx.room.RoomOpenHelper.ValidationResult;
-import androidx.room.migration.AutoMigrationSpec;
-import androidx.room.migration.Migration;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
 import androidx.room.util.TableInfo.Column;
@@ -23,15 +20,11 @@ import io.rong.imkit.userinfo.db.dao.GroupMemberDao;
 import io.rong.imkit.userinfo.db.dao.GroupMemberDao_Impl;
 import io.rong.imkit.userinfo.db.dao.UserDao;
 import io.rong.imkit.userinfo.db.dao.UserDao_Impl;
-import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @SuppressWarnings({"unchecked", "deprecation"})
@@ -44,14 +37,14 @@ public final class UserDatabase_Impl extends UserDatabase {
 
   @Override
   protected SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration configuration) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(configuration, new RoomOpenHelper.Delegate(2) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(configuration, new RoomOpenHelper.Delegate(1) {
       @Override
       public void createAllTables(SupportSQLiteDatabase _db) {
-        _db.execSQL("CREATE TABLE IF NOT EXISTS `user` (`id` TEXT NOT NULL, `name` TEXT, `alias` TEXT, `portraitUri` TEXT, `extra` TEXT, PRIMARY KEY(`id`))");
+        _db.execSQL("CREATE TABLE IF NOT EXISTS `user` (`id` TEXT NOT NULL, `name` TEXT, `portraitUri` TEXT, `extra` TEXT, PRIMARY KEY(`id`))");
         _db.execSQL("CREATE TABLE IF NOT EXISTS `group` (`id` TEXT NOT NULL, `name` TEXT, `portraitUri` TEXT, PRIMARY KEY(`id`))");
         _db.execSQL("CREATE TABLE IF NOT EXISTS `group_member` (`group_id` TEXT NOT NULL, `user_id` TEXT NOT NULL, `member_name` TEXT, PRIMARY KEY(`group_id`, `user_id`))");
         _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '43c09817eaff1227ac2079231a81ce54')");
+        _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a8f46f150166605ac162b5db4f089ca6')");
       }
 
       @Override
@@ -97,10 +90,9 @@ public final class UserDatabase_Impl extends UserDatabase {
 
       @Override
       protected RoomOpenHelper.ValidationResult onValidateSchema(SupportSQLiteDatabase _db) {
-        final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(5);
+        final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
         _columnsUser.put("id", new TableInfo.Column("id", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUser.put("name", new TableInfo.Column("name", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
-        _columnsUser.put("alias", new TableInfo.Column("alias", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUser.put("portraitUri", new TableInfo.Column("portraitUri", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsUser.put("extra", new TableInfo.Column("extra", "TEXT", false, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysUser = new HashSet<TableInfo.ForeignKey>(0);
@@ -140,7 +132,7 @@ public final class UserDatabase_Impl extends UserDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "43c09817eaff1227ac2079231a81ce54", "ad31dfd85dd89539a9bb035e55708361");
+    }, "a8f46f150166605ac162b5db4f089ca6", "f2cd6dc9db28b50863076a5058051852");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
         .name(configuration.name)
         .callback(_openCallback)
@@ -173,27 +165,6 @@ public final class UserDatabase_Impl extends UserDatabase {
         _db.execSQL("VACUUM");
       }
     }
-  }
-
-  @Override
-  protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
-    final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
-    _typeConvertersMap.put(GroupDao.class, GroupDao_Impl.getRequiredConverters());
-    _typeConvertersMap.put(UserDao.class, UserDao_Impl.getRequiredConverters());
-    _typeConvertersMap.put(GroupMemberDao.class, GroupMemberDao_Impl.getRequiredConverters());
-    return _typeConvertersMap;
-  }
-
-  @Override
-  public Set<Class<? extends AutoMigrationSpec>> getRequiredAutoMigrationSpecs() {
-    final HashSet<Class<? extends AutoMigrationSpec>> _autoMigrationSpecsSet = new HashSet<Class<? extends AutoMigrationSpec>>();
-    return _autoMigrationSpecsSet;
-  }
-
-  @Override
-  public List<Migration> getAutoMigrations(
-      @NonNull Map<Class<? extends AutoMigrationSpec>, AutoMigrationSpec> autoMigrationSpecsMap) {
-    return Arrays.asList();
   }
 
   @Override

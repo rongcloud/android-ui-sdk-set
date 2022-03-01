@@ -2,11 +2,8 @@ package io.rong.imkit.widget.adapter;
 
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import java.util.List;
-
 import io.rong.imkit.R;
-
+import java.util.List;
 
 public class DefaultProvider implements IViewProvider {
     @Override
@@ -22,8 +19,6 @@ public class DefaultProvider implements IViewProvider {
     }
 
     @Override
-    public void bindViewHolder(ViewHolder holder, Object o, int position, List list, IViewProviderListener listener) {
-
-    }
-
+    public void bindViewHolder(
+            ViewHolder holder, Object o, int position, List list, IViewProviderListener listener) {}
 }

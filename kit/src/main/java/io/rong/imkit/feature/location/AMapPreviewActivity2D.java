@@ -2,7 +2,6 @@ package io.rong.imkit.feature.location;
 
 import android.content.Intent;
 import android.os.Bundle;
-
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.MapView;
@@ -10,7 +9,6 @@ import com.amap.api.maps2d.model.CameraPosition;
 import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
@@ -48,14 +46,24 @@ public class AMapPreviewActivity2D extends RongBaseActivity {
         double lat = locationMessage.getLat();
         double lng = locationMessage.getLng();
         String poi = locationMessage.getPoi();
-        MarkerOptions markerOptions = new MarkerOptions().anchor(0.5f, 0.5f)
-                .position(new LatLng(lat, lng)).title(poi)
-                .snippet(lat + "," + lng).draggable(false);
+        MarkerOptions markerOptions =
+                new MarkerOptions()
+                        .anchor(0.5f, 0.5f)
+                        .position(new LatLng(lat, lng))
+                        .title(poi)
+                        .snippet(lat + "," + lng)
+                        .draggable(false);
         Marker marker = amap.addMarker(markerOptions);
         amap.setInfoWindowAdapter(new AmapInfoWindowAdapter2D(AMapPreviewActivity2D.this));
         marker.showInfoWindow();
-        amap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-                .target(new LatLng(lat, lng)).zoom(16).bearing(0).tilt(30).build()));
+        amap.moveCamera(
+                CameraUpdateFactory.newCameraPosition(
+                        new CameraPosition.Builder()
+                                .target(new LatLng(lat, lng))
+                                .zoom(16)
+                                .bearing(0)
+                                .tilt(30)
+                                .build()));
     }
 
     @Override

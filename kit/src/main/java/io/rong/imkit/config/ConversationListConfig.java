@@ -2,10 +2,6 @@ package io.rong.imkit.config;
 
 import android.content.Context;
 import android.content.res.Resources;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
@@ -14,25 +10,33 @@ import io.rong.imkit.conversationlist.provider.PrivateConversationProvider;
 import io.rong.imkit.widget.adapter.IViewProvider;
 import io.rong.imkit.widget.adapter.ProviderManager;
 import io.rong.imlib.model.Conversation;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConversationListConfig {
 
     private final String TAG = "ConversationListConfig";
-    private final Conversation.ConversationType[] mSupportedTypes = {Conversation.ConversationType.PRIVATE,
-            Conversation.ConversationType.GROUP, Conversation.ConversationType.SYSTEM,
-            Conversation.ConversationType.CUSTOMER_SERVICE, Conversation.ConversationType.CHATROOM,
-            Conversation.ConversationType.APP_PUBLIC_SERVICE, Conversation.ConversationType.PUBLIC_SERVICE,
-            Conversation.ConversationType.ENCRYPTED};
+    private final Conversation.ConversationType[] mSupportedTypes = {
+        Conversation.ConversationType.PRIVATE,
+        Conversation.ConversationType.GROUP,
+        Conversation.ConversationType.SYSTEM,
+        Conversation.ConversationType.CUSTOMER_SERVICE,
+        Conversation.ConversationType.CHATROOM,
+        Conversation.ConversationType.APP_PUBLIC_SERVICE,
+        Conversation.ConversationType.PUBLIC_SERVICE,
+        Conversation.ConversationType.ENCRYPTED
+    };
     private ConversationListBehaviorListener mListener;
     private boolean mIsEnableConnectStateNotice = true;
-    //会话列表页是否自动下载高清语音
+    // 会话列表页是否自动下载高清语音
     private boolean mEnableAutomaticDownloadHQVoice = true;
-    //每页拉取的会话条数, 默认 100.
+    // 每页拉取的会话条数, 默认 100.
     private int mConversationCountPerPage = 100;
     private ProviderManager<BaseUiConversation> mProviderManager;
     private DataProcessor<Conversation> mDataProcessor;
 
-    private BaseDataProcessor<Conversation> mConversationListDataProcessor = new DefaultConversationListProcessor();
+    private BaseDataProcessor<Conversation> mConversationListDataProcessor =
+            new DefaultConversationListProcessor();
 
     public ConversationListConfig() {
         List<IViewProvider<BaseUiConversation>> providerList = new ArrayList<>();
@@ -45,7 +49,8 @@ public class ConversationListConfig {
         if (context != null) {
             Resources resources = context.getResources();
             try {
-                mIsEnableConnectStateNotice = resources.getBoolean(R.bool.rc_is_show_warning_notification);
+                mIsEnableConnectStateNotice =
+                        resources.getBoolean(R.bool.rc_is_show_warning_notification);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_is_show_warning_notification not get value", e);
             }
@@ -116,4 +121,3 @@ public class ConversationListConfig {
         return mConversationCountPerPage;
     }
 }
-

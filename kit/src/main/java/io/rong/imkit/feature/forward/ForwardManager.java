@@ -9,12 +9,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.Spannable;
 import android.text.TextUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -34,38 +28,41 @@ import io.rong.imlib.model.UserInfo;
 import io.rong.message.ImageMessage;
 import io.rong.message.MediaMessageContent;
 import io.rong.message.ReferenceMessage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class ForwardManager {
     private static final String TAG = ForwardManager.class.getSimpleName();
 
     // 发送消息间隔
     private static final int TIME_DELAY = 400;
-    //合并消息最多存储四条消息的文本信息
+    // 合并消息最多存储四条消息的文本信息
     private static final int SUMMARY_MAX_SIZE = 4;
 
-    private ForwardManager() {
-
-    }
+    private ForwardManager() {}
 
     public static ForwardManager getInstance() {
         return SingletonHolder.sInstance;
     }
 
     /**
-     * 设置转发的会话选择结果。
-     * 可以在自定义的转发选择联系人界面, 调用该方法启动合并转发.
+     * 设置转发的会话选择结果。 可以在自定义的转发选择联系人界面, 调用该方法启动合并转发.
      *
-     * @param activity      选择联系人界面
+     * @param activity 选择联系人界面
      * @param conversations 会话类型,只能选择单聊和群聊会话
      */
-    public static void setForwardMessageResult(Activity activity, ArrayList<Conversation> conversations) {
+    public static void setForwardMessageResult(
+            Activity activity, ArrayList<Conversation> conversations) {
         Intent intent = activity.getIntent();
         intent.putParcelableArrayListExtra("conversations", conversations);
         activity.setResult(RESULT_OK, intent);
         activity.finish();
     }
 
-    public static List<Message> filterMessagesList(Context context, List<Message> messages, int index) {
+    public static List<Message> filterMessagesList(
+            Context context, List<Message> messages, int index) {
         List<Message> forwardMessagesList = new ArrayList<>();
         if (context == null) {
             RLog.e(TAG, "filterMessagesList context is null");
@@ -89,12 +86,14 @@ public class ForwardManager {
         }
 
         // 根据消息发送时间排序
-        Collections.sort(forwardMessagesList, new Comparator<Message>() {
-            @Override
-            public int compare(Message o1, Message o2) {
-                return (int) (o1.getSentTime() - o2.getSentTime());
-            }
-        });
+        Collections.sort(
+                forwardMessagesList,
+                new Comparator<Message>() {
+                    @Override
+                    public int compare(Message o1, Message o2) {
+                        return (int) (o1.getSentTime() - o2.getSentTime());
+                    }
+                });
         return forwardMessagesList;
     }
 
@@ -107,8 +106,8 @@ public class ForwardManager {
 
         // 发送失败和撤回的消息不允许转发
         if (message.getSentStatus() == Message.SentStatus.SENDING
-                || message.getSentStatus() == Message.SentStatus.FAILED ||
-                message.getSentStatus() == Message.SentStatus.CANCELED) {
+                || message.getSentStatus() == Message.SentStatus.FAILED
+                || message.getSentStatus() == Message.SentStatus.CANCELED) {
             RLog.d(TAG, "Forwarding is not allowed, status:" + message.getSentStatus());
             return false;
         }
@@ -144,7 +143,7 @@ public class ForwardManager {
         return allow;
     }
 
-    //允许逐条转发的消息类型：文本,语音,小视频,图片,文件,图文,表情,位置,合并,引用
+    // 允许逐条转发的消息类型：文本,语音,小视频,图片,文件,图文,表情,位置,合并,引用
     private static boolean allowForwardForStep(String tag) {
         switch (tag) {
             case "RC:TxtMsg": // 文本
@@ -156,7 +155,7 @@ public class ForwardManager {
             case "RC:FileMsg": // 文件
             case "RC:ImgTextMsg": // 图文
             case "RC:StkMsg": // 表情
-            case "RC:CardMsg":// 名片
+            case "RC:CardMsg": // 名片
             case "RC:LBSMsg": // 位置
             case "RC:CombineMsg": // 合并
             case "RC:ReferenceMsg": // 引用
@@ -165,7 +164,7 @@ public class ForwardManager {
         return false;
     }
 
-    //允许合并转发的消息类型：文本,语音,小视频,图片,文件,图文,表情,位置,合并,音视频通话
+    // 允许合并转发的消息类型：文本,语音,小视频,图片,文件,图文,表情,位置,合并,音视频通话
     private static boolean allowForwardForCombine(String tag) {
         switch (tag) {
             case "RC:TxtMsg": // 文本
@@ -177,7 +176,7 @@ public class ForwardManager {
             case "RC:FileMsg": // 文件
             case "RC:ImgTextMsg": // 图文
             case "RC:StkMsg": // 表情
-            case "RC:CardMsg":// 名片
+            case "RC:CardMsg": // 名片
             case "RC:LBSMsg": // 位置
             case "RC:CombineMsg": // 合并
             case "RC:VSTMsg": // 音视频通话
@@ -188,8 +187,11 @@ public class ForwardManager {
     }
 
     // index: 0:逐步转发  1:合并转发
-    public void forwardMessages(final int index, final List<Conversation> conversations,
-                                final List<Integer> messageIds, List<Message> messages) {
+    public void forwardMessages(
+            final int index,
+            final List<Conversation> conversations,
+            final List<Integer> messageIds,
+            List<Message> messages) {
         final List<Message> forwardMessages = new ArrayList<>();
         for (Integer messageId : messageIds) {
             for (Message msg : messages) {
@@ -201,39 +203,43 @@ public class ForwardManager {
         forwardMessages(index, conversations, forwardMessages);
     }
 
-    private void forwardMessages(final int index, final List<Conversation> conversations, final List<Message> messages) {
-        ExecutorHelper.getInstance().networkIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (index == 0) {
-                    forwardMessageByStep(conversations, messages);
-                } else if (index == 1) {
-                    forwardMessageByCombine(conversations, messages);
-                }
-            }
-        });
+    private void forwardMessages(
+            final int index, final List<Conversation> conversations, final List<Message> messages) {
+        ExecutorHelper.getInstance()
+                .networkIO()
+                .execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (index == 0) {
+                                    forwardMessageByStep(conversations, messages);
+                                } else if (index == 1) {
+                                    forwardMessageByCombine(conversations, messages);
+                                }
+                            }
+                        });
     }
 
     // 逐步转发
-    private void forwardMessageByStep(List<Conversation> conversations, final List<Message> messages) {
+    private void forwardMessageByStep(
+            List<Conversation> conversations, final List<Message> messages) {
         for (Conversation conversation : conversations) {
             for (Message msg : messages) {
-                startForwardMessageByStep(conversation.getTargetId(), conversation.getConversationType(), msg);
+                startForwardMessageByStep(
+                        conversation.getTargetId(), conversation.getConversationType(), msg);
                 try {
                     Thread.sleep(TIME_DELAY);
                 } catch (InterruptedException e) {
                     RLog.e(TAG, "forwardMessageByStep e:" + e.toString());
                     Thread.currentThread().interrupt();
                 }
-
             }
         }
-
     }
 
     // 合并转发
     private void forwardMessageByCombine(List<Conversation> conversations, List<Message> messages) {
-        //拼写H5界面,上传html文件,并回传文件地址uri
+        // 拼写H5界面,上传html文件,并回传文件地址uri
         Uri uri = CombineMessageUtils.getInstance().getUrlFromMessageList(messages);
         Conversation.ConversationType type = messages.get(0).getConversationType();
 
@@ -246,8 +252,14 @@ public class ForwardManager {
 
         for (int i = 0; i < conversations.size(); i++) {
             Conversation conversation = conversations.get(i);
-            Message message = Message.obtain(conversation.getTargetId(), conversation.getConversationType(), combine);
-            IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
+            Message message =
+                    Message.obtain(
+                            conversation.getTargetId(),
+                            conversation.getConversationType(),
+                            combine);
+            IMCenter.getInstance()
+                    .sendMediaMessage(
+                            message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
             try {
                 Thread.sleep(TIME_DELAY);
             } catch (InterruptedException e) {
@@ -257,9 +269,10 @@ public class ForwardManager {
         }
     }
 
-    private void startForwardMessageByStep(String id, Conversation.ConversationType type, Message fwdMessage) {
+    private void startForwardMessageByStep(
+            String id, Conversation.ConversationType type, Message fwdMessage) {
         MessageContent messageContent = fwdMessage.getContent();
-        //有些消息携带了用户信息，转发的消息必须把用户信息去掉
+        // 有些消息携带了用户信息，转发的消息必须把用户信息去掉
         messageContent.setUserInfo(null);
         // 去掉转发消息中的 @ 信息
         messageContent.setMentionedInfo(null);
@@ -267,10 +280,16 @@ public class ForwardManager {
 
         if (messageContent instanceof ImageMessage) {
             ImageMessage imageMessage = (ImageMessage) messageContent;
-            if (imageMessage.getRemoteUri() != null && !imageMessage.getRemoteUri().toString().startsWith("file")) {
+            if (imageMessage.getRemoteUri() != null
+                    && !imageMessage.getRemoteUri().toString().startsWith("file")) {
                 IMCenter.getInstance().sendMessage(message, null, null, null);
             } else {
-                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
+                IMCenter.getInstance()
+                        .sendMediaMessage(
+                                message,
+                                null,
+                                null,
+                                (IRongCallback.ISendMediaMessageCallback) null);
             }
         } else if (messageContent instanceof LocationMessage) {
             IMCenter.getInstance().sendLocationMessage(message, null, null, null);
@@ -281,7 +300,12 @@ public class ForwardManager {
             if (mediaMessageContent.getMediaUrl() != null) {
                 IMCenter.getInstance().sendMessage(message, null, null, null);
             } else {
-                IMCenter.getInstance().sendMediaMessage(message, null, null, (IRongCallback.ISendMediaMessageCallback) null);
+                IMCenter.getInstance()
+                        .sendMediaMessage(
+                                message,
+                                null,
+                                null,
+                                (IRongCallback.ISendMediaMessageCallback) null);
             }
         } else {
             IMCenter.getInstance().sendMessage(message, null, null, null);
@@ -291,7 +315,8 @@ public class ForwardManager {
     private List<String> getNameList(List<Message> messages, Conversation.ConversationType type) {
         List<String> names = new ArrayList<>();
         if ((Conversation.ConversationType.GROUP).equals(type)) {
-            Group group = RongUserInfoManager.getInstance().getGroupInfo(messages.get(0).getTargetId());
+            Group group =
+                    RongUserInfoManager.getInstance().getGroupInfo(messages.get(0).getTargetId());
             if (group != null) {
                 String name = group.getName();
                 if (!TextUtils.isEmpty(name) && !names.contains(name)) {
@@ -302,7 +327,8 @@ public class ForwardManager {
             for (Message msg : messages) {
                 if (names.size() == 2) return names;
 
-                UserInfo info = RongUserInfoManager.getInstance().getUserInfo(msg.getSenderUserId());
+                UserInfo info =
+                        RongUserInfoManager.getInstance().getUserInfo(msg.getSenderUserId());
                 if (info == null) {
                     RLog.d(TAG, "getNameList name is null, msg:" + msg);
                     break;
@@ -328,10 +354,19 @@ public class ForwardManager {
             if (nameList == null) return title;
 
             if (nameList.size() == 1) {
-                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of), nameList.get(0));
+                title =
+                        String.format(
+                                context.getString(R.string.rc_combine_the_group_chat_of),
+                                nameList.get(0));
             } else if (nameList.size() == 2) {
-                title = String.format(context.getString(R.string.rc_combine_the_group_chat_of),
-                        nameList.get(0) + " " + context.getString(R.string.rc_combine_and) + " " + nameList.get(1));
+                title =
+                        String.format(
+                                context.getString(R.string.rc_combine_the_group_chat_of),
+                                nameList.get(0)
+                                        + " "
+                                        + context.getString(R.string.rc_combine_and)
+                                        + " "
+                                        + nameList.get(1));
             }
         }
 
@@ -344,10 +379,13 @@ public class ForwardManager {
         for (int i = 0; i < messages.size() && i < SUMMARY_MAX_SIZE; i++) {
             Message message = messages.get(i);
             MessageContent content = message.getContent();
-            UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+            UserInfo userInfo =
+                    RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
             String userName = "";
             if (type.equals(Conversation.ConversationType.GROUP)) {
-                GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(message.getTargetId(), message.getSenderUserId());
+                GroupUserInfo groupUserInfo =
+                        RongUserInfoManager.getInstance()
+                                .getGroupUserInfo(message.getTargetId(), message.getSenderUserId());
                 if (groupUserInfo != null) {
                     userName = groupUserInfo.getNickname();
                 }
@@ -361,15 +399,29 @@ public class ForwardManager {
             MessageTag tag = content.getClass().getAnnotation(MessageTag.class);
             String tagValue = tag != null ? tag.value() : null;
             if ("RC:CardMsg".equals(tagValue)) {
-                text = IMCenter.getInstance().getContext().getString(R.string.rc_message_content_card);
+                text =
+                        IMCenter.getInstance()
+                                .getContext()
+                                .getString(R.string.rc_message_content_card);
             } else if ("RC:StkMsg".equals(tagValue)) {
-                text = IMCenter.getInstance().getContext().getString(R.string.rc_message_content_sticker);
+                text =
+                        IMCenter.getInstance()
+                                .getContext()
+                                .getString(R.string.rc_message_content_sticker);
             } else if ("RC:VCSummary".equals(tagValue) || "RC:VSTMsg".equals(tagValue)) {
-                text = IMCenter.getInstance().getContext().getString(R.string.rc_message_content_vst);
+                text =
+                        IMCenter.getInstance()
+                                .getContext()
+                                .getString(R.string.rc_message_content_vst);
             } else if ("RCJrmf:RpMsg".equals(tagValue)) {
-                text = IMCenter.getInstance().getContext().getString(R.string.rc_message_content_rp);
+                text =
+                        IMCenter.getInstance()
+                                .getContext()
+                                .getString(R.string.rc_message_content_rp);
             } else {
-                Spannable spannable = RongConfigCenter.conversationConfig().getMessageSummary(IMCenter.getInstance().getContext(), content);
+                Spannable spannable =
+                        RongConfigCenter.conversationConfig()
+                                .getMessageSummary(IMCenter.getInstance().getContext(), content);
                 text = spannable.toString();
             }
 
@@ -378,7 +430,7 @@ public class ForwardManager {
         return summaryList;
     }
 
-    //todo
+    // todo
     public void exitDestructMode() {
         RongExtension extension = ForwardExtensionModule.sRongExtension.get();
         extension.resetToDefaultView();
@@ -387,5 +439,4 @@ public class ForwardManager {
     private static class SingletonHolder {
         static ForwardManager sInstance = new ForwardManager();
     }
-
 }

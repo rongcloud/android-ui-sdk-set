@@ -5,14 +5,10 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.EditText;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author gusd
- * @Date 2021/10/22
- */
+/** @author gusd @Date 2021/10/22 */
 public class RongEditText extends EditText {
 
     private List<TextWatcher> mTextWatcherList;
@@ -63,33 +59,33 @@ public class RongEditText extends EditText {
         }
     }
 
-    private TextWatcher mTextWatcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            if (mTextWatcherList != null) {
-                for (TextWatcher textWatcher : mTextWatcherList) {
-                    textWatcher.beforeTextChanged(s, start, count, after);
+    private TextWatcher mTextWatcher =
+            new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    if (mTextWatcherList != null) {
+                        for (TextWatcher textWatcher : mTextWatcherList) {
+                            textWatcher.beforeTextChanged(s, start, count, after);
+                        }
+                    }
                 }
-            }
-        }
 
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (mTextWatcherList != null) {
-                for (TextWatcher textWatcher : mTextWatcherList) {
-                    textWatcher.onTextChanged(s, start, before, count);
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (mTextWatcherList != null) {
+                        for (TextWatcher textWatcher : mTextWatcherList) {
+                            textWatcher.onTextChanged(s, start, before, count);
+                        }
+                    }
                 }
-            }
-        }
 
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (mTextWatcherList != null) {
-                for (TextWatcher textWatcher : mTextWatcherList) {
-                    textWatcher.afterTextChanged(s);
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if (mTextWatcherList != null) {
+                        for (TextWatcher textWatcher : mTextWatcherList) {
+                            textWatcher.afterTextChanged(s);
+                        }
+                    }
                 }
-            }
-        }
-    };
-
+            };
 }

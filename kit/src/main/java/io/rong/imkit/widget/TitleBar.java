@@ -11,19 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
-
 import io.rong.imkit.R;
 
-
-/**
- * 头部Toolbar封装
- * Created by lhz on 18/3/22.
- */
-
+/** 头部Toolbar封装 Created by lhz on 18/3/22. */
 public class TitleBar extends Toolbar {
 
     private TextView mLeft;
@@ -100,27 +93,30 @@ public class TitleBar extends Toolbar {
         if (!isShowMiddle) {
             dismissMiddle();
         }
-        getLeftView().setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnBackClickListener != null) {
-                    mOnBackClickListener.onBackClick();
-                    return;
-                }
-                if (mContext instanceof Activity) {
-                    ((Activity) mContext).onBackPressed();
-                }
-
-            }
-        });
-        getRightView().setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnRightIconClickListener != null) {
-                    mOnRightIconClickListener.onRightIconClick(v);
-                }
-            }
-        });
+        getLeftView()
+                .setOnClickListener(
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mOnBackClickListener != null) {
+                                    mOnBackClickListener.onBackClick();
+                                    return;
+                                }
+                                if (mContext instanceof Activity) {
+                                    ((Activity) mContext).onBackPressed();
+                                }
+                            }
+                        });
+        getRightView()
+                .setOnClickListener(
+                        new OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (mOnRightIconClickListener != null) {
+                                    mOnRightIconClickListener.onRightIconClick(v);
+                                }
+                            }
+                        });
     }
 
     private void dismissMiddle() {
@@ -137,7 +133,6 @@ public class TitleBar extends Toolbar {
         }
         return mLeft;
     }
-
 
     public void setRightVisible(boolean visible) {
         if (visible) {
@@ -184,7 +179,6 @@ public class TitleBar extends Toolbar {
         TextView leftText = getLeftView();
         leftText.setText(charSequence);
     }
-
 
     public void setTitle(String title) {
         super.setTitle(title);

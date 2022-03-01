@@ -2,7 +2,6 @@ package io.rong.imkit.picture.entity;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,36 +10,21 @@ import java.util.List;
  * @date：2016-12-31 15:21
  * @describe：MediaFolder Entity
  */
-
 public class LocalMediaFolder implements Parcelable {
-    /**
-     * Folder name
-     */
+    /** Folder name */
     private String name;
-    /**
-     * Folder first path
-     */
+    /** Folder first path */
     private String firstImagePath;
-    /**
-     * Folder media num
-     */
+    /** Folder media num */
     private int imageNum;
-    /**
-     * If the selected num
-     */
+    /** If the selected num */
     private int checkedNum;
-    /**
-     * If the selected
-     */
+    /** If the selected */
     private boolean isChecked;
 
-    /**
-     * type
-     */
+    /** type */
     private int ofAllType = -1;
-    /**
-     * Whether or not the camera
-     */
+    /** Whether or not the camera */
     private boolean isCameraFolder;
 
     private List<LocalMedia> images = new ArrayList<LocalMedia>();
@@ -60,7 +44,6 @@ public class LocalMediaFolder implements Parcelable {
     public void setName(String name) {
         this.name = name;
     }
-
 
     public String getFirstImagePath() {
         return firstImagePath;
@@ -113,8 +96,7 @@ public class LocalMediaFolder implements Parcelable {
         isCameraFolder = cameraFolder;
     }
 
-    public LocalMediaFolder() {
-    }
+    public LocalMediaFolder() {}
 
     @Override
     public int describeContents() {
@@ -144,15 +126,16 @@ public class LocalMediaFolder implements Parcelable {
         this.images = in.createTypedArrayList(LocalMedia.CREATOR);
     }
 
-    public static final Creator<LocalMediaFolder> CREATOR = new Creator<LocalMediaFolder>() {
-        @Override
-        public LocalMediaFolder createFromParcel(Parcel source) {
-            return new LocalMediaFolder(source);
-        }
+    public static final Creator<LocalMediaFolder> CREATOR =
+            new Creator<LocalMediaFolder>() {
+                @Override
+                public LocalMediaFolder createFromParcel(Parcel source) {
+                    return new LocalMediaFolder(source);
+                }
 
-        @Override
-        public LocalMediaFolder[] newArray(int size) {
-            return new LocalMediaFolder[size];
-        }
-    };
+                @Override
+                public LocalMediaFolder[] newArray(int size) {
+                    return new LocalMediaFolder[size];
+                }
+            };
 }

@@ -78,71 +78,71 @@ IMKit 里包含了很多扩展功能，如转发、@功能、快捷回复等，�
 
 #### 目录结构说明
 ```
-├── IMCenter.java  (IM 核心类)  
-├── RongIM.java   (兼容老版本保留类)  
-├── activity (SDK 内部 activity)  
-├── config (配置相关类)  
-│   ├── ConversationConfig.java  
-│   ├── ConversationListConfig.java  
-│   ├── FeatureConfig.java  
-│   ├── GatheredConversationConfig.java  
-│   └── RongConfigCenter.java  
-├── conversation (会话页相关类)  
-│   ├── ConversationFragment.java  
-│   ├── ConversationViewModel.java  
-│   ├── MessageListAdapter.java  
-│   ├── RongConversationActivity.java  
-│   ├── extension (输入区)  
-│   │   ├── DefaultExtensionConfig.java (输入区默认配置)  
-│   │   ├── InputMode.java (输入模式)  
-│   │   ├── RongExtension.java (View 层，处理输入区 UI)  
-│   │   ├── RongExtensionCacheHelper.java (输入区数据存储类)  
-│   │   ├── RongExtensionManager.java (各输入扩展模块管理类)  
-│   │   ├── RongExtensionViewModel.java (ViewModel，业务数据处理)  
-│   │   └── component (内部基础组件)  
-│   │       ├── emoticon  
-│   │       ├── inputpanel  
-│   │       ├── moreaction  
-│   │       └── plugin  
-│   └── messgelist  
-│       ├── processor (业务处理器)  
-│       ├── provider  (各消息模板)  
-│       ├── status (消息列表状态)  
-│       └── viewmodel  
-├── conversationlist  
-│   ├── ConversationListAdapter.java  
-│   ├── ConversationListFragment.java  
-│   ├── RongConversationListActivity.java  
-│   ├── model  
-│   │   ├── BaseUiConversation.java     (ui 会话基类)  
-│   │   ├── GatheredConversation.java   (聚合会话)  
-│   │   ├── GroupConversation.java      (群组会话)  
-│   │   ├── PublicServiceConversation.java  (公众号会话)  
-│   │   └── SingleConversation.java  (单一用户会话，比如单聊、客服、系统会话)  
-│   ├── provider  (模板类)  
-│   └── viewmodel  
-│       ├── ConversationListViewModel.java(会话列表 ViewModel)  
-├── event     (内部事件)  
-│   ├── Event.java  
-│   ├── actionevent   (业务类事件)  
-│   └── uievent       (UI 类事件)  
-├── feature (基于基础模块开发的各拓展功能)  
-│   ├── customservice  (客服)  
-│   ├── destruct       (阅后即焚)  
-│   ├── forward        (转发)  
-│   ├── location       (位置、实时位置)  
-│   ├── mention        (At 功能)  
-│   ├── publicservice  (公众号)  
-│   ├── quickreply     (快捷回复)  
-│   ├── recallEdit     (撤回重新编辑)  
-│   ├── reference      (消息引用)  
-│   └── resend         (消息失败重发)  
-├── manager     (各管理类)  
-├── model  
-├── notification  (本地通知相关)  
-├── picture       (图片相关)  
-├── subconversationlist  (聚合会话列表相关类)  
-├── userinfo  (用户信息相关类)  
-├── utils  (帮助类)  
-└── widget  
+├── IMCenter.java  (IM 核心类)
+├── RongIM.java   (兼容老版本保留类)
+├── activity (SDK 内部 activity)
+├── config (配置相关类)
+│   ├── ConversationConfig.java
+│   ├── ConversationListConfig.java
+│   ├── FeatureConfig.java
+│   ├── GatheredConversationConfig.java
+│   └── RongConfigCenter.java
+├── conversation (会话页相关类)
+│   ├── ConversationFragment.java
+│   ├── ConversationViewModel.java
+│   ├── MessageListAdapter.java
+│   ├── RongConversationActivity.java
+│   ├── extension (输入区)
+│   │   ├── DefaultExtensionConfig.java (输入区默认配置)
+│   │   ├── InputMode.java (输入模式)
+│   │   ├── RongExtension.java (View 层，处理输入区 UI)
+│   │   ├── RongExtensionCacheHelper.java (输入区数据存储类)
+│   │   ├── RongExtensionManager.java (各输入扩展模块管理类)
+│   │   ├── RongExtensionViewModel.java (ViewModel，业务数据处理)
+│   │   └── component (内部基础组件)
+│   │       ├── emoticon
+│   │       ├── inputpanel
+│   │       ├── moreaction
+│   │       └── plugin
+│   └── messgelist
+│       ├── processor (业务处理器)
+│       ├── provider  (各消息模板)
+│       ├── status (消息列表状态)
+│       └── viewmodel
+├── conversationlist
+│   ├── ConversationListAdapter.java
+│   ├── ConversationListFragment.java
+│   ├── RongConversationListActivity.java
+│   ├── model
+│   │   ├── BaseUiConversation.java     (ui 会话基类)
+│   │   ├── GatheredConversation.java   (聚合会话)
+│   │   ├── GroupConversation.java      (群组会话)
+│   │   ├── PublicServiceConversation.java  (公众号会话)
+│   │   └── SingleConversation.java  (单一用户会话，比如单聊、客服、系统会话)
+│   ├── provider  (模板类)
+│   └── viewmodel
+│       ├── ConversationListViewModel.java(会话列表 ViewModel)
+├── event     (内部事件)
+│   ├── Event.java
+│   ├── actionevent   (业务类事件)
+│   └── uievent       (UI 类事件)
+├── feature (基于基础模块开发的各拓展功能)
+│   ├── customservice  (客服)
+│   ├── destruct       (阅后即焚)
+│   ├── forward        (转发)
+│   ├── location       (位置、实时位置)
+│   ├── mention        (At 功能)
+│   ├── publicservice  (公众号)
+│   ├── quickreply     (快捷回复)
+│   ├── recallEdit     (撤回重新编辑)
+│   ├── reference      (消息引用)
+│   └── resend         (消息失败重发)
+├── manager     (各管理类)
+├── model
+├── notification  (本地通知相关)
+├── picture       (图片相关)
+├── subconversationlist  (聚合会话列表相关类)
+├── userinfo  (用户信息相关类)
+├── utils  (帮助类)
+└── widget
 ```

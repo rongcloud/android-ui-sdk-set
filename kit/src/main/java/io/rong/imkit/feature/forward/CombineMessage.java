@@ -3,21 +3,18 @@ package io.rong.imkit.feature.forward;
 import android.net.Uri;
 import android.os.Parcel;
 import android.text.TextUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.common.ParcelUtils;
 import io.rong.common.RLog;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.MediaMessageContent;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 @MessageTag(value = "RC:CombineMsg", flag = MessageTag.ISCOUNTED | MessageTag.ISPERSISTED)
 public class CombineMessage extends MediaMessageContent {
@@ -64,8 +61,7 @@ public class CombineMessage extends MediaMessageContent {
         this.summaryList = summaryList;
     }
 
-    protected CombineMessage() {
-    }
+    protected CombineMessage() {}
 
     public static CombineMessage obtain(Uri url) {
         CombineMessage model = new CombineMessage();
@@ -87,20 +83,16 @@ public class CombineMessage extends MediaMessageContent {
 
         try {
             JSONObject jsonObj = new JSONObject(jsonStr);
-            if (jsonObj.has("title"))
-                setTitle(jsonObj.optString("title"));
-            if (jsonObj.has("name"))
-                setName(jsonObj.optString("name"));
-            if (jsonObj.has("localPath"))
-                setLocalPath(Uri.parse(jsonObj.optString("localPath")));
-            if (jsonObj.has("remoteUrl"))
-                setMediaUrl(Uri.parse(jsonObj.optString("remoteUrl")));
-            if (jsonObj.has("extra"))
-                setExtra(jsonObj.optString("extra"));
+            if (jsonObj.has("title")) setTitle(jsonObj.optString("title"));
+            if (jsonObj.has("name")) setName(jsonObj.optString("name"));
+            if (jsonObj.has("localPath")) setLocalPath(Uri.parse(jsonObj.optString("localPath")));
+            if (jsonObj.has("remoteUrl")) setMediaUrl(Uri.parse(jsonObj.optString("remoteUrl")));
+            if (jsonObj.has("extra")) setExtra(jsonObj.optString("extra"));
             if (jsonObj.has("user")) {
                 setUserInfo(parseJsonToUserInfo(jsonObj.getJSONObject("user")));
             }
-            setConversationType(Conversation.ConversationType.setValue(jsonObj.optInt("conversationType")));
+            setConversationType(
+                    Conversation.ConversationType.setValue(jsonObj.optInt("conversationType")));
 
             JSONArray jsonArray = jsonObj.optJSONArray("nameList");
             List<String> nameList = new ArrayList<>();
@@ -119,7 +111,6 @@ public class CombineMessage extends MediaMessageContent {
         } catch (JSONException e) {
             RLog.e(TAG, "JSONException " + e.getMessage());
         }
-
     }
 
     @Override
@@ -138,11 +129,9 @@ public class CombineMessage extends MediaMessageContent {
             if (getMediaUrl() != null) {
                 jsonObj.put("remoteUrl", getMediaUrl().toString());
             }
-            if (!TextUtils.isEmpty(getExtra()))
-                jsonObj.put("extra", getExtra());
+            if (!TextUtils.isEmpty(getExtra())) jsonObj.put("extra", getExtra());
 
-            if (getJSONUserInfo() != null)
-                jsonObj.putOpt("user", getJSONUserInfo());
+            if (getJSONUserInfo() != null) jsonObj.putOpt("user", getJSONUserInfo());
 
             jsonObj.put("conversationType", conversationType.getValue());
 
@@ -196,21 +185,22 @@ public class CombineMessage extends MediaMessageContent {
         setLocalPath(ParcelUtils.readFromParcel(in, Uri.class));
         setMediaUrl(ParcelUtils.readFromParcel(in, Uri.class));
         setUserInfo(ParcelUtils.readFromParcel(in, UserInfo.class));
-        setConversationType(Conversation.ConversationType.setValue(ParcelUtils.readIntFromParcel(in)));
+        setConversationType(
+                Conversation.ConversationType.setValue(ParcelUtils.readIntFromParcel(in)));
         setNameList(ParcelUtils.readListFromParcel(in, String.class));
         setSummaryList(ParcelUtils.readListFromParcel(in, String.class));
     }
 
-    public static final Creator<CombineMessage> CREATOR = new Creator<CombineMessage>() {
-        @Override
-        public CombineMessage createFromParcel(Parcel source) {
-            return new CombineMessage(source);
-        }
+    public static final Creator<CombineMessage> CREATOR =
+            new Creator<CombineMessage>() {
+                @Override
+                public CombineMessage createFromParcel(Parcel source) {
+                    return new CombineMessage(source);
+                }
 
-        @Override
-        public CombineMessage[] newArray(int size) {
-            return new CombineMessage[size];
-        }
-    };
-
+                @Override
+                public CombineMessage[] newArray(int size) {
+                    return new CombineMessage[size];
+                }
+            };
 }

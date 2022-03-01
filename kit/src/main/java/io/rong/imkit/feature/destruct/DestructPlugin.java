@@ -3,10 +3,8 @@ package io.rong.imkit.feature.destruct;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
@@ -30,7 +28,7 @@ public class DestructPlugin implements IPluginModule {
             return;
         }
         if (RongExtensionCacheHelper.isDestructFirstUsing(currentFragment.getContext())) {
-            if(currentFragment.isAdded()) {
+            if (currentFragment.isAdded()) {
                 new DestructHintDialog().show(currentFragment.getParentFragmentManager());
             }
         }
@@ -38,7 +36,5 @@ public class DestructPlugin implements IPluginModule {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    }
-
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {}
 }

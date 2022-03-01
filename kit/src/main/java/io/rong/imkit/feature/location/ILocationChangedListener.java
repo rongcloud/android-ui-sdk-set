@@ -14,4 +14,3 @@ public interface ILocationChangedListener {
 
     void onError(RealTimeLocationConstant.RealTimeLocationErrorCode code);
 }
-

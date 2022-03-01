@@ -3,14 +3,12 @@ package io.rong.imkit.conversation;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListUpdateCallback;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MessageListAdapter extends BaseAdapter<UiMessage> {
 
@@ -23,41 +21,43 @@ public class MessageListAdapter extends BaseAdapter<UiMessage> {
         if (data == null) {
             data = new ArrayList<>();
         }
-        //当有空布局的时候，需要全部刷新
-        if ((mDataList.size() == 0 && data.size() > 0) ||
-                (mDataList.size() > 0 && data.size() == 0)) {
+        // 当有空布局的时候，需要全部刷新
+        if ((mDataList.size() == 0 && data.size() > 0)
+                || (mDataList.size() > 0 && data.size() == 0)) {
             super.setDataCollection(data);
             notifyDataSetChanged();
         } else {
             mDiffCallback.setNewList(data);
             DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(mDiffCallback, false);
             super.setDataCollection(data);
-            diffResult.dispatchUpdatesTo(new ListUpdateCallback() {
-                @Override
-                public void onInserted(int position, int count) {
-                    notifyItemRangeInserted(getHeadersCount() + position, count);
-                }
+            diffResult.dispatchUpdatesTo(
+                    new ListUpdateCallback() {
+                        @Override
+                        public void onInserted(int position, int count) {
+                            notifyItemRangeInserted(getHeadersCount() + position, count);
+                        }
 
-                @Override
-                public void onRemoved(int position, int count) {
-                    notifyItemRangeRemoved(getHeadersCount() + position, count);
-                }
+                        @Override
+                        public void onRemoved(int position, int count) {
+                            notifyItemRangeRemoved(getHeadersCount() + position, count);
+                        }
 
-                @Override
-                public void onMoved(int fromPosition, int toPosition) {
-                    notifyItemMoved(getHeadersCount() + fromPosition, getHeadersCount() + toPosition);
-                }
+                        @Override
+                        public void onMoved(int fromPosition, int toPosition) {
+                            notifyItemMoved(
+                                    getHeadersCount() + fromPosition,
+                                    getHeadersCount() + toPosition);
+                        }
 
-                @Override
-                public void onChanged(int position, int count, @Nullable Object payload) {
-                    notifyItemRangeChanged(getHeadersCount() + position, count, null);
-                }
-            });
+                        @Override
+                        public void onChanged(int position, int count, @Nullable Object payload) {
+                            notifyItemRangeChanged(getHeadersCount() + position, count, null);
+                        }
+                    });
         }
     }
 
     MessageDiffCallBack mDiffCallback = new MessageDiffCallBack();
-
 
     private class MessageDiffCallBack extends DiffUtil.Callback {
         private List<UiMessage> newList;
@@ -82,7 +82,8 @@ public class MessageListAdapter extends BaseAdapter<UiMessage> {
 
         @Override
         public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return mDataList.get(oldItemPosition).getMessageId() == newList.get(newItemPosition).getMessageId();
+            return mDataList.get(oldItemPosition).getMessageId()
+                    == newList.get(newItemPosition).getMessageId();
         }
 
         @Override
@@ -98,6 +99,4 @@ public class MessageListAdapter extends BaseAdapter<UiMessage> {
             this.newList = newList;
         }
     }
-
-    ;
 }

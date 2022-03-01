@@ -1,0 +1,21 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="io.rong.sticker" >
+4
+5    <uses-sdk
+6        android:minSdkVersion="19"
+6-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/src/main/AndroidManifest.xml
+7        android:targetSdkVersion="29" />
+7-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/src/main/AndroidManifest.xml
+8
+9    <application>
+9-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/src/main/AndroidManifest.xml:4:5-8:19
+10        <activity
+10-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/src/main/AndroidManifest.xml:5:9-7:52
+11            android:name="io.rong.sticker.mysticker.MyStickerActivity"
+11-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/src/main/AndroidManifest.xml:6:13-56
+12            android:screenOrientation="portrait" />
+12-->/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/src/main/AndroidManifest.xml:7:13-49
+13    </application>
+14
+15</manifest>

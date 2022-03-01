@@ -6,15 +6,10 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.LocaleList;
-
+import io.rong.imlib.RongIMClient;
 import java.util.Locale;
 
-import io.rong.imlib.RongIMClient;
-
-/**
- * Created by weiqinxiao on 2018/2/27.
- */
-
+/** Created by weiqinxiao on 2018/2/27. */
 public class LangUtils {
     private static final String LOCALE_CONF_FILE_NAME = "locale.config";
     private static final String APP_LOCALE = "app_locale";
@@ -35,22 +30,22 @@ public class LangUtils {
     }
 
     public static RCLocale getAppLocale(Context context) {
-        SharedPreferences sp
-                = context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp =
+                context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
         String locale = sp.getString(APP_LOCALE, "auto");
         return RCLocale.valueOf(locale);
     }
 
     public static void saveLocale(Context context, RCLocale locale) {
-        SharedPreferences sp
-                = context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp =
+                context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
         sp.edit().putString(APP_LOCALE, locale.value()).commit();
     }
 
     public static RongIMClient.PushLanguage getPushLanguage(Context context) {
-        SharedPreferences sp
-                = context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
-        //默认值为空串  证明没有设置过推送语言
+        SharedPreferences sp =
+                context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
+        // 默认值为空串  证明没有设置过推送语言
         String language = sp.getString(APP_PUSH_LANGUAGE, "");
         if ((RongIMClient.PushLanguage.ZH_CN.getMsg().equals(language))) {
             return RongIMClient.PushLanguage.ZH_CN;
@@ -62,31 +57,20 @@ public class LangUtils {
     }
 
     public static void setPushLanguage(Context context, RongIMClient.PushLanguage pushLanguage) {
-        SharedPreferences sp
-                = context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp =
+                context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
         sp.edit().putString(APP_PUSH_LANGUAGE, pushLanguage.getMsg()).commit();
     }
 
-
-    /**
-     * 可选择的语言的包装类
-     */
+    /** 可选择的语言的包装类 */
     public static class RCLocale {
-        /**
-         * 中文
-         */
+        /** 中文 */
         public static final RCLocale LOCALE_CHINA = new RCLocale("zh");
-        /**
-         * 英文
-         */
+        /** 英文 */
         public static final RCLocale LOCALE_US = new RCLocale("en");
-        /**
-         * 阿拉伯
-         */
+        /** 阿拉伯 */
         public static final RCLocale LOCALE_ARAB = new RCLocale("ar");
-        /**
-         * 跟随系统
-         */
+        /** 跟随系统 */
         public static final RCLocale LOCALE_AUTO = new RCLocale("auto");
 
         private String rcLocale;
@@ -128,7 +112,6 @@ public class LangUtils {
         }
     }
 
-
     /**
      * 获取系统语言
      *
@@ -154,11 +137,13 @@ public class LangUtils {
      * @return 当前语言
      */
     public static RCLocale getCurrentLanguage(Context context) {
-        SharedPreferences sp
-                = context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
+        SharedPreferences sp =
+                context.getSharedPreferences(LOCALE_CONF_FILE_NAME, Context.MODE_PRIVATE);
         String locale = sp.getString(APP_LOCALE, "auto");
         if (("auto").equals(locale)) {
-            return getSystemLocale().toString().equals("zh_CN") ? RCLocale.LOCALE_CHINA : RCLocale.LOCALE_US;
+            return getSystemLocale().toString().equals("zh_CN")
+                    ? RCLocale.LOCALE_CHINA
+                    : RCLocale.LOCALE_US;
         }
         return RCLocale.valueOf(locale);
     }
