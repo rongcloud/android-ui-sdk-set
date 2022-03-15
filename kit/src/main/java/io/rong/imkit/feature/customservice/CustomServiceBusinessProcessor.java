@@ -83,7 +83,6 @@ public class CustomServiceBusinessProcessor extends BaseBusinessProcessor
                         messageViewModel.getCurTargetId(),
                         mCustomServiceListener,
                         mCustomServiceInfo);
-        super.init(messageViewModel, bundle);
     }
 
     private ICustomServiceListener mCustomServiceListener =

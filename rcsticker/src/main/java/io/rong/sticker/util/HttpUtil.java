@@ -1,6 +1,7 @@
 package io.rong.sticker.util;
 
 import com.google.gson.Gson;
+import io.rong.imlib.common.NetUtils;
 import io.rong.sticker.model.FullResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,7 +10,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,8 +24,7 @@ public class HttpUtil {
 
     public static <T> void get(String urlString, Map<String, String> map, Callback<T> callback) {
         try {
-            URL url = new URL(urlString);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            HttpURLConnection connection = NetUtils.createURLConnection(urlString);
             if (map != null) {
                 Set<Map.Entry<String, String>> set = map.entrySet();
                 for (Map.Entry<String, String> entry : set) {
@@ -49,8 +48,7 @@ public class HttpUtil {
 
     public static <T> T get(String urlString, Map<String, String> map, Type typeOfT)
             throws IOException {
-        URL url = new URL(urlString);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        HttpURLConnection connection = NetUtils.createURLConnection(urlString);
         if (map != null) {
             Set<Map.Entry<String, String>> set = map.entrySet();
             for (Map.Entry<String, String> entry : set) {

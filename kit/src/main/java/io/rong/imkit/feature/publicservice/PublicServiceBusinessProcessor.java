@@ -65,6 +65,5 @@ public class PublicServiceBusinessProcessor extends BaseBusinessProcessor {
                                 public void onError(RongIMClient.ErrorCode errorCode) {}
                             });
         }
-        super.init(messageViewModel, bundle);
     }
 }

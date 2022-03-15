@@ -2,17 +2,21 @@ package io.rong.imkit.conversation.messgelist.processor;
 
 import android.content.Context;
 import android.os.Bundle;
+import androidx.lifecycle.Observer;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.conversation.messgelist.status.StateContext;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.feature.mention.RongMentionManager;
+import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
+import java.util.List;
 
 public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
     private static final String TAG = "ChatRoomBusinessProcess";
@@ -20,8 +24,6 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
 
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
-        mState = new StateContext(StateContext.CHATROOM_NORMAL_STATE);
-        mState.init(messageViewModel, bundle);
         rc_chatRoom_first_pull_message_count =
                 RongConfigCenter.conversationConfig().rc_chatroom_first_pull_message_count;
         boolean createIfNotExist = bundle.getBoolean(RouteUtils.CREATE_CHATROOM, true);
@@ -104,7 +106,21 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 }
                             });
         }
-        super.init(messageViewModel, bundle);
+        messageViewModel
+                .getPageEventLiveData()
+                .addSource(
+                        RongUserInfoManager.getInstance().getAllUsersLiveData(),
+                        new Observer<List<User>>() {
+                            @Override
+                            public void onChanged(List<User> users) {
+                                if (users != null && users.size() > 0) {
+                                    for (UiMessage item : messageViewModel.getUiMessages()) {
+                                        item.onUserInfoUpdate(users);
+                                    }
+                                    messageViewModel.refreshAllMessage(false);
+                                }
+                            }
+                        });
     }
 
     @Override

@@ -32,7 +32,6 @@ import io.rong.common.RLog;
 import io.rong.common.RongWebView;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
 import io.rong.imkit.feature.location.AMapPreviewActivity;
@@ -41,6 +40,7 @@ import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
+import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -53,7 +53,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import org.json.JSONObject;
 
 public class CombineWebViewActivity extends RongBaseActivity {
@@ -211,7 +210,6 @@ public class CombineWebViewActivity extends RongBaseActivity {
         intent.setComponent(cn);
         intent.putExtra("Message", message);
         intent.putExtra("SightMessage", sightMessage);
-        intent.putExtra("fromSightListImageVisible", false);
         startActivity(intent);
     }
 
@@ -329,8 +327,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
             OutputStream out = null;
             HttpURLConnection urlConnection = null;
             try {
-                URL url = new URL(params[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection = NetUtils.createURLConnection(params[0]);
                 urlConnection.setConnectTimeout(15000);
                 urlConnection.setReadTimeout(15000);
 
@@ -442,30 +439,19 @@ public class CombineWebViewActivity extends RongBaseActivity {
         @Override
         public void onReceivedSslError(
                 WebView view, final SslErrorHandler handler, SslError error) {
-            FeatureConfig.SSLInterceptor interceptor =
-                    RongConfigCenter.featureConfig().getSSLInterceptor();
-            boolean check = false;
-            if (interceptor != null) {
-                check = interceptor.check(error.getCertificate());
-            }
-            if (check) {
-                handler.proceed();
-            } else {
-                final AlertDialog.Builder builder =
-                        new AlertDialog.Builder(CombineWebViewActivity.this);
-                builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
-                builder.setNegativeButton(
-                        R.string.rc_cancel,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                handler.cancel();
-                            }
-                        });
-
-                final AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+            final AlertDialog.Builder builder =
+                    new AlertDialog.Builder(CombineWebViewActivity.this);
+            builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
+            builder.setNegativeButton(
+                    R.string.rc_cancel,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.cancel();
+                        }
+                    });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 

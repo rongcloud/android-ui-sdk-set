@@ -156,26 +156,4 @@ public class RongConfigurationManager {
     public void setPushLanguage(Context context, RongIMClient.PushLanguage pushLanguage) {
         LangUtils.setPushLanguage(context, pushLanguage);
     }
-
-    /**
-     * 获取当前app 的语言设置
-     *
-     * @return
-     */
-    public LangUtils.RCLocale getLanguageLocal(Context context) {
-        LangUtils.RCLocale appLocale = RongConfigurationManager.getInstance().getAppLocale(context);
-        if (appLocale == LangUtils.RCLocale.LOCALE_AUTO) {
-            Locale systemLocale = RongConfigurationManager.getInstance().getSystemLocale();
-            if (systemLocale.getLanguage().equals(Locale.CHINESE.getLanguage())) {
-                appLocale = LangUtils.RCLocale.LOCALE_CHINA;
-            } else if (systemLocale.getLanguage().equals(Locale.ENGLISH.getLanguage())) {
-                appLocale = LangUtils.RCLocale.LOCALE_US;
-            } else if (systemLocale.getLanguage().equals(new Locale("ar").getLanguage())) {
-                appLocale = LangUtils.RCLocale.LOCALE_ARAB;
-            } else {
-                appLocale = LangUtils.RCLocale.LOCALE_CHINA;
-            }
-        }
-        return appLocale;
-    }
 }

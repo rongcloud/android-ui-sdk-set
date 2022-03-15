@@ -12,7 +12,6 @@ import io.rong.contactcard.activities.ContactListActivity;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.UserInfo;
 
 /** Created by Beyond on 2016/11/14. */
 public class ContactCardPlugin implements IPluginModule {
@@ -67,7 +66,7 @@ public class ContactCardPlugin implements IPluginModule {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CONTACT && resultCode == Activity.RESULT_OK) {
             Intent intent = new Intent(context, ContactDetailActivity.class);
-            intent.putExtra("contact", (UserInfo) data.getParcelableExtra("contact"));
+            intent.putExtra("contact", data.getParcelableExtra("contact"));
             intent.putExtra("conversationType", conversationType);
             intent.putExtra("targetId", targetId);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

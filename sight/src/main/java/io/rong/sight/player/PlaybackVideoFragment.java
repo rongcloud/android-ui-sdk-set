@@ -181,7 +181,6 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
             Intent intent = new Intent(getActivity(), SightListActivity.class);
             intent.putExtra("conversationType", conversationType.getValue());
             intent.putExtra("targetId", targetId);
-            if (mSightMessage != null) intent.putExtra("isDestruct", mSightMessage.isDestruct());
             startActivity(intent);
         }
     }

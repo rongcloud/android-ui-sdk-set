@@ -620,7 +620,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         }
         ReferenceMessage content = (ReferenceMessage) referenceMessage.getReferenceContent();
         setTextContent(
-                holder.getView(R.id.rc_msg_tv_reference_content),
+                (TextView) holder.getView(R.id.rc_msg_tv_reference_content),
                 uiMessage,
                 content.getEditSendText(),
                 false);
@@ -628,7 +628,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                 view, holder, parentHolder, position, referenceMessage, uiMessage);
         textClickAction(
                 view,
-                holder.getView(R.id.rc_msg_tv_reference_content),
+                (TextView) holder.getView(R.id.rc_msg_tv_reference_content),
                 uiMessage.getReferenceContentSpannable());
     }
 

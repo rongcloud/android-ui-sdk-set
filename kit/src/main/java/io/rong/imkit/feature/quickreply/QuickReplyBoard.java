@@ -19,20 +19,14 @@ import io.rong.message.TextMessage;
 import java.util.List;
 
 public class QuickReplyBoard {
-    private final AdapterView.OnItemClickListener mListener;
     private ListView mListView;
     private List<String> mPhraseList;
     private View mRootView;
     private Conversation.ConversationType mConversationType;
     private String mTargetId;
 
-    public QuickReplyBoard(
-            @NonNull Context context,
-            ViewGroup parent,
-            List<String> phraseList,
-            AdapterView.OnItemClickListener listener) {
+    public QuickReplyBoard(@NonNull Context context, ViewGroup parent, List<String> phraseList) {
         mPhraseList = phraseList;
-        mListener = listener;
         initView(context, parent);
     }
 
@@ -56,9 +50,6 @@ public class QuickReplyBoard {
                                         null,
                                         null,
                                         null);
-                        if (mListener != null) {
-                            mListener.onItemClick(parent, view, position, id);
-                        }
                     }
                 });
     }

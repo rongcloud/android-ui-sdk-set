@@ -1,5 +1,7 @@
 package io.rong.imkit.conversation.messgelist.provider;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -24,6 +26,7 @@ import io.rong.imkit.R;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ScreenUtils;
+import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.widget.CircleProgressView;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
@@ -134,20 +137,18 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
         if (sightMessage != null) {
+            if (Message.SentStatus.SENDING.equals(uiMessage.getSentStatus())) {
+                return true;
+            }
             if (!RongOperationPermissionUtils.isMediaOperationPermit(holder.getContext())) {
                 return true;
             }
-
-            // KNOTE: 2021/8/24  点击进入SightPlayerActivity下载播放,下载保存目录是应用私有目录  不需要存储权限
-            //            String[] permissions = {
-            //                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-            //            };
-            //            if (!PermissionCheckUtil.checkPermissions(holder.getContext(),
-            // permissions)) {
-            //                Activity activity = (Activity) holder.getContext();
-            //                PermissionCheckUtil.requestPermissions(activity, permissions, 100);
-            //                return true;
-            //            }
+            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (!PermissionCheckUtil.checkPermissions(holder.getContext(), permissions)) {
+                Activity activity = (Activity) holder.getContext();
+                PermissionCheckUtil.requestPermissions(activity, permissions, 100);
+                return true;
+            }
 
             Uri.Builder builder = new Uri.Builder();
             builder.scheme("rong")

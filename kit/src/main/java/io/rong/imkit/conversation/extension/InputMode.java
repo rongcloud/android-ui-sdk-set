@@ -12,7 +12,5 @@ public enum InputMode {
     /*更多输入状态，长按消息，弹出框里点击"更多"后触发*/
     MoreInputMode,
     /*语音识别输入状态，点击语音输入plugin后触发*/
-    RecognizeMode,
-    /*常用语输入状态*/
-    QuickReplyMode
+    RecognizeMode
 }

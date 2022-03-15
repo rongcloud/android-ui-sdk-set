@@ -8,6 +8,5 @@
     <string name="rc_save_video">保存视频</string>
     <string name="rc_save_video_success">视频保存成功</string>
     <string name="rc_src_file_not_found">源文件不存在</string>
-    <string name="rc_sight_file_expired">视频被删除或过期</string>
 
 </resources>

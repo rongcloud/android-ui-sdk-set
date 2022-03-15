@@ -3,9 +3,6 @@ package io.rong.imkit;
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
-import androidx.annotation.Nullable;
-import androidx.emoji2.text.DefaultEmojiCompatConfig;
-import androidx.emoji2.text.EmojiCompat;
 import io.rong.common.RLog;
 import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.ConversationListBehaviorListener;
@@ -30,8 +27,6 @@ import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.location.message.LocationMessage;
-import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Message;
@@ -39,15 +34,9 @@ import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.SendMessageOption;
 import io.rong.imlib.model.UserInfo;
 import io.rong.imlib.typingmessage.TypingStatus;
-import io.rong.message.FileMessage;
-import io.rong.message.ImageMessage;
 import io.rong.message.InformationNotificationMessage;
-import io.rong.message.MediaMessageContent;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
-import io.rong.message.TextMessage;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -78,220 +67,34 @@ public class IMCenter {
             mSyncConversationReadStatusListeners = new CopyOnWriteArrayList<>();
     private List<RongIMClient.TypingStatusListener> mTypingStatusListeners =
             new CopyOnWriteArrayList<>();
-    private static final String EMOJI_TTF_FILE_NAME = "NotoColorEmojiCompat.ttf";
-    /** 连接状态变化的监听器。 */
-    private RongIMClient.ConnectionStatusListener mConnectionStatusListener =
-            new RongIMClient.ConnectionStatusListener() {
-                @Override
-                public void onChanged(ConnectionStatus connectionStatus) {
-                    for (RongIMClient.ConnectionStatusListener listener :
-                            mConnectionStatusObserverList) {
-                        listener.onChanged(connectionStatus);
-                    }
-                }
-            };
-    /** 接受消息的事件监听器。 */
-    private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener =
-            new RongIMClient.OnReceiveMessageWrapperListener() {
-                @Override
-                public boolean onReceived(
-                        final Message message,
-                        final int left,
-                        final boolean hasPackage,
-                        final boolean offline) {
-                    ExecutorHelper.getInstance()
-                            .mainThread()
-                            .execute(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (mMessageInterceptor != null
-                                                    && mMessageInterceptor.interceptReceivedMessage(
-                                                            message, left, hasPackage, offline)) {
-                                                RLog.d(TAG, "message has been intercepted.");
-                                                return;
-                                            }
-                                            for (RongIMClient.OnReceiveMessageWrapperListener
-                                                    observer : mOnReceiveMessageObserverList) {
-                                                observer.onReceived(
-                                                        message, left, hasPackage, offline);
-                                            }
-                                        }
-                                    });
-                    return false;
-                }
-            };
-    /** 会话状态监听器。当会话的置顶或者免打扰状态更改时，会回调此方法。 */
-    private RongIMClient.ConversationStatusListener mConversationStatusListener =
-            new RongIMClient.ConversationStatusListener() {
-                @Override
-                public void onStatusChanged(ConversationStatus[] conversationStatuses) {
-                    for (RongIMClient.ConversationStatusListener listener :
-                            mConversationStatusObserverList) {
-                        listener.onStatusChanged(conversationStatuses);
-                    }
-                }
-            };
-    /** 消息被撤回时的监听器。 */
-    private RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
-            new RongIMClient.OnRecallMessageListener() {
-                @Override
-                public boolean onMessageRecalled(
-                        Message message, RecallNotificationMessage recallNotificationMessage) {
-                    for (RongIMClient.OnRecallMessageListener listener :
-                            mOnRecallMessageObserverList) {
-                        listener.onMessageRecalled(message, recallNotificationMessage);
-                    }
-                    return false;
-                }
-            };
-    /** 消息回执监听器 */
-    private RongIMClient.ReadReceiptListener mReadReceiptListener =
-            new RongIMClient.ReadReceiptListener() {
-                /**
-                 * 单聊中收到消息回执的回调。
-                 *
-                 * @param message 封装了 {@link ReadReceiptMessage}
-                 */
-                @Override
-                public void onReadReceiptReceived(final Message message) {
-                    ExecutorHelper.getInstance()
-                            .mainThread()
-                            .execute(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            for (RongIMClient.ReadReceiptListener listener :
-                                                    mReadReceiptObserverList) {
-                                                listener.onReadReceiptReceived(message);
-                                            }
-                                        }
-                                    });
-                }
-
-                /**
-                 * 群组和讨论组中，某人发起了回执请求，会话中其余人会收到该请求，并回调此方法。
-                 *
-                 * <p>接收方需要在合适的时机（读取了消息之后）调用 {@link
-                 * RongIMClient#sendReadReceiptResponse(Conversation.ConversationType, String, List,
-                 * RongIMClient.OperationCallback)} 回复响应。
-                 *
-                 * @param conversationType 会话类型
-                 * @param targetId 会话目标 id
-                 * @param messageUId 请求已读回执的消息 uId
-                 */
-                @Override
-                public void onMessageReceiptRequest(
-                        final Conversation.ConversationType conversationType,
-                        final String targetId,
-                        final String messageUId) {
-                    ExecutorHelper.getInstance()
-                            .mainThread()
-                            .execute(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            for (RongIMClient.ReadReceiptListener listener :
-                                                    mReadReceiptObserverList) {
-                                                listener.onMessageReceiptRequest(
-                                                        conversationType, targetId, messageUId);
-                                            }
-                                        }
-                                    });
-                }
-
-                /**
-                 * 在群组和讨论组中发起了回执请求的用户，当收到接收方的响应时，会回调此方法。
-                 *
-                 * @param conversationType 会话类型
-                 * @param targetId 会话 id
-                 * @param messageUId 收到回执响应的消息的 uId
-                 * @param respondUserIdList 会话中响应了此消息的用户列表。其中 key： 用户 id ； value： 响应时间。
-                 */
-                @Override
-                public void onMessageReceiptResponse(
-                        final Conversation.ConversationType conversationType,
-                        final String targetId,
-                        final String messageUId,
-                        final HashMap<String, Long> respondUserIdList) {
-                    ExecutorHelper.getInstance()
-                            .mainThread()
-                            .execute(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            for (RongIMClient.ReadReceiptListener listener :
-                                                    mReadReceiptObserverList) {
-                                                listener.onMessageReceiptResponse(
-                                                        conversationType,
-                                                        targetId,
-                                                        messageUId,
-                                                        respondUserIdList);
-                                            }
-                                        }
-                                    });
-                }
-            };
-    /** 阅后即焚事件监听器。 */
-    private RongIMClient.OnReceiveDestructionMessageListener mOnReceiveDestructMessageListener =
-            new RongIMClient.OnReceiveDestructionMessageListener() {
-                @Override
-                public void onReceive(Message message) {
-                    for (MessageEventListener item : mMessageEventListeners) {
-                        item.onDeleteMessage(
-                                new DeleteEvent(
-                                        message.getConversationType(),
-                                        message.getTargetId(),
-                                        new int[] {message.getMessageId()}));
-                    }
-                    if (MessageItemLongClickActionManager.getInstance().getLongClickDialog()
-                            != null) {
-                        MessageItemLongClickActionManager.getInstance()
-                                .getLongClickDialog()
-                                .dismiss();
-                    }
-                }
-            };
-
-    private RongIMClient.SyncConversationReadStatusListener mSyncConversationReadStatusListener =
-            new RongIMClient.SyncConversationReadStatusListener() {
-                @Override
-                public void onSyncConversationReadStatus(
-                        Conversation.ConversationType type, String targetId) {
-                    for (RongIMClient.SyncConversationReadStatusListener item :
-                            mSyncConversationReadStatusListeners) {
-                        item.onSyncConversationReadStatus(type, targetId);
-                    }
-                }
-            };
-    private RongIMClient.TypingStatusListener mTypingStatusListener =
-            new RongIMClient.TypingStatusListener() {
-                @Override
-                public void onTypingStatusChanged(
-                        Conversation.ConversationType type,
-                        String targetId,
-                        Collection<TypingStatus> typingStatusSet) {
-                    for (RongIMClient.TypingStatusListener item : mTypingStatusListeners) {
-                        item.onTypingStatusChanged(type, targetId, typingStatusSet);
-                    }
-                }
-            };
 
     private IMCenter() {}
+
+    private static class SingletonHolder {
+        static IMCenter sInstance = new IMCenter();
+    }
 
     public static IMCenter getInstance() {
         return SingletonHolder.sInstance;
     }
 
     /**
-     * 初始化 SDK，在整个应用程序全局，只需要调用一次。
+     * /~chinese 初始化 SDK，在整个应用程序全局，只需要调用一次。
      *
      * @param application 应用上下文。
      * @param appKey 在融云开发者后台注册的应用 AppKey。
      * @param isEnablePush 是否使用推送功能
      */
+
+    /**
+     * /~english Initialize the SDK, which only needs to be called once in the whole application
+     * globally.
+     *
+     * @param application Application context.
+     * @param appKey Application AppKey registered with RongCloud developer backend.
+     * @param isEnablePush Whether to use push function
+     */
     public static void init(Application application, String appKey, boolean isEnablePush) {
-        initEmojiConfig(application);
         String current = io.rong.common.SystemUtils.getCurrentProcessName(application);
         String mainProcessName = application.getPackageName();
         if (!mainProcessName.equals(current)) {
@@ -301,6 +104,7 @@ public class IMCenter {
         SingletonHolder.sInstance.mContext = application.getApplicationContext();
         RongConfigCenter.syncFromXml(application);
         RongIMClient.init(application.getApplicationContext(), appKey, isEnablePush);
+        RongUserInfoManager.getInstance().initAndUpdateUserDataBase(application);
         RongExtensionManager.init(application.getApplicationContext(), appKey);
         HQVoiceMsgDownloadManager.getInstance().init(application);
         RongNotificationManager.getInstance().init(application);
@@ -324,44 +128,11 @@ public class IMCenter {
         RongIMClient.registerMessageType(CombineMessage.class);
     }
 
-    /**
-     * 设置会话界面操作的监听器。
-     *
-     * @param listener 会话界面操作的监听器。
-     */
-    public static void setConversationClickListener(ConversationClickListener listener) {
-        RongConfigCenter.conversationConfig().setConversationClickListener(listener);
-    }
-
-    /**
-     * 设置会话列表界面操作的监听器。
-     *
-     * @param listener 会话列表界面操作的监听器。
-     */
-    public static void setConversationListBehaviorListener(
-            ConversationListBehaviorListener listener) {
-        RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
-    }
-
     public void connect(
             String token, int timeLimit, final RongIMClient.ConnectCallback connectCallback) {
-        ConnectOption connectOption = ConnectOption.obtain(token, timeLimit);
-        connect(connectOption, connectCallback);
-    }
-
-    /**
-     * 返回 SDK 是否已经初始化。
-     *
-     * @return true 代表已经初始化；false 未初始化。
-     */
-    public boolean isInitialized() {
-        return mContext != null;
-    }
-
-    private void connect(ConnectOption option, final RongIMClient.ConnectCallback connectCallback) {
         RongIMClient.connect(
-                option.getToken(),
-                option.getTimeLimit(),
+                token,
+                timeLimit,
                 new RongIMClient.ConnectCallback() {
                     @Override
                     public void onSuccess(String s) {
@@ -404,11 +175,26 @@ public class IMCenter {
     }
 
     /**
-     * 根据会话类型，清空某一会话的所有聊天消息记录,回调方式获取清空是否成功。
+     * /~chinese 删除某个会话中的所有消息。
      *
-     * @param conversationType 会话类型。不支持传入 ConversationType.CHATROOM。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
+     * <p><strong>注意：不支持聊天室！</strong>
+     *
+     * @param conversationType 会话类型，不支持聊天室。参考 {@link Conversation.ConversationType} 。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id。
      * @param callback 清空是否成功的回调。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Delete all messages in a conversation.
+     *
+     * <p><strong>Note: The chat rooms are not supported!</strong>
+     *
+     * @param conversationType Type of conversation, which does not support chat rooms. Refer to
+     *     Conversation.ConversationType.
+     * @param targetId Conversation id. Depending on different conversationType, it may be user id,
+     *     discussion group id or group id.
+     * @param callback Callback for whether clearing is successful or not.
      */
     public void clearMessages(
             final Conversation.ConversationType conversationType,
@@ -479,9 +265,9 @@ public class IMCenter {
     }
 
     /**
-     * 根据会话类型，发送消息。
+     * /~chinese 根据会话类型，发送消息。
      *
-     * <p>通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。<br>
+     * <p>通过 {@link io.rong.imlib.IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。<br>
      * <strong>注意：1 秒钟发送消息不能超过 5 条。
      *
      * @param type 会话类型。
@@ -491,7 +277,31 @@ public class IMCenter {
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
      * @param pushData 远程推送附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
+     * @param callback 发送消息的回调。参考 {@link io.rong.imlib.IRongCallback.ISendMessageCallback}。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Send a message.
+     *
+     * <p>The status and body of the sent message are called back by the method in
+     * IRongCoreCallback.ISendMessageCallback. <strong>Note: No more than 5 messages can be sent in
+     * 1 second.</strong>
+     *
+     * @param type Conversation type
+     * @param targetId Conversation id. Depending on the conversationType, it may be user id,
+     *     discussion group id, group id, or chatroom id.
+     * @param content Message content, e.g. TextMessage, ImageMessage.
+     * @param pushContent This field is displayed in the notification bar when a remote push message
+     *     is sent. If you are sending a custom message, this field must be completed, otherwise you
+     *     will not be able to receive a remote push message. If you send the default message type
+     *     in sdk such as RC:TxtMsg, RC:VcMsg, RC:ImgMsg, this field does not need to be filled in
+     *     and has been specified by default.
+     * @param pushData Push additional information remotely. If this field is set, users can get it
+     *     by using io.rong.push.notification.PushNotificationMessage#getPushData() when they
+     *     receive a push message.
+     * @param callback Callback for sending messages, refer to {@link
+     *     io.rong.imlib.IRongCallback.ISendMessageCallback}.
      */
     public void sendMessage(
             final Conversation.ConversationType type,
@@ -513,14 +323,42 @@ public class IMCenter {
     }
 
     /**
-     * 发送消息。 通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。
+     * /~chinese 发送消息。
      *
-     * @param message 将要发送的消息体。
-     * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到 push 消息。 如果发送 sdk
+     * <p>通过 {@link io.rong.imlib.IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。<br>
+     * <strong>注意：1 秒钟发送消息不能超过 5 条。
+     *
+     * @param message 要发送的消息体。
+     * @param pushContent 当下发远程推送消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到远程推送消息。 如果发送 sdk
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
-     * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
+     * @param pushData 远程推送附加信息。如果设置该字段，用户在收到远程推送消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
+     * @param option 发送消息附加选项，目前仅支持设置 isVoIPPush，如果对端设备是 iOS，设置 isVoIPPush 为 True，会走 VoIP 通道推送 Push。
+     * @param callback 发送消息的回调，参考 {@link io.rong.imlib.IRongCallback.ISendMessageCallback}。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Send a message.
+     *
+     * <p>The status and body of the sent message are called back by the method in
+     * IRongCoreCallback.ISendMessageCallback. <strong>Note: No more than 5 messages can be sent in
+     * 1 second.</strong>
+     *
+     * @param message Message body to be sent.
+     * @param pushContent This field is displayed in the notification bar when a remote push message
+     *     is sent. If you are sending a custom message, this field must be completed, otherwise you
+     *     will not be able to receive a remote push message. If you send the default message type
+     *     in sdk such as RC:TxtMsg, RC:VcMsg, RC:ImgMsg, this field does not need to be filled in
+     *     and has been specified by default.
+     * @param pushData Push additional information remotely. If this field is set, users can get it
+     *     by using io.rong.push.notification.PushNotificationMessage#getPushData() when they
+     *     receive a push message.
+     * @param option Additional option for sending messages. Currently you can only set isVoIPPush
+     *     If the peer device is iOS, isVoIPPush is set as True, Push will be pushed via VoIP
+     *     channel.
+     * @param callback Callback for sending messages, refer to {@link
+     *     io.rong.imlib.IRongCallback.ISendMessageCallback}.
      */
     public void sendMessage(
             Message message,
@@ -589,15 +427,31 @@ public class IMCenter {
     }
 
     /**
-     * 发送已读回执，该方法会触发刷新消息未读数
+     * /~chinese 发送某个会话中的消息阅读回执。
      *
-     * <p>通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。<br>
-     * <strong>注意：1 秒钟发送消息不能超过 5 条。
+     * <p>使用 IMLib 可以注册监听 {@link #setReadReceiptListener}；使用 IMkit 直接设置 rc_config.xml 中 {@code
+     * rc_read_receipt} 为 true。
      *
-     * @param conversationType 会话类型。
-     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
-     * @param timestamp 时间戳
-     * @param callback 发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
+     * @param conversationType 会话类型（只适用 PRIVATE 和 ENCRYPTED 类型）
+     * @param targetId 会话 id
+     * @param timestamp 会话中已读的最后一条消息的发送时间戳 {@link Message#getSentTime()}
+     * @param callback 发送已读回执消息的回调
+     * @group 高级功能
+     */
+
+    /**
+     * /~english Send a message reading receipt in a conversation.
+     *
+     * <p>The IMLib can be used to register and listen to
+     * setReadReceiptListener(io.rong.imlib.IRongCoreListener.ReadReceiptListener). The IMkit is
+     * used to directly set rc_read_receipt in rc_config.xml as true.
+     *
+     * @param conversationType Type of conversation (It is only applicable to PRIVATE and ENCRYPTED
+     *     types)
+     * @param targetId Conversation Id
+     * @param timestamp The sending timestamp of the last message read in this conversation {@link
+     *     Message#getSentTime()}
+     * @param callback Callback for sending read receipt messages
      */
     public void sendReadReceiptMessage(
             final Conversation.ConversationType conversationType,
@@ -642,12 +496,23 @@ public class IMCenter {
     }
 
     /**
-     * 同步会话阅读状态。
+     * /~chinese 同步会话阅读状态。
      *
      * @param type 会话类型
      * @param targetId 会话 id
      * @param timestamp 会话中已读的最后一条消息的发送时间戳 {@link Message#getSentTime()}
      * @param callback 回调函数
+     * @group 高级功能
+     */
+
+    /**
+     * /~english Synchronize conversation reading status.
+     *
+     * @param type Conversation type
+     * @param targetId Conversation Id
+     * @param timestamp The sending timestamp of the last message read in this conversation
+     *     Message.getSentTime()
+     * @param callback Callback function
      */
     public void syncConversationReadStatus(
             final Conversation.ConversationType type,
@@ -685,14 +550,69 @@ public class IMCenter {
     }
 
     /**
-     * 发送消息。 通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。
+     * /~chinese 设置会话界面操作的监听器。
      *
-     * @param message 将要发送的消息体。
-     * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到 push 消息。 如果发送 sdk
-     *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
-     * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
+     * @param listener 会话界面操作的监听器。
+     */
+
+    /**
+     * /~english Set the listener for conversation interface operations.
+     *
+     * @param listener Listeners for conversation interface operations.
+     */
+    public static void setConversationClickListener(ConversationClickListener listener) {
+        RongConfigCenter.conversationConfig().setConversationClickListener(listener);
+    }
+
+    /**
+     * /~chinese 设置会话列表界面操作的监听器。
+     *
+     * @param listener 会话列表界面操作的监听器。
+     */
+
+    /**
+     * /~english Set the listener for the conversation list interface operation.
+     *
+     * @param listener Set the listener for the conversation list interface operation.
+     */
+    public static void setConversationListBehaviorListener(
+            ConversationListBehaviorListener listener) {
+        RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
+    }
+
+    /**
+     * /~chinese 发送多媒体消息。
+     *
+     * <p>发送前构造 {@link Message} 消息实体，消息实体中的 content 必须为多媒体消息。 例如：{@link ImageMessage} 、{@link
+     * FileMessage} 或其他继承自 {@link MediaMessageContent} 的消息。
+     *
+     * @param message 发送消息的实体。
+     * @param pushContent 当下发远程推送消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到远程推送消息。 如果发送 sdk
+     *     中默认的消息类型，例如：RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
+     * @param pushData 远程推送附加信息。如果设置该字段，用户在收到远程推送消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMediaMessageCallback}。
+     * @param callback 发送消息的回调 {@link io.rong.imlib.RongIMClient.SendMediaMessageCallback}。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Send a multimedia message.
+     *
+     * <p>The Message message entity is constructed before sending and the contents in the message
+     * entity must be multimedia messages. E.g. ImageMessage FileMessage or other message inherited
+     * from MediaMessageContent.
+     *
+     * @param message The entity that sent the message.
+     * @param pushContent This field is displayed in the notification bar when a remote push message
+     *     is sent. If you are sending a custom message, this field must be completed, otherwise you
+     *     will not be able to receive a remote push message. If you send the default message type
+     *     in sdk such as RC:TxtMsg, RC:VcMsg, RC:ImgMsg, this field does not need to be filled in
+     *     and has been specified by default.
+     * @param pushData Push additional information remotely. If this field is set, users can get it
+     *     by using io.rong.push.notification.PushNotificationMessage#getPushData() when they
+     *     receive a push message.
+     * @param callback Callback io.rong.imlib.RongCoreClient.SendMediaMessageCallback for sending
+     *     messages.
      */
     public void sendMediaMessage(
             Message message,
@@ -803,27 +723,6 @@ public class IMCenter {
                     }
 
                     @Override
-                    public void onError(
-                            final Message message, final RongIMClient.ErrorCode errorCode) {
-                        filterSentMessage(
-                                message,
-                                errorCode,
-                                new FilterSentListener() {
-                                    @Override
-                                    public void onComplete() {
-                                        for (MessageEventListener item : mMessageEventListeners) {
-                                            item.onSendMediaMessage(
-                                                    new SendMediaEvent(
-                                                            SendMediaEvent.ERROR,
-                                                            message,
-                                                            errorCode));
-                                        }
-                                    }
-                                });
-                        if (callback != null) callback.onError(message, errorCode);
-                    }
-
-                    @Override
                     public void onProgress(Message message, int progress) {
                         for (MessageEventListener item : mMessageEventListeners) {
                             item.onSendMediaMessage(
@@ -852,6 +751,27 @@ public class IMCenter {
                     }
 
                     @Override
+                    public void onError(
+                            final Message message, final RongIMClient.ErrorCode errorCode) {
+                        filterSentMessage(
+                                message,
+                                errorCode,
+                                new FilterSentListener() {
+                                    @Override
+                                    public void onComplete() {
+                                        for (MessageEventListener item : mMessageEventListeners) {
+                                            item.onSendMediaMessage(
+                                                    new SendMediaEvent(
+                                                            SendMediaEvent.ERROR,
+                                                            message,
+                                                            errorCode));
+                                        }
+                                    }
+                                });
+                        if (callback != null) callback.onError(message, errorCode);
+                    }
+
+                    @Override
                     public void onCanceled(Message message) {
                         filterSentMessage(message, null, null);
                         for (MessageEventListener item : mMessageEventListeners) {
@@ -868,20 +788,55 @@ public class IMCenter {
     }
 
     /**
-     * 发送定向消息。向会话中特定的某些用户发送消息，会话中其他用户将不会收到此消息。 通过 {@link IRongCallback.ISendMessageCallback}
-     * 中的方法回调发送的消息状态及消息体。 此方法只能发送非多媒体消息，多媒体消息如{@link ImageMessage} {@link FileMessage} ，或者继承自{@link
-     * MediaMessageContent}的消息须调用 {@link #sendDirectionalMediaMessage(Message, String[], String,
-     * String, IRongCallback.ISendMediaMessageCallback)}。
+     * /~chinese 发送定向消息。
+     *
+     * <p>此方法用于在群组和讨论组中发送消息给其中的部分用户，其它用户不会收到这条消息。 通过 {@link
+     * io.rong.imlib.IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。 <br>
+     * 此方法只能发送非多媒体消息，多媒体消息如{@link ImageMessage} {@link FileMessage} 或其他继承自 {@link
+     * MediaMessageContent} 的消息须调用 {@link #sendDirectionalMediaMessage(Message, String[], String,
+     * String, IRongCallback.ISendMediaMessageCallback)} <br>
+     * 如果您使用 IMLib，可以使用此方法发送定向消息；如果您使用 IMKit，请使用 RongIM 中的同名方法发送定向消息，否则不会自动更新 UI。
      *
      * @param type 会话类型。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param content 消息内容，例如 {@link TextMessage}
-     * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到 push 消息。 如果发送 sdk
+     * @param targetId 会话 id。只能是讨论组 id 或群组 id。
+     * @param content 消息内容，例如 {@link TextMessage}, {@link ImageMessage}。
+     * @param pushContent 当下发远程推送消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到远程推送消息。 如果发送 SDK
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
-     * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
+     * @param pushData 远程推送附加信息。如果设置该字段，用户在收到远程推送消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param userIds 会话中将会接收到此消息的用户列表。
-     * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
+     * @param userIds 讨论组或群组会话中将会接收到此消息的用户列表。
+     * @param callback 发送消息的回调，参考 {@link io.rong.imlib.IRongCallback.ISendMessageCallback}。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Send a directed message.
+     *
+     * <p>This method is used to send messages to some of the users in groups and discussion groups,
+     * and other users will not receive this message. The status and body of the sent message are
+     * called back by the method in IRongCoreCallback.ISendMessageCallback. This method can only be
+     * used to send non-multimedia messages. For multimedia messages such as ImageMessage
+     * FileMessage or other messages inherited from MediaMessageContent, you must call
+     * sendDirectionalMediaMessage(Message, String[], String, String,
+     * IRongCoreCallback.ISendMediaMessageCallback) . If you use IMLib, you can use this method to
+     * send directed messages; and if you use IMKit, you can use the method of the same name in
+     * RongIM to send directed messages, otherwise UI will not be updated automatically.
+     *
+     * @param type Conversation type
+     * @param targetId Conversation id. It can only be a discussion group id or a group id.
+     * @param content Message content, e.g. TextMessage, ImageMessage.
+     * @param pushContent This field is displayed in the notification bar when a remote push message
+     *     is sent. If you are sending a custom message, this field must be completed, otherwise you
+     *     will not be able to receive a remote push message. If you send the default message type
+     *     in SDK such as RC:TxtMsg, RC:VcMsg, RC:ImgMsg, this field does not need to be filled in
+     *     and has been specified by default.
+     * @param pushData Push additional information remotely. If this field is set, users can get it
+     *     by using io.rong.push.notification.PushNotificationMessage#getPushData() when they
+     *     receive a push message.
+     * @param userIds A list of users in a discussion group or group conversation that will receive
+     *     this message.
+     * @param callback Callback for sending messages, refer to
+     *     IRongCoreCallback.ISendMessageCallback.
      */
     public void sendDirectionalMessage(
             Conversation.ConversationType type,
@@ -957,19 +912,43 @@ public class IMCenter {
     }
 
     /**
-     * 发送定向多媒体消息 向会话中特定的某些用户发送消息，会话中其他用户将不会收到此消息。
+     * /~chinese 发送定向多媒体消息。
      *
-     * <p>发送前构造 {@link Message} 消息实体，消息实体中的 content 必须为多媒体消息，如 {@link ImageMessage} {@link
-     * FileMessage}
-     *
-     * <p>或者其他继承自 {@link MediaMessageContent} 的消息
+     * <p>向会话中特定的某些用户发送消息，会话中其他用户不会收到消息。<br>
+     * 发送前构造 {@link Message} 消息实体，消息实体中的 content 必须为多媒体消息。 例如：{@link ImageMessage} 、{@link
+     * FileMessage} 或其他继承自 {@link MediaMessageContent} 的消息。
      *
      * @param message 发送消息的实体。
-     * @param userIds 定向接收者 id 数组
-     * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 发送文件消息时，此字段必须填写，否则会收不到 push 推送。
-     * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
+     * @param userIds 定向接收者 id 数组。
+     * @param pushContent 当下发远程推送消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到远程推送消息。 如果发送 SDK
+     *     中默认的消息类型，例如: RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
+     * @param pushData 远程推送附加信息。如果设置该字段，用户在收到远程推送消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调 {@link RongIMClient.SendMediaMessageCallback}。
+     * @param callback 发送消息的回调 {@link io.rong.imlib.RongIMClient.SendMediaMessageCallback}。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Send directed multimedia messages.
+     *
+     * <p>Messages are sent to specific users in the conversation, and other users in the
+     * conversation will not receive the message. <br>
+     * The Message message entity is constructed before sending and the contents in the message
+     * entity must be multimedia messages. E.g. ImageMessage FileMessage or other message inherited
+     * from MediaMessageContent.
+     *
+     * @param message The entity that sent the message.
+     * @param userIds Array of directed recipient id.
+     * @param pushContent This field is displayed in the notification bar when a remote push message
+     *     is sent. If you are sending a custom message, this field must be completed, otherwise you
+     *     will not be able to receive a remote push message. If you send the default message type
+     *     in SDK, such as RC:TxtMsg, RC:VcMsg, RC:ImgMsg, this field does not need to be filled in
+     *     and has been specified by default.
+     * @param pushData Push additional information remotely. If this field is set, users can get it
+     *     by using io.rong.push.notification.PushNotificationMessage#getPushData() when they
+     *     receive a push message.
+     * @param callback Callback {@link io.rong.imlib.RongIMClient.SendMediaMessageCallback} for
+     *     sending messages.
      */
     public void sendDirectionalMediaMessage(
             Message message,
@@ -1068,7 +1047,7 @@ public class IMCenter {
     }
 
     /**
-     * 删除指定时间戳之前的消息，可选择是否同时删除服务器端消息
+     * /~chinese 删除指定时间戳之前的消息，可选择是否同时删除服务器端消息
      *
      * <p>此方法可从服务器端清除历史消息，<Strong>但是必须先开通历史消息云存储功能。</Strong> <br>
      * 根据会话类型和会话 id 清除某一会话指定时间戳之前的本地数据库消息（服务端历史消息）， 清除成功后只能从本地数据库（服务端）获取到该时间戳之后的历史消息。
@@ -1079,6 +1058,24 @@ public class IMCenter {
      *     recordTime 的消息】。
      * @param cleanRemote 是否删除服务器端消息
      * @param callback 清除消息的回调。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Delete the message before the specified timestamp. You can choose whether to delete
+     * the server-side message at the same time.
+     *
+     * <p>This method clears historical messages from the server, but you must first activate the
+     * historical message cloud storage feature. The local database message (server history message)
+     * before the specified timestamp of a conversation is cleared according to the conversation
+     * type and conversation id. After successful cleaning, the historical message after the
+     * timestamp can only be obtained from the local database (server).
+     *
+     * @param conversationType Conversation type
+     * @param targetId Conversation id.
+     * @param recordTime recordTime
+     * @param cleanRemote Whether to delete server-side messages
+     * @param callback Callback for clearing the message.
      */
     public void cleanHistoryMessages(
             final Conversation.ConversationType conversationType,
@@ -1114,11 +1111,20 @@ public class IMCenter {
     }
 
     /**
-     * 清除某会话的消息未读状态
+     * /~chinese 清除某会话的消息未读状态
      *
      * @param conversationType 会话类型。不支持传入 ConversationType.CHATROOM。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
      * @param callback 清除是否成功的回调。
+     */
+
+    /**
+     * /~english Clear the message unread status of a conversation
+     *
+     * @param conversationType Conversation type Incoming ConversationType.CHATROOM is not supported
+     * @param targetId Target Id Depending on the conversationType, it may be user Id, discussion
+     *     group Id and group Id
+     * @param callback Callback for whether clearing is successful or not.
      */
     public void clearMessagesUnreadStatus(
             final Conversation.ConversationType conversationType,
@@ -1146,11 +1152,21 @@ public class IMCenter {
     }
 
     /**
-     * 清除某一会话的文字消息草稿，回调方式获取清除是否成功。
+     * /~chinese 删除指定会话中的草稿信息。
      *
      * @param conversationType 会话类型。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
      * @param callback 是否清除成功的回调。
+     * @group 会话
+     */
+
+    /**
+     * /~english Delete draft information in a specified conversation.
+     *
+     * @param conversationType Conversation type
+     * @param targetId Conversation id. Depending on the conversationType, it may be user id,
+     *     discussion group id, group id, or chatroom id.
+     * @param callback Callback for whether the clearing is successful.
      */
     public void clearTextMessageDraft(
             Conversation.ConversationType conversationType,
@@ -1160,12 +1176,24 @@ public class IMCenter {
     }
 
     /**
-     * 保存文字消息草稿，回调方式获取保存是否成功。
+     * /~chinese 保存会话草稿信息。
      *
-     * @param conversationType 会话类型。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
+     * @param conversationType 会话类型。参考 {@link io.rong.imlib.model.Conversation.ConversationType} 。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
      * @param content 草稿的文字内容。
      * @param callback 是否保存成功的回调。
+     * @group 会话
+     */
+
+    /**
+     * /~english Save the draft information of a conversation.
+     *
+     * @param conversationType Conversation type Refer to {@link
+     *     io.rong.imlib.model.Conversation.ConversationType} .
+     * @param targetId Conversation id. Depending on the conversationType, it may be user id,
+     *     discussion group id, group id, or chatroom id.
+     * @param content The text of the draft.
+     * @param callback Callback for whether saving is successful.
      */
     public void saveTextMessageDraft(
             final Conversation.ConversationType conversationType,
@@ -1205,13 +1233,28 @@ public class IMCenter {
     }
 
     /**
-     * 从会话列表中移除某一会话，但是不删除会话内的消息。
+     * /~chinese 从会话列表中移除某一会话。
      *
-     * <p>如果此会话中有新的消息，该会话将重新在会话列表中显示，并显示最近的历史消息。
+     * <p>此方法不删除会话内的消息。如果此会话中有新的消息，该会话将重新在会话列表中显示，并显示最近的历史消息。
      *
-     * @param type 会话类型。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param callback 移除会话是否成功的回调。
+     * @param conversationType 会话类型 {@link io.rong.imlib.model.Conversation.ConversationType} 。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
+     * @param callback 移除会话是否成功的回调，回调类型是 Boolean，{@code ResultCallback<Boolean> }。
+     * @group 会话
+     */
+
+    /**
+     * /~english Removes a conversation from the conversation list.
+     *
+     * <p>This method does not delete messages within the conversation. If there is a new message in
+     * this conversation, the conversation will reappear in the conversation list and the most
+     * recent historical message will be displayed.
+     *
+     * @param type Conversation type {@link io.rong.imlib.model.Conversation.ConversationType}.
+     * @param targetId Conversation id. Depending on the conversationType, it may be user id,
+     *     discussion group id, group id, or chatroom id.
+     * @param callback Callback for successful or failed conversation removal, which type is
+     *     Boolean, {@code ResultCallback<Boolean>}.
      */
     public void removeConversation(
             final Conversation.ConversationType type,
@@ -1243,13 +1286,30 @@ public class IMCenter {
     }
 
     /**
-     * 设置某一会话为置顶或者取消置顶，回调方式获取设置是否成功。
+     * /~chinese 设置会话的置顶状态。
      *
-     * @param type 会话类型。
-     * @param id 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
+     * <p>若会话不存在，调用此方法 SDK 自动创建会话并置顶。
+     *
+     * @param conversationType 会话类型 {@link io.rong.imlib.model.Conversation.ConversationType} 。
+     * @param id 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
      * @param isTop 是否置顶。
      * @param needCreate 会话不存在时，是否创建会话。
-     * @param callback 设置置顶或取消置顶是否成功的回调。
+     * @param callback 设置置顶是否成功的回调。
+     * @group 会话
+     */
+
+    /**
+     * /~english Set the top status of the conversation.
+     *
+     * <p>If the conversation does not exist, this method SDK will be called to automatically create
+     * the conversation and set top.
+     *
+     * @param type Conversation type {@link io.rong.imlib.model.Conversation.ConversationType}.
+     * @param id Conversation id. Depending on the conversationType, it may be user id, discussion
+     *     group id, group id, or chatroom id.
+     * @param isTop Whether or not to set top
+     * @param needCreate Whether to create a conversation if the conversation does not exist.
+     * @param callback Callback for whether the conversation is set top successfully.
      */
     public void setConversationToTop(
             final Conversation.ConversationType type,
@@ -1293,12 +1353,30 @@ public class IMCenter {
     }
 
     /**
-     * 设置会话消息提醒状态。
+     * /~chinese 设置会话消息提醒状态。
      *
-     * @param conversationType 会话类型。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param notificationStatus 是否屏蔽。
+     * <p><strong>注意：不支持聊天室！</strong>
+     *
+     * @param conversationType 会话类型。不支持聊天室类型，因为聊天室默认就是不接受消息提醒的。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id。
+     * @param notificationStatus 会话设置的消息提醒状态 {@link
+     *     io.rong.imlib.model.Conversation.ConversationNotificationStatus} 。
      * @param callback 设置状态的回调。
+     * @group 会话
+     */
+
+    /**
+     * /~english Set the conversation message reminder status.
+     *
+     * <p><strong>Note: The chat rooms are not supported!</strong>
+     *
+     * @param conversationType Conversation type The chat room is not supported because the chat
+     *     rooms do not accept message reminders by default.
+     * @param targetId Conversation id. Depending on different conversationType, it may be user id,
+     *     discussion group id or group id.
+     * @param notificationStatus Message reminder status set for the conversation
+     *     Conversation.ConversationNotificationStatus.
+     * @param callback Callback for setting the status.
      */
     public void setConversationNotificationStatus(
             final Conversation.ConversationType conversationType,
@@ -1313,6 +1391,13 @@ public class IMCenter {
                         notificationStatus,
                         new RongIMClient.ResultCallback<
                                 Conversation.ConversationNotificationStatus>() {
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                if (callback != null) {
+                                    callback.onError(errorCode);
+                                }
+                            }
+
                             @Override
                             public void onSuccess(
                                     Conversation.ConversationNotificationStatus status) {
@@ -1340,26 +1425,9 @@ public class IMCenter {
                                             new ConversationStatus[] {conversationStatus});
                                 }
                             }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
-                                if (callback != null) {
-                                    callback.onError(errorCode);
-                                }
-                            }
                         });
     }
 
-    /**
-     * 向本地会话中插入一条消息，方向为发送。这条消息只是插入本地会话，不会实际发送给服务器和对方。 插入消息需为入库消息，即 {@link
-     * MessageTag#ISPERSISTED}，否者会回调 {@link RongIMClient.ErrorCode#PARAMETER_ERROR}
-     *
-     * @param type 会话类型。
-     * @param targetId 目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
-     * @param sentStatus 接收状态 @see {@link Message.ReceivedStatus}
-     * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
-     * @param resultCallback 获得消息发送实体的回调。
-     */
     public void insertOutgoingMessage(
             Conversation.ConversationType type,
             String targetId,
@@ -1370,17 +1438,6 @@ public class IMCenter {
                 type, targetId, sentStatus, content, System.currentTimeMillis(), resultCallback);
     }
 
-    /**
-     * 向本地会话中插入一条消息，方向为发送。这条消息只是插入本地会话，不会实际发送给服务器和对方。 插入消息需为入库消息，即 {@link
-     * MessageTag#ISPERSISTED}，否者会回调 {@link RongIMClient.ErrorCode#PARAMETER_ERROR}
-     *
-     * @param type 会话类型。
-     * @param targetId 目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
-     * @param sentStatus 发送状态 @see {@link Message.SentStatus}
-     * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
-     * @param time 插入消息所要模拟的发送时间。
-     * @param resultCallback 获得消息发送实体的回调。
-     */
     public void insertOutgoingMessage(
             Conversation.ConversationType type,
             String targetId,
@@ -1469,13 +1526,27 @@ public class IMCenter {
     }
 
     /**
-     * 清除指定会话的消息。
+     * /~chinese 删除某个会话中的所有消息。
      *
-     * <p>此接口会删除指定会话中数据库的所有消息，同时，会清理数据库空间。 如果数据库特别大，超过几百 M，调用该接口会有少许耗时。
+     * <p>此接口删除指定会话中数据库的所有消息，同时会清理数据库空间，减少占用空间。<br>
      *
-     * @param conversationType 要删除的消息 Id 数组。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 是否删除成功的回调。
+     * @param conversationType 会话类型，不支持聊天室。参考 {@link Conversation.ConversationType} 。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是 userId, groupId, discussionId。
+     * @param callback 删除是否成功的回调。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Delete all messages in a conversation.
+     *
+     * <p>This interface deletes all messages from the database in the specified conversation while
+     * cleaning up the database space and reducing the footprint.
+     *
+     * @param conversationType Type of conversation, which does not support chat rooms. Refer to
+     *     Conversation.ConversationType.
+     * @param targetId Conversation id. Depending on different conversationType, it may be userId,
+     *     groupId or discussionId.
+     * @param callback Callback for deletion success or failure.
      */
     public void deleteMessages(
             final Conversation.ConversationType conversationType,
@@ -1505,12 +1576,18 @@ public class IMCenter {
     }
 
     /**
-     * 删除会话里的一条或多条消息。
+     * /~chinese 删除消息。
      *
-     * @param conversationType 会话类型
-     * @param targetId 会话 Id
-     * @param messageIds 待删除的消息 Id 数组。
-     * @param callback 删除操作的回调。
+     * @param messageIds 要删除的消息 id 数组。
+     * @param callback 删除是否成功的回调。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Delete messages.
+     *
+     * @param messageIds Id array of messages to delete.
+     * @param callback Callback for deletion success or failure.
      */
     public void deleteMessages(
             final Conversation.ConversationType conversationType,
@@ -1541,14 +1618,34 @@ public class IMCenter {
     }
 
     /**
-     * 删除指定的一条或者一组消息。会同时删除本地和远端消息。
+     * /~chinese 批量删除某个会话中的指定远端消息（同时删除对应的本地消息）。
      *
-     * <p>请注意，此方法会删除远端消息，请慎重使用
+     * <p>一次批量操作仅支持删除属于同一个会话的消息，请确保消息列表中的所有消息来自同一会话，一次最多删除 100 条消息。<br>
+     * <strong>注意：不支持聊天室！</strong>
      *
-     * @param conversationType 会话类型。暂时不支持聊天室
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、客服 Id。
-     * @param messages 要删除的消息数组, 数组大小不能超过100条。
-     * @param callback 是否删除成功的回调。
+     * <p>
+     *
+     * @param conversationType 会话类型， 不支持聊天室。参考 {@link Conversation.ConversationType} 。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、客服 id。
+     * @param messages 要删除的消息数组， 数组大小不能超过 100 条。
+     * @param callback 删除是否成功的回调。
+     * @group 消息操作
+     */
+
+    /**
+     * /~english Deletes specified remote messages in a conversation (while deleting the
+     * corresponding local messages) in batches.
+     *
+     * <p>One batch operation only supports to delete messages belonging to the same conversation,
+     * please make sure that all messages in the message list come from the same conversation and
+     * delete at most 100 messages at a time. Note: The chat rooms are not supported!
+     *
+     * @param conversationType Type of conversation, which does not support chat rooms. Refer to
+     *     Conversation.ConversationType.
+     * @param targetId Conversation id. Depending on different conversationType, it may be user id
+     *     and customer service id.
+     * @param messages Array of messages to delete, and the size cannot exceed 100.
+     * @param callback Callback for deletion success or failure.
      */
     public void deleteRemoteMessages(
             final Conversation.ConversationType conversationType,
@@ -1586,22 +1683,55 @@ public class IMCenter {
                         });
     }
 
-    /** 断开连接(断开后继续接收 Push 消息)。 */
+    /**
+     * /~chinese 断开与融云服务器的连接，但仍然接收远程推送。
+     *
+     * <p>若想断开连接后不接受远程推送消息，可以调用{@link #logout()}。<br>
+     * <strong>注意：</strong>因为 SDK 在前后台切换或者网络出现异常都会自动重连，保证连接可靠性。 所以除非您的 App
+     * 逻辑需要登出，否则一般不需要调用此方法进行手动断开。<br>
+     */
+
+    /**
+     * /~english Disconnect from the RongCloud server, but still receive remote push.
+     *
+     * <p>If you want not to receive remote push messages after disconnection, you can call {@link
+     * #logout()}. <br>
+     * <strong>Note：</strong>The system can automatically reconnect to ensure reliability of the
+     * connection because SDK switches between the foreground and background or the network is
+     * abnormal. <br>
+     * Unless your App logic requires logout, generally you don't need to call this method for
+     * manual disconnection.
+     */
     public void disconnect() {
         RongIMClient.getInstance().disconnect();
         RongExtensionManager.getInstance().disconnect();
     }
 
     /**
-     * 下载文件。
+     * /~chinese 下载多媒体文件。
      *
-     * <p>用来获取媒体原文件时调用。如果本地缓存中包含此文件，则从本地缓存中直接获取，否则将从服务器端下载。
+     * <p>如果本地缓存中包含此文件，则从本地缓存中直接获取，否则将从服务器端下载。
      *
      * @param conversationType 会话类型。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
+     * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
      * @param mediaType 文件类型。
      * @param imageUrl 文件的 URL 地址。
      * @param callback 下载文件的回调。
+     * @group 多媒体下载
+     */
+
+    /**
+     * /~english Download multimedia files.
+     *
+     * <p>If this file is included in the local cache, it is obtained directly from the local cache,
+     * otherwise it will be downloaded from the server side.
+     *
+     * @param conversationType Conversation type
+     * @param targetId Conversation id. Depending on the conversationType, it may be user id,
+     *     discussion group id, group id, or chatroom id.
+     * @param mediaType File type
+     * @param imageUrl The URL address of the file.
+     * @param callback Callback for downloading files
      */
     public void downloadMedia(
             Conversation.ConversationType conversationType,
@@ -1614,14 +1744,34 @@ public class IMCenter {
     }
 
     /**
-     * 下载文件 支持断点续传
+     * /~chinese 下载文件。
      *
-     * @param uid 文件唯一标识
+     * <p>支持断点续传，对应的暂停下载须调用 {@link #pauseDownloadMediaFile(String, RongIMClient.OperationCallback)}。
+     *
+     * @param fileUniqueId 文件唯一标识, 与 {@link #pauseDownloadMediaFile(String,
+     *     RongIMClient.OperationCallback)} 第一个参数对应
      * @param fileUrl 文件下载地址
      * @param fileName 文件名
      * @param path 文件下载保存目录，如果是 targetVersion 29 为目标，由于访问权限原因，建议使用 context.getExternalFilesDir()
      *     方法保存到私有目录
-     * @param callback 回调
+     * @param callback 下载文件的回调
+     * @group 多媒体下载
+     */
+
+    /**
+     * /~english Download the file.
+     *
+     * <p>Resuming downloading from breakpoints is supported and pauseDownloadMediaFile(String,
+     * IRongCoreCallback.OperationCallback) shall be called when downloading pauses.
+     *
+     * @param uid Unique file identifier, which corresponds to the first parameter of
+     *     pauseDownloadMediaFile(String, IRongCoreCallback.OperationCallback)
+     * @param fileUrl File download address
+     * @param fileName File name
+     * @param path File downloading and saving directory. If targetVersion 29 is the target, it is
+     *     recommended to use the context.getExternalFilesDir() method to save to a private
+     *     directory due to access rights
+     * @param callback Callback for downloading files
      */
     public void downloadMediaFile(
             final String uid,
@@ -1679,10 +1829,19 @@ public class IMCenter {
     }
 
     /**
-     * 清空所有会话及会话内的消息，回调方式通知是否清空成功。
+     * /~chinese 清空指定会话类型列表中的所有会话及会话信息。
      *
      * @param callback 是否清空成功的回调。
-     * @param conversationTypes 会话类型。
+     * @param conversationTypes 需要清空的会话类型列表。
+     * @group 会话
+     */
+
+    /**
+     * /~english Clears all conversations and conversation information in the list of specified
+     * conversation types.
+     *
+     * @param callback Callback for whether the emptying is successful.
+     * @param conversationTypes List of conversation types that need to be emptied.
      */
     public void clearConversations(
             final RongIMClient.ResultCallback callback,
@@ -1708,12 +1867,20 @@ public class IMCenter {
     }
 
     /**
-     * 下载文件
+     * /~chinese 下载多媒体文件。
      *
-     * <p>用来获取媒体原文件时调用。如果本地缓存中包含此文件，则从本地缓存中直接获取，否则将从服务器端下载。
+     * @param message 媒体消息（FileMessage，SightMessage，GIFMessage, HQVoiceMessage等）。
+     * @param callback 下载文件的回调。参考 {@link IRongCallback.IDownloadMediaMessageCallback}。
+     * @group 多媒体下载
+     */
+
+    /**
+     * /~english Download multimedia files.
      *
-     * @param message 文件消息。
-     * @param callback 下载文件的回调。
+     * @param message Media messages (FileMessage, SightMessage, GIFMessage, HQVoiceMessage, among
+     *     others).
+     * @param callback Callback for downloading files Refer to {@link
+     *     IRongCallback.IDownloadMediaMessageCallback}.
      */
     public void downloadMediaMessage(
             Message message, final IRongCallback.IDownloadMediaMessageCallback callback) {
@@ -1773,26 +1940,53 @@ public class IMCenter {
                         });
     }
 
-    /** 注销当前登录，执行该方法后不会再收到 push 消息。 */
+    /**
+     * /~chinese 断开与融云服务器的连接，并且不再接收远程推送消息。
+     *
+     * <p>若想断开连接后仍然接受远程推送消息，可以调用 {@link #disconnect()}
+     *
+     * @group 连接
+     */
+
+    /**
+     * /~english Disconnect from the RongCloud server and no longer receive remote push messages.
+     *
+     * <p>If you want to receive remote push messages after disconnection, you can call {@link
+     * #disconnect()}
+     */
     public void logout() {
         RongIMClient.getInstance().logout();
         RongExtensionManager.getInstance().disconnect();
     }
 
     /**
-     * 设置接收消息时的拦截器
+     * /~chinese 设置接收消息时的拦截器
      *
      * @param messageInterceptor 拦截器
+     */
+
+    /**
+     * /~english Set the interceptor when receiving messages
+     *
+     * @param messageInterceptor Interceptor
      */
     public void setMessageInterceptor(MessageInterceptor messageInterceptor) {
         mMessageInterceptor = messageInterceptor;
     }
 
     /**
-     * 判断是否支持断点续传。
+     * /~chinese 判断是否支持断点续传。
      *
      * @param url 文件 Url
      * @param callback 回调
+     * @group 数据获取
+     */
+
+    /**
+     * /~english Determine whether to support breakpoint continuation.
+     *
+     * @param url File Url
+     * @param callback Callback
      */
     public void supportResumeBrokenTransfer(
             String url, final RongIMClient.ResultCallback<Boolean> callback) {
@@ -1817,10 +2011,18 @@ public class IMCenter {
     }
 
     /**
-     * 暂停下载多媒体文件
+     * /~chinese 暂停多媒体消息下载。
      *
-     * @param message 包含多媒体文件的消息，即{@link MessageContent}为 FileMessage, ImageMessage 等。
-     * @param callback 暂停下载多媒体文件时的回调
+     * @param message 多媒体文件消息。
+     * @param callback 暂停下载多媒体文件时的回调。
+     * @group 多媒体下载
+     */
+
+    /**
+     * /~english Pause downloading of multimedia messages.
+     *
+     * @param message Multimedia file message.
+     * @param callback Callback for pausing downloading of multimedia files.
      */
     public void pauseDownloadMediaMessage(
             final Message message, final RongIMClient.OperationCallback callback) {
@@ -1849,9 +2051,15 @@ public class IMCenter {
     }
 
     /**
-     * 通知会话页面刷新某条消息
+     * /~chinese 通知会话页面刷新某条消息
      *
      * @param message
+     */
+
+    /**
+     * /~english Notify the conversation page to refresh a message
+     *
+     * @param message messages
      */
     public void refreshMessage(Message message) {
         for (MessageEventListener item : mMessageEventListeners) {
@@ -1863,19 +2071,49 @@ public class IMCenter {
         return mContext;
     }
 
+    /** 语音消息类型 */
+    public enum VoiceMessageType {
+        /** 普通音质语音消息 */
+        Ordinary,
+        /** 高音质语音消息 */
+        HighQuality
+    }
+
     /**
-     * 发送地理位置消息。并同时更新界面。
+     * /~chinese 发送地理位置消息。
      *
-     * <p>发送前构造 {@link Message} 消息实体，消息实体中的 content 必须为 {@link LocationMessage}, 否则返回失败。
-     *
-     * <p>其中的缩略图地址 scheme 只支持 file:// 和 http:// 其他暂不支持。
+     * <p>发送前构造 {@link Message} 消息实体，消息实体中的 content 必须为 {@link LocationMessage}, 否则返回失败。<br>
+     * 其中的缩略图地址 scheme 只支持 file:// 和 http://。也可不设置缩略图地址，传入 NULL。
      *
      * @param message 消息实体。
-     * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到 push 消息。 如果发送 sdk
+     * @param pushContent 当下发远程推送消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到远程推送消息。 如果发送 sdk
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
-     * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
+     * @param pushData 远程推送附加信息。如果设置该字段，用户在收到远程推送消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param sendMessageCallback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
+     * @param sendMessageCallback 发送消息的回调，参考 {@link
+     *     io.rong.imlib.IRongCallback.ISendMessageCallback}。
+     * @group 消息操作
+     * @deprecated {@link io.rong.imlib.RongIMClient#sendMessage(Message, String, String,
+     *     SendMessageOption, IRongCallback.ISendMessageCallback) }
+     */
+
+    /**
+     * /~english Send a geolocation message. And update the interface at the same time. The Message
+     * message entity is constructed before sending and the content in the message entity must be
+     * LocationMessage, or the return fails. The thumbnail address scheme only supports file:// and
+     * http:// but not others.
+     *
+     * @param message Message entity.
+     * @param pushContent This field is displayed in the notification bar when a push message is
+     *     sent. If you are sending a custom message, this field must be completed, otherwise you
+     *     cannot receive the push message. If you send the default message type in sdk such as
+     *     RC:TxtMsg, RC:VcMsg, RC:ImgMsg, this field does not need to be filled in and has been
+     *     specified by default.
+     * @param pushData Push additional information. If this field is set, users can get it through
+     *     io.rong.push.notification.PushNotificationMessage#getPushData() method when they receive
+     *     a push message.
+     * @param sendMessageCallback Callback for sending messages, refer to
+     *     IRongCallback.ISendMessageCallback.
      */
     public void sendLocationMessage(
             Message message,
@@ -1939,10 +2177,18 @@ public class IMCenter {
     }
 
     /**
-     * 根据消息 Message 设置消息状态，回调方式获取设置是否成功。
+     * /~chinese 根据消息 Message 设置消息状态，回调方式获取设置是否成功。
      *
      * @param message 消息实体。要设置的发送状态包含在 message 中
      * @param callback 是否设置成功的回调。
+     */
+
+    /**
+     * /~english The message status is set according to the Message, and the callback method is used
+     * to obtain whether the setting is successful.
+     *
+     * @param message Message entity. The sending status to be set is included in the message
+     * @param callback Callback for successful or failed setting.
      */
     public void setMessageSentStatus(
             final Message message, final RongIMClient.ResultCallback<Boolean> callback) {
@@ -1974,9 +2220,15 @@ public class IMCenter {
     }
 
     /**
-     * 发送消息之前的内部逻辑处理。
+     * /~chinese 发送消息之前的内部逻辑处理。
      *
      * @param message 待发送的消息
+     */
+
+    /**
+     * /~english Internal logical processing before sending a message.
+     *
+     * @param message Messages to be sent
      */
     public void handleBeforeSend(Message message) {
         if (RongUserInfoManager.getInstance().getUserInfoAttachedState()
@@ -2092,11 +2344,23 @@ public class IMCenter {
         }
     }
 
+    public interface FilterSentListener {
+        void onComplete();
+    }
+
     /**
-     * 取消发送多媒体文件。
+     * /~chinese 取消发送多媒体文件。
      *
-     * @param message 包含多媒体文件的消息，即{@link MessageContent}为 FileMessage, ImageMessage 等。
+     * @param message 多媒体文件消息。
      * @param callback 取消发送多媒体文件时的回调。
+     * @group 多媒体下载
+     */
+
+    /**
+     * /~english Cancel sending multimedia files.
+     *
+     * @param message Multimedia file message.
+     * @param callback Callback for canceling sending of multimedia files.
      */
     public void cancelSendMediaMessage(Message message, RongIMClient.OperationCallback callback) {
         RongIMClient.getInstance().cancelSendMediaMessage(message, callback);
@@ -2132,7 +2396,7 @@ public class IMCenter {
     }
 
     /**
-     * 设置连接状态变化的监听器。
+     * /~chinese 设置连接状态变化的监听器。
      *
      * <p><strong> 当回调状态为{@link
      * RongIMClient.ConnectionStatusListener.ConnectionStatus#TOKEN_INCORRECT}, 需要获取正确的token,
@@ -2140,14 +2404,30 @@ public class IMCenter {
      *
      * @param listener 连接状态变化的监听器。
      */
+
+    /**
+     * /~english Set the listener for changes in the state of the connection.
+     *
+     * <p>When the callback status is
+     * RongIMClient.ConnectionStatusListener.ConnectionStatus#TOKEN_INCORRECT the correct token
+     * shall be obtained and actively callRongIM.connect(String, int, RongIMClient.ConnectCallback)
+     *
+     * @param listener A listener that connects to a state change.
+     */
     public void addConnectionStatusListener(RongIMClient.ConnectionStatusListener listener) {
         mConnectionStatusObserverList.add(listener);
     }
 
     /**
-     * 移除连接状态监听器
+     * /~chinese 移除连接状态监听器
      *
      * @param listener 连接状态变化监听器
+     */
+
+    /**
+     * /~english Remove connection status listener
+     *
+     * @param listener Connect the state change listener
      */
     public void removeConnectionStatusListener(RongIMClient.ConnectionStatusListener listener) {
         mConnectionStatusObserverList.remove(listener);
@@ -2203,57 +2483,200 @@ public class IMCenter {
         mTypingStatusListeners.remove(listener);
     }
 
-    /** 语音消息类型 */
-    public enum VoiceMessageType {
-        /** 普通音质语音消息 */
-        Ordinary,
-        /** 高音质语音消息 */
-        HighQuality
-    }
+    /** 连接状态变化的监听器。 */
+    private RongIMClient.ConnectionStatusListener mConnectionStatusListener =
+            new RongIMClient.ConnectionStatusListener() {
+                @Override
+                public void onChanged(ConnectionStatus connectionStatus) {
+                    for (RongIMClient.ConnectionStatusListener listener :
+                            mConnectionStatusObserverList) {
+                        listener.onChanged(connectionStatus);
+                    }
+                }
+            };
 
-    public interface FilterSentListener {
-        void onComplete();
-    }
+    /** 接受消息的事件监听器。 */
+    private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener =
+            new RongIMClient.OnReceiveMessageWrapperListener() {
+                @Override
+                public boolean onReceived(
+                        final Message message,
+                        final int left,
+                        final boolean hasPackage,
+                        final boolean offline) {
+                    ExecutorHelper.getInstance()
+                            .mainThread()
+                            .execute(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (mMessageInterceptor != null
+                                                    && mMessageInterceptor.interceptReceivedMessage(
+                                                            message, left, hasPackage, offline)) {
+                                                RLog.d(TAG, "message has been intercepted.");
+                                                return;
+                                            }
+                                            for (RongIMClient.OnReceiveMessageWrapperListener
+                                                    observer : mOnReceiveMessageObserverList) {
+                                                observer.onReceived(
+                                                        message, left, hasPackage, offline);
+                                            }
+                                        }
+                                    });
+                    return false;
+                }
+            };
+    /** 会话状态监听器。当会话的置顶或者免打扰状态更改时，会回调此方法。 */
+    private RongIMClient.ConversationStatusListener mConversationStatusListener =
+            new RongIMClient.ConversationStatusListener() {
+                @Override
+                public void onStatusChanged(ConversationStatus[] conversationStatuses) {
+                    for (RongIMClient.ConversationStatusListener listener :
+                            mConversationStatusObserverList) {
+                        listener.onStatusChanged(conversationStatuses);
+                    }
+                }
+            };
 
-    /** EmojiCompat 初始化配置 */
-    private static void initEmojiConfig(Context context) {
-        EmojiCompat.Config config;
-        InputStream inputStream;
-        try {
-            inputStream = context.getResources().getAssets().open(EMOJI_TTF_FILE_NAME);
-        } catch (IOException e) {
-            RLog.i(TAG, "open file:" + e.toString());
-            inputStream = null;
-        }
+    /** 消息被撤回时的监听器。 */
+    private RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
+            new RongIMClient.OnRecallMessageListener() {
+                @Override
+                public boolean onMessageRecalled(
+                        Message message, RecallNotificationMessage recallNotificationMessage) {
+                    for (RongIMClient.OnRecallMessageListener listener :
+                            mOnRecallMessageObserverList) {
+                        listener.onMessageRecalled(message, recallNotificationMessage);
+                    }
+                    return false;
+                }
+            };
 
-        try {
-            if (inputStream != null) {
-                config = new LocalEmojiCompatConfig(context);
-            } else {
-                config = DefaultEmojiCompatConfig.create(context);
-            }
-            config.registerInitCallback(
-                    new EmojiCompat.InitCallback() {
-                        @Override
-                        public void onInitialized() {
-                            RLog.i(TAG, "initEmojiConfig initialized");
-                        }
+    /** 消息回执监听器 */
+    private RongIMClient.ReadReceiptListener mReadReceiptListener =
+            new RongIMClient.ReadReceiptListener() {
+                /**
+                 * 单聊中收到消息回执的回调。
+                 *
+                 * @param message 封装了 {@link ReadReceiptMessage}
+                 */
+                @Override
+                public void onReadReceiptReceived(final Message message) {
+                    ExecutorHelper.getInstance()
+                            .mainThread()
+                            .execute(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            for (RongIMClient.ReadReceiptListener listener :
+                                                    mReadReceiptObserverList) {
+                                                listener.onReadReceiptReceived(message);
+                                            }
+                                        }
+                                    });
+                }
 
-                        @Override
-                        public void onFailed(@Nullable Throwable throwable) {
-                            RLog.i(
-                                    TAG,
-                                    "initEmojiConfig initialized  onFailed, "
-                                            + throwable.getMessage());
-                        }
-                    });
-            EmojiCompat.init(config);
-        } catch (Exception e) {
-            RLog.i(TAG, "emoji config: " + e.toString());
-        }
-    }
+                /**
+                 * 群组和讨论组中，某人发起了回执请求，会话中其余人会收到该请求，并回调此方法。
+                 *
+                 * <p>接收方需要在合适的时机（读取了消息之后）调用 {@link
+                 * RongIMClient#sendReadReceiptResponse(Conversation.ConversationType, String, List,
+                 * RongIMClient.OperationCallback)} 回复响应。
+                 *
+                 * @param conversationType 会话类型
+                 * @param targetId 会话目标 id
+                 * @param messageUId 请求已读回执的消息 uId
+                 */
+                @Override
+                public void onMessageReceiptRequest(
+                        final Conversation.ConversationType conversationType,
+                        final String targetId,
+                        final String messageUId) {
+                    ExecutorHelper.getInstance()
+                            .mainThread()
+                            .execute(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            for (RongIMClient.ReadReceiptListener listener :
+                                                    mReadReceiptObserverList) {
+                                                listener.onMessageReceiptRequest(
+                                                        conversationType, targetId, messageUId);
+                                            }
+                                        }
+                                    });
+                }
 
-    private static class SingletonHolder {
-        static IMCenter sInstance = new IMCenter();
-    }
+                /**
+                 * 在群组和讨论组中发起了回执请求的用户，当收到接收方的响应时，会回调此方法。
+                 *
+                 * @param conversationType 会话类型
+                 * @param targetId 会话 id
+                 * @param messageUId 收到回执响应的消息的 uId
+                 * @param respondUserIdList 会话中响应了此消息的用户列表。其中 key： 用户 id ； value： 响应时间。
+                 */
+                @Override
+                public void onMessageReceiptResponse(
+                        final Conversation.ConversationType conversationType,
+                        final String targetId,
+                        final String messageUId,
+                        final HashMap<String, Long> respondUserIdList) {
+                    ExecutorHelper.getInstance()
+                            .mainThread()
+                            .execute(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            for (RongIMClient.ReadReceiptListener listener :
+                                                    mReadReceiptObserverList) {
+                                                listener.onMessageReceiptResponse(
+                                                        conversationType,
+                                                        targetId,
+                                                        messageUId,
+                                                        respondUserIdList);
+                                            }
+                                        }
+                                    });
+                }
+            };
+
+    /** 阅后即焚事件监听器。 */
+    private RongIMClient.OnReceiveDestructionMessageListener mOnReceiveDestructMessageListener =
+            new RongIMClient.OnReceiveDestructionMessageListener() {
+                @Override
+                public void onReceive(Message message) {
+                    for (MessageEventListener item : mMessageEventListeners) {
+                        item.onDeleteMessage(
+                                new DeleteEvent(
+                                        message.getConversationType(),
+                                        message.getTargetId(),
+                                        new int[] {message.getMessageId()}));
+                    }
+                }
+            };
+
+    private RongIMClient.SyncConversationReadStatusListener mSyncConversationReadStatusListener =
+            new RongIMClient.SyncConversationReadStatusListener() {
+                @Override
+                public void onSyncConversationReadStatus(
+                        Conversation.ConversationType type, String targetId) {
+                    for (RongIMClient.SyncConversationReadStatusListener item :
+                            mSyncConversationReadStatusListeners) {
+                        item.onSyncConversationReadStatus(type, targetId);
+                    }
+                }
+            };
+
+    private RongIMClient.TypingStatusListener mTypingStatusListener =
+            new RongIMClient.TypingStatusListener() {
+                @Override
+                public void onTypingStatusChanged(
+                        Conversation.ConversationType type,
+                        String targetId,
+                        Collection<TypingStatus> typingStatusSet) {
+                    for (RongIMClient.TypingStatusListener item : mTypingStatusListeners) {
+                        item.onTypingStatusChanged(type, targetId, typingStatusSet);
+                    }
+                }
+            };
 }

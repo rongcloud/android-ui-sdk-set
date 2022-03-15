@@ -16,10 +16,20 @@ public class DefaultExtensionConfig implements IExtensionConfig {
     private final String CALL_MODULE = "io.rong.callkit.RongCallModule";
 
     /**
-     * 默认 plugin 列表。 默认 plugin 为：照片、位置（开关打开时）、阅后即焚（开关打开时）、 语音通话（集成了音视频时）、视频通话（集成了音视频时）、文件
+     * /~chinese 默认 plugin 列表。 默认 plugin 为：照片、位置（开关打开时）、阅后即焚（开关打开时）、 语音通话（集成了音视频时）、视频通话（集成了音视频时）、文件
      *
      * @param conversationType 会话类型。
      * @param targetId 会话 Id
+     * @return
+     */
+
+    /**
+     * /~english Default plugin list The default plugin is image, location (when the switch is on),
+     * instant burning after reading (when the switch is on), voice call (when audio and video are
+     * integrated), video call (when audio and video are integrated) and file.
+     *
+     * @param conversationType Conversation type
+     * @param targetId Id Conversation Id
      * @return
      */
     @Override
@@ -48,12 +58,21 @@ public class DefaultExtensionConfig implements IExtensionConfig {
     }
 
     /**
-     * 默认 Emoticon tab 数据。KV 格式， key 为各个 ExtensionModule 的类名， value 为各 ExtensionModule 返回的 IEmoticon
-     * 列表。
+     * /~chinese 默认 Emoticon tab 数据。KV 格式， key 为各个 ExtensionModule 的类名， value 为各 ExtensionModule 返回的
+     * IEmoticon 列表。
      *
      * @param conversationType 会话类型。
      * @param targetId 会话 Id
      * @return 默认 Emoticon tab 数据
+     */
+
+    /**
+     * /~english Default Emoticon tab data In KV format, key is the class name of each
+     * ExtensionModule and value is the list of IEmoticon returned by each ExtensionModule.
+     *
+     * @param conversationType Conversation type
+     * @param targetId Conversation Id
+     * @return Default Emoticon tab data
      */
     @Override
     public Map<String, List<IEmoticonTab>> getEmoticonTabs(

@@ -26,7 +26,6 @@ import io.rong.contactcard.ContactCardContext;
 import io.rong.contactcard.IContactCardInfoProvider;
 import io.rong.contactcard.R;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
-import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.CharacterParser;
 import io.rong.imkit.widget.SideBar;
 import io.rong.imlib.RongIMClient;
@@ -245,8 +244,7 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
             }
             UserInfo userInfo = mList.get(position).userInfo;
             if (userInfo != null) {
-                viewHolder.name.setText(
-                        RongUserInfoManager.getInstance().getUserDisplayName(userInfo));
+                viewHolder.name.setText(userInfo.getName());
                 Glide.with(convertView)
                         .load(userInfo.getPortraitUri())
                         .apply(RequestOptions.bitmapTransform(new CircleCrop()))

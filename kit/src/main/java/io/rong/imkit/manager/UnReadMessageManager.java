@@ -1,13 +1,9 @@
 package io.rong.imkit.manager;
 
 import io.rong.common.RLog;
-import io.rong.imkit.BaseConversationEventListener;
 import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.event.actionevent.BaseMessageEvent;
-import io.rong.imkit.event.actionevent.InsertEvent;
-import io.rong.imkit.event.actionevent.MessageEventListener;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -19,8 +15,17 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         implements RongIMClient.SyncConversationReadStatusListener {
     private static final String TAG = "UnReadMessageManager";
     private final List<MultiConversationUnreadMsgInfo> mMultiConversationUnreadInfos;
+    private int left;
     private ConversationEventListener mConversationEventListener =
-            new BaseConversationEventListener() {
+            new ConversationEventListener() {
+
+                @Override
+                public void onSaveDraft(
+                        Conversation.ConversationType type, String targetId, String content) {}
+
+                @Override
+                public void onClearedMessage(Conversation.ConversationType type, String targetId) {}
+
                 @Override
                 public void onClearedUnreadStatus(
                         Conversation.ConversationType type, String targetId) {
@@ -32,29 +37,19 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                         Conversation.ConversationType type, String targetId) {
                     syncUnreadCount();
                 }
-            };
-    private MessageEventListener mMessageEventListener =
-            new BaseMessageEvent() {
+
                 @Override
-                public void onInsertMessage(InsertEvent event) {
-                    if (event == null) {
-                        return;
-                    }
-                    Message message = event.getMessage();
-                    if (message != null
-                            && message.getMessageDirection()
-                                    .equals(Message.MessageDirection.RECEIVE)
-                            && !message.getReceivedStatus().isRead()) {
-                        syncUnreadCount();
-                    }
-                }
+                public void onOperationFailed(RongIMClient.ErrorCode code) {}
+
+                @Override
+                public void onClearConversations(
+                        Conversation.ConversationType... conversationTypes) {}
             };
 
     private UnReadMessageManager() {
         this.mMultiConversationUnreadInfos = new ArrayList<>();
         IMCenter.getInstance().addOnReceiveMessageListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
-        IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
         IMCenter.getInstance()
                 .addConnectStatusListener(
                         new RongIMClient.ConnectCallback() {
@@ -85,18 +80,22 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         IMCenter.getInstance().addSyncConversationReadStatusListener(this);
     }
 
-    public static UnReadMessageManager getInstance() {
-        return SingletonHolder.sInstance;
-    }
-
     @Override
     public void onSyncConversationReadStatus(Conversation.ConversationType type, String targetId) {
         syncUnreadCount();
     }
 
+    private static class SingletonHolder {
+        static UnReadMessageManager sInstance = new UnReadMessageManager();
+    }
+
+    public static UnReadMessageManager getInstance() {
+        return SingletonHolder.sInstance;
+    }
+
     @Override
     public boolean onReceived(Message message, int left, boolean hasPackage, boolean offline) {
-        if (left == 0 || !hasPackage) {
+        if (left == 0 || this.left == 0) {
             syncUnreadCount();
         }
         return false;
@@ -121,20 +120,9 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         }
     }
 
-    /**
-     * 设置未读消息数变化监听器。 注意:如果是在 activity 中设置,那么要在 activity 销毁时, 调用 {@link
-     * UnReadMessageManager#removeObserver(UnReadMessageManager.IUnReadMessageObserver)} 否则会造成内存泄漏。
-     *
-     * @param observer 接收未读消息消息的监听器。
-     * @param conversationTypes 接收未读消息的会话类型。
-     */
     public void addObserver(
             Conversation.ConversationType[] conversationTypes,
             final IUnReadMessageObserver observer) {
-        if (observer == null) {
-            RLog.e(TAG, "can't add a null observer!");
-            return;
-        }
         if (conversationTypes == null) {
             conversationTypes =
                     RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
@@ -185,17 +173,13 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         }
     }
 
-    public interface IUnReadMessageObserver {
-        void onCountChanged(int count);
-    }
-
-    private static class SingletonHolder {
-        static UnReadMessageManager sInstance = new UnReadMessageManager();
-    }
-
     private class MultiConversationUnreadMsgInfo {
         Conversation.ConversationType[] conversationTypes;
         int count;
         IUnReadMessageObserver observer;
+    }
+
+    public interface IUnReadMessageObserver {
+        void onCountChanged(int count);
     }
 }

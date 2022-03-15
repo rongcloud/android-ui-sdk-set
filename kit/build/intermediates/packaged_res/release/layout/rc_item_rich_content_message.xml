@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@id/rc_layout"
     android:layout_width="231dp"
-    android:layout_height="wrap_content"
+    android:layout_height="126dp"
     android:background="@android:color/white">
 
     <TextView
@@ -39,9 +39,8 @@
             android:ellipsize="end"
             android:gravity="start"
             android:lines="3"
-            android:autoLink="web"
             android:paddingBottom="9dp"
-            tools:text="content" />
+            tools:text="Content" />
 
         <ImageView
             android:id="@+id/rc_img"

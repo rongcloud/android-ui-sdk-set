@@ -71,9 +71,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                     }
                                     RongExtension rongExtension = mRongExtension.get();
                                     Fragment fragment = mFragment.get();
-                                    if (rongExtension == null
-                                            || fragment == null
-                                            || fragment.isDetached()) {
+                                    if (rongExtension == null || fragment == null) {
                                         return false;
                                     }
                                     mUiMessage = uiMessage;
@@ -149,10 +147,6 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                                     || message.getConversationType()
                                                             .equals(
                                                                     Conversation.ConversationType
-                                                                            .SYSTEM)
-                                                    || message.getConversationType()
-                                                            .equals(
-                                                                    Conversation.ConversationType
                                                                             .CUSTOMER_SERVICE);
                                     boolean isFireMsg = message.getContent().isDestruct();
                                     boolean isFireMode =
@@ -201,9 +195,6 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
 
     @Override
     public void onAttachedToExtension(Fragment fragment, final RongExtension extension) {
-        if (fragment == null || fragment.isDetached()) {
-            return;
-        }
         mFragment = new WeakReference<>(fragment);
         mRongExtension = new WeakReference<>(extension);
         ReferenceInstance referenceInstance;
@@ -391,7 +382,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         }
     }
 
-    public void hideReferenceView() {
+    private void hideReferenceView() {
         mReferenceMessage = null;
         RongExtension rongExtension = null;
 

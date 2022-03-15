@@ -2,9 +2,6 @@ package io.rong.imkit.userinfo;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MediatorLiveData;
-
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
@@ -12,7 +9,7 @@ import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.StringUtils;
 import io.rong.imkit.widget.cache.RongCache;
-
+import java.util.List;
 
 public class LocalUserDataSource {
     private final String TAG = LocalUserDataSource.class.getSimpleName();
@@ -54,8 +51,10 @@ public class LocalUserDataSource {
         return group;
     }
 
-
-    GroupMember getGroupUserInfo(final String groupId, final String userId, final MediatorLiveData<List<GroupMember>> groupMembers) {
+    GroupMember getGroupUserInfo(
+            final String groupId,
+            final String userId,
+            final MediatorLiveData<List<GroupMember>> groupMembers) {
         final String key = StringUtils.getKey(groupId, userId);
         GroupMember member = mGroupMemberCache.get(key);
         if (member == null) {
@@ -70,16 +69,19 @@ public class LocalUserDataSource {
     void refreshUserInfo(final User user) {
         if (user != null) {
             mUserCache.put(user.id, user);
-            ExecutorHelper.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        mDatabase.getUserDao().insertUser(user);
-                    } catch (IllegalStateException e) {
-                        RLog.e(TAG, e.getMessage());
-                    }
-                }
-            });
+            ExecutorHelper.getInstance()
+                    .diskIO()
+                    .execute(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        mDatabase.getUserDao().insertUser(user);
+                                    } catch (IllegalStateException e) {
+                                        RLog.e(TAG, e.getMessage());
+                                    }
+                                }
+                            });
         }
     }
 
@@ -87,34 +89,40 @@ public class LocalUserDataSource {
         if (groupMember != null) {
             String key = StringUtils.getKey(groupMember.groupId, groupMember.userId);
             mGroupMemberCache.put(key, groupMember);
-            ExecutorHelper.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        mDatabase.getGroupMemberDao().insertGroupMember(groupMember);
-                    } catch (IllegalStateException e) {
-                        RLog.e(TAG, e.getMessage());
-                    }
-                }
-            });
+            ExecutorHelper.getInstance()
+                    .diskIO()
+                    .execute(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        mDatabase
+                                                .getGroupMemberDao()
+                                                .insertGroupMember(groupMember);
+                                    } catch (IllegalStateException e) {
+                                        RLog.e(TAG, e.getMessage());
+                                    }
+                                }
+                            });
         }
     }
 
     void refreshGroupInfo(final Group group) {
         if (group != null) {
             mGroupCache.put(group.id, group);
-            ExecutorHelper.getInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        mDatabase.getGroupDao().insertGroup(group);
-                    } catch (IllegalStateException e) {
-                        RLog.e(TAG, e.getMessage());
-                    }
-                }
-            });
+            ExecutorHelper.getInstance()
+                    .diskIO()
+                    .execute(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        mDatabase.getGroupDao().insertGroup(group);
+                                    } catch (IllegalStateException e) {
+                                        RLog.e(TAG, e.getMessage());
+                                    }
+                                }
+                            });
         }
     }
-
-
 }

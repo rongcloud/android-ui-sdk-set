@@ -26,6 +26,7 @@ import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;
 import io.rong.imkit.conversation.messgelist.processor.ConversationProcessorFactory;
 import io.rong.imkit.conversation.messgelist.processor.IConversationBusinessProcessor;
 import io.rong.imkit.conversation.messgelist.provider.MessageClickType;
+import io.rong.imkit.conversation.messgelist.status.IMessageState;
 import io.rong.imkit.event.actionevent.ClearEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
@@ -52,9 +53,8 @@ import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.picture.tools.ToastUtils;
-import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
+import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.MessageList;
 import io.rong.imlib.IRongCallback;
@@ -62,7 +62,6 @@ import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Group;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -81,8 +80,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class MessageViewModel extends AndroidViewModel
-        implements MessageEventListener, RongUserInfoManager.UserDataObserver {
+public class MessageViewModel extends AndroidViewModel implements MessageEventListener {
     public static final int DEFAULT_COUNT =
             RongConfigCenter.conversationConfig().getConversationHistoryMessageCount();
     public static final int DEFAULT_REMOTE_COUNT =
@@ -260,6 +258,7 @@ public class MessageViewModel extends AndroidViewModel
     private IConversationBusinessProcessor mProcessor;
     private Bundle mBundle;
     private Message mFirstUnreadMessage;
+    private IMessageState mState;
     private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener =
             new RongIMClient.OnReceiveMessageWrapperListener() {
                 @Override
@@ -283,18 +282,25 @@ public class MessageViewModel extends AndroidViewModel
                         if (left == 0 && !hasPackage) {
                             // 高清语音下载
                             if (message.getContent() instanceof HQVoiceMessage) {
-                                if (RongConfigCenter.conversationConfig()
-                                        .rc_enable_automatic_download_voice_msg) {
-                                    HQVoiceMsgDownloadManager.getInstance()
-                                            .enqueue(
-                                                    new AutoDownloadEntry(
-                                                            message,
-                                                            AutoDownloadEntry.DownloadPriority
-                                                                    .HIGH));
+                                if (PermissionCheckUtil.checkPermissions(
+                                        getApplication(), MessageViewModel.writePermission)) {
+                                    if (RongConfigCenter.conversationConfig()
+                                            .rc_enable_automatic_download_voice_msg) {
+                                        HQVoiceMsgDownloadManager.getInstance()
+                                                .enqueue(
+                                                        new AutoDownloadEntry(
+                                                                message,
+                                                                AutoDownloadEntry.DownloadPriority
+                                                                        .HIGH));
+                                    } else {
+                                        RLog.e(
+                                                TAG,
+                                                "rc_enable_automatic_download_voice_msg disable");
+                                    }
+                                    uiMessage.setState(State.PROGRESS);
                                 } else {
-                                    RLog.e(TAG, "rc_enable_automatic_download_voice_msg disable");
+                                    uiMessage.setState(State.ERROR);
                                 }
-                                uiMessage.setState(State.PROGRESS);
                             }
                         }
                         // 已读状态设置
@@ -309,6 +315,8 @@ public class MessageViewModel extends AndroidViewModel
                             }
                         }
                         mProcessor.onReceived(
+                                MessageViewModel.this, uiMessage, left, hasPackage, offline);
+                        mState.onReceived(
                                 MessageViewModel.this, uiMessage, left, hasPackage, offline);
                     }
                     return false;
@@ -384,7 +392,7 @@ public class MessageViewModel extends AndroidViewModel
                         mUiMessages.clear();
                         mFirstUnreadMessage = null;
                         mRemoteMessageLoadFinish = false;
-                        mProcessor.onClearMessage(MessageViewModel.this);
+                        mState = IMessageState.normalState;
                         mUiMessageLiveData.setValue(mUiMessages);
                         mNewUnReadMentionMessages.clear();
                         updateNewMentionMessageUnreadBar();
@@ -401,7 +409,6 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().addOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().addMessageEventListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
-        RongUserInfoManager.getInstance().addUserDataObserver(this);
     }
 
     private void stopDestructTime(UiMessage uiMessage) {
@@ -416,25 +423,27 @@ public class MessageViewModel extends AndroidViewModel
         mCurConversationType = type;
         mProcessor = ConversationProcessorFactory.getInstance().getProcessor(type);
         mBundle = bundle;
+        if (bundle != null) {
+            long indexTime = bundle.getLong(RouteUtils.INDEX_MESSAGE_TIME, 0);
+            if (indexTime > 0) {
+                mState = IMessageState.historyState;
+            } else {
+                mState = IMessageState.normalState;
+            }
+        } else {
+            mState = IMessageState.normalState;
+        }
+        mState.init(this, bundle);
         mProcessor.init(this, bundle);
         mIsEditStatus.setValue(false);
     }
 
-    /** 初始化加载本地消息 下拉加载历史消息 */
+    /** /~chiense 初始化加载本地消息 下拉加载历史消息 */
+
+    /** /~english Initialize load local message and drop down load history message */
     public void onGetHistoryMessage(List<Message> messages) {
-        if (messages == null || messages.isEmpty()) {
-            return;
-        }
         mProcessor.onLoadMessage(this, messages);
         for (Message message : messages) {
-            final MessageTag msgTag =
-                    message.getContent().getClass().getAnnotation(MessageTag.class);
-            if (!(msgTag.flag() == MessageTag.ISCOUNTED
-                    || msgTag.flag() == MessageTag.ISPERSISTED)) {
-                if (mProcessor.onReceivedCmd(MessageViewModel.this, message)) {
-                    continue;
-                }
-            }
             // 去重处理
             boolean contains = false;
             for (UiMessage uiMessage : mUiMessages) {
@@ -453,7 +462,7 @@ public class MessageViewModel extends AndroidViewModel
 
     public UiMessage mapUIMessage(Message message) {
         UiMessage uiMessage = new UiMessage(message);
-        if (mIsEditStatus.getValue() != null) {
+        if (mIsEditStatus != null) {
             uiMessage.setEdit(mIsEditStatus.getValue());
         }
         return uiMessage;
@@ -532,11 +541,10 @@ public class MessageViewModel extends AndroidViewModel
         }
     }
 
-    /** 上拉加载更多消息 */
+    /** /~chinese 上拉加载更多消息 */
+
+    /** /~english Pull up to load more messages */
     public void onLoadMoreMessage(List<Message> messages) {
-        if (messages == null || messages.isEmpty()) {
-            return;
-        }
         mProcessor.onLoadMessage(this, messages);
         ArrayList<UiMessage> list = new ArrayList<>();
         for (Message message : messages) {
@@ -557,7 +565,12 @@ public class MessageViewModel extends AndroidViewModel
         refreshAllMessage();
     }
 
-    /** normal状态点击历史消息bar history状态点击新消息bar */
+    /** /~chinese normal状态点击历史消息bar history状态点击新消息bar */
+
+    /**
+     * /~english Click Historical message in normal status and click New message bar in bar history
+     * status
+     */
     public void onReloadMessage(List<Message> messages) {
         mProcessor.onLoadMessage(this, messages);
         mUiMessages.clear();
@@ -584,12 +597,26 @@ public class MessageViewModel extends AndroidViewModel
 
     public void onWarnClick(final UiMessage uiMessage) {
         final Message msg = uiMessage.getMessage();
-        int position = findPositionByMessageId(msg.getMessageId());
-        if (position >= 0) {
-            mUiMessages.remove(position);
-            mUiMessageLiveData.setValue(mUiMessages);
-        }
-        reSendMessage(msg);
+        RongIMClient.getInstance()
+                .deleteMessages(
+                        new int[] {msg.getMessageId()},
+                        new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean aBoolean) {
+                                if (aBoolean) {
+                                    int position = findPositionByMessageId(msg.getMessageId());
+                                    if (position >= 0) {
+                                        mUiMessages.remove(position);
+                                        mUiMessageLiveData.setValue(mUiMessages);
+                                    }
+                                    msg.setMessageId(0);
+                                    reSendMessage(msg);
+                                }
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {}
+                        });
     }
 
     public void onItemClick(UiMessage uiMessage) {
@@ -633,16 +660,6 @@ public class MessageViewModel extends AndroidViewModel
                                                 enterEditState();
                                                 onViewClick(MessageClickType.EDIT_CLICK, message);
                                                 return true;
-                                            }
-                                        })
-                                .showFilter(
-                                        new MessageItemLongClickAction.Filter() {
-                                            @Override
-                                            public boolean filter(UiMessage message) {
-                                                return !message.getConversationType()
-                                                        .equals(
-                                                                Conversation.ConversationType
-                                                                        .SYSTEM);
                                             }
                                         })
                                 .build();
@@ -872,7 +889,6 @@ public class MessageViewModel extends AndroidViewModel
         }
         int position = findPositionByMessageId(uiMessage.getMessage().getMessageId());
         if (position == -1) {
-            RLog.w(TAG, "the message isn't found in the list.");
             return;
         }
         for (int i = position; i < mUiMessages.size(); i++) {
@@ -894,7 +910,7 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public boolean onBackPressed() {
-        if (Objects.equals(mIsEditStatus.getValue(), true)) {
+        if (mIsEditStatus != null && mIsEditStatus.getValue()) {
             quitEditMode();
             return true;
         }
@@ -1004,7 +1020,6 @@ public class MessageViewModel extends AndroidViewModel
                     uiMessage.setState(State.ERROR);
                     break;
                 case SendMediaEvent.SUCCESS:
-                    uiMessage.setProgress(100);
                     uiMessage.setState(State.NORMAL);
                     break;
                 case SendMediaEvent.CANCEL:
@@ -1040,7 +1055,7 @@ public class MessageViewModel extends AndroidViewModel
                         uiMessage.setProgress(event.getProgress());
                         break;
                     case DownloadEvent.ERROR:
-                        uiMessage.setProgress(0);
+                        uiMessage.setProgress(-1);
                         uiMessage.setState(State.ERROR);
                         break;
                     case DownloadEvent.CANCEL:
@@ -1137,8 +1152,6 @@ public class MessageViewModel extends AndroidViewModel
         if (Objects.equals(mCurTargetId, msg.getTargetId())
                 && Objects.equals(mCurConversationType, msg.getConversationType())
                 && msg.getMessageId() > 0) {
-            long sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();
-            msg.setSentTime(sentTime); // 更新成服务器时间
             int position = findPositionBySendTime(msg.getSentTime());
             mUiMessages.add(position, mapUIMessage(msg));
             refreshAllMessage();
@@ -1171,7 +1184,8 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     private void sendMessageEvent(UiMessage uiMessage) {
-        mUiMessages.add(uiMessage);
+        int insertPosition = findPositionBySendTime(uiMessage.getMessage().getSentTime());
+        mUiMessages.add(insertPosition, uiMessage);
         refreshAllMessage();
         executePageEvent(new ScrollToEndEvent());
     }
@@ -1180,14 +1194,14 @@ public class MessageViewModel extends AndroidViewModel
         int position = findPositionByMessageId(uiMessage.getMessage().getMessageId());
         if (position != -1) {
             uiMessage.setChange(true);
-            mUiMessageLiveData.postValue(mUiMessages);
+            mUiMessageLiveData.setValue(mUiMessages);
         }
     }
 
     public int findPositionBySendTime(long sentTime) {
         for (int i = mUiMessages.size() - 1; i >= 0; i--) {
             UiMessage message = mUiMessages.get(i);
-            if (message.getSentTime() <= sentTime) {
+            if (message.getSentTime() < sentTime) {
                 return i + 1;
             }
         }
@@ -1195,11 +1209,7 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void executePageEvent(PageEvent pageEvent) {
-        if (Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
-            mPageEventLiveData.setValue(pageEvent);
-        } else {
-            mPageEventLiveData.postValue(pageEvent);
-        }
+        mPageEventLiveData.setValue(pageEvent);
     }
 
     private UiMessage findNewUnreadMessage(int messageId) {
@@ -1236,11 +1246,7 @@ public class MessageViewModel extends AndroidViewModel
 
     public void hideHistoryBar() {
         setFirstUnreadMessage(null);
-        if (Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
-            mHistoryMessageUnreadLiveData.setValue(0);
-        } else {
-            mHistoryMessageUnreadLiveData.postValue(0);
-        }
+        mHistoryMessageUnreadLiveData.setValue(0);
     }
 
     public int getRefreshMessageId() {
@@ -1273,13 +1279,7 @@ public class MessageViewModel extends AndroidViewModel
         long result = 0;
         if (mUiMessages.size() > 0) {
             for (int i = mUiMessages.size() - 1; i >= 0; i--) {
-                if (Message.SentStatus.SENT.equals(mUiMessages.get(i).getSentStatus())) {
-                    result = mUiMessages.get(i).getSentTime();
-                } else {
-                    result =
-                            mUiMessages.get(i).getSentTime()
-                                    - RongIMClient.getInstance().getDeltaTime();
-                }
+                result = mUiMessages.get(i).getSentTime();
                 if (result > 0) {
                     break;
                 }
@@ -1394,7 +1394,7 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void onRefresh() {
-        mProcessor.onRefresh(MessageViewModel.this);
+        mState.onRefresh(this);
     }
 
     public void cleanUnreadNewCount() {
@@ -1402,15 +1402,21 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void newMessageBarClick() {
-        mProcessor.newMessageBarClick(MessageViewModel.this);
+        if (mState != null) {
+            mState.onNewMessageBarClick(this);
+        }
     }
 
     public void unreadBarClick() {
-        mProcessor.unreadBarClick(MessageViewModel.this);
+        if (mState != null) {
+            mState.onHistoryBarClick(this);
+        }
     }
 
     public void newMentionMessageBarClick() {
-        mProcessor.newMentionMessageBarClick(MessageViewModel.this);
+        if (mState != null) {
+            mState.onNewMentionMessageBarClick(this);
+        }
     }
 
     /** 启动编辑模式 */
@@ -1452,7 +1458,7 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void onLoadMore() {
-        mProcessor.onLoadMore(this);
+        if (mState != null) mState.onLoadMore(this);
     }
 
     private void removeRecallMentionMsg(Message message) {
@@ -1481,7 +1487,6 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().removeMessageEventListener(this);
         IMCenter.getInstance().removeConversationEventListener(mConversationEventListener);
-        RongUserInfoManager.getInstance().removeUserDataObserver(this);
     }
 
     public boolean isForegroundActivity() {
@@ -1598,6 +1603,14 @@ public class MessageViewModel extends AndroidViewModel
         return mIsEditStatus;
     }
 
+    public IMessageState getState() {
+        return mState;
+    }
+
+    public void setState(IMessageState state) {
+        mState = state;
+    }
+
     public List<UiMessage> getNewUnReadMessages() {
         return mNewUnReadMessages;
     }
@@ -1638,7 +1651,7 @@ public class MessageViewModel extends AndroidViewModel
         // 判断是否滑动到底部
         if (!recyclerView.canScrollVertically(1)) {
             setScrollToBottom(true);
-            mProcessor.onScrollToBottom(this);
+            mState.onScrollToBottom(this);
         } else {
             setScrollToBottom(false);
         }
@@ -1774,35 +1787,5 @@ public class MessageViewModel extends AndroidViewModel
         }
 
         return false;
-    }
-
-    public boolean isNormalState() {
-        return mProcessor.isNormalState(MessageViewModel.this);
-    }
-
-    @Override
-    public void onUserUpdate(UserInfo user) {
-        if (user != null) {
-            for (UiMessage item : getUiMessages()) {
-                item.onUserInfoUpdate(user);
-            }
-            refreshAllMessage(false);
-        }
-    }
-
-    @Override
-    public void onGroupUpdate(Group group) {}
-
-    @Override
-    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
-        if (!Conversation.ConversationType.GROUP.equals(mCurConversationType)
-                || groupUserInfo == null
-                || !groupUserInfo.getGroupId().equals(mCurTargetId)) {
-            return;
-        }
-        for (UiMessage item : getUiMessages()) {
-            item.onGroupMemberInfoUpdate(groupUserInfo);
-        }
-        refreshAllMessage(false);
     }
 }

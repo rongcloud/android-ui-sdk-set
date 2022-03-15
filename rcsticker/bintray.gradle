@@ -1,11 +1,8 @@
 group = PROJ_GROUP
 version = PROJ_VERSION
 project.archivesBaseName = PROJ_ARTIFACTID
-def NEXUS_REPOSITORY_URL='https://maven.rongcloud.cn/repository/maven-releases/' //nexus repository url
-def CENTRAL_URL='https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-def CENTRAL_SNAP_URL='https://oss.sonatype.org/content/repositories/snapshots/'
+def NEXUS_REPOSITORY_URL='http://maven.rongcloud.cn/repository/maven-releases/' //nexus repository url
 
-apply plugin: 'signing'
 apply plugin: 'maven'
 
 task sourcesJar(type: Jar) {
@@ -32,7 +29,6 @@ task syncJavadoc(type: Sync, dependsOn: javadoc) {
 
 javadoc {
     options {
-        locale "zh_CN"
         encoding "UTF-8"
         charSet 'UTF-8'
         author true
@@ -68,63 +64,6 @@ uploadArchives {
                         name 'The Apache Software License, Version 2.0'
                         url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                         distribution 'repo'
-                    }
-                }
-            }.whenConfigured {
-                p ->
-                    p.dependencies = p.dependencies.findAll {
-                        dep ->
-                            dep.scope != "test" && dep.version!="unspecified"
-                    }
-            }
-        }
-    }
-}
-
-
-uploadMavenCentral {
-    repositories {
-        mavenDeployer {
-            beforeDeployment {
-                MavenDeployment deployment -> signing.signPom(deployment)
-            }
-
-            repository(url: CENTRAL_URL) {
-                authentication(userName: CENTRAL_USER, password: CENTRAL_KEY)
-            }
-
-            snapshotRepository(url: CENTRAL_SNAP_URL) {
-                authentication(userName: CENTRAL_USER, password: CENTRAL_KEY)
-            }
-
-            pom.project {
-                name PROJ_NAME
-                version PROJ_VERSION
-                artifactId PROJ_ARTIFACTID
-                groupId PROJ_GROUP
-                packaging 'aar'
-                description 'a rongcloud sdk'
-                url 'https://www.rongcloud.cn'
-
-                scm {
-                    connection 'https://github.com/rongcloud'
-                    developerConnection 'https://github.com/rongcloud'
-                    url 'https://www.rongcloud.cn'
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution 'repo'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id 'rongcloud_developer'
-                        name 'rongcloud'
-                        email 'rongcloud@rongcloud.cn'
                     }
                 }
             }.whenConfigured {

@@ -9,14 +9,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.model.OperationResult;
-import io.rong.imkit.notification.RongNotificationManager;
-import io.rong.imlib.IRongCoreCallback;
-import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.RongIMClient.ErrorCode;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Conversation.ConversationNotificationStatus;
 import io.rong.imlib.model.ConversationStatus;
 
 public class ConversationSettingViewModel extends AndroidViewModel {
@@ -40,34 +34,24 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         mOperationResult = new MutableLiveData<>();
         mTopStatus = new MutableLiveData<>();
         mNotificationStatus = new MutableLiveData<>();
-        RongCoreClient.getInstance()
-                .getConversationTopStatus(
-                        targetId,
+        RongIMClient.getInstance()
+                .getConversation(
                         conversationType,
-                        new IRongCoreCallback.ResultCallback<Boolean>() {
+                        targetId,
+                        new RongIMClient.ResultCallback<Conversation>() {
                             @Override
-                            public void onSuccess(Boolean aBoolean) {
-                                mTopStatus.postValue(aBoolean);
+                            public void onSuccess(Conversation conversation) {
+                                if (conversation != null) {
+                                    mTopStatus.postValue(conversation.isTop());
+                                    mNotificationStatus.postValue(
+                                            conversation.getNotificationStatus());
+                                }
                             }
 
                             @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode e) {}
+                            public void onError(RongIMClient.ErrorCode errorCode) {}
                         });
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
-        RongNotificationManager.getInstance()
-                .getConversationNotificationStatus(
-                        conversationType,
-                        targetId,
-                        new RongIMClient.ResultCallback<ConversationNotificationStatus>() {
-                            @Override
-                            public void onSuccess(
-                                    ConversationNotificationStatus conversationNotificationStatus) {
-                                mNotificationStatus.postValue(conversationNotificationStatus);
-                            }
-
-                            @Override
-                            public void onError(ErrorCode coreErrorCode) {}
-                        });
     }
 
     public void clearMessages(long recordTime, boolean clearRemote) {

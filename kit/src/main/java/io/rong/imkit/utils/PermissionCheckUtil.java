@@ -33,8 +33,6 @@ import java.util.Set;
 public class PermissionCheckUtil {
     private static final String TAG = PermissionCheckUtil.class.getSimpleName();
     public static final int REQUEST_CODE_ASK_PERMISSIONS = 100;
-    public static final int REQUEST_CODE_LOCATION_SHARE = 101;
-    private static IRequestPermissionListListener listener;
     private static final String PROMPT = "prompt";
     private static final String IS_PROMPT = "isPrompt";
 
@@ -43,7 +41,7 @@ public class PermissionCheckUtil {
     }
 
     public static boolean requestPermissions(
-            final Fragment fragment, String[] permissions, final int requestCode) {
+            final Fragment fragment, String[] permissions, int requestCode) {
         if (permissions.length == 0) {
             return true;
         }
@@ -88,26 +86,9 @@ public class PermissionCheckUtil {
         }
 
         if (permissionsNotGranted.size() > 0) {
-            final int size = permissionsNotGranted.size();
-            if (listener != null) {
-                listener.onRequestPermissionList(
-                        fragment.getActivity(),
-                        permissionsNotGranted,
-                        new IPermissionEventCallback() {
-                            @Override
-                            public void confirmed() {
-                                fragment.requestPermissions(
-                                        permissionsNotGranted.toArray(new String[size]),
-                                        requestCode);
-                            }
-
-                            @Override
-                            public void cancelled() {}
-                        });
-            } else {
-                fragment.requestPermissions(
-                        permissionsNotGranted.toArray(new String[size]), requestCode);
-            }
+            int size = permissionsNotGranted.size();
+            fragment.requestPermissions(
+                    permissionsNotGranted.toArray(new String[size]), requestCode);
         } else {
             result = true;
         }
@@ -140,26 +121,9 @@ public class PermissionCheckUtil {
         }
 
         if (permissionsNotGranted.size() > 0) {
-            final int size = permissionsNotGranted.size();
-            if (listener != null) {
-                listener.onRequestPermissionList(
-                        activity,
-                        permissionsNotGranted,
-                        new IPermissionEventCallback() {
-                            @Override
-                            public void confirmed() {
-                                activity.requestPermissions(
-                                        permissionsNotGranted.toArray(new String[size]),
-                                        requestCode);
-                            }
-
-                            @Override
-                            public void cancelled() {}
-                        });
-            } else {
-                activity.requestPermissions(
-                        permissionsNotGranted.toArray(new String[size]), requestCode);
-            }
+            int size = permissionsNotGranted.size();
+            activity.requestPermissions(
+                    permissionsNotGranted.toArray(new String[size]), requestCode);
         } else {
             result = true;
         }
@@ -174,13 +138,8 @@ public class PermissionCheckUtil {
             if ((isFlyme() || (Build.VERSION.SDK_INT < Build.VERSION_CODES.M))
                     && permission.equals(Manifest.permission.RECORD_AUDIO)) {
                 RLog.i(TAG, "Build.MODEL = " + Build.MODEL);
-                if ((Build.BRAND.toLowerCase().equals("meizu"))) {
-                    // 针对魅族手机，采取双重判断的方式
-                    if (hasPermission(context, permission) || hasRecordPermision(context)) {
-                        continue;
-                    } else {
-                        return false;
-                    }
+                if ((Build.BRAND.toLowerCase().equals("meizu") && Build.MODEL.equals("M1852"))) {
+                    return hasPermission(context, permission);
                 }
 
                 if (!hasRecordPermision(context)) {
@@ -238,18 +197,19 @@ public class PermissionCheckUtil {
         return hasPermission;
     }
 
-    // KNOTE: 2021/8/25 修复权限提示窗权限提示name重复问题
     private static String getNotGrantedPermissionMsg(
             Context context, String[] permissions, int[] grantResults) {
         if (checkPermissionResultIncompatible(permissions, grantResults)) {
             return "";
         }
-
+        StringBuilder sb = new StringBuilder();
+        String permissionName;
+        sb.append(context.getResources().getString(R.string.rc_permission_grant_needed));
+        sb.append("(");
         try {
-            List<String> permissionNameList = new ArrayList<>(permissions.length);
             for (int i = 0; i < permissions.length; i++) {
                 if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                    String permissionName =
+                    permissionName =
                             context.getString(
                                     context.getResources()
                                             .getIdentifier(
@@ -257,27 +217,21 @@ public class PermissionCheckUtil {
                                                     "string",
                                                     context.getPackageName()),
                                     0);
-                    if (!permissionNameList.contains(permissionName)) {
-                        permissionNameList.add(permissionName);
+                    sb.append(permissionName);
+                    if (i != permissions.length - 1) {
+                        sb.append(" ");
                     }
                 }
             }
-
-            StringBuilder builder =
-                    new StringBuilder(
-                            context.getResources().getString(R.string.rc_permission_grant_needed));
-            return builder.append("(")
-                    .append(TextUtils.join(" ", permissionNameList))
-                    .append(")")
-                    .toString();
         } catch (Resources.NotFoundException e) {
             RLog.e(
                     TAG,
                     "One of the permissions is not recognized by SDK."
                             + Arrays.toString(permissions));
+            return "";
         }
-
-        return "";
+        sb.append(")");
+        return sb.toString();
     }
 
     private static String getNotGrantedPermissionMsg(Context context, List<String> permissions) {
@@ -332,9 +286,17 @@ public class PermissionCheckUtil {
     }
 
     /**
-     * 检查是否有悬浮窗权限
+     * /~chinese 检查是否有悬浮窗权限
      *
      * @param context 上下文
+     * @return boolean whether have the permission
+     */
+
+    /**
+     * /~english Check to see if you have permission for floating windows
+     *
+     * @param context
+     * @param needOpenPermissionSetting
      * @return boolean whether have the permission
      */
     @TargetApi(19)
@@ -491,37 +453,5 @@ public class PermissionCheckUtil {
                 || grantResults.length == 0
                 || permissions == null
                 || permissions.length != grantResults.length;
-    }
-
-    /**
-     * 设置申请权限前拦截监听
-     *
-     * @param listener
-     */
-    public static void setRequestPermissionListListener(IRequestPermissionListListener listener) {
-        if (listener == null) {
-            return;
-        }
-        PermissionCheckUtil.listener = listener;
-    }
-
-    /** SDK申请权限前,用户可以设置此监听，在{@code onRequestPermissionList}方法实现中创建Dialog弹窗,用于向用户解释权限申请的原因. */
-    public interface IRequestPermissionListListener {
-        /**
-         * @param activity
-         * @param permissionsNotGranted
-         * @param callback 用于回调Dialog弹窗的确定和取消事件
-         */
-        void onRequestPermissionList(
-                Context activity,
-                List<String> permissionsNotGranted,
-                IPermissionEventCallback callback);
-    }
-
-    /** 权限申请原因解释Dialog的确定和取消的按钮事件通知. */
-    public interface IPermissionEventCallback {
-        void confirmed();
-
-        void cancelled();
     }
 }

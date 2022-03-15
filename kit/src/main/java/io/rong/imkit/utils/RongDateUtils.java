@@ -4,8 +4,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.utils.language.LangUtils;
-import io.rong.imkit.utils.language.RongConfigurationManager;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,7 +11,6 @@ import java.util.Date;
 public class RongDateUtils {
 
     private static final String TAG = RongDateUtils.class.getCanonicalName();
-    private static final String SPACE_CHAR = " ";
     private static final int OTHER = 2014;
     private static final int TODAY = 6;
     private static final int YESTERDAY = 15;
@@ -134,11 +131,10 @@ public class RongDateUtils {
             }
             timeStr = hour + ":" + minuteStr;
 
-            if (RongConfigurationManager.getInstance().getLanguageLocal(context)
-                    == LangUtils.RCLocale.LOCALE_CHINA) {
-                formatTime = formatTime + SPACE_CHAR + timeStr;
+            if (context.getResources().getConfiguration().locale.getCountry().equals("CN")) {
+                formatTime = formatTime + timeStr;
             } else {
-                formatTime = timeStr + SPACE_CHAR + formatTime;
+                formatTime = timeStr + " " + formatTime;
             }
         }
         return formatTime;
@@ -184,10 +180,45 @@ public class RongDateUtils {
                     if (month == monthCur && weekInMonth == weekInMonthCur) { // 同月同周
                         formatDate = getWeekDay(context, calendardate.get(Calendar.DAY_OF_WEEK));
                     } else { // 不同月
-                        formatDate = formatDate(date, "M/d");
+                        if (context.getResources()
+                                .getConfiguration()
+                                .locale
+                                .getCountry()
+                                .equals("CN")) {
+                            formatDate =
+                                    formatDate(
+                                            date,
+                                            "M"
+                                                    + context.getResources()
+                                                            .getString(R.string.rc_date_month)
+                                                    + "d"
+                                                    + context.getResources()
+                                                            .getString(R.string.rc_date_day));
+                        } else {
+                            formatDate = formatDate(date, "M/d");
+                        }
                     }
                 } else {
-                    formatDate = formatDate(date, "yyyy/M/d");
+                    if (context.getResources()
+                            .getConfiguration()
+                            .locale
+                            .getCountry()
+                            .equals("CN")) {
+                        formatDate =
+                                formatDate(
+                                        date,
+                                        "yyyy"
+                                                + context.getResources()
+                                                        .getString(R.string.rc_date_year)
+                                                + "M"
+                                                + context.getResources()
+                                                        .getString(R.string.rc_date_month)
+                                                + "d"
+                                                + context.getResources()
+                                                        .getString(R.string.rc_date_day));
+                    } else {
+                        formatDate = formatDate(date, "M/d/yy");
+                    }
                 }
 
                 if (showTime) {

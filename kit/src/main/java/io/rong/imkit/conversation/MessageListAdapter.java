@@ -99,4 +99,5 @@ public class MessageListAdapter extends BaseAdapter<UiMessage> {
             this.newList = newList;
         }
     }
+    ;
 }

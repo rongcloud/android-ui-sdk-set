@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -440,7 +441,19 @@ public class PictureSelectorActivity extends PictureBaseActivity
      * @param position
      */
     public void startPreview(List<LocalMedia> previewImages, int position) {
+        LocalMedia media = previewImages.get(position);
+        String mimeType = media.getMimeType();
         Bundle bundle = new Bundle();
+        List<LocalMedia> result = new ArrayList<>();
+        //        if (PictureMimeType.eqVideo(mimeType)) {
+        //            if (config.selectionMode == PictureConfig.SINGLE) {
+        //                result.add(media);
+        //                onResult(result);
+        //            } else {
+        //                bundle.putString("video_path", media.getPath());
+        //                JumpUtils.startPictureVideoPlayActivity(getContext(), bundle);
+        //            }
+        //        } else {
         List<LocalMedia> selectedImages = adapter.getSelectedImages();
         ImagesObservable.getInstance().savePreviewMediaData(new ArrayList<>(previewImages));
         bundle.putParcelableArrayList(
@@ -448,6 +461,7 @@ public class PictureSelectorActivity extends PictureBaseActivity
         bundle.putInt(PictureConfig.EXTRA_POSITION, position);
         JumpUtils.startPicturePreviewActivity(getContext(), bundle);
         overridePendingTransition(R.anim.rc_picture_anim_enter, R.anim.rc_picture_anim_fade_in);
+        //        }
     }
 
     @Override
@@ -488,7 +502,7 @@ public class PictureSelectorActivity extends PictureBaseActivity
         String mimeType = null;
         long duration = 0;
         boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
-        if (TextUtils.isEmpty(cameraPath)) {
+        if (TextUtils.isEmpty(cameraPath) || new File(cameraPath) == null) {
             return;
         }
         long size = 0;
@@ -504,22 +518,41 @@ public class PictureSelectorActivity extends PictureBaseActivity
                     });
         }
         LocalMedia media = new LocalMedia();
-        mimeType = PictureMimeType.fileToType(file);
-
-        if (PictureMimeType.eqImage(mimeType)) {
-            int degree = PictureFileUtils.readPictureDegree(this, cameraPath);
-            PictureFileUtils.rotateImage(degree, cameraPath);
-            newSize = MediaUtils.getLocalImageWidthOrHeight(cameraPath);
+        // 图片视频处理规则
+        if (isAndroidQ) {
+            String path = PictureFileUtils.getPath(getApplicationContext(), Uri.parse(cameraPath));
+            File f = new File(path);
+            size = f.length();
+            mimeType = PictureMimeType.fileToType(f);
+            if (PictureMimeType.eqImage(mimeType)) {
+                int degree = PictureFileUtils.readPictureDegree(this, cameraPath);
+                String rotateImagePath =
+                        PictureFileUtils.rotateImageToAndroidQ(
+                                this, degree, cameraPath, config.cameraFileName);
+                media.setAndroidQToPath(rotateImagePath);
+                newSize = MediaUtils.getLocalImageSizeToAndroidQ(this, cameraPath);
+            } else {
+                newSize = MediaUtils.getLocalVideoSize(this, Uri.parse(cameraPath));
+                duration = MediaUtils.extractDuration(getContext(), true, cameraPath);
+            }
         } else {
-            newSize = MediaUtils.getLocalVideoSize(cameraPath);
-            duration = MediaUtils.extractDuration(getContext(), false, cameraPath);
+            mimeType = PictureMimeType.fileToType(file);
+            size = new File(cameraPath).length();
+            if (PictureMimeType.eqImage(mimeType)) {
+                int degree = PictureFileUtils.readPictureDegree(this, cameraPath);
+                PictureFileUtils.rotateImage(degree, cameraPath);
+                newSize = MediaUtils.getLocalImageWidthOrHeight(cameraPath);
+            } else {
+                newSize = MediaUtils.getLocalVideoSize(cameraPath);
+                duration = MediaUtils.extractDuration(getContext(), false, cameraPath);
+            }
         }
         media.setDuration(duration);
         media.setWidth(newSize[0]);
         media.setHeight(newSize[1]);
         media.setPath(cameraPath);
         media.setMimeType(mimeType);
-        media.setSize(PictureFileUtils.getMediaSize(getContext(), cameraPath));
+        media.setSize(size);
         media.setChooseModel(config.chooseMode);
         if (adapter != null) {
             if (config.selectionMode == PictureConfig.SINGLE) {
@@ -650,6 +683,8 @@ public class PictureSelectorActivity extends PictureBaseActivity
                                 List<LocalMedia> selectImages =
                                         extras.getParcelableArrayList("selectImages");
                                 if (selectImages != null && selectImages.size() > 0) {
+                                    // 取出第1个判断是否是图片，视频和图片只能二选一，不必考虑图片和视频混合
+                                    String mimeType = selectImages.get(0).getMimeType();
                                     onResult(selectImages);
                                 }
                             }

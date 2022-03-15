@@ -27,12 +27,10 @@ import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
-import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
-import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.IMLibExtensionModuleManager;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -170,15 +168,8 @@ public class InputPanel {
                             mExtensionViewModel
                                     .getInputModeLiveData()
                                     .setValue(InputMode.TextInput);
-                        } else {
-                            mExtensionViewModel
-                                    .getInputModeLiveData()
-                                    .setValue(InputMode.PluginMode);
-                            ReferenceManager.getInstance().hideReferenceView();
                         }
-                        if (TextUtils.isEmpty(mInitialDraft)) {
-                            getDraft();
-                        }
+                        mExtensionViewModel.getInputModeLiveData().setValue(InputMode.PluginMode);
                     }
                 });
         mVoiceInputBtn.setOnTouchListener(mOnVoiceBtnTouchListener);
@@ -212,16 +203,6 @@ public class InputPanel {
                     mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_keyboard_btn));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
-        } else if (inputMode.equals(InputMode.QuickReplyMode)) {
-            mIsVoiceInputMode = false;
-            mVoiceToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_voice_btn));
-            mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
-            mEditText.setVisibility(VISIBLE);
-            mVoiceInputBtn.setVisibility(GONE);
-            mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
         }
     }
 
@@ -238,9 +219,15 @@ public class InputPanel {
     }
 
     /**
-     * 设置 InputPanel 样式.
+     * /~chinese 设置 InputPanel 样式.
      *
      * @param style 目前支持 5 种样式，参照: {@link InputStyle}
+     */
+
+    /**
+     * /~english Set the InputPanel style
+     *
+     * @param style Five styles are currently supported. Refer to: {@link InputStyle}
      */
     public void setInputPanelStyle(InputStyle style) {
         switch (style) {
@@ -307,22 +294,10 @@ public class InputPanel {
                             @Override
                             public void onSuccess(final String s) {
                                 if (!TextUtils.isEmpty(s)) {
-                                    mEditText.postDelayed(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    mInitialDraft = s;
-                                                    if (mEditText instanceof RongEditText) {
-                                                        ((RongEditText) mEditText)
-                                                                .setText(s, false);
-                                                    } else {
-                                                        mEditText.setText(s);
-                                                    }
-                                                    mEditText.setSelection(s.length());
-                                                    mEditText.requestFocus();
-                                                }
-                                            },
-                                            50);
+                                    mInitialDraft = s;
+                                    mEditText.setText(s);
+                                    mEditText.setSelection(s.length());
+                                    mEditText.requestFocus();
                                 }
                             }
 
@@ -515,13 +490,21 @@ public class InputPanel {
     }
 
     public enum InputStyle {
-        /** 录音切换-输入框-扩展 */
+        /** /~chinese 录音切换-输入框-扩展 */
+
+        /** /~english Recording toggle-input box-extension */
         STYLE_SWITCH_CONTAINER_EXTENSION(0x123),
-        /** 录音切换-输入框 */
+        /** /~chinese 录音切换-输入框 */
+
+        /** /~english Recording toggle-input box */
         STYLE_SWITCH_CONTAINER(0x120),
-        /** 输入框-扩展 */
+        /** /~chinese 输入框-扩展 */
+
+        /** /~english Input box-extension */
         STYLE_CONTAINER_EXTENSION(0x023),
-        /** 仅有输入框 */
+        /** /~chinese 仅有输入框 */
+
+        /** /~english Only input boxes */
         STYLE_CONTAINER(0x020);
 
         int v;

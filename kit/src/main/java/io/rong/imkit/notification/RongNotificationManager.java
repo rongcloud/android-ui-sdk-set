@@ -17,6 +17,7 @@ import android.os.Vibrator;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -24,8 +25,9 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.RongConversationActivity;
 import io.rong.imkit.model.ConversationKey;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.StringUtils;
 import io.rong.imkit.widget.cache.RongCache;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
@@ -41,10 +43,10 @@ import io.rong.message.RecallNotificationMessage;
 import io.rong.push.common.PushCacheHelper;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class RongNotificationManager implements RongUserInfoManager.UserDataObserver {
+public class RongNotificationManager {
     // 应用在前台，如果没有在会话界面，收消息时每间隔 3s 一次响铃、震动。
     private static final int SOUND_INTERVAL = 3000;
     private static boolean mIsInForeground;
@@ -78,27 +80,14 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         new RongIMClient.ConversationStatusListener() {
                             @Override
                             public void onStatusChanged(ConversationStatus[] conversationStatuses) {
-                                String stateType = "";
-                                String key = "";
                                 if (conversationStatuses != null
                                         && conversationStatuses.length > 0) {
                                     for (ConversationStatus status : conversationStatuses) {
-                                        if (status.getStatus() == null) {
-                                            continue;
-                                        }
-                                        for (Map.Entry<String, String> entry :
-                                                status.getStatus().entrySet()) {
-                                            stateType = entry.getKey();
-                                            if (!TextUtils.isEmpty(stateType)) {
-                                                break;
-                                            }
-                                        }
-                                        key =
-                                                getKey(
-                                                        status.getTargetId(),
-                                                        status.getConversationType(),
-                                                        stateType);
-                                        mNotificationCache.put(key, status.getNotifyStatus());
+                                        mNotificationCache.put(
+                                                StringUtils.getKey(
+                                                        status.getConversationType().getName(),
+                                                        status.getTargetId()),
+                                                status.getNotifyStatus());
                                     }
                                 }
                             }
@@ -158,7 +147,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                             public boolean onMessageRecalled(
                                     final Message message,
                                     RecallNotificationMessage recallNotificationMessage) {
-                                if (!isRecallFiltered(message)) {
+                                if (shouldNotify(message, 0, false, false)) {
                                     getConversationNotificationStatus(
                                             message.getConversationType(),
                                             message.getTargetId(),
@@ -184,8 +173,40 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                 return false;
                             }
                         });
-        RongUserInfoManager.getInstance().addUserDataObserver(this);
         registerActivityLifecycleCallback();
+
+        RongUserInfoManager.getInstance()
+                .getAllUsersLiveData()
+                .observeForever(
+                        new Observer<List<User>>() {
+                            @Override
+                            public void onChanged(List<User> users) {
+                                if (users == null || users.isEmpty()) {
+                                    return;
+                                }
+                                Conversation.ConversationType[] types =
+                                        new Conversation.ConversationType[] {
+                                            Conversation.ConversationType.PRIVATE,
+                                                    Conversation.ConversationType.GROUP,
+                                            Conversation.ConversationType.DISCUSSION,
+                                                    Conversation.ConversationType.CUSTOMER_SERVICE,
+                                            Conversation.ConversationType.CHATROOM,
+                                                    Conversation.ConversationType.SYSTEM
+                                        };
+                                Message message;
+
+                                for (User user : users) {
+                                    for (Conversation.ConversationType type : types) {
+                                        String key = ConversationKey.obtain(user.id, type).getKey();
+                                        if (messageMap.containsKey(key)) {
+                                            message = messageMap.get(key);
+                                            messageMap.remove(key);
+                                            prepareToSendNotification(message);
+                                        }
+                                    }
+                                }
+                            }
+                        });
     }
 
     private void preToNotify(Message message) {
@@ -294,19 +315,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         intent.putExtra(RouteUtils.CONVERSATION_TYPE, type.getName().toLowerCase());
         intent.putExtra(RouteUtils.TARGET_ID, targetId);
         intent.putExtra(RouteUtils.MESSAGE_ID, message.getMessageId());
-        PendingIntent pendingIntent;
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            pendingIntent =
-                    PendingIntent.getActivity(
-                            mApplication,
-                            requestCode,
-                            intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        } else {
-            pendingIntent =
-                    PendingIntent.getActivity(
-                            mApplication, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        }
+        PendingIntent pendingIntent =
+                PendingIntent.getActivity(
+                        mApplication, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         if (RongConfigCenter.notificationConfig().getInterceptor() != null) {
             pendingIntent =
                     RongConfigCenter.notificationConfig()
@@ -372,7 +383,8 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         final MessageTag msgTag = message.getContent().getClass().getAnnotation(MessageTag.class);
         if (offline
                 || msgTag != null
-                        && (msgTag.flag() & MessageTag.ISCOUNTED) != MessageTag.ISCOUNTED) {
+                        && (msgTag.flag() & MessageTag.ISCOUNTED) != MessageTag.ISCOUNTED
+                        && !(message.getContent() instanceof RecallNotificationMessage)) {
             return false;
         }
 
@@ -400,22 +412,6 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         } else {
             return !isInQuietTime();
         }
-    }
-
-    private boolean isRecallFiltered(Message message) {
-        // 聊天室或处于会话页面时，没有本地通知
-        if (message.getConversationType().equals(Conversation.ConversationType.CHATROOM)
-                || isInConversationPage()) {
-            return true;
-        }
-        MessageConfig messageConfig = message.getMessageConfig();
-        if (messageConfig != null && messageConfig.isDisableNotification()) {
-            return true;
-        }
-        if (!isQuietSettingSynced) { // 全局免打扰设置没有同步成功时，默认不弹通知。
-            getNotificationQuietHours(null);
-            return true;
-        } else return isInQuietTime();
     }
 
     private boolean isInConversationPage() {
@@ -538,12 +534,12 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         });
     }
 
-    public void getConversationNotificationStatus(
+    private void getConversationNotificationStatus(
             Conversation.ConversationType type,
             String targetId,
             final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>
                     callback) {
-        final String key = getKey(targetId, type, "1");
+        final String key = StringUtils.getKey(type.getName(), targetId);
         if (mNotificationCache.get(key) != null && callback != null) {
             callback.onSuccess(mNotificationCache.get(key));
         } else {
@@ -613,14 +609,8 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
             // 设置 STREAM_RING 模式：当系统设置震动时，使用系统设置方式是否播放收消息铃声。
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
             mediaPlayer.setDataSource(mApplication, res);
-            mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(
-                    new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            mediaPlayer.start();
-                        }
-                    });
+            mediaPlayer.prepare();
+            mediaPlayer.start();
         } catch (Exception e) {
             RLog.e(TAG, "sound", e);
             if (mediaPlayer != null) {
@@ -734,52 +724,6 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                 (NotificationManager) mApplication.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
     }
-
-    /**
-     * @param targetId
-     * @param conversationType
-     * @param stateType 状态类型 1 免打扰， 2 置顶；
-     * @return
-     */
-    private String getKey(
-            String targetId,
-            Conversation.ConversationType conversationType,
-            final String stateType) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(conversationType.getName());
-        stringBuilder.append(stateType);
-        stringBuilder.append(targetId);
-        return stringBuilder.toString();
-    }
-
-    @Override
-    public void onUserUpdate(UserInfo user) {
-        if (user == null) {
-            return;
-        }
-        Conversation.ConversationType[] types =
-                new Conversation.ConversationType[] {
-                    Conversation.ConversationType.PRIVATE, Conversation.ConversationType.GROUP,
-                    Conversation.ConversationType.DISCUSSION,
-                            Conversation.ConversationType.CUSTOMER_SERVICE,
-                    Conversation.ConversationType.CHATROOM, Conversation.ConversationType.SYSTEM
-                };
-        Message message;
-        for (Conversation.ConversationType type : types) {
-            String key = ConversationKey.obtain(user.getUserId(), type).getKey();
-            if (messageMap.containsKey(key)) {
-                message = messageMap.get(key);
-                messageMap.remove(key);
-                prepareToSendNotification(message);
-            }
-        }
-    }
-
-    @Override
-    public void onGroupUpdate(Group group) {}
-
-    @Override
-    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {}
 
     private static class SingletonHolder {
         static RongNotificationManager sInstance = new RongNotificationManager();

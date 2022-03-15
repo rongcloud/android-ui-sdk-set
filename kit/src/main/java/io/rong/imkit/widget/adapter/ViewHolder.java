@@ -68,7 +68,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         return mConvertView;
     }
 
-    // 以下为辅助方法
+    /****以下为辅助方法*****/
 
     /**
      * 设置TextView的值

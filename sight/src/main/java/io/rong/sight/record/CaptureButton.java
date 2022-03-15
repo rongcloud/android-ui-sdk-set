@@ -443,37 +443,73 @@ public class CaptureButton extends View {
     }
 
     public interface CaptureListener {
-        /** 拍照 */
+        /** /~chinese 拍照 */
+
+        /** /~english Take a image */
         void capture();
 
-        /** 拍照预览时选择重新拍摄 */
+        /** /~chinese 拍照预览时选择重新拍摄 */
+
+        /** /~english Choose to re-shoot when taking a image preview */
         void cancel();
 
-        /** 拍照预览时选择确认 */
+        /** /~chinese 拍照预览时选择确认 */
+
+        /** /~english Select confirm when taking a image preview */
         void determine();
 
-        /** 退出小视频拍摄 */
+        /** /~chinese 退出小视频拍摄 */
+
+        /** /~english Quit shooting small videos */
         void quit();
 
-        /** 开始录制视频 */
+        /** /~chinese 开始录制视频 */
+
+        /** /~english Start recording video */
         void record();
 
-        /** 录制结束 */
+        /** /~chinese 录制结束 */
+
+        /** /~english End of recording */
         void recordEnd(long duration);
 
-        /** 录制预览时选择确认时执行 */
+        /** /~chinese 录制预览时选择确认时执行 */
+
+        /** /~english Execute when you select confirmation when recording a preview */
         void getRecordResult();
 
-        /** 录制预览时选择重新拍摄删除当前拍摄视频时执行 */
+        /** /~chinese 录制预览时选择重新拍摄删除当前拍摄视频时执行 */
+
+        /**
+         * /~english Execute when you select to re-shoot and delete the current video when recording
+         * the preview
+         */
         void deleteRecordResult();
 
-        /** 录制时放大 */
+        /** /~chinese 录制时放大 */
+
+        /**
+         * /~english Zoom in during recording
+         *
+         * @param scaleValue scaleValue
+         */
         void scale(float scaleValue);
 
-        /** 录制时更新时间进度 */
+        /** /~chinese 录制时更新时间进度 */
+
+        /**
+         * /~english Update time schedule during recording
+         *
+         * @param progress progress
+         */
         void recordProgress(int progress);
 
-        /** 录制时间短时提示用户后直接重新拍摄 */
+        /** /~chinese 录制时间短时提示用户后直接重新拍摄 */
+
+        /**
+         * /~english The recording time prompts the user for a short time and then directly
+         * re-shoots
+         */
         void retryRecord();
     }
 

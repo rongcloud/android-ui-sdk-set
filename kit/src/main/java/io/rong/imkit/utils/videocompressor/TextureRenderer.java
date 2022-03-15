@@ -17,8 +17,10 @@ public class TextureRenderer {
     private static final int TRIANGLE_VERTICES_DATA_POS_OFFSET = 0;
     private static final int TRIANGLE_VERTICES_DATA_UV_OFFSET = 3;
     private static final float[] mTriangleVerticesData = {
-        -1.0f, -1.0f, 0, 0.f, 0.f, 1.0f, -1.0f, 0, 1.f, 0.f, -1.0f, 1.0f, 0, 0.f, 1.f, 1.0f, 1.0f,
-        0, 1.f, 1.f,
+        -1.0f, -1.0f, 0, 0.f, 0.f,
+        1.0f, -1.0f, 0, 1.f, 0.f,
+        -1.0f, 1.0f, 0, 0.f, 1.f,
+        1.0f, 1.0f, 0, 1.f, 1.f,
     };
     private FloatBuffer mTriangleVertices;
 

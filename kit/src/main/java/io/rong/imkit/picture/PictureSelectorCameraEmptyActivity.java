@@ -3,6 +3,7 @@ package io.rong.imkit.picture;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
@@ -108,6 +109,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
         if (TextUtils.isEmpty(cameraPath) || new File(cameraPath) == null) {
             return;
         }
+        long size = 0;
         int[] newSize = new int[2];
         final File file = new File(cameraPath);
         if (!isAndroidQ) {
@@ -120,21 +122,41 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     });
         }
         LocalMedia media = new LocalMedia();
-        mimeType = PictureMimeType.fileToType(file);
-        if (PictureMimeType.eqImage(mimeType)) {
-            int degree = PictureFileUtils.readPictureDegree(this, cameraPath);
-            PictureFileUtils.rotateImage(degree, cameraPath);
-            newSize = MediaUtils.getLocalImageWidthOrHeight(cameraPath);
+        // 图片视频处理规则
+        if (isAndroidQ) {
+            String path = PictureFileUtils.getPath(getApplicationContext(), Uri.parse(cameraPath));
+            File f = new File(path);
+            size = f.length();
+            mimeType = PictureMimeType.fileToType(f);
+            if (PictureMimeType.eqImage(mimeType)) {
+                int degree = PictureFileUtils.readPictureDegree(this, cameraPath);
+                String rotateImagePath =
+                        PictureFileUtils.rotateImageToAndroidQ(
+                                this, degree, cameraPath, config.cameraFileName);
+                media.setAndroidQToPath(rotateImagePath);
+                newSize = MediaUtils.getLocalImageSizeToAndroidQ(this, cameraPath);
+            } else {
+                newSize = MediaUtils.getLocalVideoSize(this, Uri.parse(cameraPath));
+                duration = MediaUtils.extractDuration(getContext(), true, cameraPath);
+            }
         } else {
-            newSize = MediaUtils.getLocalVideoSize(cameraPath);
-            duration = MediaUtils.extractDuration(getContext(), false, cameraPath);
+            mimeType = PictureMimeType.fileToType(file);
+            size = new File(cameraPath).length();
+            if (PictureMimeType.eqImage(mimeType)) {
+                int degree = PictureFileUtils.readPictureDegree(this, cameraPath);
+                PictureFileUtils.rotateImage(degree, cameraPath);
+                newSize = MediaUtils.getLocalImageWidthOrHeight(cameraPath);
+            } else {
+                newSize = MediaUtils.getLocalVideoSize(cameraPath);
+                duration = MediaUtils.extractDuration(getContext(), false, cameraPath);
+            }
         }
         media.setDuration(duration);
         media.setWidth(newSize[0]);
         media.setHeight(newSize[1]);
         media.setPath(cameraPath);
         media.setMimeType(mimeType);
-        media.setSize(PictureFileUtils.getMediaSize(getContext(), cameraPath));
+        media.setSize(size);
         media.setChooseModel(config.chooseMode);
         cameraHandleResult(media, mimeType);
     }

@@ -5,19 +5,27 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.picture.broadcast.BroadcastAction;
+import io.rong.imkit.picture.broadcast.BroadcastManager;
 import io.rong.imkit.picture.config.PictureConfig;
+import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
 import io.rong.imkit.picture.dialog.PictureLoadingDialog;
 import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.entity.LocalMediaFolder;
+import io.rong.imkit.picture.tools.AndroidQTransformUtils;
 import io.rong.imkit.picture.tools.AttrsUtils;
 import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.PictureFileUtils;
@@ -33,7 +41,9 @@ import java.util.List;
  * @author：luck
  * @data：2018/3/28 下午1:00 @描述: Activity基类
  */
-public abstract class PictureBaseActivity extends AppCompatActivity {
+public abstract class PictureBaseActivity extends AppCompatActivity implements Handler.Callback {
+    private static final int MSG_CHOOSE_RESULT_SUCCESS = 200;
+    private static final int MSG_ASY_COMPRESSION_RESULT_SUCCESS = 300;
     private static final String TAG = PictureBaseActivity.class.getCanonicalName();
     protected PictureSelectionConfig config;
     protected boolean openWhiteStatusBar, numComplete;
@@ -41,6 +51,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected String cameraPath;
     protected String originalPath;
     protected PictureLoadingDialog dialog;
+    protected PictureLoadingDialog compressDialog;
     protected List<LocalMedia> selectionMedias;
     protected Handler mHandler;
     protected View container;
@@ -73,6 +84,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         }
         setTheme(config.themeStyleId);
         super.onCreate(savedInstanceState);
+        mHandler = new Handler(Looper.getMainLooper(), this);
         initConfig();
         int layoutResID = getResourceId();
         if (layoutResID != 0) {
@@ -142,6 +154,63 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         }
     }
 
+    /** compress loading dialog */
+    protected void showCompressDialog() {
+        if (!isFinishing()) {
+            dismissCompressDialog();
+            compressDialog = new PictureLoadingDialog(this);
+            compressDialog.show();
+        }
+    }
+
+    /** dismiss compress dialog */
+    protected void dismissCompressDialog() {
+        try {
+            if (!isFinishing() && compressDialog != null && compressDialog.isShowing()) {
+                compressDialog.dismiss();
+                compressDialog = null;
+            }
+        } catch (Exception e) {
+            compressDialog = null;
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 重新构造已压缩的图片返回集合
+     *
+     * @param images
+     * @param files
+     */
+    private void handleCompressCallBack(List<LocalMedia> images, List<File> files) {
+        if (images == null || files == null) {
+            closeActivity();
+            return;
+        }
+        boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
+        int size = images.size();
+        if (files.size() == size) {
+            for (int i = 0, j = size; i < j; i++) {
+                // 压缩成功后的地址
+                File file = files.get(i);
+                String path = file.getPath();
+                LocalMedia image = images.get(i);
+                // 如果是网络图片则不压缩
+                boolean http = PictureMimeType.isHttp(path);
+                boolean flag = !TextUtils.isEmpty(path) && http;
+                image.setCompressed(flag ? false : true);
+                image.setCompressPath(flag ? "" : path);
+                if (isAndroidQ) {
+                    image.setAndroidQToPath(path);
+                }
+            }
+        }
+        BroadcastManager.getInstance(getApplicationContext())
+                .action(BroadcastAction.ACTION_CLOSE_PREVIEW)
+                .broadcast();
+        onResult(images);
+    }
+
     /**
      * compress or callback
      *
@@ -199,21 +268,99 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         if (images == null) {
             return;
         }
-        if (config.camera
-                && config.selectionMode == PictureConfig.MULTIPLE
-                && selectionMedias != null) {
-            images.addAll(images.size() > 0 ? images.size() - 1 : 0, selectionMedias);
+        boolean isAndroidQ = SdkVersionUtils.checkedAndroid_Q();
+        boolean isVideo =
+                PictureMimeType.eqVideo(images.size() > 0 ? images.get(0).getMimeType() : "");
+        if (isAndroidQ && !isVideo) {
+            showCompressDialog();
         }
-        if (config.isCheckOriginalImage) {
-            int size = images.size();
-            for (int i = 0; i < size; i++) {
-                LocalMedia media = images.get(i);
-                media.setOriginal(true);
+        if (isAndroidQ && config.isAndroidQTransform) {
+            onResultToAndroidAsy(images);
+        } else {
+            dismissCompressDialog();
+            if (config.camera
+                    && config.selectionMode == PictureConfig.MULTIPLE
+                    && selectionMedias != null) {
+                images.addAll(images.size() > 0 ? images.size() - 1 : 0, selectionMedias);
             }
+            if (config.isCheckOriginalImage) {
+                int size = images.size();
+                for (int i = 0; i < size; i++) {
+                    LocalMedia media = images.get(i);
+                    media.setOriginal(true);
+                    media.setOriginalPath(media.getPath());
+                }
+            }
+            Intent intent = PictureSelector.putIntentResult(images);
+            setResult(RESULT_OK, intent);
+            closeActivity();
         }
-        Intent intent = PictureSelector.putIntentResult(images);
-        setResult(RESULT_OK, intent);
-        closeActivity();
+    }
+
+    /**
+     * 针对Android 异步处理
+     *
+     * @param images
+     */
+    private void onResultToAndroidAsy(final List<LocalMedia> images) {
+        AsyncTask.SERIAL_EXECUTOR.execute(
+                new Runnable() {
+                    @Override
+                    public void run() {
+
+                        // Android Q 版本做拷贝应用内沙盒适配
+                        int size = images.size();
+                        for (int i = 0; i < size; i++) {
+                            LocalMedia media = images.get(i);
+                            if (media == null || TextUtils.isEmpty(media.getPath())) {
+                                continue;
+                            }
+                            boolean isCopyAndroidQToPath =
+                                    !media.isCut()
+                                            && !media.isCompressed()
+                                            && TextUtils.isEmpty(media.getAndroidQToPath());
+                            if (isCopyAndroidQToPath) {
+                                media.setAndroidQToPath(getPathToAndroidQ(media));
+                                if (config.isCheckOriginalImage) {
+                                    media.setOriginal(true);
+                                    media.setOriginalPath(media.getAndroidQToPath());
+                                }
+                            } else if (media.isCut() && media.isCompressed()) {
+                                media.setAndroidQToPath(media.getCompressPath());
+                            } else {
+                                if (config.isCheckOriginalImage) {
+                                    media.setOriginal(true);
+                                    media.setOriginalPath(media.getAndroidQToPath());
+                                }
+                            }
+                        }
+                        // 线程切换
+                        mHandler.sendMessage(
+                                mHandler.obtainMessage(MSG_CHOOSE_RESULT_SUCCESS, images));
+                    }
+                });
+    }
+
+    /**
+     * 复制一份至自己应用沙盒内
+     *
+     * @param media
+     * @return
+     */
+    private String getPathToAndroidQ(LocalMedia media) {
+        if (PictureMimeType.eqVideo(media.getMimeType())) {
+            return AndroidQTransformUtils.parseVideoPathToAndroidQ(
+                    getApplicationContext(),
+                    media.getPath(),
+                    config.cameraFileName,
+                    media.getMimeType());
+        } else {
+            return AndroidQTransformUtils.parseImagePathToAndroidQ(
+                    getApplicationContext(),
+                    media.getPath(),
+                    config.cameraFileName,
+                    media.getMimeType());
+        }
     }
 
     /** Close Activity */
@@ -229,6 +376,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        dismissCompressDialog();
         dismissDialog();
     }
 
@@ -287,6 +435,39 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
         } catch (Exception e) {
             RLog.i(TAG, e.getMessage());
         }
+    }
+
+    @Override
+    public boolean handleMessage(@NonNull Message msg) {
+        switch (msg.what) {
+            case MSG_CHOOSE_RESULT_SUCCESS:
+                // 选择完成回调
+                List<LocalMedia> images = (List<LocalMedia>) msg.obj;
+                dismissCompressDialog();
+                if (images != null) {
+                    if (config.camera
+                            && config.selectionMode == PictureConfig.MULTIPLE
+                            && selectionMedias != null) {
+                        images.addAll(images.size() > 0 ? images.size() - 1 : 0, selectionMedias);
+                    }
+                    Intent intent = PictureSelector.putIntentResult(images);
+                    setResult(RESULT_OK, intent);
+                    closeActivity();
+                }
+                break;
+            case MSG_ASY_COMPRESSION_RESULT_SUCCESS:
+                // 异步压缩回调
+                if (msg.obj != null && msg.obj instanceof Object[]) {
+                    Object[] objects = (Object[]) msg.obj;
+                    if (objects.length > 0) {
+                        List<LocalMedia> result = (List<LocalMedia>) objects[0];
+                        List<File> files = (List<File>) objects[1];
+                        handleCompressCallBack(result, files);
+                    }
+                }
+                break;
+        }
+        return false;
     }
 
     @Override

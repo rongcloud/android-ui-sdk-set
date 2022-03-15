@@ -46,10 +46,10 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
         conversationType = extension.getConversationType();
         targetId = extension.getTargetId();
         mRequestCode = ((index + 1) << 8) + (PictureConfig.CHOOSE_REQUEST & 0xff);
-
-        // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
         String[] permissions = {
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
         };
 
         if (PermissionCheckUtil.checkPermissions(currentFragment.getContext(), permissions)) {

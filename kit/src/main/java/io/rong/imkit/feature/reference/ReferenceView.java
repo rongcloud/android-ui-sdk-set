@@ -89,35 +89,37 @@ public class ReferenceView extends FrameLayout {
         return mReferenceView;
     }
 
+    public interface ReferenceCancelListener {
+        void onCanceled();
+    }
+
     public void setReferenceCancelListener(ReferenceCancelListener referenceCancelListener) {
         this.mCancelListener = referenceCancelListener;
     }
 
     private String getDisplayName(UiMessage uiMessage) {
-        if (uiMessage
-                .getMessage()
-                .getConversationType()
-                .equals(Conversation.ConversationType.GROUP)) {
-            GroupUserInfo groupUserInfo =
-                    RongUserInfoManager.getInstance()
-                            .getGroupUserInfo(
-                                    uiMessage.getMessage().getTargetId(),
-                                    uiMessage.getMessage().getSenderUserId());
-            if (groupUserInfo != null) {
-                return groupUserInfo.getNickname() + "：";
+        if (uiMessage.getMessage().getSenderUserId() != null) {
+            if (uiMessage
+                    .getMessage()
+                    .getConversationType()
+                    .equals(Conversation.ConversationType.GROUP)) {
+                GroupUserInfo groupUserInfo =
+                        RongUserInfoManager.getInstance()
+                                .getGroupUserInfo(
+                                        uiMessage.getMessage().getTargetId(),
+                                        uiMessage.getMessage().getSenderUserId());
+                if (groupUserInfo != null) {
+                    return groupUserInfo.getNickname() + "：";
+                }
+            } else {
+                UserInfo userInfo =
+                        RongUserInfoManager.getInstance()
+                                .getUserInfo(uiMessage.getMessage().getSenderUserId());
+                if (userInfo != null) {
+                    return userInfo.getName() + "：";
+                }
             }
         }
-
-        UserInfo userInfo =
-                RongUserInfoManager.getInstance()
-                        .getUserInfo(uiMessage.getMessage().getSenderUserId());
-        if (userInfo != null) {
-            return RongUserInfoManager.getInstance().getUserDisplayName(userInfo) + "：";
-        }
         return uiMessage.getMessage().getSenderUserId() + "：";
-    }
-
-    public interface ReferenceCancelListener {
-        void onCanceled();
     }
 }

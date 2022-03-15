@@ -16,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <io.rong.imkit.widget.RongEditText
+    <EditText
         android:id="@+id/edit_btn"
         style="@style/EditTextStyle.Alignment"
         android:layout_width="0dp"
@@ -27,7 +27,6 @@
         android:layout_marginBottom="6.5dp"
         android:background="@drawable/rc_ext_panel_editbox_background"
         android:maxLines="4"
-        android:minHeight="39dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/input_panel_emoji_btn"

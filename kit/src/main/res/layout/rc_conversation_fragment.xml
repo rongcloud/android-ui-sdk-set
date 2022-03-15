@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/rc_background_main_color"
     android:orientation="vertical">
 
@@ -41,24 +41,24 @@
     <TextView
         android:id="@+id/rc_unread_message_count"
         android:layout_width="wrap_content"
-        android:minWidth="120dp"
         android:layout_height="@dimen/rc_unread_height"
         android:layout_marginStart="3dp"
         android:layout_marginTop="@dimen/rc_margin_size_30"
         android:layout_marginEnd="5dp"
-        android:background="@drawable/rc_unread_msg_bg_style"
-        android:drawablePadding="3dp"
-        android:gravity="center"
-        android:paddingStart="7dp"
-        android:paddingEnd="7dp"
+        android:background="@drawable/rc_selector_item_unread"
+        android:drawableStart="@drawable/rc_unread_msg_arrow"
+        android:drawablePadding="10dp"
+        android:gravity="center|left"
         android:maxLines="1"
-        tools:text="100条未读消息"
+        android:minWidth="120dp"
+        android:paddingStart="15dp"
+        android:paddingEnd="7dp"
         android:textColor="@color/rc_text_main_color"
         android:textSize="14sp"
         android:visibility="gone"
-        android:drawableStart="@drawable/rc_unread_msg_arrow"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="100条未读消息" />
 
     <TextView
         android:id="@+id/rc_mention_message_count"
@@ -67,21 +67,21 @@
         android:layout_marginStart="3dp"
         android:layout_marginTop="@dimen/rc_margin_size_80"
         android:layout_marginEnd="5dp"
+        android:background="@drawable/rc_selector_item_unread"
+        android:drawableStart="@drawable/rc_unread_msg_arrow"
+        android:drawablePadding="10dp"
+        android:gravity="center|left"
+        android:maxLines="1"
         android:minWidth="120dp"
-        android:background="@drawable/rc_unread_msg_bg_style"
-        android:drawablePadding="5dp"
-        android:gravity="center_vertical"
-        android:paddingStart="7dp"
+        android:paddingStart="15dp"
         android:paddingEnd="7dp"
         android:text="@string/rc_mention_messages"
-        android:maxLines="1"
-        tools:text="100条@消息"
         android:textColor="@color/rc_text_main_color"
         android:textSize="14sp"
         android:visibility="gone"
-        android:drawableStart="@drawable/rc_unread_msg_arrow"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="100条@消息" />
 
     <io.rong.imkit.conversation.extension.RongExtension
         android:id="@+id/rc_extension"

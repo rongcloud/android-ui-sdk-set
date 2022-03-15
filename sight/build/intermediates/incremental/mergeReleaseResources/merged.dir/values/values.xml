@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
-    <array name="com_google_android_gms_fonts_certs">
-        <item>@array/com_google_android_gms_fonts_certs_dev</item>
-        <item>@array/com_google_android_gms_fonts_certs_prod</item>
-    </array>
-    <string-array name="com_google_android_gms_fonts_certs_dev">
-        <item>
-            MIIEqDCCA5CgAwIBAgIJANWFuGx90071MA0GCSqGSIb3DQEBBAUAMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEiMCAGCSqGSIb3DQEJARYTYW5kcm9pZEBhbmRyb2lkLmNvbTAeFw0wODA0MTUyMzM2NTZaFw0zNTA5MDEyMzM2NTZaMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEiMCAGCSqGSIb3DQEJARYTYW5kcm9pZEBhbmRyb2lkLmNvbTCCASAwDQYJKoZIhvcNAQEBBQADggENADCCAQgCggEBANbOLggKv+IxTdGNs8/TGFy0PTP6DHThvbbR24kT9ixcOd9W+EaBPWW+wPPKQmsHxajtWjmQwWfna8mZuSeJS48LIgAZlKkpFeVyxW0qMBujb8X8ETrWy550NaFtI6t9+u7hZeTfHwqNvacKhp1RbE6dBRGWynwMVX8XW8N1+UjFaq6GCJukT4qmpN2afb8sCjUigq0GuMwYXrFVee74bQgLHWGJwPmvmLHC69EH6kWr22ijx4OKXlSIx2xT1AsSHee70w5iDBiK4aph27yH3TxkXy9V89TDdexAcKk/cVHYNnDBapcavl7y0RiQ4biu8ymM8Ga/nmzhRKya6G0cGw8CAQOjgfwwgfkwHQYDVR0OBBYEFI0cxb6VTEM8YYY6FbBMvAPyT+CyMIHJBgNVHSMEgcEwgb6AFI0cxb6VTEM8YYY6FbBMvAPyT+CyoYGapIGXMIGUMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEQMA4GA1UEChMHQW5kcm9pZDEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDEiMCAGCSqGSIb3DQEJARYTYW5kcm9pZEBhbmRyb2lkLmNvbYIJANWFuGx90071MAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEEBQADggEBABnTDPEF+3iSP0wNfdIjIz1AlnrPzgAIHVvXxunW7SBrDhEglQZBbKJEk5kT0mtKoOD1JMrSu1xuTKEBahWRbqHsXclaXjoBADb0kkjVEJu/Lh5hgYZnOjvlba8Ld7HCKePCVePoTJBdI4fvugnL8TsgK05aIskyY0hKI9L8KfqfGTl1lzOv2KoWD0KWwtAWPoGChZxmQ+nBli+gwYMzM1vAkP+aayLe0a1EQimlOalO762r0GXO0ks+UeXde2Z4e+8S/pf7pITEI/tP+MxJTALw9QUWEv9lKTk+jkbqxbsh8nfBUapfKqYn0eidpwq2AzVp3juYl7//fKnaPhJD9gs=
-        </item>
-    </string-array>
-    <string-array name="com_google_android_gms_fonts_certs_prod">
-        <item>
-            MIIEQzCCAyugAwIBAgIJAMLgh0ZkSjCNMA0GCSqGSIb3DQEBBAUAMHQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtHb29nbGUgSW5jLjEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDAeFw0wODA4MjEyMzEzMzRaFw0zNjAxMDcyMzEzMzRaMHQxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtHb29nbGUgSW5jLjEQMA4GA1UECxMHQW5kcm9pZDEQMA4GA1UEAxMHQW5kcm9pZDCCASAwDQYJKoZIhvcNAQEBBQADggENADCCAQgCggEBAKtWLgDYO6IIrgqWbxJOKdoR8qtW0I9Y4sypEwPpt1TTcvZApxsdyxMJZ2JORland2qSGT2y5b+3JKkedxiLDmpHpDsz2WCbdxgxRczfey5YZnTJ4VZbH0xqWVW/8lGmPav5xVwnIiJS6HXk+BVKZF+JcWjAsb/GEuq/eFdpuzSqeYTcfi6idkyugwfYwXFU1+5fZKUaRKYCwkkFQVfcAs1fXA5V+++FGfvjJ/CxURaSxaBvGdGDhfXE28LWuT9ozCl5xw4Yq5OGazvV24mZVSoOO0yZ31j7kYvtwYK6NeADwbSxDdJEqO4k//0zOHKrUiGYXtqw/A0LFFtqoZKFjnkCAQOjgdkwgdYwHQYDVR0OBBYEFMd9jMIhF1Ylmn/Tgt9r45jk14alMIGmBgNVHSMEgZ4wgZuAFMd9jMIhF1Ylmn/Tgt9r45jk14aloXikdjB0MQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLR29vZ2xlIEluYy4xEDAOBgNVBAsTB0FuZHJvaWQxEDAOBgNVBAMTB0FuZHJvaWSCCQDC4IdGZEowjTAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBAUAA4IBAQBt0lLO74UwLDYKqs6Tm8/yzKkEu116FmH4rkaymUIE0P9KaMftGlMexFlaYjzmB2OxZyl6euNXEsQH8gjwyxCUKRJNexBiGcCEyj6z+a1fuHHvkiaai+KL8W1EyNmgjmyy8AW7P+LLlkR+ho5zEHatRbM/YAnqGcFh5iZBqpknHf1SKMXFh4dd239FJ1jWYfbMDMy3NS5CTMQ2XFI1MvcyUTdZPErjQfTbQe3aDQsQcafEQPD+nqActifKZ0Np0IS9L9kR/wbNvyz6ENwPiTrjV2KRkEjH78ZMcUQXg0L3BYHJ3lc69Vs5Ddf9uUGGMYldX3WfMBEmh/9iFBDAaTCK
-        </item>
-    </string-array>
     <array name="rc_apk_file_suffix">
         <item>.apk</item>
     </array>
@@ -882,7 +868,6 @@
     <bool name="abc_allow_stacked_button_bar">false</bool>
     <bool name="abc_config_actionMenuItemAllCaps">true</bool>
     <bool name="rc_enable_automatic_download_voice_msg">true</bool>
-    <bool name="rc_enable_background_location_permission">false</bool>
     <bool name="rc_enable_mentioned_message">true</bool>
     <bool name="rc_enable_message_recall">true</bool>
     <bool name="rc_enable_send_combine_message">false</bool>
@@ -1021,7 +1006,6 @@
     <color name="rc_ext_menu_item_text_color">#FF111F2C</color>
     <color name="rc_extension_normal">#f4f4f6</color>
     <color name="rc_file_preview_name">#111F2C</color>
-    <color name="rc_gif_item_pre_progress_color">#CCFFFFFF</color>
     <color name="rc_image_count_down">#F4B50B</color>
     <color name="rc_item_background_color">#F8F8F8</color>
     <color name="rc_item_space_color">#fff7f7f7</color>
@@ -1033,15 +1017,15 @@
     <color name="rc_map_list_text_color">#262626</color>
     <color name="rc_map_list_text_grey_color">#939393</color>
     <color name="rc_map_search_highlight_color">#0099ff</color>
-    <color name="rc_map_send_enabled">#000000</color>
-    <color name="rc_map_send_not_enabled">#B0B0B0</color>
+    <color name="rc_map_send_enabled">#7F000000</color>
+    <color name="rc_map_send_not_enabled">#80FFFFFF</color>
     <color name="rc_new_message_divider_text_color">#B2B2B2</color>
     <color name="rc_notice_error_bg">#FFDFDF</color>
     <color name="rc_notification_bg">#D3D3D3</color>
     <color name="rc_popup_dialog_list_divider_color">#dfdfdd</color>
-    <color name="rc_popup_dialog_prompt_cancel_color">#0099ff</color>
+    <color name="rc_popup_dialog_prompt_cancel_color">#999999</color>
     <color name="rc_popup_dialog_prompt_clear_color">#f43530</color>
-    <color name="rc_popup_dialog_prompt_ok_color">#f43530</color>
+    <color name="rc_popup_dialog_prompt_ok_color">#0099ff</color>
     <color name="rc_popup_dialog_text_color">#353535</color>
     <color name="rc_read_receipt_status">#0099ff</color>
     <color name="rc_reference_content_send_color">#111F2C</color>
@@ -1054,6 +1038,7 @@
     <color name="rc_secondary_color">#A0A5AB</color>
     <color name="rc_text_color_primary_inverse">#ffffff</color>
     <color name="rc_text_main_color">#111F2C</color>
+    <color name="rc_unread_bg_color">#e4e6e7</color>
     <color name="rc_voice_color">#111f2c</color>
     <color name="rc_warning_color">#FF4141</color>
     <color name="rc_white_color">#FFFFFF</color>
@@ -1365,7 +1350,6 @@
     <item name="text2" type="id"/>
     <item name="title" type="id"/>
     <item name="up" type="id"/>
-    <id name="view_tree_lifecycle_owner"/>
     <item name="visible_removing_fragment_view_tag" type="id"/>
     <integer name="abc_config_activityDefaultDur">220</integer>
     <integer name="abc_config_activityShortDur">150</integer>
@@ -1423,8 +1407,7 @@
     <string name="abc_shareactionprovider_share_with">Share with</string>
     <string name="abc_shareactionprovider_share_with_application">Share with <ns1:g example="Mail" id="application_name">%s</ns1:g></string>
     <string name="abc_toolbar_collapse_description">Collapse</string>
-    <string name="androidx_startup" translatable="false">androidx.startup</string>
-    <string name="app_name">restclient-common</string>
+    <string name="app_name">OpenClient</string>
     <string msgid="2523291102206661146" name="common_google_play_services_enable_button">Enable</string>
     <string msgid="227660514972886228" name="common_google_play_services_enable_text"><ns1:g id="app_name">%1$s</ns1:g> won\'t work unless you enable Google Play services.</string>
     <string msgid="5122002158466380389" name="common_google_play_services_enable_title">Enable Google Play services</string>
@@ -1491,12 +1474,12 @@
     <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">后台位置</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">位置信息</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">位置信息</string>
+    <string name="rc_android.permission.CAMERA">相机</string>
     <string name="rc_android.permission.PROCESS_OUTGOING_CALLS">电话</string>
     <string name="rc_android.permission.READ_EXTERNAL_STORAGE">存储空间</string>
     <string name="rc_android.permission.READ_PHONE_STATE">电话</string>
+    <string name="rc_android.permission.RECORD_AUDIO">麦克风</string>
     <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">存储空间</string>
-    <string name="rc_android_permission_CAMERA">相机</string>
-    <string name="rc_android_permission_RECORD_AUDIO">麦克风</string>
     <string name="rc_authorities_fileprovider">.FileProvider</string>
     <string name="rc_blacklist_prompt">您已被加入黑名单</string>
     <string name="rc_cancel">取消</string>
@@ -1543,7 +1526,7 @@
     <string name="rc_conversation_summary_content_sticker">[动态表情]</string>
     <string name="rc_conversation_summary_content_voice">[语音]</string>
     <string name="rc_conversation_summary_content_vst">[音视频通话]</string>
-    <string name="rc_conversation_unread_dot">99+</string>
+    <string name="rc_conversation_unread_dot">"···"</string>
     <string name="rc_cs_average">一般</string>
     <string name="rc_cs_cancel">取消</string>
     <string name="rc_cs_evaluate">评价</string>
@@ -1566,18 +1549,18 @@
     <string name="rc_date_am">上午</string>
     <string name="rc_date_day">日</string>
     <string name="rc_date_format">MM月dd日 HH:mm</string>
-    <string name="rc_date_friday">星期五</string>
-    <string name="rc_date_monday">星期一</string>
+    <string name="rc_date_friday">周五</string>
+    <string name="rc_date_monday">周一</string>
     <string name="rc_date_month">月</string>
     <string name="rc_date_morning">凌晨</string>
     <string name="rc_date_night">晚上</string>
     <string name="rc_date_noon">中午</string>
     <string name="rc_date_pm">下午</string>
-    <string name="rc_date_saturday">星期六</string>
-    <string name="rc_date_sunday">星期日</string>
-    <string name="rc_date_thursday">星期四</string>
-    <string name="rc_date_tuesday">星期二</string>
-    <string name="rc_date_wednesday">星期三</string>
+    <string name="rc_date_saturday">周六</string>
+    <string name="rc_date_sunday">周日</string>
+    <string name="rc_date_thursday">周四</string>
+    <string name="rc_date_tuesday">周二</string>
+    <string name="rc_date_wednesday">周三</string>
     <string name="rc_date_year">年</string>
     <string name="rc_date_yesterday">昨天</string>
     <string name="rc_daybreak_format">凌晨</string>
@@ -1747,7 +1730,7 @@
     <string name="rc_info_forbidden_to_talk">您当前在群组中被禁言</string>
     <string name="rc_info_not_in_chatroom">你不在该聊天室</string>
     <string name="rc_info_not_in_discussion">你不在该讨论组</string>
-    <string name="rc_info_not_in_group">您当前不在此群组</string>
+    <string name="rc_info_not_in_group">你不在该群</string>
     <string name="rc_init_failed">连接客服失败</string>
     <string name="rc_item_change_group_name">修改群名称为</string>
     <string name="rc_item_created_group">创建了群组</string>
@@ -1769,7 +1752,6 @@
     <string name="rc_join_group">加入群组</string>
     <string name="rc_kicked_from_chatroom">你已被踢出聊天室</string>
     <string name="rc_load_image_failed">图片加载失败</string>
-    <string name="rc_load_local_message">网络异常，查看本地历史消息？</string>
     <string name="rc_loadmore_loading">正在加载</string>
     <string name="rc_location_exit_location_sharing">是否结束位置共享？</string>
     <string name="rc_location_exit_sharing_confirm">结束共享</string>
@@ -1792,7 +1774,7 @@
     <string name="rc_location_you_are_sharing">你正在共享位置</string>
     <string name="rc_media_message_default_save_path">/RongCloud/Media/</string>
     <string name="rc_media_upload_error">不能上传 0kb 的文件</string>
-    <string name="rc_mention_messages">有人@我%s</string>
+    <string name="rc_mention_messages">有人@我 %s</string>
     <string name="rc_mention_title_choose_members">选择联系人</string>
     <string name="rc_message_content_burn">[阅后即焚]</string>
     <string name="rc_message_content_card">[个人名片]</string>
@@ -1808,7 +1790,6 @@
     <string name="rc_message_content_sticker">[动态表情]</string>
     <string name="rc_message_content_voice">[语音]</string>
     <string name="rc_message_content_vst">[音视频通话]</string>
-    <string name="rc_message_too_long">你输入的文本过长，无法发送</string>
     <string name="rc_message_unknown">当前版本暂不支持查看此消息</string>
     <string name="rc_morning_format">上午</string>
     <string name="rc_network_exception">网络异常请稍后再试</string>
@@ -1914,7 +1895,6 @@
     <string name="rc_search_no_result">暂无结果</string>
     <string name="rc_send">发送</string>
     <string name="rc_sight_download_failed">下载失败，点击重新下载</string>
-    <string name="rc_sight_file_expired">视频被删除或过期</string>
     <string name="rc_sight_list_title">聊天文件</string>
     <string name="rc_sight_message_recalled">消息被撤回</string>
     <string name="rc_sight_record_too_short_time">录制时间短，请重试</string>

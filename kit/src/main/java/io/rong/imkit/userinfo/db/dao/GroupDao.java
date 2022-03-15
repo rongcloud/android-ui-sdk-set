@@ -24,7 +24,4 @@ public interface GroupDao {
 
     @Query("delete from `group` where id=:id")
     void deleteGroup(String id);
-
-    @Query("select * from `group` limit :limit")
-    List<Group> getLimitGroups(int limit);
 }

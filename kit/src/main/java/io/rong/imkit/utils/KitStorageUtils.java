@@ -1,5 +1,7 @@
 package io.rong.imkit.utils;
 
+import static android.os.Environment.DIRECTORY_DOWNLOADS;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -71,20 +73,34 @@ public class KitStorageUtils {
             RLog.d(TAG, "getSavePath error, sdcard does not exist.");
             return result;
         }
-
-        String resourcePath = context.getString(res);
-        if (TextUtils.isEmpty(resourcePath)) {
-            resourcePath = type;
-        }
-
-        File path = context.getExternalFilesDir(resourcePath);
-        File file = new File(path, type);
-        if (!file.exists() && !file.mkdirs()) {
-            result = path.getPath();
+        if (isScopedStorageMode(context)) {
+            File path = context.getExternalFilesDir(LibStorageUtils.DIR);
+            File file = new File(path, type);
+            if (!file.exists() && !file.mkdirs()) {
+                result = path.getPath();
+            } else {
+                result = file.getPath();
+            }
         } else {
-            result = file.getPath();
+            String path = Environment.getExternalStorageDirectory().getPath();
+            String defaultPath = context.getString(res);
+            StringBuilder builder = new StringBuilder(defaultPath);
+            String appName = LibStorageUtils.getAppName(context);
+            if (!TextUtils.isEmpty(appName)) {
+                builder.append(appName).append(File.separator);
+            }
+            String appPath = builder.toString();
+            path = path + appPath;
+            final File dir = new File(path);
+            if (!dir.exists() && !dir.mkdirs()) {
+                RLog.e(TAG, "mkdirs error path is  " + path);
+                result =
+                        Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
+                                .getPath();
+            } else {
+                result = path;
+            }
         }
-
         return result;
     }
 

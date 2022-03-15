@@ -113,10 +113,10 @@ public class EmojiTab implements IEmoticonTab {
                                 AdapterView<?> parent, View view, int position, long id) {
                             int index = position + mPreIndex * mEmojiCountPerPage;
                             if (position == mEmojiCountPerPage) {
-                                mEmojiLiveData.setValue(DELETE);
+                                mEmojiLiveData.postValue(DELETE);
                             } else {
                                 if (index >= AndroidEmoji.getEmojiSize()) {
-                                    mEmojiLiveData.setValue(DELETE);
+                                    mEmojiLiveData.postValue(DELETE);
                                 } else {
                                     int code = AndroidEmoji.getEmojiCode(index);
                                     char[] chars = Character.toChars(code);
@@ -125,7 +125,7 @@ public class EmojiTab implements IEmoticonTab {
                                     for (int i = 1; i < chars.length; i++) {
                                         key.append(chars[i]);
                                     }
-                                    mEmojiLiveData.setValue(key.toString());
+                                    mEmojiLiveData.postValue(key.toString());
                                 }
                             }
                         }

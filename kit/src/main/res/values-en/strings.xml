@@ -15,7 +15,7 @@
     <string name="rc_conversation_list_dialog_remove">Remove from chat list</string>
     <string name="rc_conversation_list_popup_set_top">Topped</string>
     <string name="rc_conversation_list_popup_cancel_top">Removed from top</string>
-    <string name="rc_conversation_unread_dot">99+</string>
+    <string name="rc_conversation_unread_dot">"···"</string>
 
     <!-- groupnotificationmessage -->
     <string name="rc_item_divided_string">、</string>
@@ -41,13 +41,13 @@
     <string name="rc_date_year"></string>
     <string name="rc_date_month"></string>
     <string name="rc_date_day"></string>
-    <string name="rc_date_monday">Monday</string>
-    <string name="rc_date_tuesday">Tuesday</string>
-    <string name="rc_date_wednesday">Wednesday</string>
-    <string name="rc_date_thursday">Thursday</string>
-    <string name="rc_date_friday">Friday</string>
-    <string name="rc_date_saturday">Saturday</string>
-    <string name="rc_date_sunday">Sunday</string>
+    <string name="rc_date_monday">Mon</string>
+    <string name="rc_date_tuesday">Tue</string>
+    <string name="rc_date_wednesday">Wed</string>
+    <string name="rc_date_thursday">Thu</string>
+    <string name="rc_date_friday">Fri</string>
+    <string name="rc_date_saturday">Sat</string>
+    <string name="rc_date_sunday">Sun</string>
     <string name="rc_date_am">AM</string>
     <string name="rc_date_morning">AM</string>
     <string name="rc_date_noon">PM</string>
@@ -274,11 +274,11 @@
     <string name="rc_pub_service_notification">New Message Notification</string>
 
     //permissions
-    <string name="rc_android_permission_CAMERA">Camera</string>
+    <string name="rc_android.permission.CAMERA">Camera</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">Location info</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">Location info</string>
     <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">Background location</string>
-    <string name="rc_android_permission_RECORD_AUDIO">Microphone</string>
+    <string name="rc_android.permission.RECORD_AUDIO">Microphone</string>
     <string name="rc_android.permission.READ_EXTERNAL_STORAGE">Storage</string>
     <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">Storage</string>
     <string name="rc_android.permission.READ_PHONE_STATE">Phone</string>
@@ -392,7 +392,7 @@
     <string name="srl_component_falsify" formatted="false">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>
 
     <string name="rc_unknow">UnKnown</string>
-    <string name="rc_unread_message">{0} new messages</string>
+    <string name="rc_unread_message">{0} new message</string>
 
     <string name="rc_location_real_time_join_notification">Others can see your location if you join Real-time Location. Join now</string>
     <string name="rc_location_warning">Prompt</string>
@@ -496,9 +496,6 @@
     <string name="rc_conversation_remote_side_speaking">Speaking &#046;&#046;&#046;</string>
     <string name="rc_date_format">MM dd HH:mm</string>
 
-    <string name="rc_mention_messages">@%s</string>
+    <string name="rc_mention_messages">@ %s</string>
     <string name="rc_media_upload_error">Cannot upload 0KB file</string>
-    <string name="rc_load_local_message">Network Error，View local history messages?</string>
-
-    <string name="rc_message_too_long">The text you entered is too long to send</string>
 </resources>

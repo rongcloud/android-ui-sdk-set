@@ -193,11 +193,9 @@ public class ForwardManager {
             final List<Integer> messageIds,
             List<Message> messages) {
         final List<Message> forwardMessages = new ArrayList<>();
-        for (Integer messageId : messageIds) {
-            for (Message msg : messages) {
-                if (messageId == msg.getMessageId()) {
-                    forwardMessages.add(msg);
-                }
+        for (Message msg : messages) {
+            if (messageIds.contains(msg.getMessageId())) {
+                forwardMessages.add(msg);
             }
         }
         forwardMessages(index, conversations, forwardMessages);

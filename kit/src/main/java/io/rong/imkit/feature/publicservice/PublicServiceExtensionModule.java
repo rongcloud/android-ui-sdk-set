@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.fragment.app.Fragment;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.IExtensionModule;
 import io.rong.imkit.conversation.extension.RongExtension;
@@ -160,6 +161,10 @@ public class PublicServiceExtensionModule implements IExtensionModule {
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mRongExtension.getInputPanel() == null) {
+                        RLog.d("PublicServiceExtensionModule", "Illegal state, return directly.");
+                        return;
+                    }
                     if (isMenuMode) {
                         mContentContainer.removeAllViews();
                         mContentContainer.addView(mRongExtension.getInputPanel().getRootView());

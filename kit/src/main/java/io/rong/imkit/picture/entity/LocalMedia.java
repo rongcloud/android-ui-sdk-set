@@ -12,10 +12,25 @@ import android.text.TextUtils;
 public class LocalMedia implements Parcelable {
     /** original path */
     private String path;
+    /** # Check the original button to get the return value original path */
+    private String originalPath;
+    /** compress path */
+    private String compressPath;
+    /** cut path */
+    private String cutPath;
+
+    /**
+     * Note: this field is only returned in Android Q version
+     *
+     * <p>Android Q image or video path
+     */
+    private String androidQToPath;
     /** video duration */
     private long duration;
     /** If the selected */
     private boolean isChecked;
+    /** If the cut */
+    private boolean isCut;
     /** media position of list */
     public int position;
     /** The media number of qq choose styles */
@@ -26,6 +41,8 @@ public class LocalMedia implements Parcelable {
     /** Gallery selection mode */
     private int chooseModel;
 
+    /** If the compressed */
+    private boolean compressed;
     /** image or video width */
     private int width;
     /** image or video height */
@@ -81,6 +98,30 @@ public class LocalMedia implements Parcelable {
         this.path = path;
     }
 
+    public String getCompressPath() {
+        return compressPath;
+    }
+
+    public void setCompressPath(String compressPath) {
+        this.compressPath = compressPath;
+    }
+
+    public String getCutPath() {
+        return cutPath;
+    }
+
+    public void setCutPath(String cutPath) {
+        this.cutPath = cutPath;
+    }
+
+    public String getAndroidQToPath() {
+        return androidQToPath;
+    }
+
+    public void setAndroidQToPath(String androidQToPath) {
+        this.androidQToPath = androidQToPath;
+    }
+
     public long getDuration() {
         return duration;
     }
@@ -95,6 +136,14 @@ public class LocalMedia implements Parcelable {
 
     public void setChecked(boolean checked) {
         isChecked = checked;
+    }
+
+    public boolean isCut() {
+        return isCut;
+    }
+
+    public void setCut(boolean cut) {
+        isCut = cut;
     }
 
     public int getPosition() {
@@ -119,6 +168,14 @@ public class LocalMedia implements Parcelable {
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    public boolean isCompressed() {
+        return compressed;
+    }
+
+    public void setCompressed(boolean compressed) {
+        this.compressed = compressed;
     }
 
     public int getWidth() {
@@ -161,6 +218,14 @@ public class LocalMedia implements Parcelable {
         isOriginal = original;
     }
 
+    public String getOriginalPath() {
+        return originalPath;
+    }
+
+    public void setOriginalPath(String originalPath) {
+        this.originalPath = originalPath;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -169,12 +234,18 @@ public class LocalMedia implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.path);
+        dest.writeString(this.originalPath);
+        dest.writeString(this.compressPath);
+        dest.writeString(this.cutPath);
+        dest.writeString(this.androidQToPath);
         dest.writeLong(this.duration);
         dest.writeByte(this.isChecked ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isCut ? (byte) 1 : (byte) 0);
         dest.writeInt(this.position);
         dest.writeInt(this.num);
         dest.writeString(this.mimeType);
         dest.writeInt(this.chooseModel);
+        dest.writeByte(this.compressed ? (byte) 1 : (byte) 0);
         dest.writeInt(this.width);
         dest.writeInt(this.height);
         dest.writeLong(this.size);
@@ -183,12 +254,18 @@ public class LocalMedia implements Parcelable {
 
     protected LocalMedia(Parcel in) {
         this.path = in.readString();
+        this.originalPath = in.readString();
+        this.compressPath = in.readString();
+        this.cutPath = in.readString();
+        this.androidQToPath = in.readString();
         this.duration = in.readLong();
         this.isChecked = in.readByte() != 0;
+        this.isCut = in.readByte() != 0;
         this.position = in.readInt();
         this.num = in.readInt();
         this.mimeType = in.readString();
         this.chooseModel = in.readInt();
+        this.compressed = in.readByte() != 0;
         this.width = in.readInt();
         this.height = in.readInt();
         this.size = in.readLong();

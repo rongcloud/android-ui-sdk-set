@@ -67,13 +67,22 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.Pict
             final String mimeType = media.getMimeType();
             boolean eqVideo = PictureMimeType.eqVideo(mimeType);
             holder.iv_play.setVisibility(eqVideo ? View.VISIBLE : View.GONE);
-            final String path = media.getPath();
+            final String path;
+            if (media.isCut() && !media.isCompressed()) {
+                // 裁剪过
+                path = media.getCutPath();
+            } else if (media.isCompressed() || (media.isCut() && media.isCompressed())) {
+                // 压缩过,或者裁剪同时压缩过,以最终压缩过图片为准
+                path = media.getCompressPath();
+            } else {
+                path = media.getPath();
+            }
             boolean isGif = PictureMimeType.isGif(mimeType);
             final boolean eqLongImg = MediaUtils.isLongImg(media);
             holder.imageView.setVisibility(eqLongImg && !isGif ? View.GONE : View.VISIBLE);
             holder.longImg.setVisibility(eqLongImg && !isGif ? View.VISIBLE : View.GONE);
             // 压缩过的gif就不是gif了
-            if (isGif) {
+            if (isGif && !media.isCompressed()) {
                 if (config != null && config.imageEngine != null) {
                     config.imageEngine.loadAsGifImage(
                             holder.imageView.getContext(), path, holder.imageView);

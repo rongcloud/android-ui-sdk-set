@@ -11,10 +11,12 @@ import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.userinfo.db.model.Group;
+import io.rong.imkit.userinfo.db.model.GroupMember;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
+import java.util.List;
 
 public class SingleConversation extends BaseUiConversation {
     private final String TAG = SingleConversation.class.getSimpleName();
@@ -50,15 +52,17 @@ public class SingleConversation extends BaseUiConversation {
     }
 
     @Override
-    public void onUserInfoUpdate(UserInfo user) {
-        if (!TextUtils.isEmpty(mCore.getDraft()) || user == null) {
+    public void onUserInfoUpdate(List<User> userList) {
+        if (!TextUtils.isEmpty(mCore.getDraft()) || userList == null) {
             return; // 有草稿时，会话内容里显示草稿，不需要处理用户信息
         }
-        if (user.getUserId().equals(mCore.getTargetId())) {
-            mCore.setConversationTitle(RongUserInfoManager.getInstance().getUserDisplayName(user));
-            mCore.setPortraitUrl(
-                    user.getPortraitUri() != null ? user.getPortraitUri().toString() : null);
-            RLog.d(TAG, "onUserInfoUpdate. name:" + mCore.getConversationTitle());
+        for (User user : userList) {
+            if (user.id.equals(mCore.getTargetId())) {
+                mCore.setConversationTitle(user.name);
+                mCore.setPortraitUrl(user.portraitUrl);
+                RLog.d(TAG, "onUserInfoUpdate. name:" + user.name);
+                break;
+            }
         }
     }
 
@@ -66,10 +70,7 @@ public class SingleConversation extends BaseUiConversation {
     public void onConversationUpdate(Conversation conversation) {
         mCore = conversation;
         UserInfo user = RongUserInfoManager.getInstance().getUserInfo(conversation.getTargetId());
-        mCore.setConversationTitle(
-                user == null
-                        ? conversation.getTargetId()
-                        : RongUserInfoManager.getInstance().getUserDisplayName(user));
+        mCore.setConversationTitle(user == null ? conversation.getTargetId() : user.getName());
         mCore.setPortraitUrl(
                 user == null || user.getPortraitUri() == null
                         ? ""
@@ -78,8 +79,8 @@ public class SingleConversation extends BaseUiConversation {
     }
 
     @Override
-    public void onGroupInfoUpdate(Group groups) {}
+    public void onGroupInfoUpdate(List<Group> groups) {}
 
     @Override
-    public void onGroupMemberUpdate(GroupUserInfo groupMembers) {}
+    public void onGroupMemberUpdate(List<GroupMember> groupMembers) {}
 }

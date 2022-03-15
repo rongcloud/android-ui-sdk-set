@@ -11,7 +11,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +36,7 @@ import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.RecallEvent;
 import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.picture.widget.longimage.ImageSource;
 import io.rong.imkit.picture.widget.longimage.SubsamplingScaleImageView;
 import io.rong.imkit.picture.widget.longimage.Utils;
 import io.rong.imkit.utils.ExecutorHelper;
@@ -63,7 +63,6 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         implements View.OnLongClickListener {
     private static final String TAG = "PicturePagerActivity";
     private static final int IMAGE_MESSAGE_COUNT = 10; // 每次获取的图片消息数量。
-    private static final int LOAD_PICTURE_TIMEOUT = 30 * 1000; //  最小图片加载时间
     protected ViewPager2 mViewPager;
     protected ImageMessage mCurrentImageMessage;
     protected Message mMessage;
@@ -332,7 +331,6 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                 @Override
                                 public void onOptionsItemClicked(int which) {
                                     if (which == 0) {
-                                        // KNOTE: 2021/8/25 保留存储权限申请
                                         String[] permissions = {
                                             Manifest.permission.READ_EXTERNAL_STORAGE,
                                             Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -565,16 +563,13 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             Glide.with(PicturePagerActivity.this)
                     .asBitmap()
                     .load(originalUri)
-                    .timeout(LOAD_PICTURE_TIMEOUT)
+                    .timeout(30000)
                     .into(
                             new CustomTarget<Bitmap>() {
-                                private Runnable mLoadFailedAction = null;
-
                                 @Override
                                 public void onResourceReady(
                                         @NonNull Bitmap resource,
                                         @Nullable Transition<? super Bitmap> transition) {
-                                    holder.itemView.removeCallbacks(mLoadFailedAction);
                                     int maxLoader = Utils.getMaxLoader(); // openGL最大允许的长或宽
                                     if (resource != null
                                             && resource.getWidth() < maxLoader
@@ -584,6 +579,9 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                                 && mMessage.getMessageDirection()
                                                         .equals(Message.MessageDirection.RECEIVE)) {
                                             DestructManager.getInstance().startDestruct(mMessage);
+                                            // todo
+                                            // EventBus.getDefault().post(new
+                                            // Event.changeDestructionReadTimeEvent(mMessage));
                                         }
                                         holder.progressText.setVisibility(View.GONE);
                                         holder.failImg.setVisibility(View.GONE);
@@ -612,7 +610,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                         Glide.with(PicturePagerActivity.this)
                                                 .asFile()
                                                 .load(originalUri)
-                                                .timeout(LOAD_PICTURE_TIMEOUT)
+                                                .timeout(30000)
                                                 .into(
                                                         new CustomTarget<File>() {
                                                             @Override
@@ -694,8 +692,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
 
                                 @Override
                                 public void onLoadStarted(@Nullable Drawable placeholder) {
-                                    holder.itemView.removeCallbacks(mLoadFailedAction);
                                     String thumbPath = null;
+                                    Bitmap thumbBitmap = null;
                                     if ("file".equals(thumbUri.getScheme())) {
                                         thumbPath = thumbUri.toString().substring(7);
                                     }
@@ -710,6 +708,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                         return;
                                     }
 
+                                    thumbBitmap = tempBitmap.copy(Bitmap.Config.ARGB_8888, true);
+
                                     /*
                                      * 为保持与加载后放大缩小手势可缩放比率一致
                                      * 且防止因与加载成功后方法不同导致偶发加载成功后仍显示缩略图情况
@@ -717,35 +717,15 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                      * setBitmapAndFileUri 与 suitMaxScaleWithSize 缩放规则一致
                                      */
                                     holder.photoView.setVisibility(View.VISIBLE);
-                                    holder.photoView.setBitmapAndFileUri(tempBitmap, null);
+                                    if (thumbBitmap != null) {
+                                        holder.photoView.setImage(ImageSource.bitmap(thumbBitmap));
+                                    }
                                     holder.progressBar.setVisibility(View.VISIBLE);
-                                    holder.failImg.setVisibility(View.GONE);
-                                    holder.progressText.setVisibility(View.GONE);
-                                    holder.startLoadTime = SystemClock.elapsedRealtime();
                                 }
 
                                 @Override
                                 public void onLoadFailed(@Nullable Drawable errorDrawable) {
                                     super.onLoadFailed(errorDrawable);
-                                    long delayMillis =
-                                            (holder.startLoadTime + LOAD_PICTURE_TIMEOUT)
-                                                    - SystemClock.elapsedRealtime();
-                                    holder.itemView.removeCallbacks(mLoadFailedAction);
-                                    if (delayMillis > 0) {
-                                        mLoadFailedAction =
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        loadFailed(holder);
-                                                    }
-                                                };
-                                        holder.itemView.postDelayed(mLoadFailedAction, delayMillis);
-                                    } else {
-                                        loadFailed(holder);
-                                    }
-                                }
-
-                                private void loadFailed(ViewHolder holder) {
                                     holder.progressText.setVisibility(View.VISIBLE);
                                     holder.progressText.setText(R.string.rc_load_image_failed);
                                     holder.progressBar.setVisibility(View.GONE);
@@ -826,7 +806,6 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             ImageView failImg;
             SubsamplingScaleImageView photoView;
             TextView mCountDownView;
-            long startLoadTime;
 
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);

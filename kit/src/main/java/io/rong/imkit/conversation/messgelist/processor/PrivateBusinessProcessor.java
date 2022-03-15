@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
+import androidx.lifecycle.Observer;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.RongIM;
@@ -12,19 +13,39 @@ import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
 import io.rong.imlib.common.SharedPreferencesUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import java.util.List;
 
 public class PrivateBusinessProcessor extends BaseBusinessProcessor {
     private static final String TAG = "PrivateBusinessProcessor";
 
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
-        super.init(messageViewModel, bundle);
+        messageViewModel
+                .getPageEventLiveData()
+                .removeSource(RongUserInfoManager.getInstance().getAllUsersLiveData());
+        messageViewModel
+                .getPageEventLiveData()
+                .addSource(
+                        RongUserInfoManager.getInstance().getAllUsersLiveData(),
+                        new Observer<List<User>>() {
+                            @Override
+                            public void onChanged(List<User> users) {
+                                if (users != null && users.size() > 0) {
+                                    for (UiMessage item : messageViewModel.getUiMessages()) {
+                                        item.onUserInfoUpdate(users);
+                                    }
+                                    messageViewModel.refreshAllMessage(false);
+                                }
+                            }
+                        });
     }
 
     @Override

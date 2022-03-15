@@ -15,7 +15,7 @@
     <string name="rc_conversation_list_dialog_remove">删除该聊天</string>
     <string name="rc_conversation_list_popup_set_top">已置顶</string>
     <string name="rc_conversation_list_popup_cancel_top">取消置顶</string>
-    <string name="rc_conversation_unread_dot">99+</string>
+    <string name="rc_conversation_unread_dot">"···"</string>
 
     //会话内容概要
     <string name="rc_conversation_summary_content_image">[图片]</string>
@@ -46,13 +46,13 @@
     <string name="rc_date_year">年</string>
     <string name="rc_date_month">月</string>
     <string name="rc_date_day">日</string>
-    <string name="rc_date_sunday">星期日</string>
-    <string name="rc_date_monday">星期一</string>
-    <string name="rc_date_tuesday">星期二</string>
-    <string name="rc_date_wednesday">星期三</string>
-    <string name="rc_date_thursday">星期四</string>
-    <string name="rc_date_friday">星期五</string>
-    <string name="rc_date_saturday">星期六</string>
+    <string name="rc_date_sunday">周日</string>
+    <string name="rc_date_monday">周一</string>
+    <string name="rc_date_tuesday">周二</string>
+    <string name="rc_date_wednesday">周三</string>
+    <string name="rc_date_thursday">周四</string>
+    <string name="rc_date_friday">周五</string>
+    <string name="rc_date_saturday">周六</string>
     <string name="rc_date_morning">凌晨</string>
     <string name="rc_date_am">上午</string>
     <string name="rc_date_noon">中午</string>
@@ -116,11 +116,11 @@
     <string name="rc_pub_service_notification">新消息通知</string>
 
     //permission
-    <string name="rc_android_permission_CAMERA">相机</string>
+    <string name="rc_android.permission.CAMERA">相机</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">位置信息</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">位置信息</string>
     <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">后台位置</string>
-    <string name="rc_android_permission_RECORD_AUDIO">麦克风</string>
+    <string name="rc_android.permission.RECORD_AUDIO">麦克风</string>
     <string name="rc_android.permission.READ_EXTERNAL_STORAGE">存储空间</string>
     <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">存储空间</string>
     <string name="rc_android.permission.READ_PHONE_STATE">电话</string>
@@ -410,7 +410,7 @@
     <!-- 错误提醒 -->
     <string name="rc_new_messages">条新消息</string>
     <string name="rc_info_not_in_discussion">你不在该讨论组</string>
-    <string name="rc_info_not_in_group">您当前不在此群组</string>
+    <string name="rc_info_not_in_group">你不在该群</string>
     <string name="rc_info_not_in_chatroom">你不在该聊天室</string>
     <string name="rc_rejected_by_blacklist_prompt">您的消息已经发出，但被对方拒收</string>
     <string name="rc_info_forbidden_to_talk">您当前在群组中被禁言</string>
@@ -500,9 +500,6 @@
     <string name="rc_conversation_remote_side_speaking">对方正在讲话&#046;&#046;&#046;</string>
     <string name="rc_date_format">MM月dd日 HH:mm</string>
 
-    <string name="rc_mention_messages">有人@我%s</string>
+    <string name="rc_mention_messages">有人@我 %s</string>
     <string name="rc_media_upload_error">不能上传 0kb 的文件</string>
-    <string name="rc_load_local_message">网络异常，查看本地历史消息？</string>
-
-    <string name="rc_message_too_long">你输入的文本过长，无法发送</string>
 </resources>

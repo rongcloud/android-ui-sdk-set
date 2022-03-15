@@ -3,7 +3,6 @@ package io.rong.imkit.config;
 import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
-import android.net.http.SslCertificate;
 import io.rong.common.RLog;
 import io.rong.imkit.GlideKitImageEngine;
 import io.rong.imkit.IMCenter;
@@ -32,16 +31,11 @@ public class FeatureConfig {
     private int audioWBEncodingBitRate;
 
     private KitImageEngine mKitImageEngine;
-    private int userCacheMaxCount;
-    private int groupCacheMaxCount;
-    private int groupMemberCacheMaxCount;
 
-    private boolean preLoadUserCache = true;
     public boolean rc_wipe_out_notification_message = true;
     public boolean rc_set_java_script_enabled = true;
     // 在前台非会话页面时，接收到新消息是否响铃
     public boolean rc_sound_in_foreground = true;
-    private SSLInterceptor sSSLInterceptor;
 
     public FeatureConfig() {
         isReferenceEnable = true;
@@ -54,9 +48,6 @@ public class FeatureConfig {
         audioNBEncodingBitRate = 7950;
         audioWBEncodingBitRate = 12650;
         mKitImageEngine = new GlideKitImageEngine();
-        userCacheMaxCount = 500;
-        groupCacheMaxCount = 200;
-        groupMemberCacheMaxCount = 500;
     }
 
     public void initConfig(Context context) {
@@ -169,58 +160,5 @@ public class FeatureConfig {
     public void enableQuickReply(IQuickReplyProvider provider) {
         isQuickReplyEnable = true;
         quickReplyProvider = provider;
-    }
-
-    /** @return 用户信息内存最大值 */
-    public int getUserCacheMaxCount() {
-        return userCacheMaxCount;
-    }
-
-    /** @param userCacheMaxCount 设置用户信息最大值，sdk 初始化前有效 */
-    public void setUserCacheMaxCount(int userCacheMaxCount) {
-        this.userCacheMaxCount = userCacheMaxCount;
-    }
-
-    /** @return 群组信息内存最大值 */
-    public int getGroupCacheMaxCount() {
-        return groupCacheMaxCount;
-    }
-
-    /** @param groupCacheMaxCount 设置群组信息最大值，sdk 初始化前有效 */
-    public void setGroupCacheMaxCount(int groupCacheMaxCount) {
-        this.groupCacheMaxCount = groupCacheMaxCount;
-    }
-
-    /** @return 群成员信息内存最大值 */
-    public int getGroupMemberCacheMaxCount() {
-        return groupMemberCacheMaxCount;
-    }
-
-    /** @param groupMemberCacheMaxCount 设置群成员信息最大值，sdk 初始化前有效 */
-    public void setGroupMemberCacheMaxCount(int groupMemberCacheMaxCount) {
-        this.groupMemberCacheMaxCount = groupMemberCacheMaxCount;
-    }
-
-    /** @return 是否预加载用户缓存 */
-    public boolean isPreLoadUserCache() {
-        return preLoadUserCache;
-    }
-
-    /** @param preLoadUserCache 是否预加载用户缓存 */
-    public void setPreLoadUserCache(boolean preLoadUserCache) {
-        this.preLoadUserCache = preLoadUserCache;
-    }
-
-    public SSLInterceptor getSSLInterceptor() {
-        return sSSLInterceptor;
-    }
-
-    /** @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器 */
-    public void setSSLInterceptor(SSLInterceptor sSSLInterceptor) {
-        this.sSSLInterceptor = sSSLInterceptor;
-    }
-
-    public interface SSLInterceptor {
-        boolean check(SslCertificate sslCertificate);
     }
 }

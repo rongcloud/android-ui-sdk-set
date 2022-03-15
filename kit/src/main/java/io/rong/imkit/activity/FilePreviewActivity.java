@@ -2,6 +2,7 @@ package io.rong.imkit.activity;
 
 import static android.widget.Toast.makeText;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -26,6 +27,7 @@ import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
 import io.rong.imkit.event.actionevent.MessageEventListener;
 import io.rong.imkit.utils.FileTypeUtils;
+import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
@@ -446,7 +448,11 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
 
     @TargetApi(Build.VERSION_CODES.M)
     private void downloadFile() {
-        // KNOTE: 2021/8/18下载文件使用应用私有目录  不需要存储权限
+        String[] permission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (!PermissionCheckUtil.checkPermissions(this, permission)) {
+            PermissionCheckUtil.requestPermissions(this, permission, REQUEST_CODE_PERMISSION);
+            return;
+        }
         mFileDownloadInfo.state = DOWNLOADING;
         mFileButton.setText(getResources().getString(R.string.rc_cancel));
         downloadedFileLength =
@@ -503,7 +509,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         webIntent.setPackage(getPackageName());
         // 如果是content
         if (FileUtils.uriStartWithContent(uri)) {
-            webIntent.putExtra("url", uri.toString());
+            webIntent.putExtra("url", uri);
         } else {
             // File开头
             String path = uri.toString();

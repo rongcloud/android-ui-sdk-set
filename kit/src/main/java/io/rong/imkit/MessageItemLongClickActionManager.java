@@ -60,11 +60,6 @@ public class MessageItemLongClickActionManager {
                                     @Override
                                     public boolean onMessageItemLongClick(
                                             Context context, UiMessage uiMessage) {
-                                        if (context == null
-                                                || uiMessage == null
-                                                || uiMessage.getMessage() == null) {
-                                            return false;
-                                        }
                                         Message message = uiMessage.getMessage();
                                         ClipboardManager clipboard =
                                                 (ClipboardManager)

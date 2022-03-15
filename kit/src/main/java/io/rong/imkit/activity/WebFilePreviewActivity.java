@@ -2,6 +2,7 @@ package io.rong.imkit.activity;
 
 import static android.widget.Toast.makeText;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.net.Uri;
@@ -20,6 +21,7 @@ import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.FileTypeUtils;
+import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreCallback;
@@ -401,7 +403,11 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
 
     @TargetApi(Build.VERSION_CODES.M)
     private void downloadFile() {
-        // KNOTE: 2021/8/18下载文件使用应用私有目录  不需要存储权限
+        String[] permission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (!PermissionCheckUtil.checkPermissions(this, permission)) {
+            PermissionCheckUtil.requestPermissions(this, permission, REQUEST_CODE_PERMISSION);
+            return;
+        }
         mFileDownloadInfo.state = DOWNLOADING;
         if (supportResumeTransfer == SupportResumeStatus.SUPPORT) {
             mFileButton.setText(getResources().getString(R.string.rc_cancel));

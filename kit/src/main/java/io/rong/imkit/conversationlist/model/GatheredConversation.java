@@ -10,11 +10,13 @@ import android.text.style.ForegroundColorSpan;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.userinfo.db.model.GroupMember;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
+import java.util.List;
 
 public class GatheredConversation extends BaseUiConversation {
     public Conversation.ConversationType mGatheredType;
@@ -81,37 +83,41 @@ public class GatheredConversation extends BaseUiConversation {
     }
 
     @Override
-    public void onUserInfoUpdate(UserInfo user) {
-        if (user != null && !mGatheredType.equals(Conversation.ConversationType.GROUP)) {
-            if (user.getUserId().equals(mLastTargetId)) {
-                SpannableStringBuilder builder = new SpannableStringBuilder();
-                builder.append(RongUserInfoManager.getInstance().getUserDisplayName(user))
-                        .append(COLON_SPLIT)
-                        .append(
-                                RongConfigCenter.conversationConfig()
-                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
-                mConversationContent = builder;
+    public void onUserInfoUpdate(List<User> userList) {
+        if (userList != null && !mGatheredType.equals(Conversation.ConversationType.GROUP)) {
+            for (User user : userList) {
+                if (user != null && user.id.equals(mLastTargetId)) {
+                    SpannableStringBuilder builder = new SpannableStringBuilder();
+                    builder.append(user.name)
+                            .append(COLON_SPLIT)
+                            .append(
+                                    RongConfigCenter.conversationConfig()
+                                            .getMessageSummary(mContext, mCore.getLatestMessage()));
+                    mConversationContent = builder;
+                }
             }
         }
     }
 
     @Override
-    public void onGroupInfoUpdate(Group group) {
-        if (group != null && mGatheredType.equals(Conversation.ConversationType.GROUP)) {
-            if (group != null && group.getId().equals(mLastTargetId)) {
-                SpannableStringBuilder builder = new SpannableStringBuilder();
-                builder.append(group.getName())
-                        .append(COLON_SPLIT)
-                        .append(
-                                RongConfigCenter.conversationConfig()
-                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
-                mConversationContent = builder;
+    public void onGroupInfoUpdate(List<io.rong.imkit.userinfo.db.model.Group> groups) {
+        if (groups != null && mGatheredType.equals(Conversation.ConversationType.GROUP)) {
+            for (io.rong.imkit.userinfo.db.model.Group group : groups) {
+                if (group != null && group.id.equals(mLastTargetId)) {
+                    SpannableStringBuilder builder = new SpannableStringBuilder();
+                    builder.append(group.name)
+                            .append(COLON_SPLIT)
+                            .append(
+                                    RongConfigCenter.conversationConfig()
+                                            .getMessageSummary(mContext, mCore.getLatestMessage()));
+                    mConversationContent = builder;
+                }
             }
         }
     }
 
     @Override
-    public void onGroupMemberUpdate(GroupUserInfo groupMember) {}
+    public void onGroupMemberUpdate(List<GroupMember> groupMembers) {}
 
     @Override
     public void onConversationUpdate(Conversation conversation) {

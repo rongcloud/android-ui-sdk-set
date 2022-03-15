@@ -5,10 +5,10 @@ android {
 
 
     defaultConfig {
-        minSdkVersion 19
+       minSdkVersion 19
         targetSdkVersion 29
-        versionCode 20220301
-        versionName "5.2.0"
+        versionCode 20220315
+        versionName "5.1.3.10"
 
     }
 
@@ -22,7 +22,6 @@ android {
     android {
         lintOptions {
             abortOnError false
-            baseline file("lint-baseline.xml")
         }
     }
 
@@ -41,7 +40,7 @@ def OUTPUT_PATH = "build/libs/"
 //执行 gradle makeJar 后生成发布的 Sight.jar
 task makeJar(type: Jar) {
     //Sight.jar
-    from zipTree(file('build/intermediates/aar_main_jar/release/classes.jar'))
+    from zipTree(file('build/intermediates/packaged-classes/release/classes.jar'))
 
     //去除编译生成的临时文件
     exclude('**/BuildConfig.class')
@@ -59,9 +58,4 @@ task clearJar(type: Delete) {
 }
 
 makeJar.dependsOn(clearJar, build)
-
-tasks.withType(JavaCompile) {
-    options.compilerArgs += ["-parameters"]
-}
 //apply from: './bintray.gradle'
-//apply from: './central-bintray.gradle'

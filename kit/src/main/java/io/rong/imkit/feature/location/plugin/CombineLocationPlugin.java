@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import io.rong.common.LibStorageUtils;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
@@ -29,6 +31,8 @@ import io.rong.imlib.model.Conversation;
 public class CombineLocationPlugin
         implements IPluginModule, IPluginRequestPermissionResultCallback {
 
+    private static final int REQUEST_CODE_FOREGROUND_PERMISSION_PLUGIN = 254;
+    private int option;
     private Conversation.ConversationType mConversationType;
     private String mTargetId;
 
@@ -51,21 +55,7 @@ public class CombineLocationPlugin
         mConversationType = extension.getConversationType();
         mTargetId = extension.getTargetId();
 
-        String[] permissions = {
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_NETWORK_STATE,
-            Manifest.permission.READ_PHONE_STATE
-        };
-
-        if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), permissions)) {
-            sendOrShareLocation(currentFragment, extension);
-        } else {
-            extension.requestPermissionForPluginResult(
-                    permissions,
-                    IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
-                    this);
-        }
+        showLocationOption(currentFragment, extension);
     }
 
     @Override
@@ -86,8 +76,7 @@ public class CombineLocationPlugin
         }
     }
 
-    private void sendOrShareLocation(
-            final Fragment currentFragment, final RongExtension extension) {
+    private void showLocationOption(final Fragment currentFragment, final RongExtension extension) {
         String[] items = {
             currentFragment.getString(R.string.rc_plugin_location_message),
             currentFragment.getString(R.string.rc_plugin_location_sharing)
@@ -98,67 +87,12 @@ public class CombineLocationPlugin
                         new OptionsPopupDialog.OnOptionsItemClickedListener() {
                             @Override
                             public void onOptionsItemClicked(int which) {
+                                option = which;
                                 if (which == 0) {
-                                    Intent intent;
-                                    if (LocationManager.getInstance()
-                                            .getMapMode()
-                                            .equals(LocationManager.MapMode.Map_2D)) {
-                                        intent =
-                                                new Intent(
-                                                        currentFragment.getActivity(),
-                                                        AMapLocationActivity2D.class);
-                                    } else {
-                                        intent =
-                                                new Intent(
-                                                        currentFragment.getActivity(),
-                                                        AMapLocationActivity.class);
-                                    }
-                                    extension.startActivityForPluginResult(
-                                            intent, 1, CombineLocationPlugin.this);
+                                    checkLocationPermission(currentFragment, extension, which);
                                 } else if (which == 1) {
-                                    int result;
-                                    if (LocationManager.getInstance()
-                                            .getMapMode()
-                                            .equals(LocationManager.MapMode.Map_2D)) {
-                                        result =
-                                                LocationDelegate2D.getInstance()
-                                                        .joinLocationSharing();
-                                    } else {
-                                        result =
-                                                LocationDelegate3D.getInstance()
-                                                        .joinLocationSharing();
-                                    }
-                                    if (result == 0) {
-                                        Intent intent;
-                                        if (LocationManager.getInstance()
-                                                .getMapMode()
-                                                .equals(LocationManager.MapMode.Map_2D)) {
-                                            intent =
-                                                    new Intent(
-                                                            currentFragment.getActivity(),
-                                                            AMapRealTimeActivity2D.class);
-                                        } else {
-                                            intent =
-                                                    new Intent(
-                                                            currentFragment.getActivity(),
-                                                            AMapRealTimeActivity.class);
-                                        }
-                                        if (currentFragment.getActivity() != null) {
-                                            currentFragment.getActivity().startActivity(intent);
-                                        }
-                                    } else if (result == 1) {
-                                        Toast.makeText(
-                                                        currentFragment.getActivity(),
-                                                        R.string.rc_network_exception,
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
-                                    } else if (result == 2) {
-                                        Toast.makeText(
-                                                        currentFragment.getActivity(),
-                                                        R.string.rc_location_sharing_exceed_max,
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
-                                    }
+                                    checklocationPermissionWithBackgound(
+                                            extension, currentFragment, which);
                                 }
                             }
                         })
@@ -172,14 +106,137 @@ public class CombineLocationPlugin
             int requestCode,
             @NonNull String[] permissions,
             @NonNull int[] grantResults) {
-        if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
-            sendOrShareLocation(fragment, extension);
+        if (requestCode == REQUEST_CODE_FOREGROUND_PERMISSION_PLUGIN) {
+            if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
+                extension.requestPermissionForPluginResult(
+                        new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                        IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
+                        CombineLocationPlugin.this);
+
+            } else {
+                if (fragment.getActivity() != null) {
+                    PermissionCheckUtil.showRequestPermissionFailedAlter(
+                            fragment.getActivity(), permissions, grantResults);
+                }
+            }
         } else {
-            if (fragment.getActivity() != null) {
-                PermissionCheckUtil.showRequestPermissionFailedAlter(
-                        fragment.getActivity(), permissions, grantResults);
+            if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
+                handleOptions(extension, fragment, option);
+            } else {
+                if (fragment.getActivity() != null) {
+                    PermissionCheckUtil.showRequestPermissionFailedAlter(
+                            fragment.getActivity(), permissions, grantResults);
+                }
             }
         }
         return true;
+    }
+
+    private void handleOptions(RongExtension extension, Fragment currentFragment, int which) {
+        if (which == 0) {
+            Intent intent;
+            if (LocationManager.getInstance().getMapMode().equals(LocationManager.MapMode.Map_2D)) {
+                intent = new Intent(currentFragment.getActivity(), AMapLocationActivity2D.class);
+            } else {
+                intent = new Intent(currentFragment.getActivity(), AMapLocationActivity.class);
+            }
+            extension.startActivityForPluginResult(intent, 1, CombineLocationPlugin.this);
+        } else if (which == 1) {
+            int result;
+            if (LocationManager.getInstance().getMapMode().equals(LocationManager.MapMode.Map_2D)) {
+                result = LocationDelegate2D.getInstance().joinLocationSharing();
+            } else {
+                result = LocationDelegate3D.getInstance().joinLocationSharing();
+            }
+            if (result == 0) {
+                Intent intent;
+                if (LocationManager.getInstance()
+                        .getMapMode()
+                        .equals(LocationManager.MapMode.Map_2D)) {
+                    intent =
+                            new Intent(currentFragment.getActivity(), AMapRealTimeActivity2D.class);
+                } else {
+                    intent = new Intent(currentFragment.getActivity(), AMapRealTimeActivity.class);
+                }
+                if (currentFragment.getActivity() != null) {
+                    currentFragment.getActivity().startActivity(intent);
+                }
+            } else if (result == 1) {
+                Toast.makeText(
+                                currentFragment.getActivity(),
+                                R.string.rc_network_exception,
+                                Toast.LENGTH_SHORT)
+                        .show();
+            } else if (result == 2) {
+                Toast.makeText(
+                                currentFragment.getActivity(),
+                                R.string.rc_location_sharing_exceed_max,
+                                Toast.LENGTH_SHORT)
+                        .show();
+            }
+        }
+    }
+
+    private void checklocationPermissionWithBackgound(
+            RongExtension extension, Fragment currentFragment, int which) {
+        // ACCESS_BACKGROUND_LOCATION后台定位权限自API 29添加.
+        // Android 11 对前后台位置权限申请顺序有要求,先前台再后台,否则无法得到后台权限授权.
+        String[] permissions =
+                new String[] {
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_NETWORK_STATE
+                };
+
+        // 总体策略：先前台位置权限再后台位置权限
+        // 先检查前台位置权限,若已授权再接着判断系统是否大于29，大于29则需要申请后台位置权限，否则不需要申请后台位置权限直接弹出操作窗;
+        if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), permissions)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                String[] backgroundlocationPermission =
+                        new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION};
+                // Android系统>=10需要申请后台位置
+                if (PermissionCheckUtil.checkPermissions(
+                        currentFragment.getActivity(), backgroundlocationPermission)) {
+                    handleOptions(extension, currentFragment, which);
+                } else {
+                    extension.requestPermissionForPluginResult(
+                            backgroundlocationPermission,
+                            IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
+                            CombineLocationPlugin.this);
+                }
+                return;
+            }
+            handleOptions(extension, currentFragment, which);
+        } else {
+            if (LibStorageUtils.isBuildAndTargetForQ(currentFragment.getActivity())) {
+                // os>=29 and target>=29
+                extension.requestPermissionForPluginResult(
+                        permissions, REQUEST_CODE_FOREGROUND_PERMISSION_PLUGIN, this);
+            } else {
+                extension.requestPermissionForPluginResult(
+                        permissions,
+                        IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
+                        this);
+            }
+        }
+    }
+
+    private void checkLocationPermission(
+            Fragment currentFragment, RongExtension extension, int which) {
+        String[] permissions = {
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.READ_PHONE_STATE
+        };
+        if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), permissions)) {
+            handleOptions(extension, currentFragment, which);
+        } else {
+            extension.requestPermissionForPluginResult(
+                    permissions,
+                    IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
+                    this);
+        }
     }
 }

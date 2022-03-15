@@ -17,7 +17,6 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import androidx.core.content.FileProvider;
-import androidx.documentfile.provider.DocumentFile;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
 import java.io.BufferedOutputStream;
@@ -275,21 +274,6 @@ public class PictureFileUtils {
         return null;
     }
 
-    public static long getMediaSize(Context context, String path) {
-        if (path.startsWith("content://")) {
-            DocumentFile df = DocumentFile.fromSingleUri(context, Uri.parse(path));
-            if (df != null) {
-                return df.length();
-            } else {
-                return 0;
-            }
-        } else if (path.startsWith("file://")) {
-            return new File(path.substring(7)).length();
-        } else {
-            return new File(path).length();
-        }
-    }
-
     /**
      * 读取图片属性：旋转的角度
      *
@@ -301,9 +285,9 @@ public class PictureFileUtils {
         try {
             ExifInterface exifInterface;
             if (SdkVersionUtils.checkedAndroid_Q()) {
-                exifInterface =
-                        new ExifInterface(
-                                context.getContentResolver().openInputStream(Uri.parse(path)));
+                ParcelFileDescriptor parcelFileDescriptor =
+                        context.getContentResolver().openFileDescriptor(Uri.parse(path), "r");
+                exifInterface = new ExifInterface(parcelFileDescriptor.getFileDescriptor());
             } else {
                 exifInterface = new ExifInterface(path);
             }

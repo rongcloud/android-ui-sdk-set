@@ -31,7 +31,4 @@ public interface GroupMemberDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertGroupMembers(List<GroupMember> groupMemberList);
-
-    @Query("select * from group_member limit :limit")
-    List<GroupMember> getLimitGroupMembers(int limit);
 }

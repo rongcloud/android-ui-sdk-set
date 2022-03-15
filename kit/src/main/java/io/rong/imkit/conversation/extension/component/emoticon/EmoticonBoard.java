@@ -182,10 +182,6 @@ public class EmoticonBoard {
                                         new Observer<String>() {
                                             @Override
                                             public void onChanged(String s) {
-                                                if (mExtensionViewModel.getEditTextWidget()
-                                                        == null) {
-                                                    return;
-                                                }
                                                 if (s.equals(EmojiTab.DELETE)) {
                                                     mExtensionViewModel
                                                             .getEditTextWidget()

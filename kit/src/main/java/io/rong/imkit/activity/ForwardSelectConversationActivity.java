@@ -14,6 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import androidx.lifecycle.Observer;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
@@ -22,7 +23,7 @@ import io.rong.imkit.R;
 import io.rong.imkit.feature.forward.ForwardManager;
 import io.rong.imkit.feature.forward.IHistoryDataResultCallback;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.widget.RongSwipeRefreshLayout;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -32,9 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivity
-        implements View.OnClickListener,
-                RongSwipeRefreshLayout.OnLoadListener,
-                RongUserInfoManager.UserDataObserver {
+        implements View.OnClickListener, RongSwipeRefreshLayout.OnLoadListener {
 
     private static final String TAG = ForwardSelectConversationActivity.class.getSimpleName();
 
@@ -77,14 +76,55 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
         if (intent == null) {
             return;
         }
-        RongUserInfoManager.getInstance().addUserDataObserver(this);
-        getConversationList(false);
-    }
+        RongUserInfoManager.getInstance()
+                .getAllUsersLiveData()
+                .observe(
+                        this,
+                        new Observer<List<User>>() {
+                            @Override
+                            public void onChanged(List<User> users) {
+                                if (users != null && users.size() > 0) {
+                                    for (Conversation item : mAdapter.allMembers) {
+                                        for (User user : users) {
+                                            if (user.id.equals(item.getSenderUserId())) {
+                                                if (user.name != null) {
+                                                    item.setSenderUserName(user.name);
+                                                }
+                                                item.setPortraitUrl(user.portraitUrl);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        RongUserInfoManager.getInstance().removeUserDataObserver(this);
+        RongUserInfoManager.getInstance()
+                .getAllGroupsLiveData()
+                .observe(
+                        this,
+                        new Observer<List<io.rong.imkit.userinfo.db.model.Group>>() {
+                            @Override
+                            public void onChanged(
+                                    List<io.rong.imkit.userinfo.db.model.Group> groups) {
+                                if (groups != null && groups.size() > 0) {
+                                    for (Conversation item : mAdapter.allMembers) {
+                                        for (io.rong.imkit.userinfo.db.model.Group group : groups) {
+                                            if (group.id.equals(item.getSenderUserId())) {
+                                                if (group.name != null) {
+                                                    item.setSenderUserName(group.name);
+                                                }
+                                                item.setPortraitUrl(group.portraitUrl);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
+        getConversationList(false);
     }
 
     private void getConversationList(boolean isLoadMore) {
@@ -105,9 +145,7 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
                                             RongUserInfoManager.getInstance()
                                                     .getUserInfo(conversation.getTargetId());
                                     if (user != null) {
-                                        conversation.setConversationTitle(
-                                                RongUserInfoManager.getInstance()
-                                                        .getUserDisplayName(user));
+                                        conversation.setConversationTitle(user.getName());
                                         conversation.setPortraitUrl(
                                                 user.getPortraitUri() == null
                                                         ? null
@@ -203,31 +241,6 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
             finish();
         }
     }
-
-    @Override
-    public void onUserUpdate(UserInfo user) {
-        if (user != null && mAdapter != null) {
-            for (Conversation item : mAdapter.allMembers) {
-                if (user.getUserId().equals(item.getSenderUserId())) {
-                    if (user.getName() != null) {
-                        item.setSenderUserName(user.getName());
-                    }
-                    item.setPortraitUrl(
-                            user.getPortraitUri() != null
-                                    ? user.getPortraitUri().toString()
-                                    : null);
-                    break;
-                }
-            }
-            mAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onGroupUpdate(Group group) {}
-
-    @Override
-    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {}
 
     private class ForwardItemClickListener implements AdapterView.OnItemClickListener {
 

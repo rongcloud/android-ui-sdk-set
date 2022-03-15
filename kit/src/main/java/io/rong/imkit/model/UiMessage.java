@@ -5,6 +5,8 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.userinfo.db.model.GroupMember;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -14,10 +16,11 @@ import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.UserInfo;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UiMessage extends UiBaseBean {
-    private final String TAG = UiMessage.class.getSimpleName();
+    private static final String TAG = "UiMessage";
     private Message message;
     private UserInfo userInfo;
     private @State.Value int state;
@@ -27,6 +30,7 @@ public class UiMessage extends UiBaseBean {
     private boolean isEdit;
     private boolean isSelected;
     private String nickname;
+
     /** TextMessage 和 ReferenceMessage 的 content 字段 */
     private SpannableStringBuilder contentSpannable;
     /** ReferenceMessage 的 referMsg 为 TextMessage 时 的 content 字段 */
@@ -151,27 +155,29 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
-    public void onUserInfoUpdate(UserInfo user) {
-        if (user.getUserId().equals(message.getSenderUserId())) {
-            if (user.getName() != null) {
-                userInfo.setName(user.getName());
-            } else {
-                userInfo.setName("");
+    public void onUserInfoUpdate(List<User> userList) {
+        for (User user : userList) {
+            if (user.id.equals(message.getSenderUserId())) {
+                if (user.name != null) {
+                    userInfo.setName(user.name);
+                } else {
+                    userInfo.setName("");
+                }
+                if (!TextUtils.isEmpty(user.portraitUrl)) {
+                    userInfo.setPortraitUri(Uri.parse(user.portraitUrl));
+                } else {
+                    userInfo.setPortraitUri(null);
+                }
+                userInfo.setExtra(user.extra);
+                change();
+                break;
             }
-            userInfo.setAlias(user.getAlias());
-            if (user.getPortraitUri() != null) {
-                userInfo.setPortraitUri(Uri.parse(user.getPortraitUri().toString()));
-            } else {
-                userInfo.setPortraitUri(null);
-            }
-            userInfo.setExtra(user.getExtra());
-            change();
         }
     }
 
-    public void onGroupMemberInfoUpdate(GroupUserInfo member) {
-        if (member.getUserId().equals(message.getSenderUserId())) {
-            nickname = member.getNickname();
+    public void onGroupMemberInfoUpdate(GroupMember member) {
+        if (member.userId.equals(message.getSenderUserId())) {
+            nickname = member.memberName;
             change();
         }
     }
@@ -190,6 +196,14 @@ public class UiMessage extends UiBaseBean {
 
     public String getUId() {
         return message != null ? message.getUId() : null;
+    }
+
+    public void setUId(String UId) {
+        if (message == null) {
+            return;
+        }
+        message.setUId(UId);
+        change();
     }
 
     public Conversation.ConversationType getConversationType() {
@@ -406,9 +420,5 @@ public class UiMessage extends UiBaseBean {
 
     public void setNickname(String nickname) {
         this.nickname = nickname;
-    }
-
-    public String getDisplayName() {
-        return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, nickname);
     }
 }

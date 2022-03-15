@@ -7,21 +7,17 @@ import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.GpsStatus;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -37,6 +33,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.CameraUpdate;
@@ -62,7 +60,6 @@ import com.amap.api.services.poisearch.PoiSearch;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
-import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,10 +102,6 @@ public class AMapLocationActivity2D extends RongBaseActivity
     private float lastY;
     private int flag = 0;
     private String cityCode = "";
-    private String[] locationPermissions = {
-        Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION
-    };
-
     private AbsListView.OnScrollListener onScrollListener =
             new AbsListView.OnScrollListener() {
                 @Override
@@ -131,9 +124,7 @@ public class AMapLocationActivity2D extends RongBaseActivity
                     }
                 }
             };
-    private LocationManager locationManager;
 
-    @SuppressLint("MissingPermission")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,51 +146,10 @@ public class AMapLocationActivity2D extends RongBaseActivity
         ok.setOnClickListener(this);
         mTitleBar.setTitle(R.string.rc_location_title);
         mAMapView.onCreate(savedInstanceState);
-        checkMapPermission();
-        initMap();
-
-        // Bug:关闭位置服务进入到此页面,直接在设置或快捷菜单中再次开启位置服务(非位置服务引导进行的操作),查看位置没有正常加载数据.
-        // 监听手机位置服务或定位服务开关状态,重新开启需重新定位,进而回调onMyLocationChanged再次刷新位置页面.
-        if (PermissionCheckUtil.checkPermissions(this, locationPermissions)) {
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, 2000, 0f, gpsListener);
-            locationManager.addGpsStatusListener(gpsStatusListener);
-        }
-    }
-
-    private GpsStatus.Listener gpsStatusListener =
-            new GpsStatus.Listener() {
-                @Override
-                public void onGpsStatusChanged(int event) {
-                    if (event == GpsStatus.GPS_EVENT_STARTED) {
-                        Log.w(TAG, "Gps Started");
-                        LocationDelegate3D.getInstance().updateMyLocation();
-                    } else if (event == GpsStatus.GPS_EVENT_STOPPED) {
-                        Log.w(TAG, "Gps Stopped");
-                    }
-                }
-            };
-
-    private LocationListener gpsListener =
-            new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {}
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-                @Override
-                public void onProviderEnabled(String provider) {}
-
-                @Override
-                public void onProviderDisabled(String provider) {}
-            };
-
-    /** 检查位置服务是否开启 */
-    private void checkMapPermission() {
-        if (!RongUtils.isLocationServiceEnabled(this)) {
-            new AlertDialog.Builder(AMapLocationActivity2D.this)
+        if (RongUtils.isLocationServiceEnabled(this)) {
+            initMap();
+        } else {
+            new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.rc_location_sevice_dialog_title))
                     .setMessage(getString(R.string.rc_location_sevice_dialog_messgae))
                     .setPositiveButton(
@@ -220,6 +170,22 @@ public class AMapLocationActivity2D extends RongBaseActivity
                             })
                     .create()
                     .show();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CODE_ASK_PERMISSIONS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission Granted
+                if (permissions[0].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    initMap();
+                }
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 
@@ -372,9 +338,6 @@ public class AMapLocationActivity2D extends RongBaseActivity
             mAMapView.onDestroy();
         }
         LocationDelegate2D.getInstance().setMyLocationChangedListener(null);
-        if (gpsStatusListener != null) {
-            locationManager.removeGpsStatusListener(gpsStatusListener);
-        }
         super.onDestroy();
     }
 
@@ -734,7 +697,7 @@ public class AMapLocationActivity2D extends RongBaseActivity
             resetViewHeight();
             updateToPosition(mLngResult, mLatResult, mPoiResult, true);
         } else if (requestCode == REQUEST_OPEN_LOCATION_SERVICE) {
-            LocationDelegate2D.getInstance().updateMyLocation();
+            initMap();
         }
     }
 

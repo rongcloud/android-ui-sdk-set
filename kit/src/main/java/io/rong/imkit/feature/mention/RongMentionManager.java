@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Stack;
 import org.json.JSONArray;
 
-public class RongMentionManager {
+public class RongMentionManager implements IExtensionEventWatcher {
     private static String TAG = "RongMentionManager";
     private Stack<MentionInstance> stack = new Stack<>();
     private IGroupMembersProvider mGroupMembersProvider;
@@ -42,33 +42,37 @@ public class RongMentionManager {
             RLog.e(TAG, "rc_enable_mentioned_message is disable");
             return;
         }
-        for (int i = 0; i < stack.size(); i++) {
-            MentionInstance item = stack.get(i);
-            if (item.inputEditText.equals(editText)) {
+        String key = conversationType.getName() + targetId;
+        MentionInstance mentionInstance;
+        if (stack.size() > 0) {
+            mentionInstance = stack.peek();
+            if (mentionInstance.key.equals(key)) {
                 return;
             }
         }
-        MentionInstance mentionInstance = new MentionInstance();
-        mentionInstance.conversationType = conversationType;
-        mentionInstance.targetId = targetId;
+
+        mentionInstance = new MentionInstance();
+        mentionInstance.key = key;
         mentionInstance.inputEditText = editText;
         mentionInstance.mentionBlocks = new ArrayList<>();
         stack.add(mentionInstance);
     }
 
-    public void destroyInstance(
-            Conversation.ConversationType conversationType, String targetId, EditText editText) {
+    public void destroyInstance(Conversation.ConversationType conversationType, String targetId) {
         RLog.i(TAG, "destroyInstance");
         if (!RongConfigCenter.conversationConfig().rc_enable_mentioned_message) {
             RLog.e(TAG, "rc_enable_mentioned_message is disable");
             return;
         }
-        for (int i = 0; i < stack.size(); i++) {
-            MentionInstance item = stack.get(i);
-            if (item.inputEditText.equals(editText)) {
-                stack.remove(i);
-                return;
+        if (stack.size() > 0) {
+            MentionInstance instance = stack.peek();
+            if (instance.key.equals(conversationType.getName() + targetId)) {
+                stack.pop();
+            } else {
+                RLog.e(TAG, "Invalid MentionInstance : " + instance.key);
             }
+        } else {
+            RLog.e(TAG, "Invalid MentionInstance.");
         }
     }
 
@@ -78,14 +82,14 @@ public class RongMentionManager {
         if (TextUtils.isEmpty(userId)
                 || conversationType == null
                 || TextUtils.isEmpty(targetId)
-                || stack.isEmpty()) {
+                || stack.size() == 0) {
             RLog.e(TAG, "Illegal argument");
             return;
         }
-        MentionInstance mentionInstance = stack.get(0);
-        if (!conversationType.equals(mentionInstance.conversationType)
-                || !targetId.equals(mentionInstance.targetId)) {
-            RLog.e(TAG, "Invalid conversationType or targetId");
+        String key = conversationType.getName() + targetId;
+        MentionInstance instance = stack.peek();
+        if (instance == null || !instance.key.equals(key)) {
+            RLog.e(TAG, "Invalid mention instance : " + key);
             return;
         }
         UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(userId);
@@ -114,7 +118,7 @@ public class RongMentionManager {
     }
 
     public String getMentionBlockInfo() {
-        if (!stack.isEmpty()) {
+        if (stack.size() > 0) {
             MentionInstance mentionInstance = stack.peek();
             if (mentionInstance.mentionBlocks != null && !mentionInstance.mentionBlocks.isEmpty()) {
                 JSONArray jsonArray = new JSONArray();
@@ -131,7 +135,7 @@ public class RongMentionManager {
     }
 
     void addMentionBlock(MentionBlock mentionBlock) {
-        if (!stack.isEmpty()) {
+        if (stack.size() > 0) {
             MentionInstance mentionInstance = stack.peek();
             mentionInstance.mentionBlocks.add(mentionBlock);
         }
@@ -142,7 +146,7 @@ public class RongMentionManager {
      * @param from 0 代表来自会话界面，1 来着群成员选择界面。
      */
     private void addMentionedMember(UserInfo userInfo, int from) {
-        if (!stack.isEmpty()) {
+        if (stack.size() > 0) {
             MentionInstance mentionInstance = stack.peek();
             EditText editText = mentionInstance.inputEditText;
             if (userInfo != null && editText != null) {
@@ -222,29 +226,22 @@ public class RongMentionManager {
      * @param offset 文本的变化量：增加时为正数，减少是为负数
      * @param text 文本内容
      */
+    @Override
     public void onTextChanged(
             Context context,
             Conversation.ConversationType conversationType,
             String targetId,
             int cursorPos,
             int offset,
-            String text,
-            EditText editText) {
+            String text) {
         RLog.d(TAG, "onTextEdit " + cursorPos + ", " + text);
 
-        if (stack == null || stack.isEmpty()) {
+        if (stack == null || stack.size() == 0) {
             RLog.w(TAG, "onTextEdit ignore.");
             return;
         }
-        MentionInstance mentionInstance = null;
-        for (int i = 0; i < stack.size(); i++) {
-            MentionInstance item = stack.get(i);
-            if (item.inputEditText.equals(editText)) {
-                mentionInstance = item;
-                break;
-            }
-        }
-        if (mentionInstance == null) {
+        MentionInstance mentionInstance = stack.peek();
+        if (!mentionInstance.key.equals(conversationType.getName() + targetId)) {
             RLog.w(TAG, "onTextEdit ignore conversation.");
             return;
         }
@@ -285,28 +282,18 @@ public class RongMentionManager {
         offsetMentionedBlocks(cursorPos, offset, mentionInstance.mentionBlocks);
     }
 
-    public void onSendToggleClick(Message message, EditText editText) {
+    @Override
+    public void onSendToggleClick(Message message) {
         MessageContent messageContent = message.getContent();
-        if (!stack.isEmpty()) {
+        if (stack.size() > 0) {
             List<String> userIds = new ArrayList<>();
-            MentionInstance curInstance = null;
-            for (int i = 0; i < stack.size(); i++) {
-                MentionInstance item = stack.get(i);
-                if (item.inputEditText.equals(editText)) {
-                    curInstance = item;
-                    break;
-                }
-            }
-            if (curInstance == null) {
-                RLog.w(TAG, "not found editText");
-                return;
-            }
+            MentionInstance curInstance = stack.peek();
             for (MentionBlock block : curInstance.mentionBlocks) {
                 if (!userIds.contains(block.userId)) {
                     userIds.add(block.userId);
                 }
             }
-            if (!userIds.isEmpty()) {
+            if (userIds.size() > 0) {
                 curInstance.mentionBlocks.clear();
                 MentionedInfo mentionedInfo =
                         new MentionedInfo(MentionedInfo.MentionedType.PART, userIds, null);
@@ -316,33 +303,30 @@ public class RongMentionManager {
         }
     }
 
+    @Override
     public void onDeleteClick(
             Conversation.ConversationType type, String targetId, EditText editText, int cursorPos) {
         RLog.d(TAG, "onTextEdit " + cursorPos);
 
-        if (!stack.isEmpty() && cursorPos > 0) {
-            MentionInstance mentionInstance = null;
-            for (int i = 0; i < stack.size(); i++) {
-                MentionInstance item = stack.get(i);
-                if (item.inputEditText.equals(editText)) {
-                    mentionInstance = item;
-                    break;
+        if (stack.size() > 0 && cursorPos > 0) {
+            MentionInstance mentionInstance = stack.peek();
+            if (mentionInstance.key.equals(type.getName() + targetId)) {
+                MentionBlock deleteBlock =
+                        getDeleteMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
+                if (deleteBlock != null) {
+                    mentionInstance.mentionBlocks.remove(deleteBlock);
+                    String delText = deleteBlock.name;
+                    int start = cursorPos - delText.length() - 1;
+                    editText.getEditableText().delete(start, cursorPos);
+                    editText.setSelection(start);
                 }
             }
-            if (mentionInstance == null) {
-                RLog.w(TAG, "not found editText");
-                return;
-            }
-            MentionBlock deleteBlock =
-                    getDeleteMentionedBlock(cursorPos, mentionInstance.mentionBlocks);
-            if (deleteBlock != null) {
-                mentionInstance.mentionBlocks.remove(deleteBlock);
-                String delText = deleteBlock.name;
-                int start = cursorPos - delText.length() - 1;
-                editText.getEditableText().delete(start, cursorPos);
-                editText.setSelection(start);
-            }
         }
+    }
+
+    @Override
+    public void onDestroy(Conversation.ConversationType type, String targetId) {
+        destroyInstance(type, targetId);
     }
 
     public IGroupMembersProvider getGroupMembersProvider() {

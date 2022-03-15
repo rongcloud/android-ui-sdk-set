@@ -1,12 +1,11 @@
 package io.rong.imkit.conversation;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.GestureDetector;
@@ -16,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,14 +22,12 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rong.common.RLog;
-import io.rong.imkit.IMCenter;
 import io.rong.imkit.MessageItemLongClickAction;
 import io.rong.imkit.MessageItemLongClickActionManager;
 import io.rong.imkit.R;
@@ -40,7 +36,6 @@ import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.conversation.messgelist.processor.IConversationUIRenderer;
-import io.rong.imkit.conversation.messgelist.status.MessageProcessor;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageItemLongClickBean;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.Event;
@@ -49,14 +44,10 @@ import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
 import io.rong.imkit.event.uievent.ScrollMentionEvent;
 import io.rong.imkit.event.uievent.ScrollToEndEvent;
-import io.rong.imkit.event.uievent.ShowLoadMessageDialogEvent;
 import io.rong.imkit.event.uievent.ShowLongClickDialogEvent;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.event.uievent.SmoothScrollEvent;
 import io.rong.imkit.event.uievent.ToastEvent;
-import io.rong.imkit.feature.location.LocationUiRender;
-import io.rong.imkit.feature.reference.ReferenceManager;
-import io.rong.imkit.manager.MessageProviderPermissionHandler;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ToastUtils;
@@ -73,14 +64,12 @@ import io.rong.imkit.widget.refresh.listener.OnLoadMoreListener;
 import io.rong.imkit.widget.refresh.listener.OnRefreshListener;
 import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Message;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 /** @author lvz */
 public class ConversationFragment extends Fragment
@@ -88,14 +77,12 @@ public class ConversationFragment extends Fragment
                 View.OnClickListener,
                 OnLoadMoreListener,
                 IViewProviderListener<UiMessage> {
-    /** 开启合并转发的选择会话界面 */
-    public static final int REQUEST_CODE_FORWARD = 104;
-
-    private static final int REQUEST_MSG_DOWNLOAD_PERMISSION = 1000;
     private final String TAG = ConversationFragment.class.getSimpleName();
+    private static final int REQUEST_MSG_DOWNLOAD_PERMISSION = 1000;
     protected SmartRefreshLayout mRefreshLayout;
+
     protected RecyclerView mList;
-    protected RecyclerView.LayoutManager mLinearLayoutManager;
+    protected LinearLayoutManager mLinearLayoutManager;
     protected MessageListAdapter mAdapter;
     protected MessageViewModel mMessageViewModel;
     protected RongExtensionViewModel mRongExtensionViewModel;
@@ -103,10 +90,333 @@ public class ConversationFragment extends Fragment
     protected TextView mNewMessageNum;
     protected TextView mUnreadHistoryMessageNum;
     protected TextView mUnreadMentionMessageNum;
-    protected int activitySoftInputMode = 0;
-    // 滑动结束是否
-    protected boolean onScrollStopRefreshList = false;
-    private boolean bindToConversation = false;
+    /** 开启合并转发的选择会话界面 */
+    public static final int REQUEST_CODE_FORWARD = 104;
+
+    private LinearLayout mNotificationContainer;
+    private boolean onViewCreated = false;
+    private String mTargetId;
+    private Bundle mBundle;
+    private Conversation.ConversationType mConversationType;
+
+    {
+        mAdapter = onResolveAdapter();
+    }
+
+    /** findId，绑定监听 */
+    @Nullable
+    @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.rc_conversation_fragment, container, false);
+        mList = rootView.findViewById(R.id.rc_message_list);
+        mRongExtension = rootView.findViewById(R.id.rc_extension);
+        mRefreshLayout = rootView.findViewById(R.id.rc_refresh);
+        mNewMessageNum = rootView.findViewById(R.id.rc_new_message_number);
+        mUnreadHistoryMessageNum = rootView.findViewById(R.id.rc_unread_message_count);
+        mUnreadMentionMessageNum = rootView.findViewById(R.id.rc_mention_message_count);
+        mNotificationContainer = rootView.findViewById(R.id.rc_notification_container);
+        mNewMessageNum.setOnClickListener(this);
+        mUnreadHistoryMessageNum.setOnClickListener(this);
+        mUnreadMentionMessageNum.setOnClickListener(this);
+        mLinearLayoutManager = new LinearLayoutManager(getContext());
+        mLinearLayoutManager.setStackFromEnd(true);
+        if (mList != null) {
+            mList.setLayoutManager(mLinearLayoutManager);
+        }
+        mRefreshLayout.setOnTouchListener(
+                new View.OnTouchListener() {
+                    @SuppressLint("ClickableViewAccessibility")
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        closeExpand();
+                        return false;
+                    }
+                });
+        mAdapter.setItemClickListener(
+                new BaseAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, ViewHolder holder, int position) {
+                        closeExpand();
+                    }
+
+                    @Override
+                    public boolean onItemLongClick(View view, ViewHolder holder, int position) {
+                        return false;
+                    }
+                });
+        // 关闭动画
+        if (mList != null) {
+            mList.setAdapter(mAdapter);
+            mList.addOnScrollListener(mScrollListener);
+            mList.setItemAnimator(null);
+            final GestureDetector gd =
+                    new GestureDetector(
+                            getContext(),
+                            new GestureDetector.SimpleOnGestureListener() {
+                                @Override
+                                public boolean onScroll(
+                                        MotionEvent e1,
+                                        MotionEvent e2,
+                                        float distanceX,
+                                        float distanceY) {
+                                    closeExpand();
+                                    return super.onScroll(e1, e2, distanceX, distanceY);
+                                }
+                            });
+            mList.addOnItemTouchListener(
+                    new RecyclerView.OnItemTouchListener() {
+                        @Override
+                        public boolean onInterceptTouchEvent(
+                                @NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                            return gd.onTouchEvent(e);
+                        }
+
+                        @Override
+                        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                            // Do nothing
+                        }
+
+                        @Override
+                        public void onRequestDisallowInterceptTouchEvent(
+                                boolean disallowIntercept) {
+                            // Do nothing
+                        }
+                    });
+        }
+
+        mRefreshLayout.setNestedScrollingEnabled(false);
+        mRefreshLayout.setRefreshHeader(new RongRefreshHeader(getContext()));
+        mRefreshLayout.setRefreshFooter(new RongRefreshHeader(getContext()));
+        mRefreshLayout.setEnableRefresh(true);
+        mRefreshLayout.setOnRefreshListener(this);
+        mRefreshLayout.setOnLoadMoreListener(this);
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if (getActivity() == null || getActivity().getIntent() == null) {
+            RLog.e(
+                    TAG,
+                    "Must put targetId and conversation type to intent when start conversation.");
+            return;
+        }
+        super.onViewCreated(view, savedInstanceState);
+        Intent intent = getActivity().getIntent();
+        if (mTargetId == null) {
+            mTargetId = intent.getStringExtra(RouteUtils.TARGET_ID);
+        }
+        if (mConversationType == null) {
+            String type = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
+            if (type != null) {
+                mConversationType =
+                        Conversation.ConversationType.valueOf(type.toUpperCase(Locale.US));
+            }
+        }
+        if (mBundle == null) {
+            mBundle = intent.getExtras();
+        }
+        if (Conversation.ConversationType.SYSTEM.equals(mConversationType)) {
+            mRongExtension.setVisibility(View.GONE);
+        } else {
+            mRongExtension.setVisibility(View.VISIBLE);
+        }
+        mMessageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
+        mRongExtensionViewModel = new ViewModelProvider(this).get(RongExtensionViewModel.class);
+        bindConversation(mTargetId, mConversationType, mBundle);
+        if (!PermissionCheckUtil.checkPermissions(
+                getContext(),
+                new String[] {
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                })) {
+            PermissionCheckUtil.requestPermissions(
+                    ConversationFragment.this.getActivity(),
+                    new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_MSG_DOWNLOAD_PERMISSION);
+        }
+        onViewCreated = true;
+    }
+
+    public void initConversation(
+            String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
+        if (onViewCreated) {
+            bindConversation(targetId, conversationType, bundle);
+        } else {
+            mTargetId = targetId;
+            mConversationType = conversationType;
+            mBundle = bundle;
+        }
+    }
+
+    private void bindConversation(
+            String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
+        if (conversationType != null && !TextUtils.isEmpty(targetId)) {
+            for (IConversationUIRenderer processor :
+                    RongConfigCenter.conversationConfig().getViewProcessors()) {
+                processor.init(this, mRongExtension, conversationType, targetId);
+            }
+            mRongExtension.bindToConversation(this, conversationType, targetId);
+            mMessageViewModel.bindConversation(conversationType, targetId, bundle);
+            subscribeUi();
+        } else {
+            RLog.e(
+                    TAG,
+                    "Invalid intent data !!! Must put targetId and conversation type to intent.");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getView() == null) {
+            return;
+        }
+        mMessageViewModel.onResume();
+        getView()
+                .setOnKeyListener(
+                        new View.OnKeyListener() {
+                            @Override
+                            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                                if (event.getAction() == KeyEvent.ACTION_UP
+                                        && keyCode == KeyEvent.KEYCODE_BACK) {
+                                    return onBackPressed();
+                                }
+                                return false;
+                            }
+                        });
+        mRongExtension.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMessageViewModel.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mMessageViewModel.onStop();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        for (IConversationUIRenderer processor :
+                RongConfigCenter.conversationConfig().getViewProcessors()) {
+            processor.onDestroy();
+        }
+        mList.removeOnScrollListener(mScrollListener);
+
+        if (mMessageViewModel != null) {
+            mMessageViewModel.getPageEventLiveData().removeObserver(mPageObserver);
+            mMessageViewModel.getUiMessageLiveData().removeObserver(mListObserver);
+            mMessageViewModel
+                    .getNewMentionMessageUnreadLiveData()
+                    .removeObserver(mNewMentionMessageUnreadObserver);
+            mMessageViewModel.onDestroy();
+        }
+
+        if (mRongExtension != null) {
+            mRongExtension.onDestroy();
+            mRongExtension = null;
+        }
+    }
+
+    private void subscribeUi() {
+        mMessageViewModel.getPageEventLiveData().observeForever(mPageObserver);
+        mMessageViewModel.getUiMessageLiveData().observeForever(mListObserver);
+        mMessageViewModel
+                .getNewMessageUnreadLiveData()
+                .observe(getViewLifecycleOwner(), mNewMessageUnreadObserver);
+        mMessageViewModel
+                .getHistoryMessageUnreadLiveData()
+                .observe(getViewLifecycleOwner(), mHistoryMessageUnreadObserver);
+        mMessageViewModel
+                .getNewMentionMessageUnreadLiveData()
+                .observe(getViewLifecycleOwner(), mNewMentionMessageUnreadObserver);
+        mRongExtensionViewModel
+                .getExtensionBoardState()
+                .observe(
+                        getViewLifecycleOwner(),
+                        new Observer<Boolean>() {
+                            @Override
+                            public void onChanged(final Boolean value) {
+                                RLog.d(TAG, "scroll to the bottom");
+                                mList.postDelayed(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                InputMode inputMode =
+                                                        mRongExtensionViewModel
+                                                                .getInputModeLiveData()
+                                                                .getValue();
+                                                if (!inputMode.equals(InputMode.MoreInputMode)
+                                                        && Boolean.TRUE.equals(value)) {
+                                                    mList.scrollToPosition(
+                                                            mAdapter.getItemCount() - 1);
+                                                }
+                                            }
+                                        },
+                                        150);
+                            }
+                        });
+    }
+
+    @Override
+    public void onViewClick(int clickType, UiMessage data) {
+        mMessageViewModel.onViewClick(clickType, data);
+    }
+
+    @Override
+    public boolean onViewLongClick(int clickType, UiMessage data) {
+        return mMessageViewModel.onViewLongClick(clickType, data);
+    }
+
+    /**
+     * 获取顶部通知栏容器
+     *
+     * @return 通知栏容器
+     */
+    public LinearLayout getNotificationContainer() {
+        return mNotificationContainer;
+    }
+
+    /**
+     * 隐藏调用showNotificationView所显示的通知view
+     *
+     * @param notificationView 通知栏 view
+     */
+    public void hideNotificationView(View notificationView) {
+        if (notificationView == null) {
+            return;
+        }
+        View view = mNotificationContainer.findViewById(notificationView.getId());
+        if (view != null) {
+            mNotificationContainer.removeView(view);
+            if (mNotificationContainer.getChildCount() == 0) {
+                mNotificationContainer.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /** 在通知区域显示一个view */
+    public void showNotificationView(View notificationView) {
+        if (notificationView == null) {
+            return;
+        }
+        mNotificationContainer.removeAllViews();
+        if (notificationView.getParent() != null) {
+            ((ViewGroup) notificationView.getParent()).removeView(notificationView);
+        }
+        mNotificationContainer.addView(notificationView);
+        mNotificationContainer.setVisibility(View.VISIBLE);
+    }
+
     Observer<List<UiMessage>> mListObserver =
             new Observer<List<UiMessage>>() {
                 @Override
@@ -114,6 +424,7 @@ public class ConversationFragment extends Fragment
                     refreshList(uiMessages);
                 }
             };
+
     Observer<Integer> mNewMessageUnreadObserver =
             new Observer<Integer>() {
                 @Override
@@ -129,6 +440,7 @@ public class ConversationFragment extends Fragment
                     }
                 }
             };
+
     Observer<Integer> mHistoryMessageUnreadObserver =
             new Observer<Integer>() {
                 @Override
@@ -147,6 +459,7 @@ public class ConversationFragment extends Fragment
                     }
                 }
             };
+
     Observer<Integer> mNewMentionMessageUnreadObserver =
             new Observer<Integer>() {
                 @Override
@@ -164,6 +477,7 @@ public class ConversationFragment extends Fragment
                     }
                 }
             };
+
     Observer<PageEvent> mPageObserver =
             new Observer<PageEvent>() {
                 @Override
@@ -275,180 +589,21 @@ public class ConversationFragment extends Fragment
                         }
                     } else if (event instanceof ShowWarningDialogEvent) {
                         onWarningDialog(((ShowWarningDialogEvent) event).getMessage());
-                    } else if (event instanceof ShowLoadMessageDialogEvent) {
-                        showLoadMessageDialog(
-                                ((ShowLoadMessageDialogEvent) event).getCallback(),
-                                ((ShowLoadMessageDialogEvent) event).getList());
                     }
                 }
             };
-    private LinearLayout mNotificationContainer;
-    private boolean onViewCreated = false;
-    private String mTargetId;
-    private Bundle mBundle;
-    private Conversation.ConversationType mConversationType;
-    private final RecyclerView.OnScrollListener mScrollListener =
-            new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    mMessageViewModel.onScrolled(
-                            recyclerView,
-                            dx,
-                            dy,
-                            mAdapter.getHeadersCount(),
-                            mAdapter.getFootersCount());
-                }
-
-                @Override
-                public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE && onScrollStopRefreshList) {
-                        onScrollStopRefreshList = false;
-                        RLog.d(TAG, "onScrollStateChanged refresh List");
-                        refreshList(mMessageViewModel.getUiMessageLiveData().getValue());
-                    }
-                }
-            };
-
-    {
-        mAdapter = onResolveAdapter();
-    }
-
-    public void initConversation(
-            String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
-        if (onViewCreated) {
-            bindConversation(targetId, conversationType, bundle);
-        } else {
-            mTargetId = targetId;
-            mConversationType = conversationType;
-            mBundle = bundle;
-        }
-    }
-
-    private void bindConversation(
-            String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
-        if (conversationType != null && !TextUtils.isEmpty(targetId)) {
-            for (IConversationUIRenderer processor :
-                    RongConfigCenter.conversationConfig().getViewProcessors()) {
-                processor.init(this, mRongExtension, conversationType, targetId);
-            }
-            mRongExtension.bindToConversation(this, conversationType, targetId);
-            mMessageViewModel.bindConversation(conversationType, targetId, bundle);
-            subscribeUi();
-            bindToConversation = true;
-        } else {
-            RLog.e(
-                    TAG,
-                    "Invalid intent data !!! Must put targetId and conversation type to intent.");
-        }
-    }
-
-    private void subscribeUi() {
-        mMessageViewModel.getPageEventLiveData().observeForever(mPageObserver);
-        mMessageViewModel.getUiMessageLiveData().observeForever(mListObserver);
-        mMessageViewModel
-                .getNewMessageUnreadLiveData()
-                .observe(getViewLifecycleOwner(), mNewMessageUnreadObserver);
-        mMessageViewModel
-                .getHistoryMessageUnreadLiveData()
-                .observe(getViewLifecycleOwner(), mHistoryMessageUnreadObserver);
-        mMessageViewModel
-                .getNewMentionMessageUnreadLiveData()
-                .observe(getViewLifecycleOwner(), mNewMentionMessageUnreadObserver);
-        mRongExtensionViewModel
-                .getExtensionBoardState()
-                .observe(
-                        getViewLifecycleOwner(),
-                        new Observer<Boolean>() {
-                            @Override
-                            public void onChanged(final Boolean value) {
-                                RLog.d(TAG, "scroll to the bottom");
-                                mList.postDelayed(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                InputMode inputMode =
-                                                        mRongExtensionViewModel
-                                                                .getInputModeLiveData()
-                                                                .getValue();
-                                                if (!Objects.equals(
-                                                                inputMode, InputMode.MoreInputMode)
-                                                        && Boolean.TRUE.equals(value)) {
-                                                    if (mMessageViewModel.isNormalState()) {
-                                                        mList.scrollToPosition(
-                                                                mAdapter.getItemCount() - 1);
-                                                    } else {
-                                                        mMessageViewModel.newMessageBarClick();
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        150);
-                            }
-                        });
-    }
-
-    @Override
-    public void onViewClick(int clickType, UiMessage data) {
-        if (MessageProviderPermissionHandler.getInstance()
-                .handleMessageClickPermission(data, this)) {
-            return;
-        }
-
-        mMessageViewModel.onViewClick(clickType, data);
-    }
-
-    @Override
-    public boolean onViewLongClick(int clickType, UiMessage data) {
-        return mMessageViewModel.onViewLongClick(clickType, data);
-    }
-
-    /**
-     * 获取顶部通知栏容器
-     *
-     * @return 通知栏容器
-     */
-    public LinearLayout getNotificationContainer() {
-        return mNotificationContainer;
-    }
-
-    /**
-     * 隐藏调用showNotificationView所显示的通知view
-     *
-     * @param notificationView 通知栏 view
-     */
-    public void hideNotificationView(View notificationView) {
-        if (notificationView == null) {
-            return;
-        }
-        View view = mNotificationContainer.findViewById(notificationView.getId());
-        if (view != null) {
-            mNotificationContainer.removeView(view);
-            if (mNotificationContainer.getChildCount() == 0) {
-                mNotificationContainer.setVisibility(View.GONE);
-            }
-        }
-    }
-
-    /** 在通知区域显示一个view */
-    public void showNotificationView(View notificationView) {
-        if (notificationView == null) {
-            return;
-        }
-        mNotificationContainer.removeAllViews();
-        if (notificationView.getParent() != null) {
-            ((ViewGroup) notificationView.getParent()).removeView(notificationView);
-        }
-        mNotificationContainer.addView(notificationView);
-        mNotificationContainer.setVisibility(View.VISIBLE);
-    }
 
     private void refreshList(final List<UiMessage> data) {
-        if (!mList.isComputingLayout()
-                && mList.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
-            mAdapter.setDataCollection(data);
+        if (mList.isComputingLayout()) {
+            mList.post(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshList(data);
+                        }
+                    });
         } else {
-            onScrollStopRefreshList = true;
+            mAdapter.setDataCollection(data);
         }
     }
 
@@ -474,26 +629,13 @@ public class ConversationFragment extends Fragment
 
     @Override
     public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-        if (mMessageViewModel != null && bindToConversation) {
+        if (mMessageViewModel != null) {
             mMessageViewModel.onRefresh();
         }
     }
 
     public RongExtension getRongExtension() {
         return mRongExtension;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == Activity.RESULT_OK) {
-            ReferenceManager.getInstance().hideReferenceView();
-        }
-        if (requestCode == REQUEST_CODE_FORWARD) {
-            mMessageViewModel.forwardMessage(data);
-            return;
-        }
-        mRongExtension.onActivityPluginResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -514,32 +656,7 @@ public class ConversationFragment extends Fragment
                         this.getContext(), permissions, grantResults);
             }
             return;
-        } else if (requestCode == PermissionCheckUtil.REQUEST_CODE_LOCATION_SHARE) {
-            if (PermissionCheckUtil.checkPermissions(getActivity(), permissions)) {
-                LocationUiRender locationUiRender = null;
-                for (IConversationUIRenderer processor :
-                        RongConfigCenter.conversationConfig().getViewProcessors()) {
-                    if (processor instanceof LocationUiRender) {
-                        locationUiRender = (LocationUiRender) processor;
-                        break;
-                    }
-                }
-
-                if (locationUiRender != null) {
-                    locationUiRender.joinLocation();
-                }
-            } else {
-                if (getActivity() != null) {
-                    PermissionCheckUtil.showRequestPermissionFailedAlter(
-                            getActivity(), permissions, grantResults);
-                }
-            }
-        } else if (requestCode
-                == MessageProviderPermissionHandler.REQUEST_CODE_ITEM_PROVIDER_PERMISSIONS) {
-            MessageProviderPermissionHandler.getInstance()
-                    .onRequestPermissionsResult(getActivity(), permissions, grantResults);
         }
-
         if (requestCode == PermissionCheckUtil.REQUEST_CODE_ASK_PERMISSIONS
                 && grantResults.length > 0
                 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
@@ -550,225 +667,14 @@ public class ConversationFragment extends Fragment
         }
     }
 
-    /** findId，绑定监听 */
-    @Nullable
     @Override
-    public View onCreateView(
-            @NonNull LayoutInflater inflater,
-            @Nullable ViewGroup container,
-            @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.rc_conversation_fragment, container, false);
-        mList = rootView.findViewById(R.id.rc_message_list);
-        mRongExtension = rootView.findViewById(R.id.rc_extension);
-        mRefreshLayout = rootView.findViewById(R.id.rc_refresh);
-        mNewMessageNum = rootView.findViewById(R.id.rc_new_message_number);
-        mUnreadHistoryMessageNum = rootView.findViewById(R.id.rc_unread_message_count);
-        mUnreadMentionMessageNum = rootView.findViewById(R.id.rc_mention_message_count);
-        mNotificationContainer = rootView.findViewById(R.id.rc_notification_container);
-        mNewMessageNum.setOnClickListener(this);
-        mUnreadHistoryMessageNum.setOnClickListener(this);
-        mUnreadMentionMessageNum.setOnClickListener(this);
-        mLinearLayoutManager = createLayoutManager();
-        if (mList != null) {
-            mList.setLayoutManager(mLinearLayoutManager);
-        }
-        mRefreshLayout.setOnTouchListener(
-                new View.OnTouchListener() {
-                    @SuppressLint("ClickableViewAccessibility")
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        closeExpand();
-                        return false;
-                    }
-                });
-        mAdapter.setItemClickListener(
-                new BaseAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, ViewHolder holder, int position) {
-                        closeExpand();
-                    }
-
-                    @Override
-                    public boolean onItemLongClick(View view, ViewHolder holder, int position) {
-                        return false;
-                    }
-                });
-        // 关闭动画
-        if (mList != null) {
-            mList.setAdapter(mAdapter);
-            mList.addOnScrollListener(mScrollListener);
-            mList.setItemAnimator(null);
-            final GestureDetector gd =
-                    new GestureDetector(
-                            getContext(),
-                            new GestureDetector.SimpleOnGestureListener() {
-                                @Override
-                                public boolean onScroll(
-                                        MotionEvent e1,
-                                        MotionEvent e2,
-                                        float distanceX,
-                                        float distanceY) {
-                                    closeExpand();
-                                    return super.onScroll(e1, e2, distanceX, distanceY);
-                                }
-                            });
-            mList.addOnItemTouchListener(
-                    new RecyclerView.OnItemTouchListener() {
-                        @Override
-                        public boolean onInterceptTouchEvent(
-                                @NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                            return gd.onTouchEvent(e);
-                        }
-
-                        @Override
-                        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                            // Do nothing
-                        }
-
-                        @Override
-                        public void onRequestDisallowInterceptTouchEvent(
-                                boolean disallowIntercept) {
-                            // Do nothing
-                        }
-                    });
-        }
-
-        mRefreshLayout.setNestedScrollingEnabled(false);
-        mRefreshLayout.setRefreshHeader(new RongRefreshHeader(getContext()));
-        mRefreshLayout.setRefreshFooter(new RongRefreshHeader(getContext()));
-        mRefreshLayout.setEnableRefresh(true);
-        mRefreshLayout.setOnRefreshListener(this);
-        mRefreshLayout.setOnLoadMoreListener(this);
-        return rootView;
-    }
-
-    private RecyclerView.LayoutManager createLayoutManager() {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        linearLayoutManager.setStackFromEnd(true);
-        return linearLayoutManager;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        if (getActivity() == null || getActivity().getIntent() == null) {
-            RLog.e(
-                    TAG,
-                    "Must put targetId and conversation type to intent when start conversation.");
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_FORWARD) {
+            mMessageViewModel.forwardMessage(data);
             return;
         }
-        if (!IMCenter.getInstance().isInitialized()) {
-            RLog.e(TAG, "Please init SDK first!");
-            return;
-        }
-        super.onViewCreated(view, savedInstanceState);
-        Intent intent = getActivity().getIntent();
-        if (mTargetId == null) {
-            mTargetId = intent.getStringExtra(RouteUtils.TARGET_ID);
-        }
-        if (mConversationType == null) {
-            String type = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
-            if (type != null) {
-                mConversationType =
-                        Conversation.ConversationType.valueOf(type.toUpperCase(Locale.US));
-            }
-        }
-        if (mBundle == null) {
-            mBundle = intent.getExtras();
-        }
-        if (Conversation.ConversationType.SYSTEM.equals(mConversationType)) {
-            mRongExtension.setVisibility(View.GONE);
-        } else {
-            mRongExtension.setVisibility(View.VISIBLE);
-        }
-        mMessageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
-        mRongExtensionViewModel = new ViewModelProvider(this).get(RongExtensionViewModel.class);
-        bindConversation(mTargetId, mConversationType, mBundle);
-
-        // NOTE: 2021/8/25  当初解决高清语音自动下载，现在高清语音下载不需要申请存储权限，删除此处.
-        onViewCreated = true;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (getView() == null) {
-            return;
-        }
-        mMessageViewModel.onResume();
-        getView()
-                .setOnKeyListener(
-                        new View.OnKeyListener() {
-                            @Override
-                            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                                if (event.getAction() == KeyEvent.ACTION_UP
-                                        && keyCode == KeyEvent.KEYCODE_BACK) {
-                                    return onBackPressed();
-                                }
-                                return false;
-                            }
-                        });
-        mRongExtension.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMessageViewModel.onPause();
-        mRongExtension.onPause();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        // 保存 activity 的原 softInputMode
-        FragmentActivity activity = getActivity();
-        if (activity != null) {
-            activitySoftInputMode = activity.getWindow().getAttributes().softInputMode;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && activity.isInMultiWindowMode()) {
-                resetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-            } else {
-                resetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-            }
-        }
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mMessageViewModel.onStop();
-        resetSoftInputMode(activitySoftInputMode);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        for (IConversationUIRenderer processor :
-                RongConfigCenter.conversationConfig().getViewProcessors()) {
-            processor.onDestroy();
-        }
-        mList.removeOnScrollListener(mScrollListener);
-
-        if (mMessageViewModel != null) {
-            mMessageViewModel.getPageEventLiveData().removeObserver(mPageObserver);
-            mMessageViewModel.getUiMessageLiveData().removeObserver(mListObserver);
-            mMessageViewModel
-                    .getNewMentionMessageUnreadLiveData()
-                    .removeObserver(mNewMentionMessageUnreadObserver);
-            mMessageViewModel.onDestroy();
-        }
-
-        if (mRongExtension != null) {
-            mRongExtension.onDestroy();
-            mRongExtension = null;
-        }
-        bindToConversation = false;
-    }
-
-    private void resetSoftInputMode(int mode) {
-        FragmentActivity activity = getActivity();
-        if (activity != null) {
-            activity.getWindow().setSoftInputMode(mode);
-        }
+        mRongExtension.onActivityPluginResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -785,10 +691,24 @@ public class ConversationFragment extends Fragment
 
     @Override
     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-        if (mMessageViewModel != null && bindToConversation) {
+        if (mMessageViewModel != null) {
             mMessageViewModel.onLoadMore();
         }
     }
+
+    private RecyclerView.OnScrollListener mScrollListener =
+            new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    mMessageViewModel.onScrolled(
+                            recyclerView,
+                            dx,
+                            dy,
+                            mAdapter.getHeadersCount(),
+                            mAdapter.getFootersCount());
+                }
+            };
 
     /**
      * 提示dialog. 例如"加入聊天室失败"的dialog 用户自定义此dialog的步骤: 1.定义一个类继承自 ConversationFragment 2.重写
@@ -825,35 +745,6 @@ public class ConversationFragment extends Fragment
                                 }
                             }
                         });
-    }
-
-    private void showLoadMessageDialog(
-            final MessageProcessor.GetMessageCallback callback, final List<Message> list) {
-        new AlertDialog.Builder(getActivity(), AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
-                .setMessage(getString(R.string.rc_load_local_message))
-                .setPositiveButton(
-                        getString(R.string.rc_dialog_ok),
-                        new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (callback != null) {
-                                    callback.onSuccess(list, true);
-                                }
-                            }
-                        })
-                .setNegativeButton(
-                        getString(R.string.rc_cancel),
-                        new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (callback != null) {
-                                    callback.onErrorAsk(list);
-                                }
-                            }
-                        })
-                .show();
     }
 
     private void closeExpand() {

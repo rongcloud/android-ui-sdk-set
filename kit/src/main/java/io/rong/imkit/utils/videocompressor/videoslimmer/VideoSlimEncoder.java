@@ -44,7 +44,10 @@ public class VideoSlimEncoder {
 
     public VideoSlimEncoder() {}
 
-    /** trans video and audio by mediacodec */
+    /***
+     * trans video and audio  by mediacodec
+     *
+     * */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public boolean convertVideo(
             final String sourcePath,

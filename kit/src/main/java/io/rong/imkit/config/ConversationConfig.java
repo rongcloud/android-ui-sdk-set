@@ -44,7 +44,6 @@ import io.rong.imkit.feature.publicservice.provider.PublicServiceRichContentMess
 import io.rong.imkit.feature.reference.ReferenceMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.adapter.ProviderManager;
-import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
 import java.util.ArrayList;
@@ -109,6 +108,7 @@ public class ConversationConfig {
     private boolean showHistoryDividerMessage = true;
 
     private ConversationClickListener mConversationClickListener;
+    private OnSendMessageListener mOnSendMessageListener;
     private ProviderManager<UiMessage> mMessageListProvider = new ProviderManager<>();
     private List<IConversationUIRenderer> mConversationViewProcessors = new ArrayList<>();
     private List<IConversationSummaryProvider> mConversationSummaryProviders = new ArrayList<>();
@@ -123,8 +123,6 @@ public class ConversationConfig {
     private int conversationRemoteMessageCount = 10;
     // 进入会话界面，默认显示未读消息数量
     private int conversationShowUnreadMessageCount = 10;
-    private IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType =
-            IRongCoreEnum.ConversationLoadMessageType.ALWAYS;
 
     ConversationConfig() {
         initMessageProvider();
@@ -299,43 +297,65 @@ public class ConversationConfig {
     }
 
     /**
+     * /~chiense
+     *
      * @param index 添加位置
      * @param action 添加点击更多事件
      * @return
+     */
+
+    /**
+     * /~english
+     *
+     * @param index Add location
+     * @param action Add click more events
      */
     public void addMoreClickAction(int index, IClickActions action) {
         if (action != null) mMoreClickActions.add(index, action);
     }
 
     /**
-     * 移除点击事件
-     *
-     * @param action 移除的点击事件
-     */
-    public void removeMoreClickAction(IClickActions action) {
-        if (action != null) {
-            mMoreClickActions.remove(action);
-        }
-    }
-
-    /**
-     * ConversationFragment 处理器
+     * /~chinese ConversationFragment 处理器
      *
      * @param processor
      * @return
+     */
+
+    /**
+     * /~english ConversationFragment processor
+     *
+     * @param processor IConversationUIRenderer
      */
     public void addViewProcessor(IConversationUIRenderer processor) {
         mConversationViewProcessors.add(processor);
     }
 
-    /** @return ConversationFragment 处理器 */
+    /**
+     * /~chinese
+     *
+     * @return ConversationFragment 处理器
+     */
+
+    /**
+     * /~english
+     *
+     * @return ConversationFragment processor
+     */
     public List<IConversationUIRenderer> getViewProcessors() {
         return mConversationViewProcessors;
     }
 
     /**
+     * /~chinese
+     *
      * @param provider 消息列表 item 提供者
      * @return
+     */
+
+    /**
+     * /~english
+     *
+     * @param provider Message list item provider
      */
     public void addMessageProvider(IMessageProvider provider) {
         if (provider != null) {
@@ -345,10 +365,17 @@ public class ConversationConfig {
     }
 
     /**
-     * 替换已有的模板
+     * /~chinese 替换已有的模板
      *
      * @param oldProviderClass 旧模板 class 类
      * @param provider 新模板
+     */
+
+    /**
+     * /~english Replace an existing template
+     *
+     * @param oldProviderClass Old template class
+     * @param provider New template
      */
     public void replaceMessageProvider(Class oldProviderClass, IMessageProvider provider) {
         mMessageListProvider.replaceProvider(oldProviderClass, provider);
@@ -365,16 +392,34 @@ public class ConversationConfig {
         }
     }
 
-    /** @return 获得消息模板列表 */
+    /**
+     * /~chinese
+     *
+     * @return 获得消息模板列表
+     */
+
+    /**
+     * /~english
+     *
+     * @return Get a list of message templates
+     */
     public ProviderManager<UiMessage> getMessageListProvider() {
         return mMessageListProvider;
     }
 
     /**
-     * 获得消息展示信息
+     * /~chinese 获得消息展示信息
      *
      * @param context 上下文
      * @param messageContent 消息类型
+     * @return
+     */
+
+    /**
+     * /~english Get message display information
+     *
+     * @param context Context
+     * @param messageContent Message type
      * @return
      */
     public Spannable getMessageSummary(Context context, MessageContent messageContent) {
@@ -393,9 +438,16 @@ public class ConversationConfig {
     }
 
     /**
-     * 是否在消息列表显示名称
+     * /~chinese 是否在消息列表显示名称
      *
      * @param messageContent 消息类型
+     * @return
+     */
+
+    /**
+     * /~english Whether to display the name in the message list
+     *
+     * @param messageContent Message type
      * @return
      */
     public boolean showSummaryWithName(MessageContent messageContent) {
@@ -407,16 +459,34 @@ public class ConversationConfig {
         return false;
     }
 
-    /** @param showReceiverUserTitle 单聊是否显示用户昵称 */
+    /**
+     * /~chinese
+     *
+     * @param showReceiverUserTitle 单聊是否显示用户昵称
+     */
+
+    /**
+     * /~english
+     *
+     * @param showReceiverUserTitle Whether a single chat displays the user's nickname
+     */
     public void setShowReceiverUserTitle(boolean showReceiverUserTitle) {
         this.showReceiverUserTitle = showReceiverUserTitle;
     }
 
     /**
-     * 单聊是否显示用户昵称 仅支持配置单聊属性
+     * /~chinese 单聊是否显示用户昵称 仅支持配置单聊属性
      *
      * @param type 会话类型
      * @return 是否显示
+     */
+
+    /**
+     * /~english Whether a single chat displays user nicknames. Only the configuration of single
+     * chat attributes is supported
+     *
+     * @param type Conversation type
+     * @return Whether to display
      */
     public boolean isShowReceiverUserTitle(Conversation.ConversationType type) {
         if (!showReceiverUserTitle) {
@@ -429,36 +499,96 @@ public class ConversationConfig {
         return true;
     }
 
-    /** @return 长按是否显示更多选项 */
+    /**
+     * /~chinese
+     *
+     * @return 长按是否显示更多选项
+     */
+
+    /**
+     * /~english
+     *
+     * @return Does the hold show more options?
+     */
     public boolean isShowMoreClickAction() {
         return showMoreClickAction;
     }
 
-    /** @param showMoreClickAction 长按是否显示更多选项 */
+    /**
+     * /~chinese
+     *
+     * @param showMoreClickAction 长按是否显示更多选项
+     */
+
+    /**
+     * /~english
+     *
+     * @param showMoreClickAction Hold to check whether to show more options
+     */
     public void setShowMoreClickAction(boolean showMoreClickAction) {
         this.showMoreClickAction = showMoreClickAction;
     }
 
-    /** @return 是否显示历史消息模板 */
+    /**
+     * /~chinese
+     *
+     * @return 是否显示历史消息模板
+     */
+
+    /**
+     * /~english
+     *
+     * @return Whether to display the historical message template
+     */
     public boolean isShowHistoryDividerMessage() {
         return showHistoryDividerMessage;
     }
 
-    /** @param showHistoryDividerMessage 是否显示历史消息模板 */
+    /**
+     * /~chinese
+     *
+     * @param showHistoryDividerMessage 是否显示历史消息模板
+     */
+
+    /**
+     * /~english
+     *
+     * @return Whether to display the historical message template
+     */
     public void setShowHistoryDividerMessage(boolean showHistoryDividerMessage) {
         this.showHistoryDividerMessage = showHistoryDividerMessage;
     }
 
-    /** @param showNewMessageBar 新消息是否显示未读气泡，目前仅支持单群聊（聊天室等，设置无效） */
+    /**
+     * /~chinese
+     *
+     * @param showNewMessageBar 新消息是否显示未读气泡，目前仅支持单群聊（聊天室等，设置无效）
+     */
+
+    /**
+     * /~english
+     *
+     * @return Whether unread bubbles are displayed in new messages. Currently, only single group
+     *     chat is supported (settings such as chatrooms are invalid)
+     */
     public void setShowNewMessageBar(boolean showNewMessageBar) {
         this.showNewMessageBar = showNewMessageBar;
     }
 
     /**
-     * 新消息是否显示未读气泡，目前仅支持单群聊
+     * /~chinese 新消息是否显示未读气泡，目前仅支持单群聊
      *
      * @param type 会话类型
      * @return 不支持类型返回false，支持类型返回 showHistoryMessageBar 值
+     */
+
+    /**
+     * /~english Whether the new message shows unread bubbles. Currently, only single group chat is
+     * supported
+     *
+     * @param type Conversation type
+     * @return Return false for non-supported type and return showHistoryMessageBar value for the
+     *     supported type
      */
     public boolean isShowNewMessageBar(Conversation.ConversationType type) {
         if (showNewMessageBar) {
@@ -474,10 +604,18 @@ public class ConversationConfig {
     }
 
     /**
-     * 会话页面右上角的未读 @ 消息数提示，目前仅支持群聊
+     * /~chinese 会话页面右上角的未读 @ 消息数提示，目前仅支持群聊
      *
      * @param type 会话类型
      * @return 不支持类型返回 false，支持类型返回 showNewMentionMessageBar 值
+     */
+
+    /**
+     * /~english The number of unread @ messages at the upper right corner of the conversation page
+     * is prompted. Currently, only group chat is supported.
+     *
+     * @param type Conversation type
+     * @return Do not support type return false, support type return showNewMentionMessageBar value
      */
     public boolean isShowNewMentionMessageBar(Conversation.ConversationType type) {
         if (showNewMentionMessageBar) {
@@ -490,7 +628,18 @@ public class ConversationConfig {
         return false;
     }
 
-    /** @param showNewMentionMessageBar 是否显示会话页面右上角的未读 @ 消息数提示，仅支持设置群组 */
+    /**
+     * /~chinese
+     *
+     * @param showNewMentionMessageBar 是否显示会话页面右上角的未读 @ 消息数提示，仅支持设置群组
+     */
+
+    /**
+     * /~english
+     *
+     * @param showNewMentionMessageBar Whether to display the number of unread @ messages in the
+     *     upper right corner of the conversation page. You can only set groups
+     */
     public void setShowNewMentionMessageBar(boolean showNewMentionMessageBar) {
         this.showNewMentionMessageBar = showNewMentionMessageBar;
     }
@@ -519,16 +668,36 @@ public class ConversationConfig {
         this.conversationShowUnreadMessageCount = conversationShowUnreadMessageCount;
     }
 
-    /** @param showHistoryMessageBar 是否显示历史未读消息气泡，仅支持设置私聊，群组 */
+    /**
+     * /~chinese
+     *
+     * @param showHistoryMessageBar 是否显示历史未读消息气泡，仅支持设置私聊，群组
+     */
+
+    /**
+     * /~english
+     *
+     * @param showHistoryMessageBar Whether to display the bubble of historical unread messages.
+     *     Only private chat and group are supported
+     */
     public void setShowHistoryMessageBar(boolean showHistoryMessageBar) {
         this.showHistoryMessageBar = showHistoryMessageBar;
     }
 
     /**
-     * 是否显示历史未读消息气泡，仅支持设置私聊，群组
+     * /~chinese 是否显示历史未读消息气泡，仅支持设置私聊，群组
      *
      * @param type 会话类型
      * @return 不支持类型返回false，支持类型返回 showHistoryMessageBar 值
+     */
+
+    /**
+     * /~english Whether to display the bubble of historical unread messages. Only private chat and
+     * group are supported
+     *
+     * @param type Conversation type
+     * @return Return false for non-supported type and return showHistoryMessageBar value for the
+     *     supported type
      */
     public boolean isShowHistoryMessageBar(Conversation.ConversationType type) {
         if (showHistoryMessageBar) {
@@ -552,9 +721,18 @@ public class ConversationConfig {
     }
 
     /**
-     * 获取会话页面长按消息，弹出框里点击"更多"选项时，底部需要显示的条目。 可以通过对此列表的增删，进行自定义显示。
+     * /~chinese 获取会话页面长按消息，弹出框里点击"更多"选项时，底部需要显示的条目。 可以通过对此列表的增删，进行自定义显示。
      *
      * @return 当前设置的点击"更多"时底部显示的条目列表。
+     */
+
+    /**
+     * /~english Get the hold message on the conversation page and he entry that shall be displayed
+     * at the bottom when you click the "more" option in the pop-up box. You can customize the
+     * display by adding or deleting this list.
+     *
+     * @return The list of entries displayed at the bottom of the current setting when you click
+     *     "more".
      */
     public List<IClickActions> getMoreClickActions() {
         return mMoreClickActions;
@@ -569,10 +747,17 @@ public class ConversationConfig {
     }
 
     /**
-     * 设置已读回执，仅支持单聊，群聊，讨论组，密聊，其余不生效
+     * /~chinese 设置已读回执，仅支持单聊，群聊，讨论组，密聊，其余不生效
      *
      * @param enable 回执开关
      * @return
+     */
+
+    /**
+     * /~english Set read receipt. Only single chat, group chat, discussion group and secret chat
+     * are supported and the rest are not valid
+     *
+     * @param enable Return receipt switch
      */
     public void setEnableReadReceipt(boolean enable) {
         mEnableReadReceipt = enable;
@@ -584,10 +769,17 @@ public class ConversationConfig {
     }
 
     /**
-     * 仅适用单聊和加密
+     * /~chinese 仅适用单聊和加密
      *
      * @param type 会话类型
      * @return 不支持类型返回 false, 支持类型 enableReadReceipt 值
+     */
+
+    /**
+     * /~english Only for single chat and encryption
+     *
+     * @param type Conversation type
+     * @return Do not support type return false, support type enableReadReceipt value
      */
     public boolean isShowReadReceipt(Conversation.ConversationType type) {
         if (mEnableReadReceipt) {
@@ -601,10 +793,17 @@ public class ConversationConfig {
     }
 
     /**
-     * 仅适用群聊和讨论组
+     * /~chinese 仅适用群聊和讨论组
      *
      * @param type 会话类型
      * @return 不支持类型返回 false, 支持类型返回 enableReadReceipt 值
+     */
+
+    /**
+     * /~english Group chat and discussion groups only
+     *
+     * @param type Conversation type
+     * @return Do not support type return false, support type return enableReadReceipt value
      */
     public boolean isShowReadReceiptRequest(Conversation.ConversationType type) {
         if (mEnableReadReceipt) {
@@ -612,18 +811,25 @@ public class ConversationConfig {
                 case GROUP:
                 case DISCUSSION:
                     return mSupportReadReceiptConversationTypes.contains(type);
-                default:
-                    break;
             }
         }
         return false;
     }
 
     /**
-     * 是否打开多端阅读状态同步功能。 开启之后，在其它端阅读过的消息，当前客户端会同步清掉未读数。
+     * /~chinese 是否打开多端阅读状态同步功能。 开启之后，在其它端阅读过的消息，当前客户端会同步清掉未读数。
      *
      * @param type 会话类型。该功能仅支持单聊、群聊。
      * @return 功能是否开启。
+     */
+
+    /**
+     * /~english Whether to enable the multi-terminal reading status synchronization function When
+     * enabled, the current client will synchronously clear the unread of the messages that have
+     * been read on the other side.
+     *
+     * @param type Conversation type This function only supports individual chat and group chat.
+     * @return Whether the function is enabled or not.
      */
     public boolean isEnableMultiDeviceSync(Conversation.ConversationType type) {
         if (enableMultiDeviceSync) {
@@ -642,12 +848,11 @@ public class ConversationConfig {
         this.enableMultiDeviceSync = enableMultiDeviceSync;
     }
 
-    public void setConversationLoadMessageType(
-            IRongCoreEnum.ConversationLoadMessageType conversationLoadMessageType) {
-        this.conversationLoadMessageType = conversationLoadMessageType;
+    public void setSendMessageListener(OnSendMessageListener listener) {
+        this.mOnSendMessageListener = listener;
     }
 
-    public IRongCoreEnum.ConversationLoadMessageType getConversationLoadMessageType() {
-        return conversationLoadMessageType;
+    public OnSendMessageListener getSendMessageLister() {
+        return mOnSendMessageListener;
     }
 }

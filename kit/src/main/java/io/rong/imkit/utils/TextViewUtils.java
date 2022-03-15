@@ -32,14 +32,16 @@ public class TextViewUtils {
         if (spannable.length() < CONTENT_LIMIT_LENGTH) {
             regularContent(emojiSpannable);
         } else {
+            final SpannableStringBuilder spannableStringBuilder =
+                    new SpannableStringBuilder(emojiSpannable);
             ExecutorHelper.getInstance()
                     .compressExecutor()
                     .execute(
                             new Runnable() {
                                 @Override
                                 public void run() {
-                                    regularContent(emojiSpannable);
-                                    callBack.finish(emojiSpannable);
+                                    regularContent(spannableStringBuilder);
+                                    callBack.finish(spannableStringBuilder);
                                 }
                             });
         }
@@ -57,12 +59,12 @@ public class TextViewUtils {
             return new SpannableStringBuilder("");
         }
         SpannableStringBuilder spannable = new SpannableStringBuilder(content);
-        final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
-        emojiSpannable.setSpan(
+        spannable.setSpan(
                 new ForegroundColorSpan(foregroundColor),
                 0,
                 content.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
         AndroidEmoji.ensure(emojiSpannable);
         if (spannable.length() < CONTENT_LIMIT_LENGTH) {
             regularContent(emojiSpannable);
@@ -90,6 +92,9 @@ public class TextViewUtils {
             int end = spannable.getSpanEnd(span);
             spannable.removeSpan(span);
             span = new URLSpanNoUnderline(span.getURL());
+            if (end < start) {
+                continue;
+            }
             spannable.setSpan(span, start, end, 0);
         }
     }

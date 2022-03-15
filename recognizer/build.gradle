@@ -6,8 +6,8 @@ android {
     defaultConfig {
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 20220301
-        versionName "5.2.0"
+        versionCode 20220315
+        versionName "5.1.3.10"
     }
     buildTypes {
         release {
@@ -26,9 +26,9 @@ android {
     android {
         lintOptions {
             abortOnError false
-            baseline file("lint-baseline.xml")
         }
     }
+
 }
 
 dependencies {

@@ -10,7 +10,6 @@
     <color name="rc_secondary_color">#A0A5AB</color>
     <color name="rc_auxiliary_color">#c7cbce</color>
     <color name="rc_divider_color">#E3E5E6</color>
-    <color name="rc_gif_item_pre_progress_color">#CCFFFFFF</color>
 
     <color name="rc_white_color">#FFFFFF</color>
     <color name="rc_voice_color">#111f2c</color>
@@ -29,14 +28,14 @@
     <color name="rc_map_list_text_color">#262626</color>
     <color name="rc_map_list_text_grey_color">#939393</color>
     <color name="rc_map_search_highlight_color">#0099ff</color>
-    <color name="rc_map_send_enabled">#000000</color>
-    <color name="rc_map_send_not_enabled">#B0B0B0</color>
+    <color name="rc_map_send_enabled">#7F000000</color>
+    <color name="rc_map_send_not_enabled">#80FFFFFF</color>
     <color name="rc_map_list_divider_color">#e5e5e5</color>
 
     //Todo delete later
     <color name="rc_popup_dialog_list_divider_color">#dfdfdd</color>
-    <color name="rc_popup_dialog_prompt_ok_color">#f43530</color>
-    <color name="rc_popup_dialog_prompt_cancel_color">#0099ff</color>
+    <color name="rc_popup_dialog_prompt_ok_color">#0099ff</color>
+    <color name="rc_popup_dialog_prompt_cancel_color">#999999</color>
     <color name="rc_popup_dialog_prompt_clear_color">#f43530</color>
     <color name="rc_popup_dialog_text_color">#353535</color>
 
@@ -109,4 +108,5 @@
 
     <!--公众号-->
     <color name="rc_ext_menu_item_text_color">#FF111F2C</color>
+    <color name="rc_unread_bg_color">#e4e6e7</color>
 </resources>

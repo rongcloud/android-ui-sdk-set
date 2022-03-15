@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import io.rong.common.RLog;
 import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
@@ -33,15 +34,15 @@ import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.userinfo.db.model.Group;
+import io.rong.imkit.userinfo.db.model.GroupMember;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
-import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
-import io.rong.imlib.model.UserInfo;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
 import java.util.Arrays;
@@ -53,8 +54,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ConversationListViewModel extends AndroidViewModel
-        implements RongUserInfoManager.UserDataObserver {
+public class ConversationListViewModel extends AndroidViewModel {
     private final String TAG = ConversationListViewModel.class.getSimpleName();
     private final int REFRESH_INTERVAL = 500;
     protected Conversation.ConversationType[] mSupportedTypes;
@@ -182,8 +182,6 @@ public class ConversationListViewModel extends AndroidViewModel
                     }
                     Conversation.ConversationType type = event.getMessage().getConversationType();
                     String targetId = event.getMessage().getTargetId();
-                    BaseUiConversation oldItem =
-                            findConversationFromList(type, targetId, mDataFilter.isGathered(type));
                     getConversation(type, targetId);
                 }
 
@@ -197,7 +195,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 @Override
                 public boolean onReceived(
                         Message message, int left, boolean hasPackage, boolean offline) {
-                    getConversationList(false, false);
+                    getConversationList(false);
                     return false;
                 }
             };
@@ -262,7 +260,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 public void onChanged(ConnectionStatus status) {
                     mConnectionStatusLiveData.postValue(status);
                     if (status.equals(ConnectionStatus.CONNECTED)) {
-                        getConversationList(false, false);
+                        getConversationList(false);
                     }
                     // 更新连接状态通知信息
                     updateNoticeContent(status);
@@ -286,7 +284,57 @@ public class ConversationListViewModel extends AndroidViewModel
         mDataFilter = RongConfigCenter.conversationListConfig().getDataProcessor();
 
         mConversationListLiveData = new MediatorLiveData<>();
-        RongUserInfoManager.getInstance().addUserDataObserver(this);
+        mConversationListLiveData.addSource(
+                RongUserInfoManager.getInstance().getAllUsersLiveData(),
+                new Observer<List<User>>() {
+                    @Override
+                    public void onChanged(List<User> users) {
+                        RLog.d(TAG, "Users changed.");
+                        if (mUiConversationList.size() == 0) {
+                            return;
+                        }
+                        if (users != null && users.size() > 0) {
+                            for (BaseUiConversation uiConversation : mUiConversationList) {
+                                uiConversation.onUserInfoUpdate(users);
+                            }
+                            mConversationListLiveData.postValue(mUiConversationList);
+                        }
+                    }
+                });
+        mConversationListLiveData.addSource(
+                RongUserInfoManager.getInstance().getAllGroupsLiveData(),
+                new Observer<List<Group>>() {
+                    @Override
+                    public void onChanged(List<Group> groups) {
+                        if (groups != null && groups.size() > 0) {
+                            RLog.d(TAG, "on group list info changed. notify ui to update.");
+                            for (BaseUiConversation uiConversation : mUiConversationList) {
+                                if (uiConversation instanceof GroupConversation) {
+                                    ((GroupConversation) uiConversation).onGroupInfoUpdate(groups);
+                                }
+                                mConversationListLiveData.postValue(mUiConversationList);
+                            }
+                        }
+                    }
+                });
+
+        mConversationListLiveData.addSource(
+                RongUserInfoManager.getInstance().getAllGroupMembersLiveData(),
+                new Observer<List<GroupMember>>() {
+                    @Override
+                    public void onChanged(List<GroupMember> groupMembers) {
+                        if (groupMembers != null && groupMembers.size() > 0) {
+                            for (BaseUiConversation uiConversation : mUiConversationList) {
+                                if (uiConversation instanceof GroupConversation) {
+                                    ((GroupConversation) uiConversation)
+                                            .onGroupMemberUpdate(groupMembers);
+                                    mConversationListLiveData.postValue(mUiConversationList);
+                                }
+                            }
+                        }
+                    }
+                });
+
         IMCenter.getInstance().addOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
@@ -303,9 +351,8 @@ public class ConversationListViewModel extends AndroidViewModel
      *
      * @param loadMore 是否根据上次同步的时间戳拉取更多会话。 false: 从数据库拉取最新 N 条会话。true: 根据 UI 上最后一条会话的时间戳，继续拉取之前的 N
      *     条会话。
-     * @param isEventManual 是否是用还手动触发的刷新获取，手动触发的需要主动关闭下
      */
-    public void getConversationList(final boolean loadMore, final boolean isEventManual) {
+    public void getConversationList(final boolean loadMore) {
         if (isTaskScheduled) {
             return;
         }
@@ -325,17 +372,14 @@ public class ConversationListViewModel extends AndroidViewModel
                                             @Override
                                             public void onSuccess(
                                                     List<Conversation> conversations) {
-                                                if (isEventManual) {
-                                                    if (loadMore) {
-                                                        mRefreshEventLiveData.postValue(
-                                                                new Event.RefreshEvent(
-                                                                        RefreshState.LoadFinish));
-                                                    } else {
-                                                        mRefreshEventLiveData.postValue(
-                                                                new Event.RefreshEvent(
-                                                                        RefreshState
-                                                                                .RefreshFinish));
-                                                    }
+                                                if (loadMore) {
+                                                    mRefreshEventLiveData.postValue(
+                                                            new Event.RefreshEvent(
+                                                                    RefreshState.LoadFinish));
+                                                } else {
+                                                    mRefreshEventLiveData.postValue(
+                                                            new Event.RefreshEvent(
+                                                                    RefreshState.RefreshFinish));
                                                 }
                                                 if (conversations == null
                                                         || conversations.size() == 0) {
@@ -441,79 +485,16 @@ public class ConversationListViewModel extends AndroidViewModel
                 REFRESH_INTERVAL);
     }
 
-    protected BaseUiConversation findConversationFromList(
-            Conversation.ConversationType conversationType, String targetId, boolean isGathered) {
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            if (isGathered
-                    && uiConversation instanceof GatheredConversation
-                    && Objects.equals(
-                            conversationType, uiConversation.mCore.getConversationType())) {
-                return uiConversation;
-            } else if (!isGathered) {
-                if (uiConversation.mCore.getConversationType().equals(conversationType)
-                        && Objects.equals(uiConversation.mCore.getTargetId(), targetId)) {
-                    return uiConversation;
-                }
+    protected boolean isSupported(Conversation.ConversationType type) {
+        if (mSupportedTypes == null) {
+            return false;
+        }
+        for (Conversation.ConversationType conversationType : mSupportedTypes) {
+            if (conversationType.equals(type)) {
+                return true;
             }
         }
-        return null;
-    }
-
-    // conversationList排序规律：
-    // 1. 首先是top会话，按时间顺序排列。
-    // 2. 然后非top会话也是按时间排列。
-    protected void sort() {
-        List temp = Arrays.asList(mUiConversationList.toArray());
-        Collections.sort(
-                temp,
-                new Comparator<BaseUiConversation>() {
-                    @Override
-                    public int compare(BaseUiConversation o1, BaseUiConversation o2) {
-                        if (o1.mCore.isTop() && o2.mCore.isTop()
-                                || !o1.mCore.isTop() && !o2.mCore.isTop()) {
-                            if (o1.mCore.getSentTime() > o2.mCore.getSentTime()) {
-                                return -1;
-                            } else if (o1.mCore.getSentTime() < o2.mCore.getSentTime()) {
-                                return 1;
-                            } else {
-                                return 0;
-                            }
-                        } else if (o1.mCore.isTop() && !o2.mCore.isTop()) {
-                            return -1;
-                        } else if (!o1.mCore.isTop() && o2.mCore.isTop()) {
-                            return 1;
-                        }
-                        return 0;
-                    }
-                });
-        mUiConversationList.clear();
-        mUiConversationList.addAll(temp);
-    }
-
-    /**
-     * 会话状态（置顶或免打扰）发生变化时的回调。
-     *
-     * @param statuses 发生变更的会话状态。
-     */
-    private void onConversationStatusChange(ConversationStatus[] statuses) {
-        for (ConversationStatus status : statuses) {
-            Conversation.ConversationType type = status.getConversationType();
-            BaseUiConversation oldItem =
-                    findConversationFromList(
-                            type, status.getTargetId(), mDataFilter.isGathered(type));
-            if (oldItem != null) {
-                if (status.getStatus().get(ConversationStatus.TOP_KEY) != null) {
-                    oldItem.mCore.setTop(status.isTop());
-                }
-                if (status.getStatus().get(ConversationStatus.NOTIFICATION_KEY) != null) {
-                    oldItem.mCore.setNotificationStatus(status.getNotifyStatus());
-                }
-                sort();
-                mConversationListLiveData.postValue(mUiConversationList);
-            } else {
-                getConversation(type, status.getTargetId());
-            }
-        }
+        return false;
     }
 
     private void getConversation(Conversation.ConversationType type, String targetId) {
@@ -592,21 +573,34 @@ public class ConversationListViewModel extends AndroidViewModel
         }
     }
 
-    protected boolean isSupported(Conversation.ConversationType type) {
-        if (mSupportedTypes == null) {
-            return false;
-        }
-        for (Conversation.ConversationType conversationType : mSupportedTypes) {
-            if (conversationType.equals(type)) {
-                return true;
+    /**
+     * 会话状态（置顶或免打扰）发生变化时的回调。
+     *
+     * @param statuses 发生变更的会话状态。
+     */
+    private void onConversationStatusChange(ConversationStatus[] statuses) {
+        for (ConversationStatus status : statuses) {
+            Conversation.ConversationType type = status.getConversationType();
+            BaseUiConversation oldItem =
+                    findConversationFromList(
+                            type, status.getTargetId(), mDataFilter.isGathered(type));
+            if (oldItem != null) {
+                if (status.getStatus().get(ConversationStatus.TOP_KEY) != null) {
+                    oldItem.mCore.setTop(status.isTop());
+                }
+                if (status.getStatus().get(ConversationStatus.NOTIFICATION_KEY) != null) {
+                    oldItem.mCore.setNotificationStatus(status.getNotifyStatus());
+                }
+                sort();
+                mConversationListLiveData.postValue(mUiConversationList);
+            } else {
+                getConversation(type, status.getTargetId());
             }
         }
-        return false;
     }
 
     @Override
     protected void onCleared() {
-        RongUserInfoManager.getInstance().removeUserDataObserver(this);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConversationStatusListener(mConversationStatusListener);
@@ -616,6 +610,57 @@ public class ConversationListViewModel extends AndroidViewModel
         IMCenter.getInstance().removeConversationEventListener(mConversationEventListener);
         IMCenter.getInstance()
                 .removeSyncConversationReadStatusListeners(mSyncConversationReadStatusListener);
+    }
+
+    // conversationList排序规律：
+    // 1. 首先是top会话，按时间顺序排列。
+    // 2. 然后非top会话也是按时间排列。
+    protected void sort() {
+        List temp = Arrays.asList(mUiConversationList.toArray());
+        Collections.sort(
+                temp,
+                new Comparator<BaseUiConversation>() {
+                    @Override
+                    public int compare(BaseUiConversation o1, BaseUiConversation o2) {
+                        if (o1.mCore.isTop() && o2.mCore.isTop()
+                                || !o1.mCore.isTop() && !o2.mCore.isTop()) {
+                            if (o1.mCore.getSentTime() > o2.mCore.getSentTime()) {
+                                return -1;
+                            } else if (o1.mCore.getSentTime() < o2.mCore.getSentTime()) {
+                                return 1;
+                            } else {
+                                return 0;
+                            }
+                        } else if (o1.mCore.isTop() && !o2.mCore.isTop()) {
+                            return -1;
+                        } else if (!o1.mCore.isTop() && o2.mCore.isTop()) {
+                            return 1;
+                        }
+                        return 0;
+                    }
+                });
+        mUiConversationList.clear();
+        mUiConversationList.addAll(temp);
+    }
+
+    protected BaseUiConversation findConversationFromList(
+            Conversation.ConversationType conversationType, String targetId, boolean isGathered) {
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            if (isGathered
+                    && uiConversation instanceof GatheredConversation
+                    && ((GatheredConversation) uiConversation)
+                            .mCore
+                            .getConversationType()
+                            .equals(conversationType)) {
+                return uiConversation;
+            } else if (!isGathered) {
+                if (uiConversation.mCore.getConversationType().equals(conversationType)
+                        && uiConversation.mCore.getTargetId().equals(targetId)) {
+                    return uiConversation;
+                }
+            }
+        }
+        return null;
     }
 
     public MediatorLiveData<List<BaseUiConversation>> getConversationListLiveData() {
@@ -684,40 +729,5 @@ public class ConversationListViewModel extends AndroidViewModel
         if (RongConfigCenter.featureConfig().rc_wipe_out_notification_message) {
             RongNotificationManager.getInstance().clearAllNotification();
         }
-    }
-
-    private void refreshConversationList() {
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            mConversationListLiveData.setValue(mUiConversationList);
-        } else {
-            mConversationListLiveData.postValue(mUiConversationList);
-        }
-    }
-
-    @Override
-    public void onUserUpdate(UserInfo info) {
-        if (info == null) {
-            return;
-        }
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            uiConversation.onUserInfoUpdate(info);
-        }
-        refreshConversationList();
-    }
-
-    @Override
-    public void onGroupUpdate(Group group) {
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            uiConversation.onGroupInfoUpdate(group);
-        }
-        refreshConversationList();
-    }
-
-    @Override
-    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            uiConversation.onGroupMemberUpdate(groupUserInfo);
-        }
-        refreshConversationList();
     }
 }

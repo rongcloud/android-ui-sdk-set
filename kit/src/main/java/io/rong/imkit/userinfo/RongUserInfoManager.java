@@ -3,27 +3,17 @@ package io.rong.imkit.userinfo;
 import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Looper;
 import android.text.TextUtils;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.util.Consumer;
-import androidx.room.RoomDatabase;
-import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Observer;
 import io.rong.common.RLog;
-import io.rong.common.utils.function.Action0;
-import io.rong.common.utils.function.Action1;
-import io.rong.common.utils.function.Func0;
-import io.rong.common.utils.function.Func1;
-import io.rong.common.utils.optional.Option;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
-import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
@@ -35,20 +25,32 @@ import java.util.Objects;
 public class RongUserInfoManager {
     private final String TAG = RongUserInfoManager.class.getSimpleName();
     private UserDataDelegate mUserDataDelegate;
-    private CacheDataSource cacheDataSource;
-    private DbDataSource dbDataSource;
+    private LocalUserDataSource mLocalDataSource;
+    private UserDatabase mDatabase;
     private UserInfo mCurrentUserInfo;
     private boolean mIsUserInfoAttached;
-    private boolean isCacheUserInfo = true;
-    private boolean isCacheGroupInfo = true;
-    private boolean isCacheGroupMemberInfo = true;
+    private boolean mIsCacheUserInfo = true;
+    private boolean mIsCacheGroupInfo = true;
+    private boolean mIsCacheGroupMemberInfo = true;
+    private MediatorLiveData<List<User>> mAllUsers;
+    private MediatorLiveData<List<Group>> mAllGroups;
+    private MediatorLiveData<List<GroupMember>> mAllGroupMembers;
     private List<UserDataObserver> mUserDataObservers;
-    private Context context;
+
+    private static class SingleTonHolder {
+        static RongUserInfoManager sInstance = new RongUserInfoManager();
+    }
+
+    public static RongUserInfoManager getInstance() {
+        return SingleTonHolder.sInstance;
+    }
 
     private RongUserInfoManager() {
         mUserDataDelegate = new UserDataDelegate();
         mUserDataObservers = new ArrayList<>();
-        cacheDataSource = new CacheDataSource();
+        mAllUsers = new MediatorLiveData<>();
+        mAllGroups = new MediatorLiveData<>();
+        mAllGroupMembers = new MediatorLiveData<>();
         IMCenter.getInstance()
                 .addOnReceiveMessageListener(
                         new RongIMClient.OnReceiveMessageWrapperListener() {
@@ -70,8 +72,6 @@ public class RongUserInfoManager {
                                                     oldUserInfo.getPortraitUri(),
                                                     userInfo.getPortraitUri())
                                             && Objects.equals(
-                                                    oldUserInfo.getAlias(), userInfo.getAlias())
-                                            && Objects.equals(
                                                     oldUserInfo.getExtra(), userInfo.getExtra())) {
                                         return false;
                                     }
@@ -80,50 +80,83 @@ public class RongUserInfoManager {
                                 return false;
                             }
                         });
-    }
-
-    public @Nullable UserDatabase getUserDatabase() {
-        return dbDataSource == null ? null : dbDataSource.getDatabase();
-    }
-
-    public static RongUserInfoManager getInstance() {
-        return SingleTonHolder.sInstance;
+        mAllUsers.addSource(
+                UserDatabase.getDatabaseCreated(),
+                new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean value) {
+                        if (value) {
+                            mAllUsers.addSource(
+                                    mDatabase.getUserDao().getAllUsers(),
+                                    new Observer<List<User>>() {
+                                        @Override
+                                        public void onChanged(List<User> users) {
+                                            mAllUsers.postValue(users);
+                                        }
+                                    });
+                        } else {
+                            mAllUsers.removeSource(UserDatabase.getDatabaseCreated());
+                        }
+                    }
+                });
+        mAllGroups.addSource(
+                UserDatabase.getDatabaseCreated(),
+                new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean value) {
+                        if (value) {
+                            mAllGroups.addSource(
+                                    mDatabase.getGroupDao().getAllGroups(),
+                                    new Observer<List<Group>>() {
+                                        @Override
+                                        public void onChanged(List<Group> groups) {
+                                            mAllGroups.postValue(groups);
+                                        }
+                                    });
+                        }
+                    }
+                });
+        mAllGroupMembers.addSource(
+                UserDatabase.getDatabaseCreated(),
+                new Observer<Boolean>() {
+                    @Override
+                    public void onChanged(Boolean value) {
+                        if (value) {
+                            mAllGroupMembers.addSource(
+                                    mDatabase.getGroupMemberDao().getAllGroupMembers(),
+                                    new Observer<List<GroupMember>>() {
+                                        @Override
+                                        public void onChanged(List<GroupMember> groupMembers) {
+                                            mAllGroupMembers.postValue(groupMembers);
+                                        }
+                                    });
+                        }
+                    }
+                });
     }
 
     /**
-     * 初始化并打开用户信息数据库
+     * /~chinese 初始化并打开用户信息数据库
+     *
+     * @param context
+     */
+
+    /**
+     * /~english Initialize and open the user information database
      *
      * @param context
      */
     public void initAndUpdateUserDataBase(Context context) {
-        this.context = context;
-        dbDataSource =
-                new DbDataSource(
-                        context,
-                        RongIMClient.getInstance().getCurrentUserId(),
-                        new RoomDatabase.Callback() {
-                            @Override
-                            public void onCreate(@NonNull SupportSQLiteDatabase db) {
-                                super.onCreate(db);
-                            }
-
-                            @Override
-                            public void onOpen(@NonNull SupportSQLiteDatabase db) {
-                                super.onOpen(db);
-                                if (RongConfigCenter.featureConfig().isPreLoadUserCache()) {
-                                    preLoadUserCache();
-                                }
-                            }
-
-                            @Override
-                            public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db) {
-                                super.onDestructiveMigration(db);
-                            }
-                        });
+        mDatabase = UserDatabase.openDb(context, RongIMClient.getInstance().getCurrentUserId());
+        if (mDatabase != null) {
+            mLocalDataSource = new LocalUserDataSource(mDatabase);
+        }
     }
 
     /**
-     * 设置用户信息的提供者，供 UI 获取用户名称和头像信息。 各 ViewModel 会监听用户信息的变化，进行对应刷新。
+     * /~chinese
+     *
+     * <p>设置用户信息的提供者，供 UI 获取用户名称和头像信息。 各 ViewModel 会监听用户信息的变化，进行对应刷新。
      * 如果需要异步从服务器获取用户信息，使用者可以在此方法中发起异步请求，然后返回 null 信息。 在异步请求结果返回后，根据返回的结果调用 {@link
      * #refreshUserInfoCache(UserInfo)}} 刷新用户信息。
      *
@@ -132,20 +165,39 @@ public class RongUserInfoManager {
      *     如果 App 提供的 UserInfoProvider。 每次都需要通过网络请求用户数据，而不是将用户数据缓存到本地，会影响用户信息的加载速度；<br>
      *     此时最好将本参数设置为 true，由 IMKit 来缓存用户信息。
      */
+
+    /**
+     * /~english Set the provider of user information for UI to obtain user name and portrait
+     * information, Each ViewModel will listen to the changes of user information and refresh
+     * accordingly, If you shall get user information asynchronously from the server, the consumer
+     * can initiate an asynchronous request in this method and then return null information, After
+     * the result of the asynchronous request is returned, call {@link
+     * #refreshUserInfoCache(UserInfo)}} to refresh the user information based on the returned
+     * result.
+     *
+     * @param userInfoProvider User information provider {@link UserDataProvider.UserInfoProvider}.
+     * @param isCacheUserInfo Set whether user information is cached by IMKit. If the
+     *     UserInfoProvider provided by App, Each time you shall request user data over the network
+     *     instead of caching it locally, which will affect the loading speed of user information.
+     *     In this case, it is best to set this parameter to true, to cache user information by
+     *     IMKit.
+     */
     public void setUserInfoProvider(
             UserDataProvider.UserInfoProvider userInfoProvider, boolean isCacheUserInfo) {
         mUserDataDelegate.setUserInfoProvider(userInfoProvider);
-        this.isCacheUserInfo = isCacheUserInfo;
+        mIsCacheUserInfo = isCacheUserInfo;
     }
 
     public void setGroupInfoProvider(
             UserDataProvider.GroupInfoProvider groupInfoProvider, boolean isCacheGroupInfo) {
         mUserDataDelegate.setGroupInfoProvider(groupInfoProvider);
-        this.isCacheGroupInfo = isCacheGroupInfo;
+        mIsCacheGroupInfo = isCacheGroupInfo;
     }
 
     /**
-     * 设置群成员提供者
+     * /~chinese
+     *
+     * <p>设置群成员提供者
      *
      * <p>可以使用此方法，修改群组中用户昵称
      *
@@ -159,208 +211,135 @@ public class RongUserInfoManager {
      *     如果 App 提供的 GroupUserInfoProvider。 每次都需要通过网络请求数据，而不是将数据缓存到本地，会影响信息的加载速度；<br>
      *     此时最好将本参数设置为 true，由 IMKit 来缓存信息。
      */
+
+    /**
+     * /~english Set a group member provider. You can use this method to modify user nicknames in
+     * the group. After setting, when the user information is displayed in the sdk interface, the
+     * {@link UserDataProvider.GroupUserInfoProvider#getGroupUserInfo(String, String)} will be
+     * called back, and only shall provide the corresponding user information GroupUserInfo
+     * according to the corresponding groupId, userId. If you shall get user information
+     * asynchronously from the server, the consumer can initiate an asynchronous request in this
+     * method and then return null information. After the result of the asynchronous request is
+     * returned, {@link #refreshGroupUserInfoCache(GroupUserInfo)} refresh information is called
+     * based on the returned result.
+     *
+     * @param groupUserInfoProvider Group user information provider.
+     * @param isCacheGroupUserInfo Set whether GroupUserInfo is cached by IMKit. If the
+     *     GroupUserInfoProvider is provided by App Each time you shall request data over the
+     *     network instead of caching the data locally, which will affect the loading speed of the
+     *     information.
+     *     <p>In this case, it is best to set this parameter to true, and the information is cached
+     *     by IMKit.
+     */
     public void setGroupUserInfoProvider(
             UserDataProvider.GroupUserInfoProvider groupUserInfoProvider,
             boolean isCacheGroupUserInfo) {
         mUserDataDelegate.setGroupUserInfoProvider(groupUserInfoProvider);
-        isCacheGroupMemberInfo = isCacheGroupUserInfo;
+        mIsCacheGroupMemberInfo = isCacheGroupUserInfo;
     }
 
-    public UserInfo getUserInfo(final String userId) {
+    public UserDatabase getUserDatabase() {
+        return mDatabase;
+    }
+
+    public LiveData<List<User>> getAllUsersLiveData() {
+        return mAllUsers;
+    }
+
+    public LiveData<List<Group>> getAllGroupsLiveData() {
+        return mAllGroups;
+    }
+
+    public LiveData<List<GroupMember>> getAllGroupMembersLiveData() {
+        return mAllGroupMembers;
+    }
+
+    public UserInfo getUserInfo(String userId) {
         if (TextUtils.isEmpty(userId)) {
             return null;
         }
-        // 先拿一级缓存
-        return Option.ofObj(cacheDataSource.getUserInfo(userId))
-                .map(
-                        new Func1<User, UserInfo>() {
-                            @Override
-                            public UserInfo call(User user) {
-                                // 一级缓存有值，直接返回 userInfo
-                                return transformUser(user);
-                            }
-                        })
-                .orDefault(
-                        new Func0<UserInfo>() {
-                            @Override
-                            public UserInfo call() {
-                                // 一级缓存无值
-                                if (isCacheUserInfo) {
-                                    // 二级缓存
-                                    getDbUserInfo(userId);
-                                    return null;
-                                } else {
-                                    UserInfo userInfo = mUserDataDelegate.getUserInfo(userId);
-                                    if (userInfo != null) {
-                                        saveUserInfoCache(userInfo);
-                                    }
-                                    return userInfo;
-                                }
-                            }
-                        });
-    }
-
-    private void getDbUserInfo(final String userId) {
-        if (dbDataSource == null) {
+        User user = null;
+        if (mIsCacheUserInfo && mLocalDataSource != null) {
+            user = mLocalDataSource.getUserInfo(userId, mAllUsers);
+        }
+        if (user == null && mUserDataDelegate != null) {
             UserInfo userInfo = mUserDataDelegate.getUserInfo(userId);
             if (userInfo != null) {
-                refreshUserInfoCache(userInfo);
+                user =
+                        new User(
+                                userInfo.getUserId(),
+                                userInfo.getName() == null ? "" : userInfo.getName(),
+                                userInfo.getPortraitUri());
             }
-            return;
+            if (mIsCacheUserInfo && user != null && mLocalDataSource != null) {
+                mLocalDataSource.refreshUserInfo(user);
+            }
         }
-        dbDataSource.getUserInfo(
-                userId,
-                new Consumer<User>() {
+        if (user != null) {
+            String url = user.portraitUrl;
+            Uri portraitUri;
+            if (TextUtils.isEmpty(url)) {
+                portraitUri =
+                        RongUtils.getUriFromDrawableRes(
+                                IMCenter.getInstance().getContext(),
+                                R.drawable.rc_cs_default_portrait);
+            } else {
+                portraitUri = Uri.parse(url);
+            }
+            UserInfo userInfo =
+                    new UserInfo(user.id, user.name == null ? "" : user.name, portraitUri);
+            userInfo.setExtra(user.extra);
+            return userInfo;
+        } else {
+            return null;
+        }
+    }
+
+    public LiveData<User> getUserInfoLiveData(final String userId) {
+        final MediatorLiveData userLiveData = new MediatorLiveData<>();
+        userLiveData.addSource(
+                UserDatabase.getDatabaseCreated(),
+                new Observer<Boolean>() {
                     @Override
-                    public void accept(User user) {
-                        Option.ofObj(user)
-                                .ifSome(
-                                        new Action1<User>() {
-                                            @Override
-                                            public void call(User user) {
-                                                // 缓存内存
-                                                cacheDataSource.refreshUserInfo(user);
-                                                notifyUserChange(transformUser(user));
-                                            }
-                                        })
-                                .ifNone(
-                                        new Action0() {
-                                            @Override
-                                            public void call() {
-                                                UserInfo userInfo =
-                                                        mUserDataDelegate.getUserInfo(userId);
-                                                if (userInfo != null) {
-                                                    refreshUserInfoCache(userInfo);
-                                                }
-                                            }
-                                        });
+                    public void onChanged(Boolean value) {
+                        if (value) {
+                            userLiveData.addSource(
+                                    mDatabase.getUserDao().getUserLiveData(userId),
+                                    new Observer<User>() {
+                                        @Override
+                                        public void onChanged(User user) {
+                                            userLiveData.postValue(user);
+                                        }
+                                    });
+                        } else {
+                            userLiveData.removeSource(UserDatabase.getDatabaseCreated());
+                        }
                     }
                 });
-    }
-
-    private void notifyUserChange(final UserInfo userInfo) {
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            for (UserDataObserver item : mUserDataObservers) {
-                item.onUserUpdate(userInfo);
-            }
-        } else {
-            ExecutorHelper.getInstance()
-                    .mainThread()
-                    .execute(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyUserChange(userInfo);
-                                }
-                            });
-        }
-    }
-
-    private UserInfo transformUser(User user) {
-        int drawableId = R.drawable.rc_default_portrait;
-        Uri uri = context == null ? null : RongUtils.getUriFromDrawableRes(context, drawableId);
-        UserInfo userInfo =
-                new UserInfo(
-                        user.id,
-                        user.name == null ? "" : user.name,
-                        user.portraitUrl == null ? uri : Uri.parse(user.portraitUrl));
-        userInfo.setAlias(user.alias);
-        userInfo.setExtra(user.extra);
-        return userInfo;
+        return userLiveData;
     }
 
     public io.rong.imlib.model.Group getGroupInfo(final String groupId) {
         if (TextUtils.isEmpty(groupId)) {
             return null;
         }
-        // 先拿一级缓存
-        return Option.ofObj(cacheDataSource.getGroupInfo(groupId))
-                .map(
-                        new Func1<Group, io.rong.imlib.model.Group>() {
-                            @Override
-                            public io.rong.imlib.model.Group call(Group group) {
-                                // 一级缓存有值，直接返回 userInfo
-                                return transformGroup(group);
-                            }
-                        })
-                .orDefault(
-                        new Func0<io.rong.imlib.model.Group>() {
-                            @Override
-                            public io.rong.imlib.model.Group call() {
-                                // 一级缓存无值
-                                if (isCacheGroupInfo) {
-                                    // 二级缓存
-                                    getDbGroupInfo(groupId);
-                                    return null;
-                                } else {
-                                    io.rong.imlib.model.Group groupInfo =
-                                            mUserDataDelegate.getGroupInfo(groupId);
-                                    if (groupInfo != null) {
-                                        saveGroupInfoCache(groupInfo);
-                                    }
-                                    return groupInfo;
-                                }
-                            }
-                        });
-    }
-
-    private io.rong.imlib.model.Group transformGroup(@NonNull Group group) {
-        return new io.rong.imlib.model.Group(group.id, group.name, Uri.parse(group.portraitUrl));
-    }
-
-    private void getDbGroupInfo(final String groupId) {
-        if (dbDataSource == null) {
-            io.rong.imlib.model.Group groupInfo = mUserDataDelegate.getGroupInfo(groupId);
-            if (groupInfo != null) {
-                refreshGroupInfoCache(groupInfo);
-            }
-            return;
+        Group group = null;
+        if (mIsCacheGroupInfo && mLocalDataSource != null) {
+            group = mLocalDataSource.getGroupInfo(groupId);
         }
-        dbDataSource.getGroupInfo(
-                groupId,
-                new Consumer<Group>() {
-                    @Override
-                    public void accept(Group group) {
-                        Option.ofObj(group)
-                                .ifSome(
-                                        new Action1<Group>() {
-                                            @Override
-                                            public void call(Group group) {
-                                                // 缓存内存
-                                                cacheDataSource.refreshGroupInfo(group);
-                                                notifyGroupChange(transformGroup(group));
-                                            }
-                                        })
-                                .ifNone(
-                                        new Action0() {
-                                            @Override
-                                            public void call() {
-                                                io.rong.imlib.model.Group groupInfo =
-                                                        mUserDataDelegate.getGroupInfo(groupId);
-                                                if (groupInfo != null) {
-                                                    refreshGroupInfoCache(groupInfo);
-                                                }
-                                            }
-                                        });
-                    }
-                });
-    }
-
-    private void notifyGroupChange(final io.rong.imlib.model.Group group) {
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            for (UserDataObserver item : mUserDataObservers) {
-                item.onGroupUpdate(group);
+        if (group == null && mUserDataDelegate != null) {
+            group = mUserDataDelegate.getGroupInfo(groupId);
+            if (mIsCacheGroupInfo && group != null && mLocalDataSource != null) {
+                mLocalDataSource.refreshGroupInfo(group);
             }
+        }
+        if (group != null) {
+            RLog.d(TAG, "get group info synchronize. name:" + group.name);
+            return new io.rong.imlib.model.Group(
+                    group.id, group.name, Uri.parse(group.portraitUrl));
         } else {
-            ExecutorHelper.getInstance()
-                    .mainThread()
-                    .execute(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyGroupChange(group);
-                                }
-                            });
+            RLog.d(TAG, "get group info null");
+            return null;
         }
     }
 
@@ -368,98 +347,46 @@ public class RongUserInfoManager {
         if (TextUtils.isEmpty(groupId) || TextUtils.isEmpty(userId)) {
             return null;
         }
-        // 先拿一级缓存
-        return Option.ofObj(cacheDataSource.getGroupUserInfo(groupId, userId))
-                .map(
-                        new Func1<GroupMember, GroupUserInfo>() {
-                            @Override
-                            public GroupUserInfo call(GroupMember groupMember) {
-                                // 一级缓存有值，直接返回 userInfo
-                                return transformGroupMember(groupMember);
-                            }
-                        })
-                .orDefault(
-                        new Func0<GroupUserInfo>() {
-                            @Override
-                            public GroupUserInfo call() {
-                                // 一级缓存无值
-                                if (isCacheGroupMemberInfo) {
-                                    // 二级缓存
-                                    getDbGroupUserInfo(groupId, userId);
-                                    return null;
-                                } else {
-                                    GroupUserInfo groupUserInfo =
-                                            mUserDataDelegate.getGroupUserInfo(groupId, userId);
-                                    if (groupUserInfo != null) {
-                                        saveGroupUserInfoCache(groupUserInfo);
-                                    }
-                                    return groupUserInfo;
-                                }
-                            }
-                        });
-    }
-
-    private void getDbGroupUserInfo(final String groupId, final String userId) {
-        if (dbDataSource == null) {
-            GroupUserInfo groupUserInfo = mUserDataDelegate.getGroupUserInfo(groupId, userId);
-            if (groupUserInfo != null) {
-                refreshGroupUserInfoCache(groupUserInfo);
-            }
-            return;
+        GroupMember groupMember = null;
+        if (mIsCacheGroupMemberInfo && mLocalDataSource != null) {
+            groupMember = mLocalDataSource.getGroupUserInfo(groupId, userId, mAllGroupMembers);
         }
-        dbDataSource.getGroupUserInfo(
-                groupId,
-                userId,
-                new Consumer<GroupMember>() {
-                    @Override
-                    public void accept(GroupMember groupMember) {
-                        Option.ofObj(groupMember)
-                                .ifSome(
-                                        new Action1<GroupMember>() {
-                                            @Override
-                                            public void call(GroupMember member) {
-                                                // 缓存内存
-                                                cacheDataSource.refreshGroupUserInfo(member);
-                                                notifyGroupMemberChange(
-                                                        transformGroupMember(member));
-                                            }
-                                        })
-                                .ifNone(
-                                        new Action0() {
-                                            @Override
-                                            public void call() {
-                                                GroupUserInfo groupUserInfo =
-                                                        mUserDataDelegate.getGroupUserInfo(
-                                                                groupId, userId);
-                                                if (groupUserInfo != null) {
-                                                    refreshGroupUserInfoCache(groupUserInfo);
-                                                }
-                                            }
-                                        });
-                    }
-                });
-    }
-
-    private void notifyGroupMemberChange(final GroupUserInfo groupUserInfo) {
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            for (UserDataObserver item : mUserDataObservers) {
-                item.onGroupUserInfoUpdate(groupUserInfo);
+        if (groupMember == null && mUserDataDelegate != null) {
+            groupMember = mUserDataDelegate.getGroupUserInfo(groupId, userId);
+            if (mIsCacheGroupMemberInfo && groupMember != null && mLocalDataSource != null) {
+                mLocalDataSource.refreshGroupUserInfo(groupMember);
             }
+        }
+
+        if (groupMember != null) {
+            return new GroupUserInfo(groupId, userId, groupMember.memberName);
         } else {
-            ExecutorHelper.getInstance()
-                    .mainThread()
-                    .execute(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    notifyGroupMemberChange(groupUserInfo);
-                                }
-                            });
+            return null;
         }
     }
 
-    private GroupUserInfo transformGroupMember(@NonNull GroupMember groupMember) {
-        return new GroupUserInfo(groupMember.groupId, groupMember.userId, groupMember.memberName);
+    /**
+     * /~chinese 设置当前用户信息。 如果开发者没有实现用户信息提供者，而是使用消息携带用户信息，需要使用这个方法设置当前用户的信息， 然后在{@link
+     * IMCenter#init(Application, String, boolean)}之后调用{@link #setMessageAttachedUserInfo(boolean)}，
+     * 这样可以在每条消息中携带当前用户的信息，IMKit会在接收到消息的时候取出用户信息并刷新到界面上。
+     *
+     * @param userInfo 当前用户信息。
+     */
+
+    /**
+     * /~english Set the current user information. If the developer does not implement a user
+     * information provider, but uses messages to carry user information, you shall use this method
+     * to set the current user's information, and then call {@link
+     * #setMessageAttachedUserInfo(boolean)} after {@link IMCenter#init(Application, String,
+     * boolean)}, so that you can carry the current user's information in each message.
+     *
+     * <p>IMKit will take out the user's information and refresh it to the interface when it
+     * receives the message.
+     *
+     * @param userInfo Current user information
+     */
+    public void setCurrentUserInfo(UserInfo userInfo) {
+        mCurrentUserInfo = userInfo;
     }
 
     public UserInfo getCurrentUserInfo() {
@@ -471,59 +398,67 @@ public class RongUserInfoManager {
     }
 
     /**
-     * 设置当前用户信息。 如果开发者没有实现用户信息提供者，而是使用消息携带用户信息，需要使用这个方法设置当前用户的信息， 然后在{@link
-     * IMCenter#init(Application, String, boolean)}之后调用{@link #setMessageAttachedUserInfo(boolean)}，
-     * 这样可以在每条消息中携带当前用户的信息，IMKit会在接收到消息的时候取出用户信息并刷新到界面上。
-     *
-     * @param userInfo 当前用户信息。
-     */
-    public void setCurrentUserInfo(UserInfo userInfo) {
-        mCurrentUserInfo = userInfo;
-    }
-
-    /**
-     * 设置消息体内是否携带用户信息。
+     * /~chinese 设置消息体内是否携带用户信息。
      *
      * @param state 是否携带用户信息，true 携带，false 不携带。
+     */
+
+    /**
+     * /~english Set whether the message body carries user information.
+     *
+     * @param state Whether or not to carry user information, true indicates to carry and false
+     *     indicates not to carry.
      */
     public void setMessageAttachedUserInfo(boolean state) {
         mIsUserInfoAttached = state;
     }
 
     /**
-     * 获取当前用户关于消息体内是否携带用户信息的配置
+     * /~chinese 获取当前用户关于消息体内是否携带用户信息的配置
      *
      * @return 是否携带用户信息
+     */
+
+    /**
+     * /~english Get the configuration of the current user about whether the message body carries
+     * user information.
+     *
+     * @return Whether to carry user information
      */
     public boolean getUserInfoAttachedState() {
         return mIsUserInfoAttached;
     }
 
-    private void saveUserInfoCache(UserInfo userInfo) {
+    public void refreshUserInfoCache(UserInfo userInfo) {
         if (userInfo == null) {
             RLog.e(TAG, "Invalid to refresh a null user object.");
             return;
         }
         User user = new User(userInfo.getUserId(), userInfo.getName(), userInfo.getPortraitUri());
         user.extra = userInfo.getExtra();
-        user.alias = userInfo.getAlias();
-        cacheDataSource.refreshUserInfo(user);
-        if (isCacheUserInfo && dbDataSource != null) {
-            dbDataSource.refreshUserInfo(user);
+
+        if (mIsCacheUserInfo && mLocalDataSource != null) {
+            mLocalDataSource.refreshUserInfo(user);
+        } else {
+            List<User> userList = mAllUsers.getValue();
+            if (userList == null) {
+                userList = new ArrayList<>();
+            }
+            for (User temp : userList) {
+                if (temp.id.equals(user.id)) {
+                    userList.remove(temp);
+                    userList.add(user);
+                    break;
+                }
+            }
+            mAllUsers.postValue(userList);
+        }
+        for (UserDataObserver observer : mUserDataObservers) {
+            observer.onUserUpdate(userInfo);
         }
     }
 
-    public void refreshUserInfoCache(UserInfo userInfo) {
-        saveUserInfoCache(userInfo);
-        notifyUserChange(userInfo);
-    }
-
     public void refreshGroupInfoCache(io.rong.imlib.model.Group groupInfo) {
-        saveGroupInfoCache(groupInfo);
-        notifyGroupChange(groupInfo);
-    }
-
-    private void saveGroupInfoCache(io.rong.imlib.model.Group groupInfo) {
         if (groupInfo == null) {
             RLog.e(TAG, "Invalid to refresh a null group object.");
             return;
@@ -536,18 +471,29 @@ public class RongUserInfoManager {
                         groupInfo.getPortraitUri() == null
                                 ? ""
                                 : groupInfo.getPortraitUri().toString());
-        cacheDataSource.refreshGroupInfo(group);
-        if (isCacheGroupInfo && dbDataSource != null) {
-            dbDataSource.refreshGroupInfo(group);
+
+        if (mIsCacheGroupInfo && mLocalDataSource != null) {
+            mLocalDataSource.refreshGroupInfo(group);
+        } else {
+            List<Group> groupList = mAllGroups.getValue();
+            if (groupList == null) {
+                groupList = new ArrayList<>();
+            }
+            for (Group temp : groupList) {
+                if (temp.id.equals(groupInfo.getId())) {
+                    groupList.remove(temp);
+                    groupList.add(group);
+                    break;
+                }
+            }
+            mAllGroups.postValue(groupList);
+        }
+        for (UserDataObserver observer : mUserDataObservers) {
+            observer.onGroupUpdate(groupInfo);
         }
     }
 
     public void refreshGroupUserInfoCache(GroupUserInfo groupUserInfo) {
-        saveGroupUserInfoCache(groupUserInfo);
-        notifyGroupMemberChange(groupUserInfo);
-    }
-
-    private void saveGroupUserInfoCache(GroupUserInfo groupUserInfo) {
         if (groupUserInfo == null) {
             RLog.e(TAG, "Invalid to refresh a null groupUserInfo object.");
             return;
@@ -557,145 +503,41 @@ public class RongUserInfoManager {
                         groupUserInfo.getGroupId(),
                         groupUserInfo.getUserId(),
                         groupUserInfo.getNickname());
-        cacheDataSource.refreshGroupUserInfo(groupMember);
-        if (isCacheGroupMemberInfo && dbDataSource != null) {
-            dbDataSource.refreshGroupUserInfo(groupMember);
-        }
-    }
-
-    public String getUserDisplayName(UserInfo userInfo) {
-        if (userInfo == null) {
-            return null;
-        }
-
-        return TextUtils.isEmpty(userInfo.getAlias()) ? userInfo.getName() : userInfo.getAlias();
-    }
-
-    public String getUserDisplayName(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        return TextUtils.isEmpty(user.alias) ? user.name : user.alias;
-    }
-
-    public String getUserDisplayName(UserInfo userInfo, String groupMemberName) {
-        if (userInfo == null) {
-            return groupMemberName == null ? "" : groupMemberName;
-        }
-
-        if (!TextUtils.isEmpty(userInfo.getAlias())) {
-            return userInfo.getAlias();
-        } else if (!TextUtils.isEmpty(groupMemberName)) {
-            return groupMemberName;
+        if (mIsCacheGroupMemberInfo && mLocalDataSource != null) {
+            mLocalDataSource.refreshGroupUserInfo(groupMember);
         } else {
-            return userInfo.getName();
+            List<GroupMember> groupMemberList = mAllGroupMembers.getValue();
+            if (groupMemberList == null) {
+                groupMemberList = new ArrayList<>();
+            }
+            for (GroupMember temp : groupMemberList) {
+                if (temp.groupId.equals(groupMember.groupId)
+                        && temp.userId.equals(groupMember.userId)) {
+                    groupMemberList.remove(temp);
+                    groupMemberList.add(groupMember);
+                    break;
+                }
+            }
+            mAllGroupMembers.postValue(groupMemberList);
+        }
+        for (UserDataObserver observer : mUserDataObservers) {
+            observer.onGroupUserInfoUpdate(groupUserInfo);
         }
     }
 
-    /**
-     * 增加数据变更监听器。 当用户信息、群信息或者群昵称信息发生变更时，会回调此监听器。
-     *
-     * @param observer 数据变更监听器。
-     */
-    public void addUserDataObserver(final UserDataObserver observer) {
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            mUserDataObservers.add(observer);
-        } else {
-            ExecutorHelper.getInstance()
-                    .mainThread()
-                    .execute(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    addUserDataObserver(observer);
-                                }
-                            });
-        }
+    public void addUserDataObserver(UserDataObserver observer) {
+        mUserDataObservers.add(observer);
     }
 
-    /**
-     * 移除数据变更监听器。
-     *
-     * @param observer 已设置的数据变更监听器。
-     */
-    public void removeUserDataObserver(final UserDataObserver observer) {
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            mUserDataObservers.remove(observer);
-        } else {
-            ExecutorHelper.getInstance()
-                    .mainThread()
-                    .execute(
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    removeUserDataObserver(observer);
-                                }
-                            });
-        }
+    public void removeUserDataObserver(UserDataObserver observer) {
+        mUserDataObservers.remove(observer);
     }
 
-    private void preLoadUserCache() {
-        if (dbDataSource == null) {
-            return;
-        }
-        dbDataSource.getLimitUser(
-                RongConfigCenter.featureConfig().getUserCacheMaxCount(),
-                new Consumer<List<User>>() {
-                    @Override
-                    public void accept(List<User> users) {
-                        for (User item : users) {
-                            cacheDataSource.refreshUserInfo(item);
-                        }
-                    }
-                });
-        dbDataSource.getLimitGroup(
-                RongConfigCenter.featureConfig().getGroupCacheMaxCount(),
-                new Consumer<List<Group>>() {
-                    @Override
-                    public void accept(List<Group> groups) {
-                        for (Group item : groups) {
-                            cacheDataSource.refreshGroupInfo(item);
-                        }
-                    }
-                });
-        dbDataSource.getLimitGroupMember(
-                RongConfigCenter.featureConfig().getGroupMemberCacheMaxCount(),
-                new Consumer<List<GroupMember>>() {
-                    @Override
-                    public void accept(List<GroupMember> groupMembers) {
-                        for (GroupMember item : groupMembers) {
-                            cacheDataSource.refreshGroupUserInfo(item);
-                        }
-                    }
-                });
-    }
-
-    /** 用户信息变更观察者，所有回调都在 ui 线程 */
     public interface UserDataObserver {
-        /**
-         * 用户信息发生变更时的回调方法。
-         *
-         * @param info 变更后的用户信息。
-         */
         void onUserUpdate(UserInfo info);
 
-        /**
-         * 群组信息发生变更时的回调方法。
-         *
-         * @param group 变更后的群信息。
-         */
         void onGroupUpdate(io.rong.imlib.model.Group group);
 
-        /**
-         * 群昵称信息发生变更时的回调方法。
-         *
-         * @param groupUserInfo 变更后的群昵称信息。
-         */
         void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo);
-    }
-
-    private static class SingleTonHolder {
-        static RongUserInfoManager sInstance = new RongUserInfoManager();
     }
 }

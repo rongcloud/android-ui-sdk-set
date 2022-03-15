@@ -22,7 +22,6 @@ import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
-import io.rong.imlib.model.UserInfo;
 import io.rong.message.HistoryDividerMessage;
 import io.rong.message.TextMessage;
 import java.util.List;
@@ -48,10 +47,18 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
     }
 
     /**
-     * 创建 ViewHolder
+     * /~chinese 创建 ViewHolder
      *
      * @param parent 父 ViewGroup
      * @param viewType 视图类型
+     * @return ViewHolder
+     */
+
+    /**
+     * /~english Create ViewHolder
+     *
+     * @param parent Parent ViewGroup
+     * @param viewType View type
      * @return ViewHolder
      */
     protected abstract ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType);
@@ -141,13 +148,12 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             holder.setVisible(R.id.rc_right_portrait, isSender);
             ImageView view =
                     holder.getView(isSender ? R.id.rc_right_portrait : R.id.rc_left_portrait);
-            UserInfo userInfo = uiMessage.getUserInfo();
-            if (userInfo != null && userInfo.getPortraitUri() != null) {
+            if (uiMessage.getUserInfo().getPortraitUri() != null) {
                 RongConfigCenter.featureConfig()
                         .getKitImageEngine()
                         .loadConversationPortrait(
                                 holder.getContext(),
-                                userInfo.getPortraitUri().toString(),
+                                uiMessage.getUserInfo().getPortraitUri().toString(),
                                 view,
                                 uiMessage.getMessage());
             }
@@ -258,7 +264,11 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             } else {
                 if (!isSender) {
                     holder.setVisible(R.id.rc_title, true);
-                    holder.setText(R.id.rc_title, uiMessage.getDisplayName());
+                    holder.setText(
+                            R.id.rc_title,
+                            !TextUtils.isEmpty(uiMessage.getNickname())
+                                    ? uiMessage.getNickname()
+                                    : uiMessage.getUserInfo().getName());
                 } else {
                     holder.setVisible(R.id.rc_title, false);
                 }
@@ -404,7 +414,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
     }
 
     /**
-     * 设置消息视图里各 view 的值
+     * /~chinese 设置消息视图里各 view 的值
      *
      * @param holder ViewHolder
      * @param parentHolder 父布局的 ViewHolder
@@ -413,6 +423,19 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
      * @param position 消息位置
      * @param list 列表
      * @param listener ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
+     */
+
+    /**
+     * /~english Set the value of each view in the message view
+     *
+     * @param holder ViewHolder
+     * @param parentHolder ViewHolder of the parent layout
+     * @param t The message corresponding to this display template
+     * @param uiMessage {@link UiMessage}
+     * @param position Message location
+     * @param list List
+     * @param listener ViewModel's click event listener. If the click event of a sub-view shall be
+     *     handled by ViewModel, it can be called back through this listener.
      */
     protected abstract void bindMessageContentViewHolder(
             ViewHolder holder,
@@ -424,6 +447,8 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             IViewProviderListener<UiMessage> listener);
 
     /**
+     * /~chinese
+     *
      * @param holder ViewHolder
      * @param t 自定义消息
      * @param uiMessage {@link UiMessage}
@@ -431,6 +456,19 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
      * @param list 列表数据
      * @param listener ViewModel 的点击事件监听器。如果某个子 view 的点击事件需要 ViewModel 处理，可通过此监听器回调。
      * @return 点击事件是否被消费
+     */
+
+    /**
+     * /~english
+     *
+     * @param holder ViewHolder
+     * @param t Custom message
+     * @param uiMessage {@link UiMessage}
+     * @param position Location
+     * @param list List data
+     * @param listener ViewModel's click event listener. If the click event of a sub-view shall be
+     *     handled by ViewModel, it can be called back through this listener.
+     * @return Whether the click event is consumed
      */
     protected abstract boolean onItemClick(
             ViewHolder holder,
@@ -549,7 +587,18 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         }
     }
 
-    /** @return 群组或讨论组是否展示消息已读回执, 默认只有文本消息展示 子类可以重写此方法 */
+    /**
+     * /~chinese
+     *
+     * @return 群组或讨论组是否展示消息已读回执, 默认只有文本消息展示 子类可以重写此方法
+     */
+
+    /**
+     * /~english
+     *
+     * @return Whether the group or discussion group displays the read receipt of the message. By
+     *     default, only the text message display subclass can override this method.
+     */
     protected boolean showReadReceiptRequest(Message message) {
         return message != null
                 && message.getContent() != null
@@ -557,10 +606,18 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
     }
 
     /**
-     * 根据消息内容，判断是否为本模板需要展示的消息类型
+     * /~chiense 根据消息内容，判断是否为本模板需要展示的消息类型
      *
      * @param messageContent 消息内容
      * @return 本模板是否处理。
+     */
+
+    /**
+     * /~english Judge whether it is the type of message that shall be displayed in this template
+     * according to the content of the message
+     *
+     * @param messageContent message content
+     * @return Whether this template is processed.
      */
     protected abstract boolean isMessageViewType(MessageContent messageContent);
 

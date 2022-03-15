@@ -18,10 +18,8 @@ import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
-import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.TextMessage;
-import java.util.Objects;
 
 public class RongExtensionViewModel extends AndroidViewModel {
     private final String TAG = this.getClass().getSimpleName();
@@ -32,7 +30,6 @@ public class RongExtensionViewModel extends AndroidViewModel {
     private String mTargetId;
     private EditText mEditText;
     private boolean isSoftInputShow;
-    private static final int MAX_MESSAGE_LENGTH_TO_SEND = 5500;
     private TextWatcher mTextWatcher =
             new TextWatcher() {
                 private int start;
@@ -58,15 +55,6 @@ public class RongExtensionViewModel extends AndroidViewModel {
                         cursor = start;
                         offset = count;
                     }
-                    RongMentionManager.getInstance()
-                            .onTextChanged(
-                                    getApplication().getApplicationContext(),
-                                    mConversationType,
-                                    mTargetId,
-                                    cursor,
-                                    offset,
-                                    s.toString(),
-                                    mEditText);
                     for (IExtensionEventWatcher watcher :
                             RongExtensionManager.getInstance().getExtensionEventWatcher()) {
                         watcher.onTextChanged(
@@ -139,15 +127,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
         }
 
         String text = mEditText.getText().toString();
-        if (text.length() > MAX_MESSAGE_LENGTH_TO_SEND) {
-            ToastUtils.s(
-                    getApplication().getApplicationContext(),
-                    getApplication().getString(R.string.rc_message_too_long));
-            RLog.d(TAG, "The text you entered is too long to send.");
-            return;
-        }
         mEditText.setText("");
-
         TextMessage textMessage = TextMessage.obtain(text);
         if (DestructManager.isActive()) {
             int length = text.length();
@@ -162,7 +142,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
         }
         io.rong.imlib.model.Message message =
                 io.rong.imlib.model.Message.obtain(mTargetId, mConversationType, textMessage);
-        RongMentionManager.getInstance().onSendToggleClick(message, mEditText);
+
         if (RongExtensionManager.getInstance().getExtensionEventWatcher().size() > 0) {
             for (IExtensionEventWatcher watcher :
                     RongExtensionManager.getInstance().getExtensionEventWatcher()) {
@@ -201,7 +181,9 @@ public class RongExtensionViewModel extends AndroidViewModel {
         }
     }
 
-    /** 收起面板，RongExtension 仅显示 InputPanel。 */
+    /** /~chinese 收起面板，RongExtension 仅显示 InputPanel。 */
+
+    /** /~english Fold up the panel and RongExtension displays only InputPanel. */
     public void collapseExtensionBoard() {
         if (mExtensionBoardState.getValue() != null
                 && mExtensionBoardState.getValue().equals(false)) {
@@ -214,11 +196,10 @@ public class RongExtensionViewModel extends AndroidViewModel {
     }
 
     public void setSoftInputKeyBoard(boolean isShow) {
+        if (isSoftInputShow == isShow) {
+            return;
+        }
         forceSetSoftInputKeyBoard(isShow);
-    }
-
-    public void setSoftInputKeyBoard(boolean isShow, boolean clearFocus) {
-        forceSetSoftInputKeyBoard(isShow, clearFocus);
     }
 
     public void forceSetSoftInputKeyBoard(boolean isShow) {
@@ -240,9 +221,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
                 imm.showSoftInput(mEditText, 0);
             } else {
                 imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
-                if (clearFocus) {
-                    mEditText.clearFocus();
-                }
+                mEditText.clearFocus();
             }
             isSoftInputShow = isShow;
         }
@@ -254,19 +233,25 @@ public class RongExtensionViewModel extends AndroidViewModel {
     }
 
     /**
-     * 获取 EditText 控件
+     * /~chinese 获取 EditText 控件
      *
      * @return EditText 控件
+     */
+
+    /**
+     * /~english Get EditText control
+     *
+     * @return EditText control
      */
     public EditText getEditTextWidget() {
         return mEditText;
     }
 
     public void setEditTextWidget(EditText editText) {
-        if (!Objects.equals(mEditText, editText)) {
-            mEditText = editText;
-            mEditText.addTextChangedListener(mTextWatcher);
-        }
+        mEditText.setText("");
+        mEditText = null;
+        mEditText = editText;
+        mEditText.addTextChangedListener(mTextWatcher);
     }
 
     MutableLiveData<Boolean> getAttachedInfoState() {
@@ -274,18 +259,31 @@ public class RongExtensionViewModel extends AndroidViewModel {
     }
 
     /**
-     * 获取面板打开状态。 value < 0 面板收起； value > 0, 代表面板打开，value 为面板打开后的高度。
+     * /~chinese 获取面板打开状态。 value < 0 面板收起； value > 0, 代表面板打开，value 为面板打开后的高度。
      *
      * @return 面板状态 LiveData
+     */
+
+    /**
+     * /~english Get the open status of the panel. value< 0 which means the panel is close； value
+     * >0, which means the panel is open, and value is the height after the panel is opened.
+     *
+     * @return Panel status LiveData
      */
     public MutableLiveData<Boolean> getExtensionBoardState() {
         return mExtensionBoardState;
     }
 
     /**
-     * 获取输入模式的 LiveData
+     * /~chinese 获取输入模式的 LiveData
      *
      * @return 输入模式对应的 LiveData
+     */
+
+    /**
+     * /~english Get the LiveData of the input mode
+     *
+     * @return Enter the LiveData corresponding to the mode
      */
     public MutableLiveData<InputMode> getInputModeLiveData() {
         return mInputModeLiveData;

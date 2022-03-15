@@ -57,12 +57,22 @@ public class RouteUtils {
     }
 
     /**
-     * 启动会话页面
+     * /~chinese 启动会话页面
      *
      * @param context 上下文
      * @param type 会话类型
      * @param targetId 目标 ID
      * @param bundle 启动 activity 时 intent 里需要携带的 bundle 信息。
+     */
+
+    /**
+     * /~english Start the conversation page
+     *
+     * @param context Context
+     * @param type Conversation type
+     * @param targetId Target ID
+     * @param bundle The bundle information that shall be carried in the intent when starting
+     *     activity
      */
     public static void routeToConversationActivity(
             Context context, Conversation.ConversationType type, String targetId, Bundle bundle) {
@@ -80,11 +90,19 @@ public class RouteUtils {
     }
 
     /**
-     * 启动聚合会话页面
+     * /~chinese 启动聚合会话页面
      *
      * @param context 上下文
      * @param type 聚合会话类型
      * @param title 标题
+     */
+
+    /**
+     * /~english Start the aggregation conversation page
+     *
+     * @param context Context
+     * @param type Aggregate conversation type
+     * @param title Title
      */
     public static void routeToSubConversationListActivity(
             Context context, Conversation.ConversationType type, String title) {
@@ -99,11 +117,19 @@ public class RouteUtils {
     }
 
     /**
-     * 启动 @ 功能选人页面
+     * /~chinese 启动 @ 功能选人页面
      *
      * @param context 上下文
      * @param targetId 目标 ID
      * @param type 会话类型
+     */
+
+    /**
+     * /~english Start the @ function selection page
+     *
+     * @param context Context
+     * @param targetId Target ID
+     * @param type Conversation type
      */
     public static void routeToMentionMemberSelectActivity(
             Context context, String targetId, Conversation.ConversationType type) {
@@ -123,11 +149,19 @@ public class RouteUtils {
     }
 
     /**
-     * 启动 web view 页面
+     * /~chinese 启动 web view 页面
      *
      * @param context 上下文
      * @param url 远端 url 地址
      * @param title 标题
+     */
+
+    /**
+     * /~english Start the web view page
+     *
+     * @param context Context
+     * @param url Remote url address
+     * @param title Title
      */
     public static void routeToWebActivity(Context context, String url, String title) {
         Class<? extends Activity> activity = RongWebviewActivity.class;
@@ -155,11 +189,19 @@ public class RouteUtils {
     }
 
     /**
-     * 启动转发时选择会话页面
+     * /~chinese 启动转发时选择会话页面
      *
      * @param fragment 当前 fragment
      * @param type 转发类型。{@link ForwardClickActions.ForwardType}
      * @param messageIds 转发的消息 id 列表。
+     */
+
+    /**
+     * /~english Select the conversation page when you start forwarding
+     *
+     * @param fragment Current fragment
+     * @param type Forwarding typeForwardClickActions.ForwardType
+     * @param messageIds Id list of forwarded messages
      */
     public static void routeToForwardSelectConversationActivity(
             Fragment fragment,
@@ -176,10 +218,17 @@ public class RouteUtils {
     }
 
     /**
-     * 启动合并转发消息的图片展示页面
+     * /~chinese 启动合并转发消息的图片展示页面
      *
      * @param context 上下文
      * @param message 合并转发时携带的原始消息
+     */
+
+    /**
+     * /~english Start the image display page for merging and forwarding messages
+     *
+     * @param context Context
+     * @param message Merge the original messages carried during forwarding
      */
     public static void routeToCombinePicturePagerActivity(Context context, Message message) {
         Class<? extends Activity> activity = CombinePicturePagerActivity.class;
@@ -194,13 +243,23 @@ public class RouteUtils {
     }
 
     /**
-     * 启动合并转发消息的在线展示页面
+     * /~chinese 启动合并转发消息的在线展示页面
      *
      * @param context 上下文
      * @param messageId 消息 id
      * @param uri 远端 url 地址
      * @param type
      * @param title 标题
+     */
+
+    /**
+     * /~english Start the online display page for merging and forwarding messages
+     *
+     * @param context Context
+     * @param messageId Message id
+     * @param uri Remote url address
+     * @param type
+     * @param title Title
      */
     public static void routeToCombineWebViewActivity(
             Context context, int messageId, String uri, String type, String title) {
@@ -219,12 +278,21 @@ public class RouteUtils {
     }
 
     /**
-     * 启动文件在线浏览页面
+     * /~chinese 启动文件在线浏览页面
      *
      * @param context 上下文
      * @param fileUrl 文件远端地址
      * @param fileName 文件名称
      * @param fileSize 文件大小
+     */
+
+    /**
+     * /~english Start the file online browsing page
+     *
+     * @param context Context
+     * @param fileUrl File remote address
+     * @param fileName File name
+     * @param fileSize File size
      */
     public static void routeToWebFilePreviewActivity(
             Context context, String fileUrl, String fileName, String fileSize) {

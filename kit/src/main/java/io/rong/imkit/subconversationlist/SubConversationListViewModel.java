@@ -31,7 +31,8 @@ class SubConversationListViewModel extends ConversationListViewModel {
      *     条会话。
      */
     @Override
-    public void getConversationList(final boolean loadMore, final boolean isEventManual) {
+    public void getConversationList(final boolean loadMore) {
+
         long timestamp = 0;
         if (loadMore) {
             timestamp = mLastSyncTime;
@@ -42,20 +43,18 @@ class SubConversationListViewModel extends ConversationListViewModel {
                             @Override
                             public void onSuccess(List<Conversation> conversations) {
                                 RLog.d(TAG, "getConversationListByPage.");
-                                if (isEventManual) {
-                                    if (loadMore) {
-                                        ((MutableLiveData<Event.RefreshEvent>)
-                                                        getRefreshEventLiveData())
-                                                .postValue(
-                                                        new Event.RefreshEvent(
-                                                                RefreshState.LoadFinish));
-                                    } else {
-                                        ((MutableLiveData<Event.RefreshEvent>)
-                                                        getRefreshEventLiveData())
-                                                .postValue(
-                                                        new Event.RefreshEvent(
-                                                                RefreshState.RefreshFinish));
-                                    }
+                                if (loadMore) {
+                                    ((MutableLiveData<Event.RefreshEvent>)
+                                                    getRefreshEventLiveData())
+                                            .postValue(
+                                                    new Event.RefreshEvent(
+                                                            RefreshState.LoadFinish));
+                                } else {
+                                    ((MutableLiveData<Event.RefreshEvent>)
+                                                    getRefreshEventLiveData())
+                                            .postValue(
+                                                    new Event.RefreshEvent(
+                                                            RefreshState.RefreshFinish));
                                 }
                                 if (conversations == null || conversations.size() == 0) {
                                     return;

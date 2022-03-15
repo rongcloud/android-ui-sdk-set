@@ -1,11 +1,9 @@
 package io.rong.imkit.conversation.extension.component.plugin;
 
 import android.content.Context;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -13,7 +11,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -22,9 +19,7 @@ import io.rong.imkit.conversation.ConversationFragment;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
 import io.rong.imlib.model.Conversation;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class PluginBoard {
     private final String TAG = this.getClass().getSimpleName();
@@ -40,10 +35,6 @@ public class PluginBoard {
     private View mCustomPager;
     private PluginPagerAdapter mPagerAdapter;
     private LinearLayout mIndicator;
-
-    private static final int DEFAULT_SHOW_COLUMN = 4;
-    // FIXME: 2021/10/15 优先确保显示两行按钮时不会产生滑动
-    private static final int DEFAULT_SHOW_ROW = 2;
 
     public PluginBoard(
             Fragment fragment,
@@ -69,39 +60,6 @@ public class PluginBoard {
                 (ViewGroup)
                         LayoutInflater.from(context)
                                 .inflate(R.layout.rc_ext_plugin_pager, viewGroup, false);
-        mViewContainer.addOnAttachStateChangeListener(
-                new View.OnAttachStateChangeListener() {
-                    @Override
-                    public void onViewAttachedToWindow(View v) {
-                        mRoot.post(
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ConstraintLayout.LayoutParams layoutParams =
-                                                (ConstraintLayout.LayoutParams)
-                                                        mIndicator.getLayoutParams();
-                                        Pair<Integer, Integer> cellSize =
-                                                calculateCellSize(
-                                                        mRoot,
-                                                        DEFAULT_SHOW_COLUMN,
-                                                        DEFAULT_SHOW_ROW,
-                                                        0,
-                                                        mIndicator.getHeight()
-                                                                + layoutParams.topMargin
-                                                                + layoutParams.bottomMargin,
-                                                        0,
-                                                        0);
-                                        for (GridView gridView : mPagerAdapter.pageSet) {
-                                            ((PluginItemAdapter) gridView.getAdapter())
-                                                    .updateLayoutByCellSize(cellSize);
-                                        }
-                                    }
-                                });
-                    }
-
-                    @Override
-                    public void onViewDetachedFromWindow(View v) {}
-                });
         try {
             mPluginCountPerPage =
                     context.getResources()
@@ -128,23 +86,6 @@ public class PluginBoard {
         initPlugins(mConversationType);
     }
 
-    private Pair<Integer, Integer> calculateCellSize(
-            ViewGroup parent,
-            int numColumns,
-            int numRows,
-            int paddingTop,
-            int paddingBottom,
-            int paddingLeft,
-            int paddingRight) {
-        int parentHeight = parent.getHeight();
-        int parentWidth = parent.getWidth();
-
-        int cellWidth = (parentWidth - paddingLeft - paddingRight) / numColumns;
-        int cellHeight = (parentHeight - paddingBottom - paddingTop) / numRows;
-        // 为保证在美观，宽高比最大不超过 1.2
-        return Pair.create(cellWidth, Math.min(cellHeight, (int) (cellWidth * 1.2)));
-    }
-
     private void initIndicator(Context context, int pages, LinearLayout indicator) {
         for (int i = 0; i < pages; i++) {
             ImageView imageView =
@@ -162,7 +103,7 @@ public class PluginBoard {
 
     private void initPlugins(Conversation.ConversationType conversationType) {
         // size() 大于 0 ，代表初始化过，直接返回
-        if (mPluginModules != null && !mPluginModules.isEmpty()) {
+        if (mPluginModules.size() > 0) {
             return;
         }
         mPluginModules =
@@ -271,11 +212,8 @@ public class PluginBoard {
     }
 
     public IPluginModule getPluginModule(int position) {
-        if (position >= 0 && position < mPluginModules.size()) {
-            return mPluginModules.get(position);
-        } else {
-            return null;
-        }
+        if (position >= 0 && position < mPluginModules.size()) return mPluginModules.get(position);
+        else return null;
     }
 
     public List<IPluginModule> getPluginModules() {
@@ -283,16 +221,6 @@ public class PluginBoard {
     }
 
     private class PluginPagerAdapter extends RecyclerView.Adapter<PluginPagerViewHolder> {
-        int pages;
-        int items;
-        Set<GridView> pageSet = null;
-
-        public PluginPagerAdapter(int pages, int items) {
-            this.pages = pages;
-            this.items = items;
-            pageSet = new HashSet<>();
-        }
-
         @NonNull
         @Override
         public PluginPagerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -300,20 +228,26 @@ public class PluginBoard {
                     (GridView)
                             LayoutInflater.from(parent.getContext())
                                     .inflate(R.layout.rc_ext_plugin_grid_view, parent, false);
-            pageSet.add(gridView);
             return new PluginPagerViewHolder(gridView);
         }
 
         @Override
         public void onBindViewHolder(@NonNull PluginPagerViewHolder holder, int position) {
             GridView gridView = holder.gridView;
-            gridView.setNumColumns(DEFAULT_SHOW_COLUMN);
             gridView.setAdapter(new PluginItemAdapter(position * mPluginCountPerPage, items));
         }
 
         @Override
         public int getItemCount() {
             return pages;
+        }
+
+        int pages;
+        int items;
+
+        public PluginPagerAdapter(int pages, int items) {
+            this.pages = pages;
+            this.items = items;
         }
 
         public void setPages(int value) {
@@ -337,15 +271,15 @@ public class PluginBoard {
     private class PluginItemAdapter extends BaseAdapter {
         int count;
         int index;
-        Pair<Integer, Integer> cellSize;
+
+        class ViewHolder {
+            ImageView imageView;
+            TextView textView;
+        }
 
         public PluginItemAdapter(int index, int count) {
             this.count = Math.min(mPluginCountPerPage, count - index);
             this.index = index;
-            cellSize =
-                    new Pair<>(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT);
         }
 
         @Override
@@ -372,21 +306,10 @@ public class PluginBoard {
                 convertView =
                         LayoutInflater.from(parent.getContext())
                                 .inflate(R.layout.rc_ext_plugin_item, null);
-
                 holder.imageView = convertView.findViewById(R.id.rc_ext_plugin_icon);
                 holder.textView = convertView.findViewById(R.id.rc_ext_plugin_title);
                 convertView.setTag(holder);
             }
-            AbsListView.LayoutParams layoutParams =
-                    (AbsListView.LayoutParams) convertView.getLayoutParams();
-            if (layoutParams == null) {
-                layoutParams = new AbsListView.LayoutParams(cellSize.first, cellSize.second);
-            } else {
-                layoutParams.width = cellSize.first;
-                layoutParams.height = cellSize.second;
-            }
-            convertView.setLayoutParams(layoutParams);
-
             convertView.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
@@ -407,18 +330,6 @@ public class PluginBoard {
             holder.imageView.setImageDrawable(plugin.obtainDrawable(context));
             holder.textView.setText(plugin.obtainTitle(context));
             return convertView;
-        }
-
-        public void updateLayoutByCellSize(Pair<Integer, Integer> cellSize) {
-            if (this.cellSize == null || !this.cellSize.equals(cellSize)) {
-                this.cellSize = cellSize;
-                notifyDataSetChanged();
-            }
-        }
-
-        class ViewHolder {
-            ImageView imageView;
-            TextView textView;
         }
     }
 }

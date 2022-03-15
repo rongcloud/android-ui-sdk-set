@@ -82,16 +82,26 @@ public class NotificationConfig {
 
     public interface Interceptor {
         /**
-         * 是否拦截此本地通知，一般用于自定义本地通知的显示。
+         * /~chiense 是否拦截此本地通知，一般用于自定义本地通知的显示。
          *
          * @param message 本地通知对应的消息
          * @return 是否拦截。true 拦截本地通知，SDK 不弹出通知，需要用户自己处理。false 不拦截，由 SDK 展示本地通知。
          */
+
+        /**
+         * /~english Generally whether to intercept this local notification is used to customize the
+         * display of local notifications.
+         *
+         * @param message Message corresponding to local notification
+         * @return Whether to intercept. True indicates to intercept local notifications. SDK does
+         *     not pop up notifications and it shall be handled by users themselves. False indicates
+         *     not to intercept, and local notifications are displayed by SDK.
+         */
         boolean isNotificationIntercepted(Message message);
 
         /**
-         * 设置本地通知 PendingIntent 时的回调。 应用层可通过此方法更改 PendingIntent 里的设置，以便自定义本地通知的点击行为。 点击本地通知时，SDK
-         * 默认跳转到对应会话页面。
+         * /~chinese 设置本地通知 PendingIntent 时的回调。 应用层可通过此方法更改 PendingIntent 里的设置，以便自定义本地通知的点击行为。
+         * 点击本地通知时，SDK 默认跳转到对应会话页面。
          *
          * @param pendingIntent SDK 默认 PendingIntent
          * @param intent pendingIntent 里携带的 intent。 可通过 intent 获取以下信息:
@@ -100,21 +110,52 @@ public class NotificationConfig {
          *     intent.getIntExtra(RouteUtils.MESSAGE_ID, -1);
          * @return 本地通知里需配置的 PendingIntent.
          */
+
+        /**
+         * /~english Callback for setting local notification PendingIntent. In this way, the
+         * application layer can change the settings in PendingIntent to customize the click
+         * behavior of local notifications. When you click local notification, SDK jumps to the
+         * corresponding conversation page by default.
+         *
+         * @param pendingIntent SDK default PendingIntent
+         * @param intent Intent carried in pendingIntent The following information is available
+         *     through intent: intent.GettringExtra(RouteUtils.CONVERSATION_TYPE);
+         *     intent.GettringExtra(RouteUtils.TARGET_ID);
+         *     intent.getParcelableExtra(RouteUtils.MESSAGE);
+         * @return PendingIntent to be configured in local notification
+         */
         PendingIntent onPendingIntent(PendingIntent pendingIntent, Intent intent);
 
         /**
-         * 是否为高优先级消息。高优先级消息不受全局静默时间和会话免打扰控制，比如 @ 消息。
+         * /~chinese 是否为高优先级消息。高优先级消息不受全局静默时间和会话免打扰控制，比如 @ 消息。
          *
          * @param message 接收到的消息
          * @return 是否为高优先级消息
          */
+
+        /**
+         * /~english Whether it is a high priority message. High-priority messages are not
+         * controlled by global silence time and conversation do not Disturb, e.g. @ messages.
+         *
+         * @param message Messages received
+         * @return Whether it is a high priority message
+         */
         boolean isHighPriorityMessage(Message message);
 
         /**
-         * 注册默认 channel 之前的回调。可以通过此方法拦截并修改默认 channel 里的配置，将修改后的 channel 返回。
+         * /~chinese 注册默认 channel 之前的回调。可以通过此方法拦截并修改默认 channel 里的配置，将修改后的 channel 返回。
          *
          * @param defaultChannel 默认通知频道
          * @return 修改后的通知频道。
+         */
+
+        /**
+         * /~english Callback before the default channel is registered You can use this method to
+         * intercept and modify the configuration in the default channel, and return the modified
+         * channel.
+         *
+         * @param defaultChannel Default notification channel
+         * @return The modified notification channel
          */
         @TargetApi(Build.VERSION_CODES.O)
         NotificationChannel onRegisterChannel(NotificationChannel defaultChannel);

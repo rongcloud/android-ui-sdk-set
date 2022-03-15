@@ -2,12 +2,16 @@ package io.rong.imkit.conversation.messgelist.processor;
 
 import android.content.Context;
 import android.os.Bundle;
+import androidx.lifecycle.Observer;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.userinfo.db.model.GroupMember;
+import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -21,7 +25,51 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
 
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
-        super.init(messageViewModel, bundle);
+        messageViewModel
+                .getPageEventLiveData()
+                .removeSource(RongUserInfoManager.getInstance().getAllUsersLiveData());
+        messageViewModel
+                .getPageEventLiveData()
+                .addSource(
+                        RongUserInfoManager.getInstance().getAllUsersLiveData(),
+                        new Observer<List<User>>() {
+                            @Override
+                            public void onChanged(List<User> users) {
+                                if (users != null && users.size() > 0) {
+                                    for (UiMessage item : messageViewModel.getUiMessages()) {
+                                        item.onUserInfoUpdate(users);
+                                    }
+                                    messageViewModel.refreshAllMessage(false);
+                                }
+                            }
+                        });
+        messageViewModel
+                .getPageEventLiveData()
+                .removeSource(RongUserInfoManager.getInstance().getAllGroupMembersLiveData());
+        messageViewModel
+                .getPageEventLiveData()
+                .addSource(
+                        RongUserInfoManager.getInstance().getAllGroupMembersLiveData(),
+                        new Observer<List<GroupMember>>() {
+                            @Override
+                            public void onChanged(List<GroupMember> groupMembers) {
+                                if (groupMembers != null && groupMembers.size() > 0) {
+                                    boolean isExist = false;
+                                    for (GroupMember member : groupMembers) {
+                                        if (member.groupId == messageViewModel.getCurTargetId()) {
+                                            isExist = true;
+                                            for (UiMessage item :
+                                                    messageViewModel.getUiMessages()) {
+                                                item.onGroupMemberInfoUpdate(member);
+                                            }
+                                        }
+                                    }
+                                    if (isExist) {
+                                        messageViewModel.refreshAllMessage(false);
+                                    }
+                                }
+                            }
+                        });
     }
 
     @Override
@@ -78,7 +126,9 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
         return false;
     }
 
-    /** 当加载完消息，群组发送已读回执 */
+    /** /~chinese 当加载完消息，群组发送已读回执 */
+
+    /** /~english When the message is loaded, the group sends a read receipt */
     @Override
     public void onLoadMessage(MessageViewModel viewModel, List<Message> messages) {
         if (!RongConfigCenter.conversationConfig()
