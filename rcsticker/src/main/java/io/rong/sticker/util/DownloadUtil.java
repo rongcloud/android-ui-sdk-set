@@ -4,7 +4,6 @@ import io.rong.common.rlog.RLog;
 import io.rong.imlib.common.NetUtils;
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +16,10 @@ import java.util.List;
 public class DownloadUtil {
     private static final String TAG = "DownloadUtil";
     private String urlString;
-    private List<DownloadListener> listeners = new ArrayList<>();
+    private final List<DownloadListener> listeners = new ArrayList<>();
+
+    private static volatile long lastClickTime;
+    public static final int MIN_CLICK_DELAY_TIME = 1000;
 
     public DownloadUtil(String url) {
         urlString = url;
@@ -51,9 +53,6 @@ public class DownloadUtil {
             }
             output.flush();
             notifyListenersOnComplete(savePath);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            notifyListenersOnError(e);
         } catch (IOException e) {
             e.printStackTrace();
             notifyListenersOnError(e);
@@ -105,5 +104,15 @@ public class DownloadUtil {
         void onComplete(String path);
 
         void onError(Exception e);
+    }
+
+    // 防止按钮连续点击
+    public static boolean isFastClick() {
+        long time = System.currentTimeMillis();
+        if (time - lastClickTime < MIN_CLICK_DELAY_TIME) {
+            return true;
+        }
+        lastClickTime = time;
+        return false;
     }
 }

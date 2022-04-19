@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
+import io.rong.common.RLog;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
+import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;
 import java.io.File;
 
@@ -32,9 +34,7 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
         mCameraView.setCameraViewListener(
                 new CameraView.CameraViewListener() {
                     @Override
-                    public void quit() {
-                        SightRecordActivity.this.finish();
-                    }
+                    public void quit() {}
 
                     @Override
                     public void captureSuccess(Bitmap bitmap) {}
@@ -52,10 +52,21 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
                             SightRecordActivity.this.finish();
                             return;
                         }
+                        boolean result =
+                                KitStorageUtils.saveMediaToPublicDir(
+                                        SightRecordActivity.this,
+                                        file,
+                                        KitStorageUtils.MediaType.VIDEO);
+                        RLog.i(TAG, "RecordSuccess save result" + result);
                         Intent intent = new Intent();
                         intent.putExtra("recordSightUrl", url);
                         intent.putExtra("recordSightTime", recordTime);
                         setResult(RESULT_OK, intent);
+                        SightRecordActivity.this.finish();
+                    }
+
+                    @Override
+                    public void finish() {
                         SightRecordActivity.this.finish();
                     }
                 });
@@ -71,5 +82,10 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
     protected void onPause() {
         super.onPause();
         mCameraView.onPause();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
     }
 }

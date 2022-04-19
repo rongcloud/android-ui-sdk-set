@@ -126,6 +126,8 @@ public class RecommendTab implements IEmoticonTab {
             return new RecommendViewHolder(parent.getContext(), stickerView);
         }
 
+        StickerPackageDownloadTask task;
+
         @Override
         public void onBindViewHolder(@NonNull final RecommendViewHolder holder, int position) {
             final StickerPackage stickerPackage = packages.get(position);
@@ -135,7 +137,13 @@ public class RecommendTab implements IEmoticonTab {
                     new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            StickerPackageDownloadTask task =
+                            if (DownloadUtil.isFastClick()) {
+                                return;
+                            }
+                            if (task != null) {
+                                return;
+                            }
+                            task =
                                     new StickerPackageDownloadTask(
                                             holder.context, stickerPackage.getPackageId());
                             task.downloadStickerPackage(

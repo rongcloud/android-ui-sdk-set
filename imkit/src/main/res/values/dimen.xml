@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    //Font
+    <dimen name="rc_font_title_size">18dp</dimen>
+    <dimen name="rc_font_secondary_size">17dp</dimen>
+    <dimen name="rc_font_text_third_size">14dp</dimen>
+    <dimen name="rc_font_nav_or_date_size">13sp</dimen>
+    <dimen name="rc_font_describe_size">12dp</dimen>
+    <dimen name="rc_font_auxiliary_size">10dp</dimen>
+
+
+    <dimen name="rc_title_bar_height">44dp</dimen>
+    <dimen name="rc_conversation_item_height">72dp</dimen>
+    <dimen name="rc_conversation_item_content_height">71.5dp</dimen>
+    <dimen name="rc_conversation_portrait_size">48dp</dimen>
+    <dimen name="rc_message_portrait_size">40dp</dimen>
+    <dimen name="rc_message_edit_size">20dp</dimen>
+    <dimen name="rc_divider_height">0.5dp</dimen>
+
+    <dimen name="rc_ext_input_panel_height">49dp</dimen>
+    <dimen name="rc_ext_input_panel_editbox_width">239dp</dimen>
+    <dimen name="rc_ext_input_panel_editbox_height">36dp</dimen>
+    <dimen name="rc_ext_input_panel_send_height">34dp</dimen>
+    <dimen name="rc_ext_input_panel_send_width">41dp</dimen>
+    <dimen name="rc_extension_board_height">282dp</dimen>
+
+    <dimen name="rc_notice_item_height">48dp</dimen>
+    <dimen name="rc_notice_item_icon_size">24dp</dimen>
+    <dimen name="rc_notice_item_padding">20dp</dimen>
+    <dimen name="rc_notice_icon_text_spacing">12dp</dimen>
+
+    <dimen name="rc_file_item_cancel_size">18dp</dimen>
+    <dimen name="rc_file_item_width">230dp</dimen>
+    <dimen name="rc_file_item_height">69dp</dimen>
+    <dimen name="rc_file_item_icon_size">48dp</dimen>
+    <dimen name="rc_file_item_content_height">48dp</dimen>
+    <dimen name="rc_file_item_content_width">147dp</dimen>
+    <dimen name="rc_file_item_name_size">13dp</dimen>
+    <dimen name="rc_file_item_size">12dp</dimen>
+
+    <dimen name="rc_gif_item_progress_size">41dp</dimen>
+
+    <dimen name="rc_widget_setting_item_height">48dp</dimen>
+
+    <dimen name="rc_margin_size_127">127dp</dimen>
+    <dimen name="rc_margin_size_74">74dp</dimen>
+    <dimen name="rc_margin_size_30">30dp</dimen>
+    <dimen name="rc_margin_size_28">28dp</dimen>
+    <dimen name="rc_margin_size_20">20dp</dimen>
+    <dimen name="rc_margin_size_15">15dp</dimen>
+    <dimen name="rc_margin_size_16">16dp</dimen>
+    <dimen name="rc_margin_size_14">14dp</dimen>
+    <dimen name="rc_margin_size_12">12dp</dimen>
+    <dimen name="rc_margin_size_2">2dp</dimen>
+    <dimen name="rc_margin_size_4">4dp</dimen>
+    <dimen name="rc_margin_size_8">8dp</dimen>
+    <dimen name="rc_margin_size_10">10dp</dimen>
+    <dimen name="rc_margin_size_51">51dp</dimen>
+    <dimen name="rc_margin_size_80">80dp</dimen>
+
+    <dimen name="rc_location_nearby_list_min_height">286dp</dimen>
+    <dimen name="rc_location_nearby_list_max_height">351dp</dimen>
+
+    <dimen name="rc_dialog_margin_to_edge">40dp</dimen>
+    <dimen name="rc_dialog_bottom_item_to_cancel_spacing">6dp</dimen>
+    <dimen name="rc_dialog_bottom_text_item_margin">16dp</dimen>
+    <dimen name="rc_dialog_bottom_text_size">17dp</dimen>
+    <dimen name="rc_dialog_bottom_text_title_size">15dp</dimen>
+    <dimen name="rc_dialog_bottom_item_separate_height">0.5dp</dimen>
+
+    <dimen name="rc_reference_ext_view_height">60dp</dimen>
+    <dimen name="rc_reference_width">255dp</dimen>
+    <dimen name="rc_reference_margin_top">8dp</dimen>
+    <dimen name="rc_reference_margin_right">12dp</dimen>
+    <dimen name="rc_reference_divider_width">2dp</dimen>
+    <dimen name="rc_reference_divider_height">13dp</dimen>
+    <dimen name="rc_reference_divider_margin_left">12dp</dimen>
+    <dimen name="rc_reference_divider_margin_right">4dp</dimen>
+    <dimen name="rc_reference_divider_margin_top">3dp</dimen>
+    <dimen name="rc_reference_name_size">14dp</dimen>
+    <dimen name="rc_reference_content_size">14dp</dimen>
+    <dimen name="rc_reference_name_margin_left">4dp</dimen>
+    <dimen name="rc_reference_name_margin_right">10dp</dimen>
+    <dimen name="rc_reference_image_size">56dp</dimen>
+    <dimen name="rc_reference_content_margin_left">12dp</dimen>
+    <dimen name="rc_reference_content_margin_right">12dp</dimen>
+    <dimen name="rc_reference_content_margin_top">4dp</dimen>
+    <dimen name="rc_reference_content_send_margin_bottom">10dp</dimen>
+    <dimen name="rc_reference_content_send_size">17dp</dimen>
+
+    <!--FilePreview-->
+    <dimen name="rc_file_preview_image_size">80dp</dimen>
+    <dimen name="rc_file_preview_name_size">18dp</dimen>
+    <dimen name="rc_file_preview_name_margin_top">16dp</dimen>
+    <dimen name="rc_file_preview_size">12dp</dimen>
+    <dimen name="rc_file_preview_margin_top">20dp</dimen>
+    <dimen name="rc_file_preview_margin_bottom">12dp</dimen>
+    <dimen name="rc_file_preview_download_button_height">40dp</dimen>
+    <dimen name="rc_file_preview_download_button_left_margin">40dp</dimen>
+    <dimen name="rc_file_preview_download_button_text_size">17dp</dimen>
+    <!--会话页面未读数-->
+    <dimen name="rc_unread_height">40dp</dimen>
+
+    <!--SightProvider-->
+    <dimen name="rc_sight_play_size">36dp</dimen>
+    <dimen name="rc_sight_progress_size">36dp</dimen>
+
+    <dimen name="rc_ext_more_imgage_width">30dp</dimen>
+    <dimen name="rc_ext_more_imgage_height">30dp</dimen>
+
+</resources>

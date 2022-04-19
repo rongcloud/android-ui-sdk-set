@@ -5,7 +5,6 @@ import static android.app.Activity.RESULT_OK;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -53,12 +52,8 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
             return;
         }
 
-        String[] permissions = {
-            Manifest.permission.CAMERA,
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        };
+        // KNOTE: 2021/8/24 小视频录像保存至私有目录  不需要存储权限
+        String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
         conversationType = extension.getConversationType();
         targetId = extension.getTargetId();
         if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), permissions)) {
@@ -111,17 +106,13 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         if (currentFragment.getActivity() == null) {
             return;
         }
-        if (ContextCompat.checkSelfPermission(
-                        currentFragment.getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED) {
-            saveDir =
-                    new File(
-                            FileUtils.getMediaDownloadDir(
-                                    currentFragment.getContext(), LibStorageUtils.VIDEO));
-            boolean successMkdir = saveDir.mkdirs();
-            if (!successMkdir) {
-                RLog.e(TAG, "Created folders UnSuccessfully");
-            }
+        saveDir =
+                new File(
+                        FileUtils.getMediaDownloadDir(
+                                currentFragment.getContext(), LibStorageUtils.VIDEO));
+        boolean successMkdir = saveDir.mkdirs();
+        if (!successMkdir) {
+            RLog.e(TAG, "Created folders UnSuccessfully");
         }
 
         Intent intent = new Intent(currentFragment.getActivity(), SightRecordActivity.class);
@@ -157,11 +148,8 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
             startSightRecord(fragment, extension);
         } else {
-            // todo 展示授权失败
-            //            if (fragment.getActivity() != null) {
-            //
-            // extension.showRequestPermissionFailedAlter(PermissionCheckUtil.getNotGrantedPermissionMsg(fragment.getActivity(), permissions, grantResults));
-            //            }
+            PermissionCheckUtil.showRequestPermissionFailedAlter(
+                    fragment.getContext(), permissions, grantResults);
         }
         return true;
     }

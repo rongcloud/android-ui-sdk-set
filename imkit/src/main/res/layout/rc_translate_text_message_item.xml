@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/rc_text"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="223dp"
+        android:padding="12dp"
+        android:textColor="@color/rc_text_main_color"
+        android:textColorLink="@color/rc_main_theme"
+        android:textSize="@dimen/rc_font_secondary_size"
+        app:layout_constraintBottom_toTopOf="@+id/rc_translated_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/rc_translated_text"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:maxWidth="223dp"
+        android:padding="12dp"
+        android:textColor="@color/rc_text_main_color"
+        android:textColorLink="@color/rc_main_theme"
+        android:textSize="@dimen/rc_font_secondary_size"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/rc_pb_translating"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rc_text" />
+
+    <ProgressBar
+        android:id="@+id/rc_pb_translating"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:visibility="gone"
+        android:layout_marginTop="12dp"
+        android:minHeight="25dp"
+        android:maxHeight="25dp"
+        android:minWidth="25dp"
+        android:maxWidth="25dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rc_translated_text" />
+</androidx.constraintlayout.widget.ConstraintLayout>
