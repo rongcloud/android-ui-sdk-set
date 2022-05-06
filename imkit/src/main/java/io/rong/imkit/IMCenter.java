@@ -3,15 +3,11 @@ package io.rong.imkit;
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
-import androidx.annotation.Nullable;
-import androidx.emoji2.text.DefaultEmojiCompatConfig;
-import androidx.emoji2.text.EmojiCompat;
 import io.rong.common.RLog;
 import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.ConversationListBehaviorListener;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.event.actionevent.ClearEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
@@ -24,11 +20,13 @@ import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.forward.CombineMessage;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
+import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.LocationMessage;
@@ -47,8 +45,8 @@ import io.rong.message.MediaMessageContent;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.TextMessage;
-import java.io.IOException;
-import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -278,6 +276,20 @@ public class IMCenter {
                 }
             };
 
+    // 通知级别变化监听器
+    private IRongCoreListener.PushNotifyLevelListener pushNotifyLevelListener =
+            new IRongCoreListener.PushNotifyLevelListener() {
+                @Override
+                public void onNotifyLevelUpdate(String key, int level) {
+                    MessageNotificationHelper.updateLevelMap(key, level);
+                }
+
+                @Override
+                public void OnNotifyQuietHour(int quietLevel, String startTime, int spanTime) {
+                    MessageNotificationHelper.updateQuietHour(quietLevel, startTime, spanTime);
+                }
+            };
+
     private IMCenter() {}
 
     public static IMCenter getInstance() {
@@ -292,7 +304,7 @@ public class IMCenter {
      * @param isEnablePush 是否使用推送功能
      */
     public static void init(Application application, String appKey, boolean isEnablePush) {
-        initEmojiConfig(application);
+        //        initEmojiConfig(application);
         String current = io.rong.common.SystemUtils.getCurrentProcessName(application);
         String mainProcessName = application.getPackageName();
         if (!mainProcessName.equals(current)) {
@@ -322,7 +334,31 @@ public class IMCenter {
                 .setSyncConversationReadStatusListener(
                         SingletonHolder.sInstance.mSyncConversationReadStatusListener);
         RongIMClient.setTypingStatusListener(SingletonHolder.sInstance.mTypingStatusListener);
+        setPushNotifyLevelListener();
         RongIMClient.registerMessageType(CombineMessage.class);
+    }
+
+    private static void setPushNotifyLevelListener() {
+        Class<?> aClass; // 通过单例类的全限定名获取类
+        try {
+            aClass = Class.forName("io.rong.imlib.ChannelClientImpl");
+            Method getInstance = aClass.getDeclaredMethod("getInstanceForInterior");
+            getInstance.setAccessible(true);
+            Object invoke = getInstance.invoke(aClass);
+            Method method =
+                    invoke.getClass()
+                            .getDeclaredMethod(
+                                    "setPushNotifyLevelListener",
+                                    IRongCoreListener.PushNotifyLevelListener.class);
+            method.setAccessible(true);
+            method.invoke(invoke, SingletonHolder.sInstance.pushNotifyLevelListener);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -371,6 +407,7 @@ public class IMCenter {
                         }
                         if (!TextUtils.isEmpty(s)) {
                             RongNotificationManager.getInstance().getNotificationQuietHours(null);
+                            MessageNotificationHelper.clearCache();
                             RongUserInfoManager.getInstance()
                                     .initAndUpdateUserDataBase(SingletonHolder.sInstance.mContext);
                             for (RongIMClient.ConnectCallback callback : mConnectStatusListener) {
@@ -1389,6 +1426,12 @@ public class IMCenter {
             MessageContent content,
             long time,
             final RongIMClient.ResultCallback<Message> resultCallback) {
+        if (mMessageInterceptor != null
+                && mMessageInterceptor.interceptOnInsertOutgoingMessage(
+                        type, targetId, sentStatus, content, time)) {
+            RLog.d(TAG, "message insertOut has been intercepted.");
+            return;
+        }
         RongIMClient.getInstance()
                 .insertOutgoingMessage(
                         type,
@@ -1441,6 +1484,12 @@ public class IMCenter {
             MessageContent content,
             long time,
             final RongIMClient.ResultCallback<Message> resultCallback) {
+        if (mMessageInterceptor != null
+                && mMessageInterceptor.interceptOnInsertIncomingMessage(
+                        type, targetId, senderId, receivedStatus, content, time)) {
+            RLog.d(TAG, "message insertIncoming has been intercepted.");
+            return;
+        }
         RongIMClient.getInstance()
                 .insertIncomingMessage(
                         type,
@@ -2214,47 +2263,6 @@ public class IMCenter {
 
     public interface FilterSentListener {
         void onComplete();
-    }
-
-    /** EmojiCompat 初始化配置 */
-    private static void initEmojiConfig(Context context) {
-        if (!AndroidEmoji.useEmoji2()) {
-            return;
-        }
-        EmojiCompat.Config config;
-        InputStream inputStream;
-        try {
-            inputStream = context.getResources().getAssets().open(EMOJI_TTF_FILE_NAME);
-        } catch (IOException e) {
-            RLog.i(TAG, "open file:" + e.toString());
-            inputStream = null;
-        }
-
-        try {
-            if (inputStream != null) {
-                config = new LocalEmojiCompatConfig(context);
-            } else {
-                config = DefaultEmojiCompatConfig.create(context);
-            }
-            config.registerInitCallback(
-                    new EmojiCompat.InitCallback() {
-                        @Override
-                        public void onInitialized() {
-                            RLog.i(TAG, "initEmojiConfig initialized");
-                        }
-
-                        @Override
-                        public void onFailed(@Nullable Throwable throwable) {
-                            RLog.i(
-                                    TAG,
-                                    "initEmojiConfig initialized  onFailed, "
-                                            + throwable.getMessage());
-                        }
-                    });
-            EmojiCompat.init(config);
-        } catch (Exception e) {
-            RLog.i(TAG, "emoji config: " + e.toString());
-        }
     }
 
     private static class SingletonHolder {

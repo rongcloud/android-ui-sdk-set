@@ -1,6 +1,10 @@
 package io.rong.imkit;
 
+import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageContent;
+import io.rong.message.ImageMessage;
+import io.rong.message.TextMessage;
 
 /** 消息拦截器 */
 public interface MessageInterceptor {
@@ -39,4 +43,40 @@ public interface MessageInterceptor {
      * @return true 用户拦截此次消息，sdk不再做后续处理，false,交由sdk处理
      */
     boolean interceptOnSentMessage(Message message);
+
+    /**
+     * 准备插入Outgoing消息的拦截回调。
+     *
+     * @param type 会话类型。
+     * @param targetId 会话 id。比如私人会话时，是对方的 id； 群组会话时，是群 id； 讨论组会话时，则为该讨论组的 id。
+     * @param sentStatus 发送状态 {@link Message.SentStatus}
+     * @param content 消息内容。如{@link TextMessage} {@link ImageMessage} 等。
+     * @param sentTime 消息的发送时间 {@link Message#getSentTime()} 。
+     * @return true 用户拦截此次消息，sdk不再做后续处理，false,交由sdk处理
+     */
+    boolean interceptOnInsertOutgoingMessage(
+            Conversation.ConversationType type,
+            String targetId,
+            Message.SentStatus sentStatus,
+            MessageContent content,
+            long time);
+
+    /**
+     * 准备插入Incoming消息的拦截回调。
+     *
+     * @param type 会话类型。
+     * @param targetId 会话 id。比如私人会话时，是对方的 id； 群组会话时，是群 id； 讨论组会话时，则为该讨论组的 id。
+     * @param senderUserId 发送方 id
+     * @param receivedStatus 接收状态 {@link Message.ReceivedStatus}
+     * @param content 消息内容。如 {@link TextMessage} {@link ImageMessage}等。
+     * @param sentTime 消息的发送时间 {@link Message#getSentTime()} 。
+     * @return true 用户拦截此次消息，sdk不再做后续处理，false,交由sdk处理
+     */
+    boolean interceptOnInsertIncomingMessage(
+            Conversation.ConversationType type,
+            String targetId,
+            String senderId,
+            Message.ReceivedStatus receivedStatus,
+            MessageContent content,
+            long time);
 }

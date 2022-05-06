@@ -3,8 +3,10 @@ package io.rong.imkit.feature.destruct;
 import android.content.Context;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
+import io.rong.imkit.conversation.extension.IExtensionModule;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
@@ -237,5 +239,21 @@ public class DestructManager implements IExtensionEventWatcher {
 
     public void stopDestruct(Message pMessage) {
         RongIMClient.getInstance().stopDestructMessage(pMessage);
+    }
+
+    /**
+     * 如果弱引用出问题，重新attach
+     *
+     * @param currentFragment
+     * @param extension
+     */
+    public void safeAttacheToExtension(Fragment currentFragment, RongExtension extension) {
+        if (DestructExtensionModule.sFragment != null
+                && DestructExtensionModule.sFragment.get() == null) {
+            for (IExtensionModule module :
+                    RongExtensionManager.getInstance().getExtensionModules()) {
+                module.onAttachedToExtension(currentFragment, extension);
+            }
+        }
     }
 }

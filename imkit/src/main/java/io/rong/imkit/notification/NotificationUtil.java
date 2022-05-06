@@ -12,17 +12,18 @@ import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
+import android.media.RingtoneManager;
 import android.os.Build;
 import android.text.TextUtils;
 import androidx.annotation.RequiresApi;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.push.notification.RongNotificationHelper;
 
 /** Created by jiangecho on 2016/11/29. */
 public class NotificationUtil {
     private final String TAG = NotificationUtil.class.getSimpleName();
-    private final String CHANNEL_ID = "RCChannel";
     private final int SOUND_INTERVAL = 3000;
     private long mLastSoundTime;
 
@@ -85,13 +86,14 @@ public class NotificationUtil {
         String channelName =
                 context.getResources().getString(R.string.rc_notification_channel_name);
         NotificationChannel notificationChannel =
-                new NotificationChannel(CHANNEL_ID, channelName, importance);
+                new NotificationChannel(
+                        RongNotificationHelper.getDefaultChannelId(), channelName, importance);
         notificationChannel.enableLights(true);
         notificationChannel.setLightColor(Color.GREEN);
-        if (System.currentTimeMillis() - mLastSoundTime < SOUND_INTERVAL) {
-            notificationChannel.enableLights(true);
-            notificationChannel.enableVibration(false);
-        }
+        notificationChannel.setSound(
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), null);
+        notificationChannel.enableLights(true);
+        notificationChannel.enableVibration(false);
         return notificationChannel;
     }
 
@@ -167,7 +169,10 @@ public class NotificationUtil {
         builder.setOngoing(false);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(TextUtils.isEmpty(channelId) ? CHANNEL_ID : channelId);
+            builder.setChannelId(
+                    TextUtils.isEmpty(channelId)
+                            ? RongNotificationHelper.getDefaultChannelId()
+                            : channelId);
         } else {
             if (System.currentTimeMillis() - mLastSoundTime >= SOUND_INTERVAL) {
                 builder.setDefaults(defaults);

@@ -31,6 +31,7 @@ import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.NoticeContent;
+import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -515,6 +516,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 if (status.getStatus().get(ConversationStatus.NOTIFICATION_KEY) != null) {
                     oldItem.mCore.setNotificationStatus(status.getNotifyStatus());
                 }
+                MessageNotificationHelper.updateLevelMap(oldItem.mCore);
                 sort();
                 mConversationListLiveData.postValue(mUiConversationList);
             } else {
@@ -541,6 +543,7 @@ public class ConversationListViewModel extends AndroidViewModel
                                                 .needResend(conversation.getLatestMessageId())) {
                                     conversation.setSentStatus(Message.SentStatus.SENDING);
                                 }
+                                MessageNotificationHelper.updateLevelMap(conversation);
                                 updateByConversation(conversation);
                             }
 

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.fragment.app.Fragment;
+import io.rong.common.RLog;
 import io.rong.imkit.activity.CombinePicturePagerActivity;
 import io.rong.imkit.activity.CombineWebViewActivity;
 import io.rong.imkit.activity.FilePreviewActivity;
@@ -26,6 +27,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class RouteUtils {
+
+    private static final String TAG = "RouteUtils";
+
     public static final String CONVERSATION_TYPE = "ConversationType";
     public static final String TARGET_ID = "targetId";
     public static final String CREATE_CHATROOM = "createIfNotExist";
@@ -66,6 +70,10 @@ public class RouteUtils {
      */
     public static void routeToConversationActivity(
             Context context, Conversation.ConversationType type, String targetId, Bundle bundle) {
+        if (TextUtils.isEmpty(targetId)) {
+            RLog.e(TAG, "routeToConversationActivity: targetId is empty");
+            return;
+        }
         Class<? extends Activity> activity = RongConversationActivity.class;
         if (sActivityMap.get(RongActivityType.ConversationActivity) != null) {
             activity = sActivityMap.get(RongActivityType.ConversationActivity);

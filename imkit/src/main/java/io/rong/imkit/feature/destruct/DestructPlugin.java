@@ -32,6 +32,7 @@ public class DestructPlugin implements IPluginModule {
                 new DestructHintDialog().show(currentFragment.getParentFragmentManager());
             }
         }
+        DestructManager.getInstance().safeAttacheToExtension(currentFragment, extension);
         DestructManager.getInstance().activeDestructMode(currentFragment.getContext());
     }
 

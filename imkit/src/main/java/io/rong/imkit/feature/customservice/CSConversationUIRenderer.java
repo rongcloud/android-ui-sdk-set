@@ -107,13 +107,16 @@ public class CSConversationUIRenderer implements IConversationUIRenderer {
                                             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                                         }
                                         alertDialog.dismiss();
-                                        FragmentManager fm = mFragment.getChildFragmentManager();
+                                        final ConversationFragment fragment = mFragment;
+                                        if (fragment == null) {
+                                            return;
+                                        }
+                                        FragmentManager fm = fragment.getChildFragmentManager();
                                         if (fm.getBackStackEntryCount() > 0) {
                                             fm.popBackStack();
                                         } else {
-                                            if (mFragment != null
-                                                    && mFragment.getActivity() != null) {
-                                                mFragment.getActivity().finish();
+                                            if (fragment.getActivity() != null) {
+                                                fragment.getActivity().finish();
                                             }
                                         }
                                     }

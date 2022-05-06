@@ -39,8 +39,8 @@ import io.rong.imlib.model.MessagePushConfig;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.push.common.PushCacheHelper;
+import io.rong.push.notification.RongNotificationHelper;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -55,11 +55,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     private boolean isQuietSettingSynced = false;
     private String mQuietStartTime; // 通知免打扰起始时间
     private int mQuietSpanTime; // 通知免打扰间隔时间
-    private int mNotificationId = 10000;
     private int requestCode = 1000;
     private long mLastSoundTime = 0;
     private Activity mTopForegroundActivity;
-    private HashMap<Integer, Integer> notificationCache;
     private ConcurrentHashMap<String, Message> messageMap = new ConcurrentHashMap<>();
     private MediaPlayer mediaPlayer;
 
@@ -72,7 +70,6 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     public void init(Application application) {
         messageMap.clear();
         mApplication = application;
-        notificationCache = new HashMap<>();
         IMCenter.getInstance()
                 .addConversationStatusListener(
                         new RongIMClient.ConversationStatusListener() {
@@ -105,6 +102,16 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         });
         mNotificationCache = new RongCache<>(MAX_NOTIFICATION_STATUS_CACHE);
         getNotificationQuietHours(null);
+        MessageNotificationHelper.setNotifyListener(
+                new MessageNotificationHelper.NotifyListener() {
+                    @Override
+                    public void onPreToNotify(Message message) {
+                        if (message == null) {
+                            return;
+                        }
+                        preToNotify(message);
+                    }
+                });
         IMCenter.getInstance()
                 .addOnReceiveMessageListener(
                         new RongIMClient.OnReceiveMessageWrapperListener() {
@@ -122,31 +129,17 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                                 + offline);
                                 if (shouldNotify(message, left, hasPackage, offline)) {
                                     // 高优先级消息不受免打扰和会话通知状态控制
-                                    if (isHighPriorityMessage(message)) {
-                                        preToNotify(message);
-                                        return false;
+                                    NotificationConfig.Interceptor interceptor =
+                                            RongConfigCenter.notificationConfig().getInterceptor();
+                                    if (interceptor != null) {
+                                        boolean high = interceptor.isHighPriorityMessage(message);
+                                        if (high) {
+                                            preToNotify(message);
+                                            return false;
+                                        }
                                     }
-                                    getConversationNotificationStatus(
-                                            message.getConversationType(),
-                                            message.getTargetId(),
-                                            new RongIMClient.ResultCallback<
-                                                    Conversation.ConversationNotificationStatus>() {
-                                                @Override
-                                                public void onSuccess(
-                                                        Conversation.ConversationNotificationStatus
-                                                                conversationNotificationStatus) {
-                                                    if (conversationNotificationStatus.equals(
-                                                            Conversation
-                                                                    .ConversationNotificationStatus
-                                                                    .NOTIFY)) {
-                                                        preToNotify(message);
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onError(
-                                                        RongIMClient.ErrorCode errorCode) {}
-                                            });
+                                    MessageNotificationHelper.getNotificationQuietHoursLevel(
+                                            message);
                                 }
                                 return false;
                             }
@@ -188,7 +181,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         registerActivityLifecycleCallback();
     }
 
-    private void preToNotify(Message message) {
+    void preToNotify(Message message) {
         if (!mIsInForeground) {
             prepareToSendNotification(message);
         } else if (!isInConversationPage()) { // 前台非会话页面
@@ -216,9 +209,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     private void prepareToSendNotification(Message message) {
         String title;
         String content;
-        if (notificationCache.get(message.getMessageId()) != null) {
-            mNotificationId = notificationCache.get(message.getMessageId());
-        }
+        int mNotificationId = RongNotificationHelper.getNotificationId(message.getUId());
         Conversation.ConversationType type = message.getConversationType();
         String targetId = message.getTargetId();
 
@@ -353,8 +344,6 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         content,
                         pendingIntent,
                         mNotificationId);
-        notificationCache.put(message.getMessageId(), mNotificationId);
-        mNotificationId++;
         requestCode++;
     }
 
@@ -389,17 +378,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
             return false;
         }
 
-        // 高优先级消息，必弹通知
-        if (isHighPriorityMessage(message)) {
-            return true;
-        }
-
-        if (!isQuietSettingSynced) { // 全局免打扰设置没有同步成功时，默认不弹通知。
-            getNotificationQuietHours(null);
-            return false;
-        } else {
-            return !isInQuietTime();
-        }
+        return true;
     }
 
     private boolean isRecallFiltered(Message message) {
@@ -487,31 +466,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     /** 获取会话通知免打扰时间。 */
     public void getNotificationQuietHours(
             final RongIMClient.GetNotificationQuietHoursCallback callback) {
-        if (isQuietSettingSynced && callback != null) {
-            callback.onSuccess(mQuietStartTime, mQuietSpanTime);
-        } else {
-            RongIMClient.getInstance()
-                    .getNotificationQuietHours(
-                            new RongIMClient.GetNotificationQuietHoursCallback() {
-                                @Override
-                                public void onSuccess(String startTime, int spanMinutes) {
-                                    mQuietStartTime = startTime;
-                                    mQuietSpanTime = spanMinutes;
-                                    isQuietSettingSynced = true;
-                                    if (callback != null) {
-                                        callback.onSuccess(startTime, spanMinutes);
-                                    }
-                                }
-
-                                @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
-                                    isQuietSettingSynced = false;
-                                    if (callback != null) {
-                                        callback.onError(errorCode);
-                                    }
-                                }
-                            });
-        }
+        MessageNotificationHelper.getNotificationQuietHoursLevel(callback);
     }
 
     public void removeNotificationQuietHours(final RongIMClient.OperationCallback callback) {
@@ -759,10 +714,12 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         }
         Conversation.ConversationType[] types =
                 new Conversation.ConversationType[] {
-                    Conversation.ConversationType.PRIVATE, Conversation.ConversationType.GROUP,
+                    Conversation.ConversationType.PRIVATE,
+                    Conversation.ConversationType.GROUP,
                     Conversation.ConversationType.DISCUSSION,
-                            Conversation.ConversationType.CUSTOMER_SERVICE,
-                    Conversation.ConversationType.CHATROOM, Conversation.ConversationType.SYSTEM
+                    Conversation.ConversationType.CUSTOMER_SERVICE,
+                    Conversation.ConversationType.CHATROOM,
+                    Conversation.ConversationType.SYSTEM
                 };
         Message message;
         for (Conversation.ConversationType type : types) {

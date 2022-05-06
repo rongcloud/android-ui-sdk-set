@@ -337,6 +337,7 @@
 
     <string name="rc_notification_ticker_text">لديك رسالة جديدة</string>
     <string name="rc_notification_channel_name">رسالة جديدة</string>
+    <string name="rc_notification_voip_channel_name">مكالمات الصوت والفيديو</string>
 
     <string name="rc_date_yesterday">أمس</string>
     <string name="rc_date_year"></string>

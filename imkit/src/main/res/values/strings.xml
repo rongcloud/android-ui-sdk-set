@@ -198,6 +198,7 @@
     //通知
     <string name="rc_notification_channel_name">新消息</string>
     <string name="rc_notification_ticker_text">您有了一条新消息</string>
+    <string name="rc_notification_voip_channel_name">音视频通话</string>
 
     //emoji
     <!--emoji 对应的文字描述 共 128 个 start-->
