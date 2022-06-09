@@ -22,8 +22,6 @@ import io.rong.imkit.feature.customservice.event.CSExtensionConfigEvent;
 import io.rong.imkit.feature.customservice.event.CSExtensionModeEvent;
 import io.rong.imkit.feature.customservice.event.CSSelectGroupEvent;
 import io.rong.imkit.feature.customservice.event.CSWarningEvent;
-import io.rong.imkit.feature.location.plugin.CombineLocationPlugin;
-import io.rong.imkit.feature.location.plugin.DefaultLocationPlugin;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.CustomServiceConfig;
 import io.rong.imlib.cs.model.CSGroupItem;
@@ -222,9 +220,14 @@ public class CSConversationUIRenderer implements IConversationUIRenderer {
             List<IPluginModule> defaultPlugins = mRongExtension.getPluginBoard().getPluginModules();
             IPluginModule location = null;
             for (int i = 0; i < defaultPlugins.size(); i++) {
-                if (defaultPlugins.get(i) instanceof DefaultLocationPlugin
-                        || defaultPlugins.get(i) instanceof CombineLocationPlugin) {
-                    location = defaultPlugins.get(i);
+                IPluginModule iPluginModule = defaultPlugins.get(i);
+                if (iPluginModule != null
+                        && (iPluginModule.getClass().getSimpleName().equals("DefaultLocationPlugin")
+                                || iPluginModule
+                                        .getClass()
+                                        .getSimpleName()
+                                        .equals("CombineLocationPlugin"))) {
+                    location = iPluginModule;
                 }
             }
             mRongExtension.getPluginBoard().removePlugin(location);

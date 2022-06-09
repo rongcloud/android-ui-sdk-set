@@ -184,6 +184,7 @@ public class MessageItemLongClickActionManager {
                                                             uiMessage.getMessage().getMessageId()
                                                         },
                                                         null);
+                                        deleteRemoteMessage(uiMessage);
                                         return true;
                                     }
                                 })
@@ -367,6 +368,18 @@ public class MessageItemLongClickActionManager {
                             .build();
             addMessageItemLongClickAction(messageItemLongClickAction);
         }
+    }
+
+    private void deleteRemoteMessage(UiMessage uiMessage) {
+        if (!RongConfigCenter.conversationListConfig().isNeedDeleteRemoteMessage()) {
+            return;
+        }
+        IMCenter.getInstance()
+                .deleteRemoteMessages(
+                        uiMessage.getMessage().getConversationType(),
+                        uiMessage.getMessage().getTargetId(),
+                        new Message[] {uiMessage.getMessage()},
+                        null);
     }
 
     private void translateText(Context context, UiMessage message) {

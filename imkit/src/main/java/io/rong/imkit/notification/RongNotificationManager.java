@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
@@ -40,6 +41,7 @@ import io.rong.imlib.model.UserInfo;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.push.common.PushCacheHelper;
 import io.rong.push.notification.RongNotificationHelper;
+import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -184,7 +186,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     void preToNotify(Message message) {
         if (!mIsInForeground) {
             prepareToSendNotification(message);
-        } else if (!isInConversationPage()) { // 前台非会话页面
+        } else if (!isInConversationPage()) {
             NotificationConfig.ForegroundOtherPageAction action =
                     RongConfigCenter.notificationConfig().getForegroundOtherPageAction();
             if (action.equals(NotificationConfig.ForegroundOtherPageAction.Notification)) {
@@ -193,12 +195,13 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                     && System.currentTimeMillis() - mLastSoundTime > SOUND_INTERVAL) {
                 AudioManager audio =
                         (AudioManager) mApplication.getSystemService(Context.AUDIO_SERVICE);
-                if (audio != null
-                        && audio.getRingerMode() != AudioManager.RINGER_MODE_SILENT
-                        && RongConfigCenter.featureConfig().rc_sound_in_foreground) {
+                if (audio != null && audio.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                     mLastSoundTime = System.currentTimeMillis();
-                    vibrate();
-                    if (audio.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE) {
+                    if (RongConfigCenter.featureConfig().isVibrateInForeground()) {
+                        vibrate();
+                    }
+                    if (audio.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE
+                            && RongConfigCenter.featureConfig().isSoundInForeground()) {
                         sound();
                     }
                 }
@@ -397,6 +400,11 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         } else return isInQuietTime();
     }
 
+    /**
+     * 是否在会话列表，会话，音视频或者小视频录制界面
+     *
+     * @return 是否在会话列表，会话，音视频或者小视频录制界面
+     */
     private boolean isInConversationPage() {
         return mTopForegroundActivity != null
                 && (mTopForegroundActivity
@@ -409,7 +417,34 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                 .equals(
                                         RouteUtils.getActivity(
                                                 RouteUtils.RongActivityType
-                                                        .ConversationListActivity)));
+                                                        .ConversationListActivity))
+                        || isRecordOrPlay()
+                        || "io.rong.callkit.SingleCallActivity"
+                                .equals(mTopForegroundActivity.getClass().getName()));
+    }
+
+    private boolean isRecordOrPlay() {
+        boolean isRecordOrPlay = false;
+        if ("io.rong.sight.player.SightPlayerActivity"
+                .equals(mTopForegroundActivity.getClass().getName())) {
+            return true;
+        }
+
+        if (!"io.rong.sight.record.SightRecordActivity"
+                .equals(mTopForegroundActivity.getClass().getName())) {
+            return false;
+        }
+        try {
+            Class c = Class.forName("io.rong.sight.record.CameraView");
+            Field field = c.getDeclaredField("isRecorder");
+            Field fieldPlay = c.getDeclaredField("isPlay");
+            field.setAccessible(true);
+            fieldPlay.setAccessible(true);
+            isRecordOrPlay = (boolean) field.get(c) || (boolean) fieldPlay.get(c);
+        } catch (Exception e) {
+            RLog.i(TAG, "isRecordOrPlay " + e);
+        }
+        return isRecordOrPlay;
     }
 
     private boolean isHighPriorityMessage(Message message) {
@@ -566,7 +601,13 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         }
                     });
             // 设置 STREAM_RING 模式：当系统设置震动时，使用系统设置方式是否播放收消息铃声。
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
+            if (isWiredHeadsetOn(mApplication.getApplicationContext())) {
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+            } else if (isBluetoothA2dpOn(mApplication.getApplicationContext())) {
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_VOICE_CALL);
+            } else {
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_RING);
+            }
             mediaPlayer.setDataSource(mApplication, res);
             mediaPlayer.prepareAsync();
             mediaPlayer.setOnPreparedListener(
@@ -582,6 +623,29 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                 mediaPlayer = null;
             }
         }
+    }
+
+    private boolean isWiredHeadsetOn(Context context) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            AudioDeviceInfo[] devices = audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+            for (AudioDeviceInfo device : devices) {
+                int deviceType = device.getType();
+                if (deviceType == AudioDeviceInfo.TYPE_WIRED_HEADSET
+                        || deviceType == AudioDeviceInfo.TYPE_WIRED_HEADPHONES) {
+                    return true;
+                }
+            }
+        } else {
+            return audioManager.isWiredHeadsetOn();
+        }
+        return false;
+    }
+
+    private boolean isBluetoothA2dpOn(Context context) {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        return audioManager.isBluetoothA2dpOn();
     }
 
     private void vibrate() {
@@ -685,6 +749,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
 
     /** 清除所有通知 */
     public void clearAllNotification() {
+        if (mApplication == null) {
+            return;
+        }
         NotificationManager notificationManager =
                 (NotificationManager) mApplication.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();

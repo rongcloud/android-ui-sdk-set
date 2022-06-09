@@ -77,6 +77,9 @@
     <!--在前台非会话页面时，接收到新消息是否响铃 -->
     <bool name="rc_sound_in_foreground">true</bool>
 
+    <!--在前台非会话页面时，接收到新消息是否震动 -->
+    <bool name="rc_vibrate_in_foreground">true</bool>
+
     <!--会话页面右上角的未读 @ 消息数提示，当收到的消息中有 @ 消息时，进入会话之后，是否在右上角提示未读 @ 消息数-->
     <bool name="rc_enable_unread_mention">true</bool>
 

@@ -31,7 +31,6 @@ import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.NoticeContent;
-import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -162,7 +161,10 @@ public class ConversationListViewModel extends AndroidViewModel
                 @Override
                 public void onDeleteMessage(DeleteEvent event) {
                     if (event != null) {
-                        getConversation(event.getConversationType(), event.getTargetId());
+                        getDeletedMsgConversation(
+                                event.getConversationType(),
+                                event.getTargetId(),
+                                event.getMessageIds());
                     }
                 }
 
@@ -451,16 +453,18 @@ public class ConversationListViewModel extends AndroidViewModel
 
     protected BaseUiConversation findConversationFromList(
             Conversation.ConversationType conversationType, String targetId, boolean isGathered) {
-        for (BaseUiConversation uiConversation : mUiConversationList) {
+        for (int i = mUiConversationList.size() - 1; i >= 0; i--) {
             if (isGathered
-                    && uiConversation instanceof GatheredConversation
+                    && mUiConversationList.get(i) instanceof GatheredConversation
                     && Objects.equals(
-                            conversationType, uiConversation.mCore.getConversationType())) {
-                return uiConversation;
+                            conversationType,
+                            mUiConversationList.get(i).mCore.getConversationType())) {
+                return mUiConversationList.get(i);
             } else if (!isGathered) {
-                if (uiConversation.mCore.getConversationType().equals(conversationType)
-                        && Objects.equals(uiConversation.mCore.getTargetId(), targetId)) {
-                    return uiConversation;
+                if (mUiConversationList.get(i).mCore.getConversationType().equals(conversationType)
+                        && Objects.equals(
+                                mUiConversationList.get(i).mCore.getTargetId(), targetId)) {
+                    return mUiConversationList.get(i);
                 }
             }
         }
@@ -516,7 +520,6 @@ public class ConversationListViewModel extends AndroidViewModel
                 if (status.getStatus().get(ConversationStatus.NOTIFICATION_KEY) != null) {
                     oldItem.mCore.setNotificationStatus(status.getNotifyStatus());
                 }
-                MessageNotificationHelper.updateLevelMap(oldItem.mCore);
                 sort();
                 mConversationListLiveData.postValue(mUiConversationList);
             } else {
@@ -543,7 +546,50 @@ public class ConversationListViewModel extends AndroidViewModel
                                                 .needResend(conversation.getLatestMessageId())) {
                                     conversation.setSentStatus(Message.SentStatus.SENDING);
                                 }
-                                MessageNotificationHelper.updateLevelMap(conversation);
+                                updateByConversation(conversation);
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // Todo 数据获取失败，下拉刷新
+                            }
+                        });
+    }
+
+    private void getDeletedMsgConversation(
+            Conversation.ConversationType type, String targetId, int[] deleteMsgId) {
+        RongIMClient.getInstance()
+                .getConversation(
+                        type,
+                        targetId,
+                        new RongIMClient.ResultCallback<Conversation>() {
+                            @Override
+                            public void onSuccess(Conversation conversation) {
+                                if (conversation == null) {
+                                    return;
+                                }
+
+                                // 如果查询到的会话对应LatestMessageId在待删除消息ID数组中，则再延时查询一次
+                                for (int id : deleteMsgId) {
+                                    if (conversation.getLatestMessageId() == id) {
+                                        mHandler.postDelayed(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        getConversation(type, targetId);
+                                                    }
+                                                },
+                                                200);
+                                        return;
+                                    }
+                                }
+                                if (Objects.equals(
+                                                conversation.getSentStatus(),
+                                                Message.SentStatus.FAILED)
+                                        && ResendManager.getInstance()
+                                                .needResend(conversation.getLatestMessageId())) {
+                                    conversation.setSentStatus(Message.SentStatus.SENDING);
+                                }
                                 updateByConversation(conversation);
                             }
 
@@ -712,24 +758,24 @@ public class ConversationListViewModel extends AndroidViewModel
         if (info == null) {
             return;
         }
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            uiConversation.onUserInfoUpdate(info);
+        for (int i = mUiConversationList.size() - 1; i >= 0; i--) {
+            mUiConversationList.get(i).onUserInfoUpdate(info);
         }
         refreshConversationList();
     }
 
     @Override
     public void onGroupUpdate(Group group) {
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            uiConversation.onGroupInfoUpdate(group);
+        for (int i = mUiConversationList.size() - 1; i >= 0; i--) {
+            mUiConversationList.get(i).onGroupInfoUpdate(group);
         }
         refreshConversationList();
     }
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            uiConversation.onGroupMemberUpdate(groupUserInfo);
+        for (int i = mUiConversationList.size() - 1; i >= 0; i--) {
+            mUiConversationList.get(i).onGroupMemberUpdate(groupUserInfo);
         }
         refreshConversationList();
     }

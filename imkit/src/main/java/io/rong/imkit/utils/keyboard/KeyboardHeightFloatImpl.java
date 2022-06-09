@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
+import io.rong.common.rlog.RLog;
 
 /** @author gusd */
 public class KeyboardHeightFloatImpl
@@ -31,19 +32,28 @@ public class KeyboardHeightFloatImpl
 
     @Override
     public void start() {
-        ViewParent parent = view.getParent();
-        if (parent != null) {
-            ((ViewGroup) parent).removeView(view);
+        try {
+            ViewParent parent = view.getParent();
+            view.addOnLayoutChangeListener(this);
+            if (parent instanceof ViewGroup) {
+                ((ViewGroup) parent).removeView(view);
+                windowManager.addView(view, createLayoutParams());
+            }
+        } catch (Exception e) {
+            RLog.e(TAG, "start" + e.getMessage());
+            view.removeOnLayoutChangeListener(this);
         }
-        view.addOnLayoutChangeListener(this);
-        windowManager.addView(view, createLayoutParams());
     }
 
     @Override
     public void stop() {
-        view.removeOnLayoutChangeListener(this);
-        if (view.isAttachedToWindow()) {
-            windowManager.removeViewImmediate(view);
+        try {
+            view.removeOnLayoutChangeListener(this);
+            if (view.isAttachedToWindow()) {
+                windowManager.removeViewImmediate(view);
+            }
+        } catch (Exception e) {
+            RLog.e(TAG, "stop" + e.getMessage());
         }
     }
 

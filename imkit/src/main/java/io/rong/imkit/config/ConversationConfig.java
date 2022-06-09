@@ -20,8 +20,6 @@ import io.rong.imkit.conversation.messgelist.provider.IConversationSummaryProvid
 import io.rong.imkit.conversation.messgelist.provider.IMessageProvider;
 import io.rong.imkit.conversation.messgelist.provider.ImageMessageItemProvider;
 import io.rong.imkit.conversation.messgelist.provider.InformationNotificationMessageItemProvider;
-import io.rong.imkit.conversation.messgelist.provider.LocationMessageItemProvider;
-import io.rong.imkit.conversation.messgelist.provider.RealTimeLocationMessageItemProvider;
 import io.rong.imkit.conversation.messgelist.provider.RecallNotificationMessageItemProvider;
 import io.rong.imkit.conversation.messgelist.provider.RichContentMessageItemProvider;
 import io.rong.imkit.conversation.messgelist.provider.SightMessageItemProvider;
@@ -38,7 +36,6 @@ import io.rong.imkit.feature.destruct.provider.DestructSightMessageItemProvider;
 import io.rong.imkit.feature.destruct.provider.DestructTextMessageItemProvider;
 import io.rong.imkit.feature.destruct.provider.DestructVoiceMessageItemProvider;
 import io.rong.imkit.feature.forward.ForwardClickActions;
-import io.rong.imkit.feature.location.LocationUiRender;
 import io.rong.imkit.feature.publicservice.provider.PublicServiceMultiRichContentMessageProvider;
 import io.rong.imkit.feature.publicservice.provider.PublicServiceRichContentMessageProvider;
 import io.rong.imkit.feature.reference.ReferenceMessageItemProvider;
@@ -278,10 +275,8 @@ public class ConversationConfig {
         addMessageProvider(new DestructVoiceMessageItemProvider());
         addMessageProvider(new HistoryDivMessageItemProvider());
         addMessageProvider(new CombineMessageItemProvider());
-        addMessageProvider(new LocationMessageItemProvider());
         addMessageProvider(new VoiceMessageItemProvider());
         addMessageProvider(new GroupNotificationMessageItemProvider());
-        addMessageProvider(new RealTimeLocationMessageItemProvider());
         addMessageProvider(new CSPullLeaveMsgItemProvider());
         addMessageProvider(new UnknownMessageItemProvider());
         addMessageProvider(new PublicServiceMultiRichContentMessageProvider());
@@ -290,7 +285,6 @@ public class ConversationConfig {
 
     private void initViewProcessor() {
         mConversationViewProcessors.add(new CSConversationUIRenderer());
-        mConversationViewProcessors.add(new LocationUiRender());
     }
 
     private void initMoreClickAction() {

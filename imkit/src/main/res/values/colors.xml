@@ -26,13 +26,6 @@
     <color name="rc_EmoticonTab_bg_select_color">#d7d7d7</color>
     <color name="rc_emoji_grid_item_bg">#ebebeb</color>
 
-    <color name="rc_map_list_text_color">#262626</color>
-    <color name="rc_map_list_text_grey_color">#939393</color>
-    <color name="rc_map_search_highlight_color">#0099ff</color>
-    <color name="rc_map_send_enabled">#000000</color>
-    <color name="rc_map_send_not_enabled">#B0B0B0</color>
-    <color name="rc_map_list_divider_color">#e5e5e5</color>
-
     //Todo delete later
     <color name="rc_popup_dialog_list_divider_color">#dfdfdd</color>
     <color name="rc_popup_dialog_prompt_ok_color">#f43530</color>

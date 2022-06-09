@@ -40,10 +40,14 @@ import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.picture.widget.longimage.SubsamplingScaleImageView;
 import io.rong.imkit.picture.widget.longimage.Utils;
 import io.rong.imkit.utils.ExecutorHelper;
+import io.rong.imkit.utils.GlideUtils;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCommonDefine;
+import io.rong.imlib.RongCoreClientImpl;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -546,6 +550,29 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         }
 
         private void updatePhotoView(final int position, final ViewHolder holder) {
+            final Uri originalUri = mImageList.get(position).getLargeImageUri();
+            // 图片url为file地址、图片url非file地址，并且是私有云，需要在请求私有云token成功后，再请求图片
+            if (!FileUtils.uriStartWithFile(originalUri) && RongCoreClientImpl.isPrivateSDK()) {
+                RongIMClient.getInstance()
+                        .getPrivateDownloadToken(
+                                GlideUtils.getUrlName(originalUri.toString()),
+                                new IRongCoreCallback.ResultCallback<String>() {
+                                    @Override
+                                    public void onSuccess(String token) {
+                                        updatePhotoView(position, holder, token);
+                                    }
+
+                                    @Override
+                                    public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                        updatePhotoView(position, holder, "");
+                                    }
+                                });
+            } else {
+                updatePhotoView(position, holder, "");
+            }
+        }
+
+        private void updatePhotoView(final int position, final ViewHolder holder, String token) {
             final ImageInfo imageInfo = mImageList.get(position);
             final Uri originalUri = imageInfo.getLargeImageUri();
             final Uri thumbUri = imageInfo.getThumbUri();
@@ -564,7 +591,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             }
             Glide.with(PicturePagerActivity.this)
                     .asBitmap()
-                    .load(originalUri)
+                    .load(GlideUtils.buildAuthUrl(originalUri, token))
                     .timeout(LOAD_PICTURE_TIMEOUT)
                     .into(
                             new CustomTarget<Bitmap>() {

@@ -40,7 +40,12 @@ public class FeatureConfig {
     public boolean rc_wipe_out_notification_message = true;
     public boolean rc_set_java_script_enabled = true;
     // 在前台非会话页面时，接收到新消息是否响铃
-    public boolean rc_sound_in_foreground = true;
+    public boolean soundInForeground = true;
+    // 在前台非会话页面时，接收到新消息是否震动
+    private boolean vibrateInForeground = true;
+
+    // 是否需要显示融云默认表情
+    private boolean enableRongEmoji = true;
     private SSLInterceptor sSSLInterceptor;
     public String rc_translation_src_language;
     public String rc_translation_target_language;
@@ -84,9 +89,15 @@ public class FeatureConfig {
                 RLog.e(TAG, "rc_open_destruct_plugin not get value", e);
             }
             try {
-                rc_sound_in_foreground = resources.getBoolean(R.bool.rc_sound_in_foreground);
+                soundInForeground = resources.getBoolean(R.bool.rc_sound_in_foreground);
             } catch (Exception e) {
                 RLog.e(TAG, "rc_sound_in_foreground not get value", e);
+            }
+
+            try {
+                vibrateInForeground = resources.getBoolean(R.bool.rc_vibrate_in_foreground);
+            } catch (Exception e) {
+                RLog.e(TAG, "rc_vibrate_in_foreground not get value", e);
             }
 
             try {
@@ -227,6 +238,42 @@ public class FeatureConfig {
     /** @param preLoadUserCache 是否预加载用户缓存 */
     public void setPreLoadUserCache(boolean preLoadUserCache) {
         this.preLoadUserCache = preLoadUserCache;
+    }
+
+    /**
+     * 消息是否震动
+     *
+     * @return 返回消息是否震动配置值
+     */
+    public boolean isVibrateInForeground() {
+        return vibrateInForeground;
+    }
+
+    /**
+     * 设置消息是否震动
+     *
+     * @param vibrateInForeground 是否震动
+     */
+    public void setVibrateInForeground(boolean vibrateInForeground) {
+        this.vibrateInForeground = vibrateInForeground;
+    }
+
+    /**
+     * 消息是否响铃
+     *
+     * @return 返回消息是否响铃配置值
+     */
+    public boolean isSoundInForeground() {
+        return soundInForeground;
+    }
+
+    /**
+     * 设置消息是否响铃
+     *
+     * @param soundInForeground 是否震动
+     */
+    public void setSoundInForeground(boolean soundInForeground) {
+        this.soundInForeground = soundInForeground;
     }
 
     public SSLInterceptor getSSLInterceptor() {

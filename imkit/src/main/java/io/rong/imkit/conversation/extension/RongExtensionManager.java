@@ -7,7 +7,6 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.feature.destruct.DestructExtensionModule;
 import io.rong.imkit.feature.forward.ForwardExtensionModule;
-import io.rong.imkit.feature.location.LocationExtensionModule;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.publicservice.PublicServiceManager;
 import io.rong.imkit.feature.quickreply.QuickReplyExtensionModule;
@@ -25,6 +24,8 @@ public class RongExtensionManager {
     private static final String TAG = "RongExtensionManager";
     private static final String DEFAULT_RC_STICKER = "io.rong.sticker.StickerExtensionModule";
     private static final String DEFAULT_CALL_MODULE = "io.rong.callkit.RongCallModule";
+    private static final String DEFAULT_LOCATION_MODULE =
+            "io.rong.location.LocationExtensionModule";
     private static String mAppKey;
     private static Context mApplicationContext;
     private static List<IExtensionModule> mExtModules = new CopyOnWriteArrayList<>();
@@ -52,7 +53,7 @@ public class RongExtensionManager {
         mApplicationContext = context;
         mExtensionConfig = new DefaultExtensionConfig();
         mExtModules.clear();
-        mExtModules.add(new LocationExtensionModule());
+        checkLocationModule();
         mExtModules.add(new ForwardExtensionModule());
 
         if (RongConfigCenter.featureConfig().isReferenceEnable()) {
@@ -76,6 +77,19 @@ public class RongExtensionManager {
 
         for (IExtensionModule module : mExtModules) {
             module.onInit(mApplicationContext, mAppKey);
+        }
+    }
+
+    /** 检查定位插件 */
+    private static void checkLocationModule() {
+        try {
+            Class<?> cls = Class.forName(DEFAULT_LOCATION_MODULE);
+            Constructor<?> constructor = cls.getConstructor();
+            IExtensionModule rcbq = (IExtensionModule) constructor.newInstance();
+            RLog.i(TAG, "add module " + rcbq.getClass().getSimpleName());
+            mExtModules.add(rcbq);
+        } catch (Exception e) {
+            RLog.i(TAG, "Can't find " + DEFAULT_LOCATION_MODULE);
         }
     }
 

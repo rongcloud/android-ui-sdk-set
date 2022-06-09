@@ -432,8 +432,12 @@ public class ForwardManager {
 
     // todo
     public void exitDestructMode() {
-        RongExtension extension = ForwardExtensionModule.sRongExtension.get();
-        extension.resetToDefaultView();
+        if (ForwardExtensionModule.sRongExtension != null) {
+            RongExtension extension = ForwardExtensionModule.sRongExtension.get();
+            if (extension != null) {
+                extension.resetToDefaultView();
+            }
+        }
     }
 
     private static class SingletonHolder {

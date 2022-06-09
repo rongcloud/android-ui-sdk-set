@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.GestureDetector;
@@ -285,6 +284,7 @@ public class ConversationFragment extends Fragment
     private LinearLayout mNotificationContainer;
     private boolean onViewCreated = false;
     private String mTargetId;
+    private boolean mDisableSystemEmoji;
     private Bundle mBundle;
     private Conversation.ConversationType mConversationType;
     private final RecyclerView.OnScrollListener mScrollListener =
@@ -317,7 +317,7 @@ public class ConversationFragment extends Fragment
     public void initConversation(
             String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
         if (onViewCreated) {
-            bindConversation(targetId, conversationType, bundle);
+            bindConversation(targetId, conversationType, false, bundle);
         } else {
             mTargetId = targetId;
             mConversationType = conversationType;
@@ -326,13 +326,16 @@ public class ConversationFragment extends Fragment
     }
 
     private void bindConversation(
-            String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
+            String targetId,
+            Conversation.ConversationType conversationType,
+            boolean disableSystemEmoji,
+            Bundle bundle) {
         if (conversationType != null && !TextUtils.isEmpty(targetId)) {
             for (IConversationUIRenderer processor :
                     RongConfigCenter.conversationConfig().getViewProcessors()) {
                 processor.init(this, mRongExtension, conversationType, targetId);
             }
-            mRongExtension.bindToConversation(this, conversationType, targetId);
+            mRongExtension.bindToConversation(this, conversationType, targetId, disableSystemEmoji);
             mMessageViewModel.bindConversation(conversationType, targetId, bundle);
             subscribeUi();
             bindToConversation = true;
@@ -672,6 +675,8 @@ public class ConversationFragment extends Fragment
                         Conversation.ConversationType.valueOf(type.toUpperCase(Locale.US));
             }
         }
+
+        mDisableSystemEmoji = intent.getBooleanExtra(RouteUtils.DISABLE_SYSTEM_EMOJI, false);
         if (mBundle == null) {
             mBundle = intent.getExtras();
         }
@@ -682,7 +687,7 @@ public class ConversationFragment extends Fragment
         }
         mMessageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
         mRongExtensionViewModel = new ViewModelProvider(this).get(RongExtensionViewModel.class);
-        bindConversation(mTargetId, mConversationType, mBundle);
+        bindConversation(mTargetId, mConversationType, mDisableSystemEmoji, mBundle);
 
         // NOTE: 2021/8/25  当初解决高清语音自动下载，现在高清语音下载不需要申请存储权限，删除此处.
         onViewCreated = true;
@@ -724,10 +729,10 @@ public class ConversationFragment extends Fragment
         FragmentActivity activity = getActivity();
         if (activity != null) {
             activitySoftInputMode = activity.getWindow().getAttributes().softInputMode;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && activity.isInMultiWindowMode()) {
-                resetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-            } else {
+            if (mRongExtension != null && mRongExtension.useKeyboardHeightProvider()) {
                 resetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+            } else {
+                resetSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
         }
     }
@@ -815,6 +820,9 @@ public class ConversationFragment extends Fragment
                             @Override
                             public void onClick(View v) {
                                 alertDialog.dismiss();
+                                if (!isAdded()) {
+                                    return;
+                                }
                                 FragmentManager fm = getChildFragmentManager();
                                 if (fm.getBackStackEntryCount() > 0) {
                                     fm.popBackStack();

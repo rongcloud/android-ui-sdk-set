@@ -2,11 +2,11 @@ package io.rong.imkit.conversationlist;
 
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.ViewHolder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ConversationListAdapter extends BaseAdapter<BaseUiConversation> {
@@ -28,46 +28,11 @@ public class ConversationListAdapter extends BaseAdapter<BaseUiConversation> {
     }
 
     @Override
-    public void setDataCollection(final List<BaseUiConversation> data) {
-        if (mDataList == null || mDataList.size() == 0) {
-            mDataList = data;
-            notifyDataSetChanged();
-        } else {
-            DiffUtil.DiffResult result =
-                    DiffUtil.calculateDiff(
-                            new DiffUtil.Callback() {
-                                @Override
-                                public int getOldListSize() {
-                                    return mDataList.size();
-                                }
-
-                                @Override
-                                public int getNewListSize() {
-                                    return data.size();
-                                }
-
-                                @Override
-                                public boolean areItemsTheSame(
-                                        int oldItemPosition, int newItemPosition) {
-                                    BaseUiConversation oldItem = mDataList.get(oldItemPosition);
-                                    BaseUiConversation newItem = data.get(newItemPosition);
-                                    return oldItem.mCore
-                                                    .getTargetId()
-                                                    .equals(newItem.mCore.getTargetId())
-                                            && oldItem.mCore
-                                                    .getConversationType()
-                                                    .equals(newItem.mCore.getConversationType());
-                                }
-
-                                @Override
-                                public boolean areContentsTheSame(
-                                        int oldItemPosition, int newItemPosition) {
-                                    return false;
-                                }
-                            });
-            mDataList = data;
-            notifyDataSetChanged();
-            //            result.dispatchUpdatesTo(this);
+    public void setDataCollection(List<BaseUiConversation> data) {
+        if (data == null) {
+            data = new ArrayList<>();
         }
+        super.setDataCollection(data);
+        notifyDataSetChanged();
     }
 }

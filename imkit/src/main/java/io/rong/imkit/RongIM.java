@@ -26,7 +26,6 @@ import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.model.CSCustomServiceInfo;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
@@ -251,9 +250,8 @@ public class RongIM {
      *
      * @param locationProvider 位置信息提供者。
      */
-    public static void setLocationProvider(LocationManager.LocationProvider locationProvider) {
-        LocationManager.getInstance().setLocationProvider(locationProvider);
-    }
+    @Deprecated
+    public static void setLocationProvider(LocationManager.LocationProvider locationProvider) {}
 
     /**
      * 设置公众号界面操作的监听器。

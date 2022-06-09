@@ -114,16 +114,12 @@ public class MessageNotificationHelper {
 
             boolean notify = checkQuietHourAbility(message);
             if (notify) {
-                preNotify(message);
+                if (mNotifyListener != null) {
+                    mNotifyListener.onPreToNotify(message);
+                }
             }
         } else {
             getConversationChannelNotificationLevel(message);
-        }
-    }
-
-    private static void preNotify(Message message) {
-        if (mNotifyListener != null) {
-            mNotifyListener.onPreToNotify(message);
         }
     }
 
@@ -171,7 +167,9 @@ public class MessageNotificationHelper {
     private static void notifyMessage(int level, Message message) {
         boolean notify = checkNotifyAbility(message, level);
         if (notify) {
-            preNotify(message);
+            if (mNotifyListener != null) {
+                mNotifyListener.onPreToNotify(message);
+            }
         }
     }
 
@@ -237,7 +235,9 @@ public class MessageNotificationHelper {
                                 if (IRongCoreEnum.PushNotificationLevel
                                         .PUSH_NOTIFICATION_LEVEL_DEFAULT
                                         .equals(level)) {
-                                    preNotify(message);
+                                    if (mNotifyListener != null) {
+                                        mNotifyListener.onPreToNotify(message);
+                                    }
                                     return;
                                 }
 
@@ -333,7 +333,7 @@ public class MessageNotificationHelper {
                     second = Integer.parseInt(time[2]);
                 }
             } catch (NumberFormatException e) {
-                // NumberFormatException
+                // todo
             }
         }
 

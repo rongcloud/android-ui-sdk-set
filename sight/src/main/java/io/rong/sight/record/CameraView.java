@@ -73,12 +73,12 @@ public class CameraView extends RelativeLayout
     private Camera.Parameters mParam;
 
     private boolean autoFocus;
-    private boolean isPlay = false;
+    private static boolean isPlay = false;
     private boolean isInPreviewState = false;
     // 录制结束后，播放暂停状态且画面停在录制第一帧
     private boolean needPause;
     private int playbackPosition = 0;
-    private boolean isRecorder = false;
+    private static boolean isRecorder = false;
     private float screenProp;
     private boolean supportCapture = false;
     private int maxDuration = 10;

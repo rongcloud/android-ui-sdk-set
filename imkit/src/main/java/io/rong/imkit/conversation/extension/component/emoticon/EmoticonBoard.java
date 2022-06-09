@@ -44,6 +44,7 @@ public class EmoticonBoard {
     private boolean mTabBarEnabled = true;
     private boolean mAddEnabled = false;
     private boolean mSettingEnabled = false;
+    private boolean mDisableSystemEmoji;
     private IEmoticonClickListener mEmoticonClickListener;
     private IEmoticonSettingClickListener mEmoticonSettingClickListener;
     private Map<String, List<IEmoticonTab>> mEmotionTabs = new LinkedHashMap<>();
@@ -71,10 +72,12 @@ public class EmoticonBoard {
             Fragment fragment,
             ViewGroup parent,
             Conversation.ConversationType type,
-            String targetId) {
+            String targetId,
+            boolean disableSystemEmoji) {
         mFragment = fragment;
         mRoot = parent;
         mConversationType = type;
+        mDisableSystemEmoji = disableSystemEmoji;
         mTargetId = targetId;
         mExtensionViewModel = new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
         initView(fragment.getContext(), mRoot);
@@ -163,6 +166,12 @@ public class EmoticonBoard {
                         .getExtensionConfig()
                         .getEmoticonTabs(mConversationType, mTargetId);
         for (IEmoticonTab tab : getAllTabs()) {
+            if (mDisableSystemEmoji) {
+                if (tab instanceof EmojiTab) {
+                    mEmotionTabs.remove("DefaultExtensionModule");
+                    continue;
+                }
+            }
             View view = getTabIcon(mFragment.getContext(), tab);
             mScrollTab.addView(view);
         }

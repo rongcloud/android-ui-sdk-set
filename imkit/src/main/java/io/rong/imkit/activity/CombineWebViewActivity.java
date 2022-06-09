@@ -35,8 +35,6 @@ import io.rong.imkit.R;
 import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
-import io.rong.imkit.feature.location.AMapPreviewActivity;
-import io.rong.imkit.feature.location.AMapPreviewActivity2D;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.RongIMClient;
@@ -184,22 +182,24 @@ public class CombineWebViewActivity extends RongBaseActivity {
         String sightThumb = encodeFile.getThumb();
         String sightName = encodeFile.getName();
 
+        Message message = new Message();
+
         SightMessage sightMessage = new SightMessage();
         sightMessage.setThumbUri(Uri.parse("file://" + sightThumb + sightName));
         sightMessage.setMediaUrl(Uri.parse(mediaUrl));
         sightMessage.setDuration(duration);
-        if (new IsSightFileExists(sightMessage).invoke()) {
+        if (new IsSightFileExists(sightMessage, message.getMessageId()).invoke()) {
             String sightPath =
                     LibStorageUtils.getMediaDownloadDir(
                             getApplicationContext(), LibStorageUtils.VIDEO);
-            String name = DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
+            String name =
+                    message.getMessageId() + "_" + DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
             if (sightPath.startsWith("file://")) {
                 sightPath = sightPath.substring(7);
             }
             sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
         }
 
-        Message message = new Message();
         message.setContent(sightMessage);
         message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
         message.setConversationType(Conversation.ConversationType.PRIVATE);
@@ -268,9 +268,11 @@ public class CombineWebViewActivity extends RongBaseActivity {
         try {
             Intent intent;
             if (this.getResources().getBoolean(R.bool.rc_location_2D)) {
-                intent = new Intent(CombineWebViewActivity.this, AMapPreviewActivity2D.class);
+                intent = new Intent();
+                intent.setAction("rong.location.AMapPreviewActivity2D");
             } else {
-                intent = new Intent(CombineWebViewActivity.this, AMapPreviewActivity.class);
+                intent = new Intent();
+                intent.setAction("rong.location.AMapPreviewActivity");
             }
             intent.putExtra("location", content);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -404,9 +406,9 @@ public class CombineWebViewActivity extends RongBaseActivity {
                         url = Uri.parse("file://" + filePath).toString();
                         mType = TYPE_LOCAL;
                     }
+                    mPrevUrl = url;
+                    mWebView.loadUrl(mPrevUrl);
                 }
-                mPrevUrl = url;
-                mWebView.loadUrl(mPrevUrl);
                 return true;
             }
         }
@@ -559,9 +561,11 @@ public class CombineWebViewActivity extends RongBaseActivity {
 
     private class IsSightFileExists {
         private SightMessage sightMessage;
+        private int messageId;
 
-        public IsSightFileExists(SightMessage sightMessage) {
+        public IsSightFileExists(SightMessage sightMessage, int messageId) {
             this.sightMessage = sightMessage;
+            this.messageId = messageId;
         }
 
         public boolean invoke() {
@@ -569,7 +573,10 @@ public class CombineWebViewActivity extends RongBaseActivity {
                     LibStorageUtils.getMediaDownloadDir(
                             getApplicationContext(), LibStorageUtils.VIDEO);
             String name =
-                    DeviceUtils.ShortMD5(Base64.NO_WRAP, sightMessage.getMediaUrl().toString());
+                    messageId
+                            + "_"
+                            + DeviceUtils.ShortMD5(
+                                    Base64.NO_WRAP, sightMessage.getMediaUrl().toString());
             if (sightPath.startsWith("file://")) {
                 sightPath = sightPath.substring(7);
             }

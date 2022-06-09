@@ -128,11 +128,13 @@ public class RongExtension extends LinearLayout {
     }
 
     public void bindToConversation(
-            Fragment fragment, Conversation.ConversationType conversationType, String targetId) {
+            Fragment fragment,
+            Conversation.ConversationType conversationType,
+            String targetId,
+            boolean disableSystemEmoji) {
         mFragment = fragment;
         mConversationType = conversationType;
         mTargetId = targetId;
-
         mExtensionViewModel = new ViewModelProvider(mFragment).get(RongExtensionViewModel.class);
         mExtensionViewModel
                 .getAttachedInfoState()
@@ -189,7 +191,9 @@ public class RongExtension extends LinearLayout {
                                 }
                             }
                         });
-        mEmoticonBoard = new EmoticonBoard(fragment, mBoardContainer, conversationType, targetId);
+        mEmoticonBoard =
+                new EmoticonBoard(
+                        fragment, mBoardContainer, conversationType, targetId, disableSystemEmoji);
         mPluginBoard = new PluginBoard(fragment, mBoardContainer, conversationType, targetId);
         mInputPanel =
                 new InputPanel(
@@ -231,9 +235,8 @@ public class RongExtension extends LinearLayout {
         if (mExtensionViewModel == null) {
             return;
         }
-        Activity activity = getActivityFromView();
-        if (activity != null) {
-            keyboardHeightProvider = new KeyboardHeightProvider(activity);
+        if (useKeyboardHeightProvider()) {
+            keyboardHeightProvider = new KeyboardHeightProvider(getActivityFromView());
             keyboardHeightProvider.setKeyboardHeightObserver(mKeyboardHeightObserver);
         }
         this.post(
@@ -380,10 +383,7 @@ public class RongExtension extends LinearLayout {
             mBoardContainer.removeAllViews();
             mBoardContainer.addView(mPluginBoard.getView());
 
-            Activity activity = getActivityFromView();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                    && activity != null
-                    && activity.isInMultiWindowMode()) {
+            if (!useKeyboardHeightProvider()) {
                 mExtensionViewModel.getExtensionBoardState().setValue(false);
             } else {
                 mExtensionViewModel.getExtensionBoardState().setValue(true);
@@ -615,6 +615,14 @@ public class RongExtension extends LinearLayout {
             context = ((ContextWrapper) context).getBaseContext();
         }
         return null;
+    }
+
+    public boolean useKeyboardHeightProvider() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Activity activity = getActivityFromView();
+            return activity != null && !activity.isInMultiWindowMode();
+        }
+        return false;
     }
 
     public enum ContainerType {

@@ -40,6 +40,7 @@ public class RouteUtils {
     public static final String MESSAGE_IDS = "messageIds";
     public static final String MESSAGE_ID = "messageId";
     public static final String MESSAGE = "message";
+    public static final String DISABLE_SYSTEM_EMOJI = "disableSystemEmoji";
     private static HashMap<RongActivityType, Class<? extends Activity>> sActivityMap =
             new HashMap<>();
 
@@ -60,16 +61,28 @@ public class RouteUtils {
         routeToConversationActivity(context, type, targetId, null);
     }
 
+    public static void routeToConversationActivity(
+            Context context,
+            Conversation.ConversationType type,
+            String targetId,
+            boolean disableSystemEmoji) {
+        routeToConversationActivity(context, type, targetId, disableSystemEmoji, null);
+    }
     /**
      * 启动会话页面
      *
      * @param context 上下文
      * @param type 会话类型
      * @param targetId 目标 ID
+     * @param disableSystemEmoji 是否隐藏融云自带表情
      * @param bundle 启动 activity 时 intent 里需要携带的 bundle 信息。
      */
     public static void routeToConversationActivity(
-            Context context, Conversation.ConversationType type, String targetId, Bundle bundle) {
+            Context context,
+            Conversation.ConversationType type,
+            String targetId,
+            boolean disableSystemEmoji,
+            Bundle bundle) {
         if (TextUtils.isEmpty(targetId)) {
             RLog.e(TAG, "routeToConversationActivity: targetId is empty");
             return;
@@ -81,10 +94,24 @@ public class RouteUtils {
         Intent intent = new Intent(context, activity);
         intent.putExtra(CONVERSATION_TYPE, type.getName().toLowerCase());
         intent.putExtra(TARGET_ID, targetId);
+        intent.putExtra(DISABLE_SYSTEM_EMOJI, disableSystemEmoji);
         if (bundle != null) {
             intent.putExtras(bundle);
         }
         context.startActivity(intent);
+    }
+
+    /**
+     * 启动会话页面
+     *
+     * @param context 上下文
+     * @param type 会话类型
+     * @param targetId 目标 ID
+     * @param bundle 启动 activity 时 intent 里需要携带的 bundle 信息。
+     */
+    public static void routeToConversationActivity(
+            Context context, Conversation.ConversationType type, String targetId, Bundle bundle) {
+        routeToConversationActivity(context, type, targetId, false, bundle);
     }
 
     /**

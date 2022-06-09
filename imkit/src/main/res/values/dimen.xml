@@ -58,9 +58,6 @@
     <dimen name="rc_margin_size_51">51dp</dimen>
     <dimen name="rc_margin_size_80">80dp</dimen>
 
-    <dimen name="rc_location_nearby_list_min_height">286dp</dimen>
-    <dimen name="rc_location_nearby_list_max_height">351dp</dimen>
-
     <dimen name="rc_dialog_margin_to_edge">40dp</dimen>
     <dimen name="rc_dialog_bottom_item_to_cancel_spacing">6dp</dimen>
     <dimen name="rc_dialog_bottom_text_item_margin">16dp</dimen>

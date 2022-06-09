@@ -14,6 +14,7 @@ import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
 import io.rong.imkit.utils.ExecutorHelper;
+import java.util.Collections;
 import java.util.List;
 
 public class DbDataSource {
@@ -264,7 +265,7 @@ public class DbDataSource {
                                                                             .getLimitUsers(limit);
                                                                 } catch (Exception e) {
                                                                     RLog.e(TAG, "getUser fail", e);
-                                                                    return null;
+                                                                    return Collections.emptyList();
                                                                 }
                                                             }
                                                         })
@@ -273,7 +274,7 @@ public class DbDataSource {
                                                             @Override
                                                             public List<User> call() {
                                                                 RLog.e(TAG, "UserDatabase is null");
-                                                                return null;
+                                                                return Collections.emptyList();
                                                             }
                                                         });
                                 callback.accept(user);
@@ -301,7 +302,7 @@ public class DbDataSource {
                                                                             .getLimitGroups(limit);
                                                                 } catch (Exception e) {
                                                                     RLog.e(TAG, "getUser fail", e);
-                                                                    return null;
+                                                                    return Collections.emptyList();
                                                                 }
                                                             }
                                                         })
@@ -310,7 +311,7 @@ public class DbDataSource {
                                                             @Override
                                                             public List<Group> call() {
                                                                 RLog.e(TAG, "UserDatabase is null");
-                                                                return null;
+                                                                return Collections.emptyList();
                                                             }
                                                         });
                                 callback.accept(group);
@@ -340,7 +341,7 @@ public class DbDataSource {
                                                                                     limit);
                                                                 } catch (Exception e) {
                                                                     RLog.e(TAG, "getUser fail", e);
-                                                                    return null;
+                                                                    return Collections.emptyList();
                                                                 }
                                                             }
                                                         })
@@ -349,7 +350,7 @@ public class DbDataSource {
                                                             @Override
                                                             public List<GroupMember> call() {
                                                                 RLog.e(TAG, "UserDatabase is null");
-                                                                return null;
+                                                                return Collections.emptyList();
                                                             }
                                                         });
                                 callback.accept(groupMembers);

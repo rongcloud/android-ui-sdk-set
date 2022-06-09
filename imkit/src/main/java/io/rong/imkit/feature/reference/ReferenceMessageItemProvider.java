@@ -229,7 +229,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
     private void setTextContent(
             final TextView textView, final UiMessage data, String content, boolean isSendContent) {
         textView.setTag(data.getMessageId());
-        content = StringUtils.getStringNoBlank(content);
+        content = isSendContent ? content : StringUtils.getStringNoBlank(content);
         if (isSendContent) {
             if (data.getContentSpannable() == null) {
                 SpannableStringBuilder spannable =
