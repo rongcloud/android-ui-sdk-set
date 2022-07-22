@@ -104,6 +104,8 @@ public class ConversationConfig {
     private boolean showMoreClickAction = true;
     /** 是否显示，历史消息模板 */
     private boolean showHistoryDividerMessage = true;
+    /** 默认为 false 长按只删除本地消息，设置为 true 时长按删除消息，会把远端的消息也删除 */
+    private boolean needDeleteRemoteMessage = false;
 
     private ConversationClickListener mConversationClickListener;
     private ProviderManager<UiMessage> mMessageListProvider = new ProviderManager<>();
@@ -295,7 +297,6 @@ public class ConversationConfig {
     /**
      * @param index 添加位置
      * @param action 添加点击更多事件
-     * @return
      */
     public void addMoreClickAction(int index, IClickActions action) {
         if (action != null) mMoreClickActions.add(index, action);
@@ -316,7 +317,6 @@ public class ConversationConfig {
      * ConversationFragment 处理器
      *
      * @param processor
-     * @return
      */
     public void addViewProcessor(IConversationUIRenderer processor) {
         mConversationViewProcessors.add(processor);
@@ -327,10 +327,7 @@ public class ConversationConfig {
         return mConversationViewProcessors;
     }
 
-    /**
-     * @param provider 消息列表 item 提供者
-     * @return
-     */
+    /** @param provider 消息列表 item 提供者 */
     public void addMessageProvider(IMessageProvider provider) {
         if (provider != null) {
             mMessageListProvider.addProvider(provider);
@@ -566,7 +563,6 @@ public class ConversationConfig {
      * 设置已读回执，仅支持单聊，群聊，讨论组，密聊，其余不生效
      *
      * @param enable 回执开关
-     * @return
      */
     public void setEnableReadReceipt(boolean enable) {
         mEnableReadReceipt = enable;
@@ -643,5 +639,23 @@ public class ConversationConfig {
 
     public IRongCoreEnum.ConversationLoadMessageType getConversationLoadMessageType() {
         return conversationLoadMessageType;
+    }
+
+    /**
+     * 是否删除远端消息
+     *
+     * @return 是否删除远端消息
+     */
+    public boolean isNeedDeleteRemoteMessage() {
+        return needDeleteRemoteMessage;
+    }
+
+    /**
+     * 设置是否删除远端消息
+     *
+     * @param needDeleteRemoteMessage 是否删除远端消息
+     */
+    public void setNeedDeleteRemoteMessage(boolean needDeleteRemoteMessage) {
+        this.needDeleteRemoteMessage = needDeleteRemoteMessage;
     }
 }

@@ -78,13 +78,13 @@ public class RongIM {
     /**
      * 连接服务器，在整个应用程序全局，只需要调用一次。
      *
+     * <p>调用该接口，SDK 会在连接失败之后尝试重连，将出现以下两种情况： 第一、连接成功，回调 onSuccess(userId)。 第二、出现 SDK 无法处理的错误，回调
+     * onError(errorCode)（如 token 非法），并不再重连
+     *
+     * <p>连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
+     *
      * @param token 从服务端获取的 <a href="http://docs.rongcloud.cn/android#token">用户身份令牌（ Token）</a>。
      * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     * @return RongIM IM 客户端核心类的实例。
-     * @discussion 调用该接口，SDK 会在连接失败之后尝试重连，将出现以下两种情况： 第一、连接成功，回调 onSuccess(userId)。 第二、出现 SDK
-     *     无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
-     *     <p>如果您不想一直进行重连，可以使用 connect(String,int,ConnectCallback) 接口并设置连接超时时间 timeLimit。
-     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
      */
     public static void connect(
             final String token, final RongIMClient.ConnectCallback connectCallback) {
@@ -94,16 +94,16 @@ public class RongIM {
     /**
      * 连接服务器，在整个应用程序全局，只需要调用一次。
      *
+     * <p>调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一： 第一、连接成功，回调 onSuccess(userId)。 第二、超时，回调
+     * onError(RC_CONNECT_TIMEOUT)，并不再重连。 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
+     * 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
+     *
      * @param token 从服务端获取的 <a href="http://docs.rongcloud.cn/android#token">用户身份令牌（ Token）</a>。
-     * @param timeLimit 连接超时时间，单位：秒。timeLimit <= 0，则 IM 将一直连接，直到连接成功或者无法连接（如 token 非法） timeLimit > 0
-     *     ,则 IM 将最多连接 timeLimit 秒： 如果在 timeLimit 秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连； 如果在 timeLimit
-     *     秒无法连接成功则不再进行重连，通过 onError 告知连接超时，您需要再自行调用 connect 接口
+     * @param timeLimit 连接超时时间，单位：秒。{@code timeLimit <= 0}，则 IM 将一直连接，直到连接成功或者无法连接（如 {@code token}
+     *     非法） {@code timeLimit > 0} ,则 IM 将最多连接 timeLimit 秒： 如果在 timeLimit
+     *     秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连； 如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError
+     *     告知连接超时，您需要再自行调用 connect 接口
      * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     * @return RongIM IM 客户端核心类的实例。
-     * @discussion 调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一： 第一、连接成功，回调 onSuccess(userId)。
-     *     第二、超时，回调 onError(RC_CONNECT_TIMEOUT)，并不再重连。 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如
-     *     token 非法），并不再重连。
-     * @discussion 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
      */
     public static void connect(
             String token, int timeLimit, final RongIMClient.ConnectCallback connectCallback) {
@@ -1317,7 +1317,8 @@ public class RongIM {
     /**
      * 发送地理位置消息。并同时更新界面。
      *
-     * <p>发送前构造 {@link Message} 消息实体，消息实体中的 content 必须为 {@link LocationMessage}, 否则返回失败。
+     * <p>发送前构造 {@link Message} 消息实体，消息实体中的 content 必须为 {@link
+     * io.rong.imlib.location.message.LocationMessage}, 否则返回失败。
      *
      * <p>其中的缩略图地址 scheme 只支持 file:// 和 http:// 其他暂不支持。
      *
@@ -1383,7 +1384,7 @@ public class RongIM {
      * 根据会话类型，发送消息。
      *
      * <p>通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。<br>
-     * <strong>注意：1 秒钟发送消息不能超过 5 条。
+     * <strong>注意：1 秒钟发送消息不能超过 5 条</strong>。
      *
      * @param type 会话类型。
      * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。

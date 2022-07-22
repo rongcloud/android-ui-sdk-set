@@ -5,10 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
 
-/**
- * @author：luck
- * @data：2018/3/28 下午1:00 @描述: 动态获取attrs
- */
 public class AttrsUtils {
 
     /**

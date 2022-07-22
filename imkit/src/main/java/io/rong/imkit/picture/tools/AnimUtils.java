@@ -6,11 +6,6 @@ import android.view.View;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
-/**
- * @author：luck
- * @date：2019-11-21 19:20
- * @describe：动画相关
- */
 public class AnimUtils {
     private static final int DURATION = 450;
 

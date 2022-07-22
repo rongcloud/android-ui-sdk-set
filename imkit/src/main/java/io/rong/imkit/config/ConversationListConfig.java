@@ -30,8 +30,6 @@ public class ConversationListConfig {
     private boolean mIsEnableConnectStateNotice = true;
     // 会话列表页是否自动下载高清语音
     private boolean mEnableAutomaticDownloadHQVoice = true;
-    // 默认为 false 长按只删除本地消息，设置为 true 时长按删除消息，会把远端的消息也删除
-    private boolean needDeleteRemoteMessage = false;
     // 每页拉取的会话条数, 默认 100.
     private int mConversationCountPerPage = 100;
     private ProviderManager<BaseUiConversation> mProviderManager;
@@ -121,23 +119,5 @@ public class ConversationListConfig {
 
     public int getConversationCountPerPage() {
         return mConversationCountPerPage;
-    }
-
-    /**
-     * 是否删除远端消息
-     *
-     * @return 是否删除远端消息
-     */
-    public boolean isNeedDeleteRemoteMessage() {
-        return needDeleteRemoteMessage;
-    }
-
-    /**
-     * 设置是否删除远端消息
-     *
-     * @param needDeleteRemoteMessage 是否删除远端消息
-     */
-    public void setNeedDeleteRemoteMessage(boolean needDeleteRemoteMessage) {
-        this.needDeleteRemoteMessage = needDeleteRemoteMessage;
     }
 }

@@ -17,10 +17,10 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Default implementation of {@link com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder}
- * using Android's {@link BitmapRegionDecoder}, based on the Skia library. This works well in most
- * circumstances and has reasonable performance due to the cached decoder instance, however it has
- * some problems with grayscale, indexed and CMYK images.
+ * Default implementation of {@link ImageRegionDecoder} using Android's {@link BitmapRegionDecoder},
+ * based on the Skia library. This works well in most circumstances and has reasonable performance
+ * due to the cached decoder instance, however it has some problems with grayscale, indexed and CMYK
+ * images.
  */
 public class SkiaImageRegionDecoder implements ImageRegionDecoder {
 

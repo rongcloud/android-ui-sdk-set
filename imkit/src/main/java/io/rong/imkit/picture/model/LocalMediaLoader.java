@@ -23,10 +23,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * @author：luck
- * @data：2016/12/31 19:12 @描述: Local media database query class
- */
 public class LocalMediaLoader implements Handler.Callback {
     private static final int MSG_QUERY_MEDIA_SUCCESS = 0;
     private static final int MSG_QUERY_MEDIA_ERROR = -1;

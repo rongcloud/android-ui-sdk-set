@@ -1,6 +1,7 @@
 package io.rong.imkit.feature.destruct;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import androidx.fragment.app.Fragment;
@@ -49,11 +50,12 @@ public class DestructManager implements IExtensionEventWatcher {
      *
      * @param context
      */
-    void activeDestructMode(Context context) {
+    public void activeDestructMode(Context context) {
         if (DestructExtensionModule.sRongExtension != null
                 && DestructExtensionModule.sFragment != null) {
             RongExtension extension = DestructExtensionModule.sRongExtension.get();
             RelativeLayout container = extension.getContainer(RongExtension.ContainerType.INPUT);
+            container.setVisibility(View.VISIBLE);
             container.removeAllViews();
             mDestructInputPanel =
                     new DestructInputPanel(

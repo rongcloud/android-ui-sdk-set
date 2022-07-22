@@ -24,6 +24,11 @@ public class LinkTextViewMovementMethod extends LinkMovementMethod {
         int action = event.getAction();
 
         if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_DOWN) {
+            ClickableSpan[] links = buffer.getSpans(0, buffer.length(), ClickableSpan.class);
+            if (links.length == 0) {
+                return Touch.onTouchEvent(widget, buffer, event);
+            }
+
             int x = (int) event.getX();
             int y = (int) event.getY();
 

@@ -12,11 +12,6 @@ import io.rong.imkit.picture.tools.DoubleUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2017-5-24 21:30
- * @describe：PictureSelectionModel
- */
 public class PictureSelectionModel {
     private PictureSelectionConfig selectionConfig;
     private PictureSelector selector;
@@ -41,7 +36,7 @@ public class PictureSelectionModel {
      * next time the activity is visible.
      *
      * @param requestedOrientation An orientation constant as used in {@link
-     *     ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
+     *     android.content.pm.ActivityInfo#screenOrientation ActivityInfo.screenOrientation}.
      */
     public PictureSelectionModel setRequestedOrientation(int requestedOrientation) {
         selectionConfig.requestedOrientation = requestedOrientation;
@@ -88,7 +83,7 @@ public class PictureSelectionModel {
     }
 
     /**
-     * @param Select whether to return directly
+     * @param isSingleDirectReturn Select whether to return directly
      * @return
      */
     public PictureSelectionModel isSingleDirectReturn(boolean isSingleDirectReturn) {
@@ -174,7 +169,7 @@ public class PictureSelectionModel {
     }
 
     /**
-     * @param Specify get image format
+     * @param specifiedFormat get image format
      * @return
      */
     public PictureSelectionModel querySpecifiedFormatSuffix(String specifiedFormat) {

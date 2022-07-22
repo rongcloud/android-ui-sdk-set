@@ -5,11 +5,6 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2016-12-31 15:21
- * @describe：MediaFolder Entity
- */
 public class LocalMediaFolder implements Parcelable {
     /** Folder name */
     private String name;

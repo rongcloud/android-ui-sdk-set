@@ -4,11 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-/**
- * @author：luck
- * @date：2017-5-24 16:21
- * @describe：Media Entity
- */
 public class LocalMedia implements Parcelable {
     /** original path */
     private String path;

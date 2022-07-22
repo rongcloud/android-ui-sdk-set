@@ -317,10 +317,6 @@ public class MessageItemLongClickActionManager {
                                                 && normalTime > 0
                                                 && (normalTime - message.getSentTime())
                                                         <= messageRecallInterval * 1000
-                                                && message.getSenderUserId()
-                                                        .equals(
-                                                                RongIMClient.getInstance()
-                                                                        .getCurrentUserId())
                                                 && !message.getConversationType()
                                                         .equals(
                                                                 Conversation.ConversationType
@@ -371,7 +367,7 @@ public class MessageItemLongClickActionManager {
     }
 
     private void deleteRemoteMessage(UiMessage uiMessage) {
-        if (!RongConfigCenter.conversationListConfig().isNeedDeleteRemoteMessage()) {
+        if (!RongConfigCenter.conversationConfig().isNeedDeleteRemoteMessage()) {
             return;
         }
         IMCenter.getInstance()

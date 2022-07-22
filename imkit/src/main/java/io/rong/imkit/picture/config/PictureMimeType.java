@@ -9,11 +9,6 @@ import android.text.TextUtils;
 import io.rong.imkit.R;
 import java.io.File;
 
-/**
- * @author：luck
- * @date：2017-5-24 17:02
- * @describe：图片列表
- */
 public final class PictureMimeType {
     public static final int ofAll() {
         return PictureConfig.TYPE_ALL;

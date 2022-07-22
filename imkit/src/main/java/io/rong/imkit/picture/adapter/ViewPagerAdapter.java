@@ -24,10 +24,6 @@ import io.rong.imkit.picture.widget.longimage.SubsamplingScaleImageView;
 import java.io.File;
 import java.util.List;
 
-/**
- * @author：luck
- * @data：2018/1/27 下午7:50 @描述:图片预览
- */
 public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.PictureViewHolder> {
     private List<LocalMedia> images;
     private Context mContext;

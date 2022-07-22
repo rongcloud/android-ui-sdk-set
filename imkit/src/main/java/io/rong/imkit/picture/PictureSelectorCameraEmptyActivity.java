@@ -21,11 +21,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2019-11-15 21:41
- * @describe：单独拍照承载空Activity
- */
 public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
 
     @Override

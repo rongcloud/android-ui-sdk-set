@@ -172,8 +172,10 @@ public class EmoticonBoard {
                     continue;
                 }
             }
-            View view = getTabIcon(mFragment.getContext(), tab);
-            mScrollTab.addView(view);
+            if (mFragment.getContext() != null) {
+                View view = getTabIcon(mFragment.getContext(), tab);
+                mScrollTab.addView(view);
+            }
         }
         onPageChanged(-1, mViewPager.getCurrentItem());
         mAdapter.notifyDataSetChanged();
@@ -250,7 +252,7 @@ public class EmoticonBoard {
             tabs.add(tab);
         }
         int idx = getIndex(tab);
-        if (mAdapter != null && mViewPager != null) {
+        if (mAdapter != null && mViewPager != null && mViewPager.getContext() != null) {
             View view = getTabIcon(mViewPager.getContext(), tab);
             mScrollTab.addView(view, idx);
             mAdapter.notifyDataSetChanged();
@@ -269,7 +271,7 @@ public class EmoticonBoard {
             if (index <= count) tabs.add(index, tab);
         }
         int idx = getIndex(tab);
-        if (mAdapter != null && mViewPager != null) {
+        if (mAdapter != null && mViewPager != null && mViewPager.getContext() != null) {
             View view = getTabIcon(mViewPager.getContext(), tab);
             mScrollTab.addView(view, idx);
             mAdapter.notifyDataSetChanged();

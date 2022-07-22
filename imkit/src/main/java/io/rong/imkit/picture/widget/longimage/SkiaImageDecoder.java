@@ -12,10 +12,9 @@ import java.io.InputStream;
 import java.util.List;
 
 /**
- * Default implementation of {@link com.davemorrissey.labs.subscaleview.decoder.ImageDecoder} using
- * Android's {@link BitmapFactory}, based on the Skia library. This works well in most circumstances
- * and has reasonable performance, however it has some problems with grayscale, indexed and CMYK
- * images.
+ * Default implementation of {@link ImageDecoder} using Android's {@link BitmapFactory}, based on
+ * the Skia library. This works well in most circumstances and has reasonable performance, however
+ * it has some problems with grayscale, indexed and CMYK images.
  */
 public class SkiaImageDecoder implements ImageDecoder {
 

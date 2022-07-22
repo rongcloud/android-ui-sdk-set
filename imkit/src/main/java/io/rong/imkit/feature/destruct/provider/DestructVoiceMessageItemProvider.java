@@ -116,7 +116,7 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
                 holder.setImageDrawable(R.id.rc_voice_send, animationDrawable);
                 if (animationDrawable != null) animationDrawable.start();
             } else {
-                holder.setImageResource(R.id.rc_voice, R.drawable.rc_voice_send_play3);
+                holder.setImageResource(R.id.rc_voice_send, R.drawable.rc_voice_send_play3);
             }
             holder.setVisible(R.id.rc_voice_unread, false);
             holder.setVisible(R.id.rc_voice_download_error, false);

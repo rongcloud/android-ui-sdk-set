@@ -31,11 +31,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2016-12-30 12:02
- * @describe：图片列表
- */
 public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Context context;

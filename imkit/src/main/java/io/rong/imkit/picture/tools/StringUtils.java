@@ -7,10 +7,6 @@ import android.widget.TextView;
 import io.rong.imkit.R;
 import java.util.regex.Pattern;
 
-/**
- * @author：luck
- * @data：2017/5/25 19:12 @描述: String Utils
- */
 public class StringUtils {
 
     public static void tempTextFont(TextView tv, int mimeType) {

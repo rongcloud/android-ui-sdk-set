@@ -14,11 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2019-11-20 13:45
- * @describe：本地广播
- */
 public class BroadcastManager {
     private static final String TAG = BroadcastManager.class.getSimpleName();
     private LocalBroadcastManager localBroadcastManager;

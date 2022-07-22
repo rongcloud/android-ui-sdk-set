@@ -34,10 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author：luck
- * @data：2016/1/29 下午21:50 @描述:图片预览
- */
 public class PicturePreviewActivity extends PictureBaseActivity
         implements View.OnClickListener, ViewPagerAdapter.OnCallBackActivity {
     protected ImageView picture_left_back;

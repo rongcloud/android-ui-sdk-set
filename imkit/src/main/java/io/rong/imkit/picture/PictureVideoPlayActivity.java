@@ -14,10 +14,6 @@ import android.widget.VideoView;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 
-/**
- * @author：luck
- * @data：2017/8/28 下午11:00 @描述: 视频播放类
- */
 public class PictureVideoPlayActivity extends PictureBaseActivity
         implements MediaPlayer.OnErrorListener,
                 MediaPlayer.OnPreparedListener,
@@ -87,17 +83,20 @@ public class PictureVideoPlayActivity extends PictureBaseActivity
     @Override
     public void onStart() {
         // Play Video
-        mVideoView.setVideoPath(video_path);
-        mVideoView.start();
+        if (mVideoView != null) {
+            mVideoView.setVideoPath(video_path);
+            mVideoView.start();
+        }
         super.onStart();
     }
 
     @Override
     public void onPause() {
         // Stop video when the activity is pause.
-        mPositionWhenPaused = mVideoView.getCurrentPosition();
-        mVideoView.stopPlayback();
-
+        if (mVideoView != null) {
+            mPositionWhenPaused = mVideoView.getCurrentPosition();
+            mVideoView.stopPlayback();
+        }
         super.onPause();
     }
 
@@ -105,7 +104,9 @@ public class PictureVideoPlayActivity extends PictureBaseActivity
     public void onResume() {
         // Resume video player
         if (mPositionWhenPaused >= 0) {
-            mVideoView.seekTo(mPositionWhenPaused);
+            if (mVideoView != null) {
+                mVideoView.seekTo(mPositionWhenPaused);
+            }
             mPositionWhenPaused = -1;
         }
 
@@ -130,7 +131,9 @@ public class PictureVideoPlayActivity extends PictureBaseActivity
         if (id == R.id.picture_left_back) {
             finish();
         } else if (id == R.id.iv_play) {
-            mVideoView.start();
+            if (mVideoView != null) {
+                mVideoView.start();
+            }
             iv_play.setVisibility(View.INVISIBLE);
         }
     }
@@ -143,7 +146,9 @@ public class PictureVideoPlayActivity extends PictureBaseActivity
                     public boolean onInfo(MediaPlayer mp, int what, int extra) {
                         if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
                             // video started
-                            mVideoView.setBackgroundColor(Color.TRANSPARENT);
+                            if (mVideoView != null) {
+                                mVideoView.setBackgroundColor(Color.TRANSPARENT);
+                            }
                             return true;
                         }
                         return false;

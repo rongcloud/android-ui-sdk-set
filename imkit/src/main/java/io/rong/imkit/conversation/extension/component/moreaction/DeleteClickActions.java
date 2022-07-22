@@ -6,8 +6,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imlib.model.Message;
 import java.util.List;
 
 /** Created by zwfang on 2018/3/30. */
@@ -35,8 +37,25 @@ public class DeleteClickActions implements IClickActions {
                             messageViewModel.getCurTargetId(),
                             messageIds,
                             null);
+            deleteRemoteMessage(messages);
             messageViewModel.quitEditMode();
         }
+    }
+
+    private void deleteRemoteMessage(List<UiMessage> uiMessages) {
+        if (!RongConfigCenter.conversationConfig().isNeedDeleteRemoteMessage()) {
+            return;
+        }
+        Message[] messages = new Message[uiMessages.size()];
+        for (int i = 0; i < uiMessages.size(); i++) {
+            messages[i] = uiMessages.get(i).getMessage();
+        }
+        IMCenter.getInstance()
+                .deleteRemoteMessages(
+                        uiMessages.get(0).getMessage().getConversationType(),
+                        uiMessages.get(0).getMessage().getTargetId(),
+                        messages,
+                        null);
     }
 
     @Override

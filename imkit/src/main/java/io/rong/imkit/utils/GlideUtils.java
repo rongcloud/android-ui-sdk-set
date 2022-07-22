@@ -16,7 +16,7 @@ public class GlideUtils {
     /**
      * 如果是私有云，则需要获取私有云Token放到图片请求header中
      *
-     * @param url
+     * @param originalUri
      * @return
      */
     public static Object buildAuthUrl(Uri originalUri, String privateToken) {

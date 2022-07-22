@@ -1455,7 +1455,6 @@ public class MessageViewModel extends AndroidViewModel
                         data.getIntegerArrayListExtra(RouteUtils.MESSAGE_IDS),
                         messageList);
         quitEditMode();
-        ForwardManager.getInstance().exitDestructMode();
     }
 
     public List<UiMessage> getSelectedUiMessages() {

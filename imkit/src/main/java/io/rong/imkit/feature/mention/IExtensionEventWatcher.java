@@ -28,7 +28,6 @@ public interface IExtensionEventWatcher {
      * Extension 模块点击发送按钮时的预处理，其它模块可以通过此回调设置附加信息到 Extension
      *
      * @param message extension 模块点击发送按钮时构建的初始消息。其它模块可以更改该消息里的配置。
-     * @return 经各模块处理后的消息
      */
     void onSendToggleClick(Message message);
 

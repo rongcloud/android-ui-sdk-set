@@ -29,6 +29,7 @@ import io.rong.imkit.conversation.extension.component.plugin.PluginBoard;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.InputBarEvent;
 import io.rong.imkit.event.uievent.PageEvent;
+import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
@@ -177,7 +178,14 @@ public class RongExtension extends LinearLayout {
                                                 .postValue(InputMode.MoreInputMode);
                                     } else if (((InputBarEvent) pageEvent)
                                             .mType.equals(InputBarEvent.Type.HideMoreMenu)) {
-                                        resetToDefaultView();
+                                        if (DestructManager.isActive()) {
+                                            DestructManager.getInstance()
+                                                    .activeDestructMode(getContext());
+                                            mAttachedInfoContainer.removeAllViews();
+                                            mAttachedInfoContainer.setVisibility(GONE);
+                                        } else {
+                                            resetToDefaultView();
+                                        }
                                     } else if (((InputBarEvent) pageEvent)
                                                     .mType.equals(InputBarEvent.Type.ActiveMoreMenu)
                                             && mMoreInputPanel != null) {
@@ -547,8 +555,8 @@ public class RongExtension extends LinearLayout {
 
     /**
      * @param intent The intent to start.
-     * @param requestCode If >= 0, this code will be returned in onActivityResult() when the
-     *     activity exits.
+     * @param requestCode {@code If >= 0, this code will be returned in onActivityResult() when the
+     *     activity exits.}
      */
     public void startActivityForPluginResult(
             Intent intent, int requestCode, IPluginModule pluginModule) {

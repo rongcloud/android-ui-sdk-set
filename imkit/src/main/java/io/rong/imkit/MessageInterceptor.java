@@ -1,5 +1,6 @@
 package io.rong.imkit;
 
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -59,14 +60,14 @@ public interface MessageInterceptor {
             String targetId,
             Message.SentStatus sentStatus,
             MessageContent content,
-            long time);
+            long sentTime);
 
     /**
      * 准备插入Incoming消息的拦截回调。
      *
      * @param type 会话类型。
      * @param targetId 会话 id。比如私人会话时，是对方的 id； 群组会话时，是群 id； 讨论组会话时，则为该讨论组的 id。
-     * @param senderUserId 发送方 id
+     * @param senderId 发送方 id
      * @param receivedStatus 接收状态 {@link Message.ReceivedStatus}
      * @param content 消息内容。如 {@link TextMessage} {@link ImageMessage}等。
      * @param sentTime 消息的发送时间 {@link Message#getSentTime()} 。
@@ -78,5 +79,15 @@ public interface MessageInterceptor {
             String senderId,
             Message.ReceivedStatus receivedStatus,
             MessageContent content,
-            long time);
+            long sentTime);
+
+    default boolean interceptOnInsertOutgoingMessage(
+            Conversation.ConversationType type,
+            String targetId,
+            Message.SentStatus sentStatus,
+            MessageContent content,
+            long time,
+            RongIMClient.ResultCallback<Message> callback) {
+        return interceptOnInsertOutgoingMessage(type, targetId, sentStatus, content, time);
+    }
 }

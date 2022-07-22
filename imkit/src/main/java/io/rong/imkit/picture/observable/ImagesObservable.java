@@ -4,11 +4,6 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2017-1-12 21:30
- * @describe：解决预览时传值过大问题
- */
 public class ImagesObservable {
     // 观察者接口集合
     private List<LocalMedia> previewList;

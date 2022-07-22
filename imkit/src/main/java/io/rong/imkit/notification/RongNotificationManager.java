@@ -230,7 +230,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                 content =
                         senderInfo == null
                                 ? message.getSenderUserId()
-                                : senderInfo.getName()
+                                : RongUserInfoManager.getInstance().getUserDisplayName(senderInfo)
                                         + IMCenter.getInstance()
                                                 .getContext()
                                                 .getString(R.string.rc_recalled_message);
@@ -243,7 +243,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                 content =
                         senderInfo == null
                                 ? message.getSenderUserId()
-                                : senderInfo.getName()
+                                : RongUserInfoManager.getInstance().getUserDisplayName(senderInfo)
                                         + ":"
                                         + RongConfigCenter.conversationConfig()
                                                 .getMessageSummary(
@@ -252,7 +252,10 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
             }
         } else {
             UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(targetId);
-            title = userInfo == null ? targetId : userInfo.getName();
+            title =
+                    userInfo == null
+                            ? targetId
+                            : RongUserInfoManager.getInstance().getUserDisplayName(userInfo);
             if (userInfo == null) {
                 if (targetKey != null) {
                     messageMap.put(targetKey.getKey(), message);
@@ -501,7 +504,23 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     /** 获取会话通知免打扰时间。 */
     public void getNotificationQuietHours(
             final RongIMClient.GetNotificationQuietHoursCallback callback) {
-        MessageNotificationHelper.getNotificationQuietHoursLevel(callback);
+        MessageNotificationHelper.getNotificationQuietHoursLevel(
+                new RongIMClient.GetNotificationQuietHoursCallback() {
+                    @Override
+                    public void onSuccess(String startTime, int spanMinutes) {
+                        if (callback != null) {
+                            callback.onSuccess(startTime, spanMinutes);
+                        }
+                        isQuietSettingSynced = true;
+                    }
+
+                    @Override
+                    public void onError(RongIMClient.ErrorCode errorCode) {
+                        if (callback != null) {
+                            callback.onError(errorCode);
+                        }
+                    }
+                });
     }
 
     public void removeNotificationQuietHours(final RongIMClient.OperationCallback callback) {
@@ -779,6 +798,23 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         if (user == null) {
             return;
         }
+        resendNotificationOnInfoUpdate(user.getUserId());
+    }
+
+    @Override
+    public void onGroupUpdate(Group group) {
+        if (group == null) {
+            return;
+        }
+        resendNotificationOnInfoUpdate(group.getId());
+    }
+
+    /**
+     * 当targetId对应的缓存更新时，更新通知
+     *
+     * @param targetId
+     */
+    private void resendNotificationOnInfoUpdate(String targetId) {
         Conversation.ConversationType[] types =
                 new Conversation.ConversationType[] {
                     Conversation.ConversationType.PRIVATE,
@@ -790,7 +826,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                 };
         Message message;
         for (Conversation.ConversationType type : types) {
-            ConversationKey conversationKey = ConversationKey.obtain(user.getUserId(), type);
+            ConversationKey conversationKey = ConversationKey.obtain(targetId, type);
             if (conversationKey == null) {
                 continue;
             }
@@ -798,13 +834,12 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
             if (messageMap.containsKey(key)) {
                 message = messageMap.get(key);
                 messageMap.remove(key);
-                prepareToSendNotification(message);
+                if (message != null) {
+                    prepareToSendNotification(message);
+                }
             }
         }
     }
-
-    @Override
-    public void onGroupUpdate(Group group) {}
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {}

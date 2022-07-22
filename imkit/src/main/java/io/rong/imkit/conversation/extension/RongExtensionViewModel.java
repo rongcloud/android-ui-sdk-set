@@ -211,7 +211,9 @@ public class RongExtensionViewModel extends AndroidViewModel {
         RLog.d(TAG, "collapseExtensionBoard");
         setSoftInputKeyBoard(false);
         mExtensionBoardState.postValue(false);
-        mInputModeLiveData.postValue(InputMode.NormalMode);
+        if (!DestructManager.isActive()) {
+            mInputModeLiveData.postValue(InputMode.NormalMode);
+        }
     }
 
     public void setSoftInputKeyBoard(boolean isShow) {
@@ -275,7 +277,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
     }
 
     /**
-     * 获取面板打开状态。 value < 0 面板收起； value > 0, 代表面板打开，value 为面板打开后的高度。
+     * 获取面板打开状态。 {@code value < 0 } 面板收起； {@code value > 0}, 代表面板打开，value 为面板打开后的高度。
      *
      * @return 面板状态 LiveData
      */

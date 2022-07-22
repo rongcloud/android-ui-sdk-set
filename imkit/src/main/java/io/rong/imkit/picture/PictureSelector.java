@@ -13,11 +13,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2017-5-24 22:30
- * @describe：PictureSelector
- */
 public final class PictureSelector {
 
     private final WeakReference<Activity> mActivity;
@@ -114,8 +109,9 @@ public final class PictureSelector {
     }
 
     /**
+     * put Selector LocalMedia
+     *
      * @param selectedImages
-     * @return put Selector LocalMedia
      */
     public static void saveSelectorList(Bundle outState, List<LocalMedia> selectedImages) {
         outState.putSerializable(PictureConfig.EXTRA_SELECT_LIST, (Serializable) selectedImages);

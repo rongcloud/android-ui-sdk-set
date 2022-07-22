@@ -1,9 +1,5 @@
 package io.rong.imkit.picture.config;
 
-/**
- * @author：luck
- * @data：2017/5/24 下午1:00 @描述: 常量类
- */
 public final class PictureConfig {
     public static final int APPLY_STORAGE_PERMISSIONS_CODE = 1;
     public static final int APPLY_CAMERA_PERMISSIONS_CODE = 2;

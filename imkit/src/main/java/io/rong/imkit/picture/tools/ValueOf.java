@@ -1,10 +1,5 @@
 package io.rong.imkit.picture.tools;
 
-/**
- * @author：luck
- * @date：2019-11-12 14:27
- * @describe：类型转换工具类
- */
 public class ValueOf {
     public static String toString(Object o) {
         String value = "";

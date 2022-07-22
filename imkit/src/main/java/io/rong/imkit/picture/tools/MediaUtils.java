@@ -11,11 +11,6 @@ import android.provider.MediaStore;
 import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.entity.LocalMedia;
 
-/**
- * @author：luck
- * @date：2019-10-21 17:10
- * @describe：资源处理工具类
- */
 public class MediaUtils {
     /**
      * 创建一条图片地址uri,用于保存拍照后的照片

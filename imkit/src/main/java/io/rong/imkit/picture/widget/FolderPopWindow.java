@@ -23,11 +23,6 @@ import io.rong.imkit.picture.tools.AnimUtils;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import java.util.List;
 
-/**
- * @author：luck
- * @date：2017-5-25 17:02
- * @describe：文件目录PopupWindow
- */
 public class FolderPopWindow extends PopupWindow {
     private Context context;
     private View window;

@@ -44,10 +44,10 @@ public interface IPluginModule {
      * <p>在 {@link #onClick(Fragment, RongExtension, int)} 中，你可能会开启新的 activity，你有两种开启方式：
      *
      * <p>1. 使用系统中 {@link Activity#startActivityForResult(Intent, int)} 开启方法 这就需要自己在对应的 Activity
-     * 中接收处理 {@link Activity#onActivityResult(int, int, Intent)} 返回的结果。
+     * 中接收处理 {@link Activity}#onActivityResult(int, int, Intent) 返回的结果。
      *
      * <p>2. 如果调用了 {@link RongExtension#startActivityForPluginResult(Intent, int, IPluginModule)}
-     * 开启方法 则在 ConversationFragment 中接收到 {@link Activity#onActivityResult(int, int, Intent)} 后， 必须调用
+     * 开启方法 则在 ConversationFragment 中接收到 {@link Activity}#onActivityResult(int, int, Intent) 后， 必须调用
      * {@link RongExtension#onActivityPluginResult(int, int, Intent)} 方法，RongExtension 才会将数据结果 通过
      * IPluginModule 中 onActivityResult 方法返回。
      *

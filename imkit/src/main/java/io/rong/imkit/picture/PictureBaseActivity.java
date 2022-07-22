@@ -29,10 +29,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author：luck
- * @data：2018/3/28 下午1:00 @描述: Activity基类
- */
 public abstract class PictureBaseActivity extends AppCompatActivity {
     private static final String TAG = PictureBaseActivity.class.getCanonicalName();
     protected PictureSelectionConfig config;

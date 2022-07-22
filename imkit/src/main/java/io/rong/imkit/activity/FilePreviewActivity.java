@@ -485,9 +485,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         if (fileSavePath.endsWith(TXT_FILE)) {
             processTxtFile(fileName, uri);
             return true;
-        } else if (fileSavePath.endsWith(APK_FILE)) {
-            processApkFile(uri);
-            return true;
         }
         return false;
     }
@@ -525,61 +522,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         }
         webIntent.putExtra("title", fileName);
         startActivity(webIntent);
-    }
-
-    /**
-     * 处理三种情况
-     *
-     * @param uri 文件Uri
-     */
-    private void processApkFile(Uri uri) {
-        if (FileUtils.uriStartWithContent(uri)) {
-            Intent intent =
-                    new Intent(Intent.ACTION_VIEW)
-                            .setDataAndType(uri, "application/vnd.android.package-archive");
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(intent);
-        } else {
-            // File开头
-            String path = uri.toString();
-            if (FileUtils.uriStartWithFile(uri)) {
-                path = path.substring(7);
-            }
-            File file = new File(path);
-            if (!file.exists()) {
-                makeText(
-                                FilePreviewActivity.this,
-                                getString(R.string.rc_file_not_exist),
-                                Toast.LENGTH_SHORT)
-                        .show();
-                return;
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri downloaded_apk;
-                try {
-                    downloaded_apk =
-                            FileProvider.getUriForFile(
-                                    this,
-                                    getPackageName()
-                                            + getString(R.string.rc_authorities_fileprovider),
-                                    file);
-                } catch (Exception e) {
-                    throw new RuntimeException("Please check IMKit Manifest FileProvider config.");
-                }
-                Intent intent =
-                        new Intent(Intent.ACTION_VIEW)
-                                .setDataAndType(
-                                        downloaded_apk, "application/vnd.android.package-archive");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(intent);
-            } else {
-                Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                installIntent.setDataAndType(
-                        Uri.fromFile(file), "application/vnd.android.package-archive");
-                startActivity(installIntent);
-            }
-        }
     }
 
     private void getFileDownloadInfoForResumeTransfer() {

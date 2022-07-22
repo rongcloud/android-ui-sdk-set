@@ -520,7 +520,7 @@ public class IMCenter {
      * 根据会话类型，发送消息。
      *
      * <p>通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。<br>
-     * <strong>注意：1 秒钟发送消息不能超过 5 条。
+     * <strong>注意：1 秒钟发送消息不能超过 5 条</strong>。
      *
      * @param type 会话类型。
      * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
@@ -630,7 +630,7 @@ public class IMCenter {
      * 发送已读回执，该方法会触发刷新消息未读数
      *
      * <p>通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。<br>
-     * <strong>注意：1 秒钟发送消息不能超过 5 条。
+     * <strong>注意：1 秒钟发送消息不能超过 5 条</strong>。
      *
      * @param conversationType 会话类型。
      * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
@@ -1113,8 +1113,8 @@ public class IMCenter {
      *
      * @param conversationType 会话类型。
      * @param targetId 会话 id。
-     * @param recordTime 清除消息截止时间戳，【0 <= recordTime <= 当前会话最后一条消息的 sentTime,0 清除所有消息，其他值清除小于等于
-     *     recordTime 的消息】。
+     * @param recordTime 清除消息截止时间戳，{@code 0 <= recordTime <= }当前会话最后一条消息的 sentTime,0
+     *     清除所有消息，其他值清除小于等于 recordTime 的消息。
      * @param cleanRemote 是否删除服务器端消息
      * @param callback 清除消息的回调。
      */
@@ -1428,7 +1428,7 @@ public class IMCenter {
             final RongIMClient.ResultCallback<Message> resultCallback) {
         if (mMessageInterceptor != null
                 && mMessageInterceptor.interceptOnInsertOutgoingMessage(
-                        type, targetId, sentStatus, content, time)) {
+                        type, targetId, sentStatus, content, time, resultCallback)) {
             RLog.d(TAG, "message insertOut has been intercepted.");
             return;
         }
@@ -1490,6 +1490,7 @@ public class IMCenter {
             RLog.d(TAG, "message insertIncoming has been intercepted.");
             return;
         }
+
         RongIMClient.getInstance()
                 .insertIncomingMessage(
                         type,

@@ -34,7 +34,8 @@ public interface RefreshKernel {
     RefreshKernel finishTwoLevel();
 
     /**
-     * 移动视图到指定位置 moveSpinner 的取名来自 谷歌官方的 {@link android.support.v4.widget.SwipeRefreshLayout}
+     * 移动视图到指定位置 moveSpinner 的取名来自 谷歌官方的 {@link
+     * androidx.swiperefreshlayout.widget.SwipeRefreshLayout}
      *
      * @param spinner 位置 (px)
      * @param isDragging true 手指正在拖动 false 回弹动画执行
@@ -43,7 +44,8 @@ public interface RefreshKernel {
     RefreshKernel moveSpinner(int spinner, boolean isDragging);
 
     /**
-     * 执行动画使视图位移到指定的 位置 moveSpinner 的取名来自 谷歌官方的 {@link android.support.v4.widget.SwipeRefreshLayout}
+     * 执行动画使视图位移到指定的 位置 moveSpinner 的取名来自 谷歌官方的 {@link
+     * androidx.swiperefreshlayout.widget.SwipeRefreshLayout}
      *
      * @param endSpinner 指定的结束位置 (px)
      * @return ValueAnimator 如果没有执行动画 null

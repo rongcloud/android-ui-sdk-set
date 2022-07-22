@@ -4,11 +4,6 @@ import android.graphics.Rect;
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * @author：luck
- * @date：2019-11-05 14:04
- * @describe：九宫格分割线
- */
 public class GridSpacingItemNotBothDecoration extends RecyclerView.ItemDecoration {
 
     private int spanCount;

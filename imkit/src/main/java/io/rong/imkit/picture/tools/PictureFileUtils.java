@@ -27,11 +27,6 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
 
-/**
- * @author：luck
- * @date：2017-5-30 19:30
- * @describe：PictureFileUtils
- */
 public class PictureFileUtils {
 
     public static final String POSTFIX = ".jpg";

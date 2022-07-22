@@ -1,10 +1,5 @@
 package io.rong.imkit.picture.broadcast;
 
-/**
- * @author：luck
- * @date：2019-11-20 14:01
- * @describe：广播Action
- */
 public class BroadcastAction {
     /** 预览界面选中数据Action */
     public static final String ACTION_SELECTED_DATA = "com.luck.picture.lib.action.selected.data";

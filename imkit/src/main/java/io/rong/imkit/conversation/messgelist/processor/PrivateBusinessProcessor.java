@@ -126,10 +126,13 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
                         ConversationConfig.SP_NAME_READ_RECEIPT_CONFIG,
                         Context.MODE_PRIVATE);
         long sendReadReceiptTime =
-                sp.getLong(
-                        getSavedReadReceiptTimeName(
-                                viewModel.getCurTargetId(), viewModel.getCurConversationType()),
-                        0);
+                sp == null
+                        ? 0
+                        : sp.getLong(
+                                getSavedReadReceiptTimeName(
+                                        viewModel.getCurTargetId(),
+                                        viewModel.getCurConversationType()),
+                                0);
         if (sendReadReceiptTime > 0) {
             sendReadReceiptMessage(
                     viewModel.getApplication(),
@@ -184,10 +187,12 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
                         context,
                         ConversationConfig.SP_NAME_READ_RECEIPT_CONFIG,
                         Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.remove(getSavedReadReceiptStatusName(targetId, type));
-        editor.remove(getSavedReadReceiptTimeName(targetId, type));
-        editor.apply();
+        if (preferences != null) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.remove(getSavedReadReceiptStatusName(targetId, type));
+            editor.remove(getSavedReadReceiptTimeName(targetId, type));
+            editor.apply();
+        }
     }
 
     private void addSendReadReceiptStatusToSp(
@@ -201,10 +206,12 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
                         context,
                         ConversationConfig.SP_NAME_READ_RECEIPT_CONFIG,
                         Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean(getSavedReadReceiptStatusName(targetId, type), status);
-        editor.putLong(getSavedReadReceiptTimeName(targetId, type), time);
-        editor.apply();
+        if (preferences != null) {
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean(getSavedReadReceiptStatusName(targetId, type), status);
+            editor.putLong(getSavedReadReceiptTimeName(targetId, type), time);
+            editor.apply();
+        }
     }
 
     private String getSavedReadReceiptStatusName(

@@ -526,42 +526,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
             webIntent.putExtra("title", fileName);
             startActivity(webIntent);
             return true;
-        } else if (fileSavePath.endsWith(APK_FILE)) {
-            File file = new File(fileSavePath);
-            if (!file.exists()) {
-                makeText(
-                                WebFilePreviewActivity.this,
-                                getString(R.string.rc_file_not_exist),
-                                Toast.LENGTH_SHORT)
-                        .show();
-                return false;
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri downloaded_apk;
-                try {
-                    downloaded_apk =
-                            FileProvider.getUriForFile(
-                                    this,
-                                    getPackageName()
-                                            + getString(R.string.rc_authorities_fileprovider),
-                                    file);
-                } catch (Exception e) {
-                    throw new RuntimeException("Please check IMKit Manifest FileProvider config.");
-                }
-                Intent intent =
-                        new Intent(Intent.ACTION_VIEW)
-                                .setDataAndType(
-                                        downloaded_apk, "application/vnd.android.package-archive");
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(intent);
-            } else {
-                Intent installIntent = new Intent(Intent.ACTION_VIEW);
-                installIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                installIntent.setDataAndType(
-                        Uri.fromFile(file), "application/vnd.android.package-archive");
-                startActivity(installIntent);
-            }
-            return true;
         }
         return false;
     }

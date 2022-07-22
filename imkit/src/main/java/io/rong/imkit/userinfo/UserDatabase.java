@@ -13,6 +13,7 @@ import io.rong.imkit.userinfo.db.dao.UserDao;
 import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
 import io.rong.imkit.userinfo.db.model.User;
+import io.rong.imkit.utils.ExecutorHelper;
 
 @Database(
         entities = {User.class, Group.class, GroupMember.class},
@@ -45,9 +46,24 @@ public abstract class UserDatabase extends RoomDatabase {
         if (sInstance != null
                 && !TextUtils.isEmpty(sInstance.mUserId)
                 && !sInstance.mUserId.equals(userId)) {
-            sInstance.close();
-            RLog.d(TAG, "openDb - userId " + userId + " db closed.");
-            sInstance = null;
+            final UserDatabase oldDatabase = UserDatabase.sInstance;
+            ExecutorHelper.getInstance()
+                    .diskIO()
+                    .execute(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    oldDatabase.close();
+                                    RLog.d(
+                                            TAG,
+                                            "openDb - userId = "
+                                                    + userId
+                                                    + ", oldUserId = "
+                                                    + oldDatabase.mUserId
+                                                    + " db closed.");
+                                }
+                            });
+            UserDatabase.sInstance = null;
         }
         if (sInstance == null) {
             sInstance = buildDatabase(context, userId, callback);

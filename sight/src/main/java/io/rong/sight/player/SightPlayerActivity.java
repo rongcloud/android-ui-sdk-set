@@ -77,10 +77,15 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.rc_activity_sight_player);
 
-        mSightMessage = getIntent().getParcelableExtra("SightMessage");
-        mMessage = getIntent().getParcelableExtra("Message");
-        mProgress = getIntent().getIntExtra("Progress", 0);
-        fromSightListImageVisible = getIntent().getBooleanExtra("fromSightListImageVisible", true);
+        try {
+            mSightMessage = getIntent().getParcelableExtra("SightMessage");
+            mMessage = getIntent().getParcelableExtra("Message");
+            mProgress = getIntent().getIntExtra("Progress", 0);
+            fromSightListImageVisible =
+                    getIntent().getBooleanExtra("fromSightListImageVisible", true);
+        } catch (Exception exception) {
+            RLog.i(TAG, "getIntent exception");
+        }
 
         mContainer = findViewById(R.id.container);
         rlSightDownload = findViewById(R.id.rl_sight_download);
