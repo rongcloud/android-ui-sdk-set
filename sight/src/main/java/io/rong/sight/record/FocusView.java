@@ -5,7 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.View;
 
-/** 445263848@qq.com. */
+/**
+ * 445263848@qq.com.
+ */
 public class FocusView extends View {
     private int focusView_size;
     private int x;
@@ -41,18 +43,8 @@ public class FocusView extends View {
         super.onDraw(canvas);
         canvas.drawRect(x - length, y - length, x + length, y + length, mPaint);
         canvas.drawLine(2, getHeight() / 2, focusView_size / 10, getHeight() / 2, mPaint);
-        canvas.drawLine(
-                getWidth() - 2,
-                getHeight() / 2,
-                getWidth() - focusView_size / 10,
-                getHeight() / 2,
-                mPaint);
+        canvas.drawLine(getWidth() - 2, getHeight() / 2, getWidth() - focusView_size / 10, getHeight() / 2, mPaint);
         canvas.drawLine(getWidth() / 2, 2, getWidth() / 2, focusView_size / 10, mPaint);
-        canvas.drawLine(
-                getWidth() / 2,
-                getHeight() - 2,
-                getWidth() / 2,
-                getHeight() - focusView_size / 10,
-                mPaint);
+        canvas.drawLine(getWidth() / 2, getHeight() - 2, getWidth() / 2, getHeight() - focusView_size / 10, mPaint);
     }
 }

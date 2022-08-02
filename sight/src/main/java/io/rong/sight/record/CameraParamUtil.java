@@ -3,17 +3,23 @@ package io.rong.sight.record;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.util.Log;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/** 445263848@qq.com. */
+/**
+ * 445263848@qq.com.
+ */
+
 public class CameraParamUtil {
     private static final String TAG = "Sight-CameraView";
     private CameraSizeComparator sizeComparator = new CameraSizeComparator();
     private static CameraParamUtil cameraParamUtil = null;
 
-    private CameraParamUtil() {}
+    private CameraParamUtil() {
+
+    }
 
     public static CameraParamUtil getInstance() {
         if (cameraParamUtil == null) {
@@ -25,7 +31,7 @@ public class CameraParamUtil {
     }
 
     public Size getPreviewSize(List<Camera.Size> list, int th, float rate, Camera.Size preferSize) {
-        if (list == null) return null;
+        if(list == null) return null;
         Camera.Size prefer = getPreferSize(list, preferSize);
         if (prefer != null) return prefer;
         Collections.sort(list, sizeComparator);
@@ -45,14 +51,14 @@ public class CameraParamUtil {
     }
 
     public Size getVideoSize(List<Camera.Size> list, int th, float rate, Camera.Size preferSize) {
-        if (list == null) return null;
+        if(list == null) return null;
         Camera.Size prefer = getPreferSize(list, preferSize);
         if (prefer != null) return prefer;
         return getPictureSize(list, th, rate);
     }
 
     public Size getPictureSize(List<Camera.Size> list, int th, float rate) {
-        if (list == null) return null;
+        if(list == null) return null;
         Collections.sort(list, sizeComparator);
 
         int i = 0;
@@ -83,6 +89,7 @@ public class CameraParamUtil {
         }
         return list.get(index);
     }
+
 
     public boolean equalRate(Size s, float rate) {
         float r = (float) (s.width) / (float) (s.height);
@@ -121,11 +128,12 @@ public class CameraParamUtil {
                 return -1;
             }
         }
+
     }
 
-    public Camera.Size getPreferSize(List<Camera.Size> list, Camera.Size preferSize) {
-        for (Camera.Size size : list) {
-            if (size.equals(preferSize)) {
+    public Camera.Size getPreferSize(List<Camera.Size> list, Camera.Size preferSize){
+        for(Camera.Size size : list){
+            if(size.equals(preferSize)){
                 return preferSize;
             }
         }

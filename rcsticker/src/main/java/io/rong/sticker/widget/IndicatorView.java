@@ -1,12 +1,17 @@
 package io.rong.sticker.widget;
 
 import android.content.Context;
+
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
+
 import io.rong.sticker.R;
 
-/** Created by luoyanlong on 2018/08/16. ViewPager 页数指示器 */
+/**
+ * Created by luoyanlong on 2018/08/16.
+ * ViewPager 页数指示器
+ */
 public class IndicatorView extends LinearLayout {
 
     public IndicatorView(Context context) {

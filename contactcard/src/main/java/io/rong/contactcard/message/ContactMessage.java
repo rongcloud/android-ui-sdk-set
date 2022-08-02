@@ -2,18 +2,24 @@ package io.rong.contactcard.message;
 
 import android.os.Parcel;
 import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import io.rong.common.ParcelUtils;
 import io.rong.common.RLog;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
-import java.io.UnsupportedEncodingException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-/** Created by Beyond on 2016/12/5. */
+/**
+ * Created by Beyond on 2016/12/5.
+ */
+
 @MessageTag(value = "RC:CardMsg", flag = MessageTag.ISCOUNTED | MessageTag.ISPERSISTED)
 public class ContactMessage extends MessageContent {
     private static final String TAG = "ContactMessage";
@@ -25,15 +31,11 @@ public class ContactMessage extends MessageContent {
     private String sendUserName;
     private String extra;
 
-    public ContactMessage() {}
+    public ContactMessage() {
 
-    public ContactMessage(
-            String id,
-            String name,
-            String imgUrl,
-            String sendUserId,
-            String sendUserName,
-            String extra) {
+    }
+
+    public ContactMessage(String id, String name, String imgUrl, String sendUserId, String sendUserName, String extra) {
         this.id = id;
         this.name = name;
         this.imgUrl = imgUrl;
@@ -42,28 +44,21 @@ public class ContactMessage extends MessageContent {
         this.extra = extra;
     }
 
-    public static ContactMessage obtain(
-            String id,
-            String title,
-            String imgUrl,
-            String senduserId,
-            String sendUserName,
-            String extra) {
+    public static ContactMessage obtain(String id, String title, String imgUrl, String senduserId, String sendUserName, String extra) {
         return new ContactMessage(id, title, imgUrl, senduserId, sendUserName, extra);
     }
 
-    public static final Creator<ContactMessage> CREATOR =
-            new Creator<ContactMessage>() {
-                @Override
-                public ContactMessage createFromParcel(Parcel source) {
-                    return new ContactMessage(source);
-                }
+    public static final Creator<ContactMessage> CREATOR = new Creator<ContactMessage>() {
+        @Override
+        public ContactMessage createFromParcel(Parcel source) {
+            return new ContactMessage(source);
+        }
 
-                @Override
-                public ContactMessage[] newArray(int size) {
-                    return new ContactMessage[size];
-                }
-            };
+        @Override
+        public ContactMessage[] newArray(int size) {
+            return new ContactMessage[size];
+        }
+    };
 
     @Override
     public byte[] encode() {
@@ -104,12 +99,18 @@ public class ContactMessage extends MessageContent {
         try {
             JSONObject jsonObj = new JSONObject(jsonStr);
 
-            if (jsonObj.has("userId")) setId(jsonObj.optString("userId"));
-            if (jsonObj.has("name")) setName(jsonObj.optString("name"));
-            if (jsonObj.has("portraitUri")) setImgUrl(jsonObj.optString("portraitUri"));
-            if (jsonObj.has("sendUserId")) setSendUserId(jsonObj.optString("sendUserId"));
-            if (jsonObj.has("sendUserName")) setSendUserName(jsonObj.optString("sendUserName"));
-            if (jsonObj.has("extra")) setExtra(jsonObj.optString("extra"));
+            if (jsonObj.has("userId"))
+                setId(jsonObj.optString("userId"));
+            if (jsonObj.has("name"))
+                setName(jsonObj.optString("name"));
+            if (jsonObj.has("portraitUri"))
+                setImgUrl(jsonObj.optString("portraitUri"));
+            if (jsonObj.has("sendUserId"))
+                setSendUserId(jsonObj.optString("sendUserId"));
+            if (jsonObj.has("sendUserName"))
+                setSendUserName(jsonObj.optString("sendUserName"));
+            if (jsonObj.has("extra"))
+                setExtra(jsonObj.optString("extra"));
             if (jsonObj.has("user"))
                 setUserInfo(parseJsonToUserInfo(jsonObj.getJSONObject("user")));
             if (jsonObj.has("isBurnAfterRead")) {

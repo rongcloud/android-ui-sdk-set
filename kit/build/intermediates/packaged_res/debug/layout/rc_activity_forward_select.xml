@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+
+        <TextView
+            android:id="@id/rc_btn_cancel"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="start"
+            android:layout_marginStart="14dp"
+            android:gravity="center"
+            android:text="@string/rc_cancel"
+            android:textColor="@color/app_color_black"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@id/rc_btn_ok"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="end"
+            android:layout_marginEnd="14dp"
+            android:gravity="center"
+            android:text="@string/rc_dialog_ok"
+            android:textColor="@color/app_color_black"
+            android:textSize="14sp" />
+
+        <TextView
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:paddingBottom="2dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/rc_choose_members"
+            android:textColor="@color/app_color_black"
+            android:textSize="18sp" />
+
+    </FrameLayout>
+
+    <io.rong.imkit.widget.RongSwipeRefreshLayout
+        android:id="@+id/rc_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@id/rc_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:divider="@drawable/rc_cs_list_divider_style" />
+    </io.rong.imkit.widget.RongSwipeRefreshLayout>
+</LinearLayout>

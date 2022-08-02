@@ -1,7 +1,7 @@
 package io.rong.sticker.util;
 
 import android.util.Log;
-import io.rong.common.rlog.RLog;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -12,7 +12,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-/** Created by Beyond on 2017/6/29. 解压缩表情包zip文件 */
+import io.rong.common.rlog.RLog;
+
+/**
+ * Created by Beyond on 2017/6/29.
+ * 解压缩表情包zip文件
+ */
+
 public class ZipUtil {
     private static final String TAG = "ZipUtil";
     private static final int BUFFER = 2048;
@@ -54,7 +60,9 @@ public class ZipUtil {
         }
     }
 
-    /** 解压到当前文件夹 */
+    /**
+     * 解压到当前文件夹
+     */
     public static void unzip(String zipFilePath) {
         File file = new File(zipFilePath);
         String location = file.getParent() + File.separator;
@@ -64,7 +72,7 @@ public class ZipUtil {
     /**
      * 解压到指定文件夹
      *
-     * @param zipFile 要解压的zip文件
+     * @param zipFile  要解压的zip文件
      * @param location 解压到的位置
      */
     public static void unzip(String zipFile, String location) {

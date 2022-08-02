@@ -3,13 +3,17 @@ package io.rong.sight.record;
 import android.graphics.Bitmap;
 import android.os.Environment;
 import android.util.Log;
-import io.rong.common.RLog;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/** 445263848@qq.com. */
+import io.rong.common.RLog;
+
+/**
+ * 445263848@qq.com.
+ */
 public class FileUtil {
     private static final String TAG = "FileUtil";
     private static final File parentPath = Environment.getExternalStorageDirectory();
@@ -54,6 +58,7 @@ public class FileUtil {
                 }
             }
         }
+
     }
 
     public static boolean isExternalStorageWritable() {

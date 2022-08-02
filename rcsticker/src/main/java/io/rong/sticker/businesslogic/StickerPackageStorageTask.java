@@ -1,23 +1,33 @@
 package io.rong.sticker.businesslogic;
 
 import android.content.Context;
+
 import com.google.gson.Gson;
-import io.rong.sticker.model.Sticker;
-import io.rong.sticker.model.StickerPackage;
-import io.rong.sticker.model.StickerPackageInfo;
-import io.rong.sticker.util.FileUtil;
+
 import java.io.File;
 import java.util.List;
 import java.util.Locale;
 
-/** Created by luoyanlong on 2018/08/15. 表情包文件存储逻辑 */
+import io.rong.sticker.model.Sticker;
+import io.rong.sticker.model.StickerPackage;
+import io.rong.sticker.model.StickerPackageInfo;
+import io.rong.sticker.util.FileUtil;
+
+/**
+ * Created by luoyanlong on 2018/08/15.
+ * 表情包文件存储逻辑
+ */
 public class StickerPackageStorageTask {
 
     private static final String STICKER_DIR = "sticker";
-    /** 所有表情包配置文件 */
+    /**
+     * 所有表情包配置文件
+     */
     private static final String STICKER_PACKAGES_CONFIG_FILE = "StickerPackagesConfig.json";
 
-    /** 单个表情包配置文件 */
+    /**
+     * 单个表情包配置文件
+     */
     private static final String STICKER_CONFIG_FILE = "meta.json";
 
     private static final String IMAGE_FORMAT = "image_%s.gif";
@@ -30,8 +40,7 @@ public class StickerPackageStorageTask {
     }
 
     private static String getPath(Context context, String appKey, String userId) {
-        String[] pathArray =
-                new String[] {context.getFilesDir().toString(), appKey, userId, STICKER_DIR};
+        String[] pathArray = new String[] {context.getFilesDir().toString(), appKey, userId, STICKER_DIR};
         StringBuilder sb = new StringBuilder();
         for (String path : pathArray) {
             sb.append(path).append(File.separator);
@@ -57,7 +66,9 @@ public class StickerPackageStorageTask {
         return file;
     }
 
-    /** 获取一个表情包的配置文件 */
+    /**
+     * 获取一个表情包的配置文件
+     */
     private static File getStickerPackageConfigFile(String packageId) {
         String filePath = getStickerPackageFolderPath(packageId) + STICKER_CONFIG_FILE;
         return new File(filePath);
@@ -102,10 +113,8 @@ public class StickerPackageStorageTask {
         List<Sticker> stickers = info.getStickers();
         for (Sticker sticker : stickers) {
             sticker.setPackageId(packageId);
-            sticker.setLocalUrl(
-                    getStickerImageFilePath(sticker.getPackageId(), sticker.getStickerId()));
-            sticker.setLocalThumbUrl(
-                    getStickerThumbFilePath(sticker.getPackageId(), sticker.getStickerId()));
+            sticker.setLocalUrl(getStickerImageFilePath(sticker.getPackageId(), sticker.getStickerId()));
+            sticker.setLocalThumbUrl(getStickerThumbFilePath(sticker.getPackageId(), sticker.getStickerId()));
         }
         stickerPackage.setStickers(stickers);
         stickerPackage.setDownload(true);
@@ -121,4 +130,5 @@ public class StickerPackageStorageTask {
         int index = url.lastIndexOf("/");
         return url.substring(index + 1);
     }
+
 }

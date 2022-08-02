@@ -1,16 +1,20 @@
 package io.rong.sight;
 
-import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import java.io.File;
+
 import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.rlog.RLog;
@@ -26,7 +30,8 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.SightMessage;
 import io.rong.sight.record.SightRecordActivity;
-import java.io.File;
+
+import static android.app.Activity.RESULT_OK;
 
 public class SightPlugin implements IPluginModule, IPluginRequestPermissionResultCallback {
     private static final String TAG = "SightPlugin";
@@ -53,25 +58,21 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         }
 
         // KNOTE: 2021/8/24 小视频录像保存至私有目录  不需要存储权限
-        String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
+        String[] permissions = {Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO
+        };
         conversationType = extension.getConversationType();
         targetId = extension.getTargetId();
         if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), permissions)) {
             startSightRecord(currentFragment, extension);
         } else {
-            extension.requestPermissionForPluginResult(
-                    permissions,
-                    IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
-                    this);
+            extension.requestPermissionForPluginResult(permissions, IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN, this);
         }
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK
-                && requestCode == REQUEST_SIGHT
-                && data != null
-                && context != null) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_SIGHT && data != null && context != null) {
             String fileUrl = data.getStringExtra("recordSightUrl");
             File file = new File(fileUrl);
             if (file.exists()) {
@@ -80,23 +81,9 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
                 if (DestructManager.isActive()) {
                     sightMessage.setDestructTime(DestructManager.SIGHT_DESTRUCT_TIME);
                 }
-                io.rong.imlib.model.Message message =
-                        io.rong.imlib.model.Message.obtain(
-                                targetId, conversationType, sightMessage);
-                IMCenter.getInstance()
-                        .sendMediaMessage(
-                                message,
-                                DestructManager.isActive()
-                                        ? context.getResources()
-                                                .getString(
-                                                        io.rong
-                                                                .imkit
-                                                                .R
-                                                                .string
-                                                                .rc_conversation_summary_content_burn)
-                                        : null,
-                                null,
-                                (IRongCallback.ISendMediaMessageCallback) null);
+                io.rong.imlib.model.Message message = io.rong.imlib.model.Message.obtain(targetId, conversationType, sightMessage);
+                IMCenter.getInstance().sendMediaMessage(message, DestructManager.isActive() ? context.getResources().getString(io.rong.imkit.R.string.rc_conversation_summary_content_burn) : null, null,
+                        (IRongCallback.ISendMediaMessageCallback) null);
             }
         }
     }
@@ -106,10 +93,7 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         if (currentFragment.getActivity() == null) {
             return;
         }
-        saveDir =
-                new File(
-                        FileUtils.getMediaDownloadDir(
-                                currentFragment.getContext(), LibStorageUtils.VIDEO));
+        saveDir = new File(FileUtils.getMediaDownloadDir(currentFragment.getContext(), LibStorageUtils.VIDEO));
         boolean successMkdir = saveDir.mkdirs();
         if (!successMkdir) {
             RLog.e(TAG, "Created folders UnSuccessfully");
@@ -121,11 +105,7 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         }
         int maxRecordDuration = 10;
         try {
-            maxRecordDuration =
-                    currentFragment
-                            .getActivity()
-                            .getResources()
-                            .getInteger(io.rong.sight.R.integer.rc_sight_max_record_duration);
+            maxRecordDuration = currentFragment.getActivity().getResources().getInteger(io.rong.sight.R.integer.rc_sight_max_record_duration);
         } catch (Resources.NotFoundException e) {
             e.printStackTrace();
         }
@@ -134,17 +114,12 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         if (maxRecordDuration > videoLimitTime) {
             maxRecordDuration = videoLimitTime;
         }
-        intent.putExtra("maxRecordDuration", maxRecordDuration); // seconds
+        intent.putExtra("maxRecordDuration", maxRecordDuration);//seconds
         extension.startActivityForPluginResult(intent, REQUEST_SIGHT, this);
     }
 
     @Override
-    public boolean onRequestPermissionResult(
-            Fragment fragment,
-            RongExtension extension,
-            int requestCode,
-            @NonNull String[] permissions,
-            @NonNull int[] grantResults) {
+    public boolean onRequestPermissionResult(Fragment fragment, RongExtension extension, int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (PermissionCheckUtil.checkPermissions(fragment.getActivity(), permissions)) {
             startSightRecord(fragment, extension);
         } else {

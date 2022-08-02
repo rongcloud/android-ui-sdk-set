@@ -2,14 +2,20 @@ package io.rong.sticker.message;
 
 import android.os.Parcel;
 import android.util.Log;
-import io.rong.imlib.MessageTag;
-import io.rong.imlib.model.MessageContent;
-import io.rong.sticker.model.Sticker;
-import java.io.UnsupportedEncodingException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/** Created by luoyanlong on 2018/08/03. 一个表情消息 */
+import java.io.UnsupportedEncodingException;
+
+import io.rong.sticker.model.Sticker;
+import io.rong.imlib.MessageTag;
+import io.rong.imlib.model.MessageContent;
+
+/**
+ * Created by luoyanlong on 2018/08/03.
+ * 一个表情消息
+ */
 @MessageTag(value = "RC:StkMsg", flag = MessageTag.ISCOUNTED)
 public class StickerMessage extends MessageContent {
 
@@ -55,7 +61,8 @@ public class StickerMessage extends MessageContent {
         dest.writeInt(this.height);
     }
 
-    public StickerMessage() {}
+    public StickerMessage() {
+    }
 
     public StickerMessage(byte[] data) {
         try {
@@ -131,16 +138,15 @@ public class StickerMessage extends MessageContent {
         this.height = in.readInt();
     }
 
-    public static final Creator<StickerMessage> CREATOR =
-            new Creator<StickerMessage>() {
-                @Override
-                public StickerMessage createFromParcel(Parcel source) {
-                    return new StickerMessage(source);
-                }
+    public static final Creator<StickerMessage> CREATOR = new Creator<StickerMessage>() {
+        @Override
+        public StickerMessage createFromParcel(Parcel source) {
+            return new StickerMessage(source);
+        }
 
-                @Override
-                public StickerMessage[] newArray(int size) {
-                    return new StickerMessage[size];
-                }
-            };
+        @Override
+        public StickerMessage[] newArray(int size) {
+            return new StickerMessage[size];
+        }
+    };
 }

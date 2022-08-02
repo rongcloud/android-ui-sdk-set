@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:id="@+id/scroll_layout"
+            android:layout_width="match_parent"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:scrollbarStyle="outsideOverlay"
+            android:layout_weight="1"
+            android:layout_height="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="16dp" />
+                <LinearLayout
+                    android:id="@+id/name_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="@dimen/upsdk_margin_xs">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:textSize="@dimen/upsdk_master_subtitle"
+                        android:text="@string/upsdk_ota_app_name" />
+
+                    <TextView
+                        android:id="@+id/name_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:layout_marginLeft="@dimen/upsdk_margin_m"
+                        android:layout_marginStart="@dimen/upsdk_margin_m"
+                        android:textSize="@dimen/upsdk_master_subtitle"
+                        android:fontFamily="HwChinese-medium"  />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/version_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="@dimen/upsdk_margin_xs">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:textSize="@dimen/upsdk_master_subtitle"
+                        android:text="@string/upsdk_app_version" />
+
+                    <TextView
+                        android:id="@+id/version_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:layout_marginLeft="@dimen/upsdk_margin_m"
+                        android:layout_marginStart="@dimen/upsdk_margin_m"
+                        android:textSize="@dimen/upsdk_master_subtitle"
+                        android:fontFamily="HwChinese-medium"  />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/size_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:text="@string/upsdk_app_size"
+                        android:textSize="@dimen/upsdk_master_subtitle" />
+
+                    <TextView
+                        android:id="@+id/appsize_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:layout_marginLeft="@dimen/upsdk_margin_m"
+                        android:layout_marginStart="@dimen/upsdk_margin_m"
+                        android:textSize="@dimen/upsdk_master_subtitle"
+                        android:fontFamily="HwChinese-medium" />
+
+                    <TextView
+                        android:id="@+id/allsize_textview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:layout_marginLeft="@dimen/upsdk_margin_m"
+                        android:layout_marginStart="@dimen/upsdk_margin_m"
+                        android:textSize="@dimen/upsdk_master_subtitle"
+                        android:fontFamily="HwChinese-medium" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/content_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:layout_marginTop="@dimen/upsdk_margin_l"
+                        android:textAlignment="viewStart"
+                        android:text="@string/upsdk_detail"
+                        android:textSize="@dimen/upsdk_master_subtitle"
+                        android:gravity="start" />
+
+                    <TextView
+                        android:id="@+id/content_textview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/upsdk_color_gray_10"
+                        android:layout_marginTop="@dimen/upsdk_margin_m"
+                        android:textAlignment="viewStart"
+                        android:textSize="@dimen/upsdk_master_body_2"
+                        android:lineSpacingMultiplier="1.1"
+                        android:gravity="start" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</LinearLayout>

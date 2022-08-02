@@ -1,6 +1,9 @@
 package io.rong.sticker.businesslogic;
 
-/** Created by luoyanlong on 2018/08/22. 删除一个表情包 */
+/**
+ * Created by luoyanlong on 2018/08/22.
+ * 删除一个表情包
+ */
 public class StickerPackageDeleteTask {
 
     private String packageId;

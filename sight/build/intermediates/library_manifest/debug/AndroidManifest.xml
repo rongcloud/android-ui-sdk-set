@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.rong.sight"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="19"
+        android:targetSdkVersion="29" />
+
+    <application>
+        <activity
+            android:name="io.rong.sight.player.SightPlayerActivity"
+            android:exported="true"
+            android:hardwareAccelerated="true"
+            android:supportsRtl="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="${applicationId}"
+                    android:pathPrefix="/sight/player"
+                    android:scheme="rong" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="io.rong.sight.player.SightListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="io.rong.sight.record.SightRecordActivity"
+            android:screenOrientation="portrait" />
+    </application>
+
+</manifest>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="65dp"
+    android:background="@android:color/white"
+    android:minHeight="65dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="15dp"
+        android:layout_toStartOf="@+id/rc_nearby_checked"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/rc_nearby_name"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textColor="@color/rc_map_list_text_color"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/rc_nearby_address"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:paddingTop="5dp"
+            android:singleLine="true"
+            android:textColor="@color/rc_map_list_text_grey_color"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/rc_nearby_checked"
+        android:layout_width="14dp"
+        android:layout_height="10dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="27dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/rc_nearby_checked" />
+</RelativeLayout>

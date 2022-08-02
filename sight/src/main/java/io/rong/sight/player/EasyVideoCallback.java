@@ -1,6 +1,8 @@
 package io.rong.sight.player;
 
-/** @author Aidan Follestad (afollestad) */
+/**
+ * @author Aidan Follestad (afollestad)
+ */
 public interface EasyVideoCallback {
 
     void onStarted(EasyVideoPlayer player);

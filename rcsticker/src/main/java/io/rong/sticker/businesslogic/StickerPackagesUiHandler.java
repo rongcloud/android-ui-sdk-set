@@ -2,6 +2,7 @@ package io.rong.sticker.businesslogic;
 
 import android.content.Context;
 import android.os.Handler;
+
 import androidx.annotation.Nullable;
 
 public class StickerPackagesUiHandler {
@@ -16,7 +17,9 @@ public class StickerPackagesUiHandler {
         uiHandler = null;
     }
 
-    public @Nullable static Handler getUiHandler() {
+    public @Nullable
+    static Handler getUiHandler() {
         return uiHandler;
     }
+
 }

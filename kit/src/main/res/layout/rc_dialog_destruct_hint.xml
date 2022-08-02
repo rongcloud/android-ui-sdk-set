@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tv_title"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"
+        android:paddingTop="20dp"
+        android:textColor="#333333"
+        android:textSize="17sp"
+        android:text="@string/rc_ext_plugin_destruct"
+        />
+    <TextView
+        android:id="@+id/tv_content"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="15dp"
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"
+        android:paddingTop="15dp"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:text="@string/rc_dialog_destruct_hint" />
+
+    <View
+        android:id="@+id/view_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#e0e0e0" />
+
+
+    <TextView
+        android:id="@+id/tv_confirm"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:text="@string/rc_dialog_got_it"
+        android:textColor="#5795f3"
+        android:textSize="16sp" />
+</LinearLayout>

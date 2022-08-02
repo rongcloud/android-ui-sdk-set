@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <io.rong.imkit.picture.widget.longimage.SubsamplingScaleImageView
+        android:id="@+id/rc_photoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/rc_count_down"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="start"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/rc_image_msg_count_down"
+        android:gravity="center"
+        android:textColor="#fff"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@id/rc_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+    <ImageView
+        android:id="@+id/rc_fail_image"
+        android:layout_width="81dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:src="@drawable/rc_broken"
+        android:visibility="gone"/>
+    <TextView
+        android:id="@+id/rc_txt"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="62dp"
+        android:layout_gravity="center"
+        android:textColor="@android:color/white"
+        android:text="@string/rc_load_image_failed"
+        android:visibility="gone" />
+</FrameLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rc_menu_bar"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/rc_ext_input_panel_height"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/rc_switch_button"
+        android:layout_width="53dp"
+        android:layout_height="wrap_content"
+        android:scaleType="center"
+        android:src="@drawable/rc_ext_public_service_input_mode" />
+
+    <View
+        android:id="@+id/rc_switch_divider"
+        android:layout_width="1px"
+        android:layout_height="48dp"
+        android:background="@color/rc_divider_color" />
+
+    <RelativeLayout
+        android:id="@+id/rc_menu_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </RelativeLayout>
+</LinearLayout>

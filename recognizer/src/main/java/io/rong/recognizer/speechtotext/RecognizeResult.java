@@ -2,7 +2,9 @@ package io.rong.recognizer.speechtotext;
 
 import androidx.annotation.NonNull;
 
-/** 语音转文字的识别结果回传/监听 */
+/**
+ * 语音转文字的识别结果回传/监听
+ */
 public interface RecognizeResult {
     class ResultData {
         private boolean isError;
@@ -31,6 +33,5 @@ public interface RecognizeResult {
             return isLast;
         }
     }
-
     void onResult(@NonNull ResultData resultData);
 }

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rc_reference_root_view"
+    android:layout_width="@dimen/rc_reference_width"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/rc_reference_margin_top"
+        android:layout_marginEnd="@dimen/rc_reference_margin_right"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/rc_reference_vertical_mark"
+            android:layout_width="@dimen/rc_reference_divider_width"
+            android:layout_height="@dimen/rc_reference_divider_height"
+            android:layout_marginStart="@dimen/rc_reference_divider_margin_left"
+            android:layout_marginEnd="@dimen/rc_reference_divider_margin_right"
+            android:layout_marginTop="@dimen/rc_reference_divider_margin_top"
+            android:background="@color/rc_reference_sent_mark_bg" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/rc_msg_tv_reference_name"
+                style="@style/TextStyle.Alignment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/rc_reference_name_margin_left"
+                android:layout_marginEnd="@dimen/rc_reference_name_margin_right"
+                android:layout_toEndOf="@id/rc_reference_vertical_mark"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="start|top"
+                android:maxLines="1"
+                android:textColor="@color/rc_reference_title_color"
+                android:textSize="@dimen/rc_reference_name_size" />
+            <io.rong.imkit.widget.RCMessageFrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/rc_reference_name_margin_left">
+
+                <TextView
+                    android:id="@+id/rc_msg_tv_reference_file_name"
+                    style="@style/TextStyle.Alignment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
+                    android:layout_gravity="top"
+                    android:ellipsize="middle"
+                    android:gravity="top"
+                    android:singleLine="true"
+                    android:textColor="@color/rc_reference_file_name"
+                    android:textSize="@dimen/rc_reference_content_size"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/rc_msg_tv_reference_content"
+                    style="@style/TextStyle.Alignment"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/rc_reference_title_color"
+                    android:textColorLink="@color/rc_reference_text_link_color"
+                    android:textSize="@dimen/rc_reference_name_size"
+                    android:ellipsize="end"/>
+            </io.rong.imkit.widget.RCMessageFrameLayout>
+        </LinearLayout>
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/rc_msg_iv_reference"
+        android:layout_width="@dimen/rc_reference_image_size"
+        android:layout_height="@dimen/rc_reference_image_size"
+        android:layout_marginTop="@dimen/rc_margin_size_4"
+        android:layout_marginStart="@dimen/rc_margin_size_14"
+        android:scaleType="centerCrop"/>
+    <io.rong.imkit.widget.RCMessageFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/rc_reference_content_margin_left"
+        android:layout_marginTop="@dimen/rc_reference_content_margin_top"
+        android:layout_marginEnd="@dimen/rc_reference_content_margin_right">
+
+        <TextView
+            android:id="@+id/rc_msg_tv_reference_send_content"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/rc_reference_content_send_margin_bottom"
+            android:textColor="@color/rc_reference_content_send_color"
+            android:textSize="@dimen/rc_reference_content_send_size"
+            android:textColorLink="@color/rc_reference_text_link_color"/>
+
+    </io.rong.imkit.widget.RCMessageFrameLayout>
+
+</LinearLayout>

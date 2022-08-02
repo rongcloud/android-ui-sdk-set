@@ -4,11 +4,15 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-import io.rong.sticker.model.StickerPackage;
+
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luoyanlong on 2018/08/08. */
+import io.rong.sticker.model.StickerPackage;
+
+/**
+ * Created by luoyanlong on 2018/08/08.
+ */
 public class StickerPackageTable implements BaseColumns {
 
     public static final String NAME = "sticker_package";
@@ -28,44 +32,25 @@ public class StickerPackageTable implements BaseColumns {
     private static final String COLUMN_IS_DOWNLOAD = "is_download";
 
     static final String CREATE =
-            "CREATE TABLE "
-                    + NAME
-                    + " ("
-                    + _ID
-                    + " INTEGER PRIMARY KEY, "
-                    + COLUMN_PACKAGE_ID
-                    + " TEXT UNIQUE, "
-                    + COLUMN_NAME
-                    + " TEXT, "
-                    + COLUMN_PRELOAD
-                    + " INTEGER, "
-                    + COLUMN_AUTHOR
-                    + " TEXT, "
-                    + COLUMN_URL
-                    + " TEXT, "
-                    + COLUMN_ICON
-                    + " TEXT, "
-                    + COLUMN_COVER
-                    + " TEXT, "
-                    + COLUMN_COPYRIGHT
-                    + " TEXT, "
-                    + COLUMN_CREATE_TIME
-                    + " INTEGER, "
-                    + COLUMN_DIGEST
-                    + " TEXT, "
-                    + COLUMN_ORDER
-                    + " INTEGER, "
-                    + COLUMN_IS_DOWNLOAD
-                    + " BOOLEAN DEFAULT 0)";
+            "CREATE TABLE " + NAME + " (" +
+                    _ID + " INTEGER PRIMARY KEY, " +
+                    COLUMN_PACKAGE_ID + " TEXT UNIQUE, " +
+                    COLUMN_NAME + " TEXT, " +
+                    COLUMN_PRELOAD + " INTEGER, " +
+                    COLUMN_AUTHOR + " TEXT, " +
+                    COLUMN_URL + " TEXT, " +
+                    COLUMN_ICON + " TEXT, " +
+                    COLUMN_COVER + " TEXT, " +
+                    COLUMN_COPYRIGHT + " TEXT, " +
+                    COLUMN_CREATE_TIME + " INTEGER, " +
+                    COLUMN_DIGEST + " TEXT, " +
+                    COLUMN_ORDER + " INTEGER, " +
+                    COLUMN_IS_DOWNLOAD + " BOOLEAN DEFAULT 0)";
 
     public static List<StickerPackage> getAllPackages(SQLiteDatabase db) {
-        String sql =
-                "SELECT * FROM "
-                        + StickerPackageTable.NAME
-                        + " ORDER BY "
-                        + StickerPackageTable.COLUMN_PRELOAD
-                        + " DESC, "
-                        + StickerPackageTable.COLUMN_ORDER;
+        String sql = "SELECT * FROM " + StickerPackageTable.NAME +
+                " ORDER BY " + StickerPackageTable.COLUMN_PRELOAD + " DESC, " +
+                StickerPackageTable.COLUMN_ORDER;
         Cursor cursor = db.rawQuery(sql, null);
         List<StickerPackage> packages = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -82,15 +67,10 @@ public class StickerPackageTable implements BaseColumns {
      * @param packageId 表情包id
      */
     public static boolean exist(SQLiteDatabase db, String packageId) {
-        String sql =
-                "SELECT "
-                        + StickerPackageTable._ID
-                        + " FROM "
-                        + StickerPackageTable.NAME
-                        + " WHERE "
-                        + StickerPackageTable.COLUMN_PACKAGE_ID
-                        + " = ?";
-        Cursor cursor = db.rawQuery(sql, new String[] {packageId});
+        String sql = "SELECT " + StickerPackageTable._ID +
+                " FROM " + StickerPackageTable.NAME +
+                " WHERE " + StickerPackageTable.COLUMN_PACKAGE_ID + " = ?";
+        Cursor cursor = db.rawQuery(sql, new String[]{packageId});
         boolean exist = cursor.getCount() == 1;
         cursor.close();
         return exist;
@@ -126,7 +106,7 @@ public class StickerPackageTable implements BaseColumns {
         cv.put(COLUMN_DIGEST, stickerPackage.getDigest());
         cv.put(COLUMN_ORDER, stickerPackage.getOrder());
         String where = COLUMN_PACKAGE_ID + " = ?";
-        String[] whereArgs = new String[] {stickerPackage.getPackageId()};
+        String[] whereArgs = new String[]{stickerPackage.getPackageId()};
         db.update(NAME, cv, where, whereArgs);
     }
 
@@ -139,30 +119,19 @@ public class StickerPackageTable implements BaseColumns {
     }
 
     public static boolean isDownload(SQLiteDatabase db, String packageId) {
-        String sql =
-                "SELECT * FROM "
-                        + NAME
-                        + " WHERE "
-                        + COLUMN_PACKAGE_ID
-                        + " = ?"
-                        + " AND "
-                        + COLUMN_IS_DOWNLOAD
-                        + " = 1";
-        Cursor cursor = db.rawQuery(sql, new String[] {packageId});
+        String sql = "SELECT * FROM " + NAME +
+                " WHERE " + COLUMN_PACKAGE_ID + " = ?" +
+                " AND " + COLUMN_IS_DOWNLOAD + " = 1";
+        Cursor cursor = db.rawQuery(sql, new String[]{packageId});
         boolean download = cursor.getCount() == 1;
         cursor.close();
         return download;
     }
 
     public static List<StickerPackage> getRecommendPackages(SQLiteDatabase db) {
-        String sql =
-                "SELECT * FROM "
-                        + NAME
-                        + " WHERE "
-                        + COLUMN_PRELOAD
-                        + " = 0 AND "
-                        + COLUMN_IS_DOWNLOAD
-                        + " = 0";
+        String sql = "SELECT * FROM " + NAME +
+                " WHERE " + COLUMN_PRELOAD + " = 0 AND " +
+                COLUMN_IS_DOWNLOAD + " = 0";
         Cursor cursor = db.rawQuery(sql, null);
         List<StickerPackage> list = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -173,7 +142,8 @@ public class StickerPackageTable implements BaseColumns {
     }
 
     public static List<StickerPackage> getDownloadPackages(SQLiteDatabase db) {
-        String sql = "SELECT * FROM " + NAME + " WHERE " + COLUMN_IS_DOWNLOAD + " = 1";
+        String sql = "SELECT * FROM " + NAME +
+                " WHERE " + COLUMN_IS_DOWNLOAD + " = 1";
         Cursor cursor = db.rawQuery(sql, null);
         List<StickerPackage> list = new ArrayList<>();
         while (cursor.moveToNext()) {
@@ -230,4 +200,5 @@ public class StickerPackageTable implements BaseColumns {
         }
         return stickerPackage;
     }
+
 }

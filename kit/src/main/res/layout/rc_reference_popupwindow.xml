@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingStart="@dimen/rc_margin_size_12"
+    android:paddingEnd="@dimen/rc_margin_size_12"
+    android:background="@color/app_color_white">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/rc_reference_window_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#262626"
+            android:textSize="17dp"/>
+    </androidx.core.widget.NestedScrollView>
+</FrameLayout>

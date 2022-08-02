@@ -1,10 +1,15 @@
 package io.rong.sticker.businesslogic;
 
 import android.content.Context;
-import io.rong.sticker.model.StickerPackage;
+
 import java.util.List;
 
-/** Created by luoyanlong on 2018/08/22. 下载所有未下载且需要预加载的表情包 */
+import io.rong.sticker.model.StickerPackage;
+
+/**
+ * Created by luoyanlong on 2018/08/22.
+ * 下载所有未下载且需要预加载的表情包
+ */
 public class PreloadPackageDownloadTask {
 
     private Context context;
@@ -19,10 +24,10 @@ public class PreloadPackageDownloadTask {
         for (StickerPackage preloadPackage : preloadPackages) {
             String packageId = preloadPackage.getPackageId();
             if (StickerPackageDbTask.getInstance().isPreloadPackageNeedDownload(packageId)) {
-                StickerPackageDownloadTask task =
-                        new StickerPackageDownloadTask(context, packageId);
+                StickerPackageDownloadTask task = new StickerPackageDownloadTask(context, packageId);
                 task.downloadStickerPackage(null, null);
             }
         }
     }
+
 }

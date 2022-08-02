@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/rc_notice_item_height"
+    android:background="@color/rc_notice_error_bg">
+
+    <ImageView
+        android:id="@+id/rc_conversationlist_notice_icon_iv"
+        android:layout_width="@dimen/rc_notice_item_icon_size"
+        android:layout_height="@dimen/rc_notice_item_icon_size"
+        android:layout_marginStart="@dimen/rc_notice_item_padding"
+        android:src="@drawable/rc_ic_error_notice"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/rc_conversationlist_notice_tv"
+        style="@style/TextStyle.Alignment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/rc_font_text_third_size"
+        android:textColor="@color/rc_text_main_color"
+        android:layout_marginStart="@dimen/rc_notice_icon_text_spacing"
+        android:layout_marginEnd="@dimen/rc_notice_icon_text_spacing"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/rc_conversationlist_notice_icon_iv"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/rc_conversation_list_notice_network_unavailable" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

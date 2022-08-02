@@ -8,10 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
+import java.util.List;
+
 import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
 import io.rong.sticker.R;
 import io.rong.sticker.businesslogic.StickerPackageStorageTask;
@@ -19,9 +23,11 @@ import io.rong.sticker.model.Sticker;
 import io.rong.sticker.model.StickerPackage;
 import io.rong.sticker.widget.IndicatorView;
 import io.rong.sticker.widget.StickerGridItemView;
-import java.util.List;
 
-/** Created by luoyanlong on 2018/08/02. 展示一个已经下载的表情包 */
+/**
+ * Created by luoyanlong on 2018/08/02.
+ * 展示一个已经下载的表情包
+ */
 public class StickersTab implements IEmoticonTab {
 
     private StickerPackage stickerPackage;
@@ -33,32 +39,31 @@ public class StickersTab implements IEmoticonTab {
 
     @Override
     public Drawable obtainTabDrawable(Context context) {
-        String iconFilePath =
-                StickerPackageStorageTask.getStickerPackageIconFilePath(stickerPackage);
+        String iconFilePath = StickerPackageStorageTask.getStickerPackageIconFilePath(stickerPackage);
         return new BitmapDrawable(context.getResources(), iconFilePath);
     }
 
     @Override
     public View obtainTabPager(final Context context, ViewGroup viewGroup) {
-        View view =
-                LayoutInflater.from(context).inflate(R.layout.rc_sticker_pages, viewGroup, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.rc_sticker_pages, viewGroup, false);
         ViewPager2 viewPager = view.findViewById(R.id.sticker_view_pager);
         StickerPagerAdapter adapter = new StickerPagerAdapter(stickerPackage.getStickers());
         viewPager.setAdapter(adapter);
-        viewPager.registerOnPageChangeCallback(
-                new ViewPager2.OnPageChangeCallback() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        indicatorView.setSelect(position);
-                    }
-                });
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                indicatorView.setSelect(position);
+            }
+        });
         indicatorView = view.findViewById(R.id.indicator_view);
         indicatorView.setCount(adapter.getItemCount());
         return view;
     }
 
     @Override
-    public void onTableSelected(int position) {}
+    public void onTableSelected(int position) {
+
+    }
 
     @Override
     public LiveData<String> getEditInfo() {
@@ -69,12 +74,15 @@ public class StickersTab implements IEmoticonTab {
         return stickerPackage;
     }
 
-    /** 显示一页表情 */
+    /**
+     * 显示一页表情
+     */
     private class StickerPagerAdapter extends RecyclerView.Adapter<StickerPagerViewHolder> {
 
-        /** 每页表情数 */
+        /**
+         * 每页表情数
+         */
         private static final int STICKERS_PER_PAGE = 8;
-
         private List<Sticker> stickerList;
 
         StickerPagerAdapter(List<Sticker> stickerList) {
@@ -84,10 +92,7 @@ public class StickersTab implements IEmoticonTab {
         @NonNull
         @Override
         public StickerPagerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            GridView gridView =
-                    (GridView)
-                            LayoutInflater.from(parent.getContext())
-                                    .inflate(R.layout.rc_sticker_page, parent, false);
+            GridView gridView = (GridView) LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_sticker_page, parent, false);
             return new StickerPagerViewHolder(parent.getContext(), gridView);
         }
 
@@ -127,7 +132,9 @@ public class StickersTab implements IEmoticonTab {
         }
     }
 
-    /** 显示一个表情 */
+    /**
+     * 显示一个表情
+     */
     private class GridViewAdapter extends BaseAdapter {
         Context context;
         List<Sticker> stickerList;

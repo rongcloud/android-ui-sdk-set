@@ -28,19 +28,19 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
+
 import androidx.annotation.NonNull;
+
+import java.io.File;
+import java.util.List;
+
 import io.rong.common.RLog;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;
 import io.rong.sight.util.ValueAnimatorUtil;
-import java.io.File;
-import java.util.List;
 
-public class CameraView extends RelativeLayout
-        implements SurfaceHolder.Callback,
-                Camera.AutoFocusCallback,
-                CameraFocusListener,
-                SensorEventListener {
+public class CameraView extends RelativeLayout implements SurfaceHolder.Callback,
+        Camera.AutoFocusCallback, CameraFocusListener, SensorEventListener {
 
     public final String TAG = "Sight-CameraView";
 
@@ -75,7 +75,7 @@ public class CameraView extends RelativeLayout
     private boolean autoFocus;
     private static boolean isPlay = false;
     private boolean isInPreviewState = false;
-    // 录制结束后，播放暂停状态且画面停在录制第一帧
+    //录制结束后，播放暂停状态且画面停在录制第一帧
     private boolean needPause;
     private int playbackPosition = 0;
     private static boolean isRecorder = false;
@@ -83,7 +83,7 @@ public class CameraView extends RelativeLayout
     private boolean supportCapture = false;
     private int maxDuration = 10;
     private long recordDuration = 0;
-    // Activity onPaused;
+    //Activity onPaused;
     private boolean paused;
 
     private String fileName;
@@ -100,9 +100,9 @@ public class CameraView extends RelativeLayout
     private int mSensorRotation = 0;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    // 两次检测的时间间隔
+    //两次检测的时间间隔
     private static final int SENSOR_UPTATE_INTERVAL_TIME = 200;
-    // 上次检测时间
+    //上次检测时间
     private long lastSensorUpdateTime;
 
     public CameraView(Context context) {
@@ -118,161 +118,153 @@ public class CameraView extends RelativeLayout
         mContext = context;
         PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
         if (powerManager != null) {
-            wakeLock =
-                    powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "sight:sightWakeLockTag");
+            wakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "sight:sightWakeLockTag");
         }
         SELECTED_CAMERA = Camera.CameraInfo.CAMERA_FACING_BACK;
         iconWidth = (int) getResources().getDimension(R.dimen.sight_record_top_icon_size);
         iconMargin = (int) getResources().getDimension(R.dimen.sight_record_top_icon_margin);
-        controlIconWidth =
-                (int) getResources().getDimension(R.dimen.sight_record_control_icon_size);
-        controlIconMargin =
-                (int) getResources().getDimension(R.dimen.sight_record_control_icon_margin_left);
-        controlIconMarginBottom =
-                (int) getResources().getDimension(R.dimen.sight_record_control_icon_margin_bottom);
+        controlIconWidth = (int) getResources().getDimension(R.dimen.sight_record_control_icon_size);
+        controlIconMargin = (int) getResources().getDimension(R.dimen.sight_record_control_icon_margin_left);
+        controlIconMarginBottom = (int) getResources().getDimension(R.dimen.sight_record_control_icon_margin_bottom);
         initView();
         mHolder = mVideoView.getHolder();
         mHolder.addCallback(this);
-        audioFocusChangeListener =
-                new AudioManager.OnAudioFocusChangeListener() {
-                    @Override
-                    public void onAudioFocusChange(int focusChange) {
-                        // do nothing
-                    }
-                };
+        audioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+            @Override
+            public void onAudioFocusChange(int focusChange) {
+                // do nothing
+            }
+        };
         mSensorManager = (SensorManager) mContext.getSystemService(Activity.SENSOR_SERVICE);
         if (mSensorManager != null) {
-            mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER); // 加速度
+            mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);// 加速度
         }
 
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mCaptureButton.setCaptureListener(
-                new CaptureButton.CaptureListener() {
-                    @Override
-                    public void capture() {
-                        if (supportCapture) {
-                            CameraView.this.capture();
+        mCaptureButton.setCaptureListener(new CaptureButton.CaptureListener() {
+            @Override
+            public void capture() {
+                if (supportCapture) {
+                    CameraView.this.capture();
+                }
+            }
+
+            @Override
+            public void cancel() {
+                mImageViewSwitch.setVisibility(VISIBLE);
+                releaseCamera();
+                mCamera = getCamera(SELECTED_CAMERA);
+                setStartPreview(mCamera, mHolder);
+                recordDuration = 0;
+            }
+
+            @Override
+            public void determine() {
+
+                if (cameraViewListener != null) {
+                    cameraViewListener.captureSuccess(pictureBitmap);
+                }
+                mImageViewSwitch.setVisibility(VISIBLE);
+                releaseCamera();
+                mCamera = getCamera(SELECTED_CAMERA);
+                setStartPreview(mCamera, mHolder);
+            }
+
+            @Override
+            public void quit() {
+                if (cameraViewListener != null) {
+                    cameraViewListener.quit();
+                }
+            }
+
+            @Override
+            public void record() {
+                recordDuration = 0;
+                needPause = false;
+                mReminderToast.setVisibility(View.GONE);
+                startRecord();
+                mImageViewClose.setVisibility(View.GONE);
+                mImageViewSwitch.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void recordEnd(long duration) {
+                recordDuration = duration;
+                isInPreviewState = true;
+                stopRecord();
+                mTextViewProgress.setVisibility(View.GONE);
+                needPause = true;
+                playRecord();
+                setRecordControlViewVisibility(true);
+                mImageViewSubmit.setEnabled(true);
+                mImageViewRetry.setEnabled(true);
+            }
+
+            @Override
+            public void getRecordResult() {
+                if (cameraViewListener != null) {
+                    cameraViewListener.recordSuccess(fileName, Math.round(recordDuration * 1f / 1000));
+                }
+            }
+
+            @Override
+            public void deleteRecordResult() {
+                deleteRecordFile();
+                mVideoView.stopPlayback();
+                releaseCamera();
+                if (!paused) {
+                    mCamera = getCamera(SELECTED_CAMERA);
+                    setStartPreview(mCamera, mHolder);
+                }
+                isPlay = false;
+                isInPreviewState = false;
+                recordDuration = 0;
+                needPause = false;
+                setRecordControlViewVisibility(false);
+                mTextViewProgress.setVisibility(View.GONE);
+                updateReminderView();
+            }
+
+            @Override
+            public void scale(float scaleValue) {
+                if (mCamera == null || mParam == null || !mParam.isZoomSupported()) {
+                    return;
+                }
+                if (scaleValue >= 0) {
+                    int scaleRate = (int) (scaleValue / 50);
+                    if (scaleRate < mParam.getMaxZoom() && scaleRate >= 0 && nowScaleRate != scaleRate) {
+                        try {
+                            mParam.setZoom(scaleRate);
+                            mCamera.setParameters(mParam);
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
+                        nowScaleRate = scaleRate;
                     }
+                }
+            }
 
-                    @Override
-                    public void cancel() {
-                        mImageViewSwitch.setVisibility(VISIBLE);
-                        releaseCamera();
-                        mCamera = getCamera(SELECTED_CAMERA);
-                        setStartPreview(mCamera, mHolder);
-                        recordDuration = 0;
-                    }
+            @Override
+            public void recordProgress(int progress) {
+                updateProgressView(progress);
+            }
 
-                    @Override
-                    public void determine() {
+            @Override
+            public void retryRecord() {
+                stopRecord();
+                deleteRecordFile();
+                mVideoView.stopPlayback();
+                releaseCamera();
+                if (!paused) {
+                    mCamera = getCamera(SELECTED_CAMERA);
+                    setStartPreview(mCamera, mHolder);
+                    setRecordControlViewVisibility(false);
+                }
+                mTextViewProgress.setVisibility(View.GONE);
+                recordDuration = 0;
+            }
+        });
 
-                        if (cameraViewListener != null) {
-                            cameraViewListener.captureSuccess(pictureBitmap);
-                        }
-                        mImageViewSwitch.setVisibility(VISIBLE);
-                        releaseCamera();
-                        mCamera = getCamera(SELECTED_CAMERA);
-                        setStartPreview(mCamera, mHolder);
-                    }
-
-                    @Override
-                    public void quit() {
-                        if (cameraViewListener != null) {
-                            cameraViewListener.quit();
-                        }
-                    }
-
-                    @Override
-                    public void record() {
-                        recordDuration = 0;
-                        needPause = false;
-                        mReminderToast.setVisibility(View.GONE);
-                        startRecord();
-                        mImageViewClose.setVisibility(View.GONE);
-                        mImageViewSwitch.setVisibility(View.GONE);
-                    }
-
-                    @Override
-                    public void recordEnd(long duration) {
-                        recordDuration = duration;
-                        isInPreviewState = true;
-                        stopRecord();
-                        mTextViewProgress.setVisibility(View.GONE);
-                        needPause = true;
-                        playRecord();
-                        setRecordControlViewVisibility(true);
-                        mImageViewSubmit.setEnabled(true);
-                        mImageViewRetry.setEnabled(true);
-                    }
-
-                    @Override
-                    public void getRecordResult() {
-                        if (cameraViewListener != null) {
-                            cameraViewListener.recordSuccess(
-                                    fileName, Math.round(recordDuration * 1f / 1000));
-                        }
-                    }
-
-                    @Override
-                    public void deleteRecordResult() {
-                        deleteRecordFile();
-                        mVideoView.stopPlayback();
-                        releaseCamera();
-                        if (!paused) {
-                            mCamera = getCamera(SELECTED_CAMERA);
-                            setStartPreview(mCamera, mHolder);
-                        }
-                        isPlay = false;
-                        isInPreviewState = false;
-                        recordDuration = 0;
-                        needPause = false;
-                        setRecordControlViewVisibility(false);
-                        mTextViewProgress.setVisibility(View.GONE);
-                        updateReminderView();
-                    }
-
-                    @Override
-                    public void scale(float scaleValue) {
-                        if (mCamera == null || mParam == null || !mParam.isZoomSupported()) {
-                            return;
-                        }
-                        if (scaleValue >= 0) {
-                            int scaleRate = (int) (scaleValue / 50);
-                            if (scaleRate < mParam.getMaxZoom()
-                                    && scaleRate >= 0
-                                    && nowScaleRate != scaleRate) {
-                                try {
-                                    mParam.setZoom(scaleRate);
-                                    mCamera.setParameters(mParam);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                nowScaleRate = scaleRate;
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void recordProgress(int progress) {
-                        updateProgressView(progress);
-                    }
-
-                    @Override
-                    public void retryRecord() {
-                        stopRecord();
-                        deleteRecordFile();
-                        mVideoView.stopPlayback();
-                        releaseCamera();
-                        if (!paused) {
-                            mCamera = getCamera(SELECTED_CAMERA);
-                            setStartPreview(mCamera, mHolder);
-                            setRecordControlViewVisibility(false);
-                        }
-                        mTextViewProgress.setVisibility(View.GONE);
-                        recordDuration = 0;
-                    }
-                });
     }
 
     public void setCameraViewListener(CameraViewListener cameraViewListener) {
@@ -282,28 +274,25 @@ public class CameraView extends RelativeLayout
     private void initView() {
         setWillNotDraw(false);
         this.setBackgroundColor(Color.BLACK);
-        // Surface
+        //Surface
         mVideoView = new VideoView(mContext);
-        LayoutParams videoViewParam =
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams videoViewParam = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         videoViewParam.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
         mVideoView.setLayoutParams(videoViewParam);
-        mVideoView.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mCamera != null) {
-                            RLog.i(TAG, "Touch To Focus");
-                            mCamera.autoFocus(CameraView.this);
-                        }
-                    }
-                });
-        // 初始化为自动对焦
+        mVideoView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCamera != null) {
+                    RLog.i(TAG, "Touch To Focus");
+                    mCamera.autoFocus(CameraView.this);
+                }
+            }
+        });
+        //初始化为自动对焦
         autoFocus = true;
 
-        // CaptureButton
-        LayoutParams btnParams =
-                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        //CaptureButton
+        LayoutParams btnParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         btnParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         btnParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         mCaptureButton = new CaptureButton(mContext);
@@ -340,19 +329,12 @@ public class CameraView extends RelativeLayout
         mReminderToast = new TextView(mContext);
         mReminderToast.setText(R.string.rc_sight_reminder);
         mReminderToast.setTextColor(getResources().getColor(R.color.color_sight_white));
-        mReminderToast.setTextSize(
-                TypedValue.COMPLEX_UNIT_PX,
-                getResources().getDimension(R.dimen.sight_text_size_14));
-        mReminderToast.setShadowLayer(
-                16F, 0F, 2F, getResources().getColor(R.color.color_sight_record_reminder_shadow));
-        int paddingHorizontal =
-                (int) getResources().getDimension(R.dimen.sight_text_view_padding_horizontal);
-        int paddingVertical =
-                (int) getResources().getDimension(R.dimen.sight_text_view_padding_vertical);
-        mReminderToast.setPadding(
-                paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
-        LayoutParams toastParams =
-                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        mReminderToast.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.sight_text_size_14));
+        mReminderToast.setShadowLayer(16F, 0F, 2F, getResources().getColor(R.color.color_sight_record_reminder_shadow));
+        int paddingHorizontal = (int) getResources().getDimension(R.dimen.sight_text_view_padding_horizontal);
+        int paddingVertical = (int) getResources().getDimension(R.dimen.sight_text_view_padding_vertical);
+        mReminderToast.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+        LayoutParams toastParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         toastParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         toastParams.addRule(RelativeLayout.ABOVE, mCaptureButton.getId());
         mReminderToast.setLayoutParams(toastParams);
@@ -360,14 +342,12 @@ public class CameraView extends RelativeLayout
 
     private void updateReminderView() {
         mReminderToast.setVisibility(View.VISIBLE);
-        mReminderToast.postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mReminderToast.setVisibility(View.GONE);
-                    }
-                },
-                5000);
+        mReminderToast.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mReminderToast.setVisibility(View.GONE);
+            }
+        }, 5000);
     }
 
     private void initCloseView() {
@@ -377,16 +357,15 @@ public class CameraView extends RelativeLayout
         imageViewCloseParam.setMargins(iconMargin, iconMargin, 0, 0);
         mImageViewClose.setLayoutParams(imageViewCloseParam);
         mImageViewClose.setImageResource(R.drawable.rc_ic_sight_close);
-        mImageViewClose.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        releaseCamera();
-                        if (cameraViewListener != null) {
-                            cameraViewListener.finish();
-                        }
-                    }
-                });
+        mImageViewClose.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                releaseCamera();
+                if (cameraViewListener != null) {
+                    cameraViewListener.finish();
+                }
+            }
+        });
     }
 
     private void initSwitchView() {
@@ -396,30 +375,28 @@ public class CameraView extends RelativeLayout
         imageViewSwitchParam.setMargins(0, iconMargin, iconMargin, 0);
         mImageViewSwitch.setLayoutParams(imageViewSwitchParam);
         mImageViewSwitch.setImageResource(R.drawable.rc_ic_sight_switch);
-        mImageViewSwitch.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (mCamera != null) {
-                            releaseCamera();
-                            if (SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                                SELECTED_CAMERA = Camera.CameraInfo.CAMERA_FACING_FRONT;
-                            } else {
-                                SELECTED_CAMERA = Camera.CameraInfo.CAMERA_FACING_BACK;
-                            }
-                            mCamera = getCamera(SELECTED_CAMERA);
-                            setStartPreview(mCamera, mHolder);
-                        }
+        mImageViewSwitch.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mCamera != null) {
+                    releaseCamera();
+                    if (SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                        SELECTED_CAMERA = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                    } else {
+                        SELECTED_CAMERA = Camera.CameraInfo.CAMERA_FACING_BACK;
                     }
-                });
+                    mCamera = getCamera(SELECTED_CAMERA);
+                    setStartPreview(mCamera, mHolder);
+                }
+            }
+        });
     }
 
     private void initProgressView() {
         mTextViewProgress = new TextView(mContext);
         mTextViewProgress.setVisibility(View.GONE);
         mTextViewProgress.setTextColor(getResources().getColor(R.color.color_sight_white));
-        LayoutParams progressParams =
-                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams progressParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         progressParams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         progressParams.addRule(RelativeLayout.ABOVE, mCaptureButton.getId());
         mTextViewProgress.setLayoutParams(progressParams);
@@ -427,8 +404,7 @@ public class CameraView extends RelativeLayout
 
     private void initRetryView() {
         mImageViewRetry = new ImageView(mContext);
-        RelativeLayout.LayoutParams imageViewRetryParam =
-                new RelativeLayout.LayoutParams(controlIconWidth, controlIconWidth);
+        RelativeLayout.LayoutParams imageViewRetryParam = new RelativeLayout.LayoutParams(controlIconWidth, controlIconWidth);
         imageViewRetryParam.addRule(RelativeLayout.ALIGN_PARENT_START, RelativeLayout.TRUE);
         imageViewRetryParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         imageViewRetryParam.setMargins(0, 0, 0, controlIconMarginBottom);
@@ -436,20 +412,18 @@ public class CameraView extends RelativeLayout
         mImageViewRetry.setLayoutParams(imageViewRetryParam);
         mImageViewRetry.setImageResource(R.drawable.rc_ic_sight_record_retry);
         mImageViewRetry.setVisibility(View.GONE);
-        mImageViewRetry.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mImageViewSubmit.setEnabled(false);
-                        mCaptureButton.retryRecord();
-                    }
-                });
+        mImageViewRetry.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mImageViewSubmit.setEnabled(false);
+                mCaptureButton.retryRecord();
+            }
+        });
     }
 
     private void initSubmitView() {
         mImageViewSubmit = new ImageView(mContext);
-        RelativeLayout.LayoutParams imageViewSubmitParam =
-                new RelativeLayout.LayoutParams(controlIconWidth, controlIconWidth);
+        RelativeLayout.LayoutParams imageViewSubmitParam = new RelativeLayout.LayoutParams(controlIconWidth, controlIconWidth);
         imageViewSubmitParam.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
         imageViewSubmitParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         imageViewSubmitParam.setMargins(0, 0, 0, controlIconMarginBottom);
@@ -457,37 +431,34 @@ public class CameraView extends RelativeLayout
         mImageViewSubmit.setLayoutParams(imageViewSubmitParam);
         mImageViewSubmit.setImageResource(R.drawable.rc_ic_sight_record_submit);
         mImageViewSubmit.setVisibility(View.GONE);
-        mImageViewSubmit.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mImageViewRetry.setEnabled(false);
-                        mCaptureButton.submitRecord();
-                    }
-                });
+        mImageViewSubmit.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mImageViewRetry.setEnabled(false);
+                mCaptureButton.submitRecord();
+            }
+        });
     }
 
     private void initPlayControlView() {
         mImageViewPlayControl = new ImageView(mContext);
-        RelativeLayout.LayoutParams imageViewPlayControlParam =
-                new RelativeLayout.LayoutParams(controlIconWidth, controlIconWidth);
+        RelativeLayout.LayoutParams imageViewPlayControlParam = new RelativeLayout.LayoutParams(controlIconWidth, controlIconWidth);
         imageViewPlayControlParam.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         imageViewPlayControlParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         imageViewPlayControlParam.setMargins(0, 0, 0, controlIconMarginBottom);
         mImageViewPlayControl.setLayoutParams(imageViewPlayControlParam);
         mImageViewPlayControl.setImageResource(R.drawable.rc_ic_sight_record_play);
         mImageViewPlayControl.setVisibility(View.GONE);
-        mImageViewPlayControl.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (isPlay) {
-                            pauseRecord();
-                        } else {
-                            playRecord();
-                        }
-                    }
-                });
+        mImageViewPlayControl.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isPlay) {
+                    pauseRecord();
+                } else {
+                    playRecord();
+                }
+            }
+        });
     }
 
     private void updateProgressView(int progress) {
@@ -520,15 +491,9 @@ public class CameraView extends RelativeLayout
         }
         try {
             mParam = camera.getParameters();
-            // 适配全面屏预览被拉伸
+            //适配全面屏预览被拉伸
             Camera.Size preferSize = getOptimalSize(mParam.getSupportedVideoSizes(), 1280, 720);
-            Camera.Size previewSize =
-                    CameraParamUtil.getInstance()
-                            .getPreviewSize(
-                                    mParam.getSupportedPreviewSizes(),
-                                    1000,
-                                    screenProp,
-                                    preferSize);
+            Camera.Size previewSize = CameraParamUtil.getInstance().getPreviewSize(mParam.getSupportedPreviewSizes(), 1000, screenProp, preferSize);
             if (previewSize == null) {
                 previewSize = mParam.getPreviewSize();
             }
@@ -538,14 +503,9 @@ public class CameraView extends RelativeLayout
             }
 
             if (supportCapture) {
-                Camera.Size pictureSize =
-                        CameraParamUtil.getInstance()
-                                .getPictureSize(
-                                        mParam.getSupportedPictureSizes(), 1200, screenProp);
+                Camera.Size pictureSize = CameraParamUtil.getInstance().getPictureSize(mParam.getSupportedPictureSizes(), 1200, screenProp);
                 mParam.setPictureSize(pictureSize.width, pictureSize.height);
-                if (CameraParamUtil.getInstance()
-                        .isSupportedPictureFormats(
-                                mParam.getSupportedPictureFormats(), ImageFormat.JPEG)) {
+                if (CameraParamUtil.getInstance().isSupportedPictureFormats(mParam.getSupportedPictureFormats(), ImageFormat.JPEG)) {
                     mParam.setPictureFormat(ImageFormat.JPEG);
                     mParam.setJpegQuality(100);
                 }
@@ -562,10 +522,7 @@ public class CameraView extends RelativeLayout
     }
 
     private void cameraAutoFocus(Camera pCamera, Camera.Parameters pParam) {
-        if (CameraParamUtil.getInstance()
-                .isSupportedFocusMode(
-                        mParam.getSupportedFocusModes(),
-                        Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+        if (CameraParamUtil.getInstance().isSupportedFocusMode(mParam.getSupportedFocusModes(), Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
             pParam.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         }
         pCamera.setParameters(pParam);
@@ -581,6 +538,7 @@ public class CameraView extends RelativeLayout
         }
     }
 
+
     public void capture() {
         if (!supportCapture) {
             return;
@@ -589,112 +547,68 @@ public class CameraView extends RelativeLayout
             mCamera.autoFocus(this);
         } else {
             if (SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK) {
-                mCamera.takePicture(
-                        null,
-                        null,
-                        new Camera.PictureCallback() {
-                            @Override
-                            public void onPictureTaken(byte[] data, Camera camera) {
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                Matrix matrix = new Matrix();
-                                matrix.setRotate(90);
-                                bitmap =
-                                        Bitmap.createBitmap(
-                                                bitmap,
-                                                0,
-                                                0,
-                                                bitmap.getWidth(),
-                                                bitmap.getHeight(),
-                                                matrix,
-                                                true);
-                                pictureBitmap = bitmap;
-                                mImageViewSwitch.setVisibility(INVISIBLE);
-                                mCaptureButton.captureSuccess();
-                            }
-                        });
+                mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        Matrix matrix = new Matrix();
+                        matrix.setRotate(90);
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        pictureBitmap = bitmap;
+                        mImageViewSwitch.setVisibility(INVISIBLE);
+                        mCaptureButton.captureSuccess();
+                    }
+                });
             } else if (SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                mCamera.takePicture(
-                        null,
-                        null,
-                        new Camera.PictureCallback() {
-                            @Override
-                            public void onPictureTaken(byte[] data, Camera camera) {
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                Matrix matrix = new Matrix();
-                                matrix.setRotate(270);
-                                matrix.postScale(-1, 1);
-                                bitmap =
-                                        Bitmap.createBitmap(
-                                                bitmap,
-                                                0,
-                                                0,
-                                                bitmap.getWidth(),
-                                                bitmap.getHeight(),
-                                                matrix,
-                                                true);
-                                pictureBitmap = bitmap;
-                                mImageViewSwitch.setVisibility(INVISIBLE);
-                                mCaptureButton.captureSuccess();
-                            }
-                        });
+                mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        Matrix matrix = new Matrix();
+                        matrix.setRotate(270);
+                        matrix.postScale(-1, 1);
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        pictureBitmap = bitmap;
+                        mImageViewSwitch.setVisibility(INVISIBLE);
+                        mCaptureButton.captureSuccess();
+                    }
+                });
             }
         }
     }
 
-    // 自动对焦
+    //自动对焦
     @Override
     public void onAutoFocus(boolean success, Camera camera) {
         cameraAutoFocus(camera, mParam);
         if (autoFocus) {
             if (SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK && success) {
-                mCamera.takePicture(
-                        null,
-                        null,
-                        new Camera.PictureCallback() {
-                            @Override
-                            public void onPictureTaken(byte[] data, Camera camera) {
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                Matrix matrix = new Matrix();
-                                matrix.setRotate(90);
-                                bitmap =
-                                        Bitmap.createBitmap(
-                                                bitmap,
-                                                0,
-                                                0,
-                                                bitmap.getWidth(),
-                                                bitmap.getHeight(),
-                                                matrix,
-                                                true);
-                                pictureBitmap = bitmap;
-                                mImageViewSwitch.setVisibility(INVISIBLE);
-                                mCaptureButton.captureSuccess();
-                            }
-                        });
+                mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        Matrix matrix = new Matrix();
+                        matrix.setRotate(90);
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        pictureBitmap = bitmap;
+                        mImageViewSwitch.setVisibility(INVISIBLE);
+                        mCaptureButton.captureSuccess();
+                    }
+                });
             } else if (SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                mCamera.takePicture(
-                        null,
-                        null,
-                        new Camera.PictureCallback() {
-                            @Override
-                            public void onPictureTaken(byte[] data, Camera camera) {
-                                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                Matrix matrix = new Matrix();
-                                matrix.setRotate(270);
-                                matrix.postScale(-1, 1);
-                                bitmap =
-                                        Bitmap.createBitmap(
-                                                bitmap,
-                                                0,
-                                                0,
-                                                bitmap.getWidth(),
-                                                bitmap.getHeight(),
-                                                matrix,
-                                                true);
-                                pictureBitmap = bitmap;
-                                mImageViewSwitch.setVisibility(INVISIBLE);
-                                mCaptureButton.captureSuccess();
-                            }
-                        });
+                mCamera.takePicture(null, null, new Camera.PictureCallback() {
+                    @Override
+                    public void onPictureTaken(byte[] data, Camera camera) {
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        Matrix matrix = new Matrix();
+                        matrix.setRotate(270);
+                        matrix.postScale(-1, 1);
+                        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        pictureBitmap = bitmap;
+                        mImageViewSwitch.setVisibility(INVISIBLE);
+                        mCaptureButton.captureSuccess();
+                    }
+                });
             }
         }
     }
@@ -705,8 +619,9 @@ public class CameraView extends RelativeLayout
         float widthSize = MeasureSpec.getSize(widthMeasureSpec);
         float heightSize = MeasureSpec.getSize(heightMeasureSpec);
         screenProp = heightSize / widthSize;
-        // RLog.i(TAG, "ScreenProp = " + screenProp + " " + widthSize + " " + heightSize);
+        //RLog.i(TAG, "ScreenProp = " + screenProp + " " + widthSize + " " + heightSize);
     }
+
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -736,7 +651,7 @@ public class CameraView extends RelativeLayout
         RLog.i(TAG, "onResume isInPreviewState = " + isInPreviewState);
         mCamera = getCamera(SELECTED_CAMERA);
         if (mCamera != null) {
-            // setStartPreview(mCamera, mHolder);
+            //setStartPreview(mCamera, mHolder);
             RLog.i(TAG, "Camera = " + mCamera);
         } else {
             RLog.i(TAG, "Camera is null!");
@@ -811,10 +726,7 @@ public class CameraView extends RelativeLayout
                 mParam = mCamera.getParameters();
             }
             Camera.Size preferSize = mCamera.new Size(1280, 720);
-            Camera.Size videoSize =
-                    CameraParamUtil.getInstance()
-                            .getVideoSize(
-                                    mParam.getSupportedVideoSizes(), 1000, screenProp, preferSize);
+            Camera.Size videoSize = CameraParamUtil.getInstance().getVideoSize(mParam.getSupportedVideoSizes(), 1000, screenProp, preferSize);
             if (videoSize == null) {
                 RLog.d(TAG, "mParam.getSupportedVideoSizes() return null");
                 String defaultVideoSize = mParam.get("video-size");
@@ -822,10 +734,7 @@ public class CameraView extends RelativeLayout
                     String[] sizes = defaultVideoSize.split("x");
                     if (sizes.length == 2) {
                         try {
-                            videoSize =
-                                    mCamera
-                                    .new Size(
-                                            Integer.parseInt(sizes[0]), Integer.parseInt(sizes[1]));
+                            videoSize = mCamera.new Size(Integer.parseInt(sizes[0]), Integer.parseInt(sizes[1]));
                         } catch (NumberFormatException e) {
                             RLog.e(TAG, "get video-size got NumberFormatException");
                         }
@@ -842,9 +751,10 @@ public class CameraView extends RelativeLayout
             }
             mediaRecorder.setOrientationHint(rotation);
 
+
             mediaRecorder.setMaxDuration(maxDuration * 1000);
             mediaRecorder.setVideoEncodingBitRate(3 * 1024 * 1024);
-            // mediaRecorder.setVideoFrameRate(15);
+            //mediaRecorder.setVideoFrameRate(15);
             mediaRecorder.setPreviewDisplay(mHolder.getSurface());
 
             videoFileName = "video_" + System.currentTimeMillis() + ".mp4";
@@ -893,115 +803,97 @@ public class CameraView extends RelativeLayout
         }
     }
 
-    // 录制结束后，暂停状态，画面停在第一帧
+    //录制结束后，暂停状态，画面停在第一帧
     private void playRecord() {
         RLog.i(TAG, "playRecord needPause:" + needPause);
         if (!needPause) {
             isPlay = true;
-            audioManager.requestAudioFocus(
-                    audioFocusChangeListener,
-                    AudioManager.STREAM_MUSIC,
-                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+            audioManager.requestAudioFocus(audioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
         } else {
             audioManager.abandonAudioFocus(audioFocusChangeListener);
         }
-        mImageViewPlayControl.setImageResource(
-                needPause
-                        ? R.drawable.rc_ic_sight_record_play
-                        : R.drawable.rc_ic_sight_record_pause);
+        mImageViewPlayControl.setImageResource(needPause ? R.drawable.rc_ic_sight_record_play :
+                R.drawable.rc_ic_sight_record_pause);
         try {
             mVideoView.start();
-            mVideoView.setOnPreparedListener(
-                    new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            RLog.i(TAG, "playRecord mVideoView onPrepared ");
-                            if (mp == null) {
-                                return;
-                            }
-                            int duration = mp.getDuration();
-                            if (duration > 1000) {
-                                recordDuration = duration;
-                            }
-                            // resume时VideoView会重新播，试图恢复之前的暂停状态出现各种错误，故而播放
-                            // 如果开发者认为这个是严重bug，另外一种处理方式是拍摄后预览时直接播放，去掉暂停按钮和暂停状态
-                            if (paused) {
-                                isPlay = true;
-                                needPause = false;
-                                paused = false;
-                                mImageViewPlayControl.setImageResource(
-                                        R.drawable.rc_ic_sight_record_pause);
-                            }
-                            try {
-                                if (playbackPosition > 0 || needPause) {
-                                    mp.seekTo(playbackPosition);
+            mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mp) {
+                    RLog.i(TAG, "playRecord mVideoView onPrepared ");
+                    if (mp == null) {
+                        return;
+                    }
+                    int duration = mp.getDuration();
+                    if (duration > 1000) {
+                        recordDuration = duration;
+                    }
+                    //resume时VideoView会重新播，试图恢复之前的暂停状态出现各种错误，故而播放
+                    //如果开发者认为这个是严重bug，另外一种处理方式是拍摄后预览时直接播放，去掉暂停按钮和暂停状态
+                    if (paused) {
+                        isPlay = true;
+                        needPause = false;
+                        paused = false;
+                        mImageViewPlayControl.setImageResource(R.drawable.rc_ic_sight_record_pause);
+                    }
+                    try {
+                        if (playbackPosition > 0 || needPause) {
+                            mp.seekTo(playbackPosition);
 
-                                    mp.setOnSeekCompleteListener(
-                                            new MediaPlayer.OnSeekCompleteListener() {
-                                                @Override
-                                                public void onSeekComplete(MediaPlayer mp) {
-                                                    if ((isInPreviewState && !isPlay)
-                                                            || needPause) {
-                                                        needPause = false;
-                                                        mp.pause();
-                                                    }
-                                                }
-                                            });
-                                    playbackPosition = 0;
+                            mp.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
+                                @Override
+                                public void onSeekComplete(MediaPlayer mp) {
+                                    if ((isInPreviewState && !isPlay) || needPause) {
+                                        needPause = false;
+                                        mp.pause();
+                                    }
                                 }
-                                if (!needPause) {
-                                    mp.start();
-                                }
-                                mp.setLooping(true);
-                                mp.setOnErrorListener(
-                                        new MediaPlayer.OnErrorListener() {
-                                            @Override
-                                            public boolean onError(
-                                                    MediaPlayer mp, int what, int extra) {
-                                                RLog.e(
-                                                        TAG,
-                                                        "record play error on MediaPlayer onPrepared ,what = "
-                                                                + what
-                                                                + " extra = "
-                                                                + extra);
-                                                return true;
-                                            }
-                                        });
-                            } catch (Exception e) {
-                                RLog.e(TAG, "mVideoView onPrepared got error");
-                                e.printStackTrace();
-                            }
+                            });
+                            playbackPosition = 0;
                         }
-                    });
-            mVideoView.setOnCompletionListener(
-                    new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mp) {
-                            if (mp != null) {
-                                mp.setDisplay(null);
-                                mp.reset();
-                                mp.setDisplay(mVideoView.getHolder());
-                            }
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                mVideoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
-                            }
-                            try {
-                                mVideoView.setVideoPath(fileName);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            mVideoView.start();
+                        if (!needPause) {
+                            mp.start();
                         }
-                    });
-            mVideoView.setOnErrorListener(
-                    new MediaPlayer.OnErrorListener() {
-                        @Override
-                        public boolean onError(MediaPlayer mp, int what, int extra) {
-                            RLog.e(TAG, "record play error,what = " + what + " extra = " + extra);
-                            mImageViewSubmit.setEnabled(false);
-                            return true;
-                        }
-                    });
+                        mp.setLooping(true);
+                        mp.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                            @Override
+                            public boolean onError(MediaPlayer mp, int what, int extra) {
+                                RLog.e(TAG, "record play error on MediaPlayer onPrepared ,what = " + what + " extra = " + extra);
+                                return true;
+                            }
+                        });
+                    } catch (Exception e) {
+                        RLog.e(TAG, "mVideoView onPrepared got error");
+                        e.printStackTrace();
+                    }
+                }
+            });
+            mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    if (mp != null) {
+                        mp.setDisplay(null);
+                        mp.reset();
+                        mp.setDisplay(mVideoView.getHolder());
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        mVideoView.setAudioFocusRequest(AudioManager.AUDIOFOCUS_NONE);
+                    }
+                    try {
+                        mVideoView.setVideoPath(fileName);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    mVideoView.start();
+                }
+            });
+            mVideoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+                @Override
+                public boolean onError(MediaPlayer mp, int what, int extra) {
+                    RLog.e(TAG, "record play error,what = " + what + " extra = " + extra);
+                    mImageViewSubmit.setEnabled(false);
+                    return true;
+                }
+            });
         } catch (Exception e) {
             mImageViewSubmit.setEnabled(false);
             RLog.e(TAG, "mVideoView play error");
@@ -1032,16 +924,15 @@ public class CameraView extends RelativeLayout
         mFocusView.setY(y - mFocusView.getHeight() / 2f);
         if (mCamera != null) {
             try {
-                mCamera.autoFocus(
-                        new Camera.AutoFocusCallback() {
-                            @Override
-                            public void onAutoFocus(boolean success, Camera camera) {
-                                cameraAutoFocus(camera, mParam);
-                                if (success) {
-                                    onFocusEnd();
-                                }
-                            }
-                        });
+                mCamera.autoFocus(new Camera.AutoFocusCallback() {
+                    @Override
+                    public void onAutoFocus(boolean success, Camera camera) {
+                        cameraAutoFocus(camera, mParam);
+                        if (success) {
+                            onFocusEnd();
+                        }
+                    }
+                });
             } catch (Exception e) {
                 RLog.e(TAG, "autoFocus failed ");
                 onFocusEnd();
@@ -1056,10 +947,7 @@ public class CameraView extends RelativeLayout
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        if (!autoFocus
-                && event.getAction() == MotionEvent.ACTION_DOWN
-                && SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK
-                && !isInPreviewState) {
+        if (!autoFocus && event.getAction() == MotionEvent.ACTION_DOWN && SELECTED_CAMERA == Camera.CameraInfo.CAMERA_FACING_BACK && !isInPreviewState) {
             onFocusBegin(event.getX(), event.getY());
         }
         return super.onTouchEvent(event);
@@ -1105,8 +993,8 @@ public class CameraView extends RelativeLayout
      * 获取指定宽高区域内相机的所对应尺寸
      *
      * @param sizes 相机的成像尺寸
-     * @param w 宽
-     * @param h 高
+     * @param w     宽
+     * @param h     高
      * @return 适配指定区域后的大小
      */
     private Camera.Size getOptimalSize(@NonNull List<Camera.Size> sizes, int w, int h) {
@@ -1199,10 +1087,12 @@ public class CameraView extends RelativeLayout
                 mSensorRotation = 180;
             }
         }
+
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
 
     public interface CameraViewListener {
         void quit();

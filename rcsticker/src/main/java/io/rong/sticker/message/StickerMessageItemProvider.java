@@ -6,7 +6,12 @@ import android.text.SpannableString;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.felipecsl.gifimageview.library.GifImageView;
+
+import java.util.List;
+import java.util.Locale;
+
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RongUtils;
@@ -15,10 +20,12 @@ import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.MessageContent;
 import io.rong.sticker.R;
 import io.rong.sticker.businesslogic.GifImageLoader;
-import java.util.List;
-import java.util.Locale;
 
-/** Created by luoyanlong on 2018/08/03. 表情消息提供者 */
+/**
+ * Created by luoyanlong on 2018/08/03.
+ * 表情消息提供者
+ */
+
 public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerMessage> {
     private static final String FORMAT = "[%s]";
 
@@ -28,21 +35,12 @@ public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerM
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
-        View view =
-                LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.rc_sticker_messsage_item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_sticker_messsage_item, parent, false);
         return new ViewHolder(parent.getContext(), view);
     }
 
     @Override
-    protected void bindMessageContentViewHolder(
-            final ViewHolder holder,
-            ViewHolder parentHolder,
-            StickerMessage stickerMessage,
-            UiMessage uiMessage,
-            int position,
-            List<UiMessage> list,
-            IViewProviderListener<UiMessage> listener) {
+    protected void bindMessageContentViewHolder(final ViewHolder holder,ViewHolder parentHolder, StickerMessage stickerMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
         ViewGroup.LayoutParams lp = holder.getConvertView().getLayoutParams();
         lp.width = RongUtils.dip2px(stickerMessage.getWidth() / 2);
         lp.height = RongUtils.dip2px(stickerMessage.getHeight() / 2);
@@ -53,28 +51,23 @@ public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerM
         showLoading(gifImageView, loading, fail);
         final String tag = stickerMessage.getPackageId() + stickerMessage.getStickerId();
         holder.getConvertView().setTag(tag);
-        GifImageLoader.getInstance()
-                .obtain(
-                        stickerMessage,
-                        new GifImageLoader.SimpleCallback() {
-                            @Override
-                            public void onSuccess(byte[] bytes) {
-                                if (holder.getConvertView().getTag() != null
-                                        && holder.getConvertView().getTag().equals(tag)) {
-                                    showContent(gifImageView, loading, fail);
-                                    gifImageView.setBytes(bytes);
-                                    gifImageView.startAnimation();
-                                }
-                            }
+        GifImageLoader.getInstance().obtain(stickerMessage, new GifImageLoader.SimpleCallback() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                if (holder.getConvertView().getTag() != null && holder.getConvertView().getTag().equals(tag)) {
+                    showContent(gifImageView, loading, fail);
+                    gifImageView.setBytes(bytes);
+                    gifImageView.startAnimation();
+                }
+            }
 
-                            @Override
-                            public void onFail() {
-                                if (holder.getConvertView().getTag() != null
-                                        && holder.getConvertView().getTag().equals(tag)) {
-                                    showFail(gifImageView, loading, fail);
-                                }
-                            }
-                        });
+            @Override
+            public void onFail() {
+                if (holder.getConvertView().getTag() != null && holder.getConvertView().getTag().equals(tag)) {
+                    showFail(gifImageView, loading, fail);
+                }
+            }
+        });
     }
 
     private void showLoading(GifImageView gifImageView, View loading, View fail) {
@@ -96,13 +89,7 @@ public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerM
     }
 
     @Override
-    protected boolean onItemClick(
-            ViewHolder holder,
-            StickerMessage stickerMessage,
-            UiMessage uiMessage,
-            int position,
-            List<UiMessage> list,
-            IViewProviderListener<UiMessage> listener) {
+    protected boolean onItemClick(ViewHolder holder, StickerMessage stickerMessage, UiMessage uiMessage, int position, List<UiMessage> list, IViewProviderListener<UiMessage> listener) {
         return false;
     }
 
@@ -116,4 +103,5 @@ public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerM
         String content = String.format(Locale.getDefault(), FORMAT, stickerMessage.getDigest());
         return new SpannableString(content);
     }
+
 }

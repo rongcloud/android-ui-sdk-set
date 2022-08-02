@@ -1,14 +1,19 @@
 package io.rong.sticker.businesslogic;
 
+import java.util.Locale;
+
 import io.rong.imkit.IMCenter;
+import io.rong.sticker.message.StickerMessage;
+import io.rong.sticker.model.Sticker;
+import io.rong.imkit.RongIM;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
-import io.rong.sticker.message.StickerMessage;
-import io.rong.sticker.model.Sticker;
-import java.util.Locale;
 
-/** Created by luoyanlong on 2018/08/24. 发送表情消息 */
+/**
+ * Created by luoyanlong on 2018/08/24.
+ * 发送表情消息
+ */
 public class StickerSendMessageTask {
 
     private static String sTargetId;
@@ -24,7 +29,7 @@ public class StickerSendMessageTask {
         StickerMessage stickerMessage = StickerMessage.obtain(sticker);
         Message message = Message.obtain(sTargetId, sConversationType, stickerMessage);
         String pushContent = String.format(Locale.getDefault(), FORMAT, stickerMessage.getDigest());
-        IMCenter.getInstance()
-                .sendMessage(message, null, null, (IRongCallback.ISendMessageCallback) null);
+        IMCenter.getInstance().sendMessage(message, null, null, (IRongCallback.ISendMessageCallback) null);
     }
+
 }

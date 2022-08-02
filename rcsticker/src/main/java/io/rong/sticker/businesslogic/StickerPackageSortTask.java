@@ -1,12 +1,15 @@
 package io.rong.sticker.businesslogic;
 
-import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
-import io.rong.sticker.emoticontab.StickersTab;
-import io.rong.sticker.model.StickerPackage;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luoyanlong on 2018/08/27. */
+import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
+import io.rong.sticker.emoticontab.StickersTab;
+import io.rong.sticker.model.StickerPackage;
+
+/**
+ * Created by luoyanlong on 2018/08/27.
+ */
 public class StickerPackageSortTask {
 
     public static int getInsertIndex(List<IEmoticonTab> tabs, StickerPackage stickerPackage) {
@@ -31,8 +34,7 @@ public class StickerPackageSortTask {
         return index;
     }
 
-    private static int calculateIndex(
-            List<StickerPackage> packages, StickerPackage stickerPackage) {
+    private static int calculateIndex(List<StickerPackage> packages, StickerPackage stickerPackage) {
         int index = -1;
         for (int i = 0; i < packages.size(); i++) {
             if (stickerPackage.getOrder() < packages.get(i).getOrder()) {
@@ -45,4 +47,5 @@ public class StickerPackageSortTask {
         }
         return index;
     }
+
 }

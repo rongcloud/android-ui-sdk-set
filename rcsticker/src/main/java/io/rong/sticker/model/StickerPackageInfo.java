@@ -2,7 +2,9 @@ package io.rong.sticker.model;
 
 import java.util.List;
 
-/** Created by luoyanlong on 2018/08/15. */
+/**
+ * Created by luoyanlong on 2018/08/15.
+ */
 public class StickerPackageInfo {
 
     private StickerPackage metainfo;

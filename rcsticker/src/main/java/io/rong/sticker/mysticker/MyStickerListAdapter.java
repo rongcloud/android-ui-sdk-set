@@ -7,7 +7,11 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
+
+import java.util.List;
+
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
 import io.rong.sticker.R;
@@ -17,9 +21,11 @@ import io.rong.sticker.businesslogic.StickerPackageDeleteTask;
 import io.rong.sticker.emoticontab.RecommendTab;
 import io.rong.sticker.emoticontab.StickersTab;
 import io.rong.sticker.model.StickerPackage;
-import java.util.List;
 
-/** Created by luoyanlong on 2018/08/22. */
+
+/**
+ * Created by luoyanlong on 2018/08/22.
+ */
 public class MyStickerListAdapter extends BaseAdapter {
     private static final String EXTENSION_TAG = StickerExtensionModule.class.getSimpleName();
     private OnNoStickerListener listener;
@@ -45,9 +51,7 @@ public class MyStickerListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView =
-                    LayoutInflater.from(mContext)
-                            .inflate(R.layout.rc_sticker_download_item, parent, false);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.rc_sticker_download_item, parent, false);
             viewHolder = new ViewHolder(convertView, this);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
@@ -96,17 +100,15 @@ public class MyStickerListAdapter extends BaseAdapter {
         private String packageId;
         private boolean isPreloadPackage;
 
-        private View.OnClickListener onClickListener =
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        StickerPackageDeleteTask deleteTask =
-                                new StickerPackageDeleteTask(packageId, isPreloadPackage);
-                        deleteTask.delete();
-                        adapter.removePackage(packageId);
-                        removeTab();
-                    }
-                };
+        private View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StickerPackageDeleteTask deleteTask = new StickerPackageDeleteTask(packageId, isPreloadPackage);
+                deleteTask.delete();
+                adapter.removePackage(packageId);
+                removeTab();
+            }
+        };
 
         public ViewHolder(View view, MyStickerListAdapter adapter) {
             this.adapter = adapter;
@@ -127,25 +129,20 @@ public class MyStickerListAdapter extends BaseAdapter {
         }
 
         void setIsLast(boolean isLast) {
-            ViewGroup.MarginLayoutParams lp =
-                    (ViewGroup.MarginLayoutParams) divider.getLayoutParams();
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) divider.getLayoutParams();
             if (isLast) {
                 lp.leftMargin = 0;
             } else {
-                lp.leftMargin =
-                        context.getResources()
-                                .getDimensionPixelSize(R.dimen.my_sticker_divider_margin_left);
+                lp.leftMargin = context.getResources().getDimensionPixelSize(R.dimen.my_sticker_divider_margin_left);
             }
         }
 
         void removeTab() {
             if (StickerExtensionModule.sRongExtensionWeakReference != null) {
-                RongExtension rongExtension =
-                        StickerExtensionModule.sRongExtensionWeakReference.get();
+                RongExtension rongExtension = StickerExtensionModule.sRongExtensionWeakReference.get();
                 RecommendTab recommendTab = null;
                 if (rongExtension != null) {
-                    List<IEmoticonTab> emoticonTabs =
-                            rongExtension.getEmoticonBoard().getTabList(EXTENSION_TAG);
+                    List<IEmoticonTab> emoticonTabs = rongExtension.getEmoticonBoard().getTabList(EXTENSION_TAG);
                     for (IEmoticonTab emoticonTab : emoticonTabs) {
                         if (emoticonTab instanceof StickersTab) {
                             StickersTab tab = (StickersTab) emoticonTab;
@@ -159,8 +156,9 @@ public class MyStickerListAdapter extends BaseAdapter {
                     }
 
                     // 更新推荐tab
-                    List<StickerPackage> notDownloadPackages =
-                            StickerPackageDbTask.getInstance().getRecommendPackages();
+                    List<StickerPackage> notDownloadPackages = StickerPackageDbTask
+                            .getInstance()
+                            .getRecommendPackages();
                     if (recommendTab == null) {
                         recommendTab = new RecommendTab(notDownloadPackages);
                         rongExtension.getEmoticonBoard().addTab(recommendTab, EXTENSION_TAG);

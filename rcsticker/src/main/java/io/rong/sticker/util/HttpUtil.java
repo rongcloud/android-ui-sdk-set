@@ -13,7 +13,11 @@ import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.Set;
 
-/** Created by luoyanlong on 2018/08/09. */
+import io.rong.sticker.model.FullResponse;
+
+/**
+ * Created by luoyanlong on 2018/08/09.
+ */
 public class HttpUtil {
 
     private static Gson gson = new Gson();
@@ -81,6 +85,7 @@ public class HttpUtil {
         void onSuccess(T result);
 
         void onError(Exception e);
+
     }
 
     private static class ResultType implements ParameterizedType {
@@ -92,7 +97,7 @@ public class HttpUtil {
 
         @Override
         public Type[] getActualTypeArguments() {
-            return new Type[] {type};
+            return new Type[]{type};
         }
 
         @Override
@@ -105,4 +110,5 @@ public class HttpUtil {
             return FullResponse.class;
         }
     }
+
 }

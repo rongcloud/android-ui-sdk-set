@@ -1,7 +1,5 @@
 package io.rong.sticker.emoticontab;
 
-import static io.rong.sticker.StickerExtensionModule.sRongExtensionWeakReference;
-
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
@@ -11,11 +9,18 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
 import com.bumptech.glide.Glide;
+
+import java.lang.ref.WeakReference;
+import java.util.Iterator;
+import java.util.List;
+
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
 import io.rong.sticker.R;
@@ -26,10 +31,13 @@ import io.rong.sticker.model.StickerPackage;
 import io.rong.sticker.util.DownloadUtil;
 import io.rong.sticker.widget.DownloadProgressView;
 import io.rong.sticker.widget.IndicatorView;
-import java.util.Iterator;
-import java.util.List;
 
-/** Created by luoyanlong on 2018/08/09. 展示多个未下载的表情包 */
+import static io.rong.sticker.StickerExtensionModule.sRongExtensionWeakReference;
+
+/**
+ * Created by luoyanlong on 2018/08/09.
+ * 展示多个未下载的表情包
+ */
 public class RecommendTab implements IEmoticonTab {
     private final String EXTENSION_TAG = StickerExtensionModule.class.getSimpleName();
     private List<StickerPackage> packages;
@@ -49,27 +57,26 @@ public class RecommendTab implements IEmoticonTab {
 
     @Override
     public View obtainTabPager(Context context, ViewGroup viewGroup) {
-        View view =
-                LayoutInflater.from(context)
-                        .inflate(R.layout.rc_sticker_download, viewGroup, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.rc_sticker_download, viewGroup, false);
         uiHandler = new Handler();
         viewPager = view.findViewById(R.id.download_view_pager);
         adapter = new RecommendPackageAdapter(packages);
         viewPager.setAdapter(adapter);
-        viewPager.registerOnPageChangeCallback(
-                new ViewPager2.OnPageChangeCallback() {
-                    @Override
-                    public void onPageSelected(int position) {
-                        indicatorView.setSelect(position);
-                    }
-                });
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                indicatorView.setSelect(position);
+            }
+        });
         indicatorView = view.findViewById(R.id.indicator_view);
         indicatorView.setCount(adapter.getItemCount());
         return view;
     }
 
     @Override
-    public void onTableSelected(int position) {}
+    public void onTableSelected(int position) {
+
+    }
 
     @Override
     public LiveData<String> getEditInfo() {
@@ -119,10 +126,7 @@ public class RecommendTab implements IEmoticonTab {
         @NonNull
         @Override
         public RecommendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            ViewGroup stickerView =
-                    (ViewGroup)
-                            LayoutInflater.from(parent.getContext())
-                                    .inflate(R.layout.rc_sticker_download_page, parent, false);
+            ViewGroup stickerView = (ViewGroup) LayoutInflater.from(parent.getContext()).inflate(R.layout.rc_sticker_download_page, parent, false);
             return new RecommendViewHolder(parent.getContext(), stickerView);
         }
 
@@ -160,49 +164,35 @@ public class RecommendTab implements IEmoticonTab {
                                                     });
                                         }
 
-                                        @Override
-                                        public void onComplete(String path) {}
+                        @Override
+                        public void onComplete(String path) {
 
-                                        @Override
-                                        public void onError(Exception e) {
-                                            uiHandler.post(
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            holder.downloadBtn.setStatus(
-                                                                    DownloadProgressView
-                                                                            .NOT_DOWNLOAD);
-                                                            String content =
-                                                                    holder.context
-                                                                            .getResources()
-                                                                            .getString(
-                                                                                    R.string
-                                                                                            .sticker_download_fail,
-                                                                                    stickerPackage
-                                                                                            .getName());
-                                                            Toast.makeText(
-                                                                            holder.context,
-                                                                            content,
-                                                                            Toast.LENGTH_SHORT)
-                                                                    .show();
-                                                        }
-                                                    });
-                                        }
-                                    },
-                                    new StickerPackageDownloadTask.ZipListener() {
-                                        @Override
-                                        public void onUnzip(final StickerPackage unzipPackage) {
-                                            uiHandler.post(
-                                                    new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            addPackageToEmoticonBoard(unzipPackage);
-                                                        }
-                                                    });
-                                        }
-                                    });
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            uiHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    holder.downloadBtn.setStatus(DownloadProgressView.NOT_DOWNLOAD);
+                                    String content = holder.context.getResources().getString(R.string.sticker_download_fail, stickerPackage.getName());
+                                    Toast.makeText(holder.context, content, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }, new StickerPackageDownloadTask.ZipListener() {
+                        @Override
+                        public void onUnzip(final StickerPackage unzipPackage) {
+                            uiHandler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    addPackageToEmoticonBoard(unzipPackage);
+                                }
+                            });
                         }
                     });
+                }
+            });
         }
 
         @Override
@@ -216,8 +206,7 @@ public class RecommendTab implements IEmoticonTab {
             RongExtension rongExtension = sRongExtensionWeakReference.get();
             if (rongExtension != null) {
                 StickersTab stickersTab = new StickersTab(stickerPackage);
-                List<IEmoticonTab> tabList =
-                        rongExtension.getEmoticonBoard().getTabList(EXTENSION_TAG);
+                List<IEmoticonTab> tabList = rongExtension.getEmoticonBoard().getTabList(EXTENSION_TAG);
                 int index = StickerPackageSortTask.getInsertIndex(tabList, stickerPackage);
                 rongExtension.getEmoticonBoard().addTab(index + 1, stickersTab, EXTENSION_TAG);
                 rongExtension.getEmoticonBoard().setCurrentTab(stickersTab, EXTENSION_TAG);

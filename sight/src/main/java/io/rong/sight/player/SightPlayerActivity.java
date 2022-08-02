@@ -11,7 +11,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.bumptech.glide.Glide;
+
+import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.Objects;
+
 import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
@@ -27,12 +33,8 @@ import io.rong.imlib.model.Message;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.SightMessage;
 import io.rong.sight.R;
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.Objects;
 
-public class SightPlayerActivity extends RongBaseNoActionbarActivity
-        implements EasyVideoCallback, RongIMClient.OnRecallMessageListener {
+public class SightPlayerActivity extends RongBaseNoActionbarActivity implements EasyVideoCallback, RongIMClient.OnRecallMessageListener {
 
     private static final String TAG = SightPlayerActivity.class.getSimpleName();
 
@@ -53,28 +55,25 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
     private int currentPlayerStatus;
     private TextView mFailedText;
     private ImageView failedImageView;
-    BaseMessageEvent mEvent =
-            new BaseMessageEvent() {
-                @Override
-                public void onDownloadMessage(DownloadEvent event) {
-                    processDownloadEvent(event);
-                }
+    BaseMessageEvent mEvent = new BaseMessageEvent() {
+        @Override
+        public void onDownloadMessage(DownloadEvent event) {
+            processDownloadEvent(event);
+        }
 
-                @Override
-                public void onDeleteMessage(DeleteEvent event) {
-                    processMessageDelete(event);
-                }
-            };
+        @Override
+        public void onDeleteMessage(DeleteEvent event) {
+            processMessageDelete(event);
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow()
-                .setFlags(
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.rc_activity_sight_player);
 
         try {
@@ -104,8 +103,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
                 mSightMessage = (SightMessage) mMessage.getContent();
             }
         }
-        if (mSightMessage != null
-                && FileUtils.isFileExistsWithUri(this, mSightMessage.getLocalPath())) {
+        if (mSightMessage != null && FileUtils.isFileExistsWithUri(this, mSightMessage.getLocalPath())) {
             initSightPlayer();
         } else {
             initDownloadView();
@@ -116,12 +114,9 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
         IMCenter.getInstance().addOnRecallMessageListener(this);
         IMCenter.getInstance().addMessageEventListener(mEvent);
 
-        if (mSightMessage != null
-                && mSightMessage.isDestruct()
-                && mMessage != null
-                && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
+        if (mSightMessage != null && mSightMessage.isDestruct() && mMessage != null && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
             DestructManager.getInstance().stopDestruct(mMessage);
-            // EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
+            //EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
         }
     }
 
@@ -131,12 +126,9 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
             isFinishing = true;
         }
         // todo 阅后即焚逻辑
-        if (mSightMessage != null
-                && mSightMessage.isDestruct()
-                && mMessage != null
-                && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
+        if (mSightMessage != null && mSightMessage.isDestruct() && mMessage != null && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
             DestructManager.getInstance().startDestruct(mMessage);
-            // EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
+            //EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
         }
         IMCenter.getInstance().removeOnRecallMessageListener(this);
         IMCenter.getInstance().removeMessageEventListener(mEvent);
@@ -159,21 +151,17 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
         rlSightDownload.setVisibility(View.VISIBLE);
         mThumbImageView = findViewById(R.id.rc_sight_thumb);
         if (mSightMessage.getThumbUri() != null && mSightMessage.getThumbUri().getPath() != null) {
-            Glide.with(this)
-                    .load(new File(mSightMessage.getThumbUri().getPath()))
-                    .into(mThumbImageView);
+            Glide.with(this).load(new File(mSightMessage.getThumbUri().getPath())).into(mThumbImageView);
         }
         mSightDownloadProgress = findViewById(R.id.rc_sight_download_progress);
         mSightDownloadProgress.setVisibility(View.VISIBLE);
         mSightDownloadProgress.setProgress(mProgress, true);
-        findViewById(R.id.rc_sight_download_close)
-                .setOnClickListener(
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                finish();
-                            }
-                        });
+        findViewById(R.id.rc_sight_download_close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     public void processRecallMessageRemote(Message message) {
@@ -184,15 +172,13 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
             }
             new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
                     .setMessage(getString(R.string.rc_recall_success))
-                    .setPositiveButton(
-                            getString(R.string.rc_dialog_ok),
-                            new DialogInterface.OnClickListener() {
+                    .setPositiveButton(getString(R.string.rc_dialog_ok), new DialogInterface.OnClickListener() {
 
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            })
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
                     .setCancelable(false)
                     .show();
         }
@@ -204,8 +190,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
     }
 
     @Override
-    public boolean onMessageRecalled(
-            Message message, RecallNotificationMessage recallNotificationMessage) {
+    public boolean onMessageRecalled(Message message, RecallNotificationMessage recallNotificationMessage) {
         processRecallMessageRemote(message);
         return false;
     }
@@ -215,23 +200,17 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
             return;
         }
         mContainer.setVisibility(View.VISIBLE);
-        mPlaybackVideoFragment =
-                PlaybackVideoFragment.newInstance(
-                        mSightMessage,
-                        mSightMessage.getLocalPath().toString(),
-                        mMessage.getTargetId(),
-                        mMessage.getConversationType(),
-                        getIntent().getBooleanExtra("fromList", false),
-                        fromSightListImageVisible,
-                        currentSeek,
-                        currentPlayerStatus);
+        mPlaybackVideoFragment = PlaybackVideoFragment.newInstance(mSightMessage, mSightMessage.getLocalPath().toString(),
+                mMessage.getTargetId(),
+                mMessage.getConversationType(),
+                getIntent().getBooleanExtra("fromList", false),
+                fromSightListImageVisible, currentSeek, currentPlayerStatus);
         mPlaybackVideoFragment.setVideoCallback(this);
         if (mSightMessage != null && mSightMessage.isDestruct()) {
             mPlaybackVideoFragment.setplayBtnVisible(View.GONE);
             mPlaybackVideoFragment.setSeekBarClickable(false);
         }
-        getFragmentManager()
-                .beginTransaction()
+        getFragmentManager().beginTransaction()
                 .replace(R.id.container, mPlaybackVideoFragment)
                 .commitAllowingStateLoss();
     }
@@ -245,6 +224,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
                     break;
                 }
             }
+
         }
     }
 
@@ -252,12 +232,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
         RLog.d(TAG, "FileMessageEvent");
         Message message = downloadEvent.getMessage();
         String uId = message.getUId();
-        RLog.e(
-                TAG,
-                "DownloadEvent:" + downloadEvent.getProgress() + "===" + downloadEvent.getEvent());
-        if (mMessage != null
-                && downloadMediaMessageCallback != null
-                && Objects.equals(uId, mMessage.getUId())) {
+        RLog.e(TAG, "DownloadEvent:" + downloadEvent.getProgress() + "===" + downloadEvent.getEvent());
+        if (mMessage != null && downloadMediaMessageCallback != null && Objects.equals(uId, mMessage.getUId())) {
             int callBackType = downloadEvent.getEvent();
             switch (callBackType) {
                 case DownloadEvent.SUCCESS:
@@ -276,44 +252,58 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
                     break;
             }
         }
+
     }
 
     @Override
-    public void onStarted(EasyVideoPlayer player) {}
+    public void onStarted(EasyVideoPlayer player) {
+
+    }
 
     @Override
-    public void onPaused(EasyVideoPlayer player) {}
+    public void onPaused(EasyVideoPlayer player) {
+
+    }
 
     @Override
-    public void onPreparing(EasyVideoPlayer player) {}
+    public void onPreparing(EasyVideoPlayer player) {
+
+    }
 
     @Override
-    public void onPrepared(EasyVideoPlayer player) {}
+    public void onPrepared(EasyVideoPlayer player) {
+
+    }
 
     @Override
-    public void onBuffering(int percent) {}
+    public void onBuffering(int percent) {
+
+    }
 
     @Override
-    public void onError(EasyVideoPlayer player, Exception e) {}
+    public void onError(EasyVideoPlayer player, Exception e) {
+
+    }
 
     @Override
     public void onCompletion(EasyVideoPlayer player) {
-        // 播放完成且是阅后即焚消息关闭小视频
+        //播放完成且是阅后即焚消息关闭小视频
         if (mSightMessage != null && mSightMessage.isDestruct()) {
             finish();
         }
     }
 
     @Override
-    public void onSightListRequest() {}
+    public void onSightListRequest() {
+
+    }
 
     @Override
     public void onClose() {
         finish();
     }
 
-    public static class DownloadMediaMessageCallback
-            implements IRongCallback.IDownloadMediaMessageCallback {
+    public static class DownloadMediaMessageCallback implements IRongCallback.IDownloadMediaMessageCallback {
         WeakReference<SightPlayerActivity> reference;
 
         public DownloadMediaMessageCallback(SightPlayerActivity activity) {
@@ -323,13 +313,9 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
         @Override
         public void onSuccess(Message message) {
             SightPlayerActivity activity = reference.get();
-            if (activity != null
-                    && message != null
-                    && message.getContent() instanceof SightMessage) {
+            if (activity != null && message != null && message.getContent() instanceof SightMessage) {
                 Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
-                if (uri != null
-                        && activity.mSightMessage != null
-                        && uri.equals(activity.mSightMessage.getMediaUrl())) {
+                if (uri != null && activity.mSightMessage != null && uri.equals(activity.mSightMessage.getMediaUrl())) {
                     if (activity.isFinishing) {
                         return;
                     }
@@ -347,30 +333,12 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
         public void onProgress(Message message, int progress) {
             SightPlayerActivity activity = reference.get();
             if (message != null) {
-                RLog.e(
-                        TAG,
-                        "DownloadEvent:"
-                                + (activity != null)
-                                + "***kk***"
-                                + (message != null)
-                                + "***"
-                                + (message.getContent() instanceof SightMessage));
+                RLog.e(TAG, "DownloadEvent:" + (activity != null) + "***kk***" + (message != null) + "***" + (message.getContent() instanceof SightMessage));
             }
-            if (activity != null
-                    && message != null
-                    && message.getContent() instanceof SightMessage) {
+            if (activity != null && message != null && message.getContent() instanceof SightMessage) {
                 Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
-                RLog.e(
-                        TAG,
-                        "DownloadEvent:"
-                                + (uri != null)
-                                + "***jj***"
-                                + (activity.mSightMessage != null)
-                                + "***"
-                                + (uri.equals(activity.mSightMessage.getMediaUrl())));
-                if (uri != null
-                        && activity.mSightMessage != null
-                        && uri.equals(activity.mSightMessage.getMediaUrl())) {
+                RLog.e(TAG, "DownloadEvent:" + (uri != null) + "***jj***" + (activity.mSightMessage != null) + "***" + (uri.equals(activity.mSightMessage.getMediaUrl())));
+                if (uri != null && activity.mSightMessage != null && uri.equals(activity.mSightMessage.getMediaUrl())) {
                     RLog.e(TAG, "DownloadEvent:" + "coming ===");
                     activity.mProgress = progress;
                     activity.mSightDownloadProgress.setVisibility(View.VISIBLE);
@@ -383,36 +351,33 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
         public void onError(Message message, RongIMClient.ErrorCode code) {
             RLog.e(TAG, "DownloadEvent:" + "Error===" + code.getMessage());
             final SightPlayerActivity activity = reference.get();
-            if (activity != null
-                    && message != null
-                    && message.getContent() instanceof SightMessage) {
+            if (activity != null && message != null && message.getContent() instanceof SightMessage) {
                 Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
-                if (uri != null
-                        && activity.mSightMessage != null
-                        && uri.equals(activity.mSightMessage.getMediaUrl())) {
+                if (uri != null && activity.mSightMessage != null && uri.equals(activity.mSightMessage.getMediaUrl())) {
                     activity.mSightDownloadProgress.setVisibility(View.GONE);
                     activity.mSightDownloadFailedReminder.setVisibility(View.VISIBLE);
-                    activity.mSightDownloadFailedReminder.setOnClickListener(
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    activity.mSightDownloadFailedReminder.setVisibility(View.GONE);
-                                    activity.mProgress = 0;
-                                    activity.downloadSight();
-                                }
-                            });
+                    activity.mSightDownloadFailedReminder.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            activity.mSightDownloadFailedReminder.setVisibility(View.GONE);
+                            activity.mProgress = 0;
+                            activity.downloadSight();
+                        }
+                    });
                     if (code.equals(RongIMClient.ErrorCode.RC_FILE_EXPIRED)) {
                         activity.failedImageView.setVisibility(View.GONE);
                         activity.mFailedText.setText(R.string.rc_sight_file_expired);
                     } else {
                         activity.mFailedText.setText(R.string.rc_sight_download_failed);
                     }
-                    //                    activity.initDownloadFailedReminder(code);
+//                    activity.initDownloadFailedReminder(code);
                 }
             }
         }
 
         @Override
-        public void onCanceled(Message message) {}
+        public void onCanceled(Message message) {
+
+        }
     }
 }

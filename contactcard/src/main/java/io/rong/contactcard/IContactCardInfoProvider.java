@@ -1,7 +1,8 @@
 package io.rong.contactcard;
 
-import io.rong.imlib.model.UserInfo;
 import java.util.List;
+
+import io.rong.imlib.model.UserInfo;
 
 public interface IContactCardInfoProvider {
 
@@ -13,9 +14,7 @@ public interface IContactCardInfoProvider {
     void getContactAllInfoProvider(IContactCardInfoCallback contactInfoCallback);
 
     // 获取 APP 中的指定用户信息(userId) - 异步方法
-    void getContactAppointedInfoProvider(
-            String userId,
-            String name,
-            String portrait,
-            IContactCardInfoCallback contactInfoCallback);
+    void getContactAppointedInfoProvider(String userId, String name, String portrait,
+                                         IContactCardInfoCallback contactInfoCallback);
+
 }

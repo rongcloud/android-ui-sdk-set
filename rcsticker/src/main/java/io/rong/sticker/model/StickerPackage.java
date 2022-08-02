@@ -2,7 +2,10 @@ package io.rong.sticker.model;
 
 import java.util.List;
 
-/** Created by luoyanlong on 2018/08/08. 一个表情包 */
+/**
+ * Created by luoyanlong on 2018/08/08.
+ * 一个表情包
+ */
 public class StickerPackage {
 
     private String packageId;

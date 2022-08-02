@@ -1,14 +1,14 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 29
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 31
-        versionName "5.2.4"
+        targetSdkVersion 29
+        versionCode 20220801
+        versionName "5.1.8.3"
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -18,19 +18,22 @@ android {
 
     sourceSets {
         main {
+            jni.srcDirs = []
             jniLibs.srcDirs = ['libs']
         }
     }
 
-    lintOptions {
-        abortOnError false
-        baseline file("lint-baseline.xml")
+    android {
+        lintOptions {
+            abortOnError false
+            baseline file("lint-baseline.xml")
+        }
     }
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'cn.rongcloud.sdk:im_kit:5.2.4'
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api project(path:':kit')
     api 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation files('libs/Msc.jar')
 }

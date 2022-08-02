@@ -4,11 +4,15 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-import io.rong.sticker.model.Sticker;
+
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luoyanlong on 2018/08/08. */
+import io.rong.sticker.model.Sticker;
+
+/**
+ * Created by luoyanlong on 2018/08/08.
+ */
 public class StickerTable implements BaseColumns {
 
     private static final String NAME = "sticker";
@@ -25,31 +29,18 @@ public class StickerTable implements BaseColumns {
     private static final String COLUMN_HEIGHT = "height";
 
     static final String CREATE =
-            "CREATE TABLE "
-                    + NAME
-                    + " ("
-                    + _ID
-                    + " INTEGER PRIMARY KEY, "
-                    + COLUMN_STICKER_ID
-                    + " TEXT, "
-                    + COLUMN_PACKAGE_ID
-                    + " TEXT, "
-                    + COLUMN_DIGEST
-                    + " TEXT, "
-                    + COLUMN_THUMB_URL
-                    + " TEXT, "
-                    + COLUMN_URL
-                    + " TEXT, "
-                    + COLUMN_ORDER
-                    + " TEXT, "
-                    + COLUMN_LOCAL_THUMB_URL
-                    + " TEXT, "
-                    + COLUMN_LOCAL_URL
-                    + " TEXT, "
-                    + COLUMN_WIDTH
-                    + " INTEGER, "
-                    + COLUMN_HEIGHT
-                    + " INTEGER)";
+            "CREATE TABLE " + NAME + " (" +
+                    _ID + " INTEGER PRIMARY KEY, " +
+                    COLUMN_STICKER_ID + " TEXT, " +
+                    COLUMN_PACKAGE_ID + " TEXT, " +
+                    COLUMN_DIGEST + " TEXT, " +
+                    COLUMN_THUMB_URL + " TEXT, " +
+                    COLUMN_URL + " TEXT, " +
+                    COLUMN_ORDER + " TEXT, " +
+                    COLUMN_LOCAL_THUMB_URL + " TEXT, " +
+                    COLUMN_LOCAL_URL + " TEXT, " +
+                    COLUMN_WIDTH + " INTEGER, " +
+                    COLUMN_HEIGHT + " INTEGER)";
 
     public static void insert(SQLiteDatabase db, String packageId, Sticker sticker) {
         ContentValues cv = new ContentValues();
@@ -73,15 +64,10 @@ public class StickerTable implements BaseColumns {
     }
 
     public static List<Sticker> getStickersByPackageId(SQLiteDatabase db, String packageId) {
-        String sql =
-                "SELECT * FROM "
-                        + StickerTable.NAME
-                        + " WHERE "
-                        + StickerTable.COLUMN_PACKAGE_ID
-                        + " = ?"
-                        + " ORDER BY "
-                        + StickerTable.COLUMN_ORDER;
-        Cursor cursor = db.rawQuery(sql, new String[] {packageId});
+        String sql = "SELECT * FROM " + StickerTable.NAME +
+                " WHERE " + StickerTable.COLUMN_PACKAGE_ID + " = ?" +
+                " ORDER BY " + StickerTable.COLUMN_ORDER;
+        Cursor cursor = db.rawQuery(sql, new String[]{packageId});
         List<Sticker> stickers = new ArrayList<>();
         while (cursor.moveToNext()) {
             Sticker sticker = new Sticker();
@@ -90,8 +76,7 @@ public class StickerTable implements BaseColumns {
             sticker.setDigest(cursor.getString(cursor.getColumnIndex(COLUMN_DIGEST)));
             sticker.setThumbUrl(cursor.getString(cursor.getColumnIndex(COLUMN_THUMB_URL)));
             sticker.setUrl(cursor.getString(cursor.getColumnIndex(COLUMN_URL)));
-            sticker.setLocalThumbUrl(
-                    cursor.getString(cursor.getColumnIndex(COLUMN_LOCAL_THUMB_URL)));
+            sticker.setLocalThumbUrl(cursor.getString(cursor.getColumnIndex(COLUMN_LOCAL_THUMB_URL)));
             sticker.setLocalUrl(cursor.getString(cursor.getColumnIndex(COLUMN_LOCAL_URL)));
             sticker.setOrder(cursor.getInt(cursor.getColumnIndex(COLUMN_ORDER)));
             sticker.setWidth(cursor.getInt(cursor.getColumnIndex(COLUMN_WIDTH)));
@@ -101,4 +86,5 @@ public class StickerTable implements BaseColumns {
         cursor.close();
         return stickers;
     }
+
 }

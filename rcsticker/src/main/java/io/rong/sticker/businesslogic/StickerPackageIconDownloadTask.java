@@ -3,7 +3,10 @@ package io.rong.sticker.businesslogic;
 import io.rong.sticker.model.StickerPackage;
 import io.rong.sticker.util.DownloadUtil;
 
-/** Created by luoyanlong on 2018/08/24. 下载表情包底部tab图标 */
+/**
+ * Created by luoyanlong on 2018/08/24.
+ * 下载表情包底部tab图标
+ */
 public class StickerPackageIconDownloadTask {
 
     private StickerPackage stickerPackage;
@@ -17,4 +20,5 @@ public class StickerPackageIconDownloadTask {
         String savePath = StickerPackageStorageTask.getStickerPackageIconFilePath(stickerPackage);
         downloadUtil.download(savePath);
     }
+
 }
