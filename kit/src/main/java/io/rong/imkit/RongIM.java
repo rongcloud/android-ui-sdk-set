@@ -68,7 +68,7 @@ public class RongIM {
      * @param appKey      融云注册应用的AppKey。
      */
     public static void init(Application application, String appKey) {
-        IMCenter.init(application, appKey, true);
+        IMCenter.init(application, appKey, true, null);
     }
 
     /**
@@ -80,7 +80,20 @@ public class RongIM {
      * @param enablePush  是否使用推送功能。false 代表不使用推送相关功能, SDK 里将不会携带推送相关文件。
      */
     public static void init(Application application, String appKey, boolean enablePush) {
-        IMCenter.init(application, appKey, enablePush);
+        IMCenter.init(application, appKey, enablePush, null);
+    }
+
+    /**
+     * <p>初始化 SDK，在整个应用程序全局只需要调用一次, 建议在 Application 继承类中调用。
+     * 调用此接口传入 AppKey 与在 AndroidManifest.xml 里写入 RONG_CLOUD_APP_KEY 是同样效果，二选一即可。</p>
+     *
+     * @param application 应用
+     * @param appKey      融云注册应用的AppKey。
+     * @param enablePush  是否使用推送功能。false 代表不使用推送相关功能, SDK 里将不会携带推送相关文件。
+     * @param isMainProcess 是否为主进程。True 主进程 False 非主进程 null 由SDK判断是否主进程
+     */
+    public static void init(Application application, String appKey, boolean enablePush, Boolean isMainProcess) {
+        IMCenter.init(application, appKey, enablePush, isMainProcess);
     }
 
     /**

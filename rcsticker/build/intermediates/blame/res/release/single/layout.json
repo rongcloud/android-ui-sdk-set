@@ -33,7 +33,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/push_pure_pic_notification_f9.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/layout/push_pure_pic_notification_f9.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/layout/push_pure_pic_notification_f9.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/abc_cascading_menu_item_layout.xml",
@@ -117,7 +117,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/push_pure_pic_notification_f8.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/layout/push_pure_pic_notification_f8.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/layout/push_pure_pic_notification_f8.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_sticker_download_item.xml",
@@ -201,7 +201,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/push_pure_pic_notification_f6.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/layout/push_pure_pic_notification_f6.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/layout/push_pure_pic_notification_f6.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_ext_indicator.xml",
@@ -553,11 +553,11 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/push_expandable_big_text_notification.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/layout/push_expandable_big_text_notification.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/layout/push_expandable_big_text_notification.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/push_pure_pic_notification_f9_275.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/layout/push_pure_pic_notification_f9_275.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/layout/push_pure_pic_notification_f9_275.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_cs_alert_human_evaluation.xml",
@@ -645,7 +645,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/push_expandable_big_image_notification.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/layout/push_expandable_big_image_notification.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/layout/push_expandable_big_image_notification.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/abc_screen_toolbar.xml",
@@ -669,7 +669,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/push_pure_pic_notification_f7.xml",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/layout/push_pure_pic_notification_f7.xml"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/layout/push_pure_pic_notification_f7.xml"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/layout/rc_dialog_bottom_select.xml",

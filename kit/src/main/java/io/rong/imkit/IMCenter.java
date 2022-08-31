@@ -244,16 +244,33 @@ public class IMCenter {
      * @param isEnablePush 是否使用推送功能
      */
     public static void init(Application application, String appKey, boolean isEnablePush) {
+        init(application, appKey, isEnablePush, null);
+    }
+
+    /**
+     * 初始化 SDK，在整个应用程序全局，只需要调用一次。
+     *
+     * @param application  应用上下文。
+     * @param appKey       在融云开发者后台注册的应用 AppKey。
+     * @param isEnablePush 是否使用推送功能
+     * @param isMainProcess 是否为主进程。True 主进程 False 非主进程 null 由SDK判断是否主进程
+     */
+    public static void init(Application application, String appKey, boolean isEnablePush, Boolean isMainProcess) {
         initEmojiConfig(application);
-        String current = io.rong.common.SystemUtils.getCurrentProcessName(application);
-        String mainProcessName = application.getPackageName();
-        if (!mainProcessName.equals(current)) {
-            RLog.w(TAG, "Init. Current process : " + current);
+        if (isMainProcess == null) {
+            String current = io.rong.common.SystemUtils.getCurrentProcessName(application);
+            String mainProcessName = application.getPackageName();
+            if (!mainProcessName.equals(current)) {
+                RLog.w(TAG, "Init. Current process : " + current);
+                return;
+            }
+        } else if (isMainProcess == Boolean.FALSE) {
+            RLog.w(TAG, "Init. isMainProcess Boolean.FALSE");
             return;
         }
         SingletonHolder.sInstance.mContext = application.getApplicationContext();
         RongConfigCenter.syncFromXml(application);
-        RongIMClient.init(application.getApplicationContext(), appKey, isEnablePush);
+        RongIMClient.init(application.getApplicationContext(), appKey, isEnablePush, isMainProcess);
         RongExtensionManager.init(application.getApplicationContext(), appKey);
         HQVoiceMsgDownloadManager.getInstance().init(application);
         RongNotificationManager.getInstance().init(application);

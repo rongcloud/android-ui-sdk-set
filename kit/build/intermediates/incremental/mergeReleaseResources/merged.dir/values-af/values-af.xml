@@ -49,4 +49,5 @@
     <string msgid="9521340570209730" name="gcm_fallback_notification_channel_label">"Diverse"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Soek"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string name="system_default_channel">System Default Channel</string>
 </resources>

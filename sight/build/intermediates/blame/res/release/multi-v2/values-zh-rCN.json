@@ -89,23 +89,6 @@
                     }
                 },
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/com.heytap.msp-push-2.1.0.aar/bf732f4d83df3068bae8f76eabec3fb8/res/values-zh-rCN/values-zh-rCN.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "57",
-                        "endOffsets": "108"
-                    },
-                    "to": {
-                        "startLines": "72",
-                        "startColumns": "4",
-                        "startOffsets": "7045",
-                        "endColumns": "57",
-                        "endOffsets": "7098"
-                    }
-                },
-                {
                     "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-basement-17.0.0.aar/0cd090cd169b81bb9cca87ca9ca8bfc8/res/values-zh-rCN/values.xml",
                     "from": {
                         "startLines": "4",
@@ -137,6 +120,23 @@
                         "startOffsets": "5134,5199,5277,5415,5481,5569,5637,5705,5797,5884,5976,6049,6116,6284,6349,6415,6492,6597,6694,6787",
                         "endColumns": "64,77,137,65,87,67,67,91,86,91,72,66,103,64,65,76,104,96,92,77",
                         "endOffsets": "5194,5272,5410,5476,5564,5632,5700,5792,5879,5971,6044,6111,6215,6344,6410,6487,6592,6689,6782,6860"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values-zh-rCN/values-zh-rCN.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "57",
+                        "endOffsets": "108"
+                    },
+                    "to": {
+                        "startLines": "72",
+                        "startColumns": "4",
+                        "startOffsets": "7045",
+                        "endColumns": "57",
+                        "endOffsets": "7098"
                     }
                 },
                 {
@@ -264,23 +264,6 @@
                     }
                 },
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/com.heytap.msp-push-2.1.0.aar/bf732f4d83df3068bae8f76eabec3fb8/res/values-zh-rCN/values-zh-rCN.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "57",
-                        "endOffsets": "108"
-                    },
-                    "to": {
-                        "startLines": "72",
-                        "startColumns": "4",
-                        "startOffsets": "7045",
-                        "endColumns": "57",
-                        "endOffsets": "7098"
-                    }
-                },
-                {
                     "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-play-services-basement-17.0.0.aar/0cd090cd169b81bb9cca87ca9ca8bfc8/res/values-zh-rCN/values.xml",
                     "from": {
                         "startLines": "4",
@@ -312,6 +295,23 @@
                         "startOffsets": "5134,5199,5277,5415,5481,5569,5637,5705,5797,5884,5976,6049,6116,6284,6349,6415,6492,6597,6694,6787",
                         "endColumns": "64,77,137,65,87,67,67,91,86,91,72,66,103,64,65,76,104,96,92,77",
                         "endOffsets": "5194,5272,5410,5476,5564,5632,5700,5792,5879,5971,6044,6111,6215,6344,6410,6487,6592,6689,6782,6860"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values-zh-rCN/values-zh-rCN.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "57",
+                        "endOffsets": "108"
+                    },
+                    "to": {
+                        "startLines": "72",
+                        "startColumns": "4",
+                        "startOffsets": "7045",
+                        "endColumns": "57",
+                        "endOffsets": "7098"
                     }
                 },
                 {

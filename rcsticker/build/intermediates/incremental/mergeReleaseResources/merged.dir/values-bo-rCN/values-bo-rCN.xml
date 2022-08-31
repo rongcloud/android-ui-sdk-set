@@ -21,6 +21,7 @@
     <string name="hms_update_message_new" priority="LT">"ཞབས་ཞུ་འདི་ལ་གཤམ་གྱི་ཉེར་སྤྱོད་ཀྱི་རིམ་པ་གསར་ཤོས་དེ་སྒྲིག་འཇུག་བྱེད་དགོས་འདུག：\n\n·%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"མིག་སྔར་ Wi-Fi མིན་པའི་དྲ་རྒྱ་ཡིན། མུ་མཐུད་དུ་ཕབ་ལེན་བྱེད་དམ།"</string>
     <string name="hms_update_title" priority="translator">"HMS Core"</string>
+    <string name="system_default_channel">རྒྱུད་ཁོངས་ཀྱི་སོར་བཞག་གི་བརྒྱུད་ལམ།</string>
     <string name="upsdk_app_download_info_new" priority="translator">"སྒྲིག་འཇུག"</string>
     <string name="upsdk_app_download_installing" priority="translator">"%s ཕབ་ལེན་བྱེད་བཞིན་ཡོད།"</string>
     <string name="upsdk_app_size" priority="translator">"ཆ་ཚད།"</string>

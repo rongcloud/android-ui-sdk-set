@@ -21,6 +21,7 @@
     <string name="hms_update_message_new" priority="translator">"ဤဝန္ေဆာင္မႈသည္ ေဖာ္ျပပါ အက္ပ္၏ ေနာက္ဆုံး ဗားရွင္းကို လိုအပ္ပါသည္ - \n\n%1$s"</string>
     <string name="hms_update_nettype" priority="LT">"Wi-Fi ခ်ိတ္ဆက္မႈ မရွိပါ။ မိုဘိုင္းေဒတာ သုံး၍ ေဒါင္းလုဒ္လုပ္မည္လား။"</string>
     <string name="hms_update_title" priority="translator">"HMS Core"</string>
+    <string name="system_default_channel">စနစ္ ပုံေသ ခ်န္နယ္</string>
     <string name="upsdk_app_download_info_new" priority="translator">"ထည့္သြင္းမည္"</string>
     <string name="upsdk_app_download_installing" priority="translator">"%s အား ေဒါင္းလုဒ္လုပ္ေနဆဲ..."</string>
     <string name="upsdk_app_size" priority="translator">"အရြယ္အစား"</string>

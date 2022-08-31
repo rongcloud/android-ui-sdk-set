@@ -38,6 +38,23 @@
                     }
                 },
                 {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values-pt-rBR/values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "74",
+                        "endOffsets": "125"
+                    },
+                    "to": {
+                        "startLines": "51",
+                        "startColumns": "4",
+                        "startOffsets": "5962",
+                        "endColumns": "74",
+                        "endOffsets": "6032"
+                    }
+                },
+                {
                     "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/play-services-base-17.0.0.aar/42541b861db04ca3e5047a76ce30d1b4/res/values-pt-rBR/values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
@@ -142,6 +159,23 @@
                         "startOffsets": "5671",
                         "endColumns": "103",
                         "endOffsets": "5770"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values-pt-rBR/values-pt-rBR.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "74",
+                        "endOffsets": "125"
+                    },
+                    "to": {
+                        "startLines": "51",
+                        "startColumns": "4",
+                        "startOffsets": "5962",
+                        "endColumns": "74",
+                        "endOffsets": "6032"
                     }
                 },
                 {

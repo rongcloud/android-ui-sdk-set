@@ -17,7 +17,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/build/intermediates/res/merged/release/drawable-xxhdpi-v4/stat_sys_third_app_notify.png",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/drawable-xxhdpi-v4/stat_sys_third_app_notify.png"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/drawable-xxhdpi-v4/stat_sys_third_app_notify.png"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/build/intermediates/res/merged/release/drawable-xxhdpi-v4/abc_ic_menu_cut_mtrl_alpha.png",
@@ -33,7 +33,7 @@
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/build/intermediates/res/merged/release/drawable-xxhdpi-v4/push_pure_close.png",
-        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b3cd584812846b475ba3d5ebc9de2e4/res/drawable-xxhdpi-v4/push_pure_close.png"
+        "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/jetified-meizu-push-4.0.7.aar/9b5530dd03e9e8940827dc3e22f08ee1/res/drawable-xxhdpi-v4/push_pure_close.png"
     },
     {
         "merged": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/build/intermediates/res/merged/release/drawable-xxhdpi-v4/abc_ic_star_half_black_36dp.png",

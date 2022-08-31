@@ -392,9 +392,18 @@ public class RongUtils {
         if (context == null) {
             return false;
         }
-        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        int state = mTelephonyManager.getCallState();
-        return state != TelephonyManager.CALL_STATE_IDLE;
+        try {
+            TelephonyManager mTelephonyManager =
+                    (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            int state = mTelephonyManager.getCallState();
+            return state != TelephonyManager.CALL_STATE_IDLE;
+        } catch (SecurityException e) {
+            // Vivo 手机由于没有申请 android.permission.READ_PHONE_STATE 可能会导致崩溃
+            RLog.e(TAG, "phoneIsInUse,nedd android.permission.READ_PHONE_STATE");
+        } catch (Exception e) {
+            RLog.e(TAG, "phoneIsInUse", e);
+        }
+        return false;
     }
 
     public static int getSaveKeyBoardHeight(Context context, int orientation) {

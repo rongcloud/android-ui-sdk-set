@@ -4,6 +4,23 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/incremental/mergeReleaseResources/merged.dir/values-bo-rCN/values-bo-rCN.xml",
             "map": [
                 {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values-bo-rCN/values-bo-rCN.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "87",
+                        "endOffsets": "138"
+                    },
+                    "to": {
+                        "startLines": "23",
+                        "startColumns": "4",
+                        "startOffsets": "2462",
+                        "endColumns": "87",
+                        "endOffsets": "2545"
+                    }
+                },
+                {
                     "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/9b54873f7f77493ef795cd51d647977d/res/values-bo-rCN/values-bo-rCN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
@@ -30,11 +47,11 @@
                         "endOffsets": "141,248,321,391,528,604,713,851,924,1077,1292,1461,1535,1612,1693,1783,1864,1936,2063,2168,2270,2368"
                     },
                     "to": {
-                        "startLines": "23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44",
+                        "startLines": "24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "2462,2553,2660,2733,2803,2940,3016,3125,3263,3336,3489,3704,3873,3947,4024,4105,4195,4276,4348,4475,4580,4682",
+                        "startOffsets": "2550,2641,2748,2821,2891,3028,3104,3213,3351,3424,3577,3792,3961,4035,4112,4193,4283,4364,4436,4563,4668,4770",
                         "endColumns": "90,106,72,69,136,75,108,137,72,152,214,168,73,76,80,89,80,71,126,104,101,97",
-                        "endOffsets": "2548,2655,2728,2798,2935,3011,3120,3258,3331,3484,3699,3868,3942,4019,4100,4190,4271,4343,4470,4575,4677,4775"
+                        "endOffsets": "2636,2743,2816,2886,3023,3099,3208,3346,3419,3572,3787,3956,4030,4107,4188,4278,4359,4431,4558,4663,4765,4863"
                     }
                 },
                 {
@@ -60,6 +77,23 @@
             "outputFile": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/rcsticker/build/intermediates/res/merged/release/values-bo-rCN/values-bo-rCN.xml",
             "map": [
                 {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values-bo-rCN/values-bo-rCN.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "87",
+                        "endOffsets": "138"
+                    },
+                    "to": {
+                        "startLines": "23",
+                        "startColumns": "4",
+                        "startOffsets": "2462",
+                        "endColumns": "87",
+                        "endOffsets": "2545"
+                    }
+                },
+                {
                     "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/ui-5.2.0.300.aar/9b54873f7f77493ef795cd51d647977d/res/values-bo-rCN/values-bo-rCN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21",
@@ -86,11 +120,11 @@
                         "endOffsets": "141,248,321,391,528,604,713,851,924,1077,1292,1461,1535,1612,1693,1783,1864,1936,2063,2168,2270,2368"
                     },
                     "to": {
-                        "startLines": "23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44",
+                        "startLines": "24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
-                        "startOffsets": "2462,2553,2660,2733,2803,2940,3016,3125,3263,3336,3489,3704,3873,3947,4024,4105,4195,4276,4348,4475,4580,4682",
+                        "startOffsets": "2550,2641,2748,2821,2891,3028,3104,3213,3351,3424,3577,3792,3961,4035,4112,4193,4283,4364,4436,4563,4668,4770",
                         "endColumns": "90,106,72,69,136,75,108,137,72,152,214,168,73,76,80,89,80,71,126,104,101,97",
-                        "endOffsets": "2548,2655,2728,2798,2935,3011,3120,3258,3331,3484,3699,3868,3942,4019,4100,4190,4271,4343,4470,4575,4677,4775"
+                        "endOffsets": "2636,2743,2816,2886,3023,3099,3208,3346,3419,3572,3787,3956,4030,4107,4188,4278,4359,4431,4558,4663,4765,4863"
                     }
                 },
                 {

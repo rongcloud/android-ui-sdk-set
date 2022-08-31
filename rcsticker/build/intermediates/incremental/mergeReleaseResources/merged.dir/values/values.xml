@@ -1911,7 +1911,7 @@
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="sticker_download_fail">\"%1$s\"未下载成功，请重试</string>
     <string name="sticker_fail_to_load">加载失败</string>
-    <string name="system_default_channel">system default channel</string>
+    <string name="system_default_channel">System Default Channel</string>
     <string name="upsdk_app_download_info_new" priority="LT">Install</string>
     <string name="upsdk_app_download_installing" priority="translator">Downloading %s…</string>
     <string name="upsdk_app_size" priority="LT">Size</string>

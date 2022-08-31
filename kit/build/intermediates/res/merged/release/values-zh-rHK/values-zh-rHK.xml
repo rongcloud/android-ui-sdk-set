@@ -70,6 +70,7 @@
     <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"搜尋"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string name="system_default_channel">系統預設通道</string>
     <string name="upsdk_app_download_info_new" priority="translator">"安裝"</string>
     <string name="upsdk_app_download_installing" priority="translator">"正在下載「%s」"</string>
     <string name="upsdk_app_size" priority="LT">"大小"</string>

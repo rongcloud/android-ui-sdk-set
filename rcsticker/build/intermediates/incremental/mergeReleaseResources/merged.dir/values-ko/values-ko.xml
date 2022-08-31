@@ -70,6 +70,7 @@
     <string name="hms_update_title" priority="translator">"HMS Core"</string>
     <string msgid="6264217191555673260" name="search_menu_title">"검색"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string name="system_default_channel">시스템 기본 채널</string>
     <string name="upsdk_app_download_info_new" priority="translator">"설치"</string>
     <string name="upsdk_app_download_installing" priority="translator">"%s 다운로드 중..."</string>
     <string name="upsdk_app_size" priority="translator">"크기"</string>

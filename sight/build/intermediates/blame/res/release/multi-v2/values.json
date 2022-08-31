@@ -180,23 +180,6 @@
                     }
                 },
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/com.heytap.msp-push-2.1.0.aar/bf732f4d83df3068bae8f76eabec3fb8/res/values/values.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "73",
-                        "endOffsets": "124"
-                    },
-                    "to": {
-                        "startLines": "1927",
-                        "startColumns": "4",
-                        "startOffsets": "101706",
-                        "endColumns": "73",
-                        "endOffsets": "101775"
-                    }
-                },
-                {
                     "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/src/main/res/values/sytles.xml",
                     "from": {
                         "startLines": "3",
@@ -376,6 +359,23 @@
                         "endLines": "5313",
                         "endColumns": "24",
                         "endOffsets": "328004"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values/values.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "73",
+                        "endOffsets": "124"
+                    },
+                    "to": {
+                        "startLines": "1927",
+                        "startColumns": "4",
+                        "startOffsets": "101706",
+                        "endColumns": "73",
+                        "endOffsets": "101775"
                     }
                 },
                 {
@@ -683,23 +683,6 @@
                     }
                 },
                 {
-                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/com.heytap.msp-push-2.1.0.aar/bf732f4d83df3068bae8f76eabec3fb8/res/values/values.xml",
-                    "from": {
-                        "startLines": "2",
-                        "startColumns": "4",
-                        "startOffsets": "55",
-                        "endColumns": "73",
-                        "endOffsets": "124"
-                    },
-                    "to": {
-                        "startLines": "1927",
-                        "startColumns": "4",
-                        "startOffsets": "101706",
-                        "endColumns": "73",
-                        "endOffsets": "101775"
-                    }
-                },
-                {
                     "source": "/home/jenkins/workspace/Android-SealDev-Gradle-Release/android-sealdev/android-imsdk/IMKit/sight/src/main/res/values/sytles.xml",
                     "from": {
                         "startLines": "3",
@@ -879,6 +862,23 @@
                         "endLines": "5313",
                         "endColumns": "24",
                         "endOffsets": "328004"
+                    }
+                },
+                {
+                    "source": "/home/jenkins/.gradle/caches/transforms-1/files-1.1/push-3.0.0.aar/652e9c53e47ded819b6704ae60d6e9c9/res/values/values.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "73",
+                        "endOffsets": "124"
+                    },
+                    "to": {
+                        "startLines": "1927",
+                        "startColumns": "4",
+                        "startOffsets": "101706",
+                        "endColumns": "73",
+                        "endOffsets": "101775"
                     }
                 },
                 {

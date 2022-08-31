@@ -73,6 +73,7 @@
     <string name="rc_notification_ticker_text">Umepokea Ujumbe Mpya</string>
     <string msgid="6264217191555673260" name="search_menu_title">"Tafuta"</string>
     <string msgid="6277540029070332960" name="status_bar_notification_info_overflow">"999+"</string>
+    <string name="system_default_channel">Kituo cha Chaguo-msingi cha Mfumo</string>
     <string name="upsdk_app_download_info_new" priority="translator">"Sakinisha"</string>
     <string name="upsdk_app_download_installing" priority="translator">"Inapakua %s…"</string>
     <string name="upsdk_app_size" priority="translator">"Ukubwa"</string>

@@ -1895,7 +1895,7 @@
     <string formatted="false" name="srl_component_falsify">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>
     <string name="srl_content_empty">The content view in SmartRefreshLayout is empty. Do you forget to add it in xml layout file?</string>
     <string name="status_bar_notification_info_overflow">999+</string>
-    <string name="system_default_channel">system default channel</string>
+    <string name="system_default_channel">System Default Channel</string>
     <string name="upsdk_app_download_info_new" priority="LT">Install</string>
     <string name="upsdk_app_download_installing" priority="translator">Downloading %s…</string>
     <string name="upsdk_app_size" priority="LT">Size</string>
