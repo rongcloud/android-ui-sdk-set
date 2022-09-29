@@ -3,13 +3,7 @@ package io.rong.sticker;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
-
 import androidx.fragment.app.Fragment;
-
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.common.RLog;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.config.RongConfigCenter;
@@ -32,14 +26,13 @@ import io.rong.sticker.emoticontab.RecommendTab;
 import io.rong.sticker.emoticontab.StickersTab;
 import io.rong.sticker.message.StickerMessage;
 import io.rong.sticker.message.StickerMessageItemProvider;
-import io.rong.sticker.model.Event;
 import io.rong.sticker.model.StickerPackage;
 import io.rong.sticker.mysticker.MyStickerActivity;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Created by luoyanlong on 2018/08/03.
- * 注册 表情消息 和 表情消息提供者
- */
+/** Created by luoyanlong on 2018/08/03. 注册 表情消息 和 表情消息提供者 */
 public class StickerExtensionModule implements IExtensionModule {
 
     private static final String TAG = StickerExtensionModule.class.getCanonicalName();
@@ -48,7 +41,6 @@ public class StickerExtensionModule implements IExtensionModule {
     private RecommendTab recommendTab;
     private StickerPackagesConfigTask stickerPackagesConfigTask;
     private boolean isEnabled = true;
-
 
     @Override
     public void onInit(Context context, String appKey) {
@@ -66,7 +58,10 @@ public class StickerExtensionModule implements IExtensionModule {
 
     @Override
     public void onAttachedToExtension(Fragment fragment, RongExtension extension) {
-        if (extension.getConversationType().getName().equals(Conversation.ConversationType.CUSTOMER_SERVICE.getName())) {
+        if (extension
+                .getConversationType()
+                .getName()
+                .equals(Conversation.ConversationType.CUSTOMER_SERVICE.getName())) {
             isEnabled = false; // 客服会话不显示表情
         } else {
             isEnabled = true;
@@ -74,7 +69,8 @@ public class StickerExtensionModule implements IExtensionModule {
             Context context = extension.getContext();
             StickerPackageDbTask.init(context, sAppKey, RongIM.getInstance().getCurrentUserId());
             StickerPackagesUiHandler.init(context);
-            StickerPackageStorageTask.init(context, sAppKey, RongIM.getInstance().getCurrentUserId());
+            StickerPackageStorageTask.init(
+                    context, sAppKey, RongIM.getInstance().getCurrentUserId());
             stickerPackagesConfigTask.saveConfig(context);
             StickerSendMessageTask.config(extension.getTargetId(), extension.getConversationType());
         }
@@ -91,9 +87,7 @@ public class StickerExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onReceivedMessage(Message message) {
-
-    }
+    public void onReceivedMessage(Message message) {}
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {
@@ -133,7 +127,9 @@ public class StickerExtensionModule implements IExtensionModule {
             list.add(recommendTab);
         }
         rongExtension.getEmoticonBoard().setSettingEnable(true);
-        rongExtension.getEmoticonBoard().setOnEmoticonSettingClickListener(new SettingClickListener());
+        rongExtension
+                .getEmoticonBoard()
+                .setOnEmoticonSettingClickListener(new SettingClickListener());
         return list;
     }
 

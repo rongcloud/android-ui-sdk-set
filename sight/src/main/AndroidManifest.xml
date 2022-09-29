@@ -7,6 +7,8 @@
             android:name="io.rong.sight.player.SightPlayerActivity"
             android:hardwareAccelerated="true"
             android:exported="true"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation"
             android:supportsRtl="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

@@ -8,13 +8,10 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import io.rong.sticker.R;
 import io.rong.sticker.model.Sticker;
 
-/**
- * Created by luoyanlong on 2018/08/15.
- */
+/** Created by luoyanlong on 2018/08/15. */
 public class StickerGridItemView extends LinearLayout {
 
     private static final int ROW_NUM = 2; // 行数

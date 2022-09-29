@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rc_action_bar_back">Back</string>
+    <string name="rc_action_bar_ok">OK</string>
+
+    <!-- ConversationList -->
+    <string name="rc_conversation_list_title">Conversation List</string>
+    <string name="rc_conversation_list_empty_prompt">No chats info</string>
+    <string name="rc_conversation_list_notice_network_unavailable">Network unavailable, please check your network</string>
+    <string name="rc_conversation_list_notice_disconnect">Unable to connect to server</string>
+    <string name="rc_conversation_list_notice_kicked">This account has been logged-in on other devices</string>
+    <string name="rc_conversation_list_notice_connecting">Connecting...</string>
+    <string name="rc_conversation_list_dialog_set_top">Stick on Top</string>
+    <string name="rc_conversation_list_dialog_cancel_top">Remove from top</string>
+    <string name="rc_conversation_list_dialog_remove">Remove from chat list</string>
+    <string name="rc_conversation_list_popup_set_top">Topped</string>
+    <string name="rc_conversation_list_popup_cancel_top">Removed from top</string>
+    <string name="rc_conversation_unread_dot">99+</string>
+
+    <!-- groupnotificationmessage -->
+    <string name="rc_item_divided_string">、</string>
+    <string name="rc_item_invitation">has invited</string>
+    <string name="rc_item_you">you</string>
+    <string name="rc_item_you_invitation">You have invited</string>
+    <string name="rc_item_you_remove_self">You have removed by</string>
+    <string name="rc_item_remove_group_member">has removed</string>
+    <string name="rc_item_you_remove_group_member">You have removed</string>
+    <string name="rc_item_remove">from the group</string>
+    <string name="rc_item_join_group">" joined the group"</string>
+    <string name="rc_join_group">" to joined the group"</string>
+    <string name="rc_item_created_group">has created the group</string>
+    <string name="rc_item_you_created_group">You have created the group</string>
+    <string name="rc_item_dismiss_groups">" dismissed the group"</string>
+    <string name="rc_item_quit_groups">" has quit the group"</string>
+    <string name="rc_item_change_group_name"> changed the group name to </string>
+    <string name="rc_item_you_change_group_name">You changed the group name to </string>
+    <string name="rc_item_group_notification_summary">[Group Announcement]</string>
+
+    <string name="rc_yesterday_format">Yesterday</string>
+    <string name="rc_date_yesterday">Yesterday</string>
+    <string name="rc_date_year"></string>
+    <string name="rc_date_month"></string>
+    <string name="rc_date_day"></string>
+    <string name="rc_date_monday">Monday</string>
+    <string name="rc_date_tuesday">Tuesday</string>
+    <string name="rc_date_wednesday">Wednesday</string>
+    <string name="rc_date_thursday">Thursday</string>
+    <string name="rc_date_friday">Friday</string>
+    <string name="rc_date_saturday">Saturday</string>
+    <string name="rc_date_sunday">Sunday</string>
+    <string name="rc_date_am">AM</string>
+    <string name="rc_date_morning">AM</string>
+    <string name="rc_date_noon">PM</string>
+    <string name="rc_date_pm">PM</string>
+    <string name="rc_date_night">PM</string>
+
+    <string name="rc_default_message">The current version does not support viewing this message</string>
+
+    <string name="rc_conversation_summary_content_image">[Image]</string>
+    <string name="rc_conversation_summary_content_voice">[Voice]</string>
+    <string name="rc_conversation_summary_content_rich_text">[Message]</string>
+    <string name="rc_conversation_summary_content_location">[Location]</string>
+    <string name="rc_conversation_summary_content_file">[File]</string>
+    <string name="rc_conversation_summary_content_sight">[Video]</string>
+    <string name="rc_conversation_summary_content_card">[Card]</string>
+    <string name="rc_conversation_summary_content_sticker">[Sticker]</string>
+    <string name="rc_conversation_summary_content_rp">[Red Packet]</string>
+    <string name="rc_conversation_summary_content_vst">[Audio video call]</string>
+    <string name="rc_conversation_summary_content_combine">[Chat History]</string>
+    <string name="rc_conversation_summary_content_draft">[Draft]</string>
+    <string name="rc_conversation_summary_content_mentioned">[You were mentioned]</string>
+    <string name="rc_conversation_summary_content_burn">[Secret Chat]</string>
+
+    <string name="rc_location_title">Location</string>
+    <string name="rc_ext_plugin_location">Location</string>
+    <string name="rc_ext_plugin_image">Image</string>
+    <string name="rc_ext_plugin_file">File</string>
+    <string name="rc_ext_plugin_destruct">Secret Chat</string>
+    <!-- location -->
+    <string name="rc_real_time_location_start">Start a location sharing</string>
+    <string name="rc_real_time_location_sharing">Start a location sharing</string>
+    <string name="rc_search">Search</string>
+    <string name="rc_recalled_a_message">&#160; has recalled a message</string>
+    <string name="rc_click_to_view">Click to View</string>
+
+    <!--Reference Message-->
+    <string name="rc_reference">Quote</string>
+    <string name="rc_reference_link">[RichContent]</string>
+    <string name="rc_reference_file">[file]</string>
+    <string name="rc_search_file_prefix">[File]&#160;</string>
+
+    <!--Long click-->
+    <string name="rc_dialog_item_message_delete">Delete</string>
+    <string name="rc_dialog_item_message_copy">Copy</string>
+    <string name="rc_dialog_item_message_recall">Recall</string>
+    <string name="rc_dialog_item_message_reference">Quote</string>
+    <string name="rc_dialog_item_message_more">Select&#8230;</string>
+
+    <string name="rc_dialog_destruct_hint">Messages are automatically destroyed after viewing, and replication or forwarding of messages is forbidden. The server does not retain message records</string>
+    <string name="rc_voice_press_to_input">Hold to Talk</string>
+    <string name="rc_voice_release_to_send">Release to Send</string>
+    <string name="rc_voice_rec">Slide up to cancel</string>
+    <string name="rc_voice_cancel">Release to cancel</string>
+
+    <!--emoji description 128 total start-->
+    <string name="rc_emoji_smiley_face">Sliley Face</string>><!--1-->
+    <string name="rc_emoji_grinning_face">Grinning Face</string><!--2-->
+    <string name="rc_emoji_smiley">Smiley</string><!--3-->
+    <string name="rc_emoji_cute">Cute</string><!--4-->
+    <string name="rc_emoji_winking_face">Winking Face</string><!--5-->
+    <string name="rc_emoji_heart_eyes">Heart Eyes</string><!--6-->
+    <string name="rc_emoji_blowing_kiss">Blowing Kiss</string><!--7-->
+    <string name="rc_emoji_kiss_face">Kiss Face</string><!--8-->
+    <string name="rc_emoji_crazy_face">Crazy Face</string><!--9-->
+    <string name="rc_emoji_tongue_out">Tongue Out</string><!--10-->
+    <string name="rc_emoji_flushed_face">Flushed Face</string><!--11-->
+    <string name="rc_emoji_grinning_with_smiling">Grinning With Smiling</string><!--12-->
+    <string name="rc_emoji_pensive">Pensive</string><!--13-->
+    <string name="rc_emoji_pleased">Pleased</string><!--14-->
+    <string name="rc_emoji_dissatisfied">Dissatisfied</string><!--15-->
+    <string name="rc_emoji_worried_face">Worried Face</string><!--16-->
+    <string name="rc_emoji_disappointed_face">Disappointed Face</string><!--17-->
+    <string name="rc_emoji_helpless_face">Helpless Face</string><!--18-->
+    <string name="rc_emoji_crying">Crying</string><!--19-->
+    <string name="rc_emoji_laughing_tears">Laughing Tears</string><!--20-->
+    <string name="rc_emoji_sobbing">Sobbing</string><!--21-->
+    <string name="rc_emoji_sleepy_face">Sleepy Face</string><!--22-->
+    <string name="rc_emoji_cold_sweat">Cold Sweat</string><!--23-->
+    <string name="rc_emoji_happy_sweat">Happy Sweat</string><!--24-->
+    <string name="rc_emoji_sweat">Sweat</string><!--25-->
+    <string name="rc_emoji_tired_face">Tired Face</string><!--26-->
+    <string name="rc_emoji_weary_face">Weary Face</string><!--27-->
+    <string name="rc_emoji_fearful_face">Fearful Face</string><!--28-->
+    <string name="rc_emoji_scream">Scream</string><!--29-->
+    <string name="rc_emoji_angry_face">Angry Face</string><!--30-->
+    <string name="rc_emoji_mad_face">Mad Face</string><!--31-->
+    <string name="rc_emoji_confounded_face">Confounded Face</string><!--32-->
+    <string name="rc_emoji_big_grin">Big Grin</string><!--33-->
+    <string name="rc_emoji_hungry">Hungry</string><!--34-->
+    <string name="rc_emoji_mask_face">Mask Face</string><!--35-->
+    <string name="rc_emoji_sunglasses">Sunglassed</string><!--36-->
+    <string name="rc_emoji_sleeping">Sleeping</string><!--37-->
+    <string name="rc_emoji_shocked_face">Shocked Face</string><!--38-->
+    <string name="rc_emoji_dizzy_face">Dizzy Face</string><!--39-->
+    <string name="rc_emoji_purple_devil">Purple Devil</string><!--40-->
+    <string name="rc_emoji_devil">Devil</string><!--41-->
+    <string name="rc_emoji_surprised_face">Surprised Face</string><!--42-->
+    <string name="rc_emoji_grimacing_face">Grimacing Face</string><!--43-->
+    <string name="rc_emoji_confused">Confused</string><!--44-->
+    <string name="rc_emoji_mouthless">Mouthless</string><!--45-->
+    <string name="rc_emoji_halo">Halo</string><!--46-->
+    <string name="rc_emoji_smirking_face">Smirking Face</string><!--47-->
+    <string name="rc_emoji_expressionless_face">Expressionless Face</string><!--48-->
+    <string name="rc_emoji_see_no_monkey">See-No-Monkey</string><!--49-->
+    <string name="rc_emoji_hear_no_monkey">Hear-No-Monkey</string><!--50-->
+    <string name="rc_emoji_no_speaking">No Speaking</string><!--51-->
+    <string name="rc_emoji_alien">Alien</string><!--52-->
+    <string name="rc_emoji_pile_of_poo">Pile of Poo</string><!--53-->
+    <string name="rc_emoji_broken_heart">Broken Heart</string><!--54-->
+    <string name="rc_emoji_fire">Fire</string><!--55-->
+    <string name="rc_emoji_anger">Anger</string><!--56-->
+    <string name="rc_emoji_zzz">Zzz</string><!--57-->
+    <string name="rc_emoji_prohibited">Prohibited</string><!--58-->
+    <string name="rc_emoji_star">Star</string><!--59-->
+    <string name="rc_emoji_lightning_bolt">Lighting Bolt</string><!--60-->
+    <string name="rc_emoji_crescent_moon">Crescent Moon</string><!--61-->
+    <string name="rc_emoji_sunny">Sunny</string><!--62-->
+    <string name="rc_emoji_cloudy">Cloudy</string><!--63-->
+    <string name="rc_emoji_cloud">Cloud</string><!--64-->
+    <string name="rc_emoji_snowflake">Snowflake</string><!--65-->
+    <string name="rc_emoji_umbrella">Umbrella</string><!--66-->
+    <string name="rc_emoji_snowman">Snowman</string><!--67-->
+    <string name="rc_emoji_thumbs_up">Thumbs Up</string><!--68-->
+    <string name="rc_emoji_thumbs_down">Thumbs Down</string><!--69-->
+    <string name="rc_emoji_shake_hand">Shake Hand</string><!--70-->
+    <string name="rc_emoji_ok_hand">Ok Hand</string><!--71-->
+    <string name="rc_emoji_oncoming_fist">Oncoming Fist</string><!--72-->
+    <string name="rc_emoji_raised_fist">Raised Fist</string><!--73-->
+    <string name="rc_emoji_victory_hand">Victory Hand</string><!--74-->
+    <string name="rc_emoji_raised_hand">Raised Hand</string><!--75-->
+    <string name="rc_emoji_folded_hands">Folded Hands</string><!--76-->
+    <string name="rc_emoji_pointing_up">Pointing Up</string><!--77-->
+    <string name="rc_emoji_clapping_hands">Clapping Hands</string><!--78-->
+    <string name="rc_emoji_flexed_biceps">Flexed Biceps</string><!--79-->
+    <string name="rc_emoji_family">Family</string><!--80-->
+    <string name="rc_emoji_couple">Couple</string><!--81-->
+    <string name="rc_emoji_baby_angel">Baby Angel</string><!--82-->
+    <string name="rc_emoji_horse">Horse</string><!--83-->
+    <string name="rc_emoji_dog">Dog</string><!--84-->
+    <string name="rc_emoji_pig">Pig</string><!--85-->
+    <string name="rc_emoji_ghost">Ghost</string><!--86-->
+    <string name="rc_emoji_rose">Rose</string><!--87-->
+    <string name="rc_emoji_sunflower">Sunflower</string><!--88-->
+    <string name="rc_emoji_pine_tree">Pine Tree</string><!--89-->
+    <string name="rc_emoji_christmas_tree">Christmas Tree</string><!--90-->
+    <string name="rc_emoji_wrapped_gift">Wrapped Gift</string><!--91-->
+    <string name="rc_emoji_party_popper">Party Popper</string><!--92-->
+    <string name="rc_emoji_money_bag">Money Bag</string><!--93-->
+    <string name="rc_emoji_birthday_cake">Birthday Cake</string><!--94-->
+    <string name="rc_emoji_barbecue">Barbecue</string><!--95-->
+    <string name="rc_emoji_cooked_rice">Cooked Rice</string><!--96-->
+    <string name="rc_emoji_ice_cream">Ice Cream</string><!--97-->
+    <string name="rc_emoji_chocolate_bar">Chocolate Bar</string><!--98-->
+    <string name="rc_emoji_watermelon">Watermelon</string><!--99-->
+    <string name="rc_emoji_wine_glass">Wine Glass</string><!--100-->
+    <string name="rc_emoji_cheers">Cheers</string><!--101-->
+    <string name="rc_emoji_coffee">Coffee</string><!--102-->
+    <string name="rc_emoji_basketball">Basketball</string><!--103-->
+    <string name="rc_emoji_soccer_ball">Soccer Ball</string><!--104-->
+    <string name="rc_emoji_snowboarder">Snowboarder</string><!--105-->
+    <string name="rc_emoji_microphone">Microphone</string><!--106-->
+    <string name="rc_emoji_musical_note">Musical Note</string><!--107-->
+    <string name="rc_emoji_game_die">Game Die</string><!--108-->
+    <string name="rc_emoji_mahjone_red_dragon">Mahjong Red Dragon</string><!--109-->
+    <string name="rc_emoji_crown">Crown</string><!--110-->
+    <string name="rc_emoji_lipstick">Lipstick</string><!--111-->
+    <string name="rc_emoji_kiss">Kiss</string><!--112-->
+    <string name="rc_emoji_ring">Ring</string><!--113-->
+    <string name="rc_emoji_books">Books</string><!--114-->
+    <string name="rc_emoji_graduation_cap">Graduation Cap</string><!--115-->
+    <string name="rc_emoji_pencil">Pencil</string><!--116-->
+    <string name="rc_emoji_house_with_garden">House With Garden</string><!--117-->
+    <string name="rc_emoji_shower">Shower</string><!--118-->
+    <string name="rc_emoji_light_bulb">Light Bulb</string><!--119-->
+    <string name="rc_emoji_telephone_receiver">Telephone Receiver</string><!--120-->
+    <string name="rc_emoji_loudspeaker">Loudspeaker</string><!--121-->
+    <string name="rc_emoji_clock">Clock</string><!--122-->
+    <string name="rc_emoji_alarm_clock">Alarm Clock</string><!--123-->
+    <string name="rc_emoji_hourglass">Hourglass</string><!--124-->
+    <string name="rc_emoji_bomb">Bomb</string><!--125-->
+    <string name="rc_emoji_pistol">Pistol</string><!--126-->
+    <string name="rc_emoji_capsule">Capsule</string><!--127-->
+    <string name="rc_emoji_rocket">Rocket</string><!--128-->
+    <string name="rc_emoji_globe">Globe</string><!--129-->
+    <string name="rc_emoji_love_heart">Love</string><!--130-->
+    <!--emoji description 128 total end-->
+
+    <string name="rc_ext_common_phrase">Universal</string>
+
+    // notification
+    <string name="rc_notification_ticker_text">You have a new message</string>
+    <string name="rc_notification_channel_name">New Messages</string>
+    <string name="rc_notification_voip_channel_name">VOIP</string>
+
+    //@ 功能
+    <string name="rc_mention_title_choose_members">Select contacts</string>
+
+    //Custom Service
+    <string name="rc_cs_evaluate">appraise</string>
+    <string name="rc_cs_evaluate_title">Please evaluate the service of this for us</string>
+    <string name="rc_cs_very_satisfactory">very satisfied</string>
+    <string name="rc_cs_satisfactory">satisfied</string>
+    <string name="rc_cs_average">general</string>
+    <string name="rc_cs_unsatisfactory">not satisfied</string>
+    <string name="rc_cs_very_unsatisfactory">very dissatisfied</string>
+    <string name="rc_cs_resolved_or_not">Whether to solve your problem?</string>
+    <string name="rc_cs_submit_evaluate_content">submit</string>
+    <string name="rc_cs_please_comment">Welcome to give advice to our service</string>
+    <string name="rc_cs_please_leave_message">Please leave a message, we will reply you as soon as possible.</string>
+    <string name="rc_cs_leave_message">message</string>
+    <string name="rc_cs_submit_message">submit</string>
+    <string name="rc_cs_message_submited">Your message has been submitted</string>
+    <string name="rc_cs_evaluate_human">Please comment on our services</string>
+    <string name="rc_cs_evaluate_robot">Whether the robot solves your problem?</string>
+    <string name="rc_cs_submit">Submit</string>
+    <string name="rc_cs_cancel">Cancel</string>
+    <string name="rc_cs_select_group">Please select the contents</string>
+
+    //public service
+    <string name="rc_pub_service_info_description">Feature introduction</string>
+    <string name="rc_pub_service_info_enter">Enter Official Account</string>
+    <string name="rc_pub_service_info_follow">Follow</string>
+    <string name="rc_pub_service_info_unfollow">Unfollow</string>
+    <string name="rc_pub_service_info_account">Official Account：%1$s</string>
+    <string name="rc_pub_service_notification">New Message Notification</string>
+
+    //permissions
+    <string name="rc_android.permission.CAMERA">Camera</string>
+    <string name="rc_android.permission.ACCESS_FINE_LOCATION">Location info</string>
+    <string name="rc_android.permission.ACCESS_COARSE_LOCATION">Location info</string>
+    <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">Background location</string>
+    <string name="rc_android.permission.RECORD_AUDIO">Microphone</string>
+    <string name="rc_android.permission.READ_EXTERNAL_STORAGE">Storage</string>
+    <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">Storage</string>
+    <string name="rc_android.permission.READ_PHONE_STATE">Phone</string>
+    <string name="rc_android.permission.PROCESS_OUTGOING_CALLS">Phone</string>
+    <string name="rc_android.permission.BLUETOOTH_CONNECT">Bluetooth connect</string>
+
+    <string name="rc_ac_file_download_preview">File Preview</string>
+    <string name="rc_ac_file_download_progress_tv">Downloading...</string>
+    <string name="rc_ac_file_download_open_file_btn">Open File</string>
+    <string name="rc_ac_file_preview_begin_download">Download</string>
+    <string name="rc_ac_file_preview_downloaded">Downloaded</string>
+    <string name="rc_ac_file_preview_download_error">Download failed</string>
+    <string name="rc_ac_file_preview_download_cancel">Download has been canceled</string>
+    <string name="rc_ac_file_download_progress_pause">Canceled</string>
+    <string name="rc_ac_file_preview_download_resume">Continue to download</string>
+    <string name="rc_notice_network_unavailable">Network unavailable, please check your network</string>
+    <string name="rc_ac_file_url_error">The file cannot be downloaded due to URL error</string>
+    <string name="rc_ac_file_preview_can_not_open_file">Unable to open file</string>
+    <string name="rc_ac_file_download_request_permission">You need to enable read and write permissions in the settings</string>
+
+    <string name="rc_file_not_exist">File does not exist</string>
+    <string name="rc_recall_success">Message recalled</string>
+    <string name="rc_picsel_video_corrupted">Unable to share damaged video.</string>
+    <string name="rc_picsel_selected_max_time_span_with_param">Can\'t share the video longer than %d minutes.</string>
+
+
+    <string name="rc_save_picture">Save Photo</string>
+    <string name="rc_save_picture_at">Saved to album</string>
+    <string name="rc_src_file_not_found">Source file does not exist.</string>
+    <string name="rc_click_to_play">Click to Play</string>
+
+    <string name="rc_permission_request_failed">The attempt to request permissions has failed</string>
+
+    <!-- Combine-->
+    <string name="rc_combine_stepwise_forwarding">One-by-One Forward</string>
+    <string name="rc_combine_forwarding">Combine and Forward</string>
+    <string name="rc_combine_chat_history">Chat History</string>
+    <string name="rc_combine_group_chat">Group Chat History</string>
+    <string name="rc_combine_the_group_chat_of">Chat History for %s</string>
+    <string name="rc_combine_and">and</string>
+    <string name="rc_combine_unsupported">Failed to send, burn, quote message cannot be forwarded</string>
+    <string name="rc_combine_unsupported_step">Failed to send, burn, audio and video message, cannot be forwarded</string>
+    <string name="rc_combine_webview_loading">Chat history loading...</string>
+    <string name="rc_combine_webview_download_failed">Chat history download failed</string>
+    <string name="rc_combine_history_deleted">Chat history deleted</string>
+
+    <string name="rc_message_content_image">[Image]</string>
+    <string name="rc_message_content_voice">[Voice]</string>
+    <string name="rc_message_content_rich_text">[Message]</string>
+    <string name="rc_message_content_location">[Location]</string>
+    <string name="rc_message_content_draft">[Draft]</string>
+    <string name="rc_message_content_file">[File]</string>
+    <string name="rc_message_content_sight">[Video]</string>
+    <string name="rc_message_content_combine">[Chat History]</string>
+    <string name="rc_message_content_mentioned">[You were mentioned]</string>
+    <string name="rc_message_content_burn">[Secret Chat]</string>
+    <string name="rc_message_content_card">[Card]</string>
+    <string name="rc_message_content_sticker">[Sticker]</string>
+    <string name="rc_message_content_rp">[Red Packet]</string>
+    <string name="rc_message_content_vst">[Audio video call]]</string>
+
+    <string name="rc_daybreak_format">AM</string>
+    <string name="rc_morning_format">AM</string>
+    <string name="rc_noon_format">PM</string>
+    <string name="rc_afternoon_format">PM</string>
+    <string name="rc_night_format">PM</string>
+
+    <string name="rc_loadmore_loading">Loading...</string>
+
+    <string name="rc_new_messages">&#160;new messages</string>
+    <string name="rc_info_not_in_discussion">You are not in current discussion</string>
+    <string name="rc_info_not_in_group">You are not in current group</string>
+    <string name="rc_info_not_in_chatroom">You are not in current chatroom</string>
+    <string name="rc_rejected_by_blacklist_prompt">Your message has been sent, but rejected by receiver</string>
+    <string name="rc_info_forbidden_to_talk">You are banned to send message in current group</string>
+    <string name="rc_forbidden_in_chatroom">You are banned to send message in current chatroom</string>
+    <string name="rc_kicked_from_chatroom">You were kicked out from chatroom</string>
+    <string name="rc_join_chatroom_failure">Failed to join the chatroom</string>
+    <string name="rc_read_receipt">read</string>
+
+    <string name="rc_message_unknown">The current version does not support viewing this message</string>
+    <string name="rc_choose_members">Select Members</string>
+
+    <string name="rc_cancel">Cancel</string>
+    <string name="rc_dialog_ok">OK</string>
+    <string name="rc_not_prompt">Not prompt</string>
+
+    <string name="rc_gathered_conversation_private_title">Private</string>
+    <string name="rc_gathered_conversation_group_title">Group</string>
+    <string name="rc_gathered_conversation_chatroom_title">Chatroom</string>
+    <string name="rc_gathered_conversation_system_title">System</string>
+    <string name="rc_gathered_conversation_custom_title">Custom</string>
+    <string name="rc_gathered_conversation_unkown_title">Unkown</string>
+
+    <string name="rc_you_recalled_a_message">You have recalled a message</string>
+    <string name="rc_you_recalled_edit">Edit</string>
+    <string name="rc_read_receipt_status">read</string>
+    <string name="rc_voip_occupying">The audio channel is being used, please try later</string>
+    <string name="rc_blacklist_prompt">You have been added to blacklist</string>
+    <string name="rc_admin_recalled_message">Admin&#160; has recalled a message</string>
+    <string name="rc_new_message_divider_content">Above is the historical messages</string>
+    <string name="rc_recall_failed_for_network_unavailable">Recall failed. Please check your network</string>
+    <string name="rc_recall_overtime">This message has passed the recall time limit. Unable to recall.</string>
+    <string name="rc_user_recalled_message">%s recalled one message</string>
+    <string name="rc_recall_failed">Failed to recall the message</string>
+    <string name="rc_voice_short">Recording time is too short</string>
+    <string name="rc_voice_failure">Recording failed</string>
+    <string name="rc_voice_too_long">Recording time is too long</string>
+    <string name="rc_load_image_failed">Picture loading failed</string>
+    //刷新库
+    <string name="srl_content_empty">The content view in SmartRefreshLayout is empty. Do you forget to add it in xml layout file?</string>
+    <string name="srl_component_falsify" formatted="false">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>
+
+    <string name="rc_unknow">UnKnown</string>
+    <string name="rc_unread_message">{0} new messages</string>
+
+    <string name="rc_location_real_time_join_notification">Others can see your location if you join Real-time Location. Join now</string>
+    <string name="rc_location_warning">Prompt</string>
+
+    //webview
+    <string name="rc_notification_error_ssl_cert_invalid">The webpage certificate you visited is invalid!</string>
+
+    <string name="rc_plugin_location_message">Send Location</string>
+    <string name="rc_plugin_location_sharing">Real-time Location</string>
+    <string name="rc_location_exit_sharing_confirm">End</string>
+    <string name="rc_location_fetching">Fetching&#8230;&#8230;</string>
+    <string name="rc_location_fail">Failed to locate</string>
+    <string name="rc_location_temp_failed">Failed to locate，please try again later</string>
+    <string name="rc_location_sharing_exceed_max">Maximum number exceed </string>
+    <string name="rc_location_you_are_sharing">You are sharing location</string>
+    <string name="rc_location_other_is_sharing">are sharing location</string>
+    <string name="rc_location_others_are_sharing">persons are sharing location</string>
+    <string name="rc_location_others_sharing">persons are sharing location</string>
+    <string name="rc_location_exit_location_sharing">End Real-time Location now?</string>
+    <string name="rc_location_real_time_exit_notification">Real-time Location will stop if you leave this session. Leave now?</string>
+    <string name="rc_location_permission_failed">You need to grant location permission in settings menu</string>
+    <string name="rc_location_sevice_dialog_title">Turn on location service</string>
+    <string name="rc_location_sevice_dialog_messgae">You need to turn on location service to get location information</string>
+    <string name="rc_location_sevice_dialog_confirm">Go</string>
+    <string name="rc_network_exception">Network anomalies, please try again later</string>
+    <string name="rc_search_no_result">No results</string>
+    <string name="rc_dialog_got_it">Got it</string>
+    <string name="rc_dialog_item_sight">Sight</string>
+    <string name="rc_dialog_item_select_from_album">Select from Album</string>
+    <string name="rc_dialog_no_plugin_warning">No plug-ins available</string>
+    <string name="rc_ext_voice_btn_press_to_speak">Hold to Talk</string>
+    <string name="rc_ext_plugin_location_message">Send Location</string>
+    <string name="rc_ext_plugin_location_sharing">Real-time Location</string>
+
+    <string name="rc_confirm">Confirm</string>
+    <string name="rc_send">Send</string>
+    <string name="rc_clear">Clear</string>
+    <string name="rc_real_time_join_notification">Others can see your location if you join Real-time Location. Join now</string>
+    <string name="rc_permission_grant_needed">You need to enable read and write permissions in the settings</string>
+    <string name="rc_permission_background_location_grant_tip">You need to provide background location permission, please select always allow in setting</string>
+    <string name="rc_permission_microphone">(Microphone).</string>
+    <string name="rc_permission_microphone_and_camera">(Microphone、Camera).</string>
+    <string name="rc_permission_camera">(Camera).</string>
+
+    <!--start图库-->
+    <string name="rc_picture_camera_roll">CameraRoll</string>
+    <string name="rc_picture_camera_roll_num">%1$s (%2$d)</string>
+    <string name="rc_picture_cancel">Cancel</string>
+    <string name="rc_picture_take_picture">Shot</string>
+    <string name="rc_picture_rule">not pictures or video</string>
+    <string name="rc_picture_min_video_num">Video Selection Cannot%1$dNumber</string>
+    <string name="rc_picture_message_max_num_fir">Select up to</string>
+    <string name="rc_picture_message_max_num_sec">images</string>
+    <string name="rc_picture_preview">Preview</string>
+    <string name="rc_picture_please">Please later...</string>
+    <string name="rc_picture_done_front_num">%1$d/%2$d Ok</string>
+    <string name="rc_picture_completed">Completed</string>
+    <string name="rc_picture_done">Ok</string>
+    <string name="rc_picture_please_select">Please Select</string>
+    <string name="rc_picture_empty_title">No video or photos\n</string>
+    <string name="rc_picture_empty">you can use your camera to take photos or videos</string>
+    <string name="rc_picture_min_img_num">Picture Selection Cannot%1$dNumber</string>
+    <string name="rc_picture_gif_tag">gif</string>
+    <string name="rc_picture_audio">Access to system recording permission denied</string>
+    <string name="rc_picture_jurisdiction">Read memory card access denied</string>
+    <string name="rc_picture_camera">Get system camera permission denied</string>
+    <string name="rc_picture_video_toast">Video not Preview</string>
+    <string name="rc_picture_record_video">Record Video</string>
+    <string name="rc_picture_photograph">Photograph</string>
+    <string name="rc_picture_long_chart">Long</string>
+    <string name="rc_picture_warning">No Media files!</string>
+    <string name="rc_picture_prompt">Prompt</string>
+    <string name="rc_picture_prompt_content">Do you want to save pictures to your phone?</string>
+    <string name="rc_picture_save_error">Picture save failed</string>
+    <string name="rc_picture_save_success">Save picture successfully until</string>
+    <string name="rc_picture_play_audio">Play</string>
+    <string name="rc_picture_stop_audio">Stop</string>
+    <string name="rc_picture_quit_audio">Quit</string>
+    <string name="rc_picture_pause_audio">Pause</string>
+    <string name="rc_picture_error">The picture is corrupted</string>
+    <string name="rc_picture_video_error">The video is corrupted</string>
+    <string name="rc_picture_audio_error">The audio is corrupted</string>
+    <string name="rc_picture_confirm">Confirm</string>
+    <string name="rc_picture_preview_image_num">%1$d / %2$d</string>
+    <string name="rc_picture_not_crop_data">No cropped data</string>
+    <string name="rc_picture_original_image">Original</string>
+    <string name="rc_picture_original_image_size">Original(%1$s)</string>
+    <string name="rc_picture_send">Send</string>
+    <string name="rc_picture_send_num">Send</string>
+    <string name="rc_picture_select">Choose</string>
+    <string name="rc_picture_data_exception">Get album data exception...</string>
+    <!--end图库-->
+
+    <string name="rc_receive_new_message">You have received a new message</string>
+    <string name="rc_exceeded_max_limit_100">Select up to 100 chat transcripts</string>
+    <string name="rc_location_service_dialog_title">Turn on location service</string>
+
+    <string name="rc_read_all">Read All</string>
+
+    <string name="rc_conversation_remote_side_is_typing">Typing &#046;&#046;&#046;</string>
+    <string name="rc_conversation_remote_side_speaking">Speaking &#046;&#046;&#046;</string>
+    <string name="rc_date_format">MM dd HH:mm</string>
+
+    <string name="rc_mention_messages">@%s</string>
+    <string name="rc_media_upload_error">Cannot upload 0KB file</string>
+    <string name="rc_load_local_message">Network Error，View local history messages?</string>
+
+    <string name="rc_message_too_long">The text you entered is too long to send</string>
+
+    <string name="rc_translate_failed_try_again">Translation failed, please try again</string>
+    <string name="rc_translate_message">Translate Message</string>
+
+</resources>

@@ -54,8 +54,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#262626"
                 android:textSize="10sp"
-                android:visibility="gone"
-                tools:text="小标题" />
+                android:visibility="gone" />
         </LinearLayout>
 
         <ImageButton

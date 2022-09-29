@@ -1,15 +1,12 @@
 package io.rong.sight.player;
 
 import android.net.Uri;
-
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 
-/**
- * @author Aidan Follestad (afollestad)
- */
+/** @author Aidan Follestad (afollestad) */
 @SuppressWarnings("unused")
 interface IUserMethods {
 
@@ -54,7 +51,9 @@ interface IUserMethods {
 
     void seekTo(@IntRange(from = 0, to = Integer.MAX_VALUE) int pos);
 
-    void setVolume(@FloatRange(from = 0f, to = 1f) float leftVolume, @FloatRange(from = 0f, to = 1f) float rightVolume);
+    void setVolume(
+            @FloatRange(from = 0f, to = 1f) float leftVolume,
+            @FloatRange(from = 0f, to = 1f) float rightVolume);
 
     void pause();
 

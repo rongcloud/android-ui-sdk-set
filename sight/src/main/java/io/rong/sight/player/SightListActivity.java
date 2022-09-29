@@ -10,12 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -27,14 +22,16 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.SightMessage;
 import io.rong.sight.R;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SightListActivity extends RongBaseNoActionbarActivity implements RongUserInfoManager.UserDataObserver {
+public class SightListActivity extends RongBaseNoActionbarActivity
+        implements RongUserInfoManager.UserDataObserver {
     private String targetId;
     private Conversation.ConversationType conversationType;
     private SightListAdapter sightListAdapter;
-    private final static int DEFAULT_FILE_COUNT = 100;
+    private static final int DEFAULT_FILE_COUNT = 100;
     private boolean isDestruct;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,29 +40,38 @@ public class SightListActivity extends RongBaseNoActionbarActivity implements Ro
         Intent intent = getIntent();
         targetId = intent.getStringExtra("targetId");
         isDestruct = intent.getBooleanExtra("isDestruct", false);
-        conversationType = Conversation.ConversationType.setValue(intent.getIntExtra("conversationType", 0));
+        conversationType =
+                Conversation.ConversationType.setValue(intent.getIntExtra("conversationType", 0));
         ListView fileListView = findViewById(R.id.sightList);
         sightListAdapter = new SightListAdapter();
         fileListView.setAdapter(sightListAdapter);
 
-        RongIMClient.getInstance().getHistoryMessages(conversationType, targetId, "RC:SightMsg", -1, DEFAULT_FILE_COUNT, new RongIMClient.ResultCallback<List<Message>>() {
-            @Override
-            public void onSuccess(final List<Message> messages) {
-                if (messages != null && messages.size() > 0) {
-                    setListAdapterData(messages, sightListAdapter);
-                }
-            }
+        RongIMClient.getInstance()
+                .getHistoryMessages(
+                        conversationType,
+                        targetId,
+                        "RC:SightMsg",
+                        -1,
+                        DEFAULT_FILE_COUNT,
+                        new RongIMClient.ResultCallback<List<Message>>() {
+                            @Override
+                            public void onSuccess(final List<Message> messages) {
+                                if (messages != null && messages.size() > 0) {
+                                    setListAdapterData(messages, sightListAdapter);
+                                }
+                            }
 
-            @Override
-            public void onError(RongIMClient.ErrorCode e) {
-            }
-        });
-        findViewById(R.id.imgbtn_nav_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {}
+                        });
+        findViewById(R.id.imgbtn_nav_back)
+                .setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                finish();
+                            }
+                        });
         initUserInfoChangeListener();
     }
 
@@ -87,14 +93,17 @@ public class SightListActivity extends RongBaseNoActionbarActivity implements Ro
             }
             ItemData data = new ItemData();
             data.message = message;
-            if (conversationType.equals(Conversation.ConversationType.GROUP)) {
-                GroupUserInfo groupUserInfo = RongUserInfoManager.getInstance().getGroupUserInfo(targetId, message.getSenderUserId());
+            if (Conversation.ConversationType.GROUP.equals(conversationType)) {
+                GroupUserInfo groupUserInfo =
+                        RongUserInfoManager.getInstance()
+                                .getGroupUserInfo(targetId, message.getSenderUserId());
                 if (groupUserInfo != null && !TextUtils.isEmpty(groupUserInfo.getNickname())) {
                     data.senderName = groupUserInfo.getNickname();
                 }
             }
             if (TextUtils.isEmpty(data.senderName)) {
-                UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+                UserInfo userInfo =
+                        RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
                 data.senderName = userInfo != null ? userInfo.getName() : message.getSenderUserId();
             }
             itemDataList.add(data);
@@ -118,7 +127,9 @@ public class SightListActivity extends RongBaseNoActionbarActivity implements Ro
 
     public void updateGroupUserInfo(GroupUserInfo groupMember) {
         boolean needUpdate = false;
-        if (groupMember != null && conversationType.equals(Conversation.ConversationType.GROUP) && targetId.equals(groupMember.getGroupId())) {
+        if (groupMember != null
+                && Conversation.ConversationType.GROUP.equals(conversationType)
+                && targetId.equals(groupMember.getGroupId())) {
             for (ItemData itemData : sightListAdapter.getData()) {
                 if (itemData.message.getSenderUserId().equals(groupMember.getUserId())) {
                     itemData.senderName = groupMember.getNickname();
@@ -137,9 +148,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity implements Ro
     }
 
     @Override
-    public void onGroupUpdate(Group group) {
-
-    }
+    public void onGroupUpdate(Group group) {}
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
@@ -195,16 +204,18 @@ public class SightListActivity extends RongBaseNoActionbarActivity implements Ro
             String detail = String.format("%s %s %s", itemData.senderName, time, size);
             viewHolder.itemDetail.setText(detail);
             viewHolder.itemIcon.setImageResource(R.drawable.rc_ic_sight_video);
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(SightListActivity.this, SightPlayerActivity.class);
-                    intent.putExtra("Message", message);
-                    intent.putExtra("SightMessage", sightMessage);
-                    intent.putExtra("fromList", true);
-                    startActivity(intent);
-                }
-            });
+            convertView.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent =
+                                    new Intent(SightListActivity.this, SightPlayerActivity.class);
+                            intent.putExtra("Message", message);
+                            intent.putExtra("SightMessage", sightMessage);
+                            intent.putExtra("fromList", true);
+                            startActivity(intent);
+                        }
+                    });
             return convertView;
         }
     }
@@ -220,18 +231,14 @@ public class SightListActivity extends RongBaseNoActionbarActivity implements Ro
         String senderName;
     }
 
-
     private String convertFileSize(long size) {
         long kb = 1024;
         long mb = kb * 1024;
         long gb = mb * 1024;
         if (size < kb) {
             return String.format("%.2f B", (float) size);
-        } else if (size < mb)
-            return String.format("%.2f KB", (float) size / kb);
-        else if (size < gb)
-            return String.format("%.2f MB", (float) size / mb);
-        else
-            return String.format("%.2f G", (float) size / gb);
+        } else if (size < mb) return String.format("%.2f KB", (float) size / kb);
+        else if (size < gb) return String.format("%.2f MB", (float) size / mb);
+        else return String.format("%.2f G", (float) size / gb);
     }
 }

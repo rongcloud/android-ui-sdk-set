@@ -3,19 +3,13 @@ package io.rong.sticker.mysticker;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
-
-import java.util.List;
-
 import io.rong.imkit.activity.RongBaseActivity;
 import io.rong.sticker.R;
 import io.rong.sticker.businesslogic.StickerPackageDbTask;
 import io.rong.sticker.model.StickerPackage;
+import java.util.List;
 
-
-/**
- * Created by luoyanlong on 2018/08/17.
- * 删除表情包Activity
- */
+/** Created by luoyanlong on 2018/08/17. 删除表情包Activity */
 public class MyStickerActivity extends RongBaseActivity {
 
     private View contentView;
@@ -35,12 +29,13 @@ public class MyStickerActivity extends RongBaseActivity {
         } else {
             showContentView();
             MyStickerListAdapter adapter = new MyStickerListAdapter(this, list);
-            adapter.setOnNoStickerListener(new MyStickerListAdapter.OnNoStickerListener() {
-                @Override
-                public void onNoSticker() {
-                    showEmptyView();
-                }
-            });
+            adapter.setOnNoStickerListener(
+                    new MyStickerListAdapter.OnNoStickerListener() {
+                        @Override
+                        public void onNoSticker() {
+                            showEmptyView();
+                        }
+                    });
             listView.setAdapter(adapter);
         }
     }

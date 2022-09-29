@@ -4,28 +4,30 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-
 import androidx.annotation.AttrRes;
-
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author Aidan Follestad (afollestad)
- */
+/** @author Aidan Follestad (afollestad) */
 class Util {
 
     public static String getDurationString(long durationMs) {
-        return String.format(Locale.getDefault(), "%s%02d:%02d",
-                 "",
+        return String.format(
+                Locale.getDefault(),
+                "%s%02d:%02d",
+                "",
                 TimeUnit.MILLISECONDS.toMinutes(durationMs),
-                TimeUnit.MILLISECONDS.toSeconds(durationMs) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(durationMs))
-        );
+                TimeUnit.MILLISECONDS.toSeconds(durationMs)
+                        - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(durationMs)));
     }
 
     public static boolean isColorDark(int color) {
-        double darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;
+        double darkness =
+                1
+                        - (0.299 * Color.red(color)
+                                        + 0.587 * Color.green(color)
+                                        + 0.114 * Color.blue(color))
+                                / 255;
         return darkness >= 0.5;
     }
 
@@ -42,7 +44,7 @@ class Util {
     }
 
     public static int resolveColor(Context context, @AttrRes int attr, int fallback) {
-        TypedArray a = context.getTheme().obtainStyledAttributes(new int[]{attr});
+        TypedArray a = context.getTheme().obtainStyledAttributes(new int[] {attr});
         try {
             return a.getColor(0, fallback);
         } finally {
@@ -54,12 +56,14 @@ class Util {
         return resolveDrawable(context, attr, null);
     }
 
-    private static Drawable resolveDrawable(Context context, @AttrRes int attr, @SuppressWarnings("SameParameterValue") Drawable fallback) {
-        TypedArray a = context.getTheme().obtainStyledAttributes(new int[]{attr});
+    private static Drawable resolveDrawable(
+            Context context,
+            @AttrRes int attr,
+            @SuppressWarnings("SameParameterValue") Drawable fallback) {
+        TypedArray a = context.getTheme().obtainStyledAttributes(new int[] {attr});
         try {
             Drawable d = a.getDrawable(0);
-            if (d == null && fallback != null)
-                d = fallback;
+            if (d == null && fallback != null) d = fallback;
             return d;
         } finally {
             a.recycle();

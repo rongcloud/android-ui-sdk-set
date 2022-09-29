@@ -12,12 +12,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.rong.common.rlog.RLog;
-
-/**
- * Created by luoyanlong on 2018/08/07.
- * 下载器，没有做线程切换
- */
+/** Created by luoyanlong on 2018/08/07. 下载器，没有做线程切换 */
 public class DownloadUtil {
     private static final String TAG = "DownloadUtil";
     private String urlString;
@@ -111,7 +106,7 @@ public class DownloadUtil {
         void onError(Exception e);
     }
 
-    //防止按钮连续点击
+    // 防止按钮连续点击
     public static boolean isFastClick() {
         long time = System.currentTimeMillis();
         if (time - lastClickTime < MIN_CLICK_DELAY_TIME) {
@@ -120,5 +115,4 @@ public class DownloadUtil {
         lastClickTime = time;
         return false;
     }
-
 }

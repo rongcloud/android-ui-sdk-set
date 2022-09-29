@@ -1,0 +1,514 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rc_action_bar_back">返回</string>
+    <string name="rc_action_bar_ok">确定</string>
+
+    //会话列表
+    <string name="rc_conversation_list_title">会话列表</string>
+    <string name="rc_conversation_list_empty_prompt">"暂无聊天信息"</string>
+    <string name="rc_conversation_list_notice_network_unavailable">当前网络不可用，请检查你的网络设置</string>
+    <string name="rc_conversation_list_notice_disconnect">无法连接到服务器</string>
+    <string name="rc_conversation_list_notice_kicked">该帐号已经在其他设备登录</string>
+    <string name="rc_conversation_list_notice_connecting">连接中...</string>
+    <string name="rc_conversation_list_dialog_set_top">置顶该聊天</string>
+    <string name="rc_conversation_list_dialog_cancel_top">取消置顶</string>
+    <string name="rc_conversation_list_dialog_remove">删除该聊天</string>
+    <string name="rc_conversation_list_popup_set_top">已置顶</string>
+    <string name="rc_conversation_list_popup_cancel_top">取消置顶</string>
+    <string name="rc_conversation_unread_dot">99+</string>
+
+    //会话内容概要
+    <string name="rc_conversation_summary_content_image">[图片]</string>
+    <string name="rc_conversation_summary_content_voice">[语音]</string>
+    <string name="rc_conversation_summary_content_rich_text">[图文]</string>
+    <string name="rc_conversation_summary_content_location">[位置]</string>
+    <string name="rc_conversation_summary_content_file">[文件]</string>
+    <string name="rc_conversation_summary_content_sight">[小视频]</string>
+    <string name="rc_conversation_summary_content_card">[个人名片]</string>
+    <string name="rc_conversation_summary_content_sticker">[动态表情]</string>
+    <string name="rc_conversation_summary_content_rp">[红包]</string>
+    <string name="rc_conversation_summary_content_vst">[音视频通话]</string>
+    <string name="rc_conversation_summary_content_combine">[聊天记录]</string>
+    <string name="rc_conversation_summary_content_draft">[草稿]</string>
+    <string name="rc_conversation_summary_content_mentioned">[有人@我]</string>
+    <string name="rc_conversation_summary_content_burn">[阅后即焚]</string>
+
+    //聚合会话名称
+    <string name="rc_gathered_conversation_private_title">单聊消息</string>
+    <string name="rc_gathered_conversation_group_title">群组消息</string>
+    <string name="rc_gathered_conversation_chatroom_title">聊天室消息</string>
+    <string name="rc_gathered_conversation_system_title">系统消息</string>
+    <string name="rc_gathered_conversation_custom_title">客服消息</string>
+    <string name="rc_gathered_conversation_unkown_title">未识别消息</string>
+
+    //日期相关
+    <string name="rc_date_yesterday">昨天</string>
+    <string name="rc_date_year">年</string>
+    <string name="rc_date_month">月</string>
+    <string name="rc_date_day">日</string>
+    <string name="rc_date_sunday">星期日</string>
+    <string name="rc_date_monday">星期一</string>
+    <string name="rc_date_tuesday">星期二</string>
+    <string name="rc_date_wednesday">星期三</string>
+    <string name="rc_date_thursday">星期四</string>
+    <string name="rc_date_friday">星期五</string>
+    <string name="rc_date_saturday">星期六</string>
+    <string name="rc_date_morning">凌晨</string>
+    <string name="rc_date_am">上午</string>
+    <string name="rc_date_noon">中午</string>
+    <string name="rc_date_pm">下午</string>
+    <string name="rc_date_night">晚上</string>
+
+    //聊天页面
+    <string name="rc_default_message">暂不支持此 UI</string>
+    <string name="rc_recalled_message">撤回了一条消息</string>
+    <string name="rc_you_recalled_a_message">你撤回了一条消息</string>
+    <string name="rc_you_recalled_edit">重新编辑</string>
+    <string name="rc_read_receipt_status">人已读</string>
+    <string name="rc_voip_occupying">声音通道被占用，请稍后再试</string>
+    <string name="rc_blacklist_prompt">您已被加入黑名单</string>
+    <string name="rc_recalled_a_message">&#160;撤回了一条消息</string>
+    <string name="rc_admin_recalled_message">管理员&#160;撤回了一条消息</string>
+    <string name="rc_unknow">未知类型消息</string>
+    <string name="rc_unread_message">{0} 条新消息</string>
+    <string name="rc_new_message_divider_content">以上是历史消息</string>
+    <string name="rc_recall_failed_for_network_unavailable">撤回不成功，请检查网络连接</string>
+    <string name="rc_recall_overtime">该消息超过撤回时间，不能被撤回。</string>
+    <string name="rc_user_recalled_message">%s撤回了一条消息</string>
+    <string name="rc_recall_failed">撤回失败</string>
+    <string name="rc_load_image_failed">图片加载失败</string>
+
+    <string name="rc_voice_rec">手指上滑，取消发送</string>
+    <string name="rc_voice_cancel">手指上滑，取消发送</string>
+    <string name="rc_voice_short">录音时间太短</string>
+    <string name="rc_voice_failure">录音失败！</string>
+    <string name="rc_voice_too_long">录制时间超长</string>
+    <string name="rc_voice_press_to_input">按住 说话</string>
+    <string name="rc_voice_release_to_send">松开 结束</string>
+
+    //客服
+    <string name="rc_cs_evaluate">评价</string>
+    <string name="rc_cs_evaluate_title">请对我们本次的服务进行评价</string>
+    <string name="rc_cs_evaluate_human">请对本次服务做出评价</string>
+    <string name="rc_cs_evaluate_robot">机器人是否解决了您的问题</string>
+    <string name="rc_cs_resolved_or_not">是否解决了您的问题 ?</string>
+    <string name="rc_cs_please_comment">欢迎给我们的服务提建议~</string>
+    <string name="rc_cs_submit_evaluate_content">提交评价</string>
+    <string name="rc_cs_very_satisfactory">非常满意</string>
+    <string name="rc_cs_satisfactory">满意</string>
+    <string name="rc_cs_average">一般</string>
+    <string name="rc_cs_unsatisfactory">不满意</string>
+    <string name="rc_cs_very_unsatisfactory">非常不满意</string>
+    <string name="rc_cs_submit">提交</string>
+    <string name="rc_cs_cancel">取消</string>
+    <string name="rc_cs_select_group">请选择咨询内容</string>
+    <string name="rc_cs_leave_message">留言</string>
+    <string name="rc_cs_please_leave_message">请您留言, 我们会尽快回复您。</string>
+    <string name="rc_cs_submit_message">提交留言</string>
+    <string name="rc_cs_message_submited">您的留言已提交</string>
+
+    //公众号
+    <string name="rc_pub_service_info_description">功能介绍</string>
+    <string name="rc_pub_service_info_enter">进入公众号</string>
+    <string name="rc_pub_service_info_follow">关注</string>
+    <string name="rc_pub_service_info_unfollow">取消关注</string>
+    <string name="rc_pub_service_info_account">公众号：%s</string>
+    <string name="rc_pub_service_notification">新消息通知</string>
+
+    //permission
+    <string name="rc_android.permission.CAMERA">相机</string>
+    <string name="rc_android.permission.ACCESS_FINE_LOCATION">位置信息</string>
+    <string name="rc_android.permission.ACCESS_COARSE_LOCATION">位置信息</string>
+    <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">后台位置</string>
+    <string name="rc_android.permission.RECORD_AUDIO">麦克风</string>
+    <string name="rc_android.permission.READ_EXTERNAL_STORAGE">存储空间</string>
+    <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">存储空间</string>
+    <string name="rc_android.permission.READ_PHONE_STATE">电话</string>
+    <string name="rc_android.permission.PROCESS_OUTGOING_CALLS">电话</string>
+    <string name="rc_android.permission.BLUETOOTH_CONNECT">连接附近设备</string>
+
+    <string name="rc_permission_grant_needed">您需要在设置中打开权限</string>
+    <string name="rc_permission_background_location_grant_tip">您需要提供后台位置权限，请在设置页面选择始终允许</string>
+    <string name="rc_permission_microphone">（麦克风）。</string>
+    <string name="rc_permission_microphone_and_camera">（麦克风，相机）。</string>
+    <string name="rc_permission_camera">（相机）。</string>
+
+    <string name="rc_permission_request_failed">获取权限失败</string>
+
+    //刷新库
+    <string name="srl_content_empty">The content view in SmartRefreshLayout is empty. Do you forget to add it in xml layout file?</string>
+    <string name="srl_component_falsify" formatted="false">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>
+
+    //位置
+    <string name="rc_location_title">位置</string>
+    <string name="rc_plugin_location_message">发送位置</string>
+    <string name="rc_plugin_location_sharing">共享实时位置</string>
+    <string name="rc_location_exit_sharing_confirm">结束共享</string>
+    <string name="rc_location_fetching">获取中&#8230;&#8230;</string>
+    <string name="rc_location_fail">定位失败</string>
+    <string name="rc_location_temp_failed">定位失败，请稍后重试</string>
+    <string name="rc_location_sharing_exceed_max">超过最大位置共享人数</string>
+    <string name="rc_location_you_are_sharing">你正在共享位置</string>
+    <string name="rc_location_other_is_sharing">正在共享位置</string>
+    <string name="rc_location_others_are_sharing">人正在共享位置</string>
+    <string name="rc_location_others_sharing">人在共享位置</string>
+    <string name="rc_location_real_time_join_notification">加入位置共享，聊天中其他人也能看到你的位置，确定加入？</string>
+    <string name="rc_location_warning">提示</string>
+    <string name="rc_location_exit_location_sharing">是否结束位置共享？</string>
+    <string name="rc_location_real_time_exit_notification">离开会话，位置共享也会结束，确定离开？</string>
+    <string name="rc_location_permission_failed">您需要在设置里打开定位权限</string>
+    <string name="rc_location_sevice_dialog_title">开启位置服务</string>
+    <string name="rc_location_sevice_dialog_messgae">需要开启位置服务获取位置信息</string>
+    <string name="rc_location_sevice_dialog_confirm">去开启</string>
+    //webview
+    <string name="rc_notification_error_ssl_cert_invalid">您访问的网页证书无效!</string>
+    //Dialog
+    <string name="rc_dialog_ok">确定</string>
+    <string name="rc_confirm">确认</string>
+    <string name="rc_cancel">取消</string>
+    <string name="rc_not_prompt">不再提示</string>
+    <string name="rc_send">发送</string>
+    <string name="rc_clear">清空</string>
+    <string name="rc_network_exception">网络异常请稍后再试</string>
+    <string name="rc_search">搜索</string>
+    <string name="rc_search_no_result">暂无结果</string>
+    <string name="rc_dialog_item_message_copy">复制消息</string>
+    <string name="rc_dialog_item_message_delete">删除消息</string>
+    <string name="rc_dialog_item_message_recall">撤回消息</string>
+    <string name="rc_dialog_item_message_reference">引用消息</string>
+    <string name="rc_dialog_got_it">知道了</string>
+    <string name="rc_dialog_destruct_hint">消息查看后自动销毁，消息禁止复制或转发，服务器不保留消息记录</string>
+    <string name="rc_dialog_item_sight">小视频</string>
+    <string name="rc_dialog_item_select_from_album">从相册选择</string>
+    <string name="rc_dialog_no_plugin_warning">无可用插件</string>
+
+    //输入框区域
+    <string name="rc_ext_voice_btn_press_to_speak">按住 说话</string>
+    <string name="rc_ext_plugin_location">位置</string>
+    <string name="rc_ext_plugin_image">照片</string>
+    <string name="rc_ext_plugin_file">文件</string>
+    <string name="rc_ext_plugin_destruct">阅后即焚</string>
+    <string name="rc_ext_plugin_location_message">发送位置</string>
+    <string name="rc_ext_plugin_location_sharing">共享实时位置</string>
+    <string name="rc_ext_common_phrase">常用语</string>
+
+    //@ 功能
+    <string name="rc_mention_title_choose_members">选择联系人</string>
+
+    //通知
+    <string name="rc_notification_channel_name">新消息</string>
+    <string name="rc_notification_ticker_text">您有了一条新消息</string>
+    <string name="rc_notification_voip_channel_name">音视频通话</string>
+
+    //emoji
+    <!--emoji 对应的文字描述 共 128 个 start-->
+    <string name="rc_emoji_smiley_face">笑脸</string>><!--1-->
+    <string name="rc_emoji_grinning_face">笑嘻嘻</string><!--2-->
+    <string name="rc_emoji_smiley">微笑</string><!--3-->
+    <string name="rc_emoji_cute">萌萌哒</string><!--4-->
+    <string name="rc_emoji_winking_face">眨眼</string><!--5-->
+    <string name="rc_emoji_heart_eyes">色眯眯</string><!--6-->
+    <string name="rc_emoji_blowing_kiss">飞吻</string><!--7-->
+    <string name="rc_emoji_kiss_face">么么哒</string><!--8-->
+    <string name="rc_emoji_crazy_face">调皮</string><!--9-->
+    <string name="rc_emoji_tongue_out">吐舌头</string><!--10-->
+    <string name="rc_emoji_flushed_face">脸红</string><!--11-->
+    <string name="rc_emoji_grinning_with_smiling">露齿而笑</string><!--12-->
+    <string name="rc_emoji_pensive">沉思</string><!--13-->
+    <string name="rc_emoji_pleased">满意</string><!--14-->
+    <string name="rc_emoji_dissatisfied">不满</string><!--15-->
+    <string name="rc_emoji_worried_face">苦瓜脸</string><!--16-->
+    <string name="rc_emoji_disappointed_face">失望</string><!--17-->
+    <string name="rc_emoji_helpless_face">无助</string><!--18-->
+    <string name="rc_emoji_crying">伤心</string><!--19-->
+    <string name="rc_emoji_laughing_tears">喜极而泣</string><!--20-->
+    <string name="rc_emoji_sobbing">哭泣</string><!--21-->
+    <string name="rc_emoji_sleepy_face">困</string><!--22-->
+    <string name="rc_emoji_cold_sweat">冷汗</string><!--23-->
+    <string name="rc_emoji_happy_sweat">尴尬</string><!--24-->
+    <string name="rc_emoji_sweat">汗</string><!--25-->
+    <string name="rc_emoji_tired_face">抓狂</string><!--26-->
+    <string name="rc_emoji_weary_face">疲惫</string><!--27-->
+    <string name="rc_emoji_fearful_face">可怕</string><!--28-->
+    <string name="rc_emoji_scream">尖叫</string><!--29-->
+    <string name="rc_emoji_angry_face">生气</string><!--30-->
+    <string name="rc_emoji_mad_face">怒气冲冲</string><!--31-->
+    <string name="rc_emoji_confounded_face">蒙羞</string><!--32-->
+    <string name="rc_emoji_big_grin">大笑</string><!--33-->
+    <string name="rc_emoji_hungry">馋</string><!--34-->
+    <string name="rc_emoji_mask_face">口罩</string><!--35-->
+    <string name="rc_emoji_sunglasses">墨镜</string><!--36-->
+    <string name="rc_emoji_sleeping">睡眠</string><!--37-->
+    <string name="rc_emoji_shocked_face">震惊</string><!--38-->
+    <string name="rc_emoji_dizzy_face">头晕眼花</string><!--39-->
+    <string name="rc_emoji_purple_devil">小恶魔</string><!--40-->
+    <string name="rc_emoji_devil">恶魔</string><!--41-->
+    <string name="rc_emoji_surprised_face">惊呆</string><!--42-->
+    <string name="rc_emoji_grimacing_face">扮鬼脸</string><!--43-->
+    <string name="rc_emoji_confused">困惑</string><!--44-->
+    <string name="rc_emoji_mouthless">无口</string><!--45-->
+    <string name="rc_emoji_halo">天使光环</string><!--46-->
+    <string name="rc_emoji_smirking_face">傻笑</string><!--47-->
+    <string name="rc_emoji_expressionless_face">面无表情</string><!--48-->
+    <string name="rc_emoji_see_no_monkey">不看</string><!--49-->
+    <string name="rc_emoji_hear_no_monkey">不听</string><!--50-->
+    <string name="rc_emoji_no_speaking">闭嘴</string><!--51-->
+    <string name="rc_emoji_alien">外星人</string><!--52-->
+    <string name="rc_emoji_pile_of_poo">便便</string><!--53-->
+    <string name="rc_emoji_broken_heart">心碎</string><!--54-->
+    <string name="rc_emoji_fire">火</string><!--55-->
+    <string name="rc_emoji_anger">愤怒</string><!--56-->
+    <string name="rc_emoji_zzz">ZZZ</string><!--57-->
+    <string name="rc_emoji_prohibited">禁止</string><!--58-->
+    <string name="rc_emoji_star">星星</string><!--59-->
+    <string name="rc_emoji_lightning_bolt">闪电</string><!--60-->
+    <string name="rc_emoji_crescent_moon">弯月</string><!--61-->
+    <string name="rc_emoji_sunny">晴朗</string><!--62-->
+    <string name="rc_emoji_cloudy">多云</string><!--63-->
+    <string name="rc_emoji_cloud">云彩</string><!--64-->
+    <string name="rc_emoji_snowflake">雪花</string><!--65-->
+    <string name="rc_emoji_umbrella">雨伞</string><!--66-->
+    <string name="rc_emoji_snowman">雪人</string><!--67-->
+    <string name="rc_emoji_thumbs_up">赞</string><!--68-->
+    <string name="rc_emoji_thumbs_down">喝倒彩</string><!--69-->
+    <string name="rc_emoji_shake_hand">握手</string><!--70-->
+    <string name="rc_emoji_ok_hand">没问题</string><!--71-->
+    <string name="rc_emoji_oncoming_fist">击拳</string><!--72-->
+    <string name="rc_emoji_raised_fist">举起拳头</string><!--73-->
+    <string name="rc_emoji_victory_hand">耶</string><!--74-->
+    <string name="rc_emoji_raised_hand">举手</string><!--75-->
+    <string name="rc_emoji_folded_hands">祈祷</string><!--76-->
+    <string name="rc_emoji_pointing_up">第一</string><!--77-->
+    <string name="rc_emoji_clapping_hands">鼓掌</string><!--78-->
+    <string name="rc_emoji_flexed_biceps">肌肉</string><!--79-->
+    <string name="rc_emoji_family">家庭</string><!--80-->
+    <string name="rc_emoji_couple">情侣</string><!--81-->
+    <string name="rc_emoji_baby_angel">宝贝天使</string><!--82-->
+    <string name="rc_emoji_horse">马</string><!--83-->
+    <string name="rc_emoji_dog">狗</string><!--84-->
+    <string name="rc_emoji_pig">猪</string><!--85-->
+    <string name="rc_emoji_ghost">鬼</string><!--86-->
+    <string name="rc_emoji_rose">玫瑰</string><!--87-->
+    <string name="rc_emoji_sunflower">向日葵</string><!--88-->
+    <string name="rc_emoji_pine_tree">松树</string><!--89-->
+    <string name="rc_emoji_christmas_tree">圣诞树</string><!--90-->
+    <string name="rc_emoji_wrapped_gift">礼物</string><!--91-->
+    <string name="rc_emoji_party_popper">聚会礼花</string><!--92-->
+    <string name="rc_emoji_money_bag">钱袋</string><!--93-->
+    <string name="rc_emoji_birthday_cake">生日蛋糕</string><!--94-->
+    <string name="rc_emoji_barbecue">BBQ</string><!--95-->
+    <string name="rc_emoji_cooked_rice">米饭</string><!--96-->
+    <string name="rc_emoji_ice_cream">冰淇淋</string><!--97-->
+    <string name="rc_emoji_chocolate_bar">巧克力</string><!--98-->
+    <string name="rc_emoji_watermelon">西瓜</string><!--99-->
+    <string name="rc_emoji_wine_glass">红酒</string><!--100-->
+    <string name="rc_emoji_cheers">干杯</string><!--101-->
+    <string name="rc_emoji_coffee">咖啡</string><!--102-->
+    <string name="rc_emoji_basketball">篮球</string><!--103-->
+    <string name="rc_emoji_soccer_ball">足球</string><!--104-->
+    <string name="rc_emoji_snowboarder">单板滑雪</string><!--105-->
+    <string name="rc_emoji_microphone">麦克风</string><!--106-->
+    <string name="rc_emoji_musical_note">音乐</string><!--107-->
+    <string name="rc_emoji_game_die">骰子</string><!--108-->
+    <string name="rc_emoji_mahjone_red_dragon">麻将</string><!--109-->
+    <string name="rc_emoji_crown">王冠</string><!--110-->
+    <string name="rc_emoji_lipstick">口红</string><!--111-->
+    <string name="rc_emoji_kiss">吻</string><!--112-->
+    <string name="rc_emoji_ring">戒指</string><!--113-->
+    <string name="rc_emoji_books">书籍</string><!--114-->
+    <string name="rc_emoji_graduation_cap">毕业帽</string><!--115-->
+    <string name="rc_emoji_pencil">铅笔</string><!--116-->
+    <string name="rc_emoji_house_with_garden">房子</string><!--117-->
+    <string name="rc_emoji_shower">淋浴</string><!--118-->
+    <string name="rc_emoji_light_bulb">灯泡</string><!--119-->
+    <string name="rc_emoji_telephone_receiver">电话听筒</string><!--120-->
+    <string name="rc_emoji_loudspeaker">扩音器</string><!--121-->
+    <string name="rc_emoji_clock">表</string><!--122-->
+    <string name="rc_emoji_alarm_clock">闹钟</string><!--123-->
+    <string name="rc_emoji_hourglass">沙漏</string><!--124-->
+    <string name="rc_emoji_bomb">炸弹</string><!--125-->
+    <string name="rc_emoji_pistol">手枪</string><!--126-->
+    <string name="rc_emoji_capsule">药</string><!--127-->
+    <string name="rc_emoji_rocket">火箭</string><!--128-->
+    <string name="rc_emoji_globe">地球</string><!--129-->
+    <string name="rc_emoji_love_heart">爱心</string><!--130-->
+
+    <!--引用部分-->
+    <string name="rc_reference">引用消息</string>
+    <string name="rc_reference_link">[图文]</string>
+    <string name="rc_reference_file">[文件]</string>
+    <string name="rc_search_file_prefix">[文件]&#160;</string>
+    <string name="rc_message_unknown">当前版本暂不支持查看此消息</string>
+    <string name="rc_choose_members">选择联系人</string>
+
+
+    <string name="rc_ac_file_download_preview">文件预览</string>
+    <string name="rc_ac_file_preview_begin_download">开始下载</string>
+    <string name="rc_ac_file_download_progress_pause">已取消</string>
+    <string name="rc_ac_file_preview_download_resume">继续下载</string>
+    <string name="rc_notice_network_unavailable">当前网络不可用，请检查你的网络设置</string>
+    <string name="rc_ac_file_download_progress_tv">下载中...</string>
+    <string name="rc_ac_file_download_open_file_btn">用其他应用打开</string>
+    <string name="rc_ac_file_preview_downloaded">已下载</string>
+    <string name="rc_ac_file_preview_download_error">下载失败</string>
+    <string name="rc_ac_file_preview_download_cancel">已取消下载</string>
+    <string name="rc_ac_file_url_error">文件地址异常，无法下载!</string>
+    <string name="rc_ac_file_preview_can_not_open_file">无法打开文件</string>
+    <string name="rc_ac_file_download_request_permission">您需要在设置里打开读写权限</string>
+
+    <string name="rc_file_not_exist">文件不存在</string>
+    <string name="rc_recall_success">消息已撤回</string>
+
+    <string name="rc_yesterday_format">昨天</string>
+    <!--toast-->
+    <string name="rc_picsel_video_corrupted">不能分享损坏的视频</string>
+    <string name="rc_picsel_selected_max_time_span_with_param">不能分享超过%d分钟的视频</string>
+
+    <string name="rc_dialog_item_message_more">更多&#8230;</string>
+    <!--图片浏览-->
+    <string name="rc_save_picture">保存图片</string>
+    <string name="rc_save_picture_at">图片保存成功</string>
+    <string name="rc_src_file_not_found">源文件不存在</string>
+    <!--阅后即焚-->
+    <string name="rc_click_to_view">点击查看</string>
+    <string name="rc_click_to_play">点击播放</string>
+
+    <!--合并转发-->
+    <string name="rc_combine_stepwise_forwarding">逐条转发</string>
+    <string name="rc_combine_forwarding">合并转发</string>
+    <string name="rc_combine_chat_history">聊天记录</string>
+    <string name="rc_combine_group_chat">群聊的聊天记录</string>
+    <string name="rc_combine_the_group_chat_of">%s 的聊天记录</string>
+    <string name="rc_combine_and">和</string>
+    <string name="rc_combine_unsupported">未发送成功、阅后即焚、引用消息不支持转发</string>
+    <string name="rc_combine_unsupported_step">未发送成功、阅后即焚、音视频消息不支持转发</string>
+    <string name="rc_combine_webview_loading">聊天记录加载中...</string>
+    <string name="rc_combine_webview_download_failed">聊天记录加载失败</string>
+    <string name="rc_combine_history_deleted">聊天记录已被删除</string>
+
+    <string name="rc_message_content_image">[图片]</string>
+    <string name="rc_message_content_voice">[语音]</string>
+    <string name="rc_message_content_rich_text">[图文]</string>
+    <string name="rc_message_content_location">[位置]</string>
+    <string name="rc_message_content_draft">[草稿]</string>
+    <string name="rc_message_content_mentioned">[有人@我]</string>
+    <string name="rc_message_content_file">[文件]</string>
+    <string name="rc_message_content_sight">[小视频]</string>
+    <string name="rc_message_content_burn">[阅后即焚]</string>
+    <string name="rc_message_content_combine">[聊天记录]</string>
+    <string name="rc_message_content_card">[个人名片]</string>
+    <string name="rc_message_content_sticker">[动态表情]</string>
+    <string name="rc_message_content_rp">[红包]</string>
+    <string name="rc_message_content_vst">[音视频通话]</string>
+
+    <string name="rc_daybreak_format">凌晨</string>
+    <string name="rc_morning_format">上午</string>
+    <string name="rc_noon_format">中午</string>
+    <string name="rc_afternoon_format">下午</string>
+    <string name="rc_night_format">晚上</string>
+
+    <string name="rc_loadmore_loading">正在加载</string>
+
+    <!-- 错误提醒 -->
+    <string name="rc_new_messages">条新消息</string>
+    <string name="rc_info_not_in_discussion">你不在该讨论组</string>
+    <string name="rc_info_not_in_group">您当前不在此群组</string>
+    <string name="rc_info_not_in_chatroom">你不在该聊天室</string>
+    <string name="rc_rejected_by_blacklist_prompt">您的消息已经发出，但被对方拒收</string>
+    <string name="rc_info_forbidden_to_talk">您当前在群组中被禁言</string>
+    <string name="rc_forbidden_in_chatroom">你已被禁言，不能发送消息</string>
+    <string name="rc_kicked_from_chatroom">你已被踢出聊天室</string>
+    <string name="rc_join_chatroom_failure">加入聊天室失败</string>
+    <string name="rc_read_receipt">已读</string>
+
+    <!-- groupnotificationmessage -->
+    <string name="rc_item_divided_string">、</string>
+    <string name="rc_item_invitation">邀请</string>
+    <string name="rc_item_you">你</string>
+    <string name="rc_item_you_invitation">你邀请</string>
+    <string name="rc_item_you_remove_self">你被</string>
+    <string name="rc_item_remove_group_member">将</string>
+    <string name="rc_item_you_remove_group_member">你将</string>
+    <string name="rc_item_remove">移出群组</string>
+    <string name="rc_item_join_group">加入了群组</string>
+    <string name="rc_join_group">加入群组</string>
+    <string name="rc_item_created_group">创建了群组</string>
+    <string name="rc_item_you_created_group">你创建了群组</string>
+    <string name="rc_item_dismiss_groups">&#160;解散了群组</string>
+    <string name="rc_item_quit_groups">&#160;退出了群组</string>
+    <string name="rc_item_change_group_name">修改群名称为</string>
+    <string name="rc_item_you_change_group_name">你修改群名称为</string>
+    <string name="rc_item_group_notification_summary">[群组通知]</string>
+    <!-- location -->
+    <string name="rc_real_time_location_start">我发起了位置共享</string>
+    <string name="rc_real_time_location_sharing">发起了位置共享</string>
+    <string name="rc_real_time_join_notification">加入位置共享，聊天中其他人也能看到你的位置，确定加入？</string>
+
+    <!--  start相册 -->
+    <string name="rc_picture_camera_roll">相机胶卷</string>
+    <string name="rc_picture_camera_roll_num">%1$s (%2$d)</string>
+    <string name="rc_picture_cancel">取消</string>
+    <string name="rc_picture_take_picture">拍摄</string>
+    <string name="rc_picture_rule">不能同时选择图片或视频</string>
+    <string name="rc_picture_message_max_num_fir">你最多可以选择</string>
+    <string name="rc_picture_message_max_num_sec">张图片</string>
+    <string name="rc_picture_min_video_num">视频最低选择不能少于%1$d个</string>
+    <string name="rc_picture_preview">预览</string>
+    <string name="rc_picture_please">请稍候...</string>
+    <string name="rc_picture_done_front_num">%1$d/%2$d 完成</string>
+    <string name="rc_picture_completed">已完成</string>
+    <string name="rc_picture_done">完成</string>
+    <string name="rc_picture_please_select">请选择</string>
+    <string name="rc_picture_empty_title">无视频或照片\n</string>
+    <string name="rc_picture_empty">你可以使用相机拍摄照片或视频</string>
+    <string name="rc_picture_min_img_num">图片最低选择不能少于%1$d张</string>
+    <string name="rc_picture_gif_tag">动图</string>
+    <string name="rc_picture_jurisdiction">读取内存卡权限被拒绝</string>
+    <string name="rc_picture_camera">获取系统相机权限被拒绝</string>
+    <string name="rc_picture_audio">获取系统录音权限被拒绝</string>
+    <string name="rc_picture_video_toast">视频不可预览</string>
+    <string name="rc_picture_record_video">录视频</string>
+    <string name="rc_picture_photograph">拍照</string>
+    <string name="rc_picture_long_chart">长图</string>
+    <string name="rc_picture_warning">暂无媒体文件！</string>
+    <string name="rc_picture_prompt">提示</string>
+    <string name="rc_picture_prompt_content">是否保存图片至手机？</string>
+    <string name="rc_picture_save_error">图片保存失败</string>
+    <string name="rc_picture_save_success">图片保存成功至</string>
+    <string name="rc_picture_play_audio">播放</string>
+    <string name="rc_picture_stop_audio">停止</string>
+    <string name="rc_picture_quit_audio">退出</string>
+    <string name="rc_picture_pause_audio">暂停</string>
+    <string name="rc_picture_error">图片已损坏</string>
+    <string name="rc_picture_video_error">视频已损坏</string>
+    <string name="rc_picture_audio_error">音频已损坏</string>
+    <string name="rc_picture_confirm">确定</string>
+    <string name="rc_picture_preview_image_num">%1$d / %2$d</string>
+    <string name="rc_picture_not_crop_data">无可用裁剪数据</string>
+    <string name="rc_picture_original_image">原图</string>
+    <string name="rc_picture_original_image_size">原图(%1$s)</string>
+    <string name="rc_picture_send">发送</string>
+    <string name="rc_picture_send_num">发送</string>
+    <string name="rc_picture_select">选择</string>
+    <string name="rc_picture_data_exception">获取相册数据异常...</string>
+    <!--  end相册 -->
+
+    <string name="rc_receive_new_message">你收到一条新消息</string>
+    <string name="rc_exceeded_max_limit_100">聊天记录选择不能超过 100 条</string>
+    <string name="rc_location_service_dialog_title">关闭定位服务</string>
+
+    <string name="rc_read_all">阅读全文</string>
+
+    <string name="rc_conversation_remote_side_is_typing">对方正在输入&#046;&#046;&#046;</string>
+    <string name="rc_conversation_remote_side_speaking">对方正在讲话&#046;&#046;&#046;</string>
+    <string name="rc_date_format">MM月dd日 HH:mm</string>
+
+    <string name="rc_mention_messages">有人@我%s</string>
+    <string name="rc_media_upload_error">不能上传 0kb 的文件</string>
+    <string name="rc_load_local_message">网络异常，查看本地历史消息？</string>
+
+    <string name="rc_message_too_long">你输入的文本过长，无法发送</string>
+    
+    <string name="rc_translate_failed_try_again">翻译失败，请重试</string>
+    <string name="rc_translate_message">翻译消息</string>
+</resources>

@@ -4,10 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- *  SHA1 哈希计算方法
- */
-
+/** SHA1 哈希计算方法 */
 public class SHA1Util {
     private static String convertToHex(byte[] data) {
         StringBuilder buf = new StringBuilder();

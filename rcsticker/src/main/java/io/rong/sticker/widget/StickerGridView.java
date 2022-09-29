@@ -7,13 +7,10 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.GridView;
-
 import io.rong.sticker.businesslogic.StickerSendMessageTask;
 import io.rong.sticker.model.Sticker;
 
-/**
- * Created by luoyanlong on 2018/08/20.
- */
+/** Created by luoyanlong on 2018/08/20. */
 public class StickerGridView extends GridView {
 
     private GestureDetector gestureDetector;
@@ -95,7 +92,8 @@ public class StickerGridView extends GridView {
         }
     }
 
-    private void onFocusChildChanged(StickerGridItemView focusChild, StickerGridItemView newFocusChild) {
+    private void onFocusChildChanged(
+            StickerGridItemView focusChild, StickerGridItemView newFocusChild) {
         if (focusChild != null) {
             focusChild.setPressed(false);
         }

@@ -1,14 +1,8 @@
 package io.rong.sight;
 
 import android.content.Context;
-
 import androidx.fragment.app.Fragment;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import io.rong.imkit.IMCenter;
-    import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.IExtensionModule;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
@@ -18,6 +12,8 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.SightMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SightExtensionModule implements IExtensionModule {
 
@@ -28,19 +24,13 @@ public class SightExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onAttachedToExtension(Fragment fragment, RongExtension extension) {
-
-    }
+    public void onAttachedToExtension(Fragment fragment, RongExtension extension) {}
 
     @Override
-    public void onDetachedFromExtension() {
-
-    }
+    public void onDetachedFromExtension() {}
 
     @Override
-    public void onReceivedMessage(Message message) {
-
-    }
+    public void onReceivedMessage(Message message) {}
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {
@@ -56,7 +46,5 @@ public class SightExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onDisconnect() {
-
-    }
+    public void onDisconnect() {}
 }

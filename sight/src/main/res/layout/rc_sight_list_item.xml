@@ -36,8 +36,7 @@
             android:ellipsize="end"
             android:lines="1"
             android:textColor="#262626"
-            android:textSize="16sp"
-            tools:text="TextView" />
+            android:textSize="16sp" />
 
         <!--可隐藏-->
         <TextView
@@ -49,8 +48,7 @@
             android:textColor="#939393"
             android:ellipsize="middle"
             android:singleLine="true"
-            android:textSize="13dp"
-            tools:text="TextView" />
+            android:textSize="13dp" />
     </LinearLayout>
 
     <View

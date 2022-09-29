@@ -1,0 +1,114 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.rong.imkit">
+    <!-- 访问相册，访问文件系统等 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- 拍照 -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- 拍照等 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- 网络 -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- 录音权限，语音消息使用   -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application android:supportsRtl="true">
+        <activity
+            android:name="io.rong.imkit.conversationlist.RongConversationListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".conversation.RongConversationActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".subconversationlist.RongSubConversationListActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".feature.mention.MentionMemberSelectActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.RongWebviewActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.FilePreviewActivity"
+            android:exported="false"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.PicturePagerActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.ForwardSelectConversationActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.CombineWebViewActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="io.rong.imkit.activity.WebFilePreviewActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="io.rong.imkit.activity.CombinePicturePagerActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity
+            android:name="io.rong.imkit.activity.GIFPreviewActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+
+
+        <!--start图库配置项-->
+        <provider
+            android:name=".picture.PictureFileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/rc_file_path" />
+        </provider>
+
+        <activity
+            android:name=".picture.PictureSelectorActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".picture.PictureSelectorCameraEmptyActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@style/Picture.Theme.Translucent" />
+
+        <activity
+            android:name=".picture.PicturePreviewActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".picture.PictureVideoPlayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+        <!--end图库配置项-->
+
+        <meta-data
+            android:name="rc.imkit"
+            android:value="io.rong.imkit.RongIM" />
+    </application>
+</manifest>

@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rc_action_bar_back">عودة</string>
+    <string name="rc_action_bar_ok">حسنا</string>
+
+    <!-- ConversationList -->
+    <string name="rc_conversation_list_notice_network_unavailable">الشبكة غير متاحه, يرجى التأكد من الشبكة</string>
+    <string name="rc_conversation_list_notice_disconnect">تعذر الوصول للخادم</string>
+    <string name="rc_conversation_list_notice_kicked">تم تسجيل الدخول على هذا الحساب من أجهزة اخرى</string>
+    <string name="rc_conversation_list_notice_connecting">جاري الإتصال...</string>
+    <string name="rc_conversation_unread_dot">99+</string>
+
+    <string name="rc_conversation_summary_content_image">[صوره]</string>
+    <string name="rc_conversation_summary_content_voice">[صوت]</string>
+    <string name="rc_conversation_summary_content_rich_text">[رساله]</string>
+    <string name="rc_conversation_summary_content_location">[موقع]</string>
+    <string name="rc_conversation_summary_content_draft">[مسودة]</string>
+    <string name="rc_conversation_summary_content_file">[ملف]</string>
+    <string name="rc_conversation_summary_content_sight">[فيديو]</string>
+    <string name="rc_conversation_summary_content_combine">[تاريخ المحادثة]</string>
+    <string name="rc_conversation_summary_content_mentioned">[You were mentioned]</string>
+    <string name="rc_conversation_summary_content_burn">[المحادثة السرية]</string>
+    <string name="rc_conversation_summary_content_card">[بطاقة]</string>
+    <string name="rc_conversation_summary_content_sticker">[ملصق]</string>
+    <string name="rc_conversation_summary_content_rp">[Red Packet]</string>
+    <string name="rc_conversation_summary_content_vst">[مكالمة الفيديو و الصوت]</string>
+
+    <string name="rc_location_title">الموقع</string>
+    <string name="rc_ext_plugin_location">الموقع</string>
+    <string name="rc_ext_plugin_image">الألبوم</string>
+    <string name="rc_ext_plugin_destruct">محادثة سرية</string>
+    <string name="rc_ext_plugin_file">ملف</string>
+    <string name="rc_load_image_failed">تعذر عرض الصورة</string>
+    <string name="rc_dialog_destruct_hint">يتم إتلاف الرسائل تلقائيًا بعد عرضها ، ويُحظر نسخ الرسائل أو إعادة توجيهها. لا يحتفظ الخادم بسجلات الرسائل</string>
+    <string name="rc_voice_press_to_input">إستمر بالضغط للتحدث</string>
+    <string name="rc_voice_release_to_send">إترك للإرسال</string>
+
+
+    <string name="rc_voice_rec">اسحب لأعلى للإلغاء</string>
+    <string name="rc_voice_cancel">أفلت للإلغاء</string>
+    <string name="rc_voice_short">وقت التسجيل قصير جدا</string>
+    <string name="rc_voice_failure">فشل التسجيل</string>
+    <string name="rc_voice_too_long">وقت التسجيل طويل جدا</string>
+    <string name="rc_voip_occupying">قناة الصوت قيد الاستخدام ، يرجى المحاولة لاحقًا</string>
+
+    <!-- discussion_notification_msg -->
+    <string name="rc_conversation_list_dialog_set_top">تثبيت في الأعلى</string>
+    <string name="rc_conversation_list_dialog_cancel_top">إلغاء من الأعلى</string>
+    <string name="rc_conversation_list_dialog_remove">إزالة من قائمة المحادثة</string>
+    <string name="rc_conversation_list_popup_set_top">تم التثبيت في الأعلى</string>
+    <string name="rc_conversation_list_popup_cancel_top">إلغاء التثبيت في الأعلى</string>
+    <string name="rc_conversation_list_empty_prompt">لا يوجد معلومات للمحادثة</string>
+
+    <string name="rc_message_content_image">[صوره]</string>
+    <string name="rc_message_content_voice">[صوت]</string>
+    <string name="rc_message_content_rich_text">[رساله]</string>
+    <string name="rc_message_content_location">[موقع]</string>
+    <string name="rc_message_content_draft">[مسودة]</string>
+    <string name="rc_message_content_file">[ملف]</string>
+    <string name="rc_message_content_sight">[فيديو]</string>
+    <string name="rc_message_content_combine">[تاريخ المحادثة]</string>
+    <string name="rc_message_content_mentioned">[You were mentioned]</string>
+    <string name="rc_message_content_burn">[المحادثة السرية]</string>
+    <string name="rc_message_content_card">[بطاقة]</string>
+    <string name="rc_message_content_sticker">[ملصق]</string>
+    <string name="rc_message_content_rp">[Red Packet]</string>
+    <string name="rc_message_content_vst">[مكالمة الفيديو و الصوت]</string>
+
+    <string name="rc_dialog_item_message_delete">حذف</string>
+    <string name="rc_dialog_item_message_copy">نسخ</string>
+    <string name="rc_dialog_item_message_recall">تراجع</string>
+    <string name="rc_dialog_item_message_more">اختر &#8230;</string>
+    <string name="rc_recall_success">تراجع عن الإرسال</string>
+    <string name="rc_recall_failed">تعذر التراجع عن الإرسال</string>
+    <string name="rc_you_recalled_a_message">قمت بالتراجع عن الإرسال</string>
+    <string name="rc_you_recalled_edit">تحرير</string>
+    <string name="rc_recalled_a_message">&#160; قام بالتراجع عن الإرسال</string>
+    <string name="rc_admin_recalled_message">المشرف &#160; قام بالتراجع عن الإرسال</string>
+
+
+    <string name="rc_dialog_ok">تم</string>
+
+
+    <string name="rc_notice_network_unavailable">الشبكة غير متاحه, يرجى التأكد من الشبكة</string>
+
+    <string name="rc_message_unknown">The current version does not support viewing this message</string>
+    <string name="rc_new_messages">&#160;رسالة جديدة</string>
+    <string name="rc_info_not_in_discussion">لست مضافا في المحادثة الحالية</string>
+    <string name="rc_info_not_in_group">لست مضافا في المجموعة الحالية</string>
+    <string name="rc_info_not_in_chatroom">لست مضافا في غرفة المحادثة الحالية</string>
+    <string name="rc_rejected_by_blacklist_prompt">تم ارسال رسالتك , وتم رفضها من قبل المستقبل</string>
+    <string name="rc_info_forbidden_to_talk">تم حظرك من الارسال في المجموعة الحالية </string>
+    <string name="rc_forbidden_in_chatroom">تم حظرك من الإرسال في غرفة المحادثة الحالية</string>
+    <string name="rc_kicked_from_chatroom">You were kicked out from chatroom</string>
+
+    <string name="rc_daybreak_format">ص</string>
+    <string name="rc_morning_format">ص</string>
+    <string name="rc_noon_format">م</string>
+    <string name="rc_afternoon_format">م</string>
+    <string name="rc_night_format">م</string>
+    <string name="rc_file_not_exist">الملف غير موجود</string>
+
+    <string name="rc_cs_evaluate_human">نرجوا منك التعليق على خدماتنا</string>
+    <string name="rc_cs_evaluate_robot">هل المساعد الآلي يساعدك في حل المشكلات ؟</string>
+    <string name="rc_cs_submit">إرسال</string>
+    <string name="rc_cs_cancel">إلغاء</string>
+
+    <!-- LargePictureActivity -->
+    <string name="rc_save_picture">حفظ الصورة</string>
+    <string name="rc_save_picture_at">تم الحفظ في معرض الصور</string>
+    <string name="rc_src_file_not_found">مصدر الملف غير موجود .</string>
+
+    <string name="rc_blacklist_prompt">تم إضافتك في قائمة الحظر</string>
+
+    <string name="rc_join_chatroom_failure">تعذر الإنضمام إلى غرفة المحادثة</string>
+    <string name="rc_cs_select_group">الرجاء اختيار المحتويات</string>
+    <string name="rc_search">بحث</string>
+    <string name="rc_choose_members">اختيار الاعضاء</string>
+
+
+    <string name="rc_ac_file_download_preview">عرض الملف</string>
+    <string name="rc_ac_file_download_progress_tv">جاري التحميل...</string>
+    <string name="rc_ac_file_download_open_file_btn">فتح الملف</string>
+    <string name="rc_ac_file_preview_can_not_open_file">يتغذر فتح الملف</string>
+    <string name="rc_ac_file_preview_begin_download">تنزيل</string>
+    <string name="rc_ac_file_preview_downloaded">تم تنزيله</string>
+    <string name="rc_ac_file_preview_download_error">تعذر التنزيل</string>
+    <string name="rc_ac_file_preview_download_cancel">تم الغاء التنزيل</string>
+    <string name="rc_ac_file_download_progress_pause">تم الإلغاء</string>
+    <string name="rc_ac_file_preview_download_resume">الإستمرار في التنزيل</string>
+    <string name="rc_ac_file_download_request_permission">تحتاج إلى تمكين أذونات القراءة والكتابة في الإعدادات</string>
+    <string name="rc_ac_file_url_error">لا يمكن تنزيل الملف بسبب خطأ في العنوان</string>
+    <string name="rc_read_receipt_status">رسالة مقروءة</string>
+    <string name="rc_item_invitation">قام بدعوة </string>
+    <string name="rc_item_you">أنت </string>
+    <string name="rc_item_you_invitation">دعوت</string>
+    <string name="rc_item_you_remove_self">لقد</string>
+    <string name="rc_item_remove_group_member">أزالت</string>
+    <string name="rc_item_you_remove_group_member">لقد</string>
+    <string name="rc_item_remove">قام بالإزالة من المجموعة </string>
+    <string name="rc_join_group">الانضمام إلى المجموعة</string>
+    <string name="rc_item_created_group">قام بإنشاء المجموعة</string>
+    <string name="rc_item_change_group_name">قام بتغيير اسم المجموعة إلى </string>
+    <string name="rc_item_you_change_group_name">غيرت اسم المجموعة إلى </string>
+    <string name="rc_item_quit_groups">"خرج من المجموعة"</string>
+    <string name="rc_item_dismiss_groups">" طرد من المجموعة"</string>
+    <string name="rc_item_join_group">" انضم إلى المجموعة"</string>
+    <string name="rc_item_you_created_group">قمت بإنشاء مجموعة</string>
+    <string name="rc_item_divided_string">、</string>
+    <string name="rc_item_group_notification_summary">[إعلان للمجموعة]</string>
+
+    <string name="rc_real_time_location_start">أبدا مشاركة الموقع</string>
+    <string name="rc_real_time_location_sharing">أبدا مشاركة الموقع</string>
+    <string name="rc_location_real_time_join_notification">سيتمكن الآخرون من من مشاهدة موقعك، هل تريد الإنضمام؟</string>
+
+    <string name="rc_user_recalled_message">%s تم استعادة رسالة واحدة</string>
+    <string name="rc_recall_failed_for_network_unavailable">.تعذر الاستعادة , يرجى التحقق من الشبكة</string>
+    <string name="rc_new_message_divider_content">الرسائل السابقة بالأعلى</string>
+
+
+    <string name="rc_notification_error_ssl_cert_invalid">شهادة صفحة الويب التي قمت بزيارتها غير صالحة!</string>
+    <string name="rc_loadmore_loading">قيد التحميل...</string>
+    <string name="rc_click_to_view">اضغط للمعاينة</string>
+    <string name="rc_click_to_play">اضغط للتشغيل</string>
+
+    <!-- 合并转发-->
+    <string name="rc_combine_stepwise_forwarding">واحد تلو الآخر للأمام</string>
+    <string name="rc_combine_forwarding">الجمع إلى الأمام</string>
+    <string name="rc_combine_chat_history">سجل المحادثة</string>
+    <string name="rc_combine_group_chat">سجل محادثة المجموعة</string>
+    <string name="rc_combine_the_group_chat_of">سجل المحادثة الخاص بـ%s</string>
+    <string name="rc_combine_and">and</string>
+    <string name="rc_combine_unsupported">تعذر في إرسال أو النسخ أو إعادة توجيه رسالة الاقتباس</string>
+
+    <string name="rc_combine_unsupported_step">تعذر إرسال رسالة صوتية أو فيديو أو نسخها أو لا يمكن إعادة توجيهها</string>
+    <string name="rc_combine_webview_loading">جاري تحميل سجل المحادثة...</string>
+    <string name="rc_combine_webview_download_failed">تعذر تحميل سجل المحادثة</string>
+    <string name="rc_combine_history_deleted">تم حذف سجل المحادثة</string>
+
+    <!--Reference Message-->
+    <string name="rc_reference">اقتبس</string>
+    <string name="rc_reference_link">[رساله]</string>
+    <string name="rc_reference_file">[ملف]</string>
+    <string name="rc_search_file_prefix">[ملف]&#160;</string>
+
+    <string name="rc_recall_overtime">لقد تجاوزت هذه الرسالة الحد الزمني للاستدعاء. تعذر استعادة الرسالة .</string>
+
+    <string name="rc_cs_evaluate">موافق</string>
+    <string name="rc_cs_evaluate_title">نرجو منك تقييم هذه الخدمة</string>
+    <string name="rc_cs_very_satisfactory">راضي تماما</string>
+    <string name="rc_cs_satisfactory">راضي</string>
+    <string name="rc_cs_average">مقبول</string>
+    <string name="rc_cs_unsatisfactory">غير راضي</string>
+    <string name="rc_cs_very_unsatisfactory">غير راضي تماما</string>
+    <string name="rc_cs_resolved_or_not">هل تم حل مشكلتك ؟</string>
+    <string name="rc_cs_submit_evaluate_content">إرسال</string>
+    <string name="rc_cs_please_comment">نرحب باقتراحاتكم لتحسين خدماتنا</string>
+    <string name="rc_cs_please_leave_message">يرجى ترك رسالتك وسوف نتواصل معك في اقرب وقت ممكن  .</string>
+    <string name="rc_cs_leave_message">رساله</string>
+    <string name="rc_cs_submit_message">إرسال</string>
+    <string name="rc_cs_message_submited">تم إرسال رسالتك</string>
+
+    <!--emoji description 128 total start-->
+    <string name="rc_emoji_smiley_face">وجه مبتسم</string><!--1-->
+    <string name="rc_emoji_grinning_face">وجه مبتسم</string><!--2-->
+    <string name="rc_emoji_smiley">مبتسم</string><!--3-->
+    <string name="rc_emoji_cute">جذاب</string><!--4-->
+    <string name="rc_emoji_winking_face">وجه غامز</string><!--5-->
+    <string name="rc_emoji_heart_eyes">عيون قلوب</string><!--6-->
+    <string name="rc_emoji_blowing_kiss">نفخ قبلة</string><!--7-->
+    <string name="rc_emoji_kiss_face">قبلة الوجه</string><!--8-->
+    <string name="rc_emoji_crazy_face">وجه مجنون</string><!--9-->
+    <string name="rc_emoji_tongue_out">اللسان خارجا</string><!--10-->
+    <string name="rc_emoji_flushed_face">وجه متوهج</string><!--11-->
+    <string name="rc_emoji_grinning_with_smiling">يبتسم إبتسامة عريضة</string><!--12-->
+    <string name="rc_emoji_pensive">متأمل</string><!--13-->
+    <string name="rc_emoji_pleased">مسرور</string><!--14-->
+    <string name="rc_emoji_dissatisfied">غير راض</string><!--15-->
+    <string name="rc_emoji_worried_face">وجه قلق</string><!--16-->
+    <string name="rc_emoji_disappointed_face">الوجه بخيبة أمل</string><!--17-->
+    <string name="rc_emoji_helpless_face">وجه يرثى له</string><!--18-->
+    <string name="rc_emoji_crying">بكاء</string><!--19-->
+    <string name="rc_emoji_laughing_tears">يضحك دموع</string><!--20-->
+    <string name="rc_emoji_sobbing">ينتحب</string><!--21-->
+    <string name="rc_emoji_sleepy_face">وجه نائم</string><!--22-->
+    <string name="rc_emoji_cold_sweat">عرق بارد</string><!--23-->
+    <string name="rc_emoji_happy_sweat">عرق سعيد</string><!--24-->
+    <string name="rc_emoji_sweat">معرق</string><!--25-->
+    <string name="rc_emoji_tired_face">وجه متعب</string><!--26-->
+    <string name="rc_emoji_weary_face">الوجه المتعب</string><!--27-->
+    <string name="rc_emoji_fearful_face">وجه خائف</string><!--28-->
+    <string name="rc_emoji_scream">صراخ</string><!--29-->
+    <string name="rc_emoji_angry_face">وجه غاضب</string><!--30-->
+    <string name="rc_emoji_mad_face">وجه غاضب</string><!--31-->
+    <string name="rc_emoji_confounded_face">وجه مرتبك</string><!--32-->
+    <string name="rc_emoji_big_grin">ابتسامة كبيرة</string><!--33-->
+    <string name="rc_emoji_hungry">جوعان</string><!--34-->
+    <string name="rc_emoji_mask_face">قناع الوجه</string><!--35-->
+    <string name="rc_emoji_sunglasses">لابس نظارة</string><!--36-->
+    <string name="rc_emoji_sleeping">نائم</string><!--37-->
+    <string name="rc_emoji_shocked_face">وجه مصدوم</string><!--38-->
+    <string name="rc_emoji_dizzy_face">وجه دائخ</string><!--39-->
+    <string name="rc_emoji_purple_devil">وجه شيطاني</string><!--40-->
+    <string name="rc_emoji_devil">وجه شيطاني</string><!--41-->
+    <string name="rc_emoji_surprised_face">وجه متفاجئ</string><!--42-->
+    <string name="rc_emoji_grimacing_face">وجه متفاجئ</string><!--43-->
+    <string name="rc_emoji_confused">مشوش</string><!--44-->
+    <string name="rc_emoji_mouthless">بدون فم</string><!--45-->
+    <string name="rc_emoji_halo">هالو</string><!--46-->
+    <string name="rc_emoji_smirking_face">وجه حذق</string><!--47-->
+    <string name="rc_emoji_expressionless_face">وجه بلا تعابير</string><!--48-->
+    <string name="rc_emoji_see_no_monkey">قرد1</string><!--49-->
+    <string name="rc_emoji_hear_no_monkey">قرد2</string><!--50-->
+    <string name="rc_emoji_no_speaking">ممنوع الكلام</string><!--51-->
+    <string name="rc_emoji_alien">كائن فضائي</string><!--52-->
+    <string name="rc_emoji_pile_of_poo">كومة</string><!--53-->
+    <string name="rc_emoji_broken_heart">قلب مجروح</string><!--54-->
+    <string name="rc_emoji_fire">نار</string><!--55-->
+    <string name="rc_emoji_anger">غضب</string><!--56-->
+    <string name="rc_emoji_zzz">نعاس</string><!--57-->
+    <string name="rc_emoji_prohibited">محظور</string><!--58-->
+    <string name="rc_emoji_star">نجمة</string><!--59-->
+    <string name="rc_emoji_lightning_bolt">برق</string><!--60-->
+    <string name="rc_emoji_crescent_moon">الهلال</string><!--61-->
+    <string name="rc_emoji_sunny">مشمس</string><!--62-->
+    <string name="rc_emoji_cloudy">غائم</string><!--63-->
+    <string name="rc_emoji_cloud">غيم</string><!--64-->
+    <string name="rc_emoji_snowflake">رقائق ثلج</string><!--65-->
+    <string name="rc_emoji_umbrella">مظلة</string><!--66-->
+    <string name="rc_emoji_snowman">الرجل الثلجي</string><!--67-->
+    <string name="rc_emoji_thumbs_up">رضى</string><!--68-->
+    <string name="rc_emoji_thumbs_down">غير راض</string><!--69-->
+    <string name="rc_emoji_shake_hand">هزة اليد</string><!--70-->
+    <string name="rc_emoji_ok_hand">يد أتفق</string><!--71-->
+    <string name="rc_emoji_oncoming_fist">قبضة قادمة</string><!--72-->
+    <string name="rc_emoji_raised_fist">قبضة مرفوعة</string><!--73-->
+    <string name="rc_emoji_victory_hand">يد الفوز</string><!--74-->
+    <string name="rc_emoji_raised_hand">يد مرفوعة</string><!--75-->
+    <string name="rc_emoji_folded_hands">الأيدي مطوية</string><!--76-->
+    <string name="rc_emoji_pointing_up">مشيرا أعلى</string><!--77-->
+    <string name="rc_emoji_clapping_hands">تصفيق</string><!--78-->
+    <string name="rc_emoji_flexed_biceps">عضلات</string><!--79-->
+    <string name="rc_emoji_family">أسرة</string><!--80-->
+    <string name="rc_emoji_couple">زوجان</string><!--81-->
+    <string name="rc_emoji_baby_angel">الطفل الملاك</string><!--82-->
+    <string name="rc_emoji_horse">حصان</string><!--83-->
+    <string name="rc_emoji_dog">كلب</string><!--84-->
+    <string name="rc_emoji_pig">خنزير</string><!--85-->
+    <string name="rc_emoji_ghost">شبح</string><!--86-->
+    <string name="rc_emoji_rose">وردة</string><!--87-->
+    <string name="rc_emoji_sunflower">دوار الشمس</string><!--88-->
+    <string name="rc_emoji_pine_tree">شجرة الصنوبر</string><!--89-->
+    <string name="rc_emoji_christmas_tree">شجرة الميلاد</string><!--90-->
+    <string name="rc_emoji_wrapped_gift">لف هدية</string><!--91-->
+    <string name="rc_emoji_party_popper">حفلة</string><!--92-->
+    <string name="rc_emoji_money_bag">حقيبة المال</string><!--93-->
+    <string name="rc_emoji_birthday_cake">كعكة عيد الميلاد</string><!--94-->
+    <string name="rc_emoji_barbecue">الشواء</string><!--95-->
+    <string name="rc_emoji_cooked_rice">ارز مطبوخ</string><!--96-->
+    <string name="rc_emoji_ice_cream">آيسكريم</string><!--97-->
+    <string name="rc_emoji_chocolate_bar">قطعة شوكولاتة</string><!--98-->
+    <string name="rc_emoji_watermelon">البطيخ</string><!--99-->
+    <string name="rc_emoji_wine_glass">كأس</string><!--100-->
+    <string name="rc_emoji_cheers">المرحى</string><!--101-->
+    <string name="rc_emoji_coffee">قهوة</string><!--102-->
+    <string name="rc_emoji_basketball">كرة سلة</string><!--103-->
+    <string name="rc_emoji_soccer_ball">كرة القدم</string><!--104-->
+    <string name="rc_emoji_snowboarder">المتزلج</string><!--105-->
+    <string name="rc_emoji_microphone">ميكروفون</string><!--106-->
+    <string name="rc_emoji_musical_note">نوتة موسيقية</string><!--107-->
+    <string name="rc_emoji_game_die">لعبة الموت</string><!--108-->
+    <string name="rc_emoji_mahjone_red_dragon">جونغ التنين الاحمر</string><!--109-->
+    <string name="rc_emoji_crown">تاج</string><!--110-->
+    <string name="rc_emoji_lipstick">أحمر الشفاه</string><!--111-->
+    <string name="rc_emoji_kiss">قبلة</string><!--112-->
+    <string name="rc_emoji_ring">حلقة</string><!--113-->
+    <string name="rc_emoji_books">كتب</string><!--114-->
+    <string name="rc_emoji_graduation_cap">قبعة التخرج</string><!--115-->
+    <string name="rc_emoji_pencil">قلم</string><!--116-->
+    <string name="rc_emoji_house_with_garden">منزل مع حديقة</string><!--117-->
+    <string name="rc_emoji_shower">دش</string><!--118-->
+    <string name="rc_emoji_light_bulb">المصباح الكهربائي</string><!--119-->
+    <string name="rc_emoji_telephone_receiver">الهاتف استقبال</string><!--120-->
+    <string name="rc_emoji_loudspeaker">مكبر الصوت</string><!--121-->
+    <string name="rc_emoji_clock">ساعة حائط</string><!--122-->
+    <string name="rc_emoji_alarm_clock">منبه</string><!--123-->
+    <string name="rc_emoji_hourglass">الساعة الرملية</string><!--124-->
+    <string name="rc_emoji_bomb">قنبلة</string><!--125-->
+    <string name="rc_emoji_pistol">مسدس</string><!--126-->
+    <string name="rc_emoji_capsule">كبسولة</string><!--127-->
+    <string name="rc_emoji_rocket">صاروخ</string><!--128-->
+    <string name="rc_emoji_globe">كره ارضيه</string><!--129-->
+    <string name="rc_emoji_love_heart">حب</string><!--130-->
+
+    <!--emoji description 128 total end-->
+    <string name="rc_ext_common_phrase">قياسي</string>
+
+    <string name="rc_notification_ticker_text">لديك رسالة جديدة</string>
+    <string name="rc_notification_channel_name">رسالة جديدة</string>
+    <string name="rc_notification_voip_channel_name">مكالمات الصوت والفيديو</string>
+
+    <string name="rc_date_yesterday">أمس</string>
+    <string name="rc_date_year"></string>
+    <string name="rc_date_month"></string>
+    <string name="rc_date_day"></string>
+    <string name="rc_date_monday">الإثنين</string>
+    <string name="rc_date_tuesday">الثلاثاء</string>
+    <string name="rc_date_wednesday">الأربعاء</string>
+    <string name="rc_date_thursday">الخميس</string>
+    <string name="rc_date_friday">الجمعة</string>
+    <string name="rc_date_saturday">السبت</string>
+    <string name="rc_date_sunday">الأحد</string>
+    <string name="rc_date_am">ص</string>
+    <string name="rc_date_morning">ص</string>
+    <string name="rc_date_noon">م</string>
+    <string name="rc_date_pm">م</string>
+    <string name="rc_date_night">م</string>
+    <string name="rc_yesterday_format">أمس</string>
+
+    <string name="rc_default_message">The current version does not support viewing this message</string>
+    <string name="rc_picsel_video_corrupted">تعذر مشاركة الفيديو. الملف معطوب</string>
+    <string name="rc_picsel_selected_max_time_span_with_param">لا يمكن مشاركة مقاطع الفيديو التي تزيد مدتها عن %s دقيقة</string>
+    <string name="rc_read_receipt">أقرا</string>
+
+    <string name="rc_dialog_item_message_reference">اقتبس</string>
+    <string name="rc_location_warning">طلب</string>
+    <string name="rc_plugin_location_message">إرسال موقع</string>
+    <string name="rc_plugin_location_sharing">موقع لايف</string>
+    <string name="rc_location_exit_sharing_confirm">إنهاء مشاركة الموقع لايف؟</string>
+    <string name="rc_location_fail">تعذر تحديد الموقع</string>
+    <string name="rc_location_temp_failed">تعذر تحديد الموقع، يرجى المحاولة لاحقاً</string>
+    <string name="rc_location_sharing_exceed_max">تجاوز العدد المسموح</string>
+    <string name="rc_real_time_join_notification">سيتمكن الآخرون من من مشاهدة موقعك، هل تريد الإنضمام؟</string>
+    <string name="rc_location_you_are_sharing">أنت تشارك موقعك</string>
+    <string name="rc_location_other_is_sharing">جاري مشاركة الموقع</string>
+    <string name="rc_location_others_are_sharing">جاري مشاركة الموقع</string>
+    <string name="rc_location_others_sharing">جاري مشاركة الموقع</string>
+    <string name="rc_location_exit_location_sharing">إنهاء مشاركة الموقع لايف؟</string>
+    <string name="rc_location_real_time_exit_notification">سيتم إيقاف مشاركة الموقع لايف إن قمت بالخروج، هل تريد الخروج؟</string>
+    <string name="rc_location_permission_failed">سيتم إيقاف مشاركة الموقع لايف إن قمت بالخروج، هل تريد الخروج؟</string>
+    <string name="rc_network_exception">خطأ بالشبكة. يرجى المحاولة لاحقاً</string>
+    <string name="rc_search_no_result">لا نتائج</string>
+    <string name="rc_dialog_got_it">حسنا</string>
+    <string name="rc_dialog_item_sight">مقطع فيديو</string>
+    <string name="rc_dialog_item_select_from_album">إختيار من معرض الصور</string>
+    <string name="rc_dialog_no_plugin_warning">لا توجد مكونات إضافية متاحة</string>
+    <string name="rc_ext_voice_btn_press_to_speak">إستمر بالضغط للتحدث</string>
+    <string name="rc_ext_plugin_location_message">إرسال موقع</string>
+    <string name="rc_ext_plugin_location_sharing">موقع لايف</string>
+    <string name="rc_mention_title_choose_members">اختر جهات اتصال</string>
+    <string name="rc_clear">مسح</string>
+    <string name="rc_cancel">إلغاء</string>
+    <string name="rc_confirm">تم</string>
+    <string name="rc_not_prompt">لا تذكر مرة أخرى</string>
+    <string name="rc_send">إرسال</string>
+
+    <string name="rc_gathered_conversation_private_title">Private</string>
+    <string name="rc_gathered_conversation_group_title">Group</string>
+    <string name="rc_gathered_conversation_chatroom_title">Chatroom</string>
+    <string name="rc_gathered_conversation_system_title">System</string>
+    <string name="rc_gathered_conversation_custom_title">Custom</string>
+    <string name="rc_gathered_conversation_unkown_title">Unkown</string>
+    //刷新库
+    <string name="srl_content_empty">The content view in SmartRefreshLayout is empty. Do you forget to add it in xml layout file?</string>
+    <string name="srl_component_falsify" formatted="false">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>
+
+    <string name="rc_unknow">UnKnown</string>
+    <string name="rc_unread_message">{0} رسالة جديدة</string>
+
+    <string name="rc_android.permission.CAMERA">الكاميرا</string>
+    <string name="rc_android.permission.ACCESS_FINE_LOCATION">معلومات الموقع</string>
+    <string name="rc_android.permission.ACCESS_COARSE_LOCATION">معلومات الموقع</string>
+    <string name="rc_android.permission.RECORD_AUDIO">الميكروفون</string>
+    <string name="rc_android.permission.READ_EXTERNAL_STORAGE">التخزين</string>
+    <string name="rc_android.permission.WRITE_EXTERNAL_STORAGE">التخزين</string>
+    <string name="rc_android.permission.READ_PHONE_STATE">الهاتف</string>
+    <string name="rc_android.permission.PROCESS_OUTGOING_CALLS">الهاتف</string>
+    <string name="rc_android.permission.BLUETOOTH_CONNECT">قم بتوصيل الجهاز</string>
+    <string name="rc_pub_service_info_description">المميزاتتقديم</string>
+    <string name="rc_pub_service_info_enter">الدخول إلى الاشتراك</string>
+    <string name="rc_pub_service_info_follow">المتابعة</string>
+    <string name="rc_pub_service_info_unfollow">إلغاء المتابعة</string>
+    <string name="rc_pub_service_info_account">الاشتراكات</string>
+    <string name="rc_pub_service_notification">إخطار الرسالة الجديدة</string>
+    <string name="rc_permission_grant_needed">تحتاج إلى تشغيل الأذونات في الإعدادات</string>
+    <string name="rc_permission_microphone">ميكروفون</string>
+    <string name="rc_permission_microphone_and_camera">ميكروفون، كاميرا</string>
+    <string name="rc_permission_camera">كاميرا</string>
+    <string name="rc_location_fetching">التحميل……</string>
+    <string name="rc_picture_camera_roll"> فلم التصوير </string>
+
+    <string name="rc_picture_camera_roll_num">%1$s (%2$d)</string>
+    <string name="rc_picture_cancel"> إلغاء </string>
+    <string name="rc_picture_take_picture"> تصوير </string>
+    <string name="rc_picture_rule"> ليست صور أو فيديو </string>
+    <string name="rc_picture_min_video_num"> لا يجوز لاختيار العديد من الفيديو </string>
+    <string name="rc_picture_message_max_num_fir">يجوز لاختيار على الأكثر</string>
+    <string name="rc_picture_preview"> معاينة </string>
+    <string name="rc_picture_please"> يرجى الانتظار </string>
+    <string name="rc_picture_done_front_num"> أوكي </string>
+    <string name="rc_picture_completed"> منجز </string>
+    <string name="rc_picture_done"> أوكي </string>
+    <string name="rc_picture_please_select"> إرجاء الاختيار </string>
+    <string name="rc_picture_empty_title"> لا يوجد فيديو أو صور </string>
+    <string name="rc_picture_empty"> يمكنك استخدام الكاميرا لالتقاط الصور أو الفيديو </string>
+    <string name="rc_picture_min_img_num"> لا يجوز لاختيار العديد من الصور </string>
+    <string name="rc_picture_gif_tag">gif</string>
+    <string name="rc_picture_audio"> تم رفض الوصول إلى إذن تسجيل النظام </string>
+    <string name="rc_picture_jurisdiction"> تم رفض الوصول إلى بطاقة الذاكرة </string>
+    <string name="rc_picture_camera"> تم رفض الوصول إلى إذن كاميرا النظام </string>
+    <string name="rc_picture_video_toast"> لا يجوز لمعاينة الفيديو </string>
+    <string name="rc_picture_record_video"> تسجيل الفيديو </string>
+    <string name="rc_picture_photograph"> تصوير </string>
+    <string name="rc_picture_long_chart"> طويل </string>
+    <string name="rc_picture_warning"> لا يوجد ملفات الوسائل! </string>
+    <string name="rc_picture_prompt"> اخطار </string>
+    <string name="rc_picture_prompt_content"> هل تريد حفظ الصور على هاتفك؟ </string>
+    <string name="rc_picture_save_error"> فشل حفظ الصورة </string>
+    <string name="rc_picture_save_success"> حفظ الصورة بنجاح </string>
+    <string name="rc_picture_play_audio"> لعب </string>
+    <string name="rc_picture_stop_audio"> قف </string>
+    <string name="rc_picture_quit_audio"> غادر </string>
+    <string name="rc_picture_pause_audio"> وقفة </string>
+    <string name="rc_picture_error"> الصورة تالفة </string>
+    <string name="rc_picture_video_error"> الفيديو تالف </string>
+    <string name="rc_picture_audio_error"> الصوت تالف </string>
+    <string name="rc_picture_confirm"> تأكيد </string>
+    <string name="rc_picture_preview_image_num">%1$d / %2$d</string>
+    <string name="rc_picture_not_crop_data"> لا توجد البيانات المقصوصة </string>
+    <string name="rc_picture_original_image"> أصلي </string>
+    <string name="rc_picture_original_image_size"> أصلي </string>
+    <string name="rc_picture_send"> إرسال </string>
+    <string name="rc_picture_select"> اختيار </string>
+    <string name="rc_picture_data_exception"> الحصول على بيانات الألبوم غير طبيعي </string>
+    <string name="rc_picture_message_max_num_sec">من الصور</string>
+    <string name="rc_picture_send_num">إرسال</string>
+
+    <string name="rc_android.permission.ACCESS_BACKGROUND_LOCATION">الأذونات</string>
+    <string name="rc_permission_background_location_grant_tip">تحتاج إلى توفير الأذونات، يرجى تحديد السماح الدائم للحصول على الموقع في صفحة الإعدادات</string>
+
+    <string name="rc_exceeded_max_limit_100">إختار إلى 100 سجل محادثة</string>
+    <string name="rc_location_sevice_dialog_confirm">قم بتشغيل خدمات الموقع</string>
+    <string name="rc_location_sevice_dialog_messgae">تحتاج إلى فتح خدمة الموقع للحصول على معلومات الموقع</string>
+    <string name="rc_location_sevice_dialog_title">افتح</string>
+
+    <string name="rc_read_all">اقرأ النص الكامل</string>
+
+    <string name="rc_conversation_remote_side_is_typing">الطرف الآخر يكتب&#046;&#046;&#046;</string>
+    <string name="rc_conversation_remote_side_speaking">الطرف الآخر يتحدث&#046;&#046;&#046;</string>
+
+    <string name="rc_mention_messages">@ %s</string>
+    <string name="rc_media_upload_error">لا يمكن تحميل وسائط 0kb.</string>
+    <string name="rc_load_local_message">Network Error，View local history messages?</string>
+
+    <string name="rc_message_too_long">النص الذي أدخلته طويل جدًا بحيث لا يمكن إرساله</string>
+
+    <string name="rc_permission_request_failed">فشل في الحصول على إذن</string>
+
+    <string name="rc_translate_failed_try_again">الترجمة فشلت ، يرجى المحاولة مرة أخرى</string>
+    <string name="rc_translate_message">ترجمة الرسالة</string>
+
+</resources>
