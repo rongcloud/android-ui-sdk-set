@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
 
+    private static final Pattern pattern = Pattern.compile("^[-\\+]?[\\d]+$");
+
     public static void tempTextFont(TextView tv, int mimeType) {
         String text = tv.getText().toString().trim();
         String str = tv.getContext().getString(R.string.rc_picture_empty_title);
@@ -29,7 +31,6 @@ public class StringUtils {
      * @return
      */
     public static int stringToInt(String str) {
-        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]+$");
         return pattern.matcher(str).matches() ? Integer.valueOf(str) : 0;
     }
 }

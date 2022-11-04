@@ -17,7 +17,7 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 android:gravity="center_vertical"
                 android:layout_height="64dp">
@@ -36,7 +36,7 @@
                     style="@style/RCTheme.Message.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
                     android:layout_marginTop="10dp"
                     android:layout_toRightOf="@+id/portrait"
                     android:singleLine="true"/>
@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:layout_below="@+id/name"
-                    android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
                     android:layout_toRightOf="@id/portrait"/>
             </RelativeLayout>
 
@@ -65,7 +65,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
                     android:id="@+id/func"
                     android:text="@string/rc_pub_service_info_description"/>
 
@@ -74,9 +74,9 @@
                     style="@style/RCTheme.Message.RichContent.TextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="18dp"
+                    android:layout_marginStart="18dp"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="32dp"
+                    android:layout_marginEnd="32dp"
                     />
             </LinearLayout>
 
@@ -84,8 +84,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
                 android:background="#e4e4e4"/>
 
             <io.rong.imkit.widget.SettingItemView
@@ -100,8 +100,8 @@
                 android:id="@+id/enter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="14dp"
                 android:textSize="16sp"
                 android:background="@drawable/rc_btn_public_service_enter_selector"
@@ -112,8 +112,8 @@
                 android:id="@+id/follow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="17dp"
                 android:textSize="16sp"
                 android:background="@drawable/rc_btn_public_service_enter_selector"
@@ -124,8 +124,8 @@
                 android:id="@+id/unfollow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:layout_marginTop="14dp"
                 android:textSize="16sp"
                 android:background="@drawable/rc_btn_public_service_unfollow_selector"

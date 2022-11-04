@@ -7,6 +7,7 @@
     <string name="rc_conversation_list_title">Conversation List</string>
     <string name="rc_conversation_list_empty_prompt">No chats info</string>
     <string name="rc_conversation_list_notice_network_unavailable">Network unavailable, please check your network</string>
+    <string name="rc_conversation_list_notice_proxy_unavailable">Proxy unavailable,please check your proxy</string>
     <string name="rc_conversation_list_notice_disconnect">Unable to connect to server</string>
     <string name="rc_conversation_list_notice_kicked">This account has been logged-in on other devices</string>
     <string name="rc_conversation_list_notice_connecting">Connecting...</string>
@@ -38,9 +39,9 @@
 
     <string name="rc_yesterday_format">Yesterday</string>
     <string name="rc_date_yesterday">Yesterday</string>
-    <string name="rc_date_year"></string>
-    <string name="rc_date_month"></string>
-    <string name="rc_date_day"></string>
+    <string name="rc_date_year">year</string>
+    <string name="rc_date_month">month</string>
+    <string name="rc_date_day">day</string>
     <string name="rc_date_monday">Monday</string>
     <string name="rc_date_tuesday">Tuesday</string>
     <string name="rc_date_wednesday">Wednesday</string>
@@ -506,5 +507,6 @@
 
     <string name="rc_translate_failed_try_again">Translation failed, please try again</string>
     <string name="rc_translate_message">Translate Message</string>
+    <string name="rc_recalled_message">Recalled a message</string>
 
 </resources>

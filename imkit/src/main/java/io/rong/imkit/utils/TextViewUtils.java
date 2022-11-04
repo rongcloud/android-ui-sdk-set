@@ -26,7 +26,9 @@ public class TextViewUtils {
         if (content == null) {
             return new SpannableStringBuilder("");
         }
-        SpannableStringBuilder spannable = new SpannableStringBuilder(content);
+        // 处理RTL
+        String adapterContent = RTLUtils.adapterAitInRTL(content);
+        SpannableStringBuilder spannable = new SpannableStringBuilder(adapterContent);
         final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
         AndroidEmoji.ensure(emojiSpannable);
         if (spannable.length() < CONTENT_LIMIT_LENGTH) {

@@ -116,6 +116,10 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         initStatusBar(R.color.app_color_white);
         initView();
         initData();
+        if (mFileMessage == null || mMessage == null) {
+            RLog.e(TAG, "message is null, return directly!");
+            return;
+        }
         initListener();
         getFileMessageStatus();
     }
@@ -322,6 +326,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + ")");
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
                 break;
+            default:
+                break;
         }
     }
 
@@ -377,6 +383,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                             && mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
                         mFileButton.setText(getResources().getString(R.string.rc_cancel));
                     }
+                    break;
+                default:
                     break;
             }
         }

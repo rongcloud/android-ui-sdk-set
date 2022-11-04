@@ -1,5 +1,6 @@
 <resources>
     <string name="rc_plugin_sight">小视频</string>
+    <string name="rc_message_content_sight">[视频]</string>
     <string name="rc_sight_reminder">长按录制小视频</string>
     <string name="rc_sight_list_title">聊天文件</string>
     <string name="rc_sight_download_failed">下载失败，点击重新下载</string>

@@ -699,7 +699,7 @@ public class ConversationFragment extends Fragment
         if (getView() == null) {
             return;
         }
-        mMessageViewModel.onResume();
+        if (mMessageViewModel != null) mMessageViewModel.onResume();
         getView()
                 .setOnKeyListener(
                         new View.OnKeyListener() {

@@ -38,6 +38,8 @@ public class KeyboardHeightFloatImpl
             if (parent instanceof ViewGroup) {
                 ((ViewGroup) parent).removeView(view);
                 windowManager.addView(view, createLayoutParams());
+            } else if (parent == null) {
+                windowManager.addView(view, createLayoutParams());
             }
         } catch (Exception e) {
             RLog.e(TAG, "start" + e.getMessage());

@@ -194,6 +194,8 @@ public class AudioRecordManager implements Handler.Callback {
                                     case TelephonyManager.CALL_STATE_RINGING:
                                         sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
                                         break;
+                                    default:
+                                        break;
                                 }
                                 super.onCallStateChanged(state, incomingNumber);
                             }
@@ -614,6 +616,8 @@ public class AudioRecordManager implements Handler.Callback {
                     mCurAudioState = recordState;
                     sendEmptyMessage(AUDIO_RECORD_EVENT_SAMPLING);
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -695,6 +699,8 @@ public class AudioRecordManager implements Handler.Callback {
                     mCurAudioState = idleState;
                     idleState.enter();
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -709,6 +715,8 @@ public class AudioRecordManager implements Handler.Callback {
                     if ((boolean) message.obj) sendAudioFile();
                     destroyView();
                     mCurAudioState = idleState;
+                    break;
+                default:
                     break;
             }
         }
@@ -755,6 +763,8 @@ public class AudioRecordManager implements Handler.Callback {
                         mCurAudioState = idleState;
                         idleState.enter();
                     }
+                    break;
+                default:
                     break;
             }
         }
@@ -811,6 +821,8 @@ public class AudioRecordManager implements Handler.Callback {
                 case AUDIO_RECORD_EVENT_WILL_CANCEL:
                     setCancelView();
                     mCurAudioState = cancelState;
+                    break;
+                default:
                     break;
             }
         }

@@ -1,12 +1,15 @@
 package io.rong.imkit.feature.mention;
 
 import android.content.Context;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.EditText;
 import io.rong.common.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MentionedInfo;
@@ -15,6 +18,7 @@ import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Stack;
 import org.json.JSONArray;
 
@@ -146,9 +150,20 @@ public class RongMentionManager {
             MentionInstance mentionInstance = stack.peek();
             EditText editText = mentionInstance.inputEditText;
             if (userInfo != null && editText != null) {
+
                 String mentionContent;
-                mentionContent =
-                        from == 0 ? "@" + userInfo.getName() + " " : userInfo.getName() + " ";
+                if (TextUtils.getLayoutDirectionFromLocale(Locale.getDefault())
+                        == View.LAYOUT_DIRECTION_RTL) {
+                    // RTL布局处理
+                    // @字符和人名需要一起落到ET上。方便起见落之前先删除@字符再添加；
+                    if (from == 1) deleteLastChar(editText);
+                    // @字符前需添加"\u200e"(LRM)或"\u200f"(RLM)表明方向，否则RLT下多种文字混排有问题
+                    String str = "@" + userInfo.getName() + " ";
+                    mentionContent = RTLUtils.adapterAitInRTL(str);
+                } else {
+                    mentionContent =
+                            from == 0 ? "@" + userInfo.getName() + " " : userInfo.getName() + " ";
+                }
                 int len = mentionContent.length();
                 int cursorPos = editText.getSelectionStart();
 
@@ -342,6 +357,14 @@ public class RongMentionManager {
                 editText.getEditableText().delete(start, cursorPos);
                 editText.setSelection(start);
             }
+        }
+    }
+
+    private void deleteLastChar(EditText editText) {
+        int index = editText.getSelectionStart();
+        Editable editable = editText.getText();
+        if (editable != null && editable.length() > 0) {
+            editable.delete(index - 1, index);
         }
     }
 

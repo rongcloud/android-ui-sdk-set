@@ -119,7 +119,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/rc_conversation_no_disturb"
-            app:layout_goneMarginRight="@dimen/rc_margin_size_12"
+            app:layout_goneMarginEnd="@dimen/rc_margin_size_12"
             android:src="@drawable/rc_read_receipt" />
 
         <View

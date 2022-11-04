@@ -196,8 +196,7 @@ public class InputPanel {
                     mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
-            mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+            resetInputView();
         } else if (inputMode.equals(InputMode.VoiceInput)) {
             mVoiceToggleBtn.setImageDrawable(
                     mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_keyboard_btn));
@@ -230,8 +229,25 @@ public class InputPanel {
                     mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
-            mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+            resetInputView();
+        }
+    }
+
+    private void resetInputView() {
+        Editable text = mEditText.getText();
+        if (text == null || text.length() == 0) {
+            if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
+                    || mInputStyle.equals(InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {
+                mAddOrSendBtn.setVisibility(VISIBLE);
+                mAddBtn.setVisibility(VISIBLE);
+                mSendBtn.setVisibility(GONE);
+            } else {
+                mAddOrSendBtn.setVisibility(GONE);
+            }
+        } else {
+            mAddOrSendBtn.setVisibility(VISIBLE);
+            mSendBtn.setVisibility(VISIBLE);
+            mAddBtn.setVisibility(GONE);
         }
     }
 
@@ -330,6 +346,7 @@ public class InputPanel {
                                                     }
                                                     mEditText.setSelection(s.length());
                                                     mEditText.requestFocus();
+                                                    resetInputView();
                                                 }
                                             },
                                             50);

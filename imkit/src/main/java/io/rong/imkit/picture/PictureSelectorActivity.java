@@ -47,6 +47,7 @@ import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.StringUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.picture.widget.FolderPopWindow;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import java.io.File;
 import java.util.ArrayList;
@@ -205,19 +206,21 @@ public class PictureSelectorActivity extends PictureBaseActivity
 
     /** 加载数据 */
     private void loadAllMediaData() {
-        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                && PermissionChecker.checkSelfPermission(
-                        this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        String[] permissions = null;
+        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU) {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+        } else {
+            permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+        }
+        if (PermissionChecker.checkSelfPermission(this, permissions)) {
             mHandler.sendEmptyMessage(SHOW_DIALOG);
             readLocalMedia();
         } else {
             PermissionChecker.requestPermissions(
-                    this,
-                    new String[] {
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    },
-                    PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
+                    this, permissions, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
         }
     }
 
@@ -690,6 +693,8 @@ public class PictureSelectorActivity extends PictureBaseActivity
                 } else {
                     ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
                 }
+                break;
+            default:
                 break;
         }
     }

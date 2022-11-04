@@ -226,6 +226,8 @@ public class StickerPackageTable implements BaseColumns {
                     break;
                 case COLUMN_IS_DOWNLOAD:
                     stickerPackage.setDownload(cursor.getInt(cursor.getColumnIndex(column)) == 1);
+                default:
+                    break;
             }
         }
         return stickerPackage;

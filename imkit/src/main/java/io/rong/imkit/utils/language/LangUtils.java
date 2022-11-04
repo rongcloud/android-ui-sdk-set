@@ -147,4 +147,26 @@ public class LangUtils {
         }
         return RCLocale.valueOf(locale);
     }
+
+    /**
+     * 获取当前app 的语言设置
+     *
+     * @return
+     */
+    public static LangUtils.RCLocale getAppLanguageLocal(Context context) {
+        LangUtils.RCLocale appLocale = getAppLocale(context);
+        if (appLocale == LangUtils.RCLocale.LOCALE_AUTO) {
+            Locale systemLocale = RongConfigurationManager.getInstance().getSystemLocale();
+            if (systemLocale.getLanguage().equals(Locale.CHINESE.getLanguage())) {
+                appLocale = LangUtils.RCLocale.LOCALE_CHINA;
+            } else if (systemLocale.getLanguage().equals(Locale.ENGLISH.getLanguage())) {
+                appLocale = LangUtils.RCLocale.LOCALE_US;
+            } else if (systemLocale.getLanguage().equals(new Locale("ar").getLanguage())) {
+                appLocale = LangUtils.RCLocale.LOCALE_ARAB;
+            } else {
+                appLocale = LangUtils.RCLocale.LOCALE_CHINA;
+            }
+        }
+        return appLocale;
+    }
 }

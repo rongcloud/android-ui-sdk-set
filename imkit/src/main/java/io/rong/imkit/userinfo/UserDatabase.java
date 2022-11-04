@@ -3,9 +3,12 @@ package io.rong.imkit.userinfo;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.userinfo.db.dao.GroupDao;
 import io.rong.imkit.userinfo.db.dao.GroupMemberDao;
@@ -17,7 +20,7 @@ import io.rong.imkit.utils.ExecutorHelper;
 
 @Database(
         entities = {User.class, Group.class, GroupMember.class},
-        version = 2,
+        version = 3,
         exportSchema = false)
 public abstract class UserDatabase extends RoomDatabase {
     private static final String TAG = UserDatabase.class.getCanonicalName();
@@ -84,6 +87,15 @@ public abstract class UserDatabase extends RoomDatabase {
         return Room.databaseBuilder(context, UserDatabase.class, getDbName(userId))
                 .fallbackToDestructiveMigration()
                 .addCallback(callback)
+                .addMigrations(
+                        new Migration(2, 3) {
+                            @Override
+                            public void migrate(@NonNull SupportSQLiteDatabase database) {
+                                database.execSQL("ALTER TABLE `group` ADD COLUMN `extra` TEXT");
+                                database.execSQL(
+                                        "ALTER TABLE `group_member` ADD COLUMN `extra` TEXT");
+                            }
+                        })
                 .build();
     }
 

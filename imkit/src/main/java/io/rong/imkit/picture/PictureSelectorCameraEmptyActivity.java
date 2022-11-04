@@ -3,6 +3,7 @@ package io.rong.imkit.picture;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import java.io.File;
 import java.util.ArrayList;
@@ -26,9 +28,20 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (PermissionChecker.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                && PermissionChecker.checkSelfPermission(
-                        this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        String[] permissions = null;
+        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU) {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+        } else {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    };
+        }
+        if (PermissionChecker.checkSelfPermission(this, permissions)) {
             onTakePhoto();
         } else {
             ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
@@ -184,6 +197,8 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     closeActivity();
                     ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
                 }
+                break;
+            default:
                 break;
         }
     }

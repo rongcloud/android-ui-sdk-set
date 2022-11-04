@@ -4,8 +4,8 @@
     android:layout_height="76dp"
     android:layout_gravity="center_vertical"
     android:descendantFocusability="blocksDescendants"
-    android:paddingLeft="19dp"
-    android:paddingRight="20dp"
+    android:paddingStart="19dp"
+    android:paddingEnd="20dp"
     android:orientation="horizontal">
 
     <FrameLayout
@@ -36,9 +36,9 @@
         android:id="@id/rc_img"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="18dp"
+        android:layout_marginStart="18dp"
         android:scaleType="centerCrop" />
 
 </LinearLayout>

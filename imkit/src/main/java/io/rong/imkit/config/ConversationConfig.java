@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.util.LayoutDirection;
+import androidx.core.text.TextUtilsCompat;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.moreaction.DeleteClickActions;
@@ -46,8 +48,10 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -292,6 +296,10 @@ public class ConversationConfig {
     private void initMoreClickAction() {
         mMoreClickActions.add(new ForwardClickActions());
         mMoreClickActions.add(new DeleteClickActions());
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
+                == LayoutDirection.RTL) {
+            Collections.reverse(mMoreClickActions);
+        }
     }
 
     /**

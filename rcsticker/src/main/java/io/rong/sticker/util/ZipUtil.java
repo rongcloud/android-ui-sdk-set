@@ -19,28 +19,23 @@ public class ZipUtil {
 
     public static void zip(String[] files, String zipFile) {
         FileInputStream fi = null;
-        try {
-            BufferedInputStream origin;
-            FileOutputStream dest = new FileOutputStream(zipFile);
-
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
+        try (FileOutputStream dest = new FileOutputStream(zipFile);
+                ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest))) {
 
             byte[] data = new byte[BUFFER];
 
             for (String file : files) {
                 Log.v("Compress", "Adding: " + file);
                 fi = new FileInputStream(file);
-                origin = new BufferedInputStream(fi, BUFFER);
-                ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));
-                out.putNextEntry(entry);
-                int count;
-                while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                    out.write(data, 0, count);
+                try (BufferedInputStream origin = new BufferedInputStream(fi, BUFFER)) {
+                    ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));
+                    out.putNextEntry(entry);
+                    int count;
+                    while ((count = origin.read(data, 0, BUFFER)) != -1) {
+                        out.write(data, 0, count);
+                    }
                 }
-                origin.close();
             }
-
-            out.close();
         } catch (Exception e) {
             RLog.e(TAG, "zip:", e);
         } finally {
@@ -68,26 +63,24 @@ public class ZipUtil {
      * @param location 解压到的位置
      */
     public static void unzip(String zipFile, String location) {
-        try {
-            FileInputStream fin = new FileInputStream(zipFile);
-            ZipInputStream zin = new ZipInputStream(fin);
+        try (FileInputStream fin = new FileInputStream(zipFile);
+                ZipInputStream zin = new ZipInputStream(fin)) {
             ZipEntry ze;
             dirChecker(location);
             while ((ze = zin.getNextEntry()) != null) {
                 if (ze.isDirectory()) {
                     dirChecker(location + ze.getName());
                 } else {
-                    FileOutputStream fout = new FileOutputStream(location + ze.getName());
-                    byte[] data = new byte[BUFFER];
-                    int count;
-                    while ((count = zin.read(data, 0, BUFFER)) != -1) {
-                        fout.write(data, 0, count);
+                    try (FileOutputStream fout = new FileOutputStream(location + ze.getName())) {
+                        byte[] data = new byte[BUFFER];
+                        int count;
+                        while ((count = zin.read(data, 0, BUFFER)) != -1) {
+                            fout.write(data, 0, count);
+                        }
+                        zin.closeEntry();
                     }
-                    zin.closeEntry();
-                    fout.close();
                 }
             }
-            zin.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

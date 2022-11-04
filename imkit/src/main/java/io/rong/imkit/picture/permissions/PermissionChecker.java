@@ -12,13 +12,18 @@ public class PermissionChecker {
     /**
      * 检查是否有某个权限
      *
-     * @param ctx
-     * @param permission
+     * @param context
+     * @param permissions
      * @return
      */
-    public static boolean checkSelfPermission(Context ctx, String permission) {
-        return ContextCompat.checkSelfPermission(ctx.getApplicationContext(), permission)
-                == PackageManager.PERMISSION_GRANTED;
+    public static boolean checkSelfPermission(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(context.getApplicationContext(), permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

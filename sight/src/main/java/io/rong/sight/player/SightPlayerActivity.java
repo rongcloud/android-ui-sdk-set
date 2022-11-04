@@ -104,8 +104,10 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
                 mSightMessage = (SightMessage) mMessage.getContent();
             }
         }
-        if (mSightMessage != null
-                && FileUtils.isFileExistsWithUri(this, mSightMessage.getLocalPath())) {
+        if (mSightMessage == null) {
+            return;
+        }
+        if (FileUtils.isFileExistsWithUri(this, mSightMessage.getLocalPath())) {
             initSightPlayer();
         } else {
             initDownloadView();

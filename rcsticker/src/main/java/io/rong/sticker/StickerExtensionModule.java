@@ -36,7 +36,7 @@ import java.util.List;
 public class StickerExtensionModule implements IExtensionModule {
 
     private static final String TAG = StickerExtensionModule.class.getCanonicalName();
-    private static String sAppKey;
+    private String sAppKey;
     public static WeakReference<RongExtension> sRongExtensionWeakReference;
     private RecommendTab recommendTab;
     private StickerPackagesConfigTask stickerPackagesConfigTask;

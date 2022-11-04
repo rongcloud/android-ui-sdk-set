@@ -160,8 +160,9 @@ public class ForwardManager {
             case "RC:CombineMsg": // 合并
             case "RC:ReferenceMsg": // 引用
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     // 允许合并转发的消息类型：文本,语音,小视频,图片,文件,图文,表情,位置,合并,音视频通话
@@ -182,8 +183,9 @@ public class ForwardManager {
             case "RC:VSTMsg": // 音视频通话
             case "RC:VCSummary": // 音视频通话
                 return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     // index: 0:逐步转发  1:合并转发

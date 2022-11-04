@@ -5,11 +5,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.text.TextUtils;
 import androidx.fragment.app.Fragment;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
@@ -62,8 +64,9 @@ public class HQVoiceMsgDownloadManager {
                                         && message.getContent() instanceof HQVoiceMessage
                                         && RongConfigCenter.conversationListConfig()
                                                 .isEnableAutomaticDownloadHQVoice()) {
-                                    if (PermissionCheckUtil.checkPermissions(
-                                            context, writePermission)) {
+                                    if (Build.VERSION.SDK_INT < AndroidConstant.ANDROID_TIRAMISU
+                                            && PermissionCheckUtil.checkPermissions(
+                                                    context, writePermission)) {
                                         enqueue(
                                                 new AutoDownloadEntry(
                                                         message,

@@ -36,7 +36,7 @@ import java.util.List;
 
 public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessage> {
 
-    private static Integer minShortSideSize;
+    private Integer minShortSideSize;
 
     public SightMessageItemProvider() {
         mConfig.showContentBubble = false;

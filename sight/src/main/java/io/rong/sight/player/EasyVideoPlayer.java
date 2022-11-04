@@ -40,6 +40,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 import io.rong.common.RLog;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
@@ -1037,9 +1038,16 @@ public class EasyVideoPlayer extends FrameLayout
     }
 
     private boolean checkGrantedPermission() {
-        String[] permissions = {
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
-        };
+        String[] permissions = null;
+        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU) {
+            return false;
+        } else {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    };
+        }
         if (PermissionCheckUtil.requestPermissions((Activity) getContext(), permissions)) {
             return false;
         }

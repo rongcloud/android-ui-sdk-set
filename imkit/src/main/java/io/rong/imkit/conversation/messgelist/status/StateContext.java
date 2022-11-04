@@ -24,6 +24,8 @@ public class StateContext {
             case CHATROOM_NORMAL_STATE:
                 this.currentState = chatroomNormalSate;
                 break;
+            default:
+                break;
         }
     }
 

@@ -291,6 +291,8 @@ public class RongUtils {
                 matrix.setRotate(270, w / 2f, h / 2f);
                 matrix.preScale(1, -1);
                 break;
+            default:
+                break;
         }
         float xS = (float) widthLimit / bitmap.getWidth();
         float yS = (float) heightLimit / bitmap.getHeight();

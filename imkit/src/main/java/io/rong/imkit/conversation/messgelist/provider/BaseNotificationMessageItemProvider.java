@@ -85,7 +85,10 @@ public abstract class BaseNotificationMessageItemProvider<T extends MessageConte
             UiMessage pre = data.get(position - 1);
             if (pre.getMessage() != null
                     && RongDateUtils.isShowChatTime(
-                            message.getSentTime(), pre.getMessage().getSentTime(), 180)) {
+                            holder.getContext(),
+                            message.getSentTime(),
+                            pre.getMessage().getSentTime(),
+                            180)) {
                 holder.setVisible(R.id.rc_time, true);
             } else {
                 holder.setVisible(R.id.rc_time, false);

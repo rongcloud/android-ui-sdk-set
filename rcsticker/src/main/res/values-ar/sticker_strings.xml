@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ملصق RC</string>
+    <string name = "download_sticker"> تنزيل </string>
+    <string name = "my_sticker"> الملصق الخاص بي </string>
+    <string name = "added_stickers"> الملصقات التي تم تنزيلها </string>
+    <string name = "remove_sticker"> إزالة </string>
+    <string name = "no_sticker"> يمكنك الحصول على رموز تعبيرية في لوحة توصيات الرموز </string>
+    <string name="sticker_download_fail">\"%1$s\"التنزيل لم ينجح، يرجى المحاولة مرة أخرى</string>
+    <string name = "sticker_fail_to_load"> فشل التحميل </string>
+</resources>

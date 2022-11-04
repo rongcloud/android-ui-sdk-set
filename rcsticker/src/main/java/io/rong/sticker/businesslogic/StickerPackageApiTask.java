@@ -25,6 +25,7 @@ public class StickerPackageApiTask {
     private static final String GET_STICKER_URL = "emoticonservice/emopkgs/%s/stickers/%s";
     private static String sAppKey;
     private static ExecutorService service = Executors.newCachedThreadPool();
+    private static Random random = new Random();
 
     public static void init(String appKey) {
         sAppKey = appKey;
@@ -77,7 +78,7 @@ public class StickerPackageApiTask {
 
     private static Map<String, String> createHeader() {
         Map<String, String> map = new HashMap<>();
-        String nonce = Integer.toString(new Random().nextInt(10000));
+        String nonce = Integer.toString(random.nextInt(10000));
         String timestamp = Long.toString(System.currentTimeMillis());
         String signature = SHA1Util.SHA1(SHA1Util.SHA1(sAppKey) + nonce + timestamp);
         map.put("AppKey", sAppKey);

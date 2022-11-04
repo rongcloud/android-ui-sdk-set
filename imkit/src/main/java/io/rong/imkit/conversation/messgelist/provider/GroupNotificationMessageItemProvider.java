@@ -472,6 +472,8 @@ public class GroupNotificationMessageItemProvider
                         spannableStringSummary = new SpannableString(changeMsg);
                         break;
                     }
+                default:
+                    break;
             }
 
             return spannableStringSummary;

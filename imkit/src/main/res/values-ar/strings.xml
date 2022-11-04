@@ -5,6 +5,7 @@
 
     <!-- ConversationList -->
     <string name="rc_conversation_list_notice_network_unavailable">الشبكة غير متاحه, يرجى التأكد من الشبكة</string>
+    <string name="rc_conversation_list_notice_proxy_unavailable">الوكيل غير متوفر ، يرجى التحقق من الوكيل الخاص بك</string>
     <string name="rc_conversation_list_notice_disconnect">تعذر الوصول للخادم</string>
     <string name="rc_conversation_list_notice_kicked">تم تسجيل الدخول على هذا الحساب من أجهزة اخرى</string>
     <string name="rc_conversation_list_notice_connecting">جاري الإتصال...</string>
@@ -18,11 +19,11 @@
     <string name="rc_conversation_summary_content_file">[ملف]</string>
     <string name="rc_conversation_summary_content_sight">[فيديو]</string>
     <string name="rc_conversation_summary_content_combine">[تاريخ المحادثة]</string>
-    <string name="rc_conversation_summary_content_mentioned">[You were mentioned]</string>
+    <string name="rc_conversation_summary_content_mentioned">[تمت الإشارة إليك]</string>
     <string name="rc_conversation_summary_content_burn">[المحادثة السرية]</string>
     <string name="rc_conversation_summary_content_card">[بطاقة]</string>
     <string name="rc_conversation_summary_content_sticker">[ملصق]</string>
-    <string name="rc_conversation_summary_content_rp">[Red Packet]</string>
+    <string name="rc_conversation_summary_content_rp">[الحزمة الحمراء]</string>
     <string name="rc_conversation_summary_content_vst">[مكالمة الفيديو و الصوت]</string>
 
     <string name="rc_location_title">الموقع</string>
@@ -59,11 +60,11 @@
     <string name="rc_message_content_file">[ملف]</string>
     <string name="rc_message_content_sight">[فيديو]</string>
     <string name="rc_message_content_combine">[تاريخ المحادثة]</string>
-    <string name="rc_message_content_mentioned">[You were mentioned]</string>
+    <string name="rc_message_content_mentioned">[تمت الإشارة إليك]</string>
     <string name="rc_message_content_burn">[المحادثة السرية]</string>
     <string name="rc_message_content_card">[بطاقة]</string>
     <string name="rc_message_content_sticker">[ملصق]</string>
-    <string name="rc_message_content_rp">[Red Packet]</string>
+    <string name="rc_message_content_rp">[الحزمة الحمراء]</string>
     <string name="rc_message_content_vst">[مكالمة الفيديو و الصوت]</string>
 
     <string name="rc_dialog_item_message_delete">حذف</string>
@@ -83,7 +84,7 @@
 
     <string name="rc_notice_network_unavailable">الشبكة غير متاحه, يرجى التأكد من الشبكة</string>
 
-    <string name="rc_message_unknown">The current version does not support viewing this message</string>
+    <string name="rc_message_unknown">" الإصدار الحالي لا يدعم عرض هذه الرسالة "</string>
     <string name="rc_new_messages">&#160;رسالة جديدة</string>
     <string name="rc_info_not_in_discussion">لست مضافا في المحادثة الحالية</string>
     <string name="rc_info_not_in_group">لست مضافا في المجموعة الحالية</string>
@@ -91,7 +92,7 @@
     <string name="rc_rejected_by_blacklist_prompt">تم ارسال رسالتك , وتم رفضها من قبل المستقبل</string>
     <string name="rc_info_forbidden_to_talk">تم حظرك من الارسال في المجموعة الحالية </string>
     <string name="rc_forbidden_in_chatroom">تم حظرك من الإرسال في غرفة المحادثة الحالية</string>
-    <string name="rc_kicked_from_chatroom">You were kicked out from chatroom</string>
+    <string name="rc_kicked_from_chatroom">" تم طردك من غرفة الدردشة "</string>
 
     <string name="rc_daybreak_format">ص</string>
     <string name="rc_morning_format">ص</string>
@@ -169,7 +170,7 @@
     <string name="rc_combine_chat_history">سجل المحادثة</string>
     <string name="rc_combine_group_chat">سجل محادثة المجموعة</string>
     <string name="rc_combine_the_group_chat_of">سجل المحادثة الخاص بـ%s</string>
-    <string name="rc_combine_and">and</string>
+    <string name="rc_combine_and">" و "</string>
     <string name="rc_combine_unsupported">تعذر في إرسال أو النسخ أو إعادة توجيه رسالة الاقتباس</string>
 
     <string name="rc_combine_unsupported_step">تعذر إرسال رسالة صوتية أو فيديو أو نسخها أو لا يمكن إعادة توجيهها</string>
@@ -340,9 +341,9 @@
     <string name="rc_notification_voip_channel_name">مكالمات الصوت والفيديو</string>
 
     <string name="rc_date_yesterday">أمس</string>
-    <string name="rc_date_year"></string>
-    <string name="rc_date_month"></string>
-    <string name="rc_date_day"></string>
+    <string name="rc_date_year">سنة</string>
+    <string name="rc_date_month">شهر</string>
+    <string name="rc_date_day">يوم</string>
     <string name="rc_date_monday">الإثنين</string>
     <string name="rc_date_tuesday">الثلاثاء</string>
     <string name="rc_date_wednesday">الأربعاء</string>
@@ -357,7 +358,7 @@
     <string name="rc_date_night">م</string>
     <string name="rc_yesterday_format">أمس</string>
 
-    <string name="rc_default_message">The current version does not support viewing this message</string>
+    <string name="rc_default_message">" الإصدار الحالي لا يدعم عرض هذه الرسالة "</string>
     <string name="rc_picsel_video_corrupted">تعذر مشاركة الفيديو. الملف معطوب</string>
     <string name="rc_picsel_selected_max_time_span_with_param">لا يمكن مشاركة مقاطع الفيديو التي تزيد مدتها عن %s دقيقة</string>
     <string name="rc_read_receipt">أقرا</string>
@@ -394,17 +395,16 @@
     <string name="rc_not_prompt">لا تذكر مرة أخرى</string>
     <string name="rc_send">إرسال</string>
 
-    <string name="rc_gathered_conversation_private_title">Private</string>
-    <string name="rc_gathered_conversation_group_title">Group</string>
-    <string name="rc_gathered_conversation_chatroom_title">Chatroom</string>
-    <string name="rc_gathered_conversation_system_title">System</string>
-    <string name="rc_gathered_conversation_custom_title">Custom</string>
-    <string name="rc_gathered_conversation_unkown_title">Unkown</string>
+    <string name="rc_gathered_conversation_private_title">" خاص "</string>
+    <string name="rc_gathered_conversation_group_title">" المجموعة "</string>
+    <string name="rc_gathered_conversation_chatroom_title">" غرفة الدردشة "</string>
+    <string name="rc_gathered_conversation_system_title">" النظام "</string>
+    <string name="rc_gathered_conversation_custom_title">" مخصص "</string>
+    <string name="rc_gathered_conversation_unkown_title">" غير معروف "</string>
     //刷新库
-    <string name="srl_content_empty">The content view in SmartRefreshLayout is empty. Do you forget to add it in xml layout file?</string>
-    <string name="srl_component_falsify" formatted="false">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>
+    <string name="srl_component_falsify" formatted="false">%s منطقة تزوير، \ n يمثل ارتفاع [%.1fdp] للسحب في وقت التشغيل، \ n لا يُظهر أي شيء.</string>
 
-    <string name="rc_unknow">UnKnown</string>
+    <string name="rc_unknow">" غير معروف "</string>
     <string name="rc_unread_message">{0} رسالة جديدة</string>
 
     <string name="rc_android.permission.CAMERA">الكاميرا</string>
@@ -485,12 +485,12 @@
 
     <string name="rc_read_all">اقرأ النص الكامل</string>
 
-    <string name="rc_conversation_remote_side_is_typing">الطرف الآخر يكتب&#046;&#046;&#046;</string>
-    <string name="rc_conversation_remote_side_speaking">الطرف الآخر يتحدث&#046;&#046;&#046;</string>
+    <string name="rc_conversation_remote_side_is_typing">يكتب ...</string>
+    <string name="rc_conversation_remote_side_speaking">يتحدث...</string>
 
     <string name="rc_mention_messages">@ %s</string>
     <string name="rc_media_upload_error">لا يمكن تحميل وسائط 0kb.</string>
-    <string name="rc_load_local_message">Network Error，View local history messages?</string>
+    <string name = "rc_load_local_message"> خطأ في الشبكة ، عرض رسائل السجل المحلي؟ </string>
 
     <string name="rc_message_too_long">النص الذي أدخلته طويل جدًا بحيث لا يمكن إرساله</string>
 
@@ -498,5 +498,13 @@
 
     <string name="rc_translate_failed_try_again">الترجمة فشلت ، يرجى المحاولة مرة أخرى</string>
     <string name="rc_translate_message">ترجمة الرسالة</string>
+    <string name="rc_conversation_list_title">" قائمة المحادثات "</string>
+    <string name="rc_recalled_message">" تم إسترجاع رسالة "</string>
+    <string name="rc_date_format">MM dd HH:mm</string>
+    <string name="rc_location_service_dialog_title"> تشغيل خدمة الموقع </string>
+    <string name="rc_receive_new_message"> لقد تلقيت رسالة جديدة </string>
+    <string name="srl_content_empty">" طريقة عرض المحتوى في SmartRefreshLayout فارغة. هل نسيت إضافته في ملف تخطيط xml؟ "</string>
+
+
 
 </resources>

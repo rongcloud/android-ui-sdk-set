@@ -26,12 +26,12 @@ public class RongExtensionManager {
     private static final String DEFAULT_CALL_MODULE = "io.rong.callkit.RongCallModule";
     private static final String DEFAULT_LOCATION_MODULE =
             "io.rong.location.LocationExtensionModule";
-    private static String mAppKey;
-    private static Context mApplicationContext;
+    private String mAppKey;
+    private Context mApplicationContext;
     private static List<IExtensionModule> mExtModules = new CopyOnWriteArrayList<>();
     private static List<IExtensionEventWatcher> mExtensionEventWatcher =
             new CopyOnWriteArrayList<>();
-    private static IExtensionConfig mExtensionConfig;
+    private IExtensionConfig mExtensionConfig;
 
     private RongExtensionManager() {}
 
@@ -45,7 +45,7 @@ public class RongExtensionManager {
      * @param context 应用上下文.
      * @param appKey 应用 key.
      */
-    public static void init(Context context, String appKey) {
+    public void init(Context context, String appKey) {
         RLog.d(TAG, "init");
         AndroidEmoji.init(context);
         RongUtils.init(context);

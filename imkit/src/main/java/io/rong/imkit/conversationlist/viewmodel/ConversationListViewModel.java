@@ -12,6 +12,7 @@ import io.rong.common.RLog;
 import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.RongIM;
 import io.rong.imkit.config.DataProcessor;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
@@ -38,6 +39,7 @@ import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ConnectionStatusListener.ConnectionStatus;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
@@ -94,7 +96,11 @@ public class ConversationListViewModel extends AndroidViewModel
                 public void onConversationRemoved(
                         Conversation.ConversationType type, String targetId) {
                     BaseUiConversation oldItem =
-                            findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+                            findConversationFromList(
+                                    type,
+                                    targetId,
+                                    mDataFilter.isGathered(
+                                            new ConversationIdentifier(type, targetId)));
                     if (oldItem != null) {
                         mUiConversationList.remove(oldItem);
                         mConversationListLiveData.postValue(mUiConversationList);
@@ -159,7 +165,11 @@ public class ConversationListViewModel extends AndroidViewModel
                     Conversation.ConversationType type = event.getMessage().getConversationType();
                     String targetId = event.getMessage().getTargetId();
                     BaseUiConversation oldItem =
-                            findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+                            findConversationFromList(
+                                    type,
+                                    targetId,
+                                    mDataFilter.isGathered(
+                                            new ConversationIdentifier(type, targetId)));
                     if (oldItem != null
                             && oldItem.mCore.getLatestMessageId()
                                     == event.getMessage().getMessageId()
@@ -203,7 +213,11 @@ public class ConversationListViewModel extends AndroidViewModel
                     Conversation.ConversationType type = event.getMessage().getConversationType();
                     String targetId = event.getMessage().getTargetId();
                     BaseUiConversation oldItem =
-                            findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+                            findConversationFromList(
+                                    type,
+                                    targetId,
+                                    mDataFilter.isGathered(
+                                            new ConversationIdentifier(type, targetId)));
                     getConversation(type, targetId);
                 }
 
@@ -229,7 +243,11 @@ public class ConversationListViewModel extends AndroidViewModel
                         Conversation.ConversationType type = message.getConversationType();
                         BaseUiConversation oldItem =
                                 findConversationFromList(
-                                        type, message.getTargetId(), mDataFilter.isGathered(type));
+                                        type,
+                                        message.getTargetId(),
+                                        mDataFilter.isGathered(
+                                                new ConversationIdentifier(
+                                                        type, message.getTargetId())));
                         if (oldItem != null
                                 && type.equals(Conversation.ConversationType.PRIVATE)
                                 && oldItem.mCore.getSentTime()
@@ -269,13 +287,18 @@ public class ConversationListViewModel extends AndroidViewModel
                 public void onSyncConversationReadStatus(
                         Conversation.ConversationType type, String targetId) {
                     BaseUiConversation oldItem =
-                            findConversationFromList(type, targetId, mDataFilter.isGathered(type));
+                            findConversationFromList(
+                                    type,
+                                    targetId,
+                                    mDataFilter.isGathered(
+                                            new ConversationIdentifier(type, targetId)));
                     if (oldItem != null) {
                         oldItem.mCore.setUnreadMessageCount(0);
                         mConversationListLiveData.postValue(mUiConversationList);
                     }
                 }
             };
+    private ConnectionStatus preConnectionStatus;
     private RongIMClient.ConnectionStatusListener mConnectionStatusListener =
             new RongIMClient.ConnectionStatusListener() {
                 @Override
@@ -286,6 +309,7 @@ public class ConversationListViewModel extends AndroidViewModel
                     }
                     // 更新连接状态通知信息
                     updateNoticeContent(status);
+                    preConnectionStatus = status;
                 }
             };
     private RongIMClient.ConversationStatusListener mConversationStatusListener =
@@ -329,6 +353,7 @@ public class ConversationListViewModel extends AndroidViewModel
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
         IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
         IMCenter.getInstance().addCancelSendMediaMessageListener(mCancelSendMediaMessageListener);
+        updateNoticeContent(RongIM.getInstance().getCurrentConnectionStatus());
     }
 
     /**
@@ -391,8 +416,11 @@ public class ConversationListViewModel extends AndroidViewModel
                                                     for (Conversation conversation : filterResult) {
                                                         boolean isGathered =
                                                                 mDataFilter.isGathered(
-                                                                        conversation
-                                                                                .getConversationType());
+                                                                        new ConversationIdentifier(
+                                                                                conversation
+                                                                                        .getConversationType(),
+                                                                                conversation
+                                                                                        .getTargetId()));
                                                         BaseUiConversation oldItem =
                                                                 findConversationFromList(
                                                                         conversation
@@ -536,7 +564,10 @@ public class ConversationListViewModel extends AndroidViewModel
             Conversation.ConversationType type = status.getConversationType();
             BaseUiConversation oldItem =
                     findConversationFromList(
-                            type, status.getTargetId(), mDataFilter.isGathered(type));
+                            type,
+                            status.getTargetId(),
+                            mDataFilter.isGathered(
+                                    new ConversationIdentifier(type, status.getTargetId())));
             if (oldItem != null) {
                 if (status.getStatus().get(ConversationStatus.TOP_KEY) != null) {
                     oldItem.mCore.setTop(status.isTop());
@@ -640,11 +671,16 @@ public class ConversationListViewModel extends AndroidViewModel
                     findConversationFromList(
                             conversation.getConversationType(),
                             conversation.getTargetId(),
-                            mDataFilter.isGathered(conversation.getConversationType()));
+                            mDataFilter.isGathered(
+                                    new ConversationIdentifier(
+                                            conversation.getConversationType(),
+                                            conversation.getTargetId())));
             if (oldItem != null) {
                 oldItem.onConversationUpdate(conversation);
             } else {
-                if (mDataFilter.isGathered(conversation.getConversationType())) {
+                if (mDataFilter.isGathered(
+                        new ConversationIdentifier(
+                                conversation.getConversationType(), conversation.getTargetId()))) {
                     mUiConversationList.add(
                             new GatheredConversation(
                                     mApplication.getApplicationContext(), conversation));
@@ -730,6 +766,9 @@ public class ConversationListViewModel extends AndroidViewModel
      * @param status
      */
     private void updateNoticeContent(ConnectionStatus status) {
+        if (status == preConnectionStatus) {
+            return;
+        }
         NoticeContent noticeContent = new NoticeContent();
         String content = null;
         boolean isShowContent = true;
@@ -755,7 +794,13 @@ public class ConversationListViewModel extends AndroidViewModel
                 || status.equals(ConnectionStatus.SUSPEND)) {
             content = resources.getString(R.string.rc_conversation_list_notice_connecting);
             resId = R.drawable.rc_conversationlist_notice_connecting_animated;
+        } else if (status.equals(ConnectionStatus.CONNECTION_STATUS_PROXY_UNAVAILABLE)) {
+            content = resources.getString(R.string.rc_conversation_list_notice_proxy_unavailable);
+            resId = R.drawable.rc_ic_error_notice;
         } else {
+            if (preConnectionStatus == ConnectionStatus.CONNECTION_STATUS_PROXY_UNAVAILABLE) {
+                return;
+            }
             content = resources.getString(R.string.rc_conversation_list_notice_network_unavailable);
             resId = R.drawable.rc_ic_error_notice;
         }

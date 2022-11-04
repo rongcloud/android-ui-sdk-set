@@ -156,21 +156,17 @@ public class EmoticonBoard {
     }
 
     public void initEmotionTabs() {
-        if (mEmotionTabs != null && mEmotionTabs.size() > 0) {
-            if (mScrollTab != null) {
-                mScrollTab.removeAllViews();
-            }
+        if (mEmotionTabs != null && mEmotionTabs.size() > 0 && mScrollTab != null) {
+            mScrollTab.removeAllViews();
         }
         mEmotionTabs =
                 RongExtensionManager.getInstance()
                         .getExtensionConfig()
                         .getEmoticonTabs(mConversationType, mTargetId);
         for (IEmoticonTab tab : getAllTabs()) {
-            if (mDisableSystemEmoji) {
-                if (tab instanceof EmojiTab) {
-                    mEmotionTabs.remove("DefaultExtensionModule");
-                    continue;
-                }
+            if (mDisableSystemEmoji && tab instanceof EmojiTab) {
+                mEmotionTabs.remove("DefaultExtensionModule");
+                continue;
             }
             if (mFragment.getContext() != null) {
                 View view = getTabIcon(mFragment.getContext(), tab);

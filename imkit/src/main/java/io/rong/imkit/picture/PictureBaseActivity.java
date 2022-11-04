@@ -309,6 +309,8 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                     ToastUtils.s(getContext(), getString(R.string.rc_picture_audio));
                 }
                 break;
+            default:
+                break;
         }
     }
 }

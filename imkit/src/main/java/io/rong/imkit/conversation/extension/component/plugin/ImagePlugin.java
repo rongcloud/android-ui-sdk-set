@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -21,6 +22,7 @@ import io.rong.imkit.picture.PictureSelector;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.entity.LocalMedia;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -48,9 +50,15 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
         mRequestCode = ((index + 1) << 8) + (PictureConfig.CHOOSE_REQUEST & 0xff);
 
         // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
-        String[] permissions = {
-            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE
-        };
+        String[] permissions = null;
+        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU) {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+        } else {
+            permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+        }
 
         if (PermissionCheckUtil.checkPermissions(currentFragment.getContext(), permissions)) {
             openPictureSelector(currentFragment);

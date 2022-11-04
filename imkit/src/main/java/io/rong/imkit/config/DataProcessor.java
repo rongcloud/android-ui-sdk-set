@@ -1,6 +1,7 @@
 package io.rong.imkit.config;
 
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import java.util.List;
 
 public interface DataProcessor<T> {
@@ -26,4 +27,16 @@ public interface DataProcessor<T> {
      * @param type 会话类型
      */
     boolean isGathered(Conversation.ConversationType type);
+
+    /**
+     * 某一会话类型是否聚合状态显示。
+     *
+     * @param identifier 会话标识符
+     */
+    default boolean isGathered(ConversationIdentifier identifier) {
+        if (identifier == null || identifier.getType() == null) {
+            return false;
+        }
+        return isGathered(identifier.getType());
+    }
 }

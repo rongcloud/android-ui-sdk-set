@@ -1573,6 +1573,8 @@ public class MessageViewModel extends AndroidViewModel
                         }
                     }
                     break;
+                default:
+                    break;
             }
         }
     }

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -17,6 +18,7 @@ import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
@@ -99,7 +101,8 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
                 return true;
             }
             String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-            if (!PermissionCheckUtil.checkPermissions(holder.getContext(), permissions)) {
+            if (Build.VERSION.SDK_INT < AndroidConstant.ANDROID_TIRAMISU
+                    && !PermissionCheckUtil.checkPermissions(holder.getContext(), permissions)) {
                 Activity activity = (Activity) holder.getContext();
                 PermissionCheckUtil.requestPermissions(activity, permissions, 100);
                 return true;

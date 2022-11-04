@@ -1306,6 +1306,8 @@ public class SmartRefreshLayout extends ViewGroup
                     return true;
                 }
                 break;
+            default:
+                break;
         }
         // -------------------------------------------------------------------------//
         return super.dispatchTouchEvent(e);

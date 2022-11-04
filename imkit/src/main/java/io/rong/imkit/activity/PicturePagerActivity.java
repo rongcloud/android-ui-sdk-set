@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.os.SystemClock;
@@ -39,6 +40,7 @@ import io.rong.imkit.event.actionevent.RecallEvent;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.picture.widget.longimage.SubsamplingScaleImageView;
 import io.rong.imkit.picture.widget.longimage.Utils;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.GlideUtils;
 import io.rong.imkit.utils.KitStorageUtils;
@@ -336,13 +338,12 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                 @Override
                                 public void onOptionsItemClicked(int which) {
                                     if (which == 0) {
-                                        // KNOTE: 2021/8/25 保留存储权限申请
                                         String[] permissions = {
-                                            Manifest.permission.READ_EXTERNAL_STORAGE,
                                             Manifest.permission.WRITE_EXTERNAL_STORAGE
                                         };
-                                        if (!PermissionCheckUtil.requestPermissions(
-                                                PicturePagerActivity.this, permissions)) {
+                                        if (Build.VERSION.SDK_INT < AndroidConstant.ANDROID_TIRAMISU
+                                                && !PermissionCheckUtil.requestPermissions(
+                                                        PicturePagerActivity.this, permissions)) {
                                             return;
                                         }
                                         ExecutorHelper.getInstance()

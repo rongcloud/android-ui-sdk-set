@@ -5,6 +5,7 @@ public class GroupUserInfo {
     private String mNickname;
     private String mUserId;
     private String mGroupId;
+    private String extra;
 
     /**
      * 群成员对象
@@ -14,9 +15,14 @@ public class GroupUserInfo {
      * @param nickname 该用户在群里的昵称
      */
     public GroupUserInfo(String groupId, String userId, String nickname) {
+        this(groupId, userId, nickname, "");
+    }
+
+    public GroupUserInfo(String groupId, String userId, String nickname, String extra) {
         this.mGroupId = groupId;
         this.mNickname = nickname;
         this.mUserId = userId;
+        this.extra = extra;
     }
 
     public String getGroupId() {
@@ -33,5 +39,13 @@ public class GroupUserInfo {
 
     public String getUserId() {
         return mUserId;
+    }
+
+    public String getExtra() {
+        return extra;
+    }
+
+    public void setExtra(String extra) {
+        this.extra = extra;
     }
 }

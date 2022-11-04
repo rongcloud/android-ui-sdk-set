@@ -3,6 +3,7 @@ package io.rong.imkit.activity;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -25,6 +26,7 @@ import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.RecallEvent;
 import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
@@ -177,11 +179,11 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
                             public void onOptionsItemClicked(int which) {
                                 if (which == 0) {
                                     String[] permissions = {
-                                        Manifest.permission.READ_EXTERNAL_STORAGE,
                                         Manifest.permission.WRITE_EXTERNAL_STORAGE
                                     };
-                                    if (!PermissionCheckUtil.requestPermissions(
-                                            GIFPreviewActivity.this, permissions)) {
+                                    if (Build.VERSION.SDK_INT < AndroidConstant.ANDROID_TIRAMISU
+                                            && !PermissionCheckUtil.requestPermissions(
+                                                    GIFPreviewActivity.this, permissions)) {
                                         return;
                                     }
 

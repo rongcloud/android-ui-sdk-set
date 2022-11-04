@@ -552,6 +552,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
                     case "RC:SightMsg":
                         openSight(jsonObj);
                         break;
+                    default:
+                        break;
                 }
             } catch (Exception e) {
                 RLog.e(TAG, "sendInfoToAndroid", e);

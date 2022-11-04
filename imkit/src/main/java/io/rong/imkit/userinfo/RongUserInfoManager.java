@@ -313,7 +313,8 @@ public class RongUserInfoManager {
     }
 
     private io.rong.imlib.model.Group transformGroup(@NonNull Group group) {
-        return new io.rong.imlib.model.Group(group.id, group.name, Uri.parse(group.portraitUrl));
+        return new io.rong.imlib.model.Group(
+                group.id, group.name, Uri.parse(group.portraitUrl), group.extra);
     }
 
     private void getDbGroupInfo(final String groupId) {
@@ -467,7 +468,8 @@ public class RongUserInfoManager {
     }
 
     private GroupUserInfo transformGroupMember(@NonNull GroupMember groupMember) {
-        return new GroupUserInfo(groupMember.groupId, groupMember.userId, groupMember.memberName);
+        return new GroupUserInfo(
+                groupMember.groupId, groupMember.userId, groupMember.memberName, groupMember.extra);
     }
 
     public UserInfo getCurrentUserInfo() {
@@ -543,7 +545,8 @@ public class RongUserInfoManager {
                         groupInfo.getName(),
                         groupInfo.getPortraitUri() == null
                                 ? ""
-                                : groupInfo.getPortraitUri().toString());
+                                : groupInfo.getPortraitUri().toString(),
+                        groupInfo.getExtra());
         cacheDataSource.refreshGroupInfo(group);
         if (isCacheGroupInfo && dbDataSource != null) {
             dbDataSource.refreshGroupInfo(group);
@@ -564,7 +567,8 @@ public class RongUserInfoManager {
                 new GroupMember(
                         groupUserInfo.getGroupId(),
                         groupUserInfo.getUserId(),
-                        groupUserInfo.getNickname());
+                        groupUserInfo.getNickname(),
+                        groupUserInfo.getExtra());
         cacheDataSource.refreshGroupUserInfo(groupMember);
         if (isCacheGroupMemberInfo && dbDataSource != null) {
             dbDataSource.refreshGroupUserInfo(groupMember);

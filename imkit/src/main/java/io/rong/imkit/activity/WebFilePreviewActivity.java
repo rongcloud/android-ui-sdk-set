@@ -285,6 +285,8 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                                 + ")");
                 mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
                 break;
+            default:
+                break;
         }
     }
 
@@ -350,6 +352,8 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                             mFileButton.setText(getResources().getString(R.string.rc_cancel));
                         }
                     }
+                    break;
+                default:
                     break;
             }
         }

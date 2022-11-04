@@ -474,6 +474,9 @@ public class RongExtension extends LinearLayout {
     }
 
     private void updateBoardContainerHeight() {
+        if (!useKeyboardHeightProvider()) {
+            return;
+        }
         int saveKeyboardHeight =
                 RongUtils.getSaveKeyBoardHeight(
                         getContext(), getContext().getResources().getConfiguration().orientation);

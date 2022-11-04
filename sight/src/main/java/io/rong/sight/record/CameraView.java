@@ -1155,6 +1155,8 @@ public class CameraView extends RelativeLayout
             case Surface.ROTATION_270:
                 degrees = 270;
                 break;
+            default:
+                break;
         }
 
         int result;

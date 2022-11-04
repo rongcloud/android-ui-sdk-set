@@ -334,7 +334,7 @@ public class IMCenter {
         SingletonHolder.sInstance.mContext = application.getApplicationContext();
         RongConfigCenter.syncFromXml(application);
         RongIMClient.init(application.getApplicationContext(), appKey, isEnablePush, isMainProcess);
-        RongExtensionManager.init(application.getApplicationContext(), appKey);
+        RongExtensionManager.getInstance().init(application.getApplicationContext(), appKey);
         HQVoiceMsgDownloadManager.getInstance().init(application);
         RongNotificationManager.getInstance().init(application);
         RongConfigurationManager.init(application);
@@ -1616,7 +1616,7 @@ public class IMCenter {
      *
      * <p>请注意，此方法会删除远端消息，请慎重使用
      *
-     * @param conversationType 会话类型。暂时不支持聊天室
+     * @param conversationType 会话类型。暂时不支持聊天室、超级群
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、客服 Id。
      * @param messages 要删除的消息数组, 数组大小不能超过100条。
      * @param callback 是否删除成功的回调。

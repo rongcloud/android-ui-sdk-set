@@ -49,7 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RongNotificationManager implements RongUserInfoManager.UserDataObserver {
     // 应用在前台，如果没有在会话界面，收消息时每间隔 3s 一次响铃、震动。
     private static final int SOUND_INTERVAL = 3000;
-    private static boolean mIsInForeground;
+    private boolean mIsInForeground;
     private final String TAG = this.getClass().getSimpleName();
     private final int MAX_NOTIFICATION_STATUS_CACHE = 128;
     private Application mApplication;
