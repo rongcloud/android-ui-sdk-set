@@ -185,7 +185,9 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         int finalWidth;
         int finalHeight;
         int minSize = 100;
-        if (minShortSideSize == null) minShortSideSize = ScreenUtils.dip2px(view.getContext(), 140);
+        if (minShortSideSize == null) {
+            minShortSideSize = ScreenUtils.dip2px(view.getContext(), 140);
+        }
         if (minShortSideSize > 0) {
             if (width >= minShortSideSize || height >= minShortSideSize) {
                 float scale = width / height;
@@ -220,15 +222,18 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
     private String getSightDuration(int time) {
         String recordTime;
         int hour, minute, second;
-        if (time <= 0) return "00:00";
-        else {
+        if (time <= 0) {
+            return "00:00";
+        } else {
             minute = time / 60;
             if (minute < 60) {
                 second = time % 60;
                 recordTime = unitFormat(minute) + ":" + unitFormat(second);
             } else {
                 hour = minute / 60;
-                if (hour > 99) return "99:59:59";
+                if (hour > 99) {
+                    return "99:59:59";
+                }
                 minute = minute % 60;
                 second = time - hour * 3600 - minute * 60;
                 recordTime = unitFormat(hour) + ":" + unitFormat(minute) + ":" + unitFormat(second);
@@ -239,8 +244,11 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
 
     private String unitFormat(int time) {
         String formatTime;
-        if (time >= 0 && time < 10) formatTime = "0" + time;
-        else formatTime = "" + time;
+        if (time >= 0 && time < 10) {
+            formatTime = "0" + time;
+        } else {
+            formatTime = "" + time;
+        }
         return formatTime;
     }
 

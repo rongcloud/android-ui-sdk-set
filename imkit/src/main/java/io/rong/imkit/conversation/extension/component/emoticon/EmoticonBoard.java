@@ -133,7 +133,9 @@ public class EmoticonBoard {
                 new ViewPager.OnPageChangeListener() {
                     @Override
                     public void onPageScrolled(
-                            int position, float positionOffset, int positionOffsetPixels) {}
+                            int position, float positionOffset, int positionOffsetPixels) {
+                        // do nothing
+                    }
 
                     @Override
                     public void onPageSelected(int position) {
@@ -142,7 +144,9 @@ public class EmoticonBoard {
                     }
 
                     @Override
-                    public void onPageScrollStateChanged(int state) {}
+                    public void onPageScrollStateChanged(int state) {
+                        // do nothing
+                    }
                 });
         int index;
         if (mCurrentTab != null && (index = getIndex(mCurrentTab)) >= 0) {

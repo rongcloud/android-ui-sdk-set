@@ -159,7 +159,9 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
                         sendReadReceiptTime,
                         new IRongCallback.ISendMessageCallback() {
                             @Override
-                            public void onAttached(Message message) {}
+                            public void onAttached(Message message) {
+                                // do nothing
+                            }
 
                             @Override
                             public void onSuccess(Message message) {

@@ -33,11 +33,31 @@ public abstract class BaseUiConversation {
 
     abstract void buildConversationContent();
 
+    /**
+     * 用户信息更新
+     *
+     * @param user {@link UserInfo}
+     */
     public abstract void onUserInfoUpdate(UserInfo user);
 
+    /**
+     * 群组信息更新
+     *
+     * @param group {@link Group}
+     */
     public abstract void onGroupInfoUpdate(Group group);
 
+    /**
+     * 群组成员更新
+     *
+     * @param groupMember {@link GroupUserInfo}
+     */
     public abstract void onGroupMemberUpdate(GroupUserInfo groupMember);
 
+    /**
+     * 会话更新
+     *
+     * @param conversation {@link Conversation}
+     */
     public abstract void onConversationUpdate(Conversation conversation);
 }

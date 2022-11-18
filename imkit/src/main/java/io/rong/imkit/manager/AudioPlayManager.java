@@ -194,7 +194,9 @@ public class AudioPlayManager implements SensorEventListener {
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // do nothing
+    }
 
     private void replay() {
         synchronized (mLock) {

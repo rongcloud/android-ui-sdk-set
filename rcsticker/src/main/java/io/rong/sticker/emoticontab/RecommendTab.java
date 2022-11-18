@@ -69,7 +69,9 @@ public class RecommendTab implements IEmoticonTab {
     }
 
     @Override
-    public void onTableSelected(int position) {}
+    public void onTableSelected(int position) {
+        // default implementation ignored
+    }
 
     @Override
     public LiveData<String> getEditInfo() {
@@ -161,7 +163,9 @@ public class RecommendTab implements IEmoticonTab {
                                         }
 
                                         @Override
-                                        public void onComplete(String path) {}
+                                        public void onComplete(String path) {
+                                            // default implementation ignored
+                                        }
 
                                         @Override
                                         public void onError(Exception e) {

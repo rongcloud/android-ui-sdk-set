@@ -124,7 +124,9 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
                     cameraPath,
                     new PictureMediaScannerConnection.ScanListener() {
                         @Override
-                        public void onScanFinish() {}
+                        public void onScanFinish() {
+                            // do nothing
+                        }
                     });
         }
         LocalMedia media = new LocalMedia();

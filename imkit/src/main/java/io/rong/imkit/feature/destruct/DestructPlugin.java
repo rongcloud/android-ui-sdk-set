@@ -37,5 +37,7 @@ public class DestructPlugin implements IPluginModule {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {}
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // do nothing
+    }
 }

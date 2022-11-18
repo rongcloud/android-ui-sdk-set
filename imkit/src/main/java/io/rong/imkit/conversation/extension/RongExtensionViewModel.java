@@ -40,7 +40,9 @@ public class RongExtensionViewModel extends AndroidViewModel {
                 private boolean isProcess;
 
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // do nothing
+                }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {

@@ -443,16 +443,24 @@ public class AudioRecordManager implements Handler.Callback {
                                 null,
                                 new IRongCallback.ISendMediaMessageCallback() {
                                     @Override
-                                    public void onProgress(Message message, int progress) {}
+                                    public void onProgress(Message message, int progress) {
+                                        // do nothing
+                                    }
 
                                     @Override
-                                    public void onCanceled(Message message) {}
+                                    public void onCanceled(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
-                                    public void onAttached(Message message) {}
+                                    public void onAttached(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
-                                    public void onSuccess(Message message) {}
+                                    public void onSuccess(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
                                     public void onError(
@@ -478,14 +486,20 @@ public class AudioRecordManager implements Handler.Callback {
                                 null,
                                 new IRongCallback.ISendMessageCallback() {
                                     @Override
-                                    public void onAttached(Message message) {}
+                                    public void onAttached(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
-                                    public void onSuccess(Message message) {}
+                                    public void onSuccess(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
                                     public void onError(
-                                            Message message, RongIMClient.ErrorCode errorCode) {}
+                                            Message message, RongIMClient.ErrorCode errorCode) {
+                                        // do nothing
+                                    }
                                 });
             }
         }

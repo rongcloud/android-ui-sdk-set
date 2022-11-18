@@ -57,11 +57,14 @@ import org.json.JSONObject;
 public class CombineWebViewActivity extends RongBaseActivity {
     public static final String TYPE_LOCAL = "local";
     public static final String TYPE_MEDIA = "media";
+    public static final int PROGRESS_100 = 100;
     private static final String TAG = CombineWebViewActivity.class.getSimpleName();
     // WebView加载视频时的默认背景宽高
     private static final int VIDEO_WIDTH = 300;
     private static final int VIDEO_HEIGHT = 600;
     private static final String COMBINE_FILE_PATH = "combine";
+    private static final String FILE = "file://";
+    private static final int BEGIN_INDEX = 7;
 
     protected RongWebView mWebView;
     private ProgressBar mProgress;
@@ -99,7 +102,9 @@ public class CombineWebViewActivity extends RongBaseActivity {
             };
 
     private static boolean isImageFile(byte[] data) {
-        if (data == null || data.length == 0) return false;
+        if (data == null || data.length == 0) {
+            return false;
+        }
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
@@ -155,7 +160,9 @@ public class CombineWebViewActivity extends RongBaseActivity {
 
     private void initData() {
         Intent intent = getIntent();
-        if (intent == null) return;
+        if (intent == null) {
+            return;
+        }
 
         mMessageId = intent.getIntExtra("messageId", -1);
         String uri = intent.getStringExtra("uri");
@@ -185,7 +192,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         Message message = new Message();
 
         SightMessage sightMessage = new SightMessage();
-        sightMessage.setThumbUri(Uri.parse("file://" + sightThumb + sightName));
+        sightMessage.setThumbUri(Uri.parse(FILE + sightThumb + sightName));
         sightMessage.setMediaUrl(Uri.parse(mediaUrl));
         sightMessage.setDuration(duration);
         if (new IsSightFileExists(sightMessage, message.getMessageId()).invoke()) {
@@ -194,7 +201,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
                             getApplicationContext(), LibStorageUtils.VIDEO);
             String name =
                     message.getMessageId() + "_" + DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
-            if (sightPath.startsWith("file://")) {
+            if (sightPath.startsWith(FILE)) {
                 sightPath = sightPath.substring(7);
             }
             sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
@@ -228,7 +235,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         String name = encodeFile.getName();
 
         ImageMessage imageMessage = ImageMessage.obtain();
-        imageMessage.setThumUri(Uri.parse("file://" + thumb + name));
+        imageMessage.setThumUri(Uri.parse(FILE + thumb + name));
         imageMessage.setRemoteUri(Uri.parse(mediaUrl));
 
         Message message = new Message();
@@ -278,7 +285,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } catch (Exception e) {
-            RLog.e(TAG, "openMap", e);
+            RLog.e(TAG, "openMap" + e.getMessage());
         }
     }
 
@@ -287,7 +294,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         String uri = jsonObj.optString("fileUrl");
         String filePath = CombineMessageUtils.getInstance().getCombineFilePath(uri);
         if (new File(filePath).exists()) {
-            uri = Uri.parse("file://" + filePath).toString();
+            uri = Uri.parse(FILE + filePath).toString();
             type = CombineWebViewActivity.TYPE_LOCAL;
         }
 
@@ -336,7 +343,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
                 urlConnection.setReadTimeout(15000);
 
                 int code = urlConnection.getResponseCode();
-                if (code < 200 || code >= 300) {
+                if (code < HttpURLConnection.HTTP_OK
+                        || code >= HttpURLConnection.HTTP_MULT_CHOICE) {
                     RLog.e(TAG, "DownloadTask failed! code:" + code);
                     return null;
                 }
@@ -366,7 +374,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
                 }
                 in.close();
             } catch (IOException e) {
-                RLog.e(TAG, "DownloadTask", e);
+                RLog.e(TAG, "DownloadTask" + e.getMessage());
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -375,7 +383,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
                     try {
                         out.close();
                     } catch (IOException e) {
-                        RLog.e(TAG, "DownloadTask", e);
+                        RLog.e(TAG, "DownloadTask" + e.getMessage());
                     }
                 }
             }
@@ -383,10 +391,14 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
 
         @Override
-        protected void onPreExecute() {}
+        protected void onPreExecute() {
+            // default implementation ignored
+        }
 
         @Override
-        protected void onPostExecute(Void aVoid) {}
+        protected void onPostExecute(Void aVoid) {
+            // default implementation ignored
+        }
     }
 
     private class CombineWebViewClient extends WebViewClient {
@@ -403,7 +415,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
                                 || url.toLowerCase().startsWith("ftp"))) {
                     String filePath = CombineMessageUtils.getInstance().getCombineFilePath(url);
                     if (new File(filePath).exists()) {
-                        url = Uri.parse("file://" + filePath).toString();
+                        url = Uri.parse(FILE + filePath).toString();
                         mType = TYPE_LOCAL;
                     }
                     mPrevUrl = url;
@@ -422,7 +434,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
                     && (url.toLowerCase().startsWith("http")
                             || url.toLowerCase().startsWith("ftp"))) {
                 String filePath = CombineMessageUtils.getInstance().getCombineFilePath(url);
-                if (!new File(filePath).exists()) {
+                boolean isExist = new File(filePath).exists();
+                if (!isExist) {
                     new DownloadTask().execute(url, filePath);
                 }
             }
@@ -477,7 +490,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
             if (mWebViewError) {
                 return;
             }
-            if (newProgress == 100) {
+            if (newProgress == PROGRESS_100) {
                 mProgress.setVisibility(View.GONE);
                 mImageView.setVisibility(View.GONE);
                 mTextView.setVisibility(View.GONE);
@@ -556,7 +569,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
                         break;
                 }
             } catch (Exception e) {
-                RLog.e(TAG, "sendInfoToAndroid", e);
+                RLog.e(TAG, "sendInfoToAndroid" + e.getMessage());
             }
         }
     }
@@ -579,8 +592,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
                             + "_"
                             + DeviceUtils.ShortMD5(
                                     Base64.NO_WRAP, sightMessage.getMediaUrl().toString());
-            if (sightPath.startsWith("file://")) {
-                sightPath = sightPath.substring(7);
+            if (sightPath.startsWith(FILE)) {
+                sightPath = sightPath.substring(BEGIN_INDEX);
             }
             File file = new File(sightPath + File.separator + name);
             return file.exists();
@@ -615,8 +628,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
                 try {
                     data = Base64.decode(base64, Base64.NO_WRAP);
                 } catch (IllegalArgumentException e) {
-                    RLog.e(TAG, "afterDecodeMessage Not Base64 Content!");
-                    RLog.e(TAG, "IllegalArgumentException ", e);
+                    RLog.e(TAG, "IllegalArgumentException " + e.getMessage());
                 }
 
                 if (!isImageFile(data)) {

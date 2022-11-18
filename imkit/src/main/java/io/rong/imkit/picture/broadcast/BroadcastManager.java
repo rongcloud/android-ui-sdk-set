@@ -194,10 +194,8 @@ public class BroadcastManager {
             return;
         }
         IntentFilter iFilter = new IntentFilter();
-        if (actions != null) {
-            for (String action : actions) {
-                iFilter.addAction(action);
-            }
+        for (String action : actions) {
+            iFilter.addAction(action);
         }
         if (null != localBroadcastManager) {
             localBroadcastManager.registerReceiver(br, iFilter);

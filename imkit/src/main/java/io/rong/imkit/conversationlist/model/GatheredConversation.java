@@ -111,7 +111,9 @@ public class GatheredConversation extends BaseUiConversation {
     }
 
     @Override
-    public void onGroupMemberUpdate(GroupUserInfo groupMember) {}
+    public void onGroupMemberUpdate(GroupUserInfo groupMember) {
+        // do nothing
+    }
 
     @Override
     public void onConversationUpdate(Conversation conversation) {

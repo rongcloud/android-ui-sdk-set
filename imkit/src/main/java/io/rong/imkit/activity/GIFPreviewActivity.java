@@ -107,13 +107,19 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
                                 }
 
                                 @Override
-                                public void onProgress(Message message, int progress) {}
+                                public void onProgress(Message message, int progress) {
+                                    // do nothing
+                                }
 
                                 @Override
-                                public void onError(Message message, RongIMClient.ErrorCode code) {}
+                                public void onError(Message message, RongIMClient.ErrorCode code) {
+                                    // do nothing
+                                }
 
                                 @Override
-                                public void onCanceled(Message message) {}
+                                public void onCanceled(Message message) {
+                                    // do nothing
+                                }
                             });
         } else {
             loadGif(gifPreview, gifMessage);

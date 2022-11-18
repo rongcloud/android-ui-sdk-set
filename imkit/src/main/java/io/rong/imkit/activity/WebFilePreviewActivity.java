@@ -43,6 +43,7 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
     private static final String PATH = "webfile";
     private static final String TXT_FILE = ".txt";
     private static final String APK_FILE = ".apk";
+    private static final String FILE = "file://";
     //    private ProgressBar mFileDownloadProgressBar;
     //    private LinearLayout mDownloadProgressView;
     //    protected TextView mDownloadProgressTextView;
@@ -170,7 +171,9 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                     }
 
                     @Override
-                    public void onError(IRongCoreEnum.CoreErrorCode e) {}
+                    public void onError(IRongCoreEnum.CoreErrorCode e) {
+                        // do nothing
+                    }
                 });
     }
 
@@ -525,7 +528,7 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                                 new File(fileSavePath));
                 webIntent.putExtra("url", uri.toString());
             } else {
-                webIntent.putExtra("url", "file://" + fileSavePath);
+                webIntent.putExtra("url", FILE + fileSavePath);
             }
             webIntent.putExtra("title", fileName);
             startActivity(webIntent);

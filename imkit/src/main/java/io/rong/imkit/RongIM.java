@@ -265,7 +265,9 @@ public class RongIM {
      * @param locationProvider 位置信息提供者。
      */
     @Deprecated
-    public static void setLocationProvider(LocationManager.LocationProvider locationProvider) {}
+    public static void setLocationProvider(LocationManager.LocationProvider locationProvider) {
+        // do nothing
+    }
 
     /**
      * 设置公众号界面操作的监听器。
@@ -546,6 +548,7 @@ public class RongIM {
      *
      * <p>加入聊天室时，可以选择拉取聊天室消息数目。
      *
+     * @since 5.3.1：加入聊天室后，断网重新加入聊天室默认获取聊天室消息条数，为主动加入时获取的历史消息条数。由于每次传入的条数固定, 可能会导致消息重复，App 需要做消息排重。
      * @param chatroomId 聊天室 Id。
      * @param defMessageCount 进入聊天室拉取消息数目，-1 时不拉取任何消息，0 时拉取 10 条消息，最多只能拉取 40 条。
      * @param callback 状态回调。

@@ -54,6 +54,9 @@ public class DestructManager implements IExtensionEventWatcher {
         if (DestructExtensionModule.sRongExtension != null
                 && DestructExtensionModule.sFragment != null) {
             RongExtension extension = DestructExtensionModule.sRongExtension.get();
+            if (extension == null) {
+                return;
+            }
             RelativeLayout container = extension.getContainer(RongExtension.ContainerType.INPUT);
             container.setVisibility(View.VISIBLE);
             container.removeAllViews();
@@ -83,6 +86,9 @@ public class DestructManager implements IExtensionEventWatcher {
 
     public void exitDestructMode() {
         RongExtension extension = DestructExtensionModule.sRongExtension.get();
+        if (extension == null) {
+            return;
+        }
         RongExtensionCacheHelper.setDestructMode(
                 extension.getContext(),
                 extension.getConversationType(),
@@ -112,7 +118,9 @@ public class DestructManager implements IExtensionEventWatcher {
             String targetId,
             int cursorPos,
             int count,
-            String text) {}
+            String text) {
+        // do nothing
+    }
 
     @Override
     public void onSendToggleClick(Message message) {
@@ -133,10 +141,9 @@ public class DestructManager implements IExtensionEventWatcher {
 
     @Override
     public void onDeleteClick(
-            Conversation.ConversationType type,
-            String targetId,
-            EditText editText,
-            int cursorPos) {}
+            Conversation.ConversationType type, String targetId, EditText editText, int cursorPos) {
+        // do nothing
+    }
 
     @Override
     public void onDestroy(Conversation.ConversationType type, String targetId) {

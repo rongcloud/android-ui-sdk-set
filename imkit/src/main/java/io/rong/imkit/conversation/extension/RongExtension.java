@@ -382,8 +382,12 @@ public class RongExtension extends LinearLayout {
             // 文本输入模式下，默认有焦点或有输入内容时，才会弹出软键盘。
             // 若有特殊情况，需要各业务模块手动调用 RongExtensionViewModel 的 setSoftInputKeyBoard() 方法主动弹起软键盘
             EditText editText = mExtensionViewModel.getEditTextWidget();
-            if (editText == null || editText.getText() == null) return;
-            if (isEditTextSameProperty(editText)) return;
+            if (editText == null || editText.getText() == null) {
+                return;
+            }
+            if (isEditTextSameProperty(editText)) {
+                return;
+            }
             RLog.d(TAG, "update for TextInput mode");
             mInputPanelContainer.setVisibility(VISIBLE);
 

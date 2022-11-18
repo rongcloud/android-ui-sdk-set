@@ -101,7 +101,9 @@ public class PluginBoard {
                     }
 
                     @Override
-                    public void onViewDetachedFromWindow(View v) {}
+                    public void onViewDetachedFromWindow(View v) {
+                        // do nothing
+                    }
                 });
         try {
             mPluginCountPerPage =

@@ -133,7 +133,7 @@ public class EasyVideoPlayer extends FrameLayout
 
                     if (mProgressCallback != null)
                         mProgressCallback.onVideoProgressUpdate(pos, dur);
-                    if (mHandler != null) mHandler.postDelayed(this, UPDATE_INTERVAL);
+                    mHandler.postDelayed(this, UPDATE_INTERVAL);
                 }
             };
 
@@ -687,7 +687,9 @@ public class EasyVideoPlayer extends FrameLayout
     }
 
     @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {}
+    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+        // default implementation ignored
+    }
 
     // Media player listeners
 
@@ -776,9 +778,6 @@ public class EasyVideoPlayer extends FrameLayout
         }
         String errorMsg = "Preparation/playback error (" + what + "): ";
         switch (what) {
-            default:
-                errorMsg += "Unknown error";
-                break;
             case MediaPlayer.MEDIA_ERROR_IO:
                 errorMsg += "I/O error";
                 break;
@@ -796,6 +795,9 @@ public class EasyVideoPlayer extends FrameLayout
                 break;
             case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
                 errorMsg += "Unsupported";
+                break;
+            default:
+                errorMsg += "Unknown error";
                 break;
         }
         throwError(new Exception(errorMsg));

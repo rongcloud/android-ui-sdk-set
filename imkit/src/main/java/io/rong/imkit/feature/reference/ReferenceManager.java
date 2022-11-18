@@ -197,7 +197,9 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
     }
 
     @Override
-    public void onInit(Context context, String appKey) {}
+    public void onInit(Context context, String appKey) {
+        // do nothing
+    }
 
     @Override
     public void onAttachedToExtension(Fragment fragment, final RongExtension extension) {
@@ -217,19 +219,21 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         messageViewModel =
                 new WeakReference<>(
                         new ViewModelProvider(fragment).get(RongExtensionViewModel.class));
-        messageViewModel
-                .get()
-                .getInputModeLiveData()
-                .observe(
-                        fragment,
-                        new Observer<InputMode>() {
-                            @Override
-                            public void onChanged(InputMode inputMode) {
-                                if (inputMode.equals(InputMode.VoiceInput)) {
-                                    hideReferenceView();
+        RongExtensionViewModel extensionViewModel = messageViewModel.get();
+        if (extensionViewModel != null) {
+            extensionViewModel
+                    .getInputModeLiveData()
+                    .observe(
+                            fragment,
+                            new Observer<InputMode>() {
+                                @Override
+                                public void onChanged(InputMode inputMode) {
+                                    if (inputMode.equals(InputMode.VoiceInput)) {
+                                        hideReferenceView();
+                                    }
                                 }
-                            }
-                        });
+                            });
+        }
 
         MessageItemLongClickActionManager.getInstance()
                 .addMessageItemLongClickAction(mClickActionReference);
@@ -243,16 +247,24 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             new MessageEventListener() {
 
                 @Override
-                public void onSendMessage(SendEvent event) {}
+                public void onSendMessage(SendEvent event) {
+                    // do nothing
+                }
 
                 @Override
-                public void onSendMediaMessage(SendMediaEvent event) {}
+                public void onSendMediaMessage(SendMediaEvent event) {
+                    // do nothing
+                }
 
                 @Override
-                public void onDownloadMessage(DownloadEvent event) {}
+                public void onDownloadMessage(DownloadEvent event) {
+                    // do nothing
+                }
 
                 @Override
-                public void onDeleteMessage(DeleteEvent event) {}
+                public void onDeleteMessage(DeleteEvent event) {
+                    // do nothing
+                }
 
                 @Override
                 public void onRecallEvent(RecallEvent event) {
@@ -270,13 +282,19 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                 }
 
                 @Override
-                public void onRefreshEvent(RefreshEvent event) {}
+                public void onRefreshEvent(RefreshEvent event) {
+                    // do nothing
+                }
 
                 @Override
-                public void onInsertMessage(InsertEvent event) {}
+                public void onInsertMessage(InsertEvent event) {
+                    // do nothing
+                }
 
                 @Override
-                public void onClearMessages(ClearEvent event) {}
+                public void onClearMessages(ClearEvent event) {
+                    // do nothing
+                }
             };
 
     private RongIMClient.OnRecallMessageListener mRecallMessageListener =
@@ -295,9 +313,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                             && message != null
                             && !TextUtils.isEmpty(mUiMessage.getUId())
                             && mUiMessage.getMessage().getUId().equals(message.getUId())) {
-                        if (mFragment == null
-                                || fragment.getActivity() == null
-                                || fragment.getContext() == null) {
+                        if (fragment.getActivity() == null || fragment.getContext() == null) {
                             return false;
                         }
                         new AlertDialog.Builder(
@@ -327,10 +343,14 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             };
 
     @Override
-    public void onDetachedFromExtension() {}
+    public void onDetachedFromExtension() {
+        // do nothing
+    }
 
     @Override
-    public void onReceivedMessage(Message message) {}
+    public void onReceivedMessage(Message message) {
+        // do nothing
+    }
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {
@@ -343,7 +363,9 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
     }
 
     @Override
-    public void onDisconnect() {}
+    public void onDisconnect() {
+        // do nothing
+    }
 
     @Override
     public void onTextChanged(
@@ -352,7 +374,9 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             String targetId,
             int cursorPos,
             int count,
-            String text) {}
+            String text) {
+        // do nothing
+    }
 
     @Override
     public void onSendToggleClick(Message message) {
@@ -410,10 +434,9 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
 
     @Override
     public void onDeleteClick(
-            Conversation.ConversationType type,
-            String targetId,
-            EditText editText,
-            int cursorPos) {}
+            Conversation.ConversationType type, String targetId, EditText editText, int cursorPos) {
+        // default implementation ignored
+    }
 
     public UiMessage getUiMessage() {
         return mUiMessage;

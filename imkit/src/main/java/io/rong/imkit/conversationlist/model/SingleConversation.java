@@ -77,8 +77,12 @@ public class SingleConversation extends BaseUiConversation {
     }
 
     @Override
-    public void onGroupInfoUpdate(Group groups) {}
+    public void onGroupInfoUpdate(Group groups) {
+        // do nothing
+    }
 
     @Override
-    public void onGroupMemberUpdate(GroupUserInfo groupMembers) {}
+    public void onGroupMemberUpdate(GroupUserInfo groupMembers) {
+        // do nothing
+    }
 }

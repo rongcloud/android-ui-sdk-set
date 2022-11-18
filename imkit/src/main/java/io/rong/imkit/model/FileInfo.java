@@ -52,5 +52,7 @@ public class FileInfo implements Serializable {
         this.fileSize = fileSize;
     }
 
-    public FileInfo() {}
+    public FileInfo() {
+        // do nothing
+    }
 }

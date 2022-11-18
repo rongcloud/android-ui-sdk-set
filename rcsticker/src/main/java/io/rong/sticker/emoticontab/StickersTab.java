@@ -58,7 +58,9 @@ public class StickersTab implements IEmoticonTab {
     }
 
     @Override
-    public void onTableSelected(int position) {}
+    public void onTableSelected(int position) {
+        // default implementation ignored
+    }
 
     @Override
     public LiveData<String> getEditInfo() {

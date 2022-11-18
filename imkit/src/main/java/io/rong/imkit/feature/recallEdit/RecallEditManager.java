@@ -106,7 +106,9 @@ public class RecallEditManager {
         }
 
         @Override
-        public void onTick(long untilFinished, String messageId) {}
+        public void onTick(long untilFinished, String messageId) {
+            // do nothing
+        }
 
         @Override
         public void onFinish(String messageId) {

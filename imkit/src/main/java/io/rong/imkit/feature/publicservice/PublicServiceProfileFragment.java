@@ -225,7 +225,9 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
 
                                                 @Override
                                                 public void onError(
-                                                        RongIMClient.ErrorCode coreErrorCode) {}
+                                                        RongIMClient.ErrorCode coreErrorCode) {
+                                                    // default implementation ignored
+                                                }
                                             });
                         }
                     });
@@ -275,7 +277,9 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
 
                                                 @Override
                                                 public void onError(
-                                                        RongIMClient.ErrorCode coreErrorCode) {}
+                                                        RongIMClient.ErrorCode coreErrorCode) {
+                                                    // default implementation ignored
+                                                }
                                             });
                         }
                     });

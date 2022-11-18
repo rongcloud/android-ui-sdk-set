@@ -84,9 +84,12 @@ public class FileUtil {
     public static void recursiveDelete(File file) {
         if (!file.exists()) return;
         if (file.isDirectory()) {
-            for (File f : file.listFiles()) {
-                // call recursively
-                recursiveDelete(f);
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    // call recursively
+                    recursiveDelete(f);
+                }
             }
         }
         boolean success = file.delete();

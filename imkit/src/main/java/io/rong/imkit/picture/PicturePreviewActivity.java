@@ -318,7 +318,9 @@ public class PicturePreviewActivity extends PictureBaseActivity
      *
      * @param media
      */
-    protected void onPageSelectedChange(LocalMedia media) {}
+    protected void onPageSelectedChange(LocalMedia media) {
+        // do nothing
+    }
 
     @Override
     public void onClick(View view) {
@@ -451,7 +453,9 @@ public class PicturePreviewActivity extends PictureBaseActivity
      * @param isAddRemove
      * @param media
      */
-    protected void onSelectedChange(boolean isAddRemove, LocalMedia media) {}
+    protected void onSelectedChange(boolean isAddRemove, LocalMedia media) {
+        // do nothing
+    }
 
     /** 更新选择的顺序 */
     private void subSelectPosition() {

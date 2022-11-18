@@ -204,7 +204,9 @@ public class HistoryState implements IMessageState {
     }
 
     @Override
-    public void onClearMessage(MessageViewModel viewModel) {}
+    public void onClearMessage(MessageViewModel viewModel) {
+        // do nothing
+    }
 
     @Override
     public boolean isNormalState(MessageViewModel viewModel) {

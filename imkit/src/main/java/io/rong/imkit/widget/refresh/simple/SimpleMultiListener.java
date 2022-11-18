@@ -20,13 +20,19 @@ public class SimpleMultiListener implements OnMultiListener {
             int maxDragHeight) {}
 
     @Override
-    public void onHeaderReleased(RefreshHeader header, int headerHeight, int maxDragHeight) {}
+    public void onHeaderReleased(RefreshHeader header, int headerHeight, int maxDragHeight) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onHeaderStartAnimator(RefreshHeader header, int footerHeight, int maxDragHeight) {}
+    public void onHeaderStartAnimator(RefreshHeader header, int footerHeight, int maxDragHeight) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onHeaderFinish(RefreshHeader header, boolean success) {}
+    public void onHeaderFinish(RefreshHeader header, boolean success) {
+        // default implementation ignored
+    }
 
     @Override
     public void onFooterMoving(
@@ -35,26 +41,40 @@ public class SimpleMultiListener implements OnMultiListener {
             float percent,
             int offset,
             int footerHeight,
-            int maxDragHeight) {}
+            int maxDragHeight) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onFooterReleased(RefreshFooter footer, int footerHeight, int maxDragHeight) {}
+    public void onFooterReleased(RefreshFooter footer, int footerHeight, int maxDragHeight) {
+        // do nothing
+    }
 
     @Override
-    public void onFooterStartAnimator(RefreshFooter footer, int headerHeight, int maxDragHeight) {}
+    public void onFooterStartAnimator(RefreshFooter footer, int headerHeight, int maxDragHeight) {
+        // do nothing
+    }
 
     @Override
-    public void onFooterFinish(RefreshFooter footer, boolean success) {}
+    public void onFooterFinish(RefreshFooter footer, boolean success) {
+        // do nothing
+    }
 
     @Override
-    public void onRefresh(@NonNull RefreshLayout refreshLayout) {}
+    public void onRefresh(@NonNull RefreshLayout refreshLayout) {
+        // do nothing
+    }
 
     @Override
-    public void onLoadMore(@NonNull RefreshLayout refreshLayout) {}
+    public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
+        // do nothing
+    }
 
     @Override
     public void onStateChanged(
             @NonNull RefreshLayout refreshLayout,
             @NonNull RefreshState oldState,
-            @NonNull RefreshState newState) {}
+            @NonNull RefreshState newState) {
+        // do nothing
+    }
 }

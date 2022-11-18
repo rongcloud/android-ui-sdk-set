@@ -115,7 +115,9 @@ public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineM
             title = context.getString(R.string.rc_combine_group_chat);
         } else {
             List<String> nameList = content.getNameList();
-            if (nameList == null) return title;
+            if (nameList == null) {
+                return title;
+            }
 
             if (nameList.size() == 1) {
                 title =

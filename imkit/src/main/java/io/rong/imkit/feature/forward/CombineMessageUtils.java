@@ -551,7 +551,6 @@ public class CombineMessageUtils {
         Spannable spannable =
                 RongConfigCenter.conversationConfig()
                         .getMessageSummary(IMCenter.getInstance().getContext(), content);
-        if (spannable == null) return "";
         return spannable.toString();
     }
 

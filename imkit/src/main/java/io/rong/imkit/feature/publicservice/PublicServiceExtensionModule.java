@@ -38,7 +38,9 @@ public class PublicServiceExtensionModule implements IExtensionModule {
     private LinearLayout mMenuContainer;
 
     @Override
-    public void onInit(Context context, String appKey) {}
+    public void onInit(Context context, String appKey) {
+        // do nothing
+    }
 
     @Override
     public void onAttachedToExtension(Fragment fragment, RongExtension extension) {
@@ -55,7 +57,7 @@ public class PublicServiceExtensionModule implements IExtensionModule {
         List<InputMenu> inputMenuList = new ArrayList<>();
         PublicServiceMenu menu = publicServiceProfile.getMenu();
         List<PublicServiceMenuItem> items = menu != null ? menu.getMenuItems() : null;
-        if (items != null && items.size() > 0 && mRongExtension != null) {
+        if (items != null && items.size() > 0) {
             for (PublicServiceMenuItem item : items) {
                 InputMenu inputMenu = new InputMenu();
                 inputMenu.title = item.getName();
@@ -217,7 +219,9 @@ public class PublicServiceExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onReceivedMessage(Message message) {}
+    public void onReceivedMessage(Message message) {
+        // do nothing
+    }
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {

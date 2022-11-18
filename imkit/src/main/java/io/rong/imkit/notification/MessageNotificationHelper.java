@@ -1,17 +1,22 @@
 package io.rong.imkit.notification;
 
 import android.text.TextUtils;
+import io.rong.common.RLog;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageNotificationHelper {
+    private static final String TAG = MessageNotificationHelper.class.getSimpleName();
     private static final ConcurrentHashMap<String, Integer> levelMap = new ConcurrentHashMap<>();
     private static Integer quietLevel = null;
     private static String mStartTime;
@@ -245,7 +250,9 @@ public class MessageNotificationHelper {
                             }
 
                             @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode e) {}
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                // do nothing
+                            }
                         });
     }
 
@@ -333,7 +340,7 @@ public class MessageNotificationHelper {
                     second = Integer.parseInt(time[2]);
                 }
             } catch (NumberFormatException e) {
-                // todo
+                RLog.e(TAG, "e : " + e.getMessage());
             }
         }
 
@@ -379,4 +386,40 @@ public class MessageNotificationHelper {
     interface NotifyListener {
         void onPreToNotify(Message message);
     }
+
+    public static void setPushNotifyLevelListener() {
+        Class<?> aClass; // 通过单例类的全限定名获取类
+        try {
+            aClass = Class.forName("io.rong.imlib.ChannelClientImpl");
+            Method getInstance = aClass.getDeclaredMethod("getInstanceForInterior");
+            getInstance.setAccessible(true);
+            Object invoke = getInstance.invoke(aClass);
+            Method method =
+                    invoke.getClass()
+                            .getDeclaredMethod(
+                                    "setPushNotifyLevelListener",
+                                    IRongCoreListener.PushNotifyLevelListener.class);
+            method.setAccessible(true);
+            method.invoke(invoke, pushNotifyLevelListener);
+        } catch (ClassNotFoundException
+                | NoSuchMethodException
+                | IllegalAccessException
+                | InvocationTargetException e) {
+            RLog.e(TAG, e.getMessage());
+        }
+    }
+
+    // 通知级别变化监听器
+    private static IRongCoreListener.PushNotifyLevelListener pushNotifyLevelListener =
+            new IRongCoreListener.PushNotifyLevelListener() {
+                @Override
+                public void onNotifyLevelUpdate(String key, int level) {
+                    MessageNotificationHelper.updateLevelMap(key, level);
+                }
+
+                @Override
+                public void OnNotifyQuietHour(int quietLevel, String startTime, int spanTime) {
+                    MessageNotificationHelper.updateQuietHour(quietLevel, startTime, spanTime);
+                }
+            };
 }

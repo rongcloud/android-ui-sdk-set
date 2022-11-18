@@ -73,7 +73,7 @@ public class CameraView extends RelativeLayout
     private Camera.Parameters mParam;
 
     private boolean autoFocus;
-    private static boolean isPlay = false;
+    private boolean isPlay = false;
     private boolean isInPreviewState = false;
     // 录制结束后，播放暂停状态且画面停在录制第一帧
     private boolean needPause;
@@ -1204,7 +1204,9 @@ public class CameraView extends RelativeLayout
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // default implementation ignored
+    }
 
     public interface CameraViewListener {
         void quit();

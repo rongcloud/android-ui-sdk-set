@@ -19,7 +19,9 @@ public class DestructExtensionModule implements IExtensionModule {
     static WeakReference<Fragment> sFragment;
 
     @Override
-    public void onInit(Context context, String appKey) {}
+    public void onInit(Context context, String appKey) {
+        // default implementation ignored
+    }
 
     @Override
     public void onAttachedToExtension(Fragment fragment, RongExtension extension) {
@@ -35,10 +37,14 @@ public class DestructExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onDetachedFromExtension() {}
+    public void onDetachedFromExtension() {
+        // do nothing
+    }
 
     @Override
-    public void onReceivedMessage(Message message) {}
+    public void onReceivedMessage(Message message) {
+        // do nothing
+    }
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {
@@ -56,5 +62,7 @@ public class DestructExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onDisconnect() {}
+    public void onDisconnect() {
+        // do nothing
+    }
 }

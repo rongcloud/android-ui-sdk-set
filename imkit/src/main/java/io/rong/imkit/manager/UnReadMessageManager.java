@@ -59,11 +59,15 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                 .addConnectStatusListener(
                         new RongIMClient.ConnectCallback() {
                             @Override
-                            public void onSuccess(String s) {}
+                            public void onSuccess(String s) {
+                                // do nothing
+                            }
 
                             @Override
                             public void onError(
-                                    RongIMClient.ConnectionErrorCode connectionErrorCode) {}
+                                    RongIMClient.ConnectionErrorCode connectionErrorCode) {
+                                // do nothing
+                            }
 
                             @Override
                             public void onDatabaseOpened(
@@ -116,7 +120,9 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode e) {}
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    // do nothing
+                                }
                             });
         }
     }
@@ -155,7 +161,9 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode e) {}
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    // do nothing
+                                }
                             });
         }
     }

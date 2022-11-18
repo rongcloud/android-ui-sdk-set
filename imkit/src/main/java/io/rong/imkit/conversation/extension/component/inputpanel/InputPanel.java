@@ -354,7 +354,9 @@ public class InputPanel {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {}
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // do nothing
+                            }
                         });
     }
 
@@ -484,7 +486,9 @@ public class InputPanel {
     private TextWatcher mEditTextWatcher =
             new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                    // do nothing
+                }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -526,7 +530,9 @@ public class InputPanel {
                 }
 
                 @Override
-                public void afterTextChanged(Editable s) {}
+                public void afterTextChanged(Editable s) {
+                    // do nothing
+                }
             };
 
     public void onDestroy() {

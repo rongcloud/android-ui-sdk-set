@@ -90,7 +90,9 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
             holder.getView(R.id.rc_duration).setLayoutParams(lp);
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice_send, animationDrawable);
-                if (animationDrawable != null) animationDrawable.start();
+                if (animationDrawable != null) {
+                    animationDrawable.start();
+                }
             } else {
                 holder.setImageResource(R.id.rc_voice_send, R.drawable.rc_voice_send_play3);
             }
@@ -113,7 +115,9 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
             holder.getView(R.id.rc_duration).setLayoutParams(lp);
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice, animationDrawable);
-                if (animationDrawable != null) animationDrawable.start();
+                if (animationDrawable != null) {
+                    animationDrawable.start();
+                }
             } else {
                 holder.setImageResource(R.id.rc_voice, R.drawable.rc_voice_receive_play3);
             }

@@ -26,7 +26,6 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.IRongCallback;
-import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.LocationMessage;
@@ -45,8 +44,6 @@ import io.rong.message.MediaMessageContent;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.TextMessage;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -278,20 +275,6 @@ public class IMCenter {
                 }
             };
 
-    // 通知级别变化监听器
-    private IRongCoreListener.PushNotifyLevelListener pushNotifyLevelListener =
-            new IRongCoreListener.PushNotifyLevelListener() {
-                @Override
-                public void onNotifyLevelUpdate(String key, int level) {
-                    MessageNotificationHelper.updateLevelMap(key, level);
-                }
-
-                @Override
-                public void OnNotifyQuietHour(int quietLevel, String startTime, int spanTime) {
-                    MessageNotificationHelper.updateQuietHour(quietLevel, startTime, spanTime);
-                }
-            };
-
     private IMCenter() {}
 
     public static IMCenter getInstance() {
@@ -354,31 +337,8 @@ public class IMCenter {
                 .setSyncConversationReadStatusListener(
                         SingletonHolder.sInstance.mSyncConversationReadStatusListener);
         RongIMClient.setTypingStatusListener(SingletonHolder.sInstance.mTypingStatusListener);
-        setPushNotifyLevelListener();
+        MessageNotificationHelper.setPushNotifyLevelListener();
         RongIMClient.registerMessageType(CombineMessage.class);
-    }
-
-    private static void setPushNotifyLevelListener() {
-        Class<?> aClass; // 通过单例类的全限定名获取类
-        try {
-            aClass = Class.forName("io.rong.imlib.ChannelClientImpl");
-            Method getInstance = aClass.getDeclaredMethod("getInstanceForInterior");
-            getInstance.setAccessible(true);
-            Object invoke = getInstance.invoke(aClass);
-            Method method =
-                    invoke.getClass()
-                            .getDeclaredMethod(
-                                    "setPushNotifyLevelListener",
-                                    IRongCoreListener.PushNotifyLevelListener.class);
-            method.setAccessible(true);
-            method.invoke(invoke, SingletonHolder.sInstance.pushNotifyLevelListener);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -1997,7 +1957,9 @@ public class IMCenter {
                                         errorCode,
                                         new FilterSentListener() {
                                             @Override
-                                            public void onComplete() {}
+                                            public void onComplete() {
+                                                // do nothing
+                                            }
                                         });
                                 if (sendMessageCallback != null) {
                                     sendMessageCallback.onError(message, errorCode);

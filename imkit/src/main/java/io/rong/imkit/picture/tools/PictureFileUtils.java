@@ -411,9 +411,11 @@ public class PictureFileUtils {
                                 : Environment.DIRECTORY_MOVIES);
         if (cutDir != null) {
             File[] files = cutDir.listFiles();
-            for (File file : files) {
-                if (file.isFile()) {
-                    file.delete();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        file.delete();
+                    }
                 }
             }
         }
@@ -439,9 +441,11 @@ public class PictureFileUtils {
         File dirMovies = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
         if (dirPictures != null) {
             File[] files = dirMovies.listFiles();
-            for (File file : files) {
-                if (file.isFile()) {
-                    file.delete();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        file.delete();
+                    }
                 }
             }
         }

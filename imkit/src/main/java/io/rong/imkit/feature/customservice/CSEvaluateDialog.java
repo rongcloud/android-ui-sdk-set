@@ -211,7 +211,9 @@ public class CSEvaluateDialog extends AlertDialog {
         evaluateLevel.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {}
+                    public void onClick(View v) {
+                        // do nothing
+                    }
                 });
         resolvedBtn.setOnClickListener(
                 new View.OnClickListener() {
@@ -255,7 +257,9 @@ public class CSEvaluateDialog extends AlertDialog {
         edit.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {}
+                    public void onClick(View v) {
+                        // do nothing
+                    }
                 });
         closeBtn.setOnClickListener(
                 new View.OnClickListener() {

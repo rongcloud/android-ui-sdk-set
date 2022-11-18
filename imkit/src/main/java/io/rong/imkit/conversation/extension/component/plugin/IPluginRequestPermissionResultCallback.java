@@ -10,6 +10,8 @@ public interface IPluginRequestPermissionResultCallback {
     int REQUEST_CODE_PERMISSION_PLUGIN = 255;
 
     /**
+     * plugin 申请权限 result
+     *
      * @param fragment Fragment
      * @param extension RongExtension
      * @param permissions 申请的权限

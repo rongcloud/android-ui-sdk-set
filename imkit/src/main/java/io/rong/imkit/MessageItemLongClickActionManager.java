@@ -236,7 +236,9 @@ public class MessageItemLongClickActionManager {
                                                             null,
                                                             new RongIMClient.ResultCallback() {
                                                                 @Override
-                                                                public void onSuccess(Object o) {}
+                                                                public void onSuccess(Object o) {
+                                                                    // do nothing
+                                                                }
 
                                                                 @Override
                                                                 public void onError(

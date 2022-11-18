@@ -281,22 +281,34 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
     }
 
     @Override
-    public void onStarted(EasyVideoPlayer player) {}
+    public void onStarted(EasyVideoPlayer player) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onPaused(EasyVideoPlayer player) {}
+    public void onPaused(EasyVideoPlayer player) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onPreparing(EasyVideoPlayer player) {}
+    public void onPreparing(EasyVideoPlayer player) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onPrepared(EasyVideoPlayer player) {}
+    public void onPrepared(EasyVideoPlayer player) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onBuffering(int percent) {}
+    public void onBuffering(int percent) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onError(EasyVideoPlayer player, Exception e) {}
+    public void onError(EasyVideoPlayer player, Exception e) {
+        // default implementation ignored
+    }
 
     @Override
     public void onCompletion(EasyVideoPlayer player) {
@@ -307,7 +319,9 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
     }
 
     @Override
-    public void onSightListRequest() {}
+    public void onSightListRequest() {
+        // default implementation ignored
+    }
 
     @Override
     public void onClose() {
@@ -415,6 +429,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
         }
 
         @Override
-        public void onCanceled(Message message) {}
+        public void onCanceled(Message message) {
+            // default implementation ignored
+        }
     }
 }

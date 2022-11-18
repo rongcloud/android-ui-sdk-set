@@ -50,8 +50,9 @@ public class InformationNotificationMessageItemProvider
 
     @Override
     public Spannable getSummarySpannable(Context context, InformationNotificationMessage data) {
-        if (data != null && !TextUtils.isEmpty(data.getMessage()))
+        if (data != null && !TextUtils.isEmpty(data.getMessage())) {
             return new SpannableString(data.getMessage());
+        }
         return null;
     }
 }

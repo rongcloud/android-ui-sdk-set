@@ -128,7 +128,9 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
                                             }
 
                                             @Override
-                                            public void onError(RongIMClient.ErrorCode errorCode) {}
+                                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                                // do nothing
+                                            }
                                         });
                     }
                 });

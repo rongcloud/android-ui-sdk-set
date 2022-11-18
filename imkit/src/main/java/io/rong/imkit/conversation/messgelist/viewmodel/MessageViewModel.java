@@ -893,13 +893,19 @@ public class MessageViewModel extends AndroidViewModel
             UiMessage item = mUiMessages.get(i);
             if (item.getMessage().getContent() instanceof HQVoiceMessage) {
                 if (!item.getMessage().getReceivedStatus().isListened()
-                        && !item.getMessage().getContent().isDestruct()) {
+                        && !item.getMessage().getContent().isDestruct()
+                        && !TextUtils.equals(
+                                item.getMessage().getSenderUserId(),
+                                RongIM.getInstance().getCurrentUserId())) {
                     onAudioClick(item);
                     break;
                 }
             } else if (item.getMessage().getContent() instanceof VoiceMessage) {
                 if (!item.getMessage().getReceivedStatus().isListened()
-                        && !item.getMessage().getContent().isDestruct()) {
+                        && !item.getMessage().getContent().isDestruct()
+                        && !TextUtils.equals(
+                                item.getMessage().getSenderUserId(),
+                                RongIM.getInstance().getCurrentUserId())) {
                     onAudioClick(item);
                     break;
                 }
@@ -1392,7 +1398,9 @@ public class MessageViewModel extends AndroidViewModel
                         });
     }
 
-    public void onReadReceiptStateClick(UiMessage uiMessage) {}
+    public void onReadReceiptStateClick(UiMessage uiMessage) {
+        // do nothing
+    }
 
     public void onReEditClick(UiMessage uiMessage) {
         Message message = uiMessage.getMessage();
@@ -1809,7 +1817,9 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     @Override
-    public void onGroupUpdate(Group group) {}
+    public void onGroupUpdate(Group group) {
+        // default implementation ignored
+    }
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {

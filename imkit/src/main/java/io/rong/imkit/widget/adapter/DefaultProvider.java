@@ -20,5 +20,7 @@ public class DefaultProvider implements IViewProvider {
 
     @Override
     public void bindViewHolder(
-            ViewHolder holder, Object o, int position, List list, IViewProviderListener listener) {}
+            ViewHolder holder, Object o, int position, List list, IViewProviderListener listener) {
+        // do nothing
+    }
 }

@@ -102,7 +102,9 @@ public class PermissionCheckUtil {
                             }
 
                             @Override
-                            public void cancelled() {}
+                            public void cancelled() {
+                                // do nothing
+                            }
                         });
             } else {
                 fragment.requestPermissions(
@@ -148,17 +150,23 @@ public class PermissionCheckUtil {
                         new IPermissionEventCallback() {
                             @Override
                             public void confirmed() {
-                                activity.requestPermissions(
-                                        permissionsNotGranted.toArray(new String[size]),
-                                        requestCode);
+                                if (activity != null) {
+                                    activity.requestPermissions(
+                                            permissionsNotGranted.toArray(new String[size]),
+                                            requestCode);
+                                }
                             }
 
                             @Override
-                            public void cancelled() {}
+                            public void cancelled() {
+                                // do nothing
+                            }
                         });
             } else {
-                activity.requestPermissions(
-                        permissionsNotGranted.toArray(new String[size]), requestCode);
+                if (activity != null) {
+                    activity.requestPermissions(
+                            permissionsNotGranted.toArray(new String[size]), requestCode);
+                }
             }
         } else {
             result = true;

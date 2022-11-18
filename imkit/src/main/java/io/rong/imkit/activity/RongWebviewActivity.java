@@ -31,6 +31,7 @@ public class RongWebviewActivity extends RongBaseActivity {
     private String mPrevUrl;
     protected RongWebView mWebView;
     private ProgressBar mProgressBar;
+    private static final String FILE = "file://";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class RongWebviewActivity extends RongBaseActivity {
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setUseWideViewPort(true);
         mWebView.getSettings().setBuiltInZoomControls(true);
-        if (Build.VERSION.SDK_INT > 11) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
             mWebView.getSettings().setDisplayZoomControls(false);
         }
         mWebView.getSettings().setSupportZoom(true);
@@ -58,7 +59,7 @@ public class RongWebviewActivity extends RongBaseActivity {
         Uri data = intent.getData();
         if (url != null) {
             if (RongConfigCenter.featureConfig().rc_set_java_script_enabled) {
-                if (url.startsWith("file://")) {
+                if (url.startsWith(FILE)) {
                     mWebView.getSettings().setJavaScriptEnabled(false);
                 } else {
                     mWebView.getSettings().setJavaScriptEnabled(true);
@@ -87,6 +88,11 @@ public class RongWebviewActivity extends RongBaseActivity {
     private OnTitleReceivedListener onTitleReceivedListener;
 
     public interface OnTitleReceivedListener {
+        /**
+         * onTitleReceived
+         *
+         * @param title Title
+         */
         void onTitleReceived(String title);
     }
 

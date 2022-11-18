@@ -34,10 +34,14 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
         mCameraView.setCameraViewListener(
                 new CameraView.CameraViewListener() {
                     @Override
-                    public void quit() {}
+                    public void quit() {
+                        // default implementation ignored
+                    }
 
                     @Override
-                    public void captureSuccess(Bitmap bitmap) {}
+                    public void captureSuccess(Bitmap bitmap) {
+                        // default implementation ignored
+                    }
 
                     @Override
                     public void recordSuccess(String url, int recordTime) {

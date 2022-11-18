@@ -208,7 +208,9 @@ public class MessageProcessor {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {}
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // default implementation ignored
+                            }
                         });
     }
 
@@ -308,7 +310,9 @@ public class MessageProcessor {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {}
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // do nothing
+                            }
                         });
     }
 

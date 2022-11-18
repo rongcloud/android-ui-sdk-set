@@ -214,7 +214,9 @@ public class HQVoiceMsgDownloadManager {
                                                         }
 
                                                         @Override
-                                                        public void onCanceled(Message message) {}
+                                                        public void onCanceled(Message message) {
+                                                            // do nothing
+                                                        }
                                                     });
                                 }
                             }
@@ -222,7 +224,7 @@ public class HQVoiceMsgDownloadManager {
     }
 
     void pauseDownloadService() {
-        // TODO 网络中断后处理
+        // do nothing
     }
 
     public void resumeDownloadService() {

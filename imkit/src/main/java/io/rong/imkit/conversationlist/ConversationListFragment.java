@@ -338,7 +338,9 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
 
                                                         @Override
                                                         public void onError(
-                                                                RongIMClient.ErrorCode errorCode) {}
+                                                                RongIMClient.ErrorCode errorCode) {
+                                                            // do nothing
+                                                        }
                                                     });
                                 } else if (items.get(which).equals(removeItem)) {
                                     IMCenter.getInstance()

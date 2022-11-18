@@ -126,6 +126,9 @@ public final class PictureSelector {
         if (!DoubleUtils.isFastDoubleClick()) {
             Intent intent = new Intent(getActivity(), PictureVideoPlayActivity.class);
             intent.putExtra("video_path", path);
+            if (getActivity() == null) {
+                return;
+            }
             getActivity().startActivity(intent);
         }
     }

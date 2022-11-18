@@ -20,6 +20,7 @@ public interface IEmoticonTab {
      * 构造 table 页面。
      *
      * @param context 应用上下文。
+     * @param parent ViewGroup
      * @return 构造后的 table view，不能为 null。
      */
     View obtainTabPager(Context context, ViewGroup parent);

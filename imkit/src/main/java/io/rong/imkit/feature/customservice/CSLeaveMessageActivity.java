@@ -116,7 +116,9 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
 
                                                 @Override
                                                 public void onError(
-                                                        RongIMClient.ErrorCode coreErrorCode) {}
+                                                        RongIMClient.ErrorCode coreErrorCode) {
+                                                    // do nothing
+                                                }
                                             });
                         }
                     }

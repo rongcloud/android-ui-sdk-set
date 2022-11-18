@@ -671,9 +671,15 @@ public class SubsamplingScaleImageView extends View {
                                         quickScaleLastDistance = -1F;
                                         quickScaleSCenter = viewToSourceCoord(vCenterStart);
                                         quickScaleVStart = new PointF(e.getX(), e.getY());
-                                        quickScaleVLastPoint =
-                                                new PointF(
-                                                        quickScaleSCenter.x, quickScaleSCenter.y);
+                                        if (quickScaleSCenter != null) {
+                                            quickScaleVLastPoint =
+                                                    new PointF(
+                                                            quickScaleSCenter.x,
+                                                            quickScaleSCenter.y);
+                                        } else {
+                                            // var quickScaleSCenter has npe possible！
+                                            quickScaleVLastPoint = new PointF(0, 0);
+                                        }
                                         quickScaleMoved = false;
                                         // We need to get events in onTouchEvent after this.
                                         return false;
@@ -979,6 +985,9 @@ public class SubsamplingScaleImageView extends View {
      * quick scale is enabled.
      */
     private void doubleTapZoom(PointF sCenter, PointF vFocus) {
+        if (sCenter == null) {
+            return;
+        }
         if (!panEnabled) {
             if (sRequestedCenter != null) {
                 // With a center specified from code, zoom around that point.
@@ -2276,7 +2285,9 @@ public class SubsamplingScaleImageView extends View {
      * allows a subclass to receive this event without using a listener.
      */
     @SuppressWarnings("EmptyMethod")
-    protected void onReady() {}
+    protected void onReady() {
+        // do nothing
+    }
 
     /**
      * Call to find whether the main image (base layer tiles where relevant) have been loaded.
@@ -2290,7 +2301,9 @@ public class SubsamplingScaleImageView extends View {
 
     /** Called once when the full size image or its base layer tiles have been loaded. */
     @SuppressWarnings("EmptyMethod")
-    protected void onImageLoaded() {}
+    protected void onImageLoaded() {
+        // do nothing
+    }
 
     /**
      * Get source width, ignoring orientation. If {@link #getOrientation()} returns 90 or 270, you
@@ -3036,24 +3049,32 @@ public class SubsamplingScaleImageView extends View {
                     px(30),
                     debugTextPaint);
             PointF center = getCenter();
-            canvas.drawText(
-                    "Source center: "
-                            + String.format(Locale.ENGLISH, "%.2f", center.x)
-                            + ":"
-                            + String.format(Locale.ENGLISH, "%.2f", center.y),
-                    px(5),
-                    px(45),
-                    debugTextPaint);
+            if (center != null) {
+                canvas.drawText(
+                        "Source center: "
+                                + String.format(Locale.ENGLISH, "%.2f", center.x)
+                                + ":"
+                                + String.format(Locale.ENGLISH, "%.2f", center.y),
+                        px(5),
+                        px(45),
+                        debugTextPaint);
+            }
             if (anim != null) {
                 PointF vCenterStart = sourceToViewCoord(anim.sCenterStart);
                 PointF vCenterEndRequested = sourceToViewCoord(anim.sCenterEndRequested);
                 PointF vCenterEnd = sourceToViewCoord(anim.sCenterEnd);
-                canvas.drawCircle(vCenterStart.x, vCenterStart.y, px(10), debugLinePaint);
+                if (vCenterStart != null) {
+                    canvas.drawCircle(vCenterStart.x, vCenterStart.y, px(10), debugLinePaint);
+                }
                 debugLinePaint.setColor(Color.RED);
-                canvas.drawCircle(
-                        vCenterEndRequested.x, vCenterEndRequested.y, px(20), debugLinePaint);
+                if (vCenterEndRequested != null) {
+                    canvas.drawCircle(
+                            vCenterEndRequested.x, vCenterEndRequested.y, px(20), debugLinePaint);
+                }
                 debugLinePaint.setColor(Color.BLUE);
-                canvas.drawCircle(vCenterEnd.x, vCenterEnd.y, px(25), debugLinePaint);
+                if (vCenterEnd != null) {
+                    canvas.drawCircle(vCenterEnd.x, vCenterEnd.y, px(25), debugLinePaint);
+                }
                 debugLinePaint.setColor(Color.CYAN);
                 canvas.drawCircle(getWidth() / 2, getHeight() / 2, px(30), debugLinePaint);
             }
@@ -3564,13 +3585,19 @@ public class SubsamplingScaleImageView extends View {
     public static class DefaultOnAnimationEventListener implements OnAnimationEventListener {
 
         @Override
-        public void onComplete() {}
+        public void onComplete() {
+            // do nothing
+        }
 
         @Override
-        public void onInterruptedByUser() {}
+        public void onInterruptedByUser() {
+            // do nothing
+        }
 
         @Override
-        public void onInterruptedByNewAnim() {}
+        public void onInterruptedByNewAnim() {
+            // do nothing
+        }
     }
 
     /**
@@ -3580,22 +3607,34 @@ public class SubsamplingScaleImageView extends View {
     public static class DefaultOnImageEventListener implements OnImageEventListener {
 
         @Override
-        public void onReady() {}
+        public void onReady() {
+            // do nothing
+        }
 
         @Override
-        public void onImageLoaded() {}
+        public void onImageLoaded() {
+            // do nothing
+        }
 
         @Override
-        public void onPreviewLoadError(Exception e) {}
+        public void onPreviewLoadError(Exception e) {
+            // do nothing
+        }
 
         @Override
-        public void onImageLoadError(Exception e) {}
+        public void onImageLoadError(Exception e) {
+            // do nothing
+        }
 
         @Override
-        public void onTileLoadError(Exception e) {}
+        public void onTileLoadError(Exception e) {
+            // do nothing
+        }
 
         @Override
-        public void onPreviewReleased() {}
+        public void onPreviewReleased() {
+            // do nothing
+        }
     }
 
     /**
@@ -3604,10 +3643,14 @@ public class SubsamplingScaleImageView extends View {
     public static class DefaultOnStateChangedListener implements OnStateChangedListener {
 
         @Override
-        public void onScaleChanged(float newScale, int origin) {}
+        public void onScaleChanged(float newScale, int origin) {
+            // do nothing
+        }
 
         @Override
-        public void onCenterChanged(PointF newCenter, int origin) {}
+        public void onCenterChanged(PointF newCenter, int origin) {
+            // do nothing
+        }
     }
 
     /**

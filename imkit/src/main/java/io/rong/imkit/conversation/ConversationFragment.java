@@ -470,8 +470,10 @@ public class ConversationFragment extends Fragment
                 result = true;
             }
         }
-        mRongExtensionViewModel.exitMoreInputMode(this.getContext());
-        mRongExtensionViewModel.collapseExtensionBoard();
+        if (mRongExtensionViewModel != null) {
+            mRongExtensionViewModel.exitMoreInputMode(getContext());
+            mRongExtensionViewModel.collapseExtensionBoard();
+        }
         return result;
     }
 

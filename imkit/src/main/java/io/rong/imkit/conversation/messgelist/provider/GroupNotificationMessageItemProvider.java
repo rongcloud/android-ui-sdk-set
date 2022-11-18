@@ -25,6 +25,12 @@ import org.json.JSONObject;
 public class GroupNotificationMessageItemProvider
         extends BaseNotificationMessageItemProvider<GroupNotificationMessage> {
     private static final String TAG = "GroupNotificationMessageItemProvider";
+    private static final String QUIT = "Quit";
+    private static final String RENAME = "Rename";
+    private static final String DISMISS = "Dismiss";
+    private static final String CREATE = "Create";
+    private static final String KICKED = "Kicked";
+    private static final String ADD = "Add";
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
@@ -93,7 +99,7 @@ public class GroupNotificationMessageItemProvider
                 }
 
                 if (!TextUtils.isEmpty(operation))
-                    if (operation.equals("Add")) {
+                    if (ADD.equals(operation)) {
                         if (operatorUserId.equals(memberUserId)) {
                             holder.setText(
                                     R.id.rc_msg,
@@ -128,7 +134,7 @@ public class GroupNotificationMessageItemProvider
                             }
                             holder.setText(R.id.rc_msg, inviteMsg);
                         }
-                    } else if (operation.equals("Kicked")) {
+                    } else if (KICKED.equals(operation)) {
                         String operator;
                         String kickedName;
                         if (memberIdList != null) {
@@ -173,7 +179,7 @@ public class GroupNotificationMessageItemProvider
                                 }
                             }
                         }
-                    } else if (operation.equals("Create")) {
+                    } else if (CREATE.equals(operation)) {
                         GroupNotificationMessageData createGroupData =
                                 new GroupNotificationMessageData();
                         try {
@@ -191,16 +197,16 @@ public class GroupNotificationMessageItemProvider
                             createMsg = context.getString(R.string.rc_item_you_created_group);
                         }
                         holder.setText(R.id.rc_msg, createMsg);
-                    } else if (operation.equals("Dismiss")) {
+                    } else if (DISMISS.equals(operation)) {
                         holder.setText(
                                 R.id.rc_msg,
                                 operatorNickname
                                         + context.getString(R.string.rc_item_dismiss_groups));
-                    } else if (operation.equals("Quit")) {
+                    } else if (operation.equals(QUIT)) {
                         holder.setText(
                                 R.id.rc_msg,
                                 operatorNickname + context.getString(R.string.rc_item_quit_groups));
-                    } else if (operation.equals("Rename")) {
+                    } else if (RENAME.equals(operation)) {
                         String operator;
                         String groupName;
                         String changeMsg;
@@ -287,8 +293,9 @@ public class GroupNotificationMessageItemProvider
             Context context, GroupNotificationMessage groupNotificationMessage) {
         try {
             GroupNotificationMessageData data;
-            if (groupNotificationMessage == null || groupNotificationMessage.getData() == null)
+            if (groupNotificationMessage == null || groupNotificationMessage.getData() == null) {
                 return null;
+            }
             try {
                 data = jsonToBean(groupNotificationMessage.getData());
             } catch (Exception e) {
@@ -332,7 +339,7 @@ public class GroupNotificationMessageItemProvider
 
             SpannableString spannableStringSummary = new SpannableString("");
             switch (operation) {
-                case "Add":
+                case ADD:
                     try {
                         if (operatorUserId.equals(memberUserId)) {
                             spannableStringSummary =
@@ -372,7 +379,7 @@ public class GroupNotificationMessageItemProvider
                         RLog.e(TAG, "getContentSummary", e);
                     }
                     break;
-                case "Kicked":
+                case KICKED:
                     {
                         String operator;
                         String kickedName;
@@ -423,7 +430,7 @@ public class GroupNotificationMessageItemProvider
                         }
                         break;
                     }
-                case "Create":
+                case CREATE:
                     String name;
                     String createMsg;
                     if (!operatorUserId.equals(currentUserId)) {
@@ -435,19 +442,19 @@ public class GroupNotificationMessageItemProvider
                     spannableStringSummary = new SpannableString(createMsg);
 
                     break;
-                case "Dismiss":
+                case DISMISS:
                     spannableStringSummary =
                             new SpannableString(
                                     operatorNickname
                                             + context.getString(R.string.rc_item_dismiss_groups));
                     break;
-                case "Quit":
+                case QUIT:
                     spannableStringSummary =
                             new SpannableString(
                                     operatorNickname
                                             + context.getString(R.string.rc_item_quit_groups));
                     break;
-                case "Rename":
+                case RENAME:
                     {
                         String operator;
                         String groupName;

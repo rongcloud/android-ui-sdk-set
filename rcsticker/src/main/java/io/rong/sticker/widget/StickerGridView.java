@@ -99,9 +99,9 @@ public class StickerGridView extends GridView {
         }
         if (newFocusChild != null) {
             newFocusChild.setPressed(true);
-        }
-        if (isInLongPress) {
-            showPopupWindow(newFocusChild);
+            if (isInLongPress) {
+                showPopupWindow(newFocusChild);
+            }
         }
     }
 

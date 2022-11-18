@@ -31,5 +31,7 @@ public class ConversationListEmptyProvider implements IViewProvider<BaseUiConver
             BaseUiConversation baseUiConversation,
             int position,
             List<BaseUiConversation> list,
-            IViewProviderListener<BaseUiConversation> listener) {}
+            IViewProviderListener<BaseUiConversation> listener) {
+        // do nothing
+    }
 }

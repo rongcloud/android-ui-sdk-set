@@ -103,7 +103,9 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
                                                             link,
                                                             uiMessage.getMessage());
                                 }
-                                if (result) return true;
+                                if (result) {
+                                    return true;
+                                }
                                 String str = link.toLowerCase();
                                 if (str.startsWith("http") || str.startsWith("https")) {
                                     RouteUtils.routeToWebActivity(textView.getContext(), link);

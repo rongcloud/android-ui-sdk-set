@@ -83,7 +83,9 @@ public class SendImageManager {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {}
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // do nothing
+                            }
                         });
         // todo 旧版逻辑分 if else 要判断回调
 
@@ -184,7 +186,9 @@ public class SendImageManager {
                             null,
                             new IRongCallback.ISendMediaMessageCallback() {
                                 @Override
-                                public void onAttached(Message message) {}
+                                public void onAttached(Message message) {
+                                    // default implementation ignored
+                                }
 
                                 @Override
                                 public void onError(Message message, RongIMClient.ErrorCode code) {
@@ -197,10 +201,14 @@ public class SendImageManager {
                                 }
 
                                 @Override
-                                public void onProgress(Message message, int progress) {}
+                                public void onProgress(Message message, int progress) {
+                                    // do nothing
+                                }
 
                                 @Override
-                                public void onCanceled(Message message) {}
+                                public void onCanceled(Message message) {
+                                    // do nothing
+                                }
                             });
         }
     }

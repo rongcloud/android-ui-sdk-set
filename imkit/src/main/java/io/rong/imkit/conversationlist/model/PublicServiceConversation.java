@@ -54,7 +54,9 @@ public class PublicServiceConversation extends SingleConversation {
                                     }
 
                                     @Override
-                                    public void onError(RongIMClient.ErrorCode errorCode) {}
+                                    public void onError(RongIMClient.ErrorCode errorCode) {
+                                        // do nothing
+                                    }
                                 });
             }
         }

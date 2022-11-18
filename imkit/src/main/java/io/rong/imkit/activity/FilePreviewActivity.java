@@ -54,6 +54,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     private static final String TAG = "FilePreviewActivity";
     private static final String TXT_FILE = ".txt";
     private static final String APK_FILE = ".apk";
+    private static final String FILE = "file://";
     protected FileDownloadInfo mFileDownloadInfo;
     protected FileMessage mFileMessage;
     protected Message mMessage;
@@ -443,7 +444,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 }
             }
         } catch (Exception e) {
-            RLog.e(TAG, "openFile", e);
+            RLog.e(TAG, "openFile" + e.getMessage());
             makeText(
                             FilePreviewActivity.this,
                             getString(R.string.rc_ac_file_preview_can_not_open_file),
@@ -525,7 +526,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 new File(path));
                 webIntent.putExtra("url", txtUri.toString());
             } else {
-                webIntent.putExtra("url", "file://" + path);
+                webIntent.putExtra("url", FILE + path);
             }
         }
         webIntent.putExtra("title", fileName);
@@ -580,7 +581,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 toast.cancel();
             }
         } catch (Exception e) {
-            RLog.e(TAG, "onDestroy", e);
+            RLog.e(TAG, "onDestroy" + e.getMessage());
         }
         IMCenter.getInstance().removeMessageEventListener(mEventListener);
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallListener);
@@ -651,10 +652,15 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         @Override
         public void onSuccess(DownloadInfo downloadInfo) {
 
-            if (weakActivity.get() == null) {
+            if (weakActivity == null) {
                 return;
             }
             FilePreviewActivity activity = weakActivity.get();
+
+            if (activity == null) {
+                return;
+            }
+
             activity.info = downloadInfo;
             if (downloadInfo != null) {
                 activity.mFileDownloadInfo.progress = downloadInfo.currentProgress();
@@ -669,7 +675,9 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         }
 
         @Override
-        public void onError(IRongCoreEnum.CoreErrorCode e) {}
+        public void onError(IRongCoreEnum.CoreErrorCode e) {
+            // do nothing
+        }
     }
 
     public class FileDownloadInfo {

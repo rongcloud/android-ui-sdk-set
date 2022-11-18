@@ -14,7 +14,9 @@ public class MessageItemLongClickAction {
         private Filter filter;
         private int priority;
 
-        public Builder() {}
+        public Builder() {
+            // default implementation ignored
+        }
 
         public Builder title(String title) {
             this.title = title;

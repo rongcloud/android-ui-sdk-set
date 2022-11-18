@@ -92,7 +92,9 @@ public class RongConversationActivity extends RongBaseActivity {
                 }
 
                 @Override
-                public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {}
+                public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+                    // do nothing
+                }
             };
 
     @Override

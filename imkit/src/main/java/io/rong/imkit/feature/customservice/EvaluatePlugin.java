@@ -48,5 +48,7 @@ public class EvaluatePlugin implements IPluginModule, CSEvaluateDialog.EvaluateC
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {}
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // do nothing
+    }
 }

@@ -24,6 +24,8 @@ public interface IClickActions {
     void onClick(Fragment curFragment);
 
     /**
+     * UIMessage 过滤
+     *
      * @param message 消息
      * @return 返回true，表示显示
      */

@@ -87,7 +87,9 @@ public class StickerExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onReceivedMessage(Message message) {}
+    public void onReceivedMessage(Message message) {
+        // default implementation ignored
+    }
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {

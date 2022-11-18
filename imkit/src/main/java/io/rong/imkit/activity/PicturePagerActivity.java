@@ -306,7 +306,9 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode e) {}
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    // do nothing
+                                }
                             });
         }
     }

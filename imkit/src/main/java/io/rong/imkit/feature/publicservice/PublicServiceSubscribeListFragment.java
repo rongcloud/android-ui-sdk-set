@@ -106,7 +106,11 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
                                                                         public void onError(
                                                                                 RongIMClient
                                                                                                 .ErrorCode
-                                                                                        coreErrorCode) {}
+                                                                                        coreErrorCode) {
+                                                                            // default
+                                                                            // implementation
+                                                                            // ignored
+                                                                        }
                                                                     });
                                                 }
                                             })
@@ -134,7 +138,9 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode e) {}
+                            public void onError(RongIMClient.ErrorCode e) {
+                                // do nothing
+                            }
                         });
     }
 

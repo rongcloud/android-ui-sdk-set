@@ -173,7 +173,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
 
                                                 @Override
                                                 public void onError(
-                                                        RongIMClient.ErrorCode errorCode) {}
+                                                        RongIMClient.ErrorCode errorCode) {
+                                                    // do nothing
+                                                }
                                             });
                                 }
                                 return false;
@@ -733,10 +735,14 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                 new Application.ActivityLifecycleCallbacks() {
                     @Override
                     public void onActivityCreated(
-                            @NonNull Activity activity, @Nullable Bundle savedInstanceState) {}
+                            @NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+                        // do nothing
+                    }
 
                     @Override
-                    public void onActivityStarted(@NonNull Activity activity) {}
+                    public void onActivityStarted(@NonNull Activity activity) {
+                        // do nothing
+                    }
 
                     @Override
                     public void onActivityResumed(@NonNull Activity activity) {
@@ -747,7 +753,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                     }
 
                     @Override
-                    public void onActivityPaused(@NonNull Activity activity) {}
+                    public void onActivityPaused(@NonNull Activity activity) {
+                        // do nothing
+                    }
 
                     @Override
                     public void onActivityStopped(@NonNull Activity activity) {
@@ -759,10 +767,14 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
 
                     @Override
                     public void onActivitySaveInstanceState(
-                            @NonNull Activity activity, @NonNull Bundle outState) {}
+                            @NonNull Activity activity, @NonNull Bundle outState) {
+                        // do nothing
+                    }
 
                     @Override
-                    public void onActivityDestroyed(@NonNull Activity activity) {}
+                    public void onActivityDestroyed(@NonNull Activity activity) {
+                        // do nothing
+                    }
                 });
     }
 
@@ -842,7 +854,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     }
 
     @Override
-    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {}
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+        // do nothing
+    }
 
     private static class SingletonHolder {
         static RongNotificationManager sInstance = new RongNotificationManager();

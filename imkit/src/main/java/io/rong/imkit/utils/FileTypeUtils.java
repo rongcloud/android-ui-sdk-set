@@ -16,6 +16,7 @@ import io.rong.imkit.model.FileInfo;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -450,18 +451,29 @@ public class FileTypeUtils {
             // better variation of: http://stackoverflow.com/a/40123073/5002496
             String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
             StringBuilder s = new StringBuilder();
+            InputStream is = null;
             try {
                 final Process process =
                         new ProcessBuilder().command("mount").redirectErrorStream(true).start();
                 process.waitFor();
-                final InputStream is = process.getInputStream();
+                is = process.getInputStream();
                 final byte[] buffer = new byte[1024];
                 while (is.read(buffer) != -1) {
                     s.append(new String(buffer));
                 }
-                is.close();
-            } catch (final Exception e) {
-                RLog.e(TAG, "getExternalStorageDirectories", e);
+            } catch (final IOException e) {
+                RLog.e(TAG, "getExternalStorageDirectories IOException ", e);
+            } catch (InterruptedException e) {
+                RLog.e(TAG, "getExternalStorageDirectories InterruptedException ", e);
+                Thread.currentThread().interrupt();
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                } catch (IOException e) {
+                    RLog.e(TAG, "getExternalStorageDirectories IOException close e");
+                }
             }
 
             // parse output

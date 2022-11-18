@@ -23,7 +23,9 @@ public class ProxyHttpLoader implements ModelLoader<Uri, InputStream> {
     public static final Option<Integer> TIMEOUT =
             Option.memory("com.bumptech.glide.load.model.stream.HttpGlideUrlLoader.Timeout", 5000);
 
-    public ProxyHttpLoader() {}
+    public ProxyHttpLoader() {
+        // do nothing
+    }
 
     @Override
     public LoadData<InputStream> buildLoadData(Uri model, int width, int height, Options options) {

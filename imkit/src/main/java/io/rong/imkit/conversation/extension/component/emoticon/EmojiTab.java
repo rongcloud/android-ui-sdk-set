@@ -37,7 +37,9 @@ public class EmojiTab implements IEmoticonTab {
     }
 
     @Override
-    public void onTableSelected(int position) {}
+    public void onTableSelected(int position) {
+        // do nothing
+    }
 
     @Override
     public LiveData<String> getEditInfo() {

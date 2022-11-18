@@ -31,7 +31,9 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     private RelativeLayout attachContainer;
 
     @Override
-    public void onInit(Context context, String appKey) {}
+    public void onInit(Context context, String appKey) {
+        // do nothing
+    }
 
     @Override
     public void onAttachedToExtension(final Fragment fragment, final RongExtension extension) {
@@ -138,8 +140,13 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     public void onDetachedFromExtension() {
         ReferenceManager.getInstance().removeReferenceStatusListener(ReferenceStatusListener);
         // The following code is used to resolve memory leaks.
-        if (mExtension != null && mExtension.get() != null) {
-            mExtension.get().removeView(attachContainer);
+
+        if (mExtension != null) {
+            RongExtension extension = mExtension.get();
+            if (extension == null) {
+                return;
+            }
+            extension.removeView(attachContainer);
             attachContainer = null;
         }
 
@@ -149,7 +156,9 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onReceivedMessage(Message message) {}
+    public void onReceivedMessage(Message message) {
+        // do nothing
+    }
 
     @Override
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {
@@ -162,7 +171,9 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     }
 
     @Override
-    public void onDisconnect() {}
+    public void onDisconnect() {
+        // default implementation ignored
+    }
 
     private final ReferenceManager.ReferenceStatusListener ReferenceStatusListener =
             new ReferenceManager.ReferenceStatusListener() {

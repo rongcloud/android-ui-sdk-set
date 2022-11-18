@@ -71,7 +71,9 @@ public class SendMediaManager {
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {}
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                    // do nothing
+                                }
                             });
         }
     }
@@ -225,10 +227,14 @@ public class SendMediaManager {
                                 }
 
                                 @Override
-                                public void onProgress(Message message, int progress) {}
+                                public void onProgress(Message message, int progress) {
+                                    // do nothing
+                                }
 
                                 @Override
-                                public void onCanceled(Message message) {}
+                                public void onCanceled(Message message) {
+                                    // do nothing
+                                }
                             });
             //            final String originLocalPath = ((SightMessage)
             // executingMessage.getContent()).getLocalPath().toString();

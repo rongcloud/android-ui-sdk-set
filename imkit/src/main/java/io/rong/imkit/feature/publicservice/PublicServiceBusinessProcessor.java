@@ -62,7 +62,9 @@ public class PublicServiceBusinessProcessor extends BaseBusinessProcessor {
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {}
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                    // do nothing
+                                }
                             });
         }
         super.init(messageViewModel, bundle);

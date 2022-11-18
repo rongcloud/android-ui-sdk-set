@@ -160,7 +160,9 @@ public class ResendManager {
                                     }
 
                                     @Override
-                                    public void onAttached(Message message) {}
+                                    public void onAttached(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
                                     public void onSuccess(Message message) {
@@ -232,7 +234,9 @@ public class ResendManager {
                                 new IRongCallback.ISendMediaMessageCallback() {
 
                                     @Override
-                                    public void onAttached(Message message) {}
+                                    public void onAttached(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
                                     public void onSuccess(Message message) {
@@ -246,10 +250,14 @@ public class ResendManager {
                                     }
 
                                     @Override
-                                    public void onProgress(Message message, int i) {}
+                                    public void onProgress(Message message, int i) {
+                                        // do nothing
+                                    }
 
                                     @Override
-                                    public void onCanceled(Message message) {}
+                                    public void onCanceled(Message message) {
+                                        // do nothing
+                                    }
                                 });
             }
         } else if (message.getContent() instanceof LocationMessage) {
@@ -268,7 +276,9 @@ public class ResendManager {
                                 null,
                                 new IRongCallback.ISendMediaMessageCallback() {
                                     @Override
-                                    public void onProgress(Message message, int progress) {}
+                                    public void onProgress(Message message, int progress) {
+                                        // do nothing
+                                    }
 
                                     @Override
                                     public void onCanceled(Message message) {
@@ -276,7 +286,9 @@ public class ResendManager {
                                     }
 
                                     @Override
-                                    public void onAttached(Message message) {}
+                                    public void onAttached(Message message) {
+                                        // do nothing
+                                    }
 
                                     @Override
                                     public void onSuccess(Message message) {

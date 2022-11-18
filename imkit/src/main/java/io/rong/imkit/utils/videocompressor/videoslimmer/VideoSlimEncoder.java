@@ -42,7 +42,9 @@ public class VideoSlimEncoder {
     private static int IFRAME_INTERVAL = 10; // 10 seconds between I-frames
     private final int TIMEOUT_USEC = 2500;
 
-    public VideoSlimEncoder() {}
+    public VideoSlimEncoder() {
+        // do nothing
+    }
 
     /** trans video and audio by mediacodec */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)

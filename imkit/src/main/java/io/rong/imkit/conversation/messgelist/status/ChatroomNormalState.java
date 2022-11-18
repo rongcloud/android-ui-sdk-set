@@ -45,12 +45,16 @@ public class ChatroomNormalState implements IMessageState {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {}
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // default implementation ignored
+                            }
                         });
     }
 
     @Override
-    public void onLoadMore(MessageViewModel viewModel) {}
+    public void onLoadMore(MessageViewModel viewModel) {
+        // do nothing
+    }
 
     @Override
     public void onRefresh(MessageViewModel viewModel) {
@@ -63,22 +67,34 @@ public class ChatroomNormalState implements IMessageState {
             UiMessage message,
             int left,
             boolean hasPackage,
-            boolean offline) {}
+            boolean offline) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onNewMessageBarClick(MessageViewModel viewModel) {}
+    public void onNewMessageBarClick(MessageViewModel viewModel) {
+        // do nothing
+    }
 
     @Override
-    public void onNewMentionMessageBarClick(MessageViewModel viewModel) {}
+    public void onNewMentionMessageBarClick(MessageViewModel viewModel) {
+        // do nothing
+    }
 
     @Override
-    public void onScrollToBottom(MessageViewModel viewModel) {}
+    public void onScrollToBottom(MessageViewModel viewModel) {
+        // do nothing
+    }
 
     @Override
-    public void onHistoryBarClick(MessageViewModel viewModel) {}
+    public void onHistoryBarClick(MessageViewModel viewModel) {
+        // do nothing
+    }
 
     @Override
-    public void onClearMessage(MessageViewModel viewModel) {}
+    public void onClearMessage(MessageViewModel viewModel) {
+        // do nothing
+    }
 
     @Override
     public boolean isNormalState(MessageViewModel viewModel) {

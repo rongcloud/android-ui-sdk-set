@@ -224,10 +224,14 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
     }
 
     @Override
-    public void onGroupUpdate(Group group) {}
+    public void onGroupUpdate(Group group) {
+        // do nothing
+    }
 
     @Override
-    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {}
+    public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
+        // do nothing
+    }
 
     private class ForwardItemClickListener implements AdapterView.OnItemClickListener {
 

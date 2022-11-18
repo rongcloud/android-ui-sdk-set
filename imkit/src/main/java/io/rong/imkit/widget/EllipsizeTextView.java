@@ -275,7 +275,7 @@ public class EllipsizeTextView extends TextView {
          */
         boolean isFirstCharInLine = true;
         // 将原始文本按行拆分
-        String[] originalTextLines = originalText.replaceAll("\r", "").split("\n");
+        String[] originalTextLines = originalText.replace("\r", "").split("\n");
         StringBuilder newTextBuilder = new StringBuilder();
         for (String originalTextLine : originalTextLines) {
             // 文本内容小于TextView宽度，即不换行，不作处理

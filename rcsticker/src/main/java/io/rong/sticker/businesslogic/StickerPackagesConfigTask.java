@@ -19,7 +19,9 @@ public class StickerPackagesConfigTask {
                     }
 
                     @Override
-                    public void onError(Exception e) {}
+                    public void onError(Exception e) {
+                        // default implementation ignored
+                    }
                 });
     }
 
@@ -43,7 +45,9 @@ public class StickerPackagesConfigTask {
                     }
 
                     @Override
-                    public void onError(Exception e) {}
+                    public void onError(Exception e) {
+                        // default implementation ignored
+                    }
                 });
     }
 

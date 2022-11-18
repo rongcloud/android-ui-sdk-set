@@ -262,12 +262,10 @@ public class FileUtils {
                     RLog.e(TAG, e.toString());
                 }
             }
-            if (fileInputStream != null) {
-                try {
-                    fileInputStream.close();
-                } catch (IOException e) {
-                    RLog.e(TAG, e.toString());
-                }
+            try {
+                fileInputStream.close();
+            } catch (IOException e) {
+                RLog.e(TAG, e.toString());
             }
             if (outputChannel != null) {
                 try {

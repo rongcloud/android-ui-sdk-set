@@ -166,7 +166,9 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode e) {}
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    // do nothing
+                                }
                             });
         }
 
@@ -199,8 +201,9 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
         searchBar.addTextChangedListener(
                 new TextWatcher() {
                     @Override
-                    public void beforeTextChanged(
-                            CharSequence s, int start, int count, int after) {}
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                        // do nothing
+                    }
 
                     @Override
                     public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -230,7 +233,9 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
                     }
 
                     @Override
-                    public void afterTextChanged(Editable s) {}
+                    public void afterTextChanged(Editable s) {
+                        // do nothing
+                    }
                 });
 
         findViewById(R.id.rc_btn_cancel)

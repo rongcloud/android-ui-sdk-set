@@ -62,7 +62,9 @@ public class SightListActivity extends RongBaseNoActionbarActivity
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode e) {}
+                            public void onError(RongIMClient.ErrorCode e) {
+                                // default implementation ignored
+                            }
                         });
         findViewById(R.id.imgbtn_nav_back)
                 .setOnClickListener(
@@ -148,7 +150,9 @@ public class SightListActivity extends RongBaseNoActionbarActivity
     }
 
     @Override
-    public void onGroupUpdate(Group group) {}
+    public void onGroupUpdate(Group group) {
+        // default implementation ignored
+    }
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {

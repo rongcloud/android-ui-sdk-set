@@ -32,6 +32,7 @@ import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.NoticeContent;
+import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -108,7 +109,9 @@ public class ConversationListViewModel extends AndroidViewModel
                 }
 
                 @Override
-                public void onOperationFailed(RongIMClient.ErrorCode code) {}
+                public void onOperationFailed(RongIMClient.ErrorCode code) {
+                    // do nothing
+                }
 
                 @Override
                 public void onClearConversations(
@@ -261,14 +264,18 @@ public class ConversationListViewModel extends AndroidViewModel
 
                 @Override
                 public void onMessageReceiptRequest(
-                        Conversation.ConversationType type, String targetId, String messageUId) {}
+                        Conversation.ConversationType type, String targetId, String messageUId) {
+                    // do nothing
+                }
 
                 @Override
                 public void onMessageReceiptResponse(
                         Conversation.ConversationType type,
                         String targetId,
                         String messageUId,
-                        HashMap<String, Long> respondUserIdList) {}
+                        HashMap<String, Long> respondUserIdList) {
+                    // do nothing
+                }
             };
     private RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
             new RongIMClient.OnRecallMessageListener() {
@@ -329,7 +336,9 @@ public class ConversationListViewModel extends AndroidViewModel
                 }
 
                 @Override
-                public void onError(RongIMClient.ErrorCode e) {}
+                public void onError(RongIMClient.ErrorCode e) {
+                    // do nothing
+                }
             };
 
     public ConversationListViewModel(Application application) {
@@ -577,6 +586,7 @@ public class ConversationListViewModel extends AndroidViewModel
                     oldItem.mCore.setPushNotificationLevel(
                             status.getNotificationLevel().getValue());
                 }
+                MessageNotificationHelper.updateLevelMap(oldItem.mCore);
                 sort();
                 mConversationListLiveData.postValue(mUiConversationList);
             } else {
@@ -603,12 +613,13 @@ public class ConversationListViewModel extends AndroidViewModel
                                                 .needResend(conversation.getLatestMessageId())) {
                                     conversation.setSentStatus(Message.SentStatus.SENDING);
                                 }
+                                MessageNotificationHelper.updateLevelMap(conversation);
                                 updateByConversation(conversation);
                             }
 
                             @Override
                             public void onError(RongIMClient.ErrorCode errorCode) {
-                                // Todo 数据获取失败，下拉刷新
+                                // do nothing
                             }
                         });
     }
@@ -652,7 +663,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
                             @Override
                             public void onError(RongIMClient.ErrorCode errorCode) {
-                                // Todo 数据获取失败，下拉刷新
+                                // do nothing
                             }
                         });
     }

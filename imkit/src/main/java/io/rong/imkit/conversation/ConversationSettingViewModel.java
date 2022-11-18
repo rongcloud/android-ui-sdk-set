@@ -51,7 +51,9 @@ public class ConversationSettingViewModel extends AndroidViewModel {
                             }
 
                             @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode e) {}
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                // do nothing
+                            }
                         });
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
         RongNotificationManager.getInstance()
@@ -66,7 +68,9 @@ public class ConversationSettingViewModel extends AndroidViewModel {
                             }
 
                             @Override
-                            public void onError(ErrorCode coreErrorCode) {}
+                            public void onError(ErrorCode coreErrorCode) {
+                                // do nothing
+                            }
                         });
     }
 
