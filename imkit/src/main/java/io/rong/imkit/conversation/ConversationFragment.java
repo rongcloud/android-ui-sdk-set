@@ -61,6 +61,7 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
@@ -648,7 +649,7 @@ public class ConversationFragment extends Fragment
     }
 
     private RecyclerView.LayoutManager createLayoutManager() {
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager = new FixedLinearLayoutManager(getContext());
         linearLayoutManager.setStackFromEnd(true);
         return linearLayoutManager;
     }

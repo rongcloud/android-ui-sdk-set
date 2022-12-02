@@ -163,7 +163,7 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
                                     return;
                                 }
                                 if (callback != null) {
-                                    if (conversations != null) {
+                                    if (conversations != null && !conversations.isEmpty()) {
                                         timestamp =
                                                 conversations
                                                         .get(conversations.size() - 1)

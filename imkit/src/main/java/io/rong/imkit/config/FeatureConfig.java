@@ -44,10 +44,10 @@ public class FeatureConfig {
     private boolean vibrateInForeground = true;
 
     // 是否需要显示融云默认表情
-    private boolean enableRongEmoji = true;
     private SSLInterceptor sSSLInterceptor;
     public String rc_translation_src_language;
     public String rc_translation_target_language;
+    public boolean hideEmojiButton = false;
 
     public FeatureConfig() {
         isReferenceEnable = true;
@@ -277,6 +277,19 @@ public class FeatureConfig {
 
     public SSLInterceptor getSSLInterceptor() {
         return sSSLInterceptor;
+    }
+
+    /**
+     * 是否隐藏表情按钮
+     *
+     * @return
+     */
+    public boolean isHideEmojiButton() {
+        return hideEmojiButton;
+    }
+
+    public void setHideEmojiButton(boolean hideEmojiButton) {
+        this.hideEmojiButton = hideEmojiButton;
     }
 
     /** @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器 */

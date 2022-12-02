@@ -184,7 +184,7 @@ public class NormalState implements IMessageState {
             // 不在最底部，添加到未读列表
             if (!viewModel.isScrollToBottom()
                     && !viewModel.filterMessageToHideNewMessageBar(uiMessage)) {
-                viewModel.getNewUnReadMessages().add(uiMessage);
+                viewModel.addUnreadNewMessage(uiMessage);
             }
             // 判断ui是否滑动到底部
             if (RongConfigCenter.conversationConfig()

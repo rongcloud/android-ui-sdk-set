@@ -42,13 +42,13 @@ import io.rong.imkit.feature.publicservice.provider.PublicServiceMultiRichConten
 import io.rong.imkit.feature.publicservice.provider.PublicServiceRichContentMessageProvider;
 import io.rong.imkit.feature.reference.ReferenceMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.CollectionsUtils;
 import io.rong.imkit.widget.adapter.ProviderManager;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -298,7 +298,7 @@ public class ConversationConfig {
         mMoreClickActions.add(new DeleteClickActions());
         if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
                 == LayoutDirection.RTL) {
-            Collections.reverse(mMoreClickActions);
+            CollectionsUtils.reverse(mMoreClickActions);
         }
     }
 

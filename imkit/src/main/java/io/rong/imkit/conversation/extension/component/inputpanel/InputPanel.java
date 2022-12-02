@@ -24,6 +24,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
@@ -292,7 +293,7 @@ public class InputPanel {
     private void setSCE() {
         if (mInputPanel != null) {
             mVoiceToggleBtn.setVisibility(VISIBLE);
-            mEmojiToggleBtn.setVisibility(VISIBLE);
+            mEmojiToggleBtn.setVisibility(shouldShowEmojiButton() ? VISIBLE : GONE);
             mAddBtn.setVisibility(VISIBLE);
         }
     }
@@ -311,7 +312,7 @@ public class InputPanel {
         if (mInputPanel != null) {
             mVoiceToggleBtn.setVisibility(GONE);
             mAddOrSendBtn.setVisibility(VISIBLE);
-            mEmojiToggleBtn.setVisibility(VISIBLE);
+            mEmojiToggleBtn.setVisibility(shouldShowEmojiButton() ? VISIBLE : GONE);
             mAddBtn.setVisibility(VISIBLE);
         }
     }
@@ -322,6 +323,10 @@ public class InputPanel {
             mAddOrSendBtn.setVisibility(GONE);
             mAddBtn.setVisibility(GONE);
         }
+    }
+
+    private boolean shouldShowEmojiButton() {
+        return !RongConfigCenter.featureConfig().isHideEmojiButton();
     }
 
     private void getDraft() {

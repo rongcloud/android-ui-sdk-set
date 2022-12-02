@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
@@ -21,6 +20,7 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.entity.LocalMediaFolder;
 import io.rong.imkit.picture.tools.AnimUtils;
 import io.rong.imkit.picture.tools.ScreenUtils;
+import io.rong.imkit.widget.FixedLinearLayoutManager;
 import java.util.List;
 
 public class FolderPopWindow extends PopupWindow {
@@ -59,7 +59,7 @@ public class FolderPopWindow extends PopupWindow {
         rootViewBg = window.findViewById(R.id.rootViewBg);
         adapter = new PictureAlbumDirectoryAdapter(config);
         recyclerView = window.findViewById(R.id.folder_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        recyclerView.setLayoutManager(new FixedLinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
         rootViewBg.setOnClickListener(
                 new View.OnClickListener() {

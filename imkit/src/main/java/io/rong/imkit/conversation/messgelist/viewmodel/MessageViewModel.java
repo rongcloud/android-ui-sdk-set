@@ -1425,6 +1425,13 @@ public class MessageViewModel extends AndroidViewModel
         mNewUnReadMessages.clear();
     }
 
+    public void addUnreadNewMessage(UiMessage message) {
+        UiMessage newUnreadMessage = findNewUnreadMessage(message.getMessageId());
+        if (newUnreadMessage == null) {
+            mNewUnReadMessages.add(message);
+        }
+    }
+
     public void newMessageBarClick() {
         mProcessor.newMessageBarClick(MessageViewModel.this);
     }

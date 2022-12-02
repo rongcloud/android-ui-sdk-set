@@ -28,6 +28,7 @@ import io.rong.imkit.conversationlist.viewmodel.ConversationListViewModel;
 import io.rong.imkit.event.Event;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
@@ -86,7 +87,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         mRefreshLayout = view.findViewById(R.id.rc_refresh);
 
         mAdapter.setItemClickListener(this);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager layoutManager = new FixedLinearLayoutManager(getActivity());
         mList.setLayoutManager(layoutManager);
         mList.setAdapter(mAdapter);
 

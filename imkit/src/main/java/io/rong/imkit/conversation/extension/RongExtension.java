@@ -543,6 +543,9 @@ public class RongExtension extends LinearLayout {
         if ((requestCode & 0xffffff00) != 0) {
             throw new IllegalArgumentException("requestCode must less than 256");
         }
+        if (null == mPluginBoard) {
+            return;
+        }
         int position = mPluginBoard.getPluginPosition(pluginModule);
         int req = ((position + 1) << 8) + (requestCode & 0xff);
         PermissionCheckUtil.requestPermissions(mFragment, permissions, req);
@@ -552,6 +555,9 @@ public class RongExtension extends LinearLayout {
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         int position = (requestCode >> 8) - 1;
         int reqCode = requestCode & 0xFF;
+        if (null == mPluginBoard) {
+            return false;
+        }
         IPluginModule pluginModule = mPluginBoard.getPluginModule(position);
         if (pluginModule instanceof IPluginRequestPermissionResultCallback) {
             return ((IPluginRequestPermissionResultCallback) pluginModule)
@@ -570,6 +576,9 @@ public class RongExtension extends LinearLayout {
         if ((requestCode & 0xffffff00) != 0) {
             throw new IllegalArgumentException("requestCode must less than 256.");
         }
+        if (null == mPluginBoard) {
+            return;
+        }
         int position = mPluginBoard.getPluginPosition(pluginModule);
         mFragment.startActivityForResult(intent, ((position + 1) << 8) + (requestCode & 0xff));
     }
@@ -578,6 +587,9 @@ public class RongExtension extends LinearLayout {
     public void onActivityPluginResult(int requestCode, int resultCode, Intent data) {
         int position = (requestCode >> 8) - 1;
         int reqCode = requestCode & 0xff;
+        if (null == mPluginBoard) {
+            return;
+        }
         IPluginModule pluginModule = mPluginBoard.getPluginModule(position);
         if (pluginModule != null) {
             pluginModule.onActivityResult(reqCode, resultCode, data);
