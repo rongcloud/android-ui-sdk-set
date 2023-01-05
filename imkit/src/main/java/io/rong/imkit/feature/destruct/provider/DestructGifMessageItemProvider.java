@@ -27,6 +27,7 @@ public class DestructGifMessageItemProvider extends BaseMessageItemProvider<GIFM
     private static final String TAG = DestructGifMessageItemProvider.class.getSimpleName();
 
     public DestructGifMessageItemProvider() {
+        mConfig.showReadState = true;
         mConfig.showContentBubble = false;
     }
 

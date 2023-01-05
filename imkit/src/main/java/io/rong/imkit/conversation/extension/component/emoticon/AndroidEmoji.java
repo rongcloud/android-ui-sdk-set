@@ -66,6 +66,9 @@ public class AndroidEmoji {
             sEmojiMap.put(codes[i], emoji);
             sEmojiList.add(emoji);
         }
+        replaceEmojiMap = new HashMap<>();
+
+        replaceEmojiMap.put(0x2601, "☁️");
 
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         density = dm.density;
@@ -77,6 +80,7 @@ public class AndroidEmoji {
     }
 
     private static Map<Integer, EmojiInfo> sEmojiMap;
+    private static Map<Integer, String> replaceEmojiMap;
     private static List<EmojiInfo> sEmojiList;
 
     public static class EmojiImageSpan extends ReplacementSpan {
@@ -451,23 +455,33 @@ public class AndroidEmoji {
                         }
                         resultSpanStr.append("]");
                     } else {
-                        resultSpanStr = appendSpanStr(isSurrogatePair, resultSpanStr, chars, i);
+                        resultSpanStr =
+                                appendSpanStr(isSurrogatePair, resultSpanStr, chars, i, codePoint);
                     }
                 } else {
-                    resultSpanStr = appendSpanStr(isSurrogatePair, resultSpanStr, chars, i);
+                    resultSpanStr =
+                            appendSpanStr(isSurrogatePair, resultSpanStr, chars, i, codePoint);
                 }
 
             } else {
-                resultSpanStr = appendSpanStr(isSurrogatePair, resultSpanStr, chars, i);
+                resultSpanStr = appendSpanStr(isSurrogatePair, resultSpanStr, chars, i, codePoint);
             }
         }
         return resultSpanStr == null ? null : resultSpanStr.toString();
     }
 
     private static StringBuilder appendSpanStr(
-            boolean isSurrogatePair, StringBuilder resultSpanStr, char[] chars, int index) {
+            boolean isSurrogatePair,
+            StringBuilder resultSpanStr,
+            char[] chars,
+            int index,
+            int codePoint) {
         if (resultSpanStr == null) {
             return null;
+        }
+        if (replaceEmojiMap.containsKey(codePoint)) {
+            resultSpanStr.append(replaceEmojiMap.get(codePoint));
+            return resultSpanStr;
         }
         if (isSurrogatePair) {
             if (index - 1 >= 0) {

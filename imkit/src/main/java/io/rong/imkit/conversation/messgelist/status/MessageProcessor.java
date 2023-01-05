@@ -3,6 +3,7 @@ package io.rong.imkit.conversation.messgelist.status;
 import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
 import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_REMOTE_COUNT;
 
+import io.rong.imkit.RongIM;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.Event;
@@ -36,7 +37,7 @@ public class MessageProcessor {
         } else {
             historyMessageOption.setOrder(HistoryMessageOption.PullOrder.ASCEND);
         }
-        RongCoreClient.getInstance()
+        RongIM.getInstance()
                 .getMessages(
                         messageViewModel.getCurConversationType(),
                         messageViewModel.getCurTargetId(),

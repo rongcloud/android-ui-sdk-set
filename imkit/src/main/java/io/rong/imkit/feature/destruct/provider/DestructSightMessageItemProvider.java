@@ -34,6 +34,7 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
     private static final String TAG = DestructSightMessageItemProvider.class.getSimpleName();
 
     public DestructSightMessageItemProvider() {
+        mConfig.showReadState = true;
         mConfig.showContentBubble = false;
     }
 

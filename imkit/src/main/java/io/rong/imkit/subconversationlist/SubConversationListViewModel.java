@@ -31,7 +31,8 @@ class SubConversationListViewModel extends ConversationListViewModel {
      *     条会话。
      */
     @Override
-    public void getConversationList(final boolean loadMore, final boolean isEventManual) {
+    public void getConversationList(
+            final boolean loadMore, final boolean isEventManual, long delayTime) {
         long timestamp = 0;
         if (loadMore) {
             timestamp = mLastSyncTime;

@@ -57,6 +57,8 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
     protected ConversationListViewModel mConversationListViewModel;
     protected SmartRefreshLayout mRefreshLayout;
     protected Handler mHandler = new Handler(Looper.getMainLooper());
+    protected int mNewState = RecyclerView.SCROLL_STATE_IDLE;
+    protected boolean delayRefresh = false;
 
     {
         mAdapter = onResolveAdapter();
@@ -90,7 +92,24 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         LinearLayoutManager layoutManager = new FixedLinearLayoutManager(getActivity());
         mList.setLayoutManager(layoutManager);
         mList.setAdapter(mAdapter);
-
+        mList.addOnScrollListener(
+                new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(
+                            @NonNull RecyclerView recyclerView, int newState) {
+                        mNewState = newState;
+                        if (mNewState == RecyclerView.SCROLL_STATE_IDLE
+                                && delayRefresh
+                                && mAdapter != null
+                                && mConversationListViewModel != null) { // 滚动停止
+                            delayRefresh = false;
+                            mAdapter.setDataCollection(
+                                    mConversationListViewModel
+                                            .getConversationListLiveData()
+                                            .getValue());
+                        }
+                    }
+                });
         mNoticeContainerView = view.findViewById(R.id.rc_conversationlist_notice_container);
         mNoticeContentTv = view.findViewById(R.id.rc_conversationlist_notice_tv);
         mNoticeIconIv = view.findViewById(R.id.rc_conversationlist_notice_icon_iv);
@@ -133,7 +152,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         // 会话列表数据监听
         mConversationListViewModel =
                 new ViewModelProvider(this).get(ConversationListViewModel.class);
-        mConversationListViewModel.getConversationList(false, false);
+        mConversationListViewModel.getConversationList(false, false, 0);
         mConversationListViewModel
                 .getConversationListLiveData()
                 .observe(
@@ -142,7 +161,11 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                             @Override
                             public void onChanged(List<BaseUiConversation> uiConversations) {
                                 RLog.d(TAG, "conversation list onChanged.");
-                                mAdapter.setDataCollection(uiConversations);
+                                if (mNewState == RecyclerView.SCROLL_STATE_IDLE) {
+                                    mAdapter.setDataCollection(uiConversations);
+                                } else {
+                                    delayRefresh = true;
+                                }
                             }
                         });
         // 连接状态监听
@@ -191,13 +214,13 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
 
     protected void onConversationListRefresh(RefreshLayout refreshLayout) {
         if (mConversationListViewModel != null) {
-            mConversationListViewModel.getConversationList(false, true);
+            mConversationListViewModel.getConversationList(false, true, 0);
         }
     }
 
     protected void onConversationListLoadMore() {
         if (mConversationListViewModel != null) {
-            mConversationListViewModel.getConversationList(true, true);
+            mConversationListViewModel.getConversationList(true, true, 0);
         }
     }
 

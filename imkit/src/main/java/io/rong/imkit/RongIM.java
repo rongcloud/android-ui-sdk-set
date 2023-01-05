@@ -23,12 +23,16 @@ import io.rong.imkit.userinfo.UserDataProvider;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.model.CSCustomServiceInfo;
 import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
+import io.rong.imlib.model.HistoryMessageOption;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.RemoteHistoryMsgOption;
@@ -1018,6 +1022,44 @@ public class RongIM {
         RongIMClient.getInstance()
                 .getHistoryMessages(
                         conversationType, targetId, objectName, oldestMessageId, count, callback);
+    }
+
+    /**
+     * 获取指定会话历史消息。
+     *
+     * <p>此方法先从本地获取历史消息，本地有缺失的情况下会从服务端同步缺失的部分；从服务端同步失败的时候会返回非 0 的 errorCode，同时把本地能取到的消息回调上去。<br>
+     * 必须开通历史消息云存储功能。
+     *
+     * @param conversationType 会话类型 {@link io.rong.imlib.model.Conversation.ConversationType} 。
+     * @param targetId 会话 id。
+     * @param historyMsgOption {@link HistoryMessageOption}
+     * @param callback 清除消息的回调。
+     */
+    public void getMessages(
+            final Conversation.ConversationType conversationType,
+            final String targetId,
+            final HistoryMessageOption historyMsgOption,
+            final IRongCoreCallback.IGetMessageCallback callback) {
+        RongCoreClient.getInstance()
+                .getMessages(
+                        conversationType,
+                        targetId,
+                        historyMsgOption,
+                        new IRongCoreCallback.IGetMessageCallback() {
+                            @Override
+                            public void onComplete(
+                                    List<Message> messageList,
+                                    IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (messageList != null && !messageList.isEmpty()) {
+                                    IMCenter.getInstance()
+                                            .refreshMessage(
+                                                    messageList.get(messageList.size() - 1));
+                                }
+                                if (callback != null) {
+                                    callback.onComplete(messageList, errorCode);
+                                }
+                            }
+                        });
     }
 
     /**

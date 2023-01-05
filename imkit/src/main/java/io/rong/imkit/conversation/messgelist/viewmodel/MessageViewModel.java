@@ -275,52 +275,77 @@ public class MessageViewModel extends AndroidViewModel
                 @Override
                 public boolean onReceived(
                         Message message, int left, boolean hasPackage, boolean offline) {
-                    if (message == null) {
-                        return false;
-                    }
-                    if (mCurConversationType == message.getConversationType()
-                            && Objects.equals(mCurTargetId, message.getTargetId())) {
-                        final MessageTag msgTag =
-                                message.getContent().getClass().getAnnotation(MessageTag.class);
-                        if (!(msgTag.flag() == MessageTag.ISCOUNTED
-                                || msgTag.flag() == MessageTag.ISPERSISTED)) {
-                            if (mProcessor.onReceivedCmd(MessageViewModel.this, message)) {
-                                return false;
-                            }
-                        }
-                        UiMessage uiMessage = mapUIMessage(message);
-                        // 处理在线消息，高清语音下载、消息回执、多端同步
-                        if (left == 0 && !hasPackage) {
-                            // 高清语音下载
-                            if (message.getContent() instanceof HQVoiceMessage) {
-                                if (RongConfigCenter.conversationConfig()
-                                        .rc_enable_automatic_download_voice_msg) {
-                                    HQVoiceMsgDownloadManager.getInstance()
-                                            .enqueue(
-                                                    new AutoDownloadEntry(
-                                                            message,
-                                                            AutoDownloadEntry.DownloadPriority
-                                                                    .HIGH));
-                                } else {
-                                    RLog.e(TAG, "rc_enable_automatic_download_voice_msg disable");
-                                }
-                                uiMessage.setState(State.PROGRESS);
-                            }
-                        }
-                        // 已读状态设置
-                        if (message.getMessageId() > 0) {
-                            if (isForegroundActivity()) {
-                                message.getReceivedStatus().setRead();
-                                RongIMClient.getInstance()
-                                        .setMessageReceivedStatus(
-                                                message.getMessageId(),
-                                                message.getReceivedStatus(),
-                                                null);
-                            }
-                        }
-                        mProcessor.onReceived(
-                                MessageViewModel.this, uiMessage, left, hasPackage, offline);
-                    }
+                    ExecutorHelper.getInstance()
+                            .mainThread()
+                            .execute(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (mProcessor == null) {
+                                                return;
+                                            }
+                                            if (message == null) {
+                                                return;
+                                            }
+                                            if (mCurConversationType
+                                                            == message.getConversationType()
+                                                    && Objects.equals(
+                                                            mCurTargetId, message.getTargetId())) {
+                                                final MessageTag msgTag =
+                                                        message.getContent()
+                                                                .getClass()
+                                                                .getAnnotation(MessageTag.class);
+                                                if (!(msgTag.flag() == MessageTag.ISCOUNTED
+                                                        || msgTag.flag()
+                                                                == MessageTag.ISPERSISTED)) {
+                                                    if (mProcessor.onReceivedCmd(
+                                                            MessageViewModel.this, message)) {
+                                                        return;
+                                                    }
+                                                }
+                                                UiMessage uiMessage = mapUIMessage(message);
+                                                // 处理在线消息，高清语音下载、消息回执、多端同步
+                                                if (left == 0 && !hasPackage) {
+                                                    // 高清语音下载
+                                                    if (message.getContent()
+                                                            instanceof HQVoiceMessage) {
+                                                        if (RongConfigCenter.conversationConfig()
+                                                                .rc_enable_automatic_download_voice_msg) {
+                                                            HQVoiceMsgDownloadManager.getInstance()
+                                                                    .enqueue(
+                                                                            new AutoDownloadEntry(
+                                                                                    message,
+                                                                                    AutoDownloadEntry
+                                                                                            .DownloadPriority
+                                                                                            .HIGH));
+                                                        } else {
+                                                            RLog.e(
+                                                                    TAG,
+                                                                    "rc_enable_automatic_download_voice_msg disable");
+                                                        }
+                                                        uiMessage.setState(State.PROGRESS);
+                                                    }
+                                                }
+                                                // 已读状态设置
+                                                if (message.getMessageId() > 0) {
+                                                    if (isForegroundActivity()) {
+                                                        message.getReceivedStatus().setRead();
+                                                        RongIMClient.getInstance()
+                                                                .setMessageReceivedStatus(
+                                                                        message.getMessageId(),
+                                                                        message.getReceivedStatus(),
+                                                                        null);
+                                                    }
+                                                }
+                                                mProcessor.onReceived(
+                                                        MessageViewModel.this,
+                                                        uiMessage,
+                                                        left,
+                                                        hasPackage,
+                                                        offline);
+                                            }
+                                        }
+                                    });
                     return false;
                 }
             };
@@ -351,6 +376,11 @@ public class MessageViewModel extends AndroidViewModel
 
                     if (uiMessage != null) {
                         MessageContent content = uiMessage.getMessage().getContent();
+                        if (recallNotificationMessage == null) {
+                            // 代表该消息被删除
+                            removeUIMessage(uiMessage.getMessageId());
+                            return false;
+                        }
                         if (content instanceof VoiceMessage) {
                             Uri playingUri = AudioPlayManager.getInstance().getPlayingUri();
                             if (playingUri.equals(((VoiceMessage) content).getUri())) {
@@ -727,8 +757,7 @@ public class MessageViewModel extends AndroidViewModel
                 if (playingUri.equals(((HQVoiceMessage) content).getLocalPath())) return;
             }
             // 如果被 voip 占用通道，则不播放，弹提示框
-            if (!AudioPlayManager.getInstance().isInNormalMode(getApplication())
-                    && AudioPlayManager.getInstance().isInVOIPMode(getApplication())) {
+            if (AudioPlayManager.getInstance().isInVOIPMode(getApplication())) {
                 mPageEventLiveData.setValue(
                         new ToastEvent(getApplication().getString(R.string.rc_voip_occupying)));
                 return;
@@ -743,8 +772,7 @@ public class MessageViewModel extends AndroidViewModel
                 if (playingUri.equals(((VoiceMessage) content).getUri())) return;
             }
             // 如果被 voip 占用通道，则不播放，弹提示框
-            if (!AudioPlayManager.getInstance().isInNormalMode(getApplication())
-                    && AudioPlayManager.getInstance().isInVOIPMode(getApplication())) {
+            if (AudioPlayManager.getInstance().isInVOIPMode(getApplication())) {
                 mPageEventLiveData.setValue(
                         new ToastEvent(getApplication().getString(R.string.rc_voip_occupying)));
                 return;
@@ -1190,6 +1218,14 @@ public class MessageViewModel extends AndroidViewModel
             }
         }
         return uiMessage;
+    }
+
+    public void removeUIMessage(int messageId) {
+        UiMessage uiMessage = findUIMessage(messageId);
+        if (uiMessage != null) {
+            mUiMessages.remove(uiMessage);
+            refreshAllMessage();
+        }
     }
 
     private void sendMessageEvent(UiMessage uiMessage) {

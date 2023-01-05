@@ -27,6 +27,7 @@ public class DestructImageMessageItemProvider extends BaseMessageItemProvider<Im
     private static final String TAG = DestructImageMessageItemProvider.class.getSimpleName();
 
     public DestructImageMessageItemProvider() {
+        mConfig.showReadState = true;
         mConfig.showContentBubble = false;
     }
 

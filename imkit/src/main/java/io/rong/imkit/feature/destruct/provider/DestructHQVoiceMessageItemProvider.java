@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.drawable.AnimationDrawable;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.util.LayoutDirection;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.text.TextUtilsCompat;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.conversation.messgelist.provider.MessageClickType;
@@ -24,6 +27,7 @@ import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.NetUtils;
+import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.HQVoiceMessage;
@@ -193,6 +197,28 @@ public class DestructHQVoiceMessageItemProvider extends BaseMessageItemProvider<
     public Spannable getSummarySpannable(Context context, HQVoiceMessage message) {
         return new SpannableString(
                 context.getString(R.string.rc_conversation_summary_content_burn));
+    }
+
+    @Override
+    public Spannable getSummarySpannable(Context context, Conversation conversation) {
+        RLog.d(TAG, "getSummarySpannable");
+        SpannableString spannableString =
+                new SpannableString(
+                        context.getString(R.string.rc_conversation_summary_content_burn));
+        MessageContent latestMessage = conversation.getLatestMessage();
+        if (latestMessage != null
+                && conversation.getLatestMessageDirection() == Message.MessageDirection.RECEIVE
+                && !conversation.getReceivedStatus().isListened()) {
+            ForegroundColorSpan foregroundColorSpan =
+                    new ForegroundColorSpan(
+                            context.getResources().getColor(R.color.rc_unread_message_color));
+            spannableString.setSpan(
+                    foregroundColorSpan,
+                    0,
+                    spannableString.length(),
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        }
+        return spannableString;
     }
 
     private static class DestructListener implements RongIMClient.DestructCountDownTimerListener {

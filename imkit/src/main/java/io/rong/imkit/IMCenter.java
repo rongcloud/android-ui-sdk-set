@@ -26,14 +26,18 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.MessageTag;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.listener.OnReceiveMessageWrapperListener;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.ReceivedProfile;
 import io.rong.imlib.model.SendMessageOption;
 import io.rong.imlib.model.UserInfo;
 import io.rong.imlib.typingmessage.TypingStatus;
@@ -55,7 +59,7 @@ public class IMCenter {
     private MessageInterceptor mMessageInterceptor;
     private List<RongIMClient.ConnectionStatusListener> mConnectionStatusObserverList =
             new CopyOnWriteArrayList<>();
-    private List<RongIMClient.OnReceiveMessageWrapperListener> mOnReceiveMessageObserverList =
+    private List<IRongCoreListener.OnReceiveMessageWrapperListener> mOnReceiveMessageObserverList =
             new CopyOnWriteArrayList<>();
     private List<RongIMClient.ConversationStatusListener> mConversationStatusObserverList =
             new CopyOnWriteArrayList<>();
@@ -89,34 +93,27 @@ public class IMCenter {
                 }
             };
     /** 接受消息的事件监听器。 */
-    private RongIMClient.OnReceiveMessageWrapperListener mOnReceiveMessageListener =
-            new RongIMClient.OnReceiveMessageWrapperListener() {
+    private OnReceiveMessageWrapperListener mOnReceiveMessageListener =
+            new OnReceiveMessageWrapperListener() {
                 @Override
-                public boolean onReceived(
-                        final Message message,
-                        final int left,
-                        final boolean hasPackage,
-                        final boolean offline) {
-                    ExecutorHelper.getInstance()
-                            .mainThread()
-                            .execute(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if (mMessageInterceptor != null
-                                                    && mMessageInterceptor.interceptReceivedMessage(
-                                                            message, left, hasPackage, offline)) {
-                                                RLog.d(TAG, "message has been intercepted.");
-                                                return;
-                                            }
-                                            for (RongIMClient.OnReceiveMessageWrapperListener
-                                                    observer : mOnReceiveMessageObserverList) {
-                                                observer.onReceived(
-                                                        message, left, hasPackage, offline);
-                                            }
-                                        }
-                                    });
-                    return false;
+                public void onReceivedMessage(Message message, ReceivedProfile profile) {
+                    if (mMessageInterceptor != null
+                            && mMessageInterceptor.interceptReceivedMessage(
+                                    message,
+                                    profile.getLeft(),
+                                    profile.hasPackage(),
+                                    profile.isOffline())) {
+                        RLog.d(TAG, "message has been intercepted.");
+                        return;
+                    }
+                    for (IRongCoreListener.OnReceiveMessageWrapperListener observer :
+                            mOnReceiveMessageObserverList) {
+                        observer.onReceived(
+                                message,
+                                profile.getLeft(),
+                                profile.hasPackage(),
+                                profile.isOffline());
+                    }
                 }
             };
     /** 会话状态监听器。当会话的置顶或者免打扰状态更改时，会回调此方法。 */
@@ -321,7 +318,7 @@ public class IMCenter {
         HQVoiceMsgDownloadManager.getInstance().init(application);
         RongNotificationManager.getInstance().init(application);
         RongConfigurationManager.init(application);
-        RongIMClient.setOnReceiveMessageListener(
+        RongCoreClient.addOnReceiveMessageListener(
                 SingletonHolder.sInstance.mOnReceiveMessageListener);
         RongIMClient.setConnectionStatusListener(
                 SingletonHolder.sInstance.mConnectionStatusListener);

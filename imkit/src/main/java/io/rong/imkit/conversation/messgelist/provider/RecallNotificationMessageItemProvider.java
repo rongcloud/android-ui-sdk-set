@@ -18,6 +18,7 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.RecallNotificationMessage;
@@ -54,7 +55,9 @@ public class RecallNotificationMessageItemProvider
             RecallEditManager.getInstance().cancelCountDown(viewHolder.messageId);
         }
         viewHolder.messageId = String.valueOf(uiMessage.getMessage().getMessageId());
-        if (content.getRecallActionTime() > 0 && countDownTime < validTime * 1000) {
+        if (uiMessage.getMessageDirection() == Message.MessageDirection.SEND
+                && content.getRecallActionTime() > 0
+                && countDownTime < validTime * 1000) {
             if (uiMessage.isEdit()) {
                 TextView tvEdit = holder.getView(R.id.rc_edit);
                 tvEdit.setTextColor(

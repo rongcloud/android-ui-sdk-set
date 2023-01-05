@@ -287,7 +287,11 @@ public class MessageItemLongClickActionManager {
                                                 || message.getConversationType()
                                                         .equals(
                                                                 Conversation.ConversationType
-                                                                        .ENCRYPTED)) {
+                                                                        .ENCRYPTED)
+                                                || !message.getSenderUserId()
+                                                        .equals(
+                                                                RongIM.getInstance()
+                                                                        .getCurrentUserId())) {
                                             return false;
                                         }
 

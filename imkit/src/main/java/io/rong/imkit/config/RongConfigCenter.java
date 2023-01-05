@@ -42,6 +42,7 @@ public class RongConfigCenter {
     }
 
     public static NotificationConfig notificationConfig() {
+
         return sNotificationConfig;
     }
 

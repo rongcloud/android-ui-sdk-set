@@ -47,7 +47,7 @@ public class SubConversationListFragment extends ConversationListFragment {
                             this.getActivity().getApplication(), mConversationType);
             mSubConversationListViewModel =
                     new ViewModelProvider(this, factory).get(SubConversationListViewModel.class);
-            mSubConversationListViewModel.getConversationList(false, false);
+            mSubConversationListViewModel.getConversationList(false, false, 0);
             mSubConversationListViewModel
                     .getConversationListLiveData()
                     .observe(
@@ -113,14 +113,14 @@ public class SubConversationListFragment extends ConversationListFragment {
     @Override
     protected void onConversationListRefresh(RefreshLayout refreshLayout) {
         if (mSubConversationListViewModel != null) {
-            mSubConversationListViewModel.getConversationList(false, true);
+            mSubConversationListViewModel.getConversationList(false, true, 0);
         }
     }
 
     @Override
     protected void onConversationListLoadMore() {
         if (mSubConversationListViewModel != null) {
-            mSubConversationListViewModel.getConversationList(true, true);
+            mSubConversationListViewModel.getConversationList(true, true, 0);
         }
     }
 }
