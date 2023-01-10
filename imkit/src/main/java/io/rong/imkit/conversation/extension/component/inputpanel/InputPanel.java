@@ -479,10 +479,12 @@ public class InputPanel {
                             mAddBtn.setVisibility(GONE);
                         }
                     } else {
-                        EditText editText = mExtensionViewModel.getEditTextWidget();
-                        if (editText.getText() != null && editText.getText().length() == 0) {
-                            mSendBtn.setVisibility(GONE);
-                            mAddBtn.setVisibility(VISIBLE);
+                        if (mExtensionViewModel != null) {
+                            EditText editText = mExtensionViewModel.getEditTextWidget();
+                            if (editText.getText() != null && editText.getText().length() == 0) {
+                                mSendBtn.setVisibility(GONE);
+                                mAddBtn.setVisibility(VISIBLE);
+                            }
                         }
                     }
                 }

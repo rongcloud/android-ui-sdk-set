@@ -49,6 +49,7 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -688,5 +689,29 @@ public class ConversationConfig {
      */
     public void setNeedDeleteRemoteMessage(boolean needDeleteRemoteMessage) {
         this.needDeleteRemoteMessage = needDeleteRemoteMessage;
+    }
+
+    private HashMap<String, Integer> mFileSuffixTypeMap = new HashMap<>();
+
+    /**
+     * 注册文件消息后缀类型对应的ICON配置列表
+     *
+     * @param map String：文件后缀（例如："png"、"pdf" 等），如果要替换默认文件图标， key 使用 "default" 进行配置即可 Integer：ICON的
+     *     Android 资源 id，需要把 ICON 添加到 drawable 资源目录中
+     */
+    public void registerFileSuffixTypes(HashMap<String, Integer> map) {
+        if (map == null) {
+            return;
+        }
+        this.mFileSuffixTypeMap = map;
+    }
+
+    /**
+     * 内部使用，客户不需要调用
+     *
+     * @return 客户注册的文件消息后缀类型Map
+     */
+    public HashMap<String, Integer> getFileSuffixTypes() {
+        return mFileSuffixTypeMap;
     }
 }

@@ -3,7 +3,6 @@ package io.rong.imkit.picture;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
@@ -17,8 +16,8 @@ import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
-import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String[] permissions = null;
-        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU) {
+        if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(this)) {
             permissions =
                     new String[] {
                         Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO

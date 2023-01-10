@@ -75,7 +75,9 @@ public class RCTranslationResultWrapper implements Parcelable {
         this.targetLanguage = source.readString();
     }
 
-    public RCTranslationResultWrapper() {}
+    public RCTranslationResultWrapper() {
+        // default implementation ignored
+    }
 
     protected RCTranslationResultWrapper(Parcel in) {
         this.messageId = in.readInt();

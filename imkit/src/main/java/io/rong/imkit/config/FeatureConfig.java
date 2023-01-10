@@ -9,6 +9,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitImageEngine;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.quickreply.IQuickReplyProvider;
+import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imlib.model.Conversation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -290,6 +291,15 @@ public class FeatureConfig {
 
     public void setHideEmojiButton(boolean hideEmojiButton) {
         this.hideEmojiButton = hideEmojiButton;
+    }
+
+    public boolean isForceUseAAC() {
+        return AudioRecordManager.getInstance().isForceAAC();
+    }
+
+    /** 音频录音强制使用 aac 编码 */
+    public void setForceUseAAC(boolean forceUseAAC) {
+        AudioRecordManager.getInstance().setForceAAC(forceUseAAC);
     }
 
     /** @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器 */

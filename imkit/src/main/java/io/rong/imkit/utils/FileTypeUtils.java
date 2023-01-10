@@ -7,11 +7,13 @@ import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 import androidx.core.content.FileProvider;
 import androidx.core.os.EnvironmentCompat;
 import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.FileInfo;
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,7 +32,10 @@ public class FileTypeUtils {
     private static final String TAG = FileTypeUtils.class.getSimpleName();
 
     public static int fileTypeImageId(Context context, String fileName) {
-        int id;
+        int id = serchFileTypeInRegister(fileName);
+        if (id > 0) {
+            return id;
+        }
         if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_image_file_suffix)))
             id = R.drawable.rc_file_icon_picture;
@@ -67,8 +72,28 @@ public class FileTypeUtils {
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_pages_file_suffix)))
             id = R.drawable.rc_file_icon_pages;
-        else id = R.drawable.rc_file_icon_else;
+        else {
+            id = serchDefaultIconInRegister();
+            if (id <= 0) {
+                id = R.drawable.rc_file_icon_else;
+            }
+        }
         return id;
+    }
+
+    private static int serchFileTypeInRegister(String fileName) {
+        if (TextUtils.isEmpty(fileName)) {
+            return 0;
+        }
+        String suffix =
+                fileName.toLowerCase().substring(fileName.lastIndexOf(".") + 1, fileName.length());
+        Integer id = RongConfigCenter.conversationConfig().getFileSuffixTypes().get(suffix);
+        return id == null ? 0 : id.intValue();
+    }
+
+    private static int serchDefaultIconInRegister() {
+        Integer id = RongConfigCenter.conversationConfig().getFileSuffixTypes().get("default");
+        return id == null ? 0 : id.intValue();
     }
 
     private static boolean checkSuffix(String fileName, String[] fileSuffix) {

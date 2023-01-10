@@ -50,6 +50,7 @@ public class AudioRecordManager implements Handler.Callback {
     private final int AUDIO_RECORD_EVENT_TICKER = 8;
     private final int AUDIO_RECORD_EVENT_SEND_FILE = 9;
     private final int AUDIO_AA_ENCODING_BIT_RATE = 32000;
+
     IAudioState idleState = new IdleState();
     IAudioState recordState = new RecordState();
     IAudioState sendingState = new SendingState();
@@ -72,6 +73,7 @@ public class AudioRecordManager implements Handler.Callback {
     private ImageView mStateIV;
     private TextView mStateTV;
     private TextView mTimerTV;
+    private volatile boolean forceAAC = false;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private AudioRecordManager() {
@@ -268,11 +270,20 @@ public class AudioRecordManager implements Handler.Callback {
                         }
                     }
                 };
+
         sendEmptyMessage(AUDIO_RECORD_EVENT_TRIGGER);
 
         if (TypingMessageManager.getInstance().isShowMessageTyping()) {
             RongIMClient.getInstance().sendTypingStatus(conversationType, targetId, "RC:VcMsg");
         }
+    }
+
+    public void setForceAAC(boolean forceAAC) {
+        this.forceAAC = forceAAC;
+    }
+
+    public boolean isForceAAC() {
+        return forceAAC;
     }
 
     public void willCancelRecord() {
@@ -308,11 +319,33 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void startRec() {
-        RLog.d(TAG, "startRec");
+        RLog.d(TAG, "startRec,forceAAC = " + forceAAC);
         try {
             muteAudioFocus(mAudioManager, true);
             mAudioManager.setMode(AudioManager.MODE_NORMAL);
             mMediaRecorder = new MediaRecorder();
+            mMediaRecorder.setOnErrorListener(
+                    new MediaRecorder.OnErrorListener() {
+                        @Override
+                        public void onError(MediaRecorder mr, int what, int extra) {
+                            RLog.e(
+                                    TAG,
+                                    "MediaRecorder:onError: "
+                                            + "what = "
+                                            + what
+                                            + ", extra = "
+                                            + extra);
+                            if (!forceAAC) {
+                                try {
+                                    mr.release();
+                                } catch (Exception e) {
+                                    RLog.e(TAG, "mr release:" + e.getMessage());
+                                }
+                                forceAAC = true;
+                                startRec();
+                            }
+                        }
+                    });
             int bpsNb = RongConfigCenter.featureConfig().getAudioNBEncodingBitRate();
             int bpsWb = RongConfigCenter.featureConfig().getAudioWBEncodingBitRate();
             if (RongConfigCenter.featureConfig().getVoiceMessageType()
@@ -333,7 +366,7 @@ public class AudioRecordManager implements Handler.Callback {
                     .getVoiceMessageType()
                     .equals(IMCenter.VoiceMessageType.HighQuality)) {
                 mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !forceAAC) {
                     mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
                 } else {
                     mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
@@ -370,6 +403,7 @@ public class AudioRecordManager implements Handler.Callback {
             android.os.Message message = android.os.Message.obtain();
             message.what = AUDIO_RECORD_EVENT_TIME_OUT;
             message.obj = 10;
+            mHandler.removeMessages(AUDIO_RECORD_EVENT_TIME_OUT);
             mHandler.sendMessageDelayed(message, RECORD_INTERVAL * 1000 - 10 * 1000);
         } catch (IOException | RuntimeException e) {
             RLog.e(TAG, "startRec", e);

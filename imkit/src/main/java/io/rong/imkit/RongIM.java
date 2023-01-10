@@ -158,7 +158,7 @@ public class RongIM {
     }
 
     /**
-     * 设置接收消息的监听器。
+     * 设置接收消息的监听器（主线程回调listener）。
      *
      * <p>所有接收到的消息、通知、状态都经由此处设置的监听器处理。包括私聊消息、讨论组消息、群组消息、聊天室消息以及各种状态。
      *
@@ -177,6 +177,28 @@ public class RongIM {
     public static void removeOnReceiveMessageListener(
             RongIMClient.OnReceiveMessageWrapperListener listener) {
         IMCenter.getInstance().removeOnReceiveMessageListener(listener);
+    }
+
+    /**
+     * 设置接收消息的监听器（工作线程回调listener）。
+     *
+     * <p>所有接收到的消息、通知、状态都经由此处设置的监听器处理。包括私聊消息、讨论组消息、群组消息、聊天室消息以及各种状态。
+     *
+     * @param listener 接收消息的监听器。
+     */
+    public static void addAsyncOnReceiveMessageListener(
+            RongIMClient.OnReceiveMessageWrapperListener listener) {
+        IMCenter.getInstance().addAsyncOnReceiveMessageListener(listener);
+    }
+
+    /**
+     * 移除接收消息的监听器（异步）。
+     *
+     * @param listener 接收消息的监听器。
+     */
+    public static void removeAsyncOnReceiveMessageListener(
+            RongIMClient.OnReceiveMessageWrapperListener listener) {
+        IMCenter.getInstance().removeAsyncOnReceiveMessageListener(listener);
     }
 
     /**

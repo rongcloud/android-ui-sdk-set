@@ -2893,7 +2893,7 @@ public class SubsamplingScaleImageView extends View {
                 if (tileMapEntry.getKey() == sampleSize || hasMissingTiles) {
                     for (Tile tile : tileMapEntry.getValue()) {
                         sourceToViewRect(tile.sRect, tile.vRect);
-                        if (!tile.loading && tile.bitmap != null) {
+                        if (!tile.loading && tile.bitmap != null && !tile.bitmap.isRecycled()) {
                             if (tileBgPaint != null) {
                                 canvas.drawRect(tile.vRect, tileBgPaint);
                             }
@@ -2989,7 +2989,7 @@ public class SubsamplingScaleImageView extends View {
                 }
             }
 
-        } else if (bitmap != null) {
+        } else if (bitmap != null && !bitmap.isRecycled()) {
 
             float xScale = scale, yScale = scale;
             if (bitmapIsPreview) {

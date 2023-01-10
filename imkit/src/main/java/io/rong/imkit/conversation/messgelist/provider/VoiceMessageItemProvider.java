@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.text.TextUtilsCompat;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.model.UiMessage;
@@ -57,7 +58,15 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
         minWidth = (int) (minWidth * scale + 0.5f);
         maxWidth = (int) (maxWidth * scale + 0.5f);
         int duration = AudioRecordManager.getInstance().getMaxVoiceDuration();
-        holder.getView(R.id.rc_voice_bg).getLayoutParams().width =
+
+        View rcVoiceBgView = holder.getView(R.id.rc_voice_bg);
+        TextView rcDuration = holder.getView(R.id.rc_duration);
+        if (!checkViewsValid(rcVoiceBgView, rcDuration)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
+
+        rcVoiceBgView.getLayoutParams().width =
                 minWidth + (maxWidth - minWidth) / duration * message.getDuration();
         if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
                 == LayoutDirection.RTL) {
@@ -73,12 +82,10 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
                                     .getDrawable(R.drawable.rc_an_voice_send);
             holder.setVisible(R.id.rc_voice, false);
             holder.setVisible(R.id.rc_voice_send, true);
-            ((TextView) holder.getView(R.id.rc_duration))
-                    .setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-            LinearLayout.LayoutParams lp =
-                    (LinearLayout.LayoutParams) holder.getView(R.id.rc_duration).getLayoutParams();
+            rcDuration.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rcDuration.getLayoutParams();
             lp.setMarginEnd(12);
-            holder.getView(R.id.rc_duration).setLayoutParams(lp);
+            rcDuration.setLayoutParams(lp);
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice_send, animationDrawable);
                 if (animationDrawable != null) animationDrawable.start();
@@ -94,12 +101,10 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
                                     .getDrawable(R.drawable.rc_an_voice_receive);
             holder.setVisible(R.id.rc_voice, true);
             holder.setVisible(R.id.rc_voice_send, false);
-            ((TextView) holder.getView(R.id.rc_duration))
-                    .setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            LinearLayout.LayoutParams lp =
-                    (LinearLayout.LayoutParams) holder.getView(R.id.rc_duration).getLayoutParams();
+            rcDuration.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rcDuration.getLayoutParams();
             lp.setMarginStart(12);
-            holder.getView(R.id.rc_duration).setLayoutParams(lp);
+            rcDuration.setLayoutParams(lp);
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice, animationDrawable);
                 if (animationDrawable != null) animationDrawable.start();

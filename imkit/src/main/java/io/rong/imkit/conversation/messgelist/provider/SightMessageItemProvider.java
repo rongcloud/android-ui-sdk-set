@@ -20,6 +20,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.UiMessage;
@@ -66,6 +67,10 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         Uri thumbUri = sightMessage.getThumbUri();
         if (thumbUri != null && thumbUri.getPath() != null) {
             final ImageView imageView = holder.getView(R.id.rc_sight_thumb);
+            if (!checkViewsValid(imageView)) {
+                RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+                return;
+            }
             // 设置图片圆角角度
             RoundedCorners roundedCorners =
                     new RoundedCorners(ScreenUtils.dip2px(holder.getContext(), 6));
@@ -101,6 +106,10 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         holder.setText(R.id.rc_sight_duration, getSightDuration(sightMessage.getDuration()));
         CircleProgressView loadingProgress = holder.getView(R.id.rc_sight_progress);
         ProgressBar compressProgress = holder.getView(R.id.compressVideoBar);
+        if (!checkViewsValid(loadingProgress, compressProgress)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
         if (progress > 0 && progress < 100) {
             loadingProgress.setProgress(progress, true);
             holder.setVisible(R.id.rc_sight_tag, false);

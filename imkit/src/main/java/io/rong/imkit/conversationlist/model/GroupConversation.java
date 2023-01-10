@@ -101,6 +101,9 @@ public class GroupConversation extends BaseUiConversation {
                     RongConfigCenter.conversationConfig()
                             .getMessageSummary(mContext, mCore.getLatestMessage());
             SpannableStringBuilder builder = new SpannableStringBuilder();
+            if (messageSummary == null) {
+                messageSummary = new SpannableString("");
+            }
             if (mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())) {
                 builder.append(mPreString).append(messageSummary);
             } else {
@@ -131,16 +134,27 @@ public class GroupConversation extends BaseUiConversation {
         if (groupMember == null) {
             return;
         }
-        if (groupMember != null
-                && groupMember.getGroupId().equals(mCore.getTargetId())
+        if (groupMember.getGroupId().equals(mCore.getTargetId())
                 && groupMember.getUserId().equals(mCore.getSenderUserId())) {
             mNicknameIds.add(groupMember.getUserId());
             mCore.setSenderUserName(groupMember.getNickname());
+
             Spannable messageSummary =
                     RongConfigCenter.conversationConfig()
                             .getMessageSummary(mContext, mCore.getLatestMessage());
             SpannableStringBuilder builder = new SpannableStringBuilder();
-            builder.append(mPreString).append(mCore.getSenderUserName()).append(messageSummary);
+            if (messageSummary == null) {
+                messageSummary = new SpannableString("");
+            }
+            if (mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())) {
+                builder.append(mPreString).append(messageSummary);
+            } else {
+                builder.append(mPreString)
+                        .append(mCore.getSenderUserName())
+                        .append(COLON_SPLIT)
+                        .append(messageSummary);
+            }
+            mConversationContent = builder;
         }
     }
 

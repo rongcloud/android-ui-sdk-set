@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.felipecsl.gifimageview.library.GifImageView;
+import io.rong.common.RLog;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RongUtils;
@@ -50,6 +51,10 @@ public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerM
         final GifImageView gifImageView = holder.getView(R.id.gif_view);
         final View loading = holder.getView(R.id.loading);
         final View fail = holder.getView(R.id.fail);
+        if (!checkViewsValid(gifImageView, loading, fail)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
         showLoading(gifImageView, loading, fail);
         final String tag = stickerMessage.getPackageId() + stickerMessage.getStickerId();
         holder.getConvertView().setTag(tag);

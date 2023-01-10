@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.text.TextUtilsCompat;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
@@ -57,6 +58,11 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
         final TextView textView = holder.getView(R.id.rc_text);
         final TextView translatedView = holder.getView(R.id.rc_translated_text);
         final ProgressBar progressBar = holder.getView(R.id.rc_pb_translating);
+
+        if (!checkViewsValid(textView, translatedView, progressBar)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
 
         if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
                 == LayoutDirection.RTL) {

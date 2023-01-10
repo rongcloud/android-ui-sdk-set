@@ -367,7 +367,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
         mConversationListLiveData = new MediatorLiveData<>();
         RongUserInfoManager.getInstance().addUserDataObserver(this);
-        IMCenter.getInstance().addOnReceiveMessageListener(mOnReceiveMessageListener);
+        IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
         IMCenter.getInstance().addReadReceiptListener(mReadReceiptListener);

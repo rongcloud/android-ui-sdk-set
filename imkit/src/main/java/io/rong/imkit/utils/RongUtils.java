@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -464,5 +465,12 @@ public class RongUtils {
 
     private static String getKeyboardHeightKey(Context context, int orientation) {
         return KEY_KEYBOARD_HEIGHT + "_" + orientation;
+    }
+
+    public static boolean checkSDKVersionAndTargetIsTIRAMISU(Context context) {
+        ApplicationInfo applicationInfo = context.getApplicationInfo();
+        return Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU
+                && applicationInfo != null
+                && applicationInfo.targetSdkVersion >= AndroidConstant.ANDROID_TIRAMISU;
     }
 }

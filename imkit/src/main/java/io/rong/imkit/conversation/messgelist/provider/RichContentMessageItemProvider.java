@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RouteUtils;
@@ -38,13 +39,18 @@ public class RichContentMessageItemProvider extends BaseMessageItemProvider<Rich
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
+        ImageView img = holder.getView(R.id.rc_img);
+        if (!checkViewsValid(img)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
         holder.setText(R.id.rc_title, richContentMessage.getTitle());
         holder.setText(R.id.rc_content, richContentMessage.getContent());
         if (!TextUtils.isEmpty(richContentMessage.getImgUrl())) {
             Glide.with(holder.getContext())
                     .load(richContentMessage.getImgUrl())
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .into((ImageView) holder.getView(R.id.rc_img));
+                    .into(img);
         }
     }
 

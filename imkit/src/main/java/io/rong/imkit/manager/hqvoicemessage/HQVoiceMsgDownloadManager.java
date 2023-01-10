@@ -52,7 +52,7 @@ public class HQVoiceMsgDownloadManager {
         downloadHQVoiceMessage();
         final String[] writePermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
         IMCenter.getInstance()
-                .addOnReceiveMessageListener(
+                .addAsyncOnReceiveMessageListener(
                         new RongIMClient.OnReceiveMessageWrapperListener() {
                             @Override
                             public boolean onReceived(

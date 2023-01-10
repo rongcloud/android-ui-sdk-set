@@ -115,7 +115,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                     }
                 });
         IMCenter.getInstance()
-                .addOnReceiveMessageListener(
+                .addAsyncOnReceiveMessageListener(
                         new RongIMClient.OnReceiveMessageWrapperListener() {
                             @Override
                             public boolean onReceived(

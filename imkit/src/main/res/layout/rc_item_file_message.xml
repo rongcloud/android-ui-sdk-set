@@ -49,7 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/rc_file_icon_word" />
+                    tools:src="@drawable/rc_file_icon_word" />
 
                 <io.rong.imkit.widget.FileRectangleProgress
                     android:id="@+id/rc_msg_pb_file_upload_progress"

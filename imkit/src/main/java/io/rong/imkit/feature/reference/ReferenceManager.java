@@ -66,7 +66,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                 @Override
                                 public boolean onMessageItemLongClick(
                                         Context context, UiMessage uiMessage) {
-                                    if (mRongExtension == null) {
+                                    if (mRongExtension == null || mFragment == null) {
                                         return false;
                                     }
                                     RongExtension rongExtension = mRongExtension.get();
@@ -333,9 +333,11 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                 .setCancelable(false)
                                 .show();
                         hideReferenceView();
-                        RongExtensionViewModel viewModel = messageViewModel.get();
-                        if (viewModel != null) {
-                            viewModel.collapseExtensionBoard();
+                        if (messageViewModel != null) {
+                            RongExtensionViewModel viewModel = messageViewModel.get();
+                            if (viewModel != null) {
+                                viewModel.collapseExtensionBoard();
+                            }
                         }
                     }
                     return false;

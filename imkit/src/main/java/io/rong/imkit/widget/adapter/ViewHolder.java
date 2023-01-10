@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
+import io.rong.common.RLog;
 
 public class ViewHolder extends RecyclerView.ViewHolder {
     private SparseArray<View> mViews;
@@ -97,7 +98,11 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 
     public ViewHolder setImageResource(int viewId, int resId) {
         ImageView view = getView(viewId);
-        view.setImageResource(resId);
+        try {
+            view.setImageResource(resId);
+        } catch (Exception e) {
+            RLog.e("ViewHolder", e.toString());
+        }
         return this;
     }
 

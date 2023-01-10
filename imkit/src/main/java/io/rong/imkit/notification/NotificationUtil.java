@@ -75,7 +75,11 @@ public class NotificationUtil {
 
             if (notification != null) {
                 RLog.d(TAG, "notify for local notification");
-                nm.notify(notificationId, notification);
+                try {
+                    nm.notify(notificationId, notification);
+                } catch (Exception e) {
+                    RLog.d(TAG, "notify for local notification Exception e:" + e);
+                }
             }
         }
     }

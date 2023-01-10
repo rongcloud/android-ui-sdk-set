@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.resend.ResendManager;
@@ -50,6 +51,11 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
         EllipsizeTextView tvFileName = holder.getView(R.id.rc_msg_tv_file_name);
+        FileRectangleProgress fileProgress = holder.getView(R.id.rc_msg_pb_file_upload_progress);
+        if (!checkViewsValid(tvFileName, fileProgress)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
         tvFileName.setAdaptiveText(fileMessage.getName());
         long fileSizeBytes = fileMessage.getSize();
         holder.setText(R.id.rc_msg_tv_file_size, FileTypeUtils.formatFileSize(fileSizeBytes));
@@ -84,16 +90,14 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
                 }
             }
             holder.setHoldVisible(R.id.rc_msg_canceled, false);
-            ((FileRectangleProgress) holder.getView(R.id.rc_msg_pb_file_upload_progress))
-                    .setProgress(uiMessage.getProgress());
+            fileProgress.setProgress(uiMessage.getProgress());
         } else if (uiMessage.getMessage().getSentStatus().equals(Message.SentStatus.FAILED)
                 && ResendManager.getInstance().needResend(uiMessage.getMessage().getMessageId())) {
             holder.setVisible(R.id.rc_msg_pb_file_upload_progress, true);
             holder.setVisible(R.id.rc_btn_cancel, false);
             holder.setHoldVisible(R.id.rc_msg_canceled, false);
             holder.setVisible(R.id.rc_progress, true);
-            ((FileRectangleProgress) holder.getView(R.id.rc_msg_pb_file_upload_progress))
-                    .setProgress(uiMessage.getProgress());
+            fileProgress.setProgress(uiMessage.getProgress());
         } else {
             if (uiMessage.getMessage().getSentStatus().equals(Message.SentStatus.CANCELED)) {
                 holder.setHoldVisible(R.id.rc_msg_canceled, true);

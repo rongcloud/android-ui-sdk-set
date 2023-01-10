@@ -273,14 +273,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
         String poi = jsonObj.optString("locationName");
         LocationMessage content = LocationMessage.obtain(lat, lng, poi, null);
         try {
-            Intent intent;
-            if (this.getResources().getBoolean(R.bool.rc_location_2D)) {
-                intent = new Intent();
-                intent.setAction("rong.location.AMapPreviewActivity2D");
-            } else {
-                intent = new Intent();
-                intent.setAction("rong.location.AMapPreviewActivity");
-            }
+            Intent intent = new Intent();
+            intent.setAction("rong.location.AMapPreviewActivity");
             intent.putExtra("location", content);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

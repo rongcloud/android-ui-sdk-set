@@ -19,6 +19,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.PicturePagerActivity;
@@ -85,6 +86,10 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
         final ImageView view = holder.getView(R.id.rc_image);
+        if (!checkViewsValid(view)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
         Uri thumUri = message.getThumUri();
         if (uiMessage.getState() == State.PROGRESS
                 || (uiMessage.getState() == State.ERROR
@@ -178,6 +183,9 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
     // (1）如果宽高比没有超过 2.4，等比压缩，取长边 240 进行显示。
     // (2）如果宽高比超过 2.4，等比缩放（压缩或者放大），取短边 100，长边居中截取 240 进行显示。
     private void measureLayoutParams(View view, Drawable drawable) {
+        if (view == null) {
+            return;
+        }
         int width = drawable.getIntrinsicWidth();
         int height = drawable.getIntrinsicHeight();
         if (minSize == null) {

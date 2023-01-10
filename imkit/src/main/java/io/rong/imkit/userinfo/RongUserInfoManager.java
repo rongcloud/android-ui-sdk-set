@@ -50,7 +50,7 @@ public class RongUserInfoManager {
         mUserDataObservers = new ArrayList<>();
         cacheDataSource = new CacheDataSource();
         IMCenter.getInstance()
-                .addOnReceiveMessageListener(
+                .addAsyncOnReceiveMessageListener(
                         new RongIMClient.OnReceiveMessageWrapperListener() {
                             @Override
                             public boolean onReceived(

@@ -28,6 +28,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
+import io.rong.push.common.RLog;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -237,6 +238,10 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
 
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             View v = view.findViewById(R.id.rc_checkbox);
+            if (v == null) {
+                RLog.d(TAG, "ForwardItemClickListener rc_checkbox is null.");
+                return;
+            }
             Conversation member = (Conversation) v.getTag();
             selectedMember.remove(member);
             v.setSelected(!v.isSelected());

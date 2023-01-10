@@ -30,6 +30,7 @@ import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.listener.OnReceiveMessageWrapperListener;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.ConnectOption;
@@ -61,6 +62,8 @@ public class IMCenter {
             new CopyOnWriteArrayList<>();
     private List<IRongCoreListener.OnReceiveMessageWrapperListener> mOnReceiveMessageObserverList =
             new CopyOnWriteArrayList<>();
+    private List<IRongCoreListener.OnReceiveMessageWrapperListener>
+            mAsyncOnReceiveMessageObserverList = new CopyOnWriteArrayList<>();
     private List<RongIMClient.ConversationStatusListener> mConversationStatusObserverList =
             new CopyOnWriteArrayList<>();
     private List<RongIMClient.ReadReceiptListener> mReadReceiptObserverList =
@@ -106,8 +109,11 @@ public class IMCenter {
                         RLog.d(TAG, "message has been intercepted.");
                         return;
                     }
+
+                    dispatchOnReceiveMessageObserver(message, profile);
+
                     for (IRongCoreListener.OnReceiveMessageWrapperListener observer :
-                            mOnReceiveMessageObserverList) {
+                            mAsyncOnReceiveMessageObserverList) {
                         observer.onReceived(
                                 message,
                                 profile.getLeft(),
@@ -116,6 +122,25 @@ public class IMCenter {
                     }
                 }
             };
+
+    private void dispatchOnReceiveMessageObserver(Message message, ReceivedProfile profile) {
+        if (mOnReceiveMessageObserverList.isEmpty()) {
+            return;
+        }
+        if (!ExecutorFactory.isMainThread()) {
+            ExecutorFactory.getInstance()
+                    .getMainHandler()
+                    .post(() -> dispatchOnReceiveMessageObserver(message, profile));
+            return;
+        }
+
+        for (IRongCoreListener.OnReceiveMessageWrapperListener observer :
+                mOnReceiveMessageObserverList) {
+            observer.onReceived(
+                    message, profile.getLeft(), profile.hasPackage(), profile.isOffline());
+        }
+    }
+
     /** 会话状态监听器。当会话的置顶或者免打扰状态更改时，会回调此方法。 */
     private RongIMClient.ConversationStatusListener mConversationStatusListener =
             new RongIMClient.ConversationStatusListener() {
@@ -2177,6 +2202,18 @@ public class IMCenter {
             RongIMClient.OnReceiveMessageWrapperListener listener) {
         if (listener != null) {
             mOnReceiveMessageObserverList.remove(listener);
+        }
+    }
+
+    public void addAsyncOnReceiveMessageListener(
+            RongIMClient.OnReceiveMessageWrapperListener listener) {
+        mAsyncOnReceiveMessageObserverList.add(listener);
+    }
+
+    public void removeAsyncOnReceiveMessageListener(
+            RongIMClient.OnReceiveMessageWrapperListener listener) {
+        if (listener != null) {
+            mAsyncOnReceiveMessageObserverList.remove(listener);
         }
     }
 

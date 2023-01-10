@@ -60,6 +60,7 @@ import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongViewUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
@@ -440,10 +441,7 @@ public class ConversationFragment extends Fragment
             return;
         }
         mNotificationContainer.removeAllViews();
-        if (notificationView.getParent() != null) {
-            ((ViewGroup) notificationView.getParent()).removeView(notificationView);
-        }
-        mNotificationContainer.addView(notificationView);
+        RongViewUtils.addView(mNotificationContainer, notificationView);
         mNotificationContainer.setVisibility(View.VISIBLE);
     }
 

@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
@@ -52,6 +53,13 @@ public class PublicServiceMultiRichContentMessageProvider
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
+        ImageView imageView = holder.getView(R.id.rc_img);
+        ListView lv = holder.getView(R.id.rc_list);
+        if (!checkViewsValid(imageView, lv)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
+
         final ArrayList<RichContentItem> msgList = content.getMessages();
 
         if (msgList.size() > 0) {
@@ -59,7 +67,7 @@ public class PublicServiceMultiRichContentMessageProvider
             Glide.with(holder.getContext())
                     .load(msgList.get(0).getImageUrl())
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .into((ImageView) holder.getView(R.id.rc_img));
+                    .into(imageView);
         }
 
         int height;
@@ -67,7 +75,6 @@ public class PublicServiceMultiRichContentMessageProvider
 
         PublicAccountMsgAdapter mAdapter =
                 new PublicAccountMsgAdapter(holder.getContext(), msgList);
-        ListView lv = holder.getView(R.id.rc_list);
         lv.setAdapter(mAdapter);
 
         lv.setOnItemClickListener(

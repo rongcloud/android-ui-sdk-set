@@ -52,7 +52,7 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
 
     private UnReadMessageManager() {
         this.mMultiConversationUnreadInfos = new ArrayList<>();
-        IMCenter.getInstance().addOnReceiveMessageListener(this);
+        IMCenter.getInstance().addAsyncOnReceiveMessageListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
         IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
         IMCenter.getInstance()

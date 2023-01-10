@@ -29,7 +29,7 @@ import java.util.List;
 
 public abstract class BaseMessageItemProvider<T extends MessageContent>
         implements IMessageProvider<T> {
-    private static final String TAG = "BaseMessageItemProvider";
+    protected static final String TAG = "BaseMessageItemProvider";
     protected MessageItemProviderConfig mConfig = new MessageItemProviderConfig();
 
     @Override
@@ -94,14 +94,24 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             initStatus(holder, uiMessage, position, listener, message, isSender, list);
 
             if (holder instanceof MessageViewHolder) {
-                bindMessageContentViewHolder(
-                        ((MessageViewHolder) holder).getMessageContentViewHolder(),
-                        holder,
-                        (T) uiMessage.getMessage().getContent(),
-                        uiMessage,
-                        position,
-                        list,
-                        listener);
+                T msgContent = null;
+                try {
+                    msgContent = (T) uiMessage.getMessage().getContent();
+                } catch (ClassCastException e) {
+                    RLog.e(TAG, "bindViewHolder MessageContent cast Exception, e:" + e);
+                }
+                if (msgContent != null) {
+                    bindMessageContentViewHolder(
+                            ((MessageViewHolder) holder).getMessageContentViewHolder(),
+                            holder,
+                            msgContent,
+                            uiMessage,
+                            position,
+                            list,
+                            listener);
+                } else {
+                    RLog.e(TAG, "bindViewHolder MessageContent cast Exception");
+                }
             } else {
                 RLog.e(TAG, "holder is not MessageViewHolder");
             }
@@ -312,15 +322,26 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                                                     holder.getContext(), v, uiMessage.getMessage());
                         }
                         if (!result) {
-                            result =
-                                    onItemClick(
-                                            ((MessageViewHolder) holder)
-                                                    .getMessageContentViewHolder(),
-                                            (T) uiMessage.getMessage().getContent(),
-                                            uiMessage,
-                                            position,
-                                            list,
-                                            listener);
+
+                            T msgContent = null;
+                            try {
+                                msgContent = (T) uiMessage.getMessage().getContent();
+                            } catch (ClassCastException e) {
+                                RLog.e(
+                                        TAG,
+                                        "rc_content onClick MessageContent cast Exception, e:" + e);
+                            }
+                            if (msgContent != null) {
+                                result =
+                                        onItemClick(
+                                                ((MessageViewHolder) holder)
+                                                        .getMessageContentViewHolder(),
+                                                msgContent,
+                                                uiMessage,
+                                                position,
+                                                list,
+                                                listener);
+                            }
                             if (!result) {
                                 listener.onViewClick(MessageClickType.CONTENT_CLICK, uiMessage);
                             }
@@ -343,15 +364,26 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                                                     holder.getContext(), v, uiMessage.getMessage());
                         }
                         if (!result) {
-                            result =
-                                    onItemLongClick(
-                                            ((MessageViewHolder) holder)
-                                                    .getMessageContentViewHolder(),
-                                            (T) uiMessage.getMessage().getContent(),
-                                            uiMessage,
-                                            position,
-                                            list,
-                                            listener);
+                            T msgContent = null;
+                            try {
+                                msgContent = (T) uiMessage.getMessage().getContent();
+                            } catch (ClassCastException e) {
+                                RLog.e(
+                                        TAG,
+                                        "rc_content onLongClick MessageContent cast Exception, e:"
+                                                + e);
+                            }
+                            if (msgContent != null) {
+                                result =
+                                        onItemLongClick(
+                                                ((MessageViewHolder) holder)
+                                                        .getMessageContentViewHolder(),
+                                                (T) uiMessage.getMessage().getContent(),
+                                                uiMessage,
+                                                position,
+                                                list,
+                                                listener);
+                            }
                             if (!result) {
                                 return listener.onViewLongClick(
                                         MessageClickType.CONTENT_LONG_CLICK, uiMessage);
@@ -592,5 +624,18 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
 
     public boolean showBubble() {
         return mConfig.showContentBubble;
+    }
+
+    // 检测View是否有效的
+    protected boolean checkViewsValid(View... views) {
+        if (views == null || views.length == 0) {
+            return false;
+        }
+        for (View view : views) {
+            if (view == null) {
+                return false;
+            }
+        }
+        return true;
     }
 }

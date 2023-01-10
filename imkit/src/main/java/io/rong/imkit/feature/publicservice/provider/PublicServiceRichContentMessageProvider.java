@@ -48,6 +48,11 @@ public class PublicServiceRichContentMessageProvider
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
+        ImageView imageView = holder.getView(R.id.rc_img);
+        if (!checkViewsValid(imageView)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
 
         if (publicServiceRichContentMessage.getMessage() != null) {
             holder.setText(R.id.rc_title, publicServiceRichContentMessage.getMessage().getTitle());
@@ -56,7 +61,7 @@ public class PublicServiceRichContentMessageProvider
             Glide.with(holder.getContext())
                     .load(publicServiceRichContentMessage.getMessage().getImageUrl())
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                    .into((ImageView) holder.getView(R.id.rc_img));
+                    .into(imageView);
         }
         String time =
                 formatDate(

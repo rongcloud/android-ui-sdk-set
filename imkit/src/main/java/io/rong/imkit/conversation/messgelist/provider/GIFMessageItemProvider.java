@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.GIFPreviewActivity;
@@ -57,8 +58,12 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
         final ImageView imageView = holder.getView(R.id.rc_img);
-        measureLayoutParams(imageView, gifMessage.getWidth(), gifMessage.getHeight());
         CircleProgressView loadingProgress = holder.getView(R.id.rc_gif_progress);
+        if (!checkViewsValid(imageView, loadingProgress)) {
+            RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
+            return;
+        }
+        measureLayoutParams(imageView, gifMessage.getWidth(), gifMessage.getHeight());
         loadingProgress.setVisibility(View.GONE);
         holder.setVisible(R.id.rc_download_failed, false);
         holder.setVisible(R.id.rc_start_download, false);

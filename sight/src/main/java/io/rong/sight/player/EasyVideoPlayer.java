@@ -40,9 +40,9 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 import io.rong.common.RLog;
-import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.sight.R;
 import java.io.File;
@@ -1041,7 +1041,7 @@ public class EasyVideoPlayer extends FrameLayout
 
     private boolean checkGrantedPermission() {
         String[] permissions = null;
-        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU) {
+        if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(getContext())) {
             return false;
         } else {
             permissions =

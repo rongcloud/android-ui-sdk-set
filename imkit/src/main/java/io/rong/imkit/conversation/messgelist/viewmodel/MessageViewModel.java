@@ -436,7 +436,7 @@ public class MessageViewModel extends AndroidViewModel
     public MessageViewModel(@NonNull Application application) {
         super(application);
         mainHandler = new Handler(Looper.getMainLooper());
-        IMCenter.getInstance().addOnReceiveMessageListener(mOnReceiveMessageListener);
+        IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addReadReceiptListener(mReadReceiptListener);
         IMCenter.getInstance().addOnRecallMessageListener(mRecallMessageListener);
@@ -1541,7 +1541,7 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     protected void onCleared() {
         super.onCleared();
-        IMCenter.getInstance().removeOnReceiveMessageListener(mOnReceiveMessageListener);
+        IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeReadReceiptListener(mReadReceiptListener);
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);

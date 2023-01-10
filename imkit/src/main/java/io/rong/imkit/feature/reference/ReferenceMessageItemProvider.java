@@ -86,7 +86,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                     R.id.rc_msg_tv_reference_name,
                     getDisplayName(uiMessage, referenceMessage.getUserId()) + " : ");
         }
-        if (referenceMessage.getEditSendText() != null) {
+        if (referenceSendContent != null && referenceMessage.getEditSendText() != null) {
             setTextContent(
                     referenceSendContent, uiMessage, referenceMessage.getEditSendText(), true);
             setMovementMethod(uiMessage, referenceSendContent);
@@ -137,8 +137,10 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                     uiMessage);
             holder.setVisible(R.id.rc_msg_tv_reference_content, true);
             TextView referenceContent = holder.getView(R.id.rc_msg_tv_reference_content);
-            referenceContent.setMaxLines(3);
-            referenceContent.setEllipsize(TextUtils.TruncateAt.END);
+            if (referenceContent != null) {
+                referenceContent.setMaxLines(3);
+                referenceContent.setEllipsize(TextUtils.TruncateAt.END);
+            }
             holder.setVisible(R.id.rc_msg_iv_reference, false);
             holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
         } else if (referenceMessage.getReferenceContent() instanceof ReferenceMessage) {
