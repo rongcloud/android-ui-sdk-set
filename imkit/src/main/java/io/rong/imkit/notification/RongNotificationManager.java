@@ -188,7 +188,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     void preToNotify(Message message) {
         if (!mIsInForeground) {
             prepareToSendNotification(message);
-        } else if (!isInConversationPage()) {
+        } else if (!isInConversationPage(message)) {
             NotificationConfig.ForegroundOtherPageAction action =
                     RongConfigCenter.notificationConfig().getForegroundOtherPageAction();
             if (action.equals(NotificationConfig.ForegroundOtherPageAction.Notification)) {
@@ -382,7 +382,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         }
         // 聊天室或处于会话页面时，没有本地通知
         if (message.getConversationType().equals(Conversation.ConversationType.CHATROOM)
-                || isInConversationPage()) {
+                || isInConversationPage(message)) {
             return false;
         }
 
@@ -390,9 +390,8 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     }
 
     private boolean isRecallFiltered(Message message) {
-        // 聊天室或处于会话页面时，没有本地通知
-        if (message.getConversationType().equals(Conversation.ConversationType.CHATROOM)
-                || isInConversationPage()) {
+        // 处于前台时都没有本地通知
+        if (mIsInForeground) {
             return true;
         }
         MessageConfig messageConfig = message.getMessageConfig();
@@ -410,13 +409,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
      *
      * @return 是否在会话列表，会话，音视频或者小视频录制界面
      */
-    private boolean isInConversationPage() {
+    private boolean isInConversationPage(Message message) {
         return mTopForegroundActivity != null
-                && (mTopForegroundActivity
-                                .getClass()
-                                .equals(
-                                        RouteUtils.getActivity(
-                                                RouteUtils.RongActivityType.ConversationActivity))
+                && (isInCurrentUserConversationPage(message)
                         || mTopForegroundActivity
                                 .getClass()
                                 .equals(
@@ -426,6 +421,31 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         || isRecordOrPlay()
                         || "io.rong.callkit.SingleCallActivity"
                                 .equals(mTopForegroundActivity.getClass().getName()));
+    }
+
+    public boolean isInCurrentUserConversationPage(Message message) {
+        Activity topForegroundActivity = mTopForegroundActivity;
+        if (topForegroundActivity == null) {
+            return false;
+        }
+        boolean isInConversation =
+                topForegroundActivity
+                        .getClass()
+                        .equals(
+                                RouteUtils.getActivity(
+                                        RouteUtils.RongActivityType.ConversationActivity));
+        if (isInConversation) {
+            Intent intent = topForegroundActivity.getIntent();
+            if (intent != null) {
+                String conversationType = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
+                String targetId = intent.getStringExtra(RouteUtils.TARGET_ID);
+                return TextUtils.equals(
+                                conversationType,
+                                message.getConversationType().getName().toLowerCase())
+                        && TextUtils.equals(targetId, message.getTargetId());
+            }
+        }
+        return false;
     }
 
     private boolean isRecordOrPlay() {

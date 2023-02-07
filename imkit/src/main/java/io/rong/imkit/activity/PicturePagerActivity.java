@@ -75,6 +75,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     protected Message mMessage;
     protected Conversation.ConversationType mConversationType;
     protected int mCurrentMessageId;
+    protected int currentSelectMessageId;
     protected String mTargetId = null;
     protected ImageAdapter mImageAdapter;
     protected boolean isFirstTime = false;
@@ -96,6 +97,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                     RongCommonDefine.GetMessageDirection.FRONT);
                         }
                     }
+                    currentSelectMessageId =
+                            mImageAdapter.getItem(position).getMessage().getMessageId();
                 }
             };
     RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
@@ -103,7 +106,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                 @Override
                 public boolean onMessageRecalled(
                         Message message, RecallNotificationMessage recallNotificationMessage) {
-                    if (mCurrentMessageId == message.getMessageId()) {
+                    if (currentSelectMessageId == message.getMessageId()) {
                         new AlertDialog.Builder(
                                         PicturePagerActivity.this,
                                         AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
@@ -146,7 +149,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
 
                 @Override
                 public void onRecallEvent(RecallEvent event) {
-                    if (mCurrentMessageId == event.getMessageId()) {
+                    if (currentSelectMessageId == event.getMessageId()) {
                         new AlertDialog.Builder(
                                         PicturePagerActivity.this,
                                         AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
@@ -196,6 +199,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         }
         mConversationType = currentMessage.getConversationType();
         mCurrentMessageId = currentMessage.getMessageId();
+        currentSelectMessageId = mCurrentMessageId;
         mTargetId = currentMessage.getTargetId();
 
         mViewPager = findViewById(R.id.viewpager);

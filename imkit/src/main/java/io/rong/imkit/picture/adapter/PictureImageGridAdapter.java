@@ -201,13 +201,25 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                                         if ((Integer.parseInt(videoTime[0]) * 60
                                                         + Integer.parseInt(videoTime[1]))
                                                 > maxDuration) {
+                                            String time;
+                                            if (maxDuration >= 60) {
+                                                time =
+                                                        context.getResources()
+                                                                .getString(
+                                                                        R.string
+                                                                                .rc_picsel_selected_max_time_span_with_param,
+                                                                        maxDuration / 60.0);
+                                            } else {
+                                                time =
+                                                        context.getResources()
+                                                                .getString(
+                                                                        R.string
+                                                                                .rc_picsel_selected_max_second_span_with_param,
+                                                                        maxDuration);
+                                            }
+
                                             new AlertDialog.Builder(context)
-                                                    .setMessage(
-                                                            context.getResources()
-                                                                    .getString(
-                                                                            R.string
-                                                                                    .rc_picsel_selected_max_time_span_with_param,
-                                                                            maxDuration / 60))
+                                                    .setMessage(time)
                                                     .setPositiveButton(R.string.rc_confirm, null)
                                                     .setCancelable(false)
                                                     .create()

@@ -44,6 +44,7 @@ public class RongUserInfoManager {
     private boolean isCacheGroupMemberInfo = true;
     private List<UserDataObserver> mUserDataObservers;
     private Context context;
+    private String lastUserId = "";
 
     private RongUserInfoManager() {
         mUserDataDelegate = new UserDataDelegate();
@@ -97,10 +98,25 @@ public class RongUserInfoManager {
      */
     public void initAndUpdateUserDataBase(Context context) {
         this.context = context;
+        initDbDataSource(RongIMClient.getInstance().getCurrentUserId());
+    }
+
+    private void initDbDataSource(String userId) {
+        if (TextUtils.isEmpty(userId)) {
+            RLog.e(TAG, "initDbDataSource but userId is empty.");
+            return;
+        }
+
+        if (TextUtils.equals(lastUserId, userId) && dbDataSource != null) {
+            RLog.e(TAG, "initDbDataSource but userId is same.");
+            return;
+        }
+
+        lastUserId = userId;
         dbDataSource =
                 new DbDataSource(
                         context,
-                        RongIMClient.getInstance().getCurrentUserId(),
+                        lastUserId,
                         new RoomDatabase.Callback() {
                             @Override
                             public void onCreate(@NonNull SupportSQLiteDatabase db) {
@@ -142,6 +158,10 @@ public class RongUserInfoManager {
             UserDataProvider.GroupInfoProvider groupInfoProvider, boolean isCacheGroupInfo) {
         mUserDataDelegate.setGroupInfoProvider(groupInfoProvider);
         this.isCacheGroupInfo = isCacheGroupInfo;
+    }
+
+    public boolean isCacheUserOrGroupInfo() {
+        return isCacheUserInfo || isCacheGroupInfo;
     }
 
     /**
@@ -658,6 +678,7 @@ public class RongUserInfoManager {
                     public void accept(List<User> users) {
                         for (User item : users) {
                             cacheDataSource.refreshUserInfo(item);
+                            notifyUserChange(transformUser(item));
                         }
                     }
                 });
@@ -668,6 +689,7 @@ public class RongUserInfoManager {
                     public void accept(List<Group> groups) {
                         for (Group item : groups) {
                             cacheDataSource.refreshGroupInfo(item);
+                            notifyGroupChange(transformGroup(item));
                         }
                     }
                 });
@@ -678,6 +700,7 @@ public class RongUserInfoManager {
                     public void accept(List<GroupMember> groupMembers) {
                         for (GroupMember item : groupMembers) {
                             cacheDataSource.refreshGroupUserInfo(item);
+                            notifyGroupMemberChange(transformGroupMember(item));
                         }
                     }
                 });

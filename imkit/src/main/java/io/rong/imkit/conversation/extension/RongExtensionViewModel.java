@@ -101,12 +101,15 @@ public class RongExtensionViewModel extends AndroidViewModel {
                     if (isProcess) {
                         return;
                     }
+                    int selectionStart = mEditText.getSelectionStart();
                     if (AndroidEmoji.isEmoji(s.subSequence(start, start + count).toString())) {
                         isProcess = true;
                         String resultStr = AndroidEmoji.replaceEmojiWithText(s.toString());
                         mEditText.setText(
                                 AndroidEmoji.ensure(resultStr), TextView.BufferType.SPANNABLE);
-                        mEditText.setSelection(mEditText.getText().length());
+                        mEditText.setSelection(
+                                Math.min(
+                                        mEditText.getText().length(), Math.max(0, selectionStart)));
                         isProcess = false;
                     }
                 }

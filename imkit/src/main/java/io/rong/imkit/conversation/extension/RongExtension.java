@@ -6,6 +6,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -186,7 +187,7 @@ public class RongExtension extends LinearLayout {
                                             mAttachedInfoContainer.removeAllViews();
                                             mAttachedInfoContainer.setVisibility(GONE);
                                         } else {
-                                            resetToDefaultView();
+                                            resetToDefaultView(((InputBarEvent) pageEvent).mExtra);
                                         }
                                     } else if (((InputBarEvent) pageEvent)
                                                     .mType.equals(InputBarEvent.Type.ActiveMoreMenu)
@@ -354,6 +355,24 @@ public class RongExtension extends LinearLayout {
     }
 
     public void resetToDefaultView() {
+        resetToDefaultView(null);
+    }
+
+    public void resetToDefaultView(String conversationType) {
+        if (TextUtils.equals(
+                        conversationType, Conversation.ConversationType.PUBLIC_SERVICE.getName())
+                || TextUtils.equals(
+                        conversationType,
+                        Conversation.ConversationType.APP_PUBLIC_SERVICE.getName())) {
+            mInputPanelContainer.setVisibility(VISIBLE);
+            Fragment fragment = mFragment;
+            if (fragment != null && fragment.getContext() != null) {
+                mAttachedInfoContainer.removeAllViews();
+                mAttachedInfoContainer.setVisibility(GONE);
+                mExtensionViewModel.getInputModeLiveData().postValue(InputMode.TextInput);
+            }
+            return;
+        }
         mInputPanelContainer.removeAllViews();
         if (mInputPanel == null) {
             mInputPanel =

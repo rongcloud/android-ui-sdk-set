@@ -393,7 +393,7 @@ public class ConversationListViewModel extends AndroidViewModel
             return;
         }
         isTaskScheduled = true;
-        mHandler.postDelayed(
+        Runnable runnable =
                 new Runnable() {
                     @Override
                     public void run() {
@@ -556,8 +556,12 @@ public class ConversationListViewModel extends AndroidViewModel
                                         mSizePerPage,
                                         mSupportedTypes);
                     }
-                },
-                delayTime);
+                };
+        if (delayTime == 0) {
+            mHandler.post(runnable);
+        } else {
+            mHandler.postDelayed(runnable, delayTime);
+        }
     }
 
     protected BaseUiConversation findConversationFromList(
@@ -799,7 +803,7 @@ public class ConversationListViewModel extends AndroidViewModel
     protected void onCleared() {
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
-        IMCenter.getInstance().removeOnReceiveMessageListener(mOnReceiveMessageListener);
+        IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConversationStatusListener(mConversationStatusListener);
         IMCenter.getInstance().removeMessageEventListener(mMessageEventListener);
         IMCenter.getInstance().removeReadReceiptListener(mReadReceiptListener);

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -226,7 +227,22 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
 
     @Override
     public void onGroupUpdate(Group group) {
-        // do nothing
+        ListAdapter adapter = this.mAdapter;
+        if (group != null && adapter != null) {
+            for (Conversation conversation : adapter.allMembers) {
+                if (TextUtils.equals(group.getId(), conversation.getTargetId())) {
+                    if (group.getName() != null) {
+                        conversation.setConversationTitle(group.getName());
+                    }
+                    conversation.setPortraitUrl(
+                            group.getPortraitUri() == null
+                                    ? null
+                                    : group.getPortraitUri().toString());
+                    adapter.notifyDataSetChanged();
+                    break;
+                }
+            }
+        }
     }
 
     @Override

@@ -304,7 +304,8 @@
     <string name="rc_file_not_exist">File does not exist</string>
     <string name="rc_recall_success">Message recalled</string>
     <string name="rc_picsel_video_corrupted">Unable to share damaged video.</string>
-    <string name="rc_picsel_selected_max_time_span_with_param">Can\'t share the video longer than %d minutes.</string>
+    <string name="rc_picsel_selected_max_time_span_with_param">Can\'t share the video longer than %s minutes.</string>
+    <string name="rc_picsel_selected_max_second_span_with_param">Can\'t share the video longer than %s second.</string>
 
 
     <string name="rc_save_picture">Save Photo</string>

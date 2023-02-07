@@ -334,16 +334,15 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         setTextContent(textView, uiMessage, content.getContent(), false);
         setReferenceContentAction(
                 view, holder, parentHolder, position, referenceMessage, uiMessage);
-        textClickAction(view, textView, uiMessage.getReferenceContentSpannable());
+        textClickAction(view, textView, uiMessage);
     }
 
-    private void textClickAction(
-            final View view, TextView textView, final SpannableStringBuilder span) {
+    private void textClickAction(final View view, TextView textView, final UiMessage uiMessage) {
         textView.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        showPopWindow(view.getContext(), span);
+                        showPopWindow(view.getContext(), uiMessage);
                         hideInputKeyboard(view);
                     }
                 });
@@ -628,16 +627,13 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                 false);
         setReferenceContentAction(
                 view, holder, parentHolder, position, referenceMessage, uiMessage);
-        textClickAction(
-                view,
-                holder.getView(R.id.rc_msg_tv_reference_content),
-                uiMessage.getReferenceContentSpannable());
+        textClickAction(view, holder.getView(R.id.rc_msg_tv_reference_content), uiMessage);
     }
 
-    private void showPopWindow(Context context, SpannableStringBuilder showText) {
+    private void showPopWindow(Context context, UiMessage uiMessage) {
         // View inflate = View.inflate(context, R.layout.rc_reference_popupwindow, null);
         if (context instanceof FragmentActivity) {
-            new ReferenceDialog(showText)
+            new ReferenceDialog(uiMessage)
                     .show(((FragmentActivity) context).getSupportFragmentManager());
         }
 

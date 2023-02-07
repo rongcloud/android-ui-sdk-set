@@ -1,5 +1,6 @@
 package io.rong.imkit.utils;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -14,8 +15,11 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
 import android.media.ExifInterface;
 import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -24,6 +28,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import androidx.core.content.ContextCompat;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.RLog;
 import java.io.ByteArrayOutputStream;
@@ -427,7 +432,7 @@ public class RongUtils {
             TelephonyManager mTelephonyManager =
                     (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             int state = mTelephonyManager.getCallState();
-            return state != TelephonyManager.CALL_STATE_IDLE;
+            return state != TelephonyManager.CALL_STATE_IDLE || !checkMicAvailable(context);
         } catch (SecurityException e) {
             // Vivo 手机由于没有申请 android.permission.READ_PHONE_STATE 可能会导致崩溃
             RLog.e(TAG, "phoneIsInUse,nedd android.permission.READ_PHONE_STATE");
@@ -435,6 +440,39 @@ public class RongUtils {
             RLog.e(TAG, "phoneIsInUse", e);
         }
         return false;
+    }
+
+    public static boolean checkMicAvailable(Context context) {
+        if (context == null) {
+            return false;
+        }
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        boolean available = true;
+        AudioRecord recorder =
+                new AudioRecord(
+                        MediaRecorder.AudioSource.MIC,
+                        44100,
+                        AudioFormat.CHANNEL_IN_MONO,
+                        AudioFormat.ENCODING_DEFAULT,
+                        44100);
+        try {
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_STOPPED) {
+                available = false;
+            }
+            recorder.startRecording();
+            if (recorder.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
+                recorder.stop();
+                available = false;
+            }
+            recorder.stop();
+        } finally {
+            recorder.release();
+            recorder = null;
+        }
+        return available;
     }
 
     public static int getSaveKeyBoardHeight(Context context, int orientation) {

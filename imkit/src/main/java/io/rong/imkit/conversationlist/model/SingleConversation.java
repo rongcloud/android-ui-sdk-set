@@ -63,6 +63,7 @@ public class SingleConversation extends BaseUiConversation {
 
     @Override
     public void onConversationUpdate(Conversation conversation) {
+        processResending(conversation);
         mCore = conversation;
         UserInfo user = RongUserInfoManager.getInstance().getUserInfo(conversation.getTargetId());
         mCore.setConversationTitle(

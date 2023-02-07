@@ -436,6 +436,12 @@ public class IMCenter {
                         if (connectCallback != null) {
                             connectCallback.onDatabaseOpened(databaseOpenStatus);
                         }
+                        if (databaseOpenStatus
+                                        == RongIMClient.DatabaseOpenStatus.DATABASE_OPEN_SUCCESS
+                                && RongUserInfoManager.getInstance().isCacheUserOrGroupInfo()) {
+                            RongUserInfoManager.getInstance()
+                                    .initAndUpdateUserDataBase(SingletonHolder.sInstance.mContext);
+                        }
                         for (RongIMClient.ConnectCallback callback : mConnectStatusListener) {
                             callback.onDatabaseOpened(databaseOpenStatus);
                         }

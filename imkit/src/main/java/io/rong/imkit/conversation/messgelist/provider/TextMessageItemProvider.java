@@ -77,16 +77,20 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
                                 @Override
                                 public void finish(SpannableStringBuilder spannable) {
                                     uiMessage.setContentSpannable(spannable);
-                                    if (textView.getTag().equals(uiMessage.getMessageId())) {
-                                        textView.post(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
+                                    textView.post(
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (TextUtils.equals(
+                                                            textView.getTag() == null
+                                                                    ? ""
+                                                                    : textView.getTag().toString(),
+                                                            String.valueOf(
+                                                                    uiMessage.getMessageId())))
                                                         textView.setText(
                                                                 uiMessage.getContentSpannable());
-                                                    }
-                                                });
-                                    }
+                                                }
+                                            });
                                 }
                             });
             uiMessage.setContentSpannable(spannable);

@@ -964,7 +964,8 @@ public class MessageViewModel extends AndroidViewModel
         mSelectedUiMessage.clear();
         mUiMessageLiveData.setValue(mUiMessages);
         // 通知输入框刷新
-        mPageEventLiveData.setValue(new InputBarEvent(InputBarEvent.Type.HideMoreMenu, ""));
+        mPageEventLiveData.setValue(
+                new InputBarEvent(InputBarEvent.Type.HideMoreMenu, mCurConversationType.getName()));
     }
 
     public UiMessage findUIMessage(String messageUId) {

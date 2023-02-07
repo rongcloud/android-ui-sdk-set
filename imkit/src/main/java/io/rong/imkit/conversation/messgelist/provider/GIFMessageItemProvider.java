@@ -80,7 +80,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
                 holder.setVisible(R.id.rc_pre_progress, false);
             } else if (uiMessage.getState() == State.PROGRESS) {
                 loadingProgress.setVisibility(View.GONE);
-            } else if (progress == -1) {
+            } else if (uiMessage.getState() == State.ERROR) {
                 loadingProgress.setVisibility(View.GONE);
                 holder.setVisible(R.id.rc_pre_progress, false);
                 holder.setVisible(R.id.rc_download_failed, true);
@@ -101,7 +101,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
                     holder.setVisible(R.id.rc_pre_progress, false);
                     holder.setVisible(R.id.rc_length, false);
                     holder.setVisible(R.id.rc_start_download, false);
-                } else if (progress == -1) {
+                } else if (uiMessage.getState() == State.ERROR) {
                     loadingProgress.setVisibility(View.GONE);
                     holder.setVisible(R.id.rc_pre_progress, false);
                     holder.setVisible(R.id.rc_download_failed, true);
@@ -121,7 +121,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
                 holder.setVisible(R.id.rc_start_download, false);
 
                 // 下载失败
-                if (progress == -1) {
+                if (uiMessage.getState() == State.ERROR) {
                     holder.setVisible(R.id.rc_download_failed, true);
                     holder.setVisible(R.id.rc_length, true);
                     holder.setText(R.id.rc_length, formatSize(gifMessage.getGifDataSize()));
@@ -151,7 +151,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
                     holder.setVisible(R.id.rc_pre_progress, false);
                     holder.setVisible(R.id.rc_length, false);
                     holder.setVisible(R.id.rc_start_download, false);
-                } else if (progress != -1) {
+                } else if (uiMessage.getState() != State.ERROR) {
                     // 显示图片下载的界面
                     holder.setVisible(R.id.rc_start_download, true);
                     holder.setVisible(R.id.rc_pre_progress, false);
