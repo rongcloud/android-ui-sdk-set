@@ -911,8 +911,8 @@ public class ConversationListViewModel extends AndroidViewModel
         if (info == null) {
             return;
         }
-        for (int i = mUiConversationList.size() - 1; i >= 0; i--) {
-            mUiConversationList.get(i).onUserInfoUpdate(info);
+        for (BaseUiConversation baseUiConversation : mUiConversationList) {
+            baseUiConversation.onUserInfoUpdate(info);
         }
         refreshConversationList();
     }
@@ -922,8 +922,8 @@ public class ConversationListViewModel extends AndroidViewModel
         if (mTime == OFFLINE_REFRESH_INTERVAL) {
             return;
         }
-        for (int i = mUiConversationList.size() - 1; i >= 0; i--) {
-            mUiConversationList.get(i).onGroupInfoUpdate(group);
+        for (BaseUiConversation baseUiConversation : mUiConversationList) {
+            baseUiConversation.onGroupInfoUpdate(group);
         }
         refreshConversationList();
     }
@@ -933,8 +933,8 @@ public class ConversationListViewModel extends AndroidViewModel
         if (mTime == OFFLINE_REFRESH_INTERVAL) {
             return;
         }
-        for (int i = mUiConversationList.size() - 1; i >= 0; i--) {
-            mUiConversationList.get(i).onGroupMemberUpdate(groupUserInfo);
+        for (BaseUiConversation baseUiConversation : mUiConversationList) {
+            baseUiConversation.onGroupMemberUpdate(groupUserInfo);
         }
         refreshConversationList();
     }
