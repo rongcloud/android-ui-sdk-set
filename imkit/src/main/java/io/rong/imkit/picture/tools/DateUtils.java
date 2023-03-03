@@ -1,13 +1,17 @@
 package io.rong.imkit.picture.tools;
 
+import io.rong.common.RLog;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class DateUtils {
+    private static final String TAG = DateUtils.class.getSimpleName();
     private SimpleDateFormat sf = new SimpleDateFormat("yyyyMMdd_HHmmssSS");
 
-    private DateUtils() {}
+    private DateUtils() {
+        // default implementation ignored
+    }
 
     private static class SingletonHolder {
         static DateUtils sInstance = new DateUtils();
@@ -29,7 +33,7 @@ public class DateUtils {
             long interval = l1 - d;
             return (int) Math.abs(interval);
         } catch (Exception e) {
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
             return -1;
         }
     }

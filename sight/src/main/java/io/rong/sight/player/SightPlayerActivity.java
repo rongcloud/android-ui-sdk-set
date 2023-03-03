@@ -2,15 +2,19 @@ package io.rong.sight.player;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.webkit.MimeTypeMap;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import androidx.core.content.FileProvider;
 import com.bumptech.glide.Glide;
 import io.rong.common.FileUtils;
 import io.rong.common.RLog;
@@ -308,6 +312,63 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
     @Override
     public void onError(EasyVideoPlayer player, Exception e) {
         // default implementation ignored
+    }
+
+    @Override
+    public void onPlayError(final Uri source, int what, int extra) {
+        RLog.d(
+                TAG,
+                "onPlayError: " + "source = " + source + ", what = " + what + ", extra = " + extra);
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.rc_video_play_error_open_system_player)
+                .setPositiveButton(
+                        R.string.rc_confirm,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                openExternalPlayer(source);
+                                finish();
+                            }
+                        })
+                .setNegativeButton(
+                        R.string.rc_cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                .show();
+    }
+
+    private void openExternalPlayer(Uri source) {
+        try {
+            Uri uri = source;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                    && "file".equals(source.getScheme())) {
+                uri =
+                        FileProvider.getUriForFile(
+                                getApplicationContext(),
+                                getBaseContext().getApplicationContext().getPackageName()
+                                        + getBaseContext()
+                                                .getResources()
+                                                .getString(
+                                                        io.rong
+                                                                .imkit
+                                                                .R
+                                                                .string
+                                                                .rc_authorities_fileprovider),
+                                new File(source.getPath()));
+            }
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.setDataAndType(
+                    uri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(source.toString()));
+            startActivity(intent);
+        } catch (Exception e) {
+            RLog.e(TAG, "onPlayError: " + "Exception = " + e);
+        }
     }
 
     @Override

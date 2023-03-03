@@ -162,7 +162,8 @@ public class GroupConversation extends BaseUiConversation {
         processResending(conversation);
         mCore = conversation;
         io.rong.imlib.model.Group group =
-                RongUserInfoManager.getInstance().getGroupInfo(conversation.getTargetId());
+                RongUserInfoManager.getInstance()
+                        .getGroupInfo(conversation.getTargetId() + conversation.getChannelId());
         if (group != null) {
             RLog.d(TAG, "onConversationUpdate. name:" + group.getName());
         } else {

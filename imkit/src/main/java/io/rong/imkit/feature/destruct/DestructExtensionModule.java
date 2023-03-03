@@ -50,7 +50,7 @@ public class DestructExtensionModule implements IExtensionModule {
     public List<IPluginModule> getPluginModules(Conversation.ConversationType conversationType) {
         ArrayList<IPluginModule> pluginModules = new ArrayList<>();
         if (RongConfigCenter.featureConfig().isDestructEnable()
-                && Conversation.ConversationType.PRIVATE.equals(conversationType)) {
+                && conversationType.equals(Conversation.ConversationType.PRIVATE)) {
             pluginModules.add(new DestructPlugin());
         }
         return pluginModules;

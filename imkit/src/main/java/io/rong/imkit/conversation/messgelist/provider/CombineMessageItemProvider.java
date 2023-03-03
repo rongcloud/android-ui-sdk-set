@@ -25,6 +25,10 @@ import java.util.List;
 
 public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineMessage> {
 
+    public CombineMessageItemProvider() {
+        mConfig.showReadState = true;
+    }
+
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
         View view =

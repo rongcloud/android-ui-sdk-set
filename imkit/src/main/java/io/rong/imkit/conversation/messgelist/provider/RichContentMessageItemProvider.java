@@ -21,6 +21,9 @@ import io.rong.message.RichContentMessage;
 import java.util.List;
 
 public class RichContentMessageItemProvider extends BaseMessageItemProvider<RichContentMessage> {
+    public RichContentMessageItemProvider() {
+        mConfig.showReadState = true;
+    }
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {

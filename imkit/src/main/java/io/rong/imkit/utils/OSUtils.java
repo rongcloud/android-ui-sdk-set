@@ -2,6 +2,7 @@ package io.rong.imkit.utils;
 
 import android.os.Build;
 import android.text.TextUtils;
+import io.rong.common.RLog;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,6 +23,7 @@ public class OSUtils {
     private static final String KEY_VERSION_OPPO = "ro.build.version.opporom";
     private static final String KEY_VERSION_SMARTISAN = "ro.smartisan.version";
     private static final String KEY_VERSION_VIVO = "ro.vivo.os.version";
+    private static final String TAG = OSUtils.class.getSimpleName();
 
     private static String sName;
     private static String sVersion;
@@ -110,7 +112,7 @@ public class OSUtils {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    RLog.e(TAG, e.getMessage());
                 }
             }
         }

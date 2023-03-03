@@ -11,6 +11,7 @@ import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
 import io.rong.message.MediaMessageContent;
+import io.rong.message.ReadReceiptMessage;
 import io.rong.message.ReferenceMessage;
 import java.util.Hashtable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -264,6 +265,13 @@ public class ResendManager {
             IMCenter.getInstance().sendLocationMessage(message, null, null, callback);
         } else if (message.getContent() instanceof ReferenceMessage) {
             IMCenter.getInstance().sendMessage(message, null, null, callback);
+        } else if (message.getContent() instanceof ReadReceiptMessage) {
+            IMCenter.getInstance()
+                    .sendReadReceiptMessage(
+                            message.getConversationType(),
+                            message.getTargetId(),
+                            message.getSentTime(),
+                            callback);
         } else if (message.getContent() instanceof MediaMessageContent) {
             MediaMessageContent mediaMessageContent = (MediaMessageContent) message.getContent();
             if (mediaMessageContent.getMediaUrl() != null) {

@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -552,12 +553,16 @@ public class CameraView extends RelativeLayout
             }
             cameraAutoFocus(camera, mParam);
             mParam = camera.getParameters();
+            ViewGroup.LayoutParams layoutParams = mVideoView.getLayoutParams();
+            int videoWidth = mVideoView.getMeasuredWidth();
+            layoutParams.height = previewSize.width * videoWidth / previewSize.height;
+            mVideoView.setLayoutParams(layoutParams);
             camera.setPreviewDisplay(holder);
             camera.setDisplayOrientation(calculateCameraPreviewOrientation());
             camera.startPreview();
         } catch (Exception e) {
             RLog.e(TAG, "startPreview failed");
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 
@@ -858,7 +863,7 @@ public class CameraView extends RelativeLayout
             updateProgressView(0);
         } catch (Exception e) {
             RLog.e(TAG, "startRecord got exception");
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 
@@ -887,7 +892,7 @@ public class CameraView extends RelativeLayout
                 try {
                     mVideoView.setVideoPath(fileName);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    RLog.e(TAG, e.getMessage());
                 }
             }
         }
@@ -1005,7 +1010,7 @@ public class CameraView extends RelativeLayout
         } catch (Exception e) {
             mImageViewSubmit.setEnabled(false);
             RLog.e(TAG, "mVideoView play error");
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 
@@ -1116,8 +1121,14 @@ public class CameraView extends RelativeLayout
         double minDiff = Double.MAX_VALUE;
 
         for (Camera.Size size : sizes) {
+            if (size.width < size.height) {
+                continue;
+            }
+
             double ratio = (double) size.width / size.height;
-            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) continue;
+            if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
+                continue;
+            }
             if (Math.abs(size.height - h) < minDiff) {
                 optimalSize = size;
                 minDiff = Math.abs(size.height - h);

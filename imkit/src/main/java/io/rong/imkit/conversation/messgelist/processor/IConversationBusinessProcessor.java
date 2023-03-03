@@ -126,5 +126,7 @@ public interface IConversationBusinessProcessor {
 
     boolean isNormalState(MessageViewModel viewModel);
 
+    boolean isHistoryState(MessageViewModel viewModel);
+
     void onScrollToBottom(MessageViewModel viewModel);
 }

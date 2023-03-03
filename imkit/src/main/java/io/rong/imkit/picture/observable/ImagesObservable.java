@@ -8,7 +8,9 @@ public class ImagesObservable {
     // 观察者接口集合
     private List<LocalMedia> previewList;
 
-    private ImagesObservable() {}
+    private ImagesObservable() {
+        // default implementation ignored
+    }
 
     private static class SingletonHolder {
         static ImagesObservable sInstance = new ImagesObservable();

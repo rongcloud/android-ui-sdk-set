@@ -653,6 +653,7 @@ public class ConversationConfig {
                 case PRIVATE:
                 case ENCRYPTED:
                 case GROUP:
+                case ULTRA_GROUP:
                 case DISCUSSION:
                     return true;
             }

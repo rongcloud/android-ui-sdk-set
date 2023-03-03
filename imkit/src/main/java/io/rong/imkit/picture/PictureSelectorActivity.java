@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
 import io.rong.imkit.picture.adapter.PictureImageGridAdapter;
@@ -59,6 +60,7 @@ public class PictureSelectorActivity extends PictureBaseActivity
                 PictureImageGridAdapter.OnPhotoSelectChangedListener {
     protected static final int SHOW_DIALOG = 0;
     protected static final int DISMISS_DIALOG = 1;
+    private static final String TAG = PictureSelectorActivity.class.getSimpleName();
     protected ImageView mIvArrow;
     protected TextView mTvPictureTitle, mTvCancel, mTvPictureOk, mTvEmpty, mTvPicturePreview;
     protected RecyclerView mPictureRecycler;
@@ -603,7 +605,7 @@ public class PictureSelectorActivity extends PictureBaseActivity
                 folderWindow.bindFolder(foldersList);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 

@@ -10,9 +10,9 @@ import io.rong.imkit.event.Event;
 import io.rong.imkit.event.uievent.ScrollMentionEvent;
 import io.rong.imkit.event.uievent.ShowLoadMessageDialogEvent;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
+import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.HistoryMessageOption;
@@ -39,8 +39,7 @@ public class MessageProcessor {
         }
         RongIM.getInstance()
                 .getMessages(
-                        messageViewModel.getCurConversationType(),
-                        messageViewModel.getCurTargetId(),
+                        messageViewModel.getConversationIdentifier(),
                         historyMessageOption,
                         new IRongCoreCallback.IGetMessageCallback() {
                             @Override
@@ -95,10 +94,11 @@ public class MessageProcessor {
         historyMessageOption.setDataTime(sentTime - 2);
         historyMessageOption.setCount(before);
         historyMessageOption.setOrder(HistoryMessageOption.PullOrder.ASCEND);
-        RongCoreClient.getInstance()
+        ChannelClient.getInstance()
                 .getMessages(
                         messageViewModel.getCurConversationType(),
                         messageViewModel.getCurTargetId(),
+                        messageViewModel.getConversationIdentifier().getChannelId(),
                         historyMessageOption,
                         new IRongCoreCallback.IGetMessageCallback() {
 
@@ -159,10 +159,11 @@ public class MessageProcessor {
         historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(after);
         historyMessageOption.setOrder(HistoryMessageOption.PullOrder.DESCEND);
-        RongCoreClient.getInstance()
+        ChannelClient.getInstance()
                 .getMessages(
                         viewModel.getCurConversationType(),
                         viewModel.getCurTargetId(),
+                        viewModel.getConversationIdentifier().getChannelId(),
                         historyMessageOption,
                         new IRongCoreCallback.IGetMessageCallback() {
 
@@ -185,11 +186,12 @@ public class MessageProcessor {
     }
 
     public static void processUnread(final MessageViewModel messageViewModel) {
-        RongIMClient.getInstance()
+        ChannelClient.getInstance()
                 .getConversation(
                         messageViewModel.getCurConversationType(),
                         messageViewModel.getCurTargetId(),
-                        new RongIMClient.ResultCallback<Conversation>() {
+                        messageViewModel.getConversationIdentifier().getChannelId(),
+                        new IRongCoreCallback.ResultCallback<Conversation>() {
                             @Override
                             public void onSuccess(Conversation conversation) {
                                 // 设置历史未读数
@@ -209,7 +211,7 @@ public class MessageProcessor {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
                                 // default implementation ignored
                             }
                         });

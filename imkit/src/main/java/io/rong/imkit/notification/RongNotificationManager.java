@@ -28,9 +28,13 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.RongCache;
+import io.rong.imlib.ChannelClient;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.MentionedInfo;
@@ -63,7 +67,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     private ConcurrentHashMap<String, Message> messageMap = new ConcurrentHashMap<>();
     private MediaPlayer mediaPlayer;
 
-    private RongNotificationManager() {}
+    private RongNotificationManager() {
+        // default implementation ignored
+    }
 
     public static RongNotificationManager getInstance() {
         return SingletonHolder.sInstance;
@@ -155,8 +161,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                     RecallNotificationMessage recallNotificationMessage) {
                                 if (!isRecallFiltered(message)) {
                                     getConversationNotificationStatus(
-                                            message.getConversationType(),
-                                            message.getTargetId(),
+                                            ConversationIdentifier.obtain(message),
                                             new RongIMClient.ResultCallback<
                                                     Conversation.ConversationNotificationStatus>() {
                                                 @Override
@@ -570,19 +575,20 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     }
 
     public void getConversationNotificationStatus(
-            Conversation.ConversationType type,
-            String targetId,
+            ConversationIdentifier conversationIdentifier,
             final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>
                     callback) {
-        final String key = getKey(targetId, type, "1");
+        final String key =
+                getKey(conversationIdentifier.getTargetId(), conversationIdentifier.getType(), "1");
         if (mNotificationCache.get(key) != null && callback != null) {
             callback.onSuccess(mNotificationCache.get(key));
         } else {
-            RongIMClient.getInstance()
+            ChannelClient.getInstance()
                     .getConversationNotificationStatus(
-                            type,
-                            targetId,
-                            new RongIMClient.ResultCallback<
+                            conversationIdentifier.getType(),
+                            conversationIdentifier.getTargetId(),
+                            conversationIdentifier.getChannelId(),
+                            new IRongCoreCallback.ResultCallback<
                                     Conversation.ConversationNotificationStatus>() {
                                 @Override
                                 public void onSuccess(
@@ -595,9 +601,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                public void onError(IRongCoreEnum.CoreErrorCode e) {
                                     if (callback != null) {
-                                        callback.onError(errorCode);
+                                        callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                                     }
                                 }
                             });

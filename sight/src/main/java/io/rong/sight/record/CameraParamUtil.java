@@ -13,7 +13,9 @@ public class CameraParamUtil {
     private CameraSizeComparator sizeComparator = new CameraSizeComparator();
     private static CameraParamUtil cameraParamUtil = null;
 
-    private CameraParamUtil() {}
+    private CameraParamUtil() {
+        // default implementation ignored
+    }
 
     public static CameraParamUtil getInstance() {
         if (cameraParamUtil == null) {

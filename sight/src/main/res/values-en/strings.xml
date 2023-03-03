@@ -9,5 +9,7 @@
     <string name="rc_save_video">Save Video</string>
     <string name="rc_save_video_success">Saved to album</string>
     <string name="rc_sight_file_expired">Video deleted or expired</string>
-    <string name="rc_src_file_not_found">源文件不存在</string>
+    <string name="rc_src_file_not_found">The source file does not exist</string>
+    <string name="rc_video_play_error_open_system_player">Video playback error, open an external player to play the video?</string>
+
 </resources>

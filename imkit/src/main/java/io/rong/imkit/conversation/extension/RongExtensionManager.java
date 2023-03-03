@@ -33,7 +33,9 @@ public class RongExtensionManager {
             new CopyOnWriteArrayList<>();
     private IExtensionConfig mExtensionConfig;
 
-    private RongExtensionManager() {}
+    private RongExtensionManager() {
+        // default implementation ignored
+    }
 
     public static RongExtensionManager getInstance() {
         return SingletonHolder.sInstance;

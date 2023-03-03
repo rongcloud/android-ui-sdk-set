@@ -47,6 +47,8 @@ import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.sight.R;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class EasyVideoPlayer extends FrameLayout
@@ -137,6 +139,9 @@ public class EasyVideoPlayer extends FrameLayout
                 }
             };
 
+    /** 要捕获的错误码集合，出现以下错误码时，终止播放，并调用第三方的播放器播放 */
+    private final Set<Integer> errorCodeSet = new HashSet<>();
+
     public EasyVideoPlayer(Context context) {
         super(context);
         init(context, null);
@@ -168,6 +173,12 @@ public class EasyVideoPlayer extends FrameLayout
                         // do nothing
                     }
                 };
+        errorCodeSet.add(MediaPlayer.MEDIA_ERROR_UNKNOWN);
+        errorCodeSet.add(MediaPlayer.MEDIA_ERROR_SERVER_DIED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            errorCodeSet.add(MediaPlayer.MEDIA_INFO_VIDEO_NOT_PLAYING);
+            errorCodeSet.add(MediaPlayer.MEDIA_INFO_AUDIO_NOT_PLAYING);
+        }
     }
 
     // View events
@@ -187,6 +198,24 @@ public class EasyVideoPlayer extends FrameLayout
         mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         mPlayer.setLooping(mLoop);
         mPlayer.setOnInfoListener(this);
+        mPlayer.setOnErrorListener(
+                new MediaPlayer.OnErrorListener() {
+                    @Override
+                    public boolean onError(MediaPlayer mp, int what, int extra) {
+                        return notifyErrorEvent(what, extra);
+                    }
+                });
+
+        mPlayer.setOnInfoListener(
+                new MediaPlayer.OnInfoListener() {
+                    @Override
+                    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                        if (!errorCodeSet.contains(what)) {
+                            return false;
+                        }
+                        return notifyErrorEvent(what, extra);
+                    }
+                });
 
         // Instantiate and add TextureView for rendering
         final FrameLayout.LayoutParams textureLp =
@@ -255,6 +284,15 @@ public class EasyVideoPlayer extends FrameLayout
 
         setControlsEnabled(false);
         prepare();
+    }
+
+    private boolean notifyErrorEvent(int what, int extra) {
+        EasyVideoCallback onErrorListener = mCallback;
+        afterError();
+        if (onErrorListener != null) {
+            onErrorListener.onPlayError(mSource, what, extra);
+        }
+        return false;
     }
 
     private void initPlayView() {
@@ -741,10 +779,10 @@ public class EasyVideoPlayer extends FrameLayout
         if ("oppo".equals(Build.BRAND.toLowerCase()) && "OPPO R9sk".equals(Build.MODEL)) {
             currentPos = 0;
         }
+        if (mHandler != null) {
+            mHandler.removeCallbacks(mUpdateCounters);
+        }
         if (mLoop) {
-            if (mHandler != null) {
-                mHandler.removeCallbacks(mUpdateCounters);
-            }
             mSeeker.setProgress(mSeeker.getMax());
             showControls();
         } else {
@@ -1091,5 +1129,10 @@ public class EasyVideoPlayer extends FrameLayout
 
     public int getBeforePausePlayerStatus() {
         return beforePausePlayerStatus;
+    }
+
+    private void afterError() {
+        stop();
+        release();
     }
 }

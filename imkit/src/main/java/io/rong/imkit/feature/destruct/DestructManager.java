@@ -64,8 +64,7 @@ public class DestructManager implements IExtensionEventWatcher {
                     new DestructInputPanel(
                             DestructExtensionModule.sFragment.get(),
                             extension.getContainer(RongExtension.ContainerType.INPUT),
-                            extension.getConversationType(),
-                            extension.getTargetId());
+                            extension.getConversationIdentifier());
 
             if (mDestructInputPanel.getRootView() == null) {
                 return;

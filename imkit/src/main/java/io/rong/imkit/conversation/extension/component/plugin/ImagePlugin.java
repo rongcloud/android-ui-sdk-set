@@ -25,11 +25,11 @@ import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import java.util.List;
 
 public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResultCallback {
-    Conversation.ConversationType conversationType;
-    String targetId;
+    ConversationIdentifier conversationIdentifier;
     private int mRequestCode = -1;
 
     @Override
@@ -44,8 +44,7 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
 
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
-        conversationType = extension.getConversationType();
-        targetId = extension.getTargetId();
+        conversationIdentifier = extension.getConversationIdentifier();
         mRequestCode = ((index + 1) << 8) + (PictureConfig.CHOOSE_REQUEST & 0xff);
 
         // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
@@ -80,10 +79,15 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
                     String mimeType = item.getMimeType();
                     if (mimeType.startsWith("image")) {
                         SendImageManager.getInstance()
-                                .sendImage(conversationType, targetId, item, sendOrigin);
-                        if (Conversation.ConversationType.PRIVATE.equals(conversationType)) {
+                                .sendImage(conversationIdentifier, item, sendOrigin);
+                        if (conversationIdentifier
+                                .getType()
+                                .equals(Conversation.ConversationType.PRIVATE)) {
                             RongIMClient.getInstance()
-                                    .sendTypingStatus(conversationType, targetId, "RC:ImgMsg");
+                                    .sendTypingStatus(
+                                            conversationIdentifier.getType(),
+                                            conversationIdentifier.getTargetId(),
+                                            "RC:ImgMsg");
                         }
                     } else if (mimeType.startsWith("video")) {
                         Uri path = Uri.parse(item.getPath());
@@ -93,13 +97,17 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
                         SendMediaManager.getInstance()
                                 .sendMedia(
                                         IMCenter.getInstance().getContext(),
-                                        conversationType,
-                                        targetId,
+                                        conversationIdentifier,
                                         path,
                                         item.getDuration());
-                        if (Conversation.ConversationType.PRIVATE.equals(conversationType)) {
+                        if (conversationIdentifier
+                                .getType()
+                                .equals(Conversation.ConversationType.PRIVATE)) {
                             RongIMClient.getInstance()
-                                    .sendTypingStatus(conversationType, targetId, "RC:SightMsg");
+                                    .sendTypingStatus(
+                                            conversationIdentifier.getType(),
+                                            conversationIdentifier.getTargetId(),
+                                            "RC:SightMsg");
                         }
                     }
                 }

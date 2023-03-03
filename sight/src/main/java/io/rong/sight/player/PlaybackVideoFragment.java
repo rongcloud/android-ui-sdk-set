@@ -172,6 +172,13 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
     }
 
     @Override
+    public void onPlayError(Uri source, int what, int extra) {
+        if (mVideoCallback != null) {
+            mVideoCallback.onPlayError(source, what, extra);
+        }
+    }
+
+    @Override
     public void onSightListRequest() {
         if (isFromSightList) {
             if (getActivity() != null) {

@@ -10,18 +10,18 @@ import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.model.OperationResult;
 import io.rong.imkit.notification.RongNotificationManager;
+import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.RongIMClient.ErrorCode;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Conversation.ConversationNotificationStatus;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
 
 public class ConversationSettingViewModel extends AndroidViewModel {
-    private Conversation.ConversationType mConversationType;
-    private String mTargetId;
+    private ConversationIdentifier conversationIdentifier;
     MutableLiveData<Boolean> mTopStatus;
     MutableLiveData<OperationResult> mOperationResult;
     MutableLiveData<Conversation.ConversationNotificationStatus> mNotificationStatus;
@@ -31,19 +31,17 @@ public class ConversationSettingViewModel extends AndroidViewModel {
     }
 
     public ConversationSettingViewModel(
-            Application application,
-            Conversation.ConversationType conversationType,
-            String targetId) {
+            Application application, ConversationIdentifier conversationIdentifier) {
         super(application);
-        mConversationType = conversationType;
-        mTargetId = targetId;
+        this.conversationIdentifier = conversationIdentifier;
         mOperationResult = new MutableLiveData<>();
         mTopStatus = new MutableLiveData<>();
         mNotificationStatus = new MutableLiveData<>();
-        RongCoreClient.getInstance()
+        ChannelClient.getInstance()
                 .getConversationTopStatus(
-                        targetId,
-                        conversationType,
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getChannelId(),
                         new IRongCoreCallback.ResultCallback<Boolean>() {
                             @Override
                             public void onSuccess(Boolean aBoolean) {
@@ -58,8 +56,7 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
         RongNotificationManager.getInstance()
                 .getConversationNotificationStatus(
-                        conversationType,
-                        targetId,
+                        conversationIdentifier,
                         new RongIMClient.ResultCallback<ConversationNotificationStatus>() {
                             @Override
                             public void onSuccess(
@@ -77,8 +74,7 @@ public class ConversationSettingViewModel extends AndroidViewModel {
     public void clearMessages(long recordTime, boolean clearRemote) {
         IMCenter.getInstance()
                 .cleanHistoryMessages(
-                        mConversationType,
-                        mTargetId,
+                        conversationIdentifier,
                         recordTime,
                         clearRemote,
                         new RongIMClient.OperationCallback() {
@@ -101,14 +97,16 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         // 清除远端消息
         RongIMClient.getInstance()
                 .cleanRemoteHistoryMessages(
-                        mConversationType, mTargetId, System.currentTimeMillis(), null);
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        System.currentTimeMillis(),
+                        null);
     }
 
     public void setConversationTop(final boolean isTop, boolean shouldCreateNewConversation) {
         IMCenter.getInstance()
                 .setConversationToTop(
-                        mConversationType,
-                        mTargetId,
+                        conversationIdentifier,
                         isTop,
                         shouldCreateNewConversation,
                         new RongIMClient.ResultCallback<Boolean>() {
@@ -133,8 +131,7 @@ public class ConversationSettingViewModel extends AndroidViewModel {
     public void setNotificationStatus(final Conversation.ConversationNotificationStatus status) {
         IMCenter.getInstance()
                 .setConversationNotificationStatus(
-                        mConversationType,
-                        mTargetId,
+                        conversationIdentifier,
                         status,
                         new RongIMClient.ResultCallback<
                                 Conversation.ConversationNotificationStatus>() {
@@ -171,16 +168,11 @@ public class ConversationSettingViewModel extends AndroidViewModel {
     }
 
     public static class Factory implements ViewModelProvider.Factory {
-        private String targetId;
-        private Conversation.ConversationType conversationType;
+        private ConversationIdentifier conversationIdentifier;
         private Application application;
 
-        public Factory(
-                Application application,
-                Conversation.ConversationType conversationType,
-                String targetId) {
-            this.conversationType = conversationType;
-            this.targetId = targetId;
+        public Factory(Application application, ConversationIdentifier conversationIdentifier) {
+            this.conversationIdentifier = conversationIdentifier;
             this.application = application;
         }
 
@@ -189,11 +181,8 @@ public class ConversationSettingViewModel extends AndroidViewModel {
         public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
             try {
                 return modelClass
-                        .getConstructor(
-                                Application.class,
-                                Conversation.ConversationType.class,
-                                String.class)
-                        .newInstance(application, conversationType, targetId);
+                        .getConstructor(Application.class, ConversationIdentifier.class)
+                        .newInstance(application, conversationIdentifier);
             } catch (Exception e) {
                 throw new RuntimeException("Cannot create an instance of " + modelClass, e);
             }
@@ -206,8 +195,9 @@ public class ConversationSettingViewModel extends AndroidViewModel {
                 public void onStatusChanged(ConversationStatus[] conversationStatuses) {
                     if (conversationStatuses != null && conversationStatuses.length > 0) {
                         for (ConversationStatus status : conversationStatuses) {
-                            if (status.getConversationType() == mConversationType
-                                    && status.getTargetId().equals(mTargetId)) {
+                            if (status.getConversationType() == conversationIdentifier.getType()
+                                    && status.getTargetId()
+                                            .equals(conversationIdentifier.getTargetId())) {
                                 if (status.getStatus() != null
                                         && !TextUtils.isEmpty(
                                                 status.getStatus()

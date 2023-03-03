@@ -30,8 +30,8 @@ public class DefaultExtensionConfig implements IExtensionConfig {
         List<IExtensionModule> extensionModules =
                 RongExtensionManager.getInstance().getExtensionModules();
         for (IExtensionModule module : extensionModules) {
-            if ((Conversation.ConversationType.CUSTOMER_SERVICE.equals(conversationType)
-                            || Conversation.ConversationType.CHATROOM.equals(conversationType))
+            if ((conversationType.equals(Conversation.ConversationType.CUSTOMER_SERVICE)
+                            || conversationType.equals(Conversation.ConversationType.CHATROOM))
                     && module.getClass().getCanonicalName() != null
                     && module.getClass().getCanonicalName().equals(CALL_MODULE)) {
                 continue;

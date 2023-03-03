@@ -36,6 +36,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
     private Integer maxSize = null;
 
     public GIFMessageItemProvider() {
+        mConfig.showReadState = true;
         mConfig.showProgress = false;
         mConfig.showContentBubble = false;
     }

@@ -11,4 +11,5 @@
     <string name="rc_save_video_success">تم الحفظ في معرض الصور</string>
     <string name="rc_sight_file_expired"> تم حذف الفيديو أو منتهية الصلاحي </string>
     <string name="rc_src_file_not_found"> ​​الملف المصدر غير موجود </string>
+    <string name="rc_video_play_error_open_system_player">خطأ في تشغيل الفيديو ، افتح مشغلا خارجيا لتشغيل الفيديو؟</string>
 </resources>

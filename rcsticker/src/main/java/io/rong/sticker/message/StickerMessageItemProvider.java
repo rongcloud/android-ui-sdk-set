@@ -24,6 +24,7 @@ public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerM
     private static final String FORMAT = "[%s]";
 
     public StickerMessageItemProvider() {
+        mConfig.showReadState = true;
         mConfig.showContentBubble = false;
     }
 

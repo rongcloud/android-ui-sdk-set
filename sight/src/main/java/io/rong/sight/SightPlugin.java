@@ -23,15 +23,14 @@ import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.message.SightMessage;
 import io.rong.sight.record.SightRecordActivity;
 import java.io.File;
 
 public class SightPlugin implements IPluginModule, IPluginRequestPermissionResultCallback {
     private static final String TAG = "SightPlugin";
-    protected Conversation.ConversationType conversationType;
-    protected String targetId;
+    protected ConversationIdentifier conversationIdentifier;
     protected Context context;
     private static final int REQUEST_SIGHT = 104;
 
@@ -54,8 +53,7 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
 
         // KNOTE: 2021/8/24 小视频录像保存至私有目录  不需要存储权限
         String[] permissions = {Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO};
-        conversationType = extension.getConversationType();
-        targetId = extension.getTargetId();
+        conversationIdentifier = extension.getConversationIdentifier();
         if (PermissionCheckUtil.checkPermissions(currentFragment.getActivity(), permissions)) {
             startSightRecord(currentFragment, extension);
         } else {
@@ -81,8 +79,7 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
                     sightMessage.setDestructTime(DestructManager.SIGHT_DESTRUCT_TIME);
                 }
                 io.rong.imlib.model.Message message =
-                        io.rong.imlib.model.Message.obtain(
-                                targetId, conversationType, sightMessage);
+                        io.rong.imlib.model.Message.obtain(conversationIdentifier, sightMessage);
                 IMCenter.getInstance()
                         .sendMediaMessage(
                                 message,

@@ -29,6 +29,7 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
     private int progress = 0;
 
     public FileMessageItemProvider() {
+        mConfig.showReadState = true;
         mConfig.showContentBubble = false;
         mConfig.showProgress = false;
     }

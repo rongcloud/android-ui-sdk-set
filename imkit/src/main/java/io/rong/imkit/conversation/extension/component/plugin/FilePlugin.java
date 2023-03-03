@@ -13,7 +13,7 @@ import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCallback;
-import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.message.FileMessage;
 
@@ -23,8 +23,7 @@ public class FilePlugin implements IPluginModule {
     private static final int REQUEST_FILE = 100;
     // 发送消息间隔
     private static final int TIME_DELAY = 400;
-    private Conversation.ConversationType conversationType;
-    private String targetId;
+    private ConversationIdentifier mConversationIdentifier;
     private Context mContext;
 
     @Override
@@ -39,8 +38,7 @@ public class FilePlugin implements IPluginModule {
 
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
-        conversationType = extension.getConversationType();
-        targetId = extension.getTargetId();
+        mConversationIdentifier = extension.getConversationIdentifier();
         FragmentActivity activity = currentFragment.getActivity();
         if (activity != null) {
             mContext = activity.getApplicationContext();
@@ -75,8 +73,7 @@ public class FilePlugin implements IPluginModule {
                                             if (fileMessage != null) {
                                                 final Message message =
                                                         Message.obtain(
-                                                                targetId,
-                                                                conversationType,
+                                                                mConversationIdentifier,
                                                                 fileMessage);
                                                 IMCenter.getInstance()
                                                         .sendMediaMessage(

@@ -27,6 +27,7 @@ import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.SavePathUtils;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.typingmessage.TypingMessageManager;
 import io.rong.message.HQVoiceMessage;
@@ -61,8 +62,7 @@ public class AudioRecordManager implements Handler.Callback {
     private IAudioState mCurAudioState;
     private View mRootView;
     private Context mContext;
-    private Conversation.ConversationType mConversationType;
-    private String mTargetId;
+    private ConversationIdentifier mConversationIdentifier;
     private Handler mHandler;
     private AudioManager mAudioManager;
     private MediaRecorder mMediaRecorder;
@@ -240,13 +240,11 @@ public class AudioRecordManager implements Handler.Callback {
         RECORD_INTERVAL = maxVoiceDuration;
     }
 
-    public void startRecord(
-            View rootView, Conversation.ConversationType conversationType, String targetId) {
+    public void startRecord(View rootView, ConversationIdentifier conversationIdentifier) {
         if (rootView == null) return;
         this.mRootView = rootView;
         this.mContext = rootView.getContext().getApplicationContext();
-        this.mConversationType = conversationType;
-        this.mTargetId = targetId;
+        this.mConversationIdentifier = conversationIdentifier;
         this.mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
         if (this.mAfChangeListener != null) {
@@ -274,7 +272,13 @@ public class AudioRecordManager implements Handler.Callback {
         sendEmptyMessage(AUDIO_RECORD_EVENT_TRIGGER);
 
         if (TypingMessageManager.getInstance().isShowMessageTyping()) {
-            RongIMClient.getInstance().sendTypingStatus(conversationType, targetId, "RC:VcMsg");
+            if (conversationIdentifier.getType().equals(Conversation.ConversationType.PRIVATE)) {
+                RongIMClient.getInstance()
+                        .sendTypingStatus(
+                                conversationIdentifier.getType(),
+                                mConversationIdentifier.getTargetId(),
+                                "RC:VcMsg");
+            }
         }
     }
 
@@ -464,7 +468,7 @@ public class AudioRecordManager implements Handler.Callback {
                 if (DestructManager.isActive()) {
                     hqVoiceMessage.setDestructTime(DestructManager.VOICE_DESTRUCT_TIME);
                 }
-                Message message = Message.obtain(mTargetId, mConversationType, hqVoiceMessage);
+                Message message = Message.obtain(mConversationIdentifier, hqVoiceMessage);
                 IMCenter.getInstance()
                         .sendMediaMessage(
                                 message,
@@ -510,7 +514,7 @@ public class AudioRecordManager implements Handler.Callback {
                 }
                 IMCenter.getInstance()
                         .sendMessage(
-                                Message.obtain(mTargetId, mConversationType, voiceMessage),
+                                Message.obtain(mConversationIdentifier, voiceMessage),
                                 DestructManager.isActive()
                                         ? mContext.getResources()
                                                 .getString(
@@ -877,7 +881,9 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     abstract class IAudioState {
-        void enter() {}
+        void enter() {
+            // default implementation ignored
+        }
 
         abstract void handleMessage(AudioStateMessage message);
     }

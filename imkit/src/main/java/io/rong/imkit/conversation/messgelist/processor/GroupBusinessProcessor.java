@@ -2,14 +2,21 @@ package io.rong.imkit.conversation.messgelist.processor;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.widget.Toast;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.ExecutorHelper;
+import io.rong.imlib.ChannelClient;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.UserInfo;
@@ -38,10 +45,47 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                             .isShowReadReceipt(viewModel.getCurConversationType())) {
                 IMCenter.getInstance()
                         .syncConversationReadStatus(
-                                message.getConversationType(),
-                                message.getTargetId(),
+                                ConversationIdentifier.obtain(message.getMessage()),
                                 message.getSentTime(),
                                 null);
+
+                if (Conversation.ConversationType.ULTRA_GROUP.equals(
+                        viewModel.getCurConversationType())) {
+                    RLog.e(
+                            TAG,
+                            "onReceived syncUltraGroupReadStatus"
+                                    + "，t:"
+                                    + message.getTargetId()
+                                    + "，c:"
+                                    + message.getMessage().getChannelId()
+                                    + "，type:"
+                                    + message.getClass().getSimpleName());
+                    ChannelClient.getInstance()
+                            .syncUltraGroupReadStatus(
+                                    message.getTargetId(),
+                                    message.getMessage().getChannelId(),
+                                    message.getSentTime(),
+                                    new IRongCoreCallback.OperationCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            Toast.makeText(
+                                                            viewModel.getApplication(),
+                                                            "超级群已读状态同步成功",
+                                                            Toast.LENGTH_LONG)
+                                                    .show();
+                                        }
+
+                                        @Override
+                                        public void onError(
+                                                IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                            Toast.makeText(
+                                                            viewModel.getApplication(),
+                                                            "超级群已读状态同步失败",
+                                                            Toast.LENGTH_LONG)
+                                                    .show();
+                                        }
+                                    });
+                }
             }
         }
         return super.onReceived(viewModel, message, left, hasPackage, offline);
@@ -56,10 +100,49 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
         if (syncReadStatus) {
             IMCenter.getInstance()
                     .syncConversationReadStatus(
-                            viewModel.getCurConversationType(),
-                            viewModel.getCurTargetId(),
+                            viewModel.getConversationIdentifier(),
                             conversation.getSentTime(),
                             null);
+            if (Conversation.ConversationType.ULTRA_GROUP.equals(
+                    viewModel.getCurConversationType())) {
+                RLog.e(
+                        TAG,
+                        "onExistUnreadMessage syncUltraGroupReadStatus"
+                                + "，t:"
+                                + viewModel.getCurTargetId()
+                                + "，c:"
+                                + viewModel.getConversationIdentifier().getChannelId());
+                ChannelClient.getInstance()
+                        .syncUltraGroupReadStatus(
+                                viewModel.getCurTargetId(),
+                                viewModel.getConversationIdentifier().getChannelId(),
+                                conversation.getSentTime(),
+                                new IRongCoreCallback.OperationCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        //                                        Toast.makeText(
+                                        //
+                                        // viewModel.getApplication(),
+                                        //
+                                        // "超级群已读状态同步成功",
+                                        //
+                                        // Toast.LENGTH_LONG)
+                                        //                                                .show();
+                                    }
+
+                                    @Override
+                                    public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                        //                                        Toast.makeText(
+                                        //
+                                        // viewModel.getApplication(),
+                                        //
+                                        // "超级群已读状态同步失败",
+                                        //
+                                        // Toast.LENGTH_LONG)
+                                        //                                                .show();
+                                    }
+                                });
+            }
         }
     }
 
@@ -85,24 +168,101 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                 .isShowReadReceiptRequest(viewModel.getCurConversationType())) {
             return;
         }
-        List<io.rong.imlib.model.Message> responseMessageList = new ArrayList<>();
-        for (io.rong.imlib.model.Message message : messages) {
-            ReadReceiptInfo readReceiptInfo = message.getReadReceiptInfo();
-            if (readReceiptInfo == null) {
-                continue;
-            }
-            if (readReceiptInfo.isReadReceiptMessage() && !readReceiptInfo.hasRespond()) {
-                responseMessageList.add(message);
-            }
+        ExecutorHelper.getInstance()
+                .networkIO()
+                .execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                List<io.rong.imlib.model.Message> responseMessageList =
+                                        new ArrayList<>();
+                                for (io.rong.imlib.model.Message message : messages) {
+                                    ReadReceiptInfo readReceiptInfo = message.getReadReceiptInfo();
+                                    if (readReceiptInfo == null) {
+                                        continue;
+                                    }
+                                    if (readReceiptInfo.isReadReceiptMessage()
+                                            && !readReceiptInfo.hasRespond()) {
+                                        responseMessageList.add(message);
+                                    }
+                                }
+                                if (responseMessageList.size() > 0) {
+                                    RongCoreClient.getInstance()
+                                            .sendReadReceiptResponse(
+                                                    viewModel.getCurConversationType(),
+                                                    viewModel.getCurTargetId(),
+                                                    responseMessageList,
+                                                    new IRongCoreCallback.OperationCallback() {
+                                                        @Override
+                                                        public void onSuccess() {
+                                                            for (io.rong.imlib.model.Message
+                                                                    message : messages) {
+                                                                message.getReadReceiptInfo()
+                                                                        .setHasRespond(true);
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onError(
+                                                                IRongCoreEnum.CoreErrorCode
+                                                                        coreErrorCode) {}
+                                                    });
+                                }
+                            }
+                        });
+    }
+
+    @Override
+    public void onResume(MessageViewModel viewModel) {
+        if (!RongConfigCenter.conversationConfig()
+                .isShowReadReceiptRequest(viewModel.getCurConversationType())) {
+            return;
         }
-        if (responseMessageList.size() > 0) {
-            RongIMClient.getInstance()
-                    .sendReadReceiptResponse(
-                            viewModel.getCurConversationType(),
-                            viewModel.getCurTargetId(),
-                            responseMessageList,
-                            null);
-        }
+        ExecutorHelper.getInstance()
+                .networkIO()
+                .execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                List<io.rong.imlib.model.Message> responseMessageList =
+                                        new ArrayList<>();
+                                final List<UiMessage> uiMessages = viewModel.getUiMessages();
+                                for (UiMessage uiMessage : uiMessages) {
+                                    ReadReceiptInfo readReceiptInfo =
+                                            uiMessage.getMessage().getReadReceiptInfo();
+                                    if (readReceiptInfo == null) {
+                                        continue;
+                                    }
+                                    if (readReceiptInfo.isReadReceiptMessage()
+                                            && !readReceiptInfo.hasRespond()) {
+                                        responseMessageList.add(uiMessage.getMessage());
+                                    }
+                                }
+                                if (responseMessageList.size() > 0) {
+                                    RongCoreClient.getInstance()
+                                            .sendReadReceiptResponse(
+                                                    viewModel.getCurConversationType(),
+                                                    viewModel.getCurTargetId(),
+                                                    responseMessageList,
+                                                    new IRongCoreCallback.OperationCallback() {
+                                                        @Override
+                                                        public void onSuccess() {
+                                                            for (UiMessage uiMessage : uiMessages) {
+                                                                uiMessage
+                                                                        .getMessage()
+                                                                        .getReadReceiptInfo()
+                                                                        .setHasRespond(true);
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onError(
+                                                                IRongCoreEnum.CoreErrorCode
+                                                                        coreErrorCode) {}
+                                                    });
+                                }
+                            }
+                        });
     }
 
     @Override
@@ -127,29 +287,32 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                 }
                 readReceiptInfo.setIsReadReceiptMessage(true);
                 readReceiptInfo.setHasRespond(false);
-                List<Message> messageList = new ArrayList<>();
-                messageList.add(item.getMessage());
-                RongIMClient.getInstance()
-                        .sendReadReceiptResponse(
-                                viewModel.getCurConversationType(),
-                                viewModel.getCurTargetId(),
-                                messageList,
-                                new RongIMClient.OperationCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        item.getMessage().getReadReceiptInfo().setHasRespond(true);
-                                        viewModel.refreshSingleMessage(item);
-                                    }
+                if (viewModel.isForegroundActivity()) {
+                    List<Message> messageList = new ArrayList<>();
+                    messageList.add(item.getMessage());
+                    RongCoreClient.getInstance()
+                            .sendReadReceiptResponse(
+                                    viewModel.getCurConversationType(),
+                                    viewModel.getCurTargetId(),
+                                    messageList,
+                                    new IRongCoreCallback.OperationCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            item.getMessage()
+                                                    .getReadReceiptInfo()
+                                                    .setHasRespond(true);
+                                        }
 
-                                    @Override
-                                    public void onError(RongIMClient.ErrorCode errorCode) {
-                                        RLog.e(
-                                                TAG,
-                                                "sendReadReceiptResponse failed, errorCode = "
-                                                        + errorCode);
-                                    }
-                                });
-                break;
+                                        @Override
+                                        public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
+                                            RLog.e(
+                                                    TAG,
+                                                    "sendReadReceiptResponse failed, errorCode = "
+                                                            + errorCode);
+                                        }
+                                    });
+                    break;
+                }
             }
         }
     }

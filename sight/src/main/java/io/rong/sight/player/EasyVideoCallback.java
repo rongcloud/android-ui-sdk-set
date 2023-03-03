@@ -1,5 +1,7 @@
 package io.rong.sight.player;
 
+import android.net.Uri;
+
 /** @author Aidan Follestad (afollestad) */
 public interface EasyVideoCallback {
 
@@ -20,4 +22,8 @@ public interface EasyVideoCallback {
     void onSightListRequest();
 
     void onClose();
+
+    default void onPlayError(Uri source, int what, int extra) {
+        // do nothing
+    }
 }

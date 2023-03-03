@@ -115,7 +115,9 @@ public class DownloadProgressView extends View {
 
     @Retention(SOURCE)
     @IntDef({NOT_DOWNLOAD, DOWNLOADING})
-    public @interface Status {}
+    public @interface Status {
+        // default implementation ignored
+    }
 
     public static final int NOT_DOWNLOAD = 0;
     public static final int DOWNLOADING = 1;

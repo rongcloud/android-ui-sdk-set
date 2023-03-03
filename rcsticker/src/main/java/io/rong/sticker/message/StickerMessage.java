@@ -1,7 +1,7 @@
 package io.rong.sticker.message;
 
 import android.os.Parcel;
-import android.util.Log;
+import io.rong.common.RLog;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
 import io.rong.sticker.model.Sticker;
@@ -13,6 +13,7 @@ import org.json.JSONObject;
 @MessageTag(value = "RC:StkMsg", flag = MessageTag.ISCOUNTED)
 public class StickerMessage extends MessageContent {
 
+    private static final String TAG = StickerMessage.class.getSimpleName();
     private String packageId;
     private String stickerId;
     private String digest;
@@ -29,13 +30,13 @@ public class StickerMessage extends MessageContent {
             jsonObj.put("width", width);
             jsonObj.put("height", height);
         } catch (JSONException e) {
-            Log.e("JSONException", e.getMessage());
+            RLog.e(TAG, e.getMessage());
         }
 
         try {
             return jsonObj.toString().getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
 
         return null;
@@ -55,7 +56,9 @@ public class StickerMessage extends MessageContent {
         dest.writeInt(this.height);
     }
 
-    public StickerMessage() {}
+    public StickerMessage() {
+        // default implementation ignored
+    }
 
     public StickerMessage(byte[] data) {
         try {
@@ -66,10 +69,8 @@ public class StickerMessage extends MessageContent {
             digest = jsonObj.optString("digest");
             width = jsonObj.optInt("width");
             height = jsonObj.optInt("height");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException | JSONException e) {
+            RLog.e(TAG, e.getMessage());
         }
     }
 

@@ -20,6 +20,7 @@ import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.message.TextMessage;
 import java.util.Objects;
 
@@ -28,8 +29,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> mExtensionBoardState;
     private MutableLiveData<InputMode> mInputModeLiveData;
     private MutableLiveData<Boolean> mAttachedInfoState;
-    private Conversation.ConversationType mConversationType;
-    private String mTargetId;
+    private ConversationIdentifier mConversationIdentifier;
     private EditText mEditText;
     private boolean isSoftInputShow;
     private static final int MAX_MESSAGE_LENGTH_TO_SEND = 5500;
@@ -63,8 +63,8 @@ public class RongExtensionViewModel extends AndroidViewModel {
                     RongMentionManager.getInstance()
                             .onTextChanged(
                                     getApplication().getApplicationContext(),
-                                    mConversationType,
-                                    mTargetId,
+                                    mConversationIdentifier.getType(),
+                                    mConversationIdentifier.getTargetId(),
                                     cursor,
                                     offset,
                                     s.toString(),
@@ -73,8 +73,8 @@ public class RongExtensionViewModel extends AndroidViewModel {
                             RongExtensionManager.getInstance().getExtensionEventWatcher()) {
                         watcher.onTextChanged(
                                 getApplication().getApplicationContext(),
-                                mConversationType,
-                                mTargetId,
+                                mConversationIdentifier.getType(),
+                                mConversationIdentifier.getTargetId(),
                                 cursor,
                                 offset,
                                 s.toString());
@@ -122,16 +122,19 @@ public class RongExtensionViewModel extends AndroidViewModel {
         mAttachedInfoState = new MutableLiveData<>();
     }
 
-    void setAttachedConversation(
-            Conversation.ConversationType type, String targetId, EditText editText) {
-        mConversationType = type;
-        mTargetId = targetId;
+    void setAttachedConversation(ConversationIdentifier conversationIdentifier, EditText editText) {
+        mConversationIdentifier = conversationIdentifier;
         mEditText = editText;
         mEditText.addTextChangedListener(mTextWatcher);
-        if (type.equals(Conversation.ConversationType.GROUP)) {
+        if (mConversationIdentifier.getType().equals(Conversation.ConversationType.GROUP)
+                || mConversationIdentifier
+                        .getType()
+                        .equals(Conversation.ConversationType.ULTRA_GROUP)) {
             RongMentionManager.getInstance()
                     .createInstance(
-                            type, targetId, mEditText); // todo 更改实现方式，由 mention 模块 addTextWatcher.
+                            mConversationIdentifier.getType(),
+                            mConversationIdentifier.getTargetId(),
+                            mEditText); // todo 更改实现方式，由 mention 模块 addTextWatcher.
         }
     }
 
@@ -166,7 +169,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
             textMessage.setDestructTime(time);
         }
         io.rong.imlib.model.Message message =
-                io.rong.imlib.model.Message.obtain(mTargetId, mConversationType, textMessage);
+                io.rong.imlib.model.Message.obtain(mConversationIdentifier, textMessage);
         RongMentionManager.getInstance().onSendToggleClick(message, mEditText);
         if (RongExtensionManager.getInstance().getExtensionEventWatcher().size() > 0) {
             for (IExtensionEventWatcher watcher :
@@ -199,7 +202,10 @@ public class RongExtensionViewModel extends AndroidViewModel {
         if (context == null) {
             return;
         }
-        if (RongExtensionCacheHelper.isVoiceInputMode(context, mConversationType, mTargetId)) {
+        if (RongExtensionCacheHelper.isVoiceInputMode(
+                context,
+                mConversationIdentifier.getType(),
+                mConversationIdentifier.getTargetId())) {
             mInputModeLiveData.postValue(InputMode.VoiceInput);
         } else {
             collapseExtensionBoard();

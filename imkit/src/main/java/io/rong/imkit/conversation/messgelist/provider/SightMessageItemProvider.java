@@ -40,6 +40,7 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
     private Integer minShortSideSize;
 
     public SightMessageItemProvider() {
+        mConfig.showReadState = true;
         mConfig.showContentBubble = false;
         mConfig.showProgress = false;
     }

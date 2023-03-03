@@ -61,6 +61,10 @@ import java.util.Locale;
 
 public class ReferenceMessageItemProvider extends BaseMessageItemProvider<ReferenceMessage> {
 
+    public ReferenceMessageItemProvider() {
+        mConfig.showReadState = true;
+    }
+
     private static final String TAG = "ReferenceMessageItemProvider";
 
     @Override

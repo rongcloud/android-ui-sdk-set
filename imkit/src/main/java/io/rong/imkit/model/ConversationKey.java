@@ -13,7 +13,9 @@ public final class ConversationKey {
     private String targetId;
     private Conversation.ConversationType type;
 
-    private ConversationKey() {}
+    private ConversationKey() {
+        // default implementation ignored
+    }
 
     public static ConversationKey obtain(String targetId, Conversation.ConversationType type) {
 

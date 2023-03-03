@@ -33,7 +33,9 @@ public class HQVoiceMsgDownloadManager {
     private Future<?> future = null;
     private List<AutoDownloadEntry> errorList = null;
 
-    private HQVoiceMsgDownloadManager() {}
+    private HQVoiceMsgDownloadManager() {
+        // default implementation ignored
+    }
 
     public void init(final Context context) {
         AutoDownloadNetWorkChangeReceiver autoDownloadNetWorkChangeReceiver;

@@ -9,17 +9,21 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.view.ContextThemeWrapper;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imlib.RongIMClient;
 import java.util.Locale;
 
 /** Created by CaoHaiyang on 2017/9/25. */
 public class RongConfigurationManager {
+    private static final String TAG = RongConfigurationManager.class.getSimpleName();
     private static String RONG_CONFIG = "RongKitConfiguration";
     private static String FILE_MAX_SIZE = "FileMaxSize";
     private static boolean isInit = false;
 
-    private RongConfigurationManager() {}
+    private RongConfigurationManager() {
+        // default implementation ignored
+    }
 
     private static class SingletonHolder {
         static RongConfigurationManager sInstance = new RongConfigurationManager();
@@ -110,15 +114,20 @@ public class RongConfigurationManager {
     public Context getConfigurationContext(Context newBase) {
         Context context = LangUtils.getConfigurationContext(newBase);
         final Configuration configuration = context.getResources().getConfiguration();
-        return new ContextThemeWrapper(context, R.style.Theme_AppCompat_Empty) {
-            @Override
-            public void applyOverrideConfiguration(Configuration overrideConfiguration) {
-                if (overrideConfiguration != null) {
-                    overrideConfiguration.setTo(configuration);
+        try {
+            return new ContextThemeWrapper(context, R.style.Theme_AppCompat_Empty) {
+                @Override
+                public void applyOverrideConfiguration(Configuration overrideConfiguration) {
+                    if (overrideConfiguration != null) {
+                        overrideConfiguration.setTo(configuration);
+                    }
+                    super.applyOverrideConfiguration(overrideConfiguration);
                 }
-                super.applyOverrideConfiguration(overrideConfiguration);
-            }
-        };
+            };
+        } catch (Exception e) {
+            RLog.e(TAG, "getConfigurationContext e : ", e);
+            return context;
+        }
     }
 
     /**

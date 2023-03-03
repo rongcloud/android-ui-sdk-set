@@ -26,6 +26,7 @@ import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.filetransfer.FtUtilities;
 import io.rong.imlib.model.DownloadInfo;
 import java.io.File;
 
@@ -116,8 +117,9 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
         mFileButton.setOnClickListener(this);
         //        mCancel.setOnClickListener(this);
-
-        mAttachFile = new File(mFileDownloadInfo.path, mFileDownloadInfo.fileName);
+        String savedPath =
+                FtUtilities.getFileName(mFileDownloadInfo.path, mFileDownloadInfo.fileName, false);
+        mAttachFile = new File(savedPath);
         if (mAttachFile.exists()) {
             mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
         }

@@ -10,6 +10,7 @@ public abstract class BaseDataProcessor<T> implements DataProcessor<T> {
         return new Conversation.ConversationType[] {
             Conversation.ConversationType.PRIVATE,
             Conversation.ConversationType.GROUP,
+            Conversation.ConversationType.ULTRA_GROUP,
             Conversation.ConversationType.SYSTEM,
             Conversation.ConversationType.CUSTOMER_SERVICE,
             Conversation.ConversationType.CHATROOM,

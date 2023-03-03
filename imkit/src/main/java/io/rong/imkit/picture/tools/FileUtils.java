@@ -27,7 +27,6 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import io.rong.common.RLog;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +47,9 @@ public class FileUtils {
     /** TAG for log messages. */
     static final String TAG = "FileUtils";
 
-    private FileUtils() {}
+    private FileUtils() {
+        // default implementation ignored
+    }
 
     /**
      * @param uri The Uri to check.
@@ -112,7 +113,7 @@ public class FileUtils {
                 return cursor.getString(column_index);
             }
         } catch (IllegalArgumentException ex) {
-            Log.i(
+            RLog.i(
                     TAG,
                     String.format(
                             Locale.getDefault(), "getDataColumn: _data - [%s]", ex.getMessage()));

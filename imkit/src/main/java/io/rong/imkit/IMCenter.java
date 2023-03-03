@@ -25,7 +25,10 @@ import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.language.RongConfigurationManager;
+import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongCoreClient;
@@ -35,11 +38,15 @@ import io.rong.imlib.listener.OnReceiveMessageWrapperListener;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReceivedProfile;
 import io.rong.imlib.model.SendMessageOption;
+import io.rong.imlib.model.UltraGroupChannelChangeTypeInfo;
+import io.rong.imlib.model.UltraGroupChannelDisbandedInfo;
+import io.rong.imlib.model.UltraGroupChannelUserKickedInfo;
 import io.rong.imlib.model.UserInfo;
 import io.rong.imlib.typingmessage.TypingStatus;
 import io.rong.message.FileMessage;
@@ -48,6 +55,7 @@ import io.rong.message.InformationNotificationMessage;
 import io.rong.message.MediaMessageContent;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
+import io.rong.message.SightMessage;
 import io.rong.message.TextMessage;
 import java.util.Collection;
 import java.util.HashMap;
@@ -297,7 +305,63 @@ public class IMCenter {
                 }
             };
 
-    private IMCenter() {}
+    private IRongCoreListener.UltraGroupChannelListener mUltraGroupChannelListener =
+            new IRongCoreListener.UltraGroupChannelListener() {
+                @Override
+                public void ultraGroupChannelUserDidKicked(
+                        List<UltraGroupChannelUserKickedInfo> infoList) {
+                    RLog.d(TAG, "ultraGroupChannelUserDidKicked: " + infoList.size());
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (UltraGroupChannelUserKickedInfo info : infoList) {
+                        for (ConversationEventListener conversationEventListener :
+                                mConversationEventListener) {
+                            conversationEventListener.onChannelKicked(
+                                    info.getChangeInfo().getTargetId(),
+                                    info.getChangeInfo().getChannelId(),
+                                    info.getUserId());
+                        }
+                    }
+                }
+
+                @Override
+                public void ultraGroupChannelTypeDidChanged(
+                        List<UltraGroupChannelChangeTypeInfo> infoList) {
+                    RLog.d(TAG, "ultraGroupChannelTypeDidChanged: " + infoList.size());
+                    for (UltraGroupChannelChangeTypeInfo ultraGroupChannelChangeTypeInfo :
+                            infoList) {
+                        for (ConversationEventListener conversationEventListener :
+                                mConversationEventListener) {
+                            conversationEventListener.onChannelChange(
+                                    ultraGroupChannelChangeTypeInfo.getChangeInfo().getTargetId(),
+                                    ultraGroupChannelChangeTypeInfo.getChangeInfo().getChannelId(),
+                                    ultraGroupChannelChangeTypeInfo.getChangeType()
+                                                    == IRongCoreEnum.UltraGroupChannelChangeType
+                                                            .ULTRA_GROUP_CHANNEL_CHANGE_TYPE_PRIVATE_TO_PUBLIC
+                                            ? IRongCoreEnum.UltraGroupChannelType
+                                                    .ULTRA_GROUP_CHANNEL_TYPE_PUBLIC
+                                            : IRongCoreEnum.UltraGroupChannelType
+                                                    .ULTRA_GROUP_CHANNEL_TYPE_PRIVATE);
+                        }
+                    }
+                }
+
+                @Override
+                public void ultraGroupChannelDidDisbanded(
+                        List<UltraGroupChannelDisbandedInfo> infoList) {
+                    RLog.d(TAG, "ultraGroupChannelDidDisbanded: " + infoList.size());
+                    for (UltraGroupChannelDisbandedInfo ultraGroupChannelDisbandedInfo : infoList) {
+                        for (ConversationEventListener listener : mConversationEventListener) {
+                            listener.onChannelDelete(
+                                    ultraGroupChannelDisbandedInfo.getChangeInfo().getTargetId(),
+                                    ultraGroupChannelDisbandedInfo.getChangeInfo().getChannelId());
+                        }
+                    }
+                }
+            };
+
+    private IMCenter() {
+        // default implementation ignored
+    }
 
     public static IMCenter getInstance() {
         return SingletonHolder.sInstance;
@@ -359,6 +423,8 @@ public class IMCenter {
                 .setSyncConversationReadStatusListener(
                         SingletonHolder.sInstance.mSyncConversationReadStatusListener);
         RongIMClient.setTypingStatusListener(SingletonHolder.sInstance.mTypingStatusListener);
+        ChannelClient.getInstance()
+                .setUltraGroupChannelListener(SingletonHolder.sInstance.mUltraGroupChannelListener);
         MessageNotificationHelper.setPushNotifyLevelListener();
         RongIMClient.registerMessageType(CombineMessage.class);
     }
@@ -665,23 +731,33 @@ public class IMCenter {
 
                             @Override
                             public void onSuccess(Message message) {
+                                filterSentMessage(message, null, null);
                                 if (callback != null) {
                                     callback.onSuccess(message);
                                 }
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onClearedUnreadStatus(conversationType, targetId);
+                                    listener.onClearedUnreadStatus(
+                                            ConversationIdentifier.obtain(
+                                                    conversationType,
+                                                    targetId,
+                                                    message.getChannelId()));
                                 }
                             }
 
                             @Override
                             public void onError(Message message, RongIMClient.ErrorCode errorCode) {
+                                filterSentMessage(message, errorCode, null);
                                 if (callback != null) {
                                     callback.onError(message, errorCode);
                                 }
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onClearedUnreadStatus(conversationType, targetId);
+                                    listener.onClearedUnreadStatus(
+                                            ConversationIdentifier.obtain(
+                                                    conversationType,
+                                                    targetId,
+                                                    message.getChannelId()));
                                 }
                             }
                         });
@@ -700,12 +776,28 @@ public class IMCenter {
             final String targetId,
             long timestamp,
             final RongIMClient.OperationCallback callback) {
-        RongIMClient.getInstance()
+        syncConversationReadStatus(
+                ConversationIdentifier.obtain(type, targetId, ""), timestamp, callback);
+    }
+
+    /**
+     * 同步会话阅读状态。
+     *
+     * @param conversationIdentifier 会话标识
+     * @param timestamp 会话中已读的最后一条消息的发送时间戳 {@link Message#getSentTime()}
+     * @param callback 回调函数
+     */
+    public void syncConversationReadStatus(
+            final ConversationIdentifier conversationIdentifier,
+            long timestamp,
+            final RongIMClient.OperationCallback callback) {
+        ChannelClient.getInstance()
                 .syncConversationReadStatus(
-                        type,
-                        targetId,
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
                         timestamp,
-                        new RongIMClient.OperationCallback() {
+                        new IRongCoreCallback.OperationCallback() {
                             @Override
                             public void onSuccess() {
                                 if (callback != null) {
@@ -713,18 +805,19 @@ public class IMCenter {
                                 }
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onClearedUnreadStatus(type, targetId);
+                                    listener.onClearedUnreadStatus(conversationIdentifier);
                                 }
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
                                 if (callback != null) {
-                                    callback.onError(errorCode);
+                                    callback.onError(
+                                            RongIMClient.ErrorCode.valueOf(coreErrorCode.code));
                                 }
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onClearedUnreadStatus(type, targetId);
+                                    listener.onClearedUnreadStatus(conversationIdentifier);
                                 }
                             }
                         });
@@ -1132,28 +1225,55 @@ public class IMCenter {
             final long recordTime,
             final boolean cleanRemote,
             final RongIMClient.OperationCallback callback) {
-        RongIMClient.getInstance()
+        cleanHistoryMessages(
+                ConversationIdentifier.obtain(conversationType, targetId, ""),
+                recordTime,
+                cleanRemote,
+                callback);
+    }
+
+    /**
+     * 删除指定时间戳之前的消息，可选择是否同时删除服务器端消息
+     *
+     * <p>此方法可从服务器端清除历史消息，<Strong>但是必须先开通历史消息云存储功能。</Strong> <br>
+     * 根据会话类型和会话 id 清除某一会话指定时间戳之前的本地数据库消息（服务端历史消息）， 清除成功后只能从本地数据库（服务端）获取到该时间戳之后的历史消息。
+     *
+     * @param conversationIdentifier 会话标识。
+     * @param recordTime 清除消息截止时间戳，{@code 0 <= recordTime <= }当前会话最后一条消息的 sentTime,0
+     *     清除所有消息，其他值清除小于等于 recordTime 的消息。
+     * @param cleanRemote 是否删除服务器端消息
+     * @param callback 清除消息的回调。
+     */
+    public void cleanHistoryMessages(
+            final ConversationIdentifier conversationIdentifier,
+            final long recordTime,
+            final boolean cleanRemote,
+            final RongIMClient.OperationCallback callback) {
+        ChannelClient.getInstance()
                 .cleanHistoryMessages(
-                        conversationType,
-                        targetId,
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
                         recordTime,
                         cleanRemote,
-                        new RongIMClient.OperationCallback() {
+                        new IRongCoreCallback.OperationCallback() {
                             @Override
                             public void onSuccess() {
                                 if (callback != null) callback.onSuccess();
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onClearedMessage(conversationType, targetId);
+                                    listener.onClearedMessage(conversationIdentifier);
                                 }
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
-                                if (callback != null) callback.onError(errorCode);
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                if (callback != null)
+                                    callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onOperationFailed(errorCode);
+                                    listener.onOperationFailed(
+                                            RongIMClient.ErrorCode.valueOf(e.code));
                                 }
                             }
                         });
@@ -1170,23 +1290,38 @@ public class IMCenter {
             final Conversation.ConversationType conversationType,
             final String targetId,
             final RongIMClient.ResultCallback<Boolean> callback) {
-        RongIMClient.getInstance()
+        clearMessagesUnreadStatus(
+                ConversationIdentifier.obtain(conversationType, targetId, ""), callback);
+    }
+
+    /**
+     * 清除某会话的消息未读状态
+     *
+     * @param conversationIdentifier 会话标识。
+     * @param callback 清除是否成功的回调。
+     */
+    public void clearMessagesUnreadStatus(
+            final ConversationIdentifier conversationIdentifier,
+            final RongIMClient.ResultCallback<Boolean> callback) {
+        ChannelClient.getInstance()
                 .clearMessagesUnreadStatus(
-                        conversationType,
-                        targetId,
-                        new RongIMClient.ResultCallback<Boolean>() {
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
+                        new IRongCoreCallback.ResultCallback<Boolean>() {
                             @Override
                             public void onSuccess(Boolean bool) {
                                 if (callback != null) callback.onSuccess(bool);
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onClearedUnreadStatus(conversationType, targetId);
+                                    listener.onClearedUnreadStatus(conversationIdentifier);
                                 }
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode e) {
-                                if (callback != null) callback.onError(e);
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                if (callback != null)
+                                    callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                             }
                         });
     }
@@ -1218,12 +1353,28 @@ public class IMCenter {
             final String targetId,
             final String content,
             final RongIMClient.ResultCallback<Boolean> callback) {
-        RongIMClient.getInstance()
+        saveTextMessageDraft(
+                ConversationIdentifier.obtain(conversationType, targetId, ""), content, callback);
+    }
+
+    /**
+     * 保存文字消息草稿，回调方式获取保存是否成功。
+     *
+     * @param conversationIdentifier 会话标识。
+     * @param content 草稿的文字内容。
+     * @param callback 是否保存成功的回调。
+     */
+    public void saveTextMessageDraft(
+            final ConversationIdentifier conversationIdentifier,
+            final String content,
+            final RongIMClient.ResultCallback<Boolean> callback) {
+        ChannelClient.getInstance()
                 .saveTextMessageDraft(
-                        conversationType,
-                        targetId,
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
                         content,
-                        new RongIMClient.ResultCallback<Boolean>() {
+                        new IRongCoreCallback.ResultCallback<Boolean>() {
                             @Override
                             public void onSuccess(Boolean value) {
                                 if (callback != null) {
@@ -1232,19 +1383,20 @@ public class IMCenter {
                                 if (value) {
                                     for (ConversationEventListener listener :
                                             mConversationEventListener) {
-                                        listener.onSaveDraft(conversationType, targetId, content);
+                                        listener.onSaveDraft(conversationIdentifier, content);
                                     }
                                 }
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
                                 if (callback != null) {
-                                    callback.onError(errorCode);
+                                    callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                                 }
                                 for (ConversationEventListener listener :
                                         mConversationEventListener) {
-                                    listener.onOperationFailed(errorCode);
+                                    listener.onOperationFailed(
+                                            RongIMClient.ErrorCode.valueOf(e.code));
                                 }
                             }
                         });
@@ -1303,13 +1455,31 @@ public class IMCenter {
             final boolean isTop,
             final boolean needCreate,
             final RongIMClient.ResultCallback<Boolean> callback) {
-        RongIMClient.getInstance()
+        setConversationToTop(
+                ConversationIdentifier.obtain(type, id, ""), isTop, needCreate, callback);
+    }
+
+    /**
+     * 设置某一会话为置顶或者取消置顶，回调方式获取设置是否成功。
+     *
+     * @param conversationIdentifier 会话标识。
+     * @param isTop 是否置顶。
+     * @param needCreate 会话不存在时，是否创建会话。
+     * @param callback 设置置顶或取消置顶是否成功的回调。
+     */
+    public void setConversationToTop(
+            final ConversationIdentifier conversationIdentifier,
+            final boolean isTop,
+            final boolean needCreate,
+            final RongIMClient.ResultCallback<Boolean> callback) {
+        ChannelClient.getInstance()
                 .setConversationToTop(
-                        type,
-                        id,
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
                         isTop,
                         needCreate,
-                        new RongIMClient.ResultCallback<Boolean>() {
+                        new IRongCoreCallback.ResultCallback<Boolean>() {
                             @Override
                             public void onSuccess(Boolean bool) {
                                 if (callback != null) callback.onSuccess(bool);
@@ -1317,8 +1487,10 @@ public class IMCenter {
                                         mConversationStatusObserverList) {
                                     ConversationStatus conversationStatus =
                                             new ConversationStatus();
-                                    conversationStatus.setTargetId(id);
-                                    conversationStatus.setConversationType(type.getValue());
+                                    conversationStatus.setTargetId(
+                                            conversationIdentifier.getTargetId());
+                                    conversationStatus.setConversationType(
+                                            conversationIdentifier.getTypeValue());
                                     HashMap<String, String> statusMap = new HashMap<>();
                                     statusMap.put(
                                             ConversationStatus.TOP_KEY,
@@ -1332,8 +1504,9 @@ public class IMCenter {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode e) {
-                                if (callback != null) callback.onError(e);
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                if (callback != null)
+                                    callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                             }
                         });
     }
@@ -1352,12 +1525,31 @@ public class IMCenter {
             final Conversation.ConversationNotificationStatus notificationStatus,
             final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>
                     callback) {
-        RongIMClient.getInstance()
+        setConversationNotificationStatus(
+                ConversationIdentifier.obtain(conversationType, targetId, ""),
+                notificationStatus,
+                callback);
+    }
+
+    /**
+     * 设置会话消息提醒状态。
+     *
+     * @param conversationIdentifier 会话标识。
+     * @param notificationStatus 是否屏蔽。
+     * @param callback 设置状态的回调。
+     */
+    public void setConversationNotificationStatus(
+            final ConversationIdentifier conversationIdentifier,
+            final Conversation.ConversationNotificationStatus notificationStatus,
+            final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>
+                    callback) {
+        ChannelClient.getInstance()
                 .setConversationNotificationStatus(
-                        conversationType,
-                        targetId,
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
                         notificationStatus,
-                        new RongIMClient.ResultCallback<
+                        new IRongCoreCallback.ResultCallback<
                                 Conversation.ConversationNotificationStatus>() {
                             @Override
                             public void onSuccess(
@@ -1369,9 +1561,10 @@ public class IMCenter {
                                         mConversationStatusObserverList) {
                                     ConversationStatus conversationStatus =
                                             new ConversationStatus();
-                                    conversationStatus.setTargetId(targetId);
+                                    conversationStatus.setTargetId(
+                                            conversationIdentifier.getTargetId());
                                     conversationStatus.setConversationType(
-                                            conversationType.getValue());
+                                            conversationIdentifier.getTypeValue());
                                     HashMap<String, String> statusMap = new HashMap<>();
                                     statusMap.put(
                                             ConversationStatus.NOTIFICATION_KEY,
@@ -1388,9 +1581,9 @@ public class IMCenter {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
                                 if (callback != null) {
-                                    callback.onError(errorCode);
+                                    callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                                 }
                             }
                         });
@@ -1413,20 +1606,13 @@ public class IMCenter {
             MessageContent content,
             final RongIMClient.ResultCallback<Message> resultCallback) {
         insertOutgoingMessage(
-                type, targetId, sentStatus, content, System.currentTimeMillis(), resultCallback);
+                ConversationIdentifier.obtain(type, targetId, ""),
+                sentStatus,
+                content,
+                System.currentTimeMillis(),
+                resultCallback);
     }
 
-    /**
-     * 向本地会话中插入一条消息，方向为发送。这条消息只是插入本地会话，不会实际发送给服务器和对方。 插入消息需为入库消息，即 {@link
-     * MessageTag#ISPERSISTED}，否者会回调 {@link RongIMClient.ErrorCode#PARAMETER_ERROR}
-     *
-     * @param type 会话类型。
-     * @param targetId 目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
-     * @param sentStatus 发送状态 @see {@link Message.SentStatus}
-     * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
-     * @param time 插入消息所要模拟的发送时间。
-     * @param resultCallback 获得消息发送实体的回调。
-     */
     public void insertOutgoingMessage(
             Conversation.ConversationType type,
             String targetId,
@@ -1434,20 +1620,50 @@ public class IMCenter {
             MessageContent content,
             long time,
             final RongIMClient.ResultCallback<Message> resultCallback) {
+        insertOutgoingMessage(
+                ConversationIdentifier.obtain(type, targetId, ""),
+                sentStatus,
+                content,
+                time,
+                resultCallback);
+    }
+
+    /**
+     * 向本地会话中插入一条消息，方向为发送。这条消息只是插入本地会话，不会实际发送给服务器和对方。 插入消息需为入库消息，即 {@link
+     * MessageTag#ISPERSISTED}，否者会回调 {@link RongIMClient.ErrorCode#PARAMETER_ERROR}
+     *
+     * @param conversationIdentifier 会话标识。
+     * @param sentStatus 发送状态 @see {@link Message.SentStatus}
+     * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
+     * @param time 插入消息所要模拟的发送时间。
+     * @param resultCallback 获得消息发送实体的回调。
+     */
+    public void insertOutgoingMessage(
+            ConversationIdentifier conversationIdentifier,
+            Message.SentStatus sentStatus,
+            MessageContent content,
+            long time,
+            final RongIMClient.ResultCallback<Message> resultCallback) {
         if (mMessageInterceptor != null
                 && mMessageInterceptor.interceptOnInsertOutgoingMessage(
-                        type, targetId, sentStatus, content, time, resultCallback)) {
-            RLog.d(TAG, "message insertOut has been intercepted.");
-            return;
-        }
-        RongIMClient.getInstance()
-                .insertOutgoingMessage(
-                        type,
-                        targetId,
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
                         sentStatus,
                         content,
                         time,
-                        new RongIMClient.ResultCallback<Message>() {
+                        resultCallback)) {
+            RLog.d(TAG, "message insertOut has been intercepted.");
+            return;
+        }
+        ChannelClient.getInstance()
+                .insertOutgoingMessage(
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
+                        sentStatus,
+                        content,
+                        time,
+                        new IRongCoreCallback.ResultCallback<Message>() {
                             @Override
                             public void onSuccess(Message message) {
                                 for (MessageEventListener item : mMessageEventListeners) {
@@ -1459,9 +1675,10 @@ public class IMCenter {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
                                 if (resultCallback != null) {
-                                    resultCallback.onError(errorCode);
+                                    resultCallback.onError(
+                                            RongIMClient.ErrorCode.valueOf(errorCode.getValue()));
                                 }
                             }
                         });
@@ -2069,8 +2286,10 @@ public class IMCenter {
                     || errorCode.equals(RongIMClient.ErrorCode.FORBIDDEN_IN_CHATROOM)
                     || errorCode.equals(RongIMClient.ErrorCode.KICKED_FROM_CHATROOM)) {
 
+                if (message.getContent() instanceof ReadReceiptMessage) {
+                    return;
+                }
                 InformationNotificationMessage informationMessage = null;
-
                 if (errorCode.equals(RongIMClient.ErrorCode.NOT_IN_DISCUSSION)) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
@@ -2120,10 +2339,20 @@ public class IMCenter {
             }
             return;
         }
+        if (errorCode != null
+                && errorCode.code == IRongCoreEnum.CoreErrorCode.RC_VIDEO_COMPRESS_FAILED.getValue()
+                && message.getContent() instanceof SightMessage) {
+            // 压缩失败不走重发队列，需要用户自己重试
+            if (listener != null) {
+                listener.onComplete();
+            }
+            return;
+        }
         MessageTag tag = message.getContent().getClass().getAnnotation(MessageTag.class);
         if (RongConfigCenter.conversationConfig().rc_enable_resend_message
                 && tag != null
-                && (tag.flag() & MessageTag.ISPERSISTED) == MessageTag.ISPERSISTED) {
+                && ((tag.flag() & MessageTag.ISPERSISTED) == MessageTag.ISPERSISTED
+                        || content instanceof ReadReceiptMessage)) {
             // 发送失败的消息存入重发列表
             ResendManager.getInstance()
                     .addResendMessage(
