@@ -133,6 +133,10 @@ public class RongWebviewActivity extends RongBaseActivity {
         @Override
         public void onReceivedSslError(
                 WebView view, final SslErrorHandler handler, SslError error) {
+            if (RongWebviewActivity.this.isDestroyed() || RongWebviewActivity.this.isFinishing()) {
+                RLog.e(TAG, "onReceivedSslError but activity is finish");
+                return;
+            }
             final AlertDialog.Builder builder = new AlertDialog.Builder(RongWebviewActivity.this);
             builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
             builder.setNegativeButton(

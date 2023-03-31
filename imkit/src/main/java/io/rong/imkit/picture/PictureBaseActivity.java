@@ -24,6 +24,7 @@ import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import java.io.File;
 import java.util.ArrayList;
@@ -64,6 +65,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        RongUtils.fixAndroid8ActivityCrash(this);
         if (savedInstanceState != null) {
             config = savedInstanceState.getParcelable(PictureConfig.EXTRA_CONFIG);
             cameraPath = savedInstanceState.getString(PictureConfig.BUNDLE_CAMERA_PATH);

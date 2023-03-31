@@ -207,7 +207,9 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         mImageAdapter = new ImageAdapter();
         isFirstTime = true;
         if (!(mMessage.getContent().isDestruct()
-                || mMessage.getContent() instanceof ReferenceMessage)) {
+                || mMessage.getContent() instanceof ReferenceMessage
+                || Conversation.ConversationType.ULTRA_GROUP.equals(
+                        mMessage.getConversationType()))) {
             getConversationImageUris(
                     mCurrentMessageId,
                     RongCommonDefine.GetMessageDirection.FRONT); // 获取当前点开图片之前的图片消息。

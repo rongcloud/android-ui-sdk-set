@@ -18,6 +18,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -26,6 +27,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -113,6 +115,33 @@ public class EasyVideoPlayer extends FrameLayout
     private int currentPos;
     private boolean isLongClickable;
     // Runnable used to run code on an interval to update counters and seeker
+
+    // 按下时的X坐标
+    private float actionDownX;
+    // 按下时的Y坐标
+    private float actionDownY;
+    // 按下时的时间
+    private long actionDownTime;
+    // 按下时的视频播放进度
+    private int actionDownProgress;
+    // 按下时是否触发暂停
+    private boolean pauseByActionDown = false;
+
+    // 滑动控制进度
+    public static boolean supportDragSeek = false;
+
+    // 拖动系数，越小越灵敏
+    public static float dragFactor = 2.0f;
+    private final Runnable longClickRunnable =
+            new Runnable() {
+                @Override
+                public void run() {
+                    if (isLongClickable && mClickFrame != null) {
+                        onLongClick(mClickFrame);
+                    }
+                }
+            };
+
     private final Runnable mUpdateCounters =
             new Runnable() {
                 @Override
@@ -256,14 +285,72 @@ public class EasyVideoPlayer extends FrameLayout
             mControlsFrame.setVisibility(View.GONE);
             mClickFrame.setOnLongClickListener(null);
         } else {
-            mClickFrame.setOnClickListener(
-                    new OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            toggleControls();
-                        }
-                    });
-            mClickFrame.setOnLongClickListener(isLongClickable ? this : null);
+            mClickFrame.setOnClickListener(v -> toggleControls());
+            if (supportDragSeek) {
+                mClickFrame.setOnTouchListener(
+                        (v, event) -> {
+                            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                                actionDownX = event.getX();
+                                actionDownY = event.getY();
+                                actionDownTime = SystemClock.elapsedRealtime();
+                                if (mPlayer != null) {
+                                    actionDownProgress = mPlayer.getCurrentPosition();
+                                }
+                                EasyVideoPlayer.this.postDelayed(
+                                        longClickRunnable, ViewConfiguration.getLongPressTimeout());
+                            } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                                EasyVideoPlayer.this.removeCallbacks(longClickRunnable);
+                                if (SystemClock.elapsedRealtime() - actionDownTime
+                                                < ViewConfiguration.getLongPressTimeout()
+                                        && !isTouchScroll(
+                                                actionDownX,
+                                                actionDownY,
+                                                event.getX(),
+                                                event.getY())) {
+                                    // 此处触发 click 事件
+                                    mClickFrame.performClick();
+                                    return true;
+                                }
+                                if (currentPlayerStatus == PLAYER_STATUS_STARTED
+                                        && pauseByActionDown
+                                        && mPlayer != null) {
+                                    pauseByActionDown = false;
+                                    mPlayer.start();
+                                    hideControls();
+                                }
+                            } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                                if (isTouchScroll(
+                                        actionDownX, actionDownY, event.getX(), event.getY())) {
+                                    EasyVideoPlayer.this.removeCallbacks(longClickRunnable);
+                                    if (mPlayer == null) {
+                                        return true;
+                                    }
+                                    if (currentPlayerStatus == PLAYER_STATUS_STARTED) {
+                                        mPlayer.pause();
+                                        pauseByActionDown = true;
+                                    }
+                                    if (pauseByActionDown) {
+                                        int progressChange =
+                                                calculateProgressChange(
+                                                        mPlayer.getDuration(),
+                                                        mClickFrame.getWidth(),
+                                                        actionDownX,
+                                                        event.getX());
+                                        int progress = actionDownProgress + progressChange;
+                                        progress =
+                                                Math.max(
+                                                        0,
+                                                        Math.min(progress, mPlayer.getDuration()));
+                                        mPlayer.seekTo(progress);
+                                        showControlsImmediately();
+                                    }
+                                }
+                            }
+                            return true;
+                        });
+            } else {
+                mClickFrame.setOnLongClickListener(isLongClickable ? this : null);
+            }
         }
 
         // Retrieve controls
@@ -494,6 +581,23 @@ public class EasyVideoPlayer extends FrameLayout
                 .start();
     }
 
+    /** 立刻无动画无延迟的显示控制 View */
+    public void showControlsImmediately() {
+        if (mControlsDisabled || isControlsShown() || mSeeker == null) {
+            return;
+        }
+        if (isControlsShown()) {
+            return;
+        }
+        mControlsFrame.animate().cancel();
+        mControlsFrame.setAlpha(1f);
+        mControlsFrame.setVisibility(View.VISIBLE);
+        mImageViewClose.setVisibility(View.VISIBLE);
+        if (mAutoFullscreen) {
+            setFullscreen(false);
+        }
+    }
+
     @Override
     public void hideControls() {
         if (mControlsDisabled || !isControlsShown() || mSeeker == null) {
@@ -617,6 +721,13 @@ public class EasyVideoPlayer extends FrameLayout
                     "You cannot use setVolume(float, float) until the player is prepared.");
         }
         mPlayer.setVolume(leftVolume, rightVolume);
+    }
+
+    @Override
+    public void resume() {
+        if (isPrepared()) {
+            seekTo(0);
+        }
     }
 
     @Override
@@ -878,20 +989,20 @@ public class EasyVideoPlayer extends FrameLayout
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         RLog.d(TAG, "Detached from window");
-        release();
-
-        mSeeker = null;
-        mCurrent = null;
-        mTime = null;
-        mBtnPlayPause = null;
-
-        mControlsFrame = null;
-        mClickFrame = null;
-
-        if (mHandler != null) {
-            mHandler.removeCallbacks(mUpdateCounters);
-            mHandler = null;
-        }
+        //        release();
+        //
+        //        mSeeker = null;
+        //        mCurrent = null;
+        //        mTime = null;
+        //        mBtnPlayPause = null;
+        //
+        //        mControlsFrame = null;
+        //        mClickFrame = null;
+        //
+        //        if (mHandler != null) {
+        //            mHandler.removeCallbacks(mUpdateCounters);
+        //            mHandler = null;
+        //        }
     }
 
     private void setFitToFillAspectRatio(MediaPlayer mp, int videoWidth, int videoHeight) {
@@ -1118,8 +1229,10 @@ public class EasyVideoPlayer extends FrameLayout
 
     public void setLongClickable(boolean isLongClickable) {
         this.isLongClickable = isLongClickable;
-        if (mClickFrame != null) {
-            mClickFrame.setOnLongClickListener(isLongClickable ? this : null);
+        if (!supportDragSeek) {
+            if (mClickFrame != null) {
+                mClickFrame.setOnLongClickListener(isLongClickable ? this : null);
+            }
         }
     }
 
@@ -1134,5 +1247,27 @@ public class EasyVideoPlayer extends FrameLayout
     private void afterError() {
         stop();
         release();
+    }
+
+    // 判断当前是否满足拖动的条件
+    private boolean isTouchScroll(
+            float actionDownX, float actionDownY, float actionX, float actionY) {
+        return Math.abs(actionDownX - actionX)
+                        > ViewConfiguration.get(getContext()).getScaledTouchSlop()
+                || Math.abs(actionDownY - actionY)
+                        > ViewConfiguration.get(getContext()).getScaledTouchSlop();
+    }
+
+    // 计算拖动的进度
+    private int calculateProgressChange(
+            int totalProgress, int viewWidth, float actionDownX, float actionX) {
+        float abs = Math.abs(actionDownX - actionX);
+        float v = abs / (viewWidth * dragFactor);
+        float changeProgress = totalProgress * v;
+        if (actionDownX > actionX) {
+            return (int) (changeProgress * -1);
+        } else {
+            return (int) changeProgress;
+        }
     }
 }

@@ -5,8 +5,10 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -36,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -510,5 +513,45 @@ public class RongUtils {
         return Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU
                 && applicationInfo != null
                 && applicationInfo.targetSdkVersion >= AndroidConstant.ANDROID_TIRAMISU;
+    }
+
+    // 解决 Android 8.0 透明主题 Activity 崩溃问题
+    public static void fixAndroid8ActivityCrash(Activity activity) {
+        if (activity != null
+                && Build.VERSION.SDK_INT == Build.VERSION_CODES.O
+                && isTranslucentOrFloating(activity)) {
+            fixOrientation(activity);
+        }
+    }
+
+    private static boolean isTranslucentOrFloating(Activity activity) {
+        boolean isTranslucentOrFloating = false;
+        try {
+            int[] styleableRes =
+                    (int[])
+                            Class.forName("com.android.internal.R$styleable")
+                                    .getField("Window")
+                                    .get(null);
+            final TypedArray ta = activity.obtainStyledAttributes(styleableRes);
+            Method m = ActivityInfo.class.getMethod("isTranslucentOrFloating", TypedArray.class);
+            m.setAccessible(true);
+            isTranslucentOrFloating = (boolean) m.invoke(null, ta);
+            m.setAccessible(false);
+        } catch (Exception e) {
+            RLog.e(TAG, "isTranslucentOrFloating: " + "e = " + e.getMessage());
+        }
+        return isTranslucentOrFloating;
+    }
+
+    private static void fixOrientation(Activity activity) {
+        try {
+            Field field = Activity.class.getDeclaredField("mActivityInfo");
+            field.setAccessible(true);
+            ActivityInfo o = (ActivityInfo) field.get(activity);
+            o.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+            field.setAccessible(false);
+        } catch (Exception e) {
+            RLog.e(TAG, "fixOrientation: " + "e = " + e.getMessage());
+        }
     }
 }

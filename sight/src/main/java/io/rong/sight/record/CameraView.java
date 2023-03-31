@@ -555,7 +555,11 @@ public class CameraView extends RelativeLayout
             mParam = camera.getParameters();
             ViewGroup.LayoutParams layoutParams = mVideoView.getLayoutParams();
             int videoWidth = mVideoView.getMeasuredWidth();
-            layoutParams.height = previewSize.width * videoWidth / previewSize.height;
+            if (previewSize != null) {
+                layoutParams.height = previewSize.width * videoWidth / previewSize.height;
+            } else {
+                layoutParams.height = mVideoView.getMeasuredHeight();
+            }
             mVideoView.setLayoutParams(layoutParams);
             camera.setPreviewDisplay(holder);
             camera.setDisplayOrientation(calculateCameraPreviewOrientation());

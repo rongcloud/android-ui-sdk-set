@@ -128,6 +128,10 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
 
     /** 初始化刷新模块 */
     protected void initRefreshView() {
+        if (mRefreshLayout == null) {
+            RLog.d(TAG, "initRefreshView null");
+            return;
+        }
         mRefreshLayout.setNestedScrollingEnabled(false);
         mRefreshLayout.setRefreshHeader(new RongRefreshHeader(getContext()));
         mRefreshLayout.setRefreshFooter(new RongRefreshHeader(getContext()));
@@ -204,9 +208,17 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                             @Override
                             public void onChanged(Event.RefreshEvent refreshEvent) {
                                 if (refreshEvent.state.equals(RefreshState.LoadFinish)) {
-                                    mRefreshLayout.finishLoadMore();
+                                    if (mRefreshLayout != null) {
+                                        mRefreshLayout.finishLoadMore();
+                                    } else {
+                                        RLog.d(TAG, "onChanged finishLoadMore error");
+                                    }
                                 } else if (refreshEvent.state.equals(RefreshState.RefreshFinish)) {
-                                    mRefreshLayout.finishRefresh();
+                                    if (mRefreshLayout != null) {
+                                        mRefreshLayout.finishRefresh();
+                                    } else {
+                                        RLog.d(TAG, "onChanged finishRefresh error");
+                                    }
                                 }
                             }
                         });

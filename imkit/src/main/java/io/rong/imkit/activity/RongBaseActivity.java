@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.utils.StatusBarUtil;
 import io.rong.imkit.utils.language.RongConfigurationManager;
@@ -35,6 +36,7 @@ public class RongBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        RongUtils.fixAndroid8ActivityCrash(this);
         super.onCreate(savedInstanceState);
         setTheme(R.style.Theme_AppCompat_Light_NoActionBar);
         super.setContentView(R.layout.rc_base_activity_layout);

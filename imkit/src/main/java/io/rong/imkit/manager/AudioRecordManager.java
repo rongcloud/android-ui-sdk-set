@@ -73,7 +73,6 @@ public class AudioRecordManager implements Handler.Callback {
     private ImageView mStateIV;
     private TextView mStateTV;
     private TextView mTimerTV;
-    private volatile boolean forceAAC = false;
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private AudioRecordManager() {
@@ -282,14 +281,6 @@ public class AudioRecordManager implements Handler.Callback {
         }
     }
 
-    public void setForceAAC(boolean forceAAC) {
-        this.forceAAC = forceAAC;
-    }
-
-    public boolean isForceAAC() {
-        return forceAAC;
-    }
-
     public void willCancelRecord() {
         sendEmptyMessage(AUDIO_RECORD_EVENT_WILL_CANCEL);
     }
@@ -323,7 +314,7 @@ public class AudioRecordManager implements Handler.Callback {
     }
 
     private void startRec() {
-        RLog.d(TAG, "startRec,forceAAC = " + forceAAC);
+        RLog.d(TAG, "startRec");
         try {
             muteAudioFocus(mAudioManager, true);
             mAudioManager.setMode(AudioManager.MODE_NORMAL);
@@ -339,15 +330,6 @@ public class AudioRecordManager implements Handler.Callback {
                                             + what
                                             + ", extra = "
                                             + extra);
-                            if (!forceAAC) {
-                                try {
-                                    mr.release();
-                                } catch (Exception e) {
-                                    RLog.e(TAG, "mr release:" + e.getMessage());
-                                }
-                                forceAAC = true;
-                                startRec();
-                            }
                         }
                     });
             int bpsNb = RongConfigCenter.featureConfig().getAudioNBEncodingBitRate();
@@ -369,12 +351,8 @@ public class AudioRecordManager implements Handler.Callback {
             if (RongConfigCenter.featureConfig()
                     .getVoiceMessageType()
                     .equals(IMCenter.VoiceMessageType.HighQuality)) {
-                mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !forceAAC) {
-                    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.HE_AAC);
-                } else {
-                    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-                }
+                mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+                mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
             } else {
                 if (mSampleRate.equals(SamplingRate.RC_SAMPLE_RATE_8000)) {
                     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);

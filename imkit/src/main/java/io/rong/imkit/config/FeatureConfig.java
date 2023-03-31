@@ -10,7 +10,6 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitImageEngine;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.quickreply.IQuickReplyProvider;
-import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imlib.model.Conversation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -294,13 +293,24 @@ public class FeatureConfig {
         this.hideEmojiButton = hideEmojiButton;
     }
 
+    /**
+     * 是否强制开启了 aac 编码 5.4.1 之后强制使用 AAC，不再使用 HE_AAC
+     *
+     * @return
+     */
+    @Deprecated
     public boolean isForceUseAAC() {
-        return AudioRecordManager.getInstance().isForceAAC();
+        return true;
     }
 
-    /** 音频录音强制使用 aac 编码 */
+    /**
+     * 音频录音强制使用 aac 编码 5.4.1 之后强制使用 AAC，不再使用 HE_AAC
+     *
+     * @param forceUseAAC
+     */
+    @Deprecated
     public void setForceUseAAC(boolean forceUseAAC) {
-        AudioRecordManager.getInstance().setForceAAC(forceUseAAC);
+        // do nothing
     }
 
     /** @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器 */

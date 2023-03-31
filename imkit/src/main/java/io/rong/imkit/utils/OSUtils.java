@@ -18,11 +18,14 @@ public class OSUtils {
     public static final String ROM_VIVO = "VIVO";
     public static final String ROM_QIKU = "QIKU";
 
+    public static final String ROM_HARMONY = "HARMONY";
+
     private static final String KEY_VERSION_MIUI = "ro.miui.ui.version.name";
     private static final String KEY_VERSION_EMUI = "ro.build.version.emui";
     private static final String KEY_VERSION_OPPO = "ro.build.version.opporom";
     private static final String KEY_VERSION_SMARTISAN = "ro.smartisan.version";
     private static final String KEY_VERSION_VIVO = "ro.vivo.os.version";
+    private static final String KEY_VERSION_HARMONY = "hw_sc.build.platform.version";
     private static final String TAG = OSUtils.class.getSimpleName();
 
     private static String sName;
@@ -52,6 +55,10 @@ public class OSUtils {
         return check(ROM_QIKU) || check("360");
     }
 
+    public static boolean isHarmony() {
+        return check(ROM_HARMONY);
+    }
+
     public static boolean isSmartisan() {
         return check(ROM_SMARTISAN);
     }
@@ -77,6 +84,8 @@ public class OSUtils {
 
         if (!TextUtils.isEmpty(sVersion = getProp(KEY_VERSION_MIUI))) {
             sName = ROM_MIUI;
+        } else if (!TextUtils.isEmpty(sVersion = getProp(KEY_VERSION_HARMONY))) {
+            sName = ROM_HARMONY;
         } else if (!TextUtils.isEmpty(sVersion = getProp(KEY_VERSION_EMUI))) {
             sName = ROM_EMUI;
         } else if (!TextUtils.isEmpty(sVersion = getProp(KEY_VERSION_OPPO))) {
