@@ -31,14 +31,13 @@ import io.rong.imkit.conversation.extension.component.plugin.ImagePlugin;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imlib.ChannelClient;
-import io.rong.imlib.IMLibExtensionModuleManager;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
-import io.rong.imlib.model.HardwareResource;
 import java.util.List;
 
 public class DestructInputPanel {
@@ -95,6 +94,11 @@ public class DestructInputPanel {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        IMCenter.getInstance()
+                                .saveTextMessageDraft(
+                                        mConversationIdentifier,
+                                        mEditText.getText().toString(),
+                                        null);
                         DestructManager.getInstance().exitDestructMode();
                     }
                 });
@@ -202,6 +206,17 @@ public class DestructInputPanel {
                         mSendButton.setVisibility(VISIBLE);
                         mCancelButton.setVisibility(GONE);
                     }
+
+                    int offset = count == 0 ? -before : count;
+                    if ((Conversation.ConversationType.PRIVATE)
+                                    .equals(mConversationIdentifier.getType())
+                            && offset != 0) {
+                        RongIMClient.getInstance()
+                                .sendTypingStatus(
+                                        mConversationIdentifier.getType(),
+                                        mConversationIdentifier.getTargetId(),
+                                        "RC:TxtMsg");
+                    }
                 }
 
                 @Override
@@ -232,12 +247,7 @@ public class DestructInputPanel {
                             AudioPlayManager.getInstance().stopPlay();
                         }
                         // 判断正在视频通话和语音通话中不能进行语音消息发送
-                        if (IMLibExtensionModuleManager.getInstance()
-                                        .onRequestHardwareResource(
-                                                HardwareResource.ResourceType.VIDEO)
-                                || IMLibExtensionModuleManager.getInstance()
-                                        .onRequestHardwareResource(
-                                                HardwareResource.ResourceType.AUDIO)) {
+                        if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
                             Toast.makeText(
                                             v.getContext(),
                                             v.getContext()

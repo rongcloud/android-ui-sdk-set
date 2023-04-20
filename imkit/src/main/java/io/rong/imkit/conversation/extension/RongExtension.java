@@ -398,6 +398,7 @@ public class RongExtension extends LinearLayout {
                                     mConversationIdentifier.getTargetId())
                             ? InputMode.VoiceInput
                             : InputMode.TextInput);
+            getInputPanel().getDraft();
         }
     }
 

@@ -32,16 +32,14 @@ import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
-import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.ChannelClient;
-import io.rong.imlib.IMLibExtensionModuleManager;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
-import io.rong.imlib.model.HardwareResource;
 
 public class InputPanel {
     private final String TAG = this.getClass().getSimpleName();
@@ -335,7 +333,7 @@ public class InputPanel {
         return !RongConfigCenter.featureConfig().isHideEmojiButton();
     }
 
-    private void getDraft() {
+    public void getDraft() {
         ChannelClient.getInstance()
                 .getTextMessageDraft(
                         mConversationIdentifier.getType(),
@@ -394,13 +392,7 @@ public class InputPanel {
                             AudioPlayManager.getInstance().stopPlay();
                         }
                         // 判断正在视频通话和语音通话中不能进行语音消息发送
-                        if (RongUtils.phoneIsInUse(v.getContext())
-                                || IMLibExtensionModuleManager.getInstance()
-                                        .onRequestHardwareResource(
-                                                HardwareResource.ResourceType.VIDEO)
-                                || IMLibExtensionModuleManager.getInstance()
-                                        .onRequestHardwareResource(
-                                                HardwareResource.ResourceType.AUDIO)) {
+                        if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
                             Toast.makeText(
                                             v.getContext(),
                                             v.getContext()

@@ -28,6 +28,7 @@ public class FilePlugin implements IPluginModule {
 
     @Override
     public Drawable obtainDrawable(Context context) {
+        this.mContext = context;
         return ContextCompat.getDrawable(context, R.drawable.rc_ic_files_selector);
     }
 
@@ -38,6 +39,10 @@ public class FilePlugin implements IPluginModule {
 
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
+        if (extension == null) {
+            RLog.e(TAG, "extension null");
+            return;
+        }
         mConversationIdentifier = extension.getConversationIdentifier();
         FragmentActivity activity = currentFragment.getActivity();
         if (activity != null) {
@@ -54,7 +59,7 @@ public class FilePlugin implements IPluginModule {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_FILE) {
-            if (data != null) {
+            if (data != null && mContext != null) {
                 final Uri uri = data.getData();
                 int takeFlags =
                         data.getFlags()
@@ -83,12 +88,16 @@ public class FilePlugin implements IPluginModule {
                                                                 (IRongCallback
                                                                                 .ISendMediaMessageCallback)
                                                                         null);
+                                            } else {
+                                                RLog.e(TAG, "fileMessage null");
                                             }
                                         } catch (Exception e) {
                                             RLog.e(TAG, "select file exception" + e);
                                         }
                                     }
                                 });
+            } else {
+                RLog.e(TAG, "conversationType or context null");
             }
         }
     }

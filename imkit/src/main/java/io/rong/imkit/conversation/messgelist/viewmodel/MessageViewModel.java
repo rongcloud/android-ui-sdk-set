@@ -1093,6 +1093,13 @@ public class MessageViewModel extends AndroidViewModel
             }
         }
         mUiMessageLiveData.setValue(mUiMessages);
+
+        // 当会话页面删除消息后列表消息为空时，重新刷新列表
+        if (RongConfigCenter.conversationConfig().isNeedRefreshWhenListIsEmptyAfterDelete()
+                && mUiMessages.isEmpty()
+                && mProcessor != null) {
+            onRefresh();
+        }
     }
 
     @Override

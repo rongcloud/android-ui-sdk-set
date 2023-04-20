@@ -446,6 +446,9 @@ public class PermissionCheckUtil {
 
     public static void showRequestPermissionFailedAlter(
             final Context context, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (context == null) {
+            return;
+        }
         String content = getNotGrantedPermissionMsg(context, permissions, grantResults);
         if (TextUtils.isEmpty(content)) {
             return;

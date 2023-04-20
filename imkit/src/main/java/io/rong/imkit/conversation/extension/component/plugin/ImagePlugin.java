@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
@@ -29,6 +31,7 @@ import io.rong.imlib.model.ConversationIdentifier;
 import java.util.List;
 
 public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResultCallback {
+    private static final String TAG = "ImagePlugin";
     ConversationIdentifier conversationIdentifier;
     private int mRequestCode = -1;
 
@@ -44,8 +47,18 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
 
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
+        if (extension == null) {
+            RLog.e(TAG, "onClick extension null");
+            return;
+        }
         conversationIdentifier = extension.getConversationIdentifier();
         mRequestCode = ((index + 1) << 8) + (PictureConfig.CHOOSE_REQUEST & 0xff);
+
+        FragmentActivity activity = currentFragment.getActivity();
+        if (activity == null || activity.isDestroyed() || activity.isFinishing()) {
+            RLog.e(TAG, "onClick activity null");
+            return;
+        }
 
         // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
         String[] permissions = null;

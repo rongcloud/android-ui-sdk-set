@@ -61,6 +61,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -84,21 +85,32 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             new ViewPager2.OnPageChangeCallback() {
                 @Override
                 public void onPageSelected(int position) {
-                    if (position == (mImageAdapter.getItemCount() - 1)) {
-                        if (mImageAdapter.getItemCount() > 0) {
-                            getConversationImageUris(
-                                    mImageAdapter.getItem(position).getMessage().getMessageId(),
-                                    RongCommonDefine.GetMessageDirection.BEHIND);
-                        }
-                    } else if (position == 0) {
-                        if (mImageAdapter.getItemCount() > 0) {
-                            getConversationImageUris(
-                                    mImageAdapter.getItem(position).getMessage().getMessageId(),
-                                    RongCommonDefine.GetMessageDirection.FRONT);
-                        }
+                    if (null == mImageAdapter) {
+                        return;
                     }
-                    currentSelectMessageId =
-                            mImageAdapter.getItem(position).getMessage().getMessageId();
+                    if (mImageAdapter.getItemCount() <= 0) {
+                        return;
+                    }
+                    // position 越界直接返回
+                    if (position >= mImageAdapter.getItemCount()) {
+                        return;
+                    }
+                    ImageInfo imageInfo = mImageAdapter.getItem(position);
+                    if (null == imageInfo) {
+                        return;
+                    }
+                    Message message = imageInfo.getMessage();
+                    if (null == message) {
+                        return;
+                    }
+                    int msgId = message.getMessageId();
+                    if (position == (mImageAdapter.getItemCount() - 1)) {
+                        getConversationImageUris(
+                                msgId, RongCommonDefine.GetMessageDirection.BEHIND);
+                    } else if (position == 0) {
+                        getConversationImageUris(msgId, RongCommonDefine.GetMessageDirection.FRONT);
+                    }
+                    currentSelectMessageId = msgId;
                 }
             };
     RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
@@ -521,7 +533,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     }
 
     protected class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
-        private ArrayList<ImageInfo> mImageList = new ArrayList<>();
+        private List<ImageInfo> mImageList = new CopyOnWriteArrayList<>();
 
         @NonNull
         @Override
@@ -831,7 +843,11 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             return false;
         }
 
+        @Nullable
         public ImageInfo getItem(int index) {
+            if (index >= mImageList.size()) {
+                return null;
+            }
             return mImageList.get(index);
         }
 

@@ -94,13 +94,15 @@ public class IMCenter {
             new CopyOnWriteArrayList<>();
     private static final String EMOJI_TTF_FILE_NAME = "NotoColorEmojiCompat.ttf";
     /** 连接状态变化的监听器。 */
-    private RongIMClient.ConnectionStatusListener mConnectionStatusListener =
-            new RongIMClient.ConnectionStatusListener() {
+    private IRongCoreListener.ConnectionStatusListener mConnectionStatusListener =
+            new IRongCoreListener.ConnectionStatusListener() {
                 @Override
                 public void onChanged(ConnectionStatus connectionStatus) {
                     for (RongIMClient.ConnectionStatusListener listener :
                             mConnectionStatusObserverList) {
-                        listener.onChanged(connectionStatus);
+                        listener.onChanged(
+                                RongIMClient.ConnectionStatusListener.ConnectionStatus.valueOf(
+                                        connectionStatus.getValue()));
                     }
                 }
             };
@@ -414,7 +416,7 @@ public class IMCenter {
         RongConfigurationManager.init(application);
         RongCoreClient.addOnReceiveMessageListener(
                 SingletonHolder.sInstance.mOnReceiveMessageListener);
-        RongIMClient.setConnectionStatusListener(
+        RongCoreClient.addConnectionStatusListener(
                 SingletonHolder.sInstance.mConnectionStatusListener);
         RongIMClient.setOnRecallMessageListener(SingletonHolder.sInstance.mOnRecallMessageListener);
         RongIMClient.getInstance()
@@ -2454,6 +2456,9 @@ public class IMCenter {
     }
 
     public void addOnReceiveMessageListener(RongIMClient.OnReceiveMessageWrapperListener listener) {
+        if (listener == null || mOnReceiveMessageObserverList.contains(listener)) {
+            return;
+        }
         mOnReceiveMessageObserverList.add(listener);
     }
 
@@ -2466,6 +2471,9 @@ public class IMCenter {
 
     public void addAsyncOnReceiveMessageListener(
             RongIMClient.OnReceiveMessageWrapperListener listener) {
+        if (listener == null || mAsyncOnReceiveMessageObserverList.contains(listener)) {
+            return;
+        }
         mAsyncOnReceiveMessageObserverList.add(listener);
     }
 
@@ -2478,6 +2486,9 @@ public class IMCenter {
 
     public void addSyncConversationReadStatusListener(
             RongIMClient.SyncConversationReadStatusListener listener) {
+        if (listener == null || mSyncConversationReadStatusListeners.contains(listener)) {
+            return;
+        }
         mSyncConversationReadStatusListeners.add(listener);
     }
 
@@ -2487,6 +2498,9 @@ public class IMCenter {
     }
 
     public void addConnectStatusListener(RongIMClient.ConnectCallback callback) {
+        if (callback != null && mConnectStatusListener.contains(callback)) {
+            return;
+        }
         mConnectStatusListener.add(callback);
     }
 
@@ -2504,6 +2518,9 @@ public class IMCenter {
      * @param listener 连接状态变化的监听器。
      */
     public void addConnectionStatusListener(RongIMClient.ConnectionStatusListener listener) {
+        if (listener == null || mConnectionStatusObserverList.contains(listener)) {
+            return;
+        }
         mConnectionStatusObserverList.add(listener);
     }
 
@@ -2527,6 +2544,9 @@ public class IMCenter {
     }
 
     public void addMessageEventListener(MessageEventListener listener) {
+        if (listener == null || mMessageEventListeners.contains(listener)) {
+            return;
+        }
         mMessageEventListeners.add(listener);
     }
 
@@ -2535,6 +2555,9 @@ public class IMCenter {
     }
 
     public void addConversationStatusListener(RongIMClient.ConversationStatusListener listener) {
+        if (listener == null || mConversationStatusObserverList.contains(listener)) {
+            return;
+        }
         mConversationStatusObserverList.add(listener);
     }
 
@@ -2543,6 +2566,9 @@ public class IMCenter {
     }
 
     public void addOnRecallMessageListener(RongIMClient.OnRecallMessageListener listener) {
+        if (listener == null || mOnRecallMessageObserverList.contains(listener)) {
+            return;
+        }
         mOnRecallMessageObserverList.add(listener);
     }
 
@@ -2551,6 +2577,9 @@ public class IMCenter {
     }
 
     public void addReadReceiptListener(RongIMClient.ReadReceiptListener listener) {
+        if (listener == null || mReadReceiptObserverList.contains(listener)) {
+            return;
+        }
         mReadReceiptObserverList.add(listener);
     }
 
@@ -2559,6 +2588,9 @@ public class IMCenter {
     }
 
     public void addTypingStatusListener(RongIMClient.TypingStatusListener listener) {
+        if (listener == null || mTypingStatusListeners.contains(listener)) {
+            return;
+        }
         mTypingStatusListeners.add(listener);
     }
 
@@ -2567,6 +2599,9 @@ public class IMCenter {
     }
 
     public void addCancelSendMediaMessageListener(RongIMClient.ResultCallback<Message> listener) {
+        if (listener == null || mCancelSendMediaMessageListeners.contains(listener)) {
+            return;
+        }
         mCancelSendMediaMessageListeners.add(listener);
     }
 

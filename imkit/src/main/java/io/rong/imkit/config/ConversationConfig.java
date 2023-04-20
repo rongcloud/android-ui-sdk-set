@@ -111,6 +111,8 @@ public class ConversationConfig {
     private boolean showHistoryDividerMessage = true;
     /** 默认为 false 长按只删除本地消息，设置为 true 时长按删除消息，会把远端的消息也删除 */
     private boolean needDeleteRemoteMessage = false;
+    /** 默认为 true 当会话页面删除消息后列表消息为空时，是否重新刷新列表 */
+    private boolean needRefreshWhenListIsEmptyAfterDelete = true;
 
     private ConversationClickListener mConversationClickListener;
     private ProviderManager<UiMessage> mMessageListProvider = new ProviderManager<>();
@@ -690,6 +692,25 @@ public class ConversationConfig {
      */
     public void setNeedDeleteRemoteMessage(boolean needDeleteRemoteMessage) {
         this.needDeleteRemoteMessage = needDeleteRemoteMessage;
+    }
+
+    /**
+     * 获取当会话页面删除消息后列表消息为空时，设置是否重新刷新页面
+     *
+     * @return 是否重新刷新页面
+     */
+    public boolean isNeedRefreshWhenListIsEmptyAfterDelete() {
+        return needRefreshWhenListIsEmptyAfterDelete;
+    }
+
+    /**
+     * 当会话页面删除消息后列表消息为空时，设置是否重新刷新页面
+     *
+     * @param needRefreshWhenListIsEmptyAfterDelete 是否重新刷新页面
+     */
+    public void setNeedRefreshWhenListIsEmptyAfterDelete(
+            boolean needRefreshWhenListIsEmptyAfterDelete) {
+        this.needRefreshWhenListIsEmptyAfterDelete = needRefreshWhenListIsEmptyAfterDelete;
     }
 
     private HashMap<String, Integer> mFileSuffixTypeMap = new HashMap<>();

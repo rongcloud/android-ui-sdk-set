@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.rlog.RLog;
@@ -47,7 +49,20 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
 
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
+        if (extension == null) {
+            RLog.e(TAG, "onClick extension null");
+            return;
+        }
         if (!RongOperationPermissionUtils.isMediaOperationPermit(currentFragment.getActivity())) {
+            return;
+        }
+        // 判断正在视频通话和语音通话中不能进行语音消息发送
+        if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
+            Toast.makeText(
+                            currentFragment.getActivity(),
+                            R.string.rc_voip_occupying,
+                            Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
@@ -75,6 +90,10 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
             if (file.exists()) {
                 int recordTime = data.getIntExtra("recordSightTime", 0);
                 SightMessage sightMessage = SightMessage.obtain(Uri.fromFile(file), recordTime);
+                if (sightMessage == null) {
+                    RLog.e(TAG, "onActivityResult SightMessage null");
+                    return;
+                }
                 if (DestructManager.isActive()) {
                     sightMessage.setDestructTime(DestructManager.SIGHT_DESTRUCT_TIME);
                 }
@@ -99,10 +118,12 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
     }
 
     private void startSightRecord(Fragment currentFragment, RongExtension extension) {
-        File saveDir = null;
-        if (currentFragment.getActivity() == null) {
+        FragmentActivity activity = currentFragment.getActivity();
+        if (activity == null || activity.isDestroyed() || activity.isFinishing()) {
+            RLog.e(TAG, "startSightRecord activity null");
             return;
         }
+        File saveDir = null;
         saveDir =
                 new File(
                         FileUtils.getMediaDownloadDir(
