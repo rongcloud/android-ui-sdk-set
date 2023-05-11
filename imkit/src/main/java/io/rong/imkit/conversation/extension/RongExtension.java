@@ -39,12 +39,12 @@ import io.rong.imkit.utils.RongViewUtils;
 import io.rong.imkit.utils.keyboard.KeyboardHeightObserver;
 import io.rong.imkit.utils.keyboard.KeyboardHeightProvider;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 
 public class RongExtension extends LinearLayout {
     private String TAG = RongExtension.class.getSimpleName();
     private Fragment mFragment;
-    private Conversation.ConversationType mConversationType;
-    private String mTargetId;
+    private ConversationIdentifier mConversationIdentifier;
     private ViewGroup mRoot;
     private RongExtensionViewModel mExtensionViewModel;
     private MessageViewModel mMessageViewModel;
@@ -133,12 +133,10 @@ public class RongExtension extends LinearLayout {
 
     public void bindToConversation(
             Fragment fragment,
-            Conversation.ConversationType conversationType,
-            String targetId,
+            ConversationIdentifier conversationIdentifier,
             boolean disableSystemEmoji) {
         mFragment = fragment;
-        mConversationType = conversationType;
-        mTargetId = targetId;
+        mConversationIdentifier = conversationIdentifier;
         mExtensionViewModel = new ViewModelProvider(mFragment).get(RongExtensionViewModel.class);
         mExtensionViewModel
                 .getAttachedInfoState()
@@ -204,17 +202,26 @@ public class RongExtension extends LinearLayout {
                         });
         mEmoticonBoard =
                 new EmoticonBoard(
-                        fragment, mBoardContainer, conversationType, targetId, disableSystemEmoji);
-        mPluginBoard = new PluginBoard(fragment, mBoardContainer, conversationType, targetId);
+                        fragment,
+                        mBoardContainer,
+                        mConversationIdentifier.getType(),
+                        mConversationIdentifier.getTargetId(),
+                        disableSystemEmoji);
+        mPluginBoard =
+                new PluginBoard(
+                        fragment,
+                        mBoardContainer,
+                        mConversationIdentifier.getType(),
+                        mConversationIdentifier.getTargetId());
         mInputPanel =
                 new InputPanel(
-                        fragment, mInputPanelContainer, mInputStyle, conversationType, targetId);
+                        fragment, mInputPanelContainer, mInputStyle, mConversationIdentifier);
 
         if (mInputPanelContainer.getChildCount() <= 0) {
             RongViewUtils.addView(mInputPanelContainer, mInputPanel.getRootView());
         }
         mExtensionViewModel.setAttachedConversation(
-                conversationType, targetId, mInputPanel.getEditText());
+                conversationIdentifier, mInputPanel.getEditText());
         mExtensionViewModel
                 .getInputModeLiveData()
                 .observe(
@@ -285,8 +292,8 @@ public class RongExtension extends LinearLayout {
                                     int cursorPos = editText.getSelectionStart();
                                     RongMentionManager.getInstance()
                                             .onDeleteClick(
-                                                    mConversationType,
-                                                    mTargetId,
+                                                    mConversationIdentifier.getType(),
+                                                    mConversationIdentifier.getTargetId(),
                                                     editText,
                                                     cursorPos);
                                 }
@@ -377,11 +384,7 @@ public class RongExtension extends LinearLayout {
         if (mInputPanel == null) {
             mInputPanel =
                     new InputPanel(
-                            mFragment,
-                            mInputPanelContainer,
-                            mInputStyle,
-                            mConversationType,
-                            mTargetId);
+                            mFragment, mInputPanelContainer, mInputStyle, mConversationIdentifier);
         }
         mExtensionViewModel.setEditTextWidget(mInputPanel.getEditText());
         RongViewUtils.addView(mInputPanelContainer, mInputPanel.getRootView());
@@ -390,9 +393,12 @@ public class RongExtension extends LinearLayout {
             mAttachedInfoContainer.setVisibility(GONE);
             updateInputMode(
                     RongExtensionCacheHelper.isVoiceInputMode(
-                                    mFragment.getContext(), mConversationType, mTargetId)
+                                    mFragment.getContext(),
+                                    mConversationIdentifier.getType(),
+                                    mConversationIdentifier.getTargetId())
                             ? InputMode.VoiceInput
                             : InputMode.TextInput);
+            getInputPanel().getDraft();
         }
     }
 
@@ -549,7 +555,7 @@ public class RongExtension extends LinearLayout {
      * @return 会话类型。
      */
     public Conversation.ConversationType getConversationType() {
-        return mConversationType;
+        return mConversationIdentifier.getType();
     }
 
     /**
@@ -558,7 +564,11 @@ public class RongExtension extends LinearLayout {
      * @return 目标 id。
      */
     public String getTargetId() {
-        return mTargetId;
+        return mConversationIdentifier.getTargetId();
+    }
+
+    public ConversationIdentifier getConversationIdentifier() {
+        return mConversationIdentifier;
     }
 
     public void requestPermissionForPluginResult(
@@ -624,11 +634,15 @@ public class RongExtension extends LinearLayout {
         if (mInputPanel != null) {
             mInputPanel.onDestroy();
             RongMentionManager.getInstance()
-                    .destroyInstance(mConversationType, mTargetId, getInputEditText());
+                    .destroyInstance(
+                            mConversationIdentifier.getType(),
+                            mConversationIdentifier.getTargetId(),
+                            getInputEditText());
         }
         for (IExtensionEventWatcher watcher :
                 RongExtensionManager.getInstance().getExtensionEventWatcher()) {
-            watcher.onDestroy(mConversationType, mTargetId);
+            watcher.onDestroy(
+                    mConversationIdentifier.getType(), mConversationIdentifier.getTargetId());
         }
         for (IExtensionModule extensionModule :
                 RongExtensionManager.getInstance().getExtensionModules()) {

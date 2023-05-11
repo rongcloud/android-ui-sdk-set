@@ -1,5 +1,6 @@
 package io.rong.imkit.config;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.http.SslCertificate;
@@ -190,7 +191,7 @@ public class FeatureConfig {
     }
 
     /**
-     * 开启快捷回复功能。需要在打开指定会话之前调用。
+     * 开启快捷回复功能。需要在{@link IMCenter#init(Application, String, boolean)} 之前调用。
      *
      * @param provider 快捷回复短语的内容提供模板。
      */

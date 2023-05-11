@@ -1,6 +1,7 @@
 package io.rong.imkit.conversation.extension.component.emoticon;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -91,12 +92,17 @@ public class AndroidEmoji {
         }
 
         public EmojiImageSpan(int codePoint, float textSize) {
-            if (sEmojiMap != null && sEmojiMap.containsKey(codePoint)) {
+            if (mContext != null && sEmojiMap != null && sEmojiMap.containsKey(codePoint)) {
                 EmojiInfo emojiInfo = sEmojiMap.get(codePoint);
                 if (emojiInfo == null) {
                     return;
                 }
-                mDrawable = mContext.getResources().getDrawable(emojiInfo.resId);
+                try {
+                    mDrawable = mContext.getResources().getDrawable(emojiInfo.resId);
+                } catch (Resources.NotFoundException e) {
+                    RLog.i(TAG, "EmojiImageSpan NotFoundException:" + e);
+                    return;
+                }
                 int offset; // 相对 emoji 原图的偏移量
                 if (textSize == 0) {
                     offset = -(int) (4 * density);
@@ -211,7 +217,7 @@ public class AndroidEmoji {
                 codePoint = (int) chars[i];
             }
 
-            if (sEmojiMap.containsKey(codePoint)) {
+            if (sEmojiMap != null && sEmojiMap.containsKey(codePoint)) {
                 count++;
             }
         }
@@ -247,7 +253,9 @@ public class AndroidEmoji {
                 if (offset > 0
                         && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
                     codePoint = Character.toCodePoint(cs.charAt(offset - 1), cs.charAt(offset));
-                    if (sEmojiMap.containsKey(codePoint) && needReplaceEmoji(cs, offset)) {
+                    if (sEmojiMap != null
+                            && sEmojiMap.containsKey(codePoint)
+                            && needReplaceEmoji(cs, offset)) {
                         rcEmojiCode = codePoint;
                         start = offset - 1;
                         // 若当前为字符串结尾，且命中融云表情，则渲染
@@ -261,7 +269,9 @@ public class AndroidEmoji {
             } else {
                 codePoint = cs.charAt(offset);
                 // 判断是否为普通表情，且融云内置表情
-                if (sEmojiMap.containsKey(codePoint) && needReplaceEmoji(cs, offset)) {
+                if (sEmojiMap != null
+                        && sEmojiMap.containsKey(codePoint)
+                        && needReplaceEmoji(cs, offset)) {
                     ssb.setSpan(
                             new EmojiImageSpan(codePoint),
                             offset,
@@ -315,7 +325,7 @@ public class AndroidEmoji {
                 codePoint = (int) chars[i];
             }
 
-            if (sEmojiMap.containsKey(codePoint)) {
+            if (sEmojiMap != null && sEmojiMap.containsKey(codePoint)) {
                 return true;
             }
         }
@@ -368,7 +378,9 @@ public class AndroidEmoji {
                 if (offset > 0
                         && Character.isSurrogatePair(cs.charAt(offset - 1), cs.charAt(offset))) {
                     codePoint = Character.toCodePoint(cs.charAt(offset - 1), cs.charAt(offset));
-                    if (sEmojiMap.containsKey(codePoint) && needReplaceEmoji(cs, offset)) {
+                    if (sEmojiMap != null
+                            && sEmojiMap.containsKey(codePoint)
+                            && needReplaceEmoji(cs, offset)) {
                         rcEmojiCode = codePoint;
                         start = offset - 1;
                         // 若当前为字符串结尾，且命中融云表情，则渲染
@@ -382,7 +394,9 @@ public class AndroidEmoji {
             } else {
                 codePoint = cs.charAt(offset);
                 // 判断是否为融云内置表情
-                if (sEmojiMap.containsKey(codePoint) && needReplaceEmoji(cs, offset)) {
+                if (sEmojiMap != null
+                        && sEmojiMap.containsKey(codePoint)
+                        && needReplaceEmoji(cs, offset)) {
                     // 若前一个融云表情命中，则使用融云渲染
                     spannable.setSpan(
                             new EmojiImageSpan(codePoint),
@@ -442,7 +456,7 @@ public class AndroidEmoji {
                 isSurrogatePair = false;
             }
 
-            if (sEmojiMap.containsKey(codePoint)) {
+            if (mContext != null && sEmojiMap != null && sEmojiMap.containsKey(codePoint)) {
                 emojiCount++;
                 char[] spanchars = srcString.toCharArray();
                 if (spanchars != null && spanchars.length > 0) {
@@ -479,7 +493,7 @@ public class AndroidEmoji {
         if (resultSpanStr == null) {
             return null;
         }
-        if (replaceEmojiMap.containsKey(codePoint)) {
+        if (replaceEmojiMap != null && replaceEmojiMap.containsKey(codePoint)) {
             resultSpanStr.append(replaceEmojiMap.get(codePoint));
             return resultSpanStr;
         }
@@ -497,17 +511,21 @@ public class AndroidEmoji {
     }
 
     public static int getEmojiSize() {
-        return sEmojiMap.size();
+        return sEmojiMap != null ? sEmojiMap.size() : 0;
     }
 
     public static int getEmojiCode(int index) {
-        EmojiInfo info = sEmojiList.get(index);
-        return info.code;
+        if (index >= 0 && sEmojiList != null && index < sEmojiList.size()) {
+            EmojiInfo info = sEmojiList.get(index);
+            return info.code;
+        }
+        RLog.e(TAG, "getEmojiCode sEmojiList IndexOutOfBounds");
+        return 0;
     }
 
     public static Drawable getEmojiDrawable(Context context, int index) {
         Drawable drawable = null;
-        if (index >= 0 && index < sEmojiList.size()) {
+        if (index >= 0 && sEmojiList != null && index < sEmojiList.size()) {
             EmojiInfo emoji = sEmojiList.get(index);
             drawable = context.getResources().getDrawable(emoji.resId);
         }

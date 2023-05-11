@@ -1,6 +1,7 @@
 package io.rong.imkit.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,9 +16,13 @@ import io.rong.imkit.R;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.utils.StatusBarUtil;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imkit.widget.TitleBar;
+import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
+import java.util.Locale;
 
 public class RongBaseActivity extends AppCompatActivity {
     protected ViewFlipper mContentView;
@@ -75,5 +80,23 @@ public class RongBaseActivity extends AppCompatActivity {
                 colorResId == 0
                         ? getResources().getColor(R.color.rc_background_main_color)
                         : getResources().getColor(colorResId)); // Color.parseColor("#F5F6F9")
+    }
+
+    /** 从Intent取出ConversationIdentifier，没有的话取ConversationType、targetId、channelId构建 */
+    public ConversationIdentifier initConversationIdentifier() {
+        Intent intent = getIntent();
+        if (intent.hasExtra(RouteUtils.CONVERSATION_IDENTIFIER)) {
+            ConversationIdentifier identifier =
+                    intent.getParcelableExtra(RouteUtils.CONVERSATION_IDENTIFIER);
+            if (identifier != null) {
+                return identifier;
+            }
+        }
+
+        String type = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
+        Conversation.ConversationType conversationType =
+                Conversation.ConversationType.valueOf(type.toUpperCase(Locale.US));
+        String targetId = intent.getStringExtra(RouteUtils.TARGET_ID);
+        return ConversationIdentifier.obtain(conversationType, targetId, "");
     }
 }

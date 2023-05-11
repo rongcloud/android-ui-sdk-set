@@ -117,7 +117,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
         mFileButton.setOnClickListener(this);
         //        mCancel.setOnClickListener(this);
-
         String savedPath =
                 FtUtilities.getFileName(mFileDownloadInfo.path, mFileDownloadInfo.fileName, false);
         mAttachFile = new File(savedPath);

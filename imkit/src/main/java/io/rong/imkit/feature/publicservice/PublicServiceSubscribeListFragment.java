@@ -16,6 +16,7 @@ import io.rong.imkit.widget.adapter.BaseListViewAdapter;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.publicservice.model.PublicServiceProfile;
 import io.rong.imlib.publicservice.model.PublicServiceProfileList;
 
@@ -44,8 +45,8 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
                         RongIM.getInstance()
                                 .startConversation(
                                         getActivity(),
-                                        info.getConversationType(),
-                                        info.getTargetId(),
+                                        ConversationIdentifier.obtain(
+                                                info.getConversationType(), info.getTargetId(), ""),
                                         info.getName());
                     }
                 });

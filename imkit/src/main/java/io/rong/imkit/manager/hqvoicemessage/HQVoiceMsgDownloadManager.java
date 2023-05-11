@@ -32,8 +32,32 @@ public class HQVoiceMsgDownloadManager {
     private ExecutorService executorService;
     private Future<?> future = null;
     private List<AutoDownloadEntry> errorList = null;
+    private final String[] writePermission =
+            new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+    private RongIMClient.OnReceiveMessageWrapperListener onReceiveMessageWrapperListener =
+            new RongIMClient.OnReceiveMessageWrapperListener() {
+                @Override
+                public boolean onReceived(
+                        Message message, int left, boolean hasPackage, boolean offline) {
+                    if (!offline
+                            && message.getContent() instanceof HQVoiceMessage
+                            && RongConfigCenter.conversationListConfig()
+                                    .isEnableAutomaticDownloadHQVoice()) {
+                        if (Build.VERSION.SDK_INT < AndroidConstant.ANDROID_TIRAMISU
+                                && PermissionCheckUtil.checkPermissions(
+                                        getInstance().mContext, writePermission)) {
+                            enqueue(
+                                    new AutoDownloadEntry(
+                                            message, AutoDownloadEntry.DownloadPriority.NORMAL));
+                        }
+                    }
+                    return false;
+                }
+            };
 
-    private HQVoiceMsgDownloadManager() {}
+    private HQVoiceMsgDownloadManager() {
+        // default implementation ignored
+    }
 
     public void init(final Context context) {
         AutoDownloadNetWorkChangeReceiver autoDownloadNetWorkChangeReceiver;
@@ -50,32 +74,7 @@ public class HQVoiceMsgDownloadManager {
             RLog.e(TAG, "registerReceiver Exception", e);
         }
         downloadHQVoiceMessage();
-        final String[] writePermission = new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        IMCenter.getInstance()
-                .addAsyncOnReceiveMessageListener(
-                        new RongIMClient.OnReceiveMessageWrapperListener() {
-                            @Override
-                            public boolean onReceived(
-                                    Message message,
-                                    int left,
-                                    boolean hasPackage,
-                                    boolean offline) {
-                                if (!offline
-                                        && message.getContent() instanceof HQVoiceMessage
-                                        && RongConfigCenter.conversationListConfig()
-                                                .isEnableAutomaticDownloadHQVoice()) {
-                                    if (Build.VERSION.SDK_INT < AndroidConstant.ANDROID_TIRAMISU
-                                            && PermissionCheckUtil.checkPermissions(
-                                                    context, writePermission)) {
-                                        enqueue(
-                                                new AutoDownloadEntry(
-                                                        message,
-                                                        AutoDownloadEntry.DownloadPriority.NORMAL));
-                                    }
-                                }
-                                return false;
-                            }
-                        });
+        IMCenter.getInstance().addAsyncOnReceiveMessageListener(onReceiveMessageWrapperListener);
     }
 
     private static class HQVoiceMsgDownloadManagerHolder {

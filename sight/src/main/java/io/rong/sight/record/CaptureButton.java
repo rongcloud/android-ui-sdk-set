@@ -260,7 +260,9 @@ public class CaptureButton extends View {
                 if (event.getY() > btn_center_Y - btn_outside_radius
                         && event.getY() < btn_center_Y + btn_outside_radius
                         && event.getX() > btn_center_X - btn_outside_radius
-                        && event.getX() < btn_center_X + btn_outside_radius) {}
+                        && event.getX() < btn_center_X + btn_outside_radius) {
+                    // default implementation ignored
+                }
                 if (mCaptureListener != null) {
                     mCaptureListener.scale(key_down_Y - event.getY());
                 }

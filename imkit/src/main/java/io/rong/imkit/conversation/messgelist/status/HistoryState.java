@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class HistoryState implements IMessageState {
+    private static final String TAG = "HistoryState";
     private boolean isLoading;
     private final StateContext context;
 
@@ -32,7 +33,7 @@ public class HistoryState implements IMessageState {
         }
 
         if (indexTime > 0) {
-
+            isLoading = true;
             MessageProcessor.getMessagesAll(
                     messageViewModel,
                     indexTime,
@@ -44,20 +45,26 @@ public class HistoryState implements IMessageState {
                             messageViewModel.onGetHistoryMessage(list);
                             // '5'标识定位消息的下标
                             messageViewModel.executePageEvent(new ScrollEvent(5));
+                            isLoading = false;
                         }
 
                         @Override
-                        public void onErrorAsk(List<Message> list) {}
+                        public void onErrorAsk(List<Message> list) {
+                            isLoading = false;
+                        }
 
                         @Override
                         public void onErrorAlways(List<Message> list) {
                             messageViewModel.onGetHistoryMessage(list);
                             // '5'标识定位消息的下标
                             messageViewModel.executePageEvent(new ScrollEvent(5));
+                            isLoading = false;
                         }
 
                         @Override
-                        public void onErrorOnlySuccess() {}
+                        public void onErrorOnlySuccess() {
+                            isLoading = false;
+                        }
                     });
         }
     }

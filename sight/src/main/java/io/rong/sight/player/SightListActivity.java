@@ -95,7 +95,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity
             }
             ItemData data = new ItemData();
             data.message = message;
-            if (Conversation.ConversationType.GROUP.equals(conversationType)) {
+            if (conversationType.equals(Conversation.ConversationType.GROUP)) {
                 GroupUserInfo groupUserInfo =
                         RongUserInfoManager.getInstance()
                                 .getGroupUserInfo(targetId, message.getSenderUserId());
@@ -130,7 +130,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity
     public void updateGroupUserInfo(GroupUserInfo groupMember) {
         boolean needUpdate = false;
         if (groupMember != null
-                && Conversation.ConversationType.GROUP.equals(conversationType)
+                && conversationType.equals(Conversation.ConversationType.GROUP)
                 && targetId.equals(groupMember.getGroupId())) {
             for (ItemData itemData : sightListAdapter.getData()) {
                 if (itemData.message.getSenderUserId().equals(groupMember.getUserId())) {

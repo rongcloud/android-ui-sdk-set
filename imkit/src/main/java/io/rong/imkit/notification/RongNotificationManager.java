@@ -28,9 +28,13 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.RongCache;
+import io.rong.imlib.ChannelClient;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.MentionedInfo;
@@ -63,7 +67,92 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     private ConcurrentHashMap<String, Message> messageMap = new ConcurrentHashMap<>();
     private MediaPlayer mediaPlayer;
 
-    private RongNotificationManager() {}
+    private RongIMClient.OnReceiveMessageWrapperListener onReceiveMessageWrapperListener =
+            new RongIMClient.OnReceiveMessageWrapperListener() {
+                @Override
+                public boolean onReceived(
+                        final Message message, int left, boolean hasPackage, boolean offline) {
+                    RLog.d(TAG, "onReceived. uid:" + message.getUId() + "; offline:" + offline);
+                    if (shouldNotify(message, left, hasPackage, offline)) {
+                        // 高优先级消息不受免打扰和会话通知状态控制
+                        NotificationConfig.Interceptor interceptor =
+                                RongConfigCenter.notificationConfig().getInterceptor();
+                        if (interceptor != null) {
+                            boolean high = interceptor.isHighPriorityMessage(message);
+                            if (high) {
+                                preToNotify(message);
+                                return false;
+                            }
+                        }
+                        MessageNotificationHelper.getNotificationQuietHoursLevel(message);
+                    }
+                    return false;
+                }
+            };
+
+    private RongIMClient.ConversationStatusListener conversationStatusListener =
+            new RongIMClient.ConversationStatusListener() {
+                @Override
+                public void onStatusChanged(ConversationStatus[] conversationStatuses) {
+                    String stateType = "";
+                    String key = "";
+                    if (conversationStatuses != null && conversationStatuses.length > 0) {
+                        for (ConversationStatus status : conversationStatuses) {
+                            if (status.getStatus() == null) {
+                                continue;
+                            }
+                            for (Map.Entry<String, String> entry : status.getStatus().entrySet()) {
+                                stateType = entry.getKey();
+                                if (!TextUtils.isEmpty(stateType)) {
+                                    break;
+                                }
+                            }
+                            key =
+                                    getKey(
+                                            status.getTargetId(),
+                                            status.getConversationType(),
+                                            stateType);
+                            mNotificationCache.put(key, status.getNotifyStatus());
+                        }
+                    }
+                }
+            };
+
+    private RongIMClient.OnRecallMessageListener recallMessageListener =
+            new RongIMClient.OnRecallMessageListener() {
+                @Override
+                public boolean onMessageRecalled(
+                        final Message message,
+                        RecallNotificationMessage recallNotificationMessage) {
+                    if (!isRecallFiltered(message)) {
+                        getConversationNotificationStatus(
+                                ConversationIdentifier.obtain(message),
+                                new RongIMClient.ResultCallback<
+                                        Conversation.ConversationNotificationStatus>() {
+                                    @Override
+                                    public void onSuccess(
+                                            Conversation.ConversationNotificationStatus
+                                                    conversationNotificationStatus) {
+                                        if (conversationNotificationStatus.equals(
+                                                Conversation.ConversationNotificationStatus
+                                                        .NOTIFY)) {
+                                            preToNotify(message);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(RongIMClient.ErrorCode errorCode) {
+                                        // do nothing
+                                    }
+                                });
+                    }
+                    return false;
+                }
+            };
+
+    private RongNotificationManager() {
+        // default implementation ignored
+    }
 
     public static RongNotificationManager getInstance() {
         return SingletonHolder.sInstance;
@@ -72,36 +161,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     public void init(Application application) {
         messageMap.clear();
         mApplication = application;
-        IMCenter.getInstance()
-                .addConversationStatusListener(
-                        new RongIMClient.ConversationStatusListener() {
-                            @Override
-                            public void onStatusChanged(ConversationStatus[] conversationStatuses) {
-                                String stateType = "";
-                                String key = "";
-                                if (conversationStatuses != null
-                                        && conversationStatuses.length > 0) {
-                                    for (ConversationStatus status : conversationStatuses) {
-                                        if (status.getStatus() == null) {
-                                            continue;
-                                        }
-                                        for (Map.Entry<String, String> entry :
-                                                status.getStatus().entrySet()) {
-                                            stateType = entry.getKey();
-                                            if (!TextUtils.isEmpty(stateType)) {
-                                                break;
-                                            }
-                                        }
-                                        key =
-                                                getKey(
-                                                        status.getTargetId(),
-                                                        status.getConversationType(),
-                                                        stateType);
-                                        mNotificationCache.put(key, status.getNotifyStatus());
-                                    }
-                                }
-                            }
-                        });
+        IMCenter.getInstance().addConversationStatusListener(conversationStatusListener);
         mNotificationCache = new RongCache<>(MAX_NOTIFICATION_STATUS_CACHE);
         getNotificationQuietHours(null);
         MessageNotificationHelper.setNotifyListener(
@@ -114,73 +174,8 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         preToNotify(message);
                     }
                 });
-        IMCenter.getInstance()
-                .addAsyncOnReceiveMessageListener(
-                        new RongIMClient.OnReceiveMessageWrapperListener() {
-                            @Override
-                            public boolean onReceived(
-                                    final Message message,
-                                    int left,
-                                    boolean hasPackage,
-                                    boolean offline) {
-                                RLog.d(
-                                        TAG,
-                                        "onReceived. uid:"
-                                                + message.getUId()
-                                                + "; offline:"
-                                                + offline);
-                                if (shouldNotify(message, left, hasPackage, offline)) {
-                                    // 高优先级消息不受免打扰和会话通知状态控制
-                                    NotificationConfig.Interceptor interceptor =
-                                            RongConfigCenter.notificationConfig().getInterceptor();
-                                    if (interceptor != null) {
-                                        boolean high = interceptor.isHighPriorityMessage(message);
-                                        if (high) {
-                                            preToNotify(message);
-                                            return false;
-                                        }
-                                    }
-                                    MessageNotificationHelper.getNotificationQuietHoursLevel(
-                                            message);
-                                }
-                                return false;
-                            }
-                        });
-        IMCenter.getInstance()
-                .addOnRecallMessageListener(
-                        new RongIMClient.OnRecallMessageListener() {
-                            @Override
-                            public boolean onMessageRecalled(
-                                    final Message message,
-                                    RecallNotificationMessage recallNotificationMessage) {
-                                if (!isRecallFiltered(message)) {
-                                    getConversationNotificationStatus(
-                                            message.getConversationType(),
-                                            message.getTargetId(),
-                                            new RongIMClient.ResultCallback<
-                                                    Conversation.ConversationNotificationStatus>() {
-                                                @Override
-                                                public void onSuccess(
-                                                        Conversation.ConversationNotificationStatus
-                                                                conversationNotificationStatus) {
-                                                    if (conversationNotificationStatus.equals(
-                                                            Conversation
-                                                                    .ConversationNotificationStatus
-                                                                    .NOTIFY)) {
-                                                        preToNotify(message);
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onError(
-                                                        RongIMClient.ErrorCode errorCode) {
-                                                    // do nothing
-                                                }
-                                            });
-                                }
-                                return false;
-                            }
-                        });
+        IMCenter.getInstance().addAsyncOnReceiveMessageListener(onReceiveMessageWrapperListener);
+        IMCenter.getInstance().addOnRecallMessageListener(recallMessageListener);
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         registerActivityLifecycleCallback();
     }
@@ -570,19 +565,20 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     }
 
     public void getConversationNotificationStatus(
-            Conversation.ConversationType type,
-            String targetId,
+            ConversationIdentifier conversationIdentifier,
             final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>
                     callback) {
-        final String key = getKey(targetId, type, "1");
+        final String key =
+                getKey(conversationIdentifier.getTargetId(), conversationIdentifier.getType(), "1");
         if (mNotificationCache.get(key) != null && callback != null) {
             callback.onSuccess(mNotificationCache.get(key));
         } else {
-            RongIMClient.getInstance()
+            ChannelClient.getInstance()
                     .getConversationNotificationStatus(
-                            type,
-                            targetId,
-                            new RongIMClient.ResultCallback<
+                            conversationIdentifier.getType(),
+                            conversationIdentifier.getTargetId(),
+                            conversationIdentifier.getChannelId(),
+                            new IRongCoreCallback.ResultCallback<
                                     Conversation.ConversationNotificationStatus>() {
                                 @Override
                                 public void onSuccess(
@@ -595,9 +591,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                public void onError(IRongCoreEnum.CoreErrorCode e) {
                                     if (callback != null) {
-                                        callback.onError(errorCode);
+                                        callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                                     }
                                 }
                             });

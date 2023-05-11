@@ -522,14 +522,7 @@ public class CameraView extends RelativeLayout
         try {
             mParam = camera.getParameters();
             // 适配全面屏预览被拉伸
-            int videoWidth = mVideoView.getMeasuredWidth();
-            int videoHeight = mVideoView.getMeasuredHeight();
-            if (videoWidth <= 0 || videoHeight <= 0) {
-                videoWidth = 720;
-                videoHeight = 1280;
-            }
-            Camera.Size preferSize =
-                    getOptimalSize(mParam.getSupportedVideoSizes(), videoWidth, videoHeight);
+            Camera.Size preferSize = getOptimalSize(mParam.getSupportedVideoSizes(), 1280, 720);
             Camera.Size previewSize =
                     CameraParamUtil.getInstance()
                             .getPreviewSize(
@@ -561,15 +554,19 @@ public class CameraView extends RelativeLayout
             cameraAutoFocus(camera, mParam);
             mParam = camera.getParameters();
             ViewGroup.LayoutParams layoutParams = mVideoView.getLayoutParams();
-            videoWidth = mVideoView.getMeasuredWidth();
-            layoutParams.height = previewSize.width * videoWidth / previewSize.height;
+            int videoWidth = mVideoView.getMeasuredWidth();
+            if (previewSize != null) {
+                layoutParams.height = previewSize.width * videoWidth / previewSize.height;
+            } else {
+                layoutParams.height = mVideoView.getMeasuredHeight();
+            }
             mVideoView.setLayoutParams(layoutParams);
             camera.setPreviewDisplay(holder);
             camera.setDisplayOrientation(calculateCameraPreviewOrientation());
             camera.startPreview();
         } catch (Exception e) {
             RLog.e(TAG, "startPreview failed");
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 
@@ -870,7 +867,7 @@ public class CameraView extends RelativeLayout
             updateProgressView(0);
         } catch (Exception e) {
             RLog.e(TAG, "startRecord got exception");
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 
@@ -899,7 +896,7 @@ public class CameraView extends RelativeLayout
                 try {
                     mVideoView.setVideoPath(fileName);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    RLog.e(TAG, e.getMessage());
                 }
             }
         }
@@ -1017,7 +1014,7 @@ public class CameraView extends RelativeLayout
         } catch (Exception e) {
             mImageViewSubmit.setEnabled(false);
             RLog.e(TAG, "mVideoView play error");
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 
@@ -1131,6 +1128,7 @@ public class CameraView extends RelativeLayout
             if (size.width < size.height) {
                 continue;
             }
+
             double ratio = (double) size.width / size.height;
             if (Math.abs(ratio - targetRatio) > ASPECT_TOLERANCE) {
                 continue;

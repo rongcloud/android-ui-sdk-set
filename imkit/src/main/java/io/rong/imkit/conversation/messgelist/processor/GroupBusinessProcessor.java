@@ -16,6 +16,7 @@ import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.UserInfo;
@@ -44,8 +45,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                             .isShowReadReceipt(viewModel.getCurConversationType())) {
                 IMCenter.getInstance()
                         .syncConversationReadStatus(
-                                message.getConversationType(),
-                                message.getTargetId(),
+                                ConversationIdentifier.obtain(message.getMessage()),
                                 message.getSentTime(),
                                 null);
 
@@ -100,13 +100,48 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
         if (syncReadStatus) {
             IMCenter.getInstance()
                     .syncConversationReadStatus(
-                            viewModel.getCurConversationType(),
-                            viewModel.getCurTargetId(),
+                            viewModel.getConversationIdentifier(),
                             conversation.getSentTime(),
                             null);
             if (Conversation.ConversationType.ULTRA_GROUP.equals(
                     viewModel.getCurConversationType())) {
-                //                ToDo 8901 和 4992 冲突太多，暂不合并
+                RLog.e(
+                        TAG,
+                        "onExistUnreadMessage syncUltraGroupReadStatus"
+                                + "，t:"
+                                + viewModel.getCurTargetId()
+                                + "，c:"
+                                + viewModel.getConversationIdentifier().getChannelId());
+                ChannelClient.getInstance()
+                        .syncUltraGroupReadStatus(
+                                viewModel.getCurTargetId(),
+                                viewModel.getConversationIdentifier().getChannelId(),
+                                conversation.getSentTime(),
+                                new IRongCoreCallback.OperationCallback() {
+                                    @Override
+                                    public void onSuccess() {
+                                        //                                        Toast.makeText(
+                                        //
+                                        // viewModel.getApplication(),
+                                        //
+                                        // "超级群已读状态同步成功",
+                                        //
+                                        // Toast.LENGTH_LONG)
+                                        //                                                .show();
+                                    }
+
+                                    @Override
+                                    public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                        //                                        Toast.makeText(
+                                        //
+                                        // viewModel.getApplication(),
+                                        //
+                                        // "超级群已读状态同步失败",
+                                        //
+                                        // Toast.LENGTH_LONG)
+                                        //                                                .show();
+                                    }
+                                });
             }
         }
     }

@@ -23,7 +23,9 @@ public class MessageProviderPermissionHandler {
         return ourInstance;
     }
 
-    private MessageProviderPermissionHandler() {}
+    private MessageProviderPermissionHandler() {
+        // default implementation ignored
+    }
 
     public boolean handleMessageClickPermission(UiMessage uiMessage, Fragment fragment) {
         if (uiMessage == null || uiMessage.getMessage() == null || fragment == null) {

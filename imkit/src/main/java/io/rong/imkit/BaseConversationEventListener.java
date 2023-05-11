@@ -6,20 +6,32 @@ import io.rong.imlib.model.Conversation;
 public abstract class BaseConversationEventListener implements ConversationEventListener {
 
     @Override
-    public void onSaveDraft(Conversation.ConversationType type, String targetId, String content) {}
+    public void onSaveDraft(Conversation.ConversationType type, String targetId, String content) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onClearedMessage(Conversation.ConversationType type, String targetId) {}
+    public void onClearedMessage(Conversation.ConversationType type, String targetId) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onClearedUnreadStatus(Conversation.ConversationType type, String targetId) {}
+    public void onClearedUnreadStatus(Conversation.ConversationType type, String targetId) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onConversationRemoved(Conversation.ConversationType type, String targetId) {}
+    public void onConversationRemoved(Conversation.ConversationType type, String targetId) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onOperationFailed(RongIMClient.ErrorCode code) {}
+    public void onOperationFailed(RongIMClient.ErrorCode code) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onClearConversations(Conversation.ConversationType... conversationTypes) {}
+    public void onClearConversations(Conversation.ConversationType... conversationTypes) {
+        // default implementation ignored
+    }
 }

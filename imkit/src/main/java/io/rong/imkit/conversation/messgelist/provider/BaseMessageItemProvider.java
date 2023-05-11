@@ -404,7 +404,9 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             List<UiMessage> list) {
         if (mConfig.showWarning
                 && !ResendManager.getInstance().needResend(uiMessage.getMessage().getMessageId())) {
-            if (isSender && uiMessage.getState() == State.ERROR) {
+            if (isSender
+                    && uiMessage.getState() == State.ERROR
+                    && message.getSentStatus() == Message.SentStatus.FAILED) {
                 holder.setVisible(R.id.rc_warning, true);
                 holder.setOnClickListener(
                         R.id.rc_warning,

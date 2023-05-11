@@ -47,6 +47,11 @@ public class DestructPlugin implements IPluginModule {
         }
         DestructManager.getInstance().safeAttacheToExtension(currentFragment, extension);
         DestructManager.getInstance().activeDestructMode(currentFragment.getContext());
+        RongExtensionCacheHelper.saveVoiceInputMode(
+                currentFragment.getContext(),
+                extension.getConversationType(),
+                extension.getTargetId(),
+                false);
     }
 
     @Override

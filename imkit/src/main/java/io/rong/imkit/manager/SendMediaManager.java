@@ -14,6 +14,7 @@ import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.message.SightMessage;
 import java.util.ArrayList;
@@ -45,8 +46,7 @@ public class SendMediaManager {
 
     public void sendMedia(
             Context context,
-            Conversation.ConversationType conversationType,
-            String targetId,
+            ConversationIdentifier conversationIdentifier,
             Uri mediaUri,
             long duration) {
         if (!TextUtils.isEmpty(mediaUri.toString())) {
@@ -61,10 +61,10 @@ public class SendMediaManager {
             }
             IMCenter.getInstance()
                     .insertOutgoingMessage(
-                            conversationType,
-                            targetId,
+                            conversationIdentifier,
                             Message.SentStatus.SENDING,
                             sightMessage,
+                            System.currentTimeMillis(),
                             new RongIMClient.ResultCallback<Message>() {
                                 @Override
                                 public void onSuccess(Message message) {
@@ -211,8 +211,9 @@ public class SendMediaManager {
                                 public void onError(
                                         Message message, RongIMClient.ErrorCode errorCode) {
                                     // 压缩失败的错误码才弹提示
-                                    if (IRongCoreEnum.CoreErrorCode.RC_VIDEO_COMPRESS_FAILED.equals(
-                                            errorCode)) {
+                                    if (errorCode.code
+                                            == IRongCoreEnum.CoreErrorCode.RC_VIDEO_COMPRESS_FAILED
+                                                    .getValue()) {
                                         Toast.makeText(
                                                         IMCenter.getInstance().getContext(),
                                                         IMCenter.getInstance()
@@ -224,6 +225,7 @@ public class SendMediaManager {
                                                 .show();
                                         return;
                                     }
+                                    polling();
                                 }
 
                                 @Override

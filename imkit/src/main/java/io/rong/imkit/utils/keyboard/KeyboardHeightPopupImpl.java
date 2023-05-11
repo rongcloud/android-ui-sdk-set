@@ -7,13 +7,13 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import java.lang.ref.WeakReference;
 
@@ -44,7 +44,7 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
     @SuppressLint("InflateParams")
     public KeyboardHeightPopupImpl(Activity activity) {
         super(activity);
-        Log.d(TAG, "KeyboardHeightPopupImpl: ");
+        RLog.d(TAG, "KeyboardHeightPopupImpl: ");
         this.activity = activity;
         LayoutInflater inflater =
                 (LayoutInflater) activity.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
@@ -82,7 +82,7 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
                         try {
                             retryShowPopup(parent, gravity, x, y);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            RLog.e(TAG, e.getMessage());
                             popupView.postDelayed(
                                     new Runnable() {
                                         @Override

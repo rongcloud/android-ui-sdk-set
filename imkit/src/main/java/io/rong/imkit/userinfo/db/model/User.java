@@ -26,7 +26,9 @@ public class User {
     @ColumnInfo(name = "extra")
     public String extra;
 
-    public User() {}
+    public User() {
+        // default implementation ignored
+    }
 
     public User(String id, String name, Uri portraitUrl) {
         this.id = id;

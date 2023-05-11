@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingChild;
 import androidx.core.view.NestedScrollingParent;
 import androidx.viewpager.widget.ViewPager;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.widget.refresh.api.RefreshContent;
 import io.rong.imkit.widget.refresh.api.RefreshKernel;
@@ -36,6 +37,7 @@ import java.util.Queue;
 public class RefreshContentWrapper
         implements RefreshContent, CoordinatorLayoutListener, AnimatorUpdateListener {
 
+    private static final String TAG = RefreshContentWrapper.class.getSimpleName();
     protected View mContentView; // 直接内容视图
     protected View mOriginalContentView; // 被包裹的原真实视图
     protected View mScrollableView;
@@ -276,7 +278,7 @@ public class RefreshContentWrapper
             }
         } catch (Throwable e) {
             // 根据用户反馈，此处可能会有BUG
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
         mLastSpinner = value;
     }

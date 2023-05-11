@@ -2,67 +2,143 @@ package io.rong.sight.player;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
+import android.text.TextUtils;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import com.bumptech.glide.Glide;
-import io.rong.common.FileUtils;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
-import io.rong.imkit.event.actionevent.DownloadEvent;
-import io.rong.imkit.feature.destruct.DestructManager;
-import io.rong.imkit.widget.CircleProgressView;
-import io.rong.imlib.IRongCallback;
+import io.rong.imkit.event.actionevent.RecallEvent;
+import io.rong.imlib.RongCommonDefine;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.RecallNotificationMessage;
+import io.rong.message.ReferenceMessage;
 import io.rong.message.SightMessage;
 import io.rong.sight.R;
-import java.io.File;
-import java.lang.ref.WeakReference;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-public class SightPlayerActivity extends RongBaseNoActionbarActivity
-        implements EasyVideoCallback, RongIMClient.OnRecallMessageListener {
+public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
-    private static final String TAG = SightPlayerActivity.class.getSimpleName();
+    private static final String TAG = "SightPlayerActivity";
+    private static final int VIDEO_MESSAGE_COUNT = 10; // 每次获取的图片消息数量。
+    protected ViewPager2 mViewPager;
+    protected SightMessage mCurrentSightMessage;
+    protected Message mMessage;
+    protected boolean mFromList;
+    protected Conversation.ConversationType mConversationType;
 
-    private SightMessage mSightMessage;
-    private Message mMessage;
-    private int mProgress;
-    private ImageView mThumbImageView;
-    private FrameLayout mContainer;
-    private RelativeLayout rlSightDownload;
-    private CircleProgressView mSightDownloadProgress;
-    private RelativeLayout mSightDownloadFailedReminder;
-    private TextView mCountDownView;
-    private boolean isFinishing = false;
-    private boolean fromSightListImageVisible = true;
-    private PlaybackVideoFragment mPlaybackVideoFragment;
-    private DownloadMediaMessageCallback downloadMediaMessageCallback;
-    private int currentSeek;
-    private int currentPlayerStatus;
-    private TextView mFailedText;
-    private ImageView failedImageView;
-    BaseMessageEvent mEvent =
+    protected String mTargetId;
+
+    private boolean isFirstTime = true;
+    private VideoPagerAdapter mVideoPagerAdapter;
+    private int currentSelectMessageId = -1;
+
+    protected ViewPager2.OnPageChangeCallback mPageChangeListener =
+            new ViewPager2.OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    if (position == (mVideoPagerAdapter.getItemCount() - 1)) {
+                        if (mVideoPagerAdapter.getItemCount() > 0) {
+                            getSightMessageList(
+                                    mVideoPagerAdapter.getItem(position).getMessageId(),
+                                    RongCommonDefine.GetMessageDirection.BEHIND);
+                        }
+                    } else if (position == 0) {
+                        if (mVideoPagerAdapter.getItemCount() > 0) {
+                            getSightMessageList(
+                                    mVideoPagerAdapter.getItem(position).getMessageId(),
+                                    RongCommonDefine.GetMessageDirection.FRONT);
+                        }
+                    }
+                    currentSelectMessageId = mVideoPagerAdapter.getItem(position).getMessageId();
+                }
+            };
+
+    RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
+            new RongIMClient.OnRecallMessageListener() {
+                @Override
+                public boolean onMessageRecalled(
+                        Message message, RecallNotificationMessage recallNotificationMessage) {
+                    if (currentSelectMessageId == message.getMessageId()) {
+                        new AlertDialog.Builder(
+                                        SightPlayerActivity.this,
+                                        AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+                                .setMessage(getString(io.rong.imkit.R.string.rc_recall_success))
+                                .setPositiveButton(
+                                        getString(io.rong.imkit.R.string.rc_dialog_ok),
+                                        new DialogInterface.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finish();
+                                            }
+                                        })
+                                .setCancelable(false)
+                                .show();
+                    } else {
+                        mVideoPagerAdapter.removeRecallItem(message.getMessageId());
+                        if (mVideoPagerAdapter.getItemCount() == 0) {
+                            finish();
+                        }
+                    }
+                    return false;
+                }
+            };
+
+    BaseMessageEvent mBaseMessageEvent =
             new BaseMessageEvent() {
                 @Override
-                public void onDownloadMessage(DownloadEvent event) {
-                    processDownloadEvent(event);
+                public void onDeleteMessage(DeleteEvent event) {
+                    RLog.d(TAG, "MessageDeleteEvent");
+                    if (event.getMessageIds() != null) {
+                        for (int messageId : event.getMessageIds()) {
+                            mVideoPagerAdapter.removeRecallItem(messageId);
+                        }
+                        if (mVideoPagerAdapter.getItemCount() == 0) {
+                            finish();
+                        }
+                    }
                 }
 
                 @Override
-                public void onDeleteMessage(DeleteEvent event) {
-                    processMessageDelete(event);
+                public void onRecallEvent(RecallEvent event) {
+                    if (currentSelectMessageId == event.getMessageId()) {
+                        new AlertDialog.Builder(
+                                        SightPlayerActivity.this,
+                                        AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
+                                .setMessage(getString(io.rong.imkit.R.string.rc_recall_success))
+                                .setPositiveButton(
+                                        getString(io.rong.imkit.R.string.rc_dialog_ok),
+                                        new DialogInterface.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finish();
+                                            }
+                                        })
+                                .setCancelable(false)
+                                .show();
+                    } else {
+                        mVideoPagerAdapter.removeRecallItem(event.getMessageId());
+                        if (mVideoPagerAdapter.getItemCount() == 0) {
+                            finish();
+                        }
+                    }
                 }
             };
 
@@ -76,361 +152,217 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity
                         WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.rc_activity_sight_player);
-
-        try {
-            mSightMessage = getIntent().getParcelableExtra("SightMessage");
-            mMessage = getIntent().getParcelableExtra("Message");
-            mProgress = getIntent().getIntExtra("Progress", 0);
-            fromSightListImageVisible =
-                    getIntent().getBooleanExtra("fromSightListImageVisible", true);
-        } catch (Exception exception) {
-            RLog.i(TAG, "getIntent exception");
-        }
-
-        mContainer = findViewById(R.id.container);
-        rlSightDownload = findViewById(R.id.rl_sight_download);
-        mCountDownView = findViewById(R.id.rc_count_down);
-        mFailedText = findViewById(R.id.rc_sight_download_failed_tv_reminder);
-        failedImageView = findViewById(R.id.rc_sight_download_failed_iv_reminder);
-        mSightDownloadFailedReminder = findViewById(R.id.rc_sight_download_failed_reminder);
-
-        downloadMediaMessageCallback = new DownloadMediaMessageCallback(this);
-        if (savedInstanceState != null) {
-            currentSeek = savedInstanceState.getInt("seek", 0);
-            currentPlayerStatus = savedInstanceState.getInt("status", 0);
-            Message message = savedInstanceState.getParcelable("message");
-            if (message != null) {
-                mMessage = message;
-                mSightMessage = (SightMessage) mMessage.getContent();
-            }
-        }
-        if (mSightMessage == null) {
-            return;
-        }
-        if (FileUtils.isFileExistsWithUri(this, mSightMessage.getLocalPath())) {
-            initSightPlayer();
-        } else {
-            initDownloadView();
-            if (mProgress == 0) {
-                downloadSight();
-            }
-        }
-        IMCenter.getInstance().addOnRecallMessageListener(this);
-        IMCenter.getInstance().addMessageEventListener(mEvent);
-
-        if (mSightMessage != null
-                && mSightMessage.isDestruct()
-                && mMessage != null
-                && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
-            DestructManager.getInstance().stopDestruct(mMessage);
-            // EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
-        }
+        initView();
+        initData();
+        IMCenter.getInstance().addOnRecallMessageListener(mOnRecallMessageListener);
+        IMCenter.getInstance().addMessageEventListener(mBaseMessageEvent);
     }
 
     @Override
     protected void onDestroy() {
-        if (isFinishing()) {
-            isFinishing = true;
-        }
-        // todo 阅后即焚逻辑
-        if (mSightMessage != null
-                && mSightMessage.isDestruct()
-                && mMessage != null
-                && mMessage.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
-            DestructManager.getInstance().startDestruct(mMessage);
-            // EventBus.getDefault().post(new Event.changeDestructionReadTimeEvent(mMessage));
-        }
-        IMCenter.getInstance().removeOnRecallMessageListener(this);
-        IMCenter.getInstance().removeMessageEventListener(mEvent);
         super.onDestroy();
+        IMCenter.getInstance().removeOnRecallMessageListener(mOnRecallMessageListener);
+        IMCenter.getInstance().removeMessageEventListener(mBaseMessageEvent);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (mPlaybackVideoFragment != null) {
-            int status = mPlaybackVideoFragment.getBeforePausePlayerStatus();
-            int seek = mPlaybackVideoFragment.getCurrentSeek();
-            outState.putInt("seek", seek);
-            outState.putInt("status", status);
-            outState.putParcelable("message", mMessage);
+    private void initData() {
+        mMessage = getIntent().getParcelableExtra("Message");
+        mCurrentSightMessage = getIntent().getParcelableExtra("SightMessage");
+        mConversationType = mMessage.getConversationType();
+        mTargetId = mMessage.getTargetId();
+        mMessage.setContent(mCurrentSightMessage);
+        mFromList = getIntent().getBooleanExtra("fromList", false);
+        initPager();
+    }
+
+    private void initPager() {
+        // 阅后即焚和引用消息只显示一个
+        mVideoPagerAdapter = new VideoPagerAdapter(this, mMessage.getMessageId());
+
+        ArrayList<Message> messages = new ArrayList<>();
+        mViewPager.setAdapter(mVideoPagerAdapter);
+
+        if (mMessage.getContent().isDestruct()
+                || mMessage.getContent() instanceof ReferenceMessage
+                || Conversation.ConversationType.ULTRA_GROUP.equals(
+                        mMessage.getConversationType())) {
+            messages.add(mMessage);
+            mVideoPagerAdapter.addMessage(messages, mFromList, true);
+        } else {
+            getSightMessageList(
+                    mMessage.getMessageId(), RongCommonDefine.GetMessageDirection.FRONT);
+            getSightMessageList(
+                    mMessage.getMessageId(), RongCommonDefine.GetMessageDirection.BEHIND);
         }
-        super.onSaveInstanceState(outState);
     }
 
-    private void initDownloadView() {
-        rlSightDownload.setVisibility(View.VISIBLE);
-        mThumbImageView = findViewById(R.id.rc_sight_thumb);
-        if (mSightMessage.getThumbUri() != null && mSightMessage.getThumbUri().getPath() != null) {
-            Glide.with(this)
-                    .load(new File(mSightMessage.getThumbUri().getPath()))
-                    .into(mThumbImageView);
-        }
-        mSightDownloadProgress = findViewById(R.id.rc_sight_download_progress);
-        mSightDownloadProgress.setVisibility(View.VISIBLE);
-        mSightDownloadProgress.setProgress(mProgress, true);
-        findViewById(R.id.rc_sight_download_close)
-                .setOnClickListener(
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                finish();
-                            }
-                        });
-    }
-
-    public void processRecallMessageRemote(Message message) {
-        if (message.getMessageId() == mMessage.getMessageId()) {
-            IMCenter.getInstance().cancelDownloadMediaMessage(mMessage, null);
-            if (mPlaybackVideoFragment != null) {
-                mPlaybackVideoFragment.pause();
-            }
-            new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
-                    .setMessage(getString(R.string.rc_recall_success))
-                    .setPositiveButton(
-                            getString(R.string.rc_dialog_ok),
-                            new DialogInterface.OnClickListener() {
-
+    private void getSightMessageList(
+            int messageId, final RongCommonDefine.GetMessageDirection direction) {
+        if (mConversationType != null && !TextUtils.isEmpty(mTargetId)) {
+            RongIMClient.getInstance()
+                    .getHistoryMessages(
+                            mConversationType,
+                            mTargetId,
+                            "RC:SightMsg",
+                            messageId,
+                            VIDEO_MESSAGE_COUNT,
+                            direction,
+                            new RongIMClient.ResultCallback<List<Message>>() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
+                                public void onSuccess(List<Message> messages) {
+                                    runOnUiThread(
+                                            new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    List<Message> lists = new ArrayList<>();
+                                                    if (messages != null) {
+                                                        if (direction.equals(
+                                                                RongCommonDefine.GetMessageDirection
+                                                                        .FRONT)) {
+                                                            Collections.reverse(messages);
+                                                        }
+                                                        lists.addAll(messages);
+                                                    }
+                                                    if (direction.equals(
+                                                            RongCommonDefine.GetMessageDirection
+                                                                    .FRONT)) {
+                                                        if (isFirstTime) {
+                                                            lists.add(mMessage);
+                                                        }
+                                                        mVideoPagerAdapter.addMessage(
+                                                                lists, mFromList, true);
+                                                        if (isFirstTime) {
+                                                            int index =
+                                                                    mVideoPagerAdapter
+                                                                            .getIndexByMessageId(
+                                                                                    mMessage
+                                                                                            .getMessageId());
+                                                            if (index != -1) {
+                                                                mViewPager.setCurrentItem(
+                                                                        index, false);
+                                                            }
+                                                            isFirstTime = false;
+                                                        }
+                                                    } else if (lists.size() > 0) {
+                                                        mVideoPagerAdapter.addMessage(
+                                                                lists, mFromList, false);
+                                                    }
+                                                }
+                                            });
                                 }
-                            })
-                    .setCancelable(false)
-                    .show();
-        }
-    }
 
-    private void downloadSight() {
-        RLog.e(TAG, "DownloadEvent:" + "***" + (mMessage == null));
-        IMCenter.getInstance().downloadMediaMessage(mMessage, null);
-    }
-
-    @Override
-    public boolean onMessageRecalled(
-            Message message, RecallNotificationMessage recallNotificationMessage) {
-        processRecallMessageRemote(message);
-        return false;
-    }
-
-    private void initSightPlayer() {
-        if (isFinishing()) {
-            return;
-        }
-        mContainer.setVisibility(View.VISIBLE);
-        mPlaybackVideoFragment =
-                PlaybackVideoFragment.newInstance(
-                        mSightMessage,
-                        mSightMessage.getLocalPath().toString(),
-                        mMessage.getTargetId(),
-                        mMessage.getConversationType(),
-                        getIntent().getBooleanExtra("fromList", false),
-                        fromSightListImageVisible,
-                        currentSeek,
-                        currentPlayerStatus);
-        mPlaybackVideoFragment.setVideoCallback(this);
-        if (mSightMessage != null && mSightMessage.isDestruct()) {
-            mPlaybackVideoFragment.setplayBtnVisible(View.GONE);
-            mPlaybackVideoFragment.setSeekBarClickable(false);
-        }
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.container, mPlaybackVideoFragment)
-                .commitAllowingStateLoss();
-    }
-
-    public void processMessageDelete(DeleteEvent deleteEvent) {
-        RLog.d(TAG, "MessageDeleteEvent");
-        if (deleteEvent.getMessageIds() != null && mMessage != null) {
-            for (int messageId : deleteEvent.getMessageIds()) {
-                if (messageId == mMessage.getMessageId()) {
-                    finish();
-                    break;
-                }
-            }
-        }
-    }
-
-    public void processDownloadEvent(DownloadEvent downloadEvent) {
-        RLog.d(TAG, "FileMessageEvent");
-        Message message = downloadEvent.getMessage();
-        String uId = message.getUId();
-        RLog.e(
-                TAG,
-                "DownloadEvent:" + downloadEvent.getProgress() + "===" + downloadEvent.getEvent());
-        if (mMessage != null
-                && downloadMediaMessageCallback != null
-                && Objects.equals(uId, mMessage.getUId())) {
-            int callBackType = downloadEvent.getEvent();
-            switch (callBackType) {
-                case DownloadEvent.SUCCESS:
-                    downloadMediaMessageCallback.onSuccess(message);
-                    break;
-                case DownloadEvent.ERROR:
-                    downloadMediaMessageCallback.onError(message, downloadEvent.getCode());
-                    break;
-                case DownloadEvent.CANCEL:
-                    downloadMediaMessageCallback.onCanceled(message);
-                    break;
-                case DownloadEvent.PROGRESS:
-                    downloadMediaMessageCallback.onProgress(message, downloadEvent.getProgress());
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    @Override
-    public void onStarted(EasyVideoPlayer player) {
-        // default implementation ignored
-    }
-
-    @Override
-    public void onPaused(EasyVideoPlayer player) {
-        // default implementation ignored
-    }
-
-    @Override
-    public void onPreparing(EasyVideoPlayer player) {
-        // default implementation ignored
-    }
-
-    @Override
-    public void onPrepared(EasyVideoPlayer player) {
-        // default implementation ignored
-    }
-
-    @Override
-    public void onBuffering(int percent) {
-        // default implementation ignored
-    }
-
-    @Override
-    public void onError(EasyVideoPlayer player, Exception e) {
-        // default implementation ignored
-    }
-
-    @Override
-    public void onCompletion(EasyVideoPlayer player) {
-        // 播放完成且是阅后即焚消息关闭小视频
-        if (mSightMessage != null && mSightMessage.isDestruct()) {
-            finish();
-        }
-    }
-
-    @Override
-    public void onSightListRequest() {
-        // default implementation ignored
-    }
-
-    @Override
-    public void onClose() {
-        finish();
-    }
-
-    public static class DownloadMediaMessageCallback
-            implements IRongCallback.IDownloadMediaMessageCallback {
-        WeakReference<SightPlayerActivity> reference;
-
-        public DownloadMediaMessageCallback(SightPlayerActivity activity) {
-            reference = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void onSuccess(Message message) {
-            SightPlayerActivity activity = reference.get();
-            if (activity != null
-                    && message != null
-                    && message.getContent() instanceof SightMessage) {
-                Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
-                if (uri != null
-                        && activity.mSightMessage != null
-                        && uri.equals(activity.mSightMessage.getMediaUrl())) {
-                    if (activity.isFinishing) {
-                        return;
-                    }
-                    activity.rlSightDownload.setVisibility(View.GONE);
-                    activity.mThumbImageView.setVisibility(View.GONE);
-                    activity.mSightDownloadProgress.setVisibility(View.GONE);
-                    activity.mSightMessage = (SightMessage) message.getContent();
-                    activity.mMessage = message;
-                    activity.initSightPlayer();
-                }
-            }
-        }
-
-        @Override
-        public void onProgress(Message message, int progress) {
-            SightPlayerActivity activity = reference.get();
-            if (message != null) {
-                RLog.e(
-                        TAG,
-                        "DownloadEvent:"
-                                + (activity != null)
-                                + "***kk***"
-                                + (message != null)
-                                + "***"
-                                + (message.getContent() instanceof SightMessage));
-            }
-            if (activity != null
-                    && message != null
-                    && message.getContent() instanceof SightMessage) {
-                Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
-                RLog.e(
-                        TAG,
-                        "DownloadEvent:"
-                                + (uri != null)
-                                + "***jj***"
-                                + (activity.mSightMessage != null)
-                                + "***"
-                                + (uri.equals(activity.mSightMessage.getMediaUrl())));
-                if (uri != null
-                        && activity.mSightMessage != null
-                        && uri.equals(activity.mSightMessage.getMediaUrl())) {
-                    RLog.e(TAG, "DownloadEvent:" + "coming ===");
-                    activity.mProgress = progress;
-                    activity.mSightDownloadProgress.setVisibility(View.VISIBLE);
-                    activity.mSightDownloadProgress.setProgress(activity.mProgress, true);
-                }
-            }
-        }
-
-        @Override
-        public void onError(Message message, RongIMClient.ErrorCode code) {
-            RLog.e(TAG, "DownloadEvent:" + "Error===" + code.getMessage());
-            final SightPlayerActivity activity = reference.get();
-            if (activity != null
-                    && message != null
-                    && message.getContent() instanceof SightMessage) {
-                Uri uri = ((SightMessage) message.getContent()).getMediaUrl();
-                if (uri != null
-                        && activity.mSightMessage != null
-                        && uri.equals(activity.mSightMessage.getMediaUrl())) {
-                    activity.mSightDownloadProgress.setVisibility(View.GONE);
-                    activity.mSightDownloadFailedReminder.setVisibility(View.VISIBLE);
-                    activity.mSightDownloadFailedReminder.setOnClickListener(
-                            new View.OnClickListener() {
                                 @Override
-                                public void onClick(View v) {
-                                    activity.mSightDownloadFailedReminder.setVisibility(View.GONE);
-                                    activity.mProgress = 0;
-                                    activity.downloadSight();
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    // do nothing
                                 }
                             });
-                    if (code.equals(RongIMClient.ErrorCode.RC_FILE_EXPIRED)) {
-                        activity.failedImageView.setVisibility(View.GONE);
-                        activity.mFailedText.setText(R.string.rc_sight_file_expired);
-                    } else {
-                        activity.mFailedText.setText(R.string.rc_sight_download_failed);
+        }
+    }
+
+    private void initView() {
+        mViewPager = findViewById(R.id.viewpager);
+        mViewPager.registerOnPageChangeCallback(mPageChangeListener);
+        mViewPager.setOffscreenPageLimit(3);
+    }
+
+    public static class VideoPagerAdapter extends FragmentStateAdapter {
+
+        private final int mDefaultMessageId;
+        List<Message> mMessages;
+        boolean mFromList;
+
+        public VideoPagerAdapter(@NonNull FragmentActivity fragmentActivity, int defaultMessageId) {
+            super(fragmentActivity);
+            mMessages = new ArrayList<>();
+            mDefaultMessageId = defaultMessageId;
+        }
+
+        public void addMessage(List<Message> messages, boolean fromList, boolean direction) {
+            if (messages == null || messages.size() == 0) {
+                return;
+            }
+            mFromList = fromList;
+            List<Message> deduplication = deduplication(messages);
+            if (direction) {
+                mMessages.addAll(0, deduplication);
+                notifyItemRangeInserted(0, deduplication.size());
+            } else {
+                int size = mMessages.size();
+                mMessages.addAll(deduplication);
+                notifyItemRangeInserted(size, deduplication.size());
+            }
+        }
+
+        public List<Message> deduplication(List<Message> messages) {
+            List<Message> list = new ArrayList<>();
+            Set<Integer> set = new HashSet<>();
+            for (Message message : mMessages) {
+                set.add(message.getMessageId());
+            }
+
+            for (Message message : messages) {
+                if (!set.contains(message.getMessageId())) {
+                    list.add(message);
+                    set.add(message.getMessageId());
+                }
+            }
+            return list;
+        }
+
+        private SightPlayerFragment createFragment(Message message, boolean fromList) {
+            SightPlayerFragment sightPlayerFragment = new SightPlayerFragment();
+            Bundle bundle = new Bundle();
+            bundle.putParcelable("Message", message);
+            bundle.putParcelable("SightMessage", (SightMessage) message.getContent());
+            bundle.putBoolean("fromList", fromList);
+            bundle.putBoolean("auto_play", mDefaultMessageId == message.getMessageId());
+            sightPlayerFragment.setArguments(bundle);
+            return sightPlayerFragment;
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position) {
+            return createFragment(mMessages.get(position), mFromList);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mMessages.size();
+        }
+
+        public Message getItem(int position) {
+            return mMessages.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return mMessages.get(position).getMessageId();
+        }
+
+        private void removeRecallItem(int messageId) {
+            Iterator<Message> iterator = mMessages.iterator();
+            while (iterator.hasNext()) {
+                Message message = iterator.next();
+                if (message.getMessageId() == messageId) {
+                    int index = getIndexByMessageId(messageId);
+                    if (index == -1) {
+                        return;
                     }
-                    //                    activity.initDownloadFailedReminder(code);
+                    iterator.remove();
+                    notifyItemRemoved(index);
+                    break;
                 }
             }
         }
 
-        @Override
-        public void onCanceled(Message message) {
-            // default implementation ignored
+        public int getIndexByMessageId(int messageId) {
+            for (int i = 0; i < mMessages.size(); i++) {
+                if (mMessages.get(i).getMessageId() == messageId) {
+                    return i;
+                }
+            }
+            return -1;
         }
     }
 }

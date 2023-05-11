@@ -10,6 +10,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import io.rong.common.RLog;
 
 /**
  * Created by luck on 2017/12/4.
@@ -18,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
  * adapter的解决方案 只是把这个异常捕获了，不让他奔溃了，这个问题的终极解决方案还是得让google去修复。
  */
 public class WrapContentLinearLayoutManager extends LinearLayoutManager {
+    private static final String TAG = WrapContentLinearLayoutManager.class.getSimpleName();
+
     public WrapContentLinearLayoutManager(Context context) {
         super(context);
     }
@@ -36,7 +39,7 @@ public class WrapContentLinearLayoutManager extends LinearLayoutManager {
         try {
             super.onLayoutChildren(recycler, state);
         } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
         }
     }
 }

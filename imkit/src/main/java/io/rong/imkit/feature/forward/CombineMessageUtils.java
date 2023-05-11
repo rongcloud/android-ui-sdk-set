@@ -109,7 +109,9 @@ public class CombineMessageUtils {
     private String style = "";
     private String sendUserId;
 
-    private CombineMessageUtils() {}
+    private CombineMessageUtils() {
+        // default implementation ignored
+    }
 
     private static class Holder {
         private static CombineMessageUtils Utils = new CombineMessageUtils();

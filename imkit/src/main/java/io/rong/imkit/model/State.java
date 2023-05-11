@@ -7,7 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 public class State {
     @IntDef({NORMAL, ERROR, PROGRESS, CANCEL, PAUSE, SUCCESS})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Value {}
+    public @interface Value {
+        // default implementation ignored
+    }
 
     public static final int NORMAL = 0;
     public static final int ERROR = 1;

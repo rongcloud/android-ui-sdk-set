@@ -61,6 +61,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -218,7 +219,9 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         mImageAdapter = new ImageAdapter();
         isFirstTime = true;
         if (!(mMessage.getContent().isDestruct()
-                || mMessage.getContent() instanceof ReferenceMessage)) {
+                || mMessage.getContent() instanceof ReferenceMessage
+                || Conversation.ConversationType.ULTRA_GROUP.equals(
+                        mMessage.getConversationType()))) {
             getConversationImageUris(
                     mCurrentMessageId,
                     RongCommonDefine.GetMessageDirection.FRONT); // 获取当前点开图片之前的图片消息。
@@ -530,7 +533,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     }
 
     protected class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
-        private ArrayList<ImageInfo> mImageList = new ArrayList<>();
+        private List<ImageInfo> mImageList = new CopyOnWriteArrayList<>();
 
         @NonNull
         @Override
@@ -624,7 +627,13 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                     if (resource != null
                                             && resource.getWidth() < maxLoader
                                             && resource.getHeight() < maxLoader) {
-                                        resource = resource.copy(Bitmap.Config.ARGB_8888, true);
+
+                                        try {
+                                            resource = resource.copy(Bitmap.Config.ARGB_8888, true);
+                                        } catch (Throwable e) {
+                                            RLog.e(TAG, "onResourceReady Bitmap copy error: " + e);
+                                        }
+
                                         if (mCurrentImageMessage.isDestruct()
                                                 && mMessage.getMessageDirection()
                                                         .equals(Message.MessageDirection.RECEIVE)) {
@@ -697,25 +706,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                                             public void onLoadCleared(
                                                                     @Nullable
                                                                             Drawable placeholder) {
-                                                                holder.progressText.setVisibility(
-                                                                        View.VISIBLE);
-                                                                holder.progressText.setText(
-                                                                        R.string
-                                                                                .rc_load_image_failed);
-                                                                holder.progressBar.setVisibility(
-                                                                        View.GONE);
-                                                                holder.failImg.setVisibility(
-                                                                        View.VISIBLE);
-                                                                holder.failImg.setOnClickListener(
-                                                                        new View.OnClickListener() {
-                                                                            @Override
-                                                                            public void onClick(
-                                                                                    View v) {
-                                                                                finish();
-                                                                            }
-                                                                        });
-                                                                holder.photoView.setVisibility(
-                                                                        View.INVISIBLE);
+                                                                loadFailed(holder);
                                                             }
                                                         });
                                     }
@@ -723,18 +714,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
 
                                 @Override
                                 public void onLoadCleared(@Nullable Drawable placeholder) {
-                                    holder.progressText.setVisibility(View.VISIBLE);
-                                    holder.progressText.setText(R.string.rc_load_image_failed);
-                                    holder.progressBar.setVisibility(View.GONE);
-                                    holder.failImg.setVisibility(View.VISIBLE);
-                                    holder.failImg.setOnClickListener(
-                                            new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    finish();
-                                                }
-                                            });
-                                    holder.photoView.setVisibility(View.INVISIBLE);
+                                    loadFailed(holder);
                                 }
 
                                 @Override
@@ -789,22 +769,22 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                         loadFailed(holder);
                                     }
                                 }
-
-                                private void loadFailed(ViewHolder holder) {
-                                    holder.progressText.setVisibility(View.VISIBLE);
-                                    holder.progressText.setText(R.string.rc_load_image_failed);
-                                    holder.progressBar.setVisibility(View.GONE);
-                                    holder.failImg.setVisibility(View.VISIBLE);
-                                    holder.failImg.setOnClickListener(
-                                            new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    finish();
-                                                }
-                                            });
-                                    holder.photoView.setVisibility(View.INVISIBLE);
-                                }
                             });
+        }
+
+        private void loadFailed(ViewHolder holder) {
+            holder.progressText.setVisibility(View.VISIBLE);
+            holder.progressText.setText(R.string.rc_load_image_failed);
+            holder.progressBar.setVisibility(View.GONE);
+            holder.failImg.setVisibility(View.VISIBLE);
+            holder.failImg.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            finish();
+                        }
+                    });
+            holder.photoView.setVisibility(View.INVISIBLE);
         }
 
         public Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
@@ -840,7 +820,11 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             return false;
         }
 
+        @Nullable
         public ImageInfo getItem(int index) {
+            if (index >= mImageList.size()) {
+                return null;
+            }
             return mImageList.get(index);
         }
 

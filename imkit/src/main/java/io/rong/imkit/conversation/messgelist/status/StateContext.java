@@ -69,6 +69,10 @@ public class StateContext {
         return normalState.equals(currentState);
     }
 
+    public boolean isHistoryState(MessageViewModel viewModel) {
+        return historyState.equals(currentState);
+    }
+
     public void onReceived(
             MessageViewModel messageViewModel,
             UiMessage message,

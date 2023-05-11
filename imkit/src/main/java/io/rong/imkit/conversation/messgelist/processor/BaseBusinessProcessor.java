@@ -56,7 +56,9 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
     }
 
     @Override
-    public void onMessageItemClick(UiMessage uiMessage) {}
+    public void onMessageItemClick(UiMessage uiMessage) {
+        // default implementation ignored
+    }
 
     @Override
     public boolean onMessageItemLongClick(UiMessage uiMessage) {
@@ -68,7 +70,9 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
             Context context,
             Conversation.ConversationType conversationType,
             UserInfo userInfo,
-            String targetId) {}
+            String targetId) {
+        // default implementation ignored
+    }
 
     @Override
     public boolean onUserPortraitLongClick(
@@ -85,30 +89,42 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
     }
 
     @Override
-    public void onDestroy(MessageViewModel viewModel) {}
+    public void onDestroy(MessageViewModel viewModel) {
+        // default implementation ignored
+    }
 
     @Override
     public void onExistUnreadMessage(
-            MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {}
+            MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
+        // default implementation ignored
+    }
 
     @Override
     public void onMessageReceiptRequest(
             MessageViewModel viewModel,
             Conversation.ConversationType conversationType,
             String targetId,
-            String messageUId) {}
+            String messageUId) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onLoadMessage(MessageViewModel viewModel, List<Message> messages) {}
+    public void onLoadMessage(MessageViewModel viewModel, List<Message> messages) {
+        // default implementation ignored
+    }
 
     /** 检查已读状态，如果 sp 有内容，则发送 */
     @Override
     public void onConnectStatusChange(
             MessageViewModel viewModel,
-            RongIMClient.ConnectionStatusListener.ConnectionStatus status) {}
+            RongIMClient.ConnectionStatusListener.ConnectionStatus status) {
+        // default implementation ignored
+    }
 
     @Override
-    public void onResume(MessageViewModel viewModel) {}
+    public void onResume(MessageViewModel viewModel) {
+        // default implementation ignored
+    }
 
     /** @return 初始化时，拉取的历史条数，目前只有聊天室需要复写 */
     public int getHistoryMessageCount() {
@@ -163,6 +179,11 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
             return true;
         }
         return mState.isNormalState(viewModel);
+    }
+
+    @Override
+    public boolean isHistoryState(MessageViewModel viewModel) {
+        return mState.isHistoryState(viewModel);
     }
 
     @Override

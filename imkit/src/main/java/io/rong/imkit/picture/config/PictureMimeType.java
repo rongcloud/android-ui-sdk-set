@@ -6,10 +6,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import java.io.File;
 
 public final class PictureMimeType {
+    private static final String TAG = PictureMimeType.class.getSimpleName();
+
     public static final int ofAll() {
         return PictureConfig.TYPE_ALL;
     }
@@ -220,7 +223,7 @@ public final class PictureMimeType {
                 return "image/" + temp;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
             return MIME_TYPE_IMAGE;
         }
         return MIME_TYPE_IMAGE;
@@ -304,7 +307,7 @@ public final class PictureMimeType {
                 return PNG;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
             return PNG;
         }
     }
@@ -323,7 +326,7 @@ public final class PictureMimeType {
                 return "." + mineType.substring(index);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            RLog.e(TAG, e.getMessage());
             return defaultSuffix;
         }
         return defaultSuffix;

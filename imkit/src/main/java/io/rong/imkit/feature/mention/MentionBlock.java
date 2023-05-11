@@ -42,7 +42,9 @@ public class MentionBlock {
         }
     }
 
-    MentionBlock() {}
+    MentionBlock() {
+        // default implementation ignored
+    }
 
     MentionBlock(String json) {
         try {

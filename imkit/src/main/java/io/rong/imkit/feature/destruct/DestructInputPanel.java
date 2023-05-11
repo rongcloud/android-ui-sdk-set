@@ -31,17 +31,19 @@ import io.rong.imkit.conversation.extension.component.plugin.ImagePlugin;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
-import io.rong.imlib.IMLibExtensionModuleManager;
+import io.rong.imkit.utils.RongOperationPermissionUtils;
+import io.rong.imlib.ChannelClient;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.HardwareResource;
+import io.rong.imlib.model.ConversationIdentifier;
 import java.util.List;
 
 public class DestructInputPanel {
     private View mRootView;
     private RongExtensionViewModel mExtensionViewModel;
-    private Conversation.ConversationType mConversationType;
-    private String mTargetId;
+    private ConversationIdentifier mConversationIdentifier;
     private Fragment mFragment;
     private ImageView mVoiceToggle;
     private EditText mEditText;
@@ -53,16 +55,12 @@ public class DestructInputPanel {
 
     @SuppressLint("ClickableViewAccessibility")
     DestructInputPanel(
-            Fragment fragment,
-            ViewGroup parent,
-            Conversation.ConversationType type,
-            String targetId) {
+            Fragment fragment, ViewGroup parent, ConversationIdentifier conversationIdentifier) {
         if (fragment == null || fragment.getContext() == null) {
             return;
         }
         mFragment = fragment;
-        mConversationType = type;
-        mTargetId = targetId;
+        mConversationIdentifier = conversationIdentifier;
         mRootView =
                 LayoutInflater.from(fragment.getContext())
                         .inflate(R.layout.rc_destruct_input_panel, parent, false);
@@ -74,7 +72,10 @@ public class DestructInputPanel {
         mSendButton = mRootView.findViewById(R.id.input_panel_send_btn);
 
         isVoiceInputMode =
-                RongExtensionCacheHelper.isVoiceInputMode(fragment.getContext(), type, targetId);
+                RongExtensionCacheHelper.isVoiceInputMode(
+                        fragment.getContext(),
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId());
         updateViewByVoiceToggle(fragment.getContext());
         mVoiceToggle.setOnClickListener(mVoiceToggleClickListener);
         mEditText.setOnFocusChangeListener(mOnEditTextFocusChangeListener);
@@ -93,15 +94,21 @@ public class DestructInputPanel {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        IMCenter.getInstance()
+                                .saveTextMessageDraft(
+                                        mConversationIdentifier,
+                                        mEditText.getText().toString(),
+                                        null);
                         DestructManager.getInstance().exitDestructMode();
                     }
                 });
         mExtensionViewModel = new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
-        RongIMClient.getInstance()
+        ChannelClient.getInstance()
                 .getTextMessageDraft(
-                        type,
-                        targetId,
-                        new RongIMClient.ResultCallback<String>() {
+                        mConversationIdentifier.getType(),
+                        mConversationIdentifier.getTargetId(),
+                        mConversationIdentifier.getChannelId(),
+                        new IRongCoreCallback.ResultCallback<String>() {
                             @Override
                             public void onSuccess(String s) {
                                 if (!TextUtils.isEmpty(s)) {
@@ -112,7 +119,7 @@ public class DestructInputPanel {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
                                 // do nothing
                             }
                         });
@@ -123,7 +130,7 @@ public class DestructInputPanel {
         mExtensionViewModel = null;
         IMCenter.getInstance()
                 .saveTextMessageDraft(
-                        mConversationType, mTargetId, mEditText.getText().toString(), null);
+                        mConversationIdentifier, mEditText.getText().toString(), null);
     }
 
     View getRootView() {
@@ -192,8 +199,7 @@ public class DestructInputPanel {
                         mCancelButton.setVisibility(VISIBLE);
                         IMCenter.getInstance()
                                 .saveTextMessageDraft(
-                                        mConversationType,
-                                        mTargetId,
+                                        mConversationIdentifier,
                                         mEditText.getText().toString(),
                                         null);
                     } else {
@@ -202,10 +208,14 @@ public class DestructInputPanel {
                     }
 
                     int offset = count == 0 ? -before : count;
-                    if ((Conversation.ConversationType.PRIVATE).equals(mConversationType)
+                    if ((Conversation.ConversationType.PRIVATE)
+                                    .equals(mConversationIdentifier.getType())
                             && offset != 0) {
                         RongIMClient.getInstance()
-                                .sendTypingStatus(mConversationType, mTargetId, "RC:TxtMsg");
+                                .sendTypingStatus(
+                                        mConversationIdentifier.getType(),
+                                        mConversationIdentifier.getTargetId(),
+                                        "RC:TxtMsg");
                     }
                 }
 
@@ -237,12 +247,7 @@ public class DestructInputPanel {
                             AudioPlayManager.getInstance().stopPlay();
                         }
                         // 判断正在视频通话和语音通话中不能进行语音消息发送
-                        if (IMLibExtensionModuleManager.getInstance()
-                                        .onRequestHardwareResource(
-                                                HardwareResource.ResourceType.VIDEO)
-                                || IMLibExtensionModuleManager.getInstance()
-                                        .onRequestHardwareResource(
-                                                HardwareResource.ResourceType.AUDIO)) {
+                        if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
                             Toast.makeText(
                                             v.getContext(),
                                             v.getContext()
@@ -253,7 +258,7 @@ public class DestructInputPanel {
                             return true;
                         }
                         AudioRecordManager.getInstance()
-                                .startRecord(v.getRootView(), mConversationType, mTargetId);
+                                .startRecord(v.getRootView(), mConversationIdentifier);
                         mLastTouchY = event.getY();
                         mUpDirection = false;
                         ((TextView) v).setText(R.string.rc_voice_release_to_send);
@@ -296,9 +301,14 @@ public class DestructInputPanel {
                                                 .getResources()
                                                 .getDrawable(R.drawable.rc_ext_voice_idle_button));
                     }
-                    if (Conversation.ConversationType.PRIVATE.equals(mConversationType)) {
+                    if (mConversationIdentifier
+                            .getType()
+                            .equals(Conversation.ConversationType.PRIVATE)) {
                         RongIMClient.getInstance()
-                                .sendTypingStatus(mConversationType, mTargetId, "RC:VcMsg");
+                                .sendTypingStatus(
+                                        mConversationIdentifier.getType(),
+                                        mConversationIdentifier.getTargetId(),
+                                        "RC:VcMsg");
                     }
                     return true;
                 }

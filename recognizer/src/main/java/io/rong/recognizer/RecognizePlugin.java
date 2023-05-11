@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -17,6 +18,7 @@ import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginRequestPermissionResultCallback;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongOperationPermissionUtils;
 
 public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionResultCallback {
     private static final String TAG = "RecognizePlugin";
@@ -35,6 +37,20 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
     public void onClick(Fragment currentFragment, final RongExtension extension, int index) {
         if (extension == null) {
             RLog.e(TAG, "onClick extension null");
+            return;
+        }
+        if (currentFragment.getContext() == null || currentFragment.getActivity() == null) {
+            RLog.e(TAG, "onClick getContext null");
+            return;
+        }
+
+        // 判断正在视频通话和语音通话中不能进行语音消息发送
+        if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
+            Toast.makeText(
+                            currentFragment.getActivity(),
+                            R.string.rc_voip_occupying,
+                            Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
         String[] permissions = {Manifest.permission.RECORD_AUDIO};

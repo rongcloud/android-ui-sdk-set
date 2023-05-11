@@ -9,7 +9,9 @@ import java.lang.annotation.RetentionPolicy;
 public class DownloadEvent {
     @IntDef({SUCCESS, PROGRESS, ERROR, CANCEL, PAUSE, START})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Event {}
+    public @interface Event {
+        // default implementation ignored
+    }
 
     public static final int SUCCESS = 0;
     public static final int PROGRESS = 1;

@@ -7,13 +7,13 @@ import android.net.Uri;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCallback;
-import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.message.FileMessage;
 
@@ -23,8 +23,7 @@ public class FilePlugin implements IPluginModule {
     private static final int REQUEST_FILE = 100;
     // 发送消息间隔
     private static final int TIME_DELAY = 400;
-    private Conversation.ConversationType conversationType;
-    private String targetId;
+    private ConversationIdentifier mConversationIdentifier;
     private Context mContext;
 
     @Override
@@ -44,8 +43,7 @@ public class FilePlugin implements IPluginModule {
             RLog.e(TAG, "extension null");
             return;
         }
-        conversationType = extension.getConversationType();
-        targetId = extension.getTargetId();
+        mConversationIdentifier = extension.getConversationIdentifier();
         FragmentActivity activity = currentFragment.getActivity();
         if (activity != null) {
             mContext = activity.getApplicationContext();
@@ -80,8 +78,7 @@ public class FilePlugin implements IPluginModule {
                                             if (fileMessage != null) {
                                                 final Message message =
                                                         Message.obtain(
-                                                                targetId,
-                                                                conversationType,
+                                                                mConversationIdentifier,
                                                                 fileMessage);
                                                 IMCenter.getInstance()
                                                         .sendMediaMessage(

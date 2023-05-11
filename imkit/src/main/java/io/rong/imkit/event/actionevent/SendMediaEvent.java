@@ -9,7 +9,9 @@ import java.lang.annotation.RetentionPolicy;
 public class SendMediaEvent {
     @IntDef({ATTACH, SUCCESS, PROGRESS, ERROR, CANCEL})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface Event {}
+    public @interface Event {
+        // default implementation ignored
+    }
 
     public static final int ATTACH = 0;
     public static final int SUCCESS = 1;

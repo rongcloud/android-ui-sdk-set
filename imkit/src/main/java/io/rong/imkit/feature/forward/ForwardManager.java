@@ -41,7 +41,9 @@ public class ForwardManager {
     // 合并消息最多存储四条消息的文本信息
     private static final int SUMMARY_MAX_SIZE = 4;
 
-    private ForwardManager() {}
+    private ForwardManager() {
+        // default implementation ignored
+    }
 
     public static ForwardManager getInstance() {
         return SingletonHolder.sInstance;
