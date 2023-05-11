@@ -191,9 +191,7 @@ public class ProxyHttpUrlFetcher implements DataFetcher<InputStream> {
     private static class DefaultHttpUrlConnectionFactory implements HttpUrlConnectionFactory {
 
         @Synthetic
-        DefaultHttpUrlConnectionFactory() {
-            // default implementation ignored
-        }
+        DefaultHttpUrlConnectionFactory() {}
 
         @Override
         public HttpURLConnection build(URL url) throws IOException {

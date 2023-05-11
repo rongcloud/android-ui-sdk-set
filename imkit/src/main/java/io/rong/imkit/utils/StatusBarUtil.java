@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import androidx.annotation.IntDef;
-import io.rong.common.RLog;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -22,7 +21,6 @@ public class StatusBarUtil {
     public static final int TYPE_MIUI = 0;
     public static final int TYPE_FLYME = 1;
     public static final int TYPE_M = 3; // 6.0
-    private static final String TAG = StatusBarUtil.class.getSimpleName();
 
     /**
      * 修改状态栏颜色，支持4.4以上版本
@@ -160,7 +158,7 @@ public class StatusBarUtil {
             window.setAttributes(lp);
             return true;
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -183,7 +181,7 @@ public class StatusBarUtil {
             }
             return true;
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -201,7 +199,5 @@ public class StatusBarUtil {
 
     @IntDef({TYPE_MIUI, TYPE_FLYME, TYPE_M})
     @Retention(RetentionPolicy.SOURCE)
-    @interface ViewType {
-        // default implementation ignored
-    }
+    @interface ViewType {}
 }

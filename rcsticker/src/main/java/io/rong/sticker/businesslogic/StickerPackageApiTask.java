@@ -1,7 +1,6 @@
 package io.rong.sticker.businesslogic;
 
 import androidx.annotation.Nullable;
-import io.rong.common.RLog;
 import io.rong.sticker.model.Sticker;
 import io.rong.sticker.model.StickerPackageDownloadUrlInfo;
 import io.rong.sticker.model.StickerPackagesConfigInfo;
@@ -24,7 +23,6 @@ public class StickerPackageApiTask {
 
     private static final String PACKAGE_DOWNLOAD_URL = "emoticonservice/emopkgs/%s";
     private static final String GET_STICKER_URL = "emoticonservice/emopkgs/%s/stickers/%s";
-    private static final String TAG = StickerPackageApiTask.class.getSimpleName();
     private static String sAppKey;
     private static ExecutorService service = Executors.newCachedThreadPool();
     private static Random random = new Random();
@@ -53,7 +51,7 @@ public class StickerPackageApiTask {
         try {
             return HttpUtil.get(url, createHeader(), Sticker.class);
         } catch (IOException e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

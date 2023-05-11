@@ -17,7 +17,6 @@ import io.rong.imlib.model.UserInfo;
 
 /** Created by Beyond on 2016/11/14. */
 public class ContactCardPlugin implements IPluginModule {
-
     private static final String TAG = "ContactCardPlugin";
     private static final int REQUEST_CONTACT = 55;
     private Context context;
@@ -43,7 +42,7 @@ public class ContactCardPlugin implements IPluginModule {
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
         if (extension == null) {
-            RLog.e(TAG, "extension or Fragment null");
+            io.rong.common.rlog.RLog.e(TAG, "extension or Fragment null");
             return;
         }
         if (currentFragment.getActivity() != null) {

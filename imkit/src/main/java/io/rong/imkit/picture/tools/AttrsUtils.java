@@ -4,11 +4,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
-import io.rong.common.RLog;
 
 public class AttrsUtils {
-
-    private static final String TAG = AttrsUtils.class.getSimpleName();
 
     /**
      * get attrs color
@@ -26,7 +23,7 @@ public class AttrsUtils {
             array.recycle();
             return color;
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return 0;
     }
@@ -47,7 +44,7 @@ public class AttrsUtils {
             array.recycle();
             return statusFont;
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }
@@ -68,7 +65,7 @@ public class AttrsUtils {
             array.recycle();
             return drawable;
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

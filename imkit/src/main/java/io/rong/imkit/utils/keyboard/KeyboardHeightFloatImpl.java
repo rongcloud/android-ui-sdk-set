@@ -4,12 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 
 /** @author gusd */
 public class KeyboardHeightFloatImpl
@@ -23,7 +24,7 @@ public class KeyboardHeightFloatImpl
     private KeyboardHeightObserver keyboardHeightObserver;
 
     public KeyboardHeightFloatImpl(Activity activity) {
-        RLog.d(TAG, "KeyboardHeightFloatImpl: ");
+        Log.d(TAG, "KeyboardHeightFloatImpl: ");
         this.activity = activity;
         this.windowManager = (WindowManager) activity.getSystemService(Context.WINDOW_SERVICE);
         this.view = new View(activity);

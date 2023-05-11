@@ -10,7 +10,6 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.GIFMessage;
@@ -44,7 +43,10 @@ public class SendImageManager {
     }
 
     public void sendImage(
-            ConversationIdentifier conversationIdentifier, LocalMedia image, boolean isFull) {
+            Conversation.ConversationType conversationType,
+            String targetId,
+            LocalMedia image,
+            boolean isFull) {
         if (image.getPath() == null) {
             return;
         }
@@ -68,10 +70,10 @@ public class SendImageManager {
         }
         IMCenter.getInstance()
                 .insertOutgoingMessage(
-                        conversationIdentifier,
+                        conversationType,
+                        targetId,
                         Message.SentStatus.SENDING,
                         content,
-                        System.currentTimeMillis(),
                         new RongIMClient.ResultCallback<Message>() {
                             @Override
                             public void onSuccess(Message message) {

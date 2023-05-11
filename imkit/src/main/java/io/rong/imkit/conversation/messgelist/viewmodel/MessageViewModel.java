@@ -69,7 +69,6 @@ import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
@@ -106,7 +105,6 @@ public class MessageViewModel extends AndroidViewModel
     private List<UiMessage> mSelectedUiMessage = new ArrayList<>();
     private MediatorLiveData<PageEvent> mPageEventLiveData = new MediatorLiveData<>();
     private MediatorLiveData<List<UiMessage>> mUiMessageLiveData = new MediatorLiveData<>();
-    private ConversationIdentifier mConversationIdentifier;
     private Conversation.ConversationType mCurConversationType = null;
     private String mCurTargetId = null;
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
@@ -116,7 +114,9 @@ public class MessageViewModel extends AndroidViewModel
                     if (mCurConversationType == null || TextUtils.isEmpty(mCurTargetId)) {
                         return;
                     }
-                    if (mConversationIdentifier.equalsWithMessage(message)
+                    if (mCurConversationType == Conversation.ConversationType.PRIVATE
+                            && message.getConversationType() == mCurConversationType
+                            && Objects.equals(mCurTargetId, message.getTargetId())
                             && message.getMessageDirection()
                                     .equals(Message.MessageDirection.RECEIVE)) {
                         ReadReceiptMessage content = (ReadReceiptMessage) message.getContent();
@@ -174,14 +174,14 @@ public class MessageViewModel extends AndroidViewModel
                     if (mCurConversationType == null || TextUtils.isEmpty(mCurTargetId)) {
                         return;
                     }
-                    if (!(mCurConversationType.equals(Conversation.ConversationType.GROUP)
-                            || mCurConversationType.equals(
-                                    Conversation.ConversationType.DISCUSSION))) {
+                    if (!(Conversation.ConversationType.GROUP.equals(mCurConversationType)
+                            || Conversation.ConversationType.DISCUSSION.equals(
+                                    mCurConversationType))) {
                         return;
                     }
-                    if (!(conversationType.equals(Conversation.ConversationType.GROUP)
-                            || conversationType.equals(Conversation.ConversationType.DISCUSSION)
-                            || conversationType.equals(Conversation.ConversationType.PRIVATE))) {
+                    if (!(Conversation.ConversationType.GROUP.equals(conversationType)
+                            || Conversation.ConversationType.DISCUSSION.equals(conversationType)
+                            || Conversation.ConversationType.PRIVATE.equals(conversationType))) {
                         return;
                     }
                     if (!conversationType.equals(mCurConversationType)
@@ -406,11 +406,11 @@ public class MessageViewModel extends AndroidViewModel
         }
     }
 
-    public void bindConversation(ConversationIdentifier conversationIdentifier, Bundle bundle) {
-        mConversationIdentifier = conversationIdentifier;
-        mCurConversationType = conversationIdentifier.getType();
-        mCurTargetId = conversationIdentifier.getTargetId();
-        mProcessor = ConversationProcessorFactory.getInstance().getProcessor(mCurConversationType);
+    public void bindConversation(
+            Conversation.ConversationType type, String targetId, Bundle bundle) {
+        mCurTargetId = targetId;
+        mCurConversationType = type;
+        mProcessor = ConversationProcessorFactory.getInstance().getProcessor(type);
         mBundle = bundle;
         mProcessor.init(this, bundle);
         mIsEditStatus.setValue(false);
@@ -467,7 +467,8 @@ public class MessageViewModel extends AndroidViewModel
             if (RongConfigCenter.conversationConfig().isShowHistoryDividerMessage()) {
                 Message hisMessage =
                         Message.obtain(
-                                mConversationIdentifier,
+                                getCurTargetId(),
+                                getCurConversationType(),
                                 HistoryDividerMessage.obtain(
                                         getApplication()
                                                 .getString(
@@ -512,10 +513,6 @@ public class MessageViewModel extends AndroidViewModel
 
     public Conversation.ConversationType getCurConversationType() {
         return mCurConversationType;
-    }
-
-    public ConversationIdentifier getConversationIdentifier() {
-        return mConversationIdentifier;
     }
 
     public void refreshAllMessage(boolean force) {
@@ -1093,13 +1090,6 @@ public class MessageViewModel extends AndroidViewModel
             }
         }
         mUiMessageLiveData.setValue(mUiMessages);
-
-        // 当会话页面删除消息后列表消息为空时，重新刷新列表
-        if (RongConfigCenter.conversationConfig().isNeedRefreshWhenListIsEmptyAfterDelete()
-                && mUiMessages.isEmpty()
-                && mProcessor != null) {
-            onRefresh();
-        }
     }
 
     @Override
@@ -1149,8 +1139,8 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     public void onInsertMessage(InsertEvent event) {
         Message msg = event.getMessage();
-        if (mConversationIdentifier != null
-                && mConversationIdentifier.equalsWithMessage(msg)
+        if (Objects.equals(mCurTargetId, msg.getTargetId())
+                && Objects.equals(mCurConversationType, msg.getConversationType())
                 && msg.getMessageId() > 0) {
             long sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();
             msg.setSentTime(sentTime); // 更新成服务器时间
@@ -1744,7 +1734,8 @@ public class MessageViewModel extends AndroidViewModel
     /** 清理未读状态 */
     public void cleanUnreadStatus() {
         if (isInitUnreadMessageFinish() && isInitMentionedMessageFinish()) {
-            IMCenter.getInstance().clearMessagesUnreadStatus(mConversationIdentifier, null);
+            IMCenter.getInstance()
+                    .clearMessagesUnreadStatus(getCurConversationType(), getCurTargetId(), null);
         }
     }
 
@@ -1811,10 +1802,6 @@ public class MessageViewModel extends AndroidViewModel
 
     public boolean isNormalState() {
         return mProcessor.isNormalState(MessageViewModel.this);
-    }
-
-    public boolean isHistoryState() {
-        return mProcessor.isHistoryState(MessageViewModel.this);
     }
 
     @Override

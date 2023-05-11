@@ -46,36 +46,41 @@ public class RongUserInfoManager {
     private Context context;
     private String lastUserId = "";
 
-    private RongIMClient.OnReceiveMessageWrapperListener onReceiveMessageWrapperListener =
-            new RongIMClient.OnReceiveMessageWrapperListener() {
-                @Override
-                public boolean onReceived(Message message, int i, boolean b, boolean b1) {
-                    if (message != null
-                            && message.getContent() != null
-                            && message.getContent().getUserInfo() != null
-                            && RongUserInfoManager.getInstance().getUserDatabase() != null) {
-                        final UserInfo userInfo = message.getContent().getUserInfo();
-                        UserInfo oldUserInfo = getUserInfo(userInfo.getUserId());
-                        // 如果新旧信息相同，则不刷新用户信息
-                        if (oldUserInfo != null
-                                && Objects.equals(oldUserInfo.getName(), userInfo.getName())
-                                && Objects.equals(
-                                        oldUserInfo.getPortraitUri(), userInfo.getPortraitUri())
-                                && Objects.equals(oldUserInfo.getAlias(), userInfo.getAlias())
-                                && Objects.equals(oldUserInfo.getExtra(), userInfo.getExtra())) {
-                            return false;
-                        }
-                        refreshUserInfoCache(userInfo);
-                    }
-                    return false;
-                }
-            };
-
     private RongUserInfoManager() {
         mUserDataDelegate = new UserDataDelegate();
         mUserDataObservers = new ArrayList<>();
         cacheDataSource = new CacheDataSource();
-        IMCenter.getInstance().addAsyncOnReceiveMessageListener(onReceiveMessageWrapperListener);
+        IMCenter.getInstance()
+                .addAsyncOnReceiveMessageListener(
+                        new RongIMClient.OnReceiveMessageWrapperListener() {
+                            @Override
+                            public boolean onReceived(
+                                    Message message, int i, boolean b, boolean b1) {
+                                if (message != null
+                                        && message.getContent() != null
+                                        && message.getContent().getUserInfo() != null
+                                        && RongUserInfoManager.getInstance().getUserDatabase()
+                                                != null) {
+                                    final UserInfo userInfo = message.getContent().getUserInfo();
+                                    UserInfo oldUserInfo = getUserInfo(userInfo.getUserId());
+                                    // 如果新旧信息相同，则不刷新用户信息
+                                    if (oldUserInfo != null
+                                            && Objects.equals(
+                                                    oldUserInfo.getName(), userInfo.getName())
+                                            && Objects.equals(
+                                                    oldUserInfo.getPortraitUri(),
+                                                    userInfo.getPortraitUri())
+                                            && Objects.equals(
+                                                    oldUserInfo.getAlias(), userInfo.getAlias())
+                                            && Objects.equals(
+                                                    oldUserInfo.getExtra(), userInfo.getExtra())) {
+                                        return false;
+                                    }
+                                    refreshUserInfoCache(userInfo);
+                                }
+                                return false;
+                            }
+                        });
     }
 
     public @Nullable UserDatabase getUserDatabase() {

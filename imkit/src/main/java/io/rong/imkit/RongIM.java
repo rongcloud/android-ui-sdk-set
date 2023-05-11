@@ -22,16 +22,15 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.UserDataProvider;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.model.CSCustomServiceInfo;
 import io.rong.imlib.model.ConnectOption;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.HistoryMessageOption;
 import io.rong.imlib.model.Message;
@@ -51,9 +50,7 @@ public class RongIM {
     private static final String TAG = RongIM.class.getSimpleName();
     static RongIMClient.OnReceiveMessageListener sMessageListener;
 
-    private RongIM() {
-        // default implementation ignored
-    }
+    private RongIM() {}
 
     public static RongIM getInstance() {
         return SingletonHolder.sInstance;
@@ -419,9 +416,7 @@ public class RongIM {
             final Conversation.ConversationType conversationType,
             final String targetId,
             final RongIMClient.ResultCallback<Boolean> callback) {
-        IMCenter.getInstance()
-                .clearMessagesUnreadStatus(
-                        ConversationIdentifier.obtain(conversationType, targetId, ""), callback);
+        IMCenter.getInstance().clearMessagesUnreadStatus(conversationType, targetId, callback);
     }
 
     /**
@@ -826,9 +821,7 @@ public class RongIM {
                     callback) {
         IMCenter.getInstance()
                 .setConversationNotificationStatus(
-                        ConversationIdentifier.obtain(conversationType, targetId, ""),
-                        notificationStatus,
-                        callback);
+                        conversationType, targetId, notificationStatus, callback);
     }
 
     /**
@@ -846,9 +839,7 @@ public class RongIM {
             final boolean isTop,
             final boolean needCreate,
             final RongIMClient.ResultCallback<Boolean> callback) {
-        IMCenter.getInstance()
-                .setConversationToTop(
-                        ConversationIdentifier.obtain(type, id, ""), isTop, needCreate, callback);
+        IMCenter.getInstance().setConversationToTop(type, id, isTop, needCreate, callback);
     }
 
     /**
@@ -859,7 +850,7 @@ public class RongIM {
      * @param title 聊天的标题。开发者需要在聊天界面获取该值, 再手动设置为聊天界面的标题。
      */
     public void startPrivateChat(Context context, String targetUserId, String title) {
-        startConversation(context, ConversationIdentifier.obtainPrivate(targetUserId), title, 0);
+        startConversation(context, Conversation.ConversationType.PRIVATE, targetUserId, title);
     }
 
     /**
@@ -871,7 +862,7 @@ public class RongIM {
      *     再手动设置为聊天界面的标题。
      */
     public void startGroupChat(Context context, String targetGroupId, String title) {
-        startConversation(context, ConversationIdentifier.obtainGroup(targetGroupId), title, 0);
+        startConversation(context, Conversation.ConversationType.GROUP, targetGroupId, title);
     }
 
     /**
@@ -888,21 +879,7 @@ public class RongIM {
             Conversation.ConversationType conversationType,
             String targetId,
             String title) {
-        startConversation(
-                context, ConversationIdentifier.obtain(conversationType, targetId, ""), title, 0);
-    }
-
-    /**
-     * 启动会话界面。
-     *
-     * @param context 应用上下文。
-     * @param conversationIdentifier 会话标识。
-     * @param title 聊天的标题。开发者需要在聊天界面通过intent.getData().getQueryParameter("title")获取该值,
-     *     再手动设置为聊天界面的标题。
-     */
-    public void startConversation(
-            Context context, ConversationIdentifier conversationIdentifier, String title) {
-        startConversation(context, conversationIdentifier, title, 0);
+        startConversation(context, conversationType, targetId, title, 0);
     }
 
     /**
@@ -925,32 +902,7 @@ public class RongIM {
             String targetId,
             String title,
             long fixedMsgSentTime) {
-        startConversation(
-                context,
-                ConversationIdentifier.obtain(conversationType, targetId, ""),
-                title,
-                fixedMsgSentTime);
-    }
-
-    /**
-     * 启动会话界面，并跳转到指定的消息位置
-     *
-     * <p>使用时，可以传入多种会话类型 {@link Conversation.ConversationType} 对应不同的会话类型，开启不同的会话界面。 如果传入的是 {@link
-     * Conversation.ConversationType#CHATROOM}，sdk 会默认调用 {@link RongIMClient#joinChatRoom(String,
-     * int, RongIMClient.OperationCallback)} 加入聊天室。
-     *
-     * @param context 应用上下文。
-     * @param conversationIdentifier 会话标识。
-     * @param title 聊天的标题。开发者需要在聊天界面通过intent.getData().getQueryParameter("title")获取该值,
-     *     再手动设置为聊天界面的标题。
-     * @param fixedMsgSentTime 需要定位的消息发送时间
-     */
-    public void startConversation(
-            Context context,
-            ConversationIdentifier conversationIdentifier,
-            String title,
-            long fixedMsgSentTime) {
-        if (context == null || conversationIdentifier == null || conversationIdentifier.isValid()) {
+        if (context == null || TextUtils.isEmpty(targetId) || conversationType == null) {
             RLog.e(
                     TAG,
                     "startConversation. context, targetId or conversationType can not be empty!!!");
@@ -961,7 +913,7 @@ public class RongIM {
             bundle.putString(RouteUtils.TITLE, title);
             bundle.putLong(RouteUtils.INDEX_MESSAGE_TIME, fixedMsgSentTime);
         }
-        RouteUtils.routeToConversationActivity(context, conversationIdentifier, bundle);
+        RouteUtils.routeToConversationActivity(context, conversationType, targetId, bundle);
     }
 
     /**
@@ -1110,31 +1062,10 @@ public class RongIM {
             final String targetId,
             final HistoryMessageOption historyMsgOption,
             final IRongCoreCallback.IGetMessageCallback callback) {
-        getMessages(
-                ConversationIdentifier.obtain(conversationType, targetId, ""),
-                historyMsgOption,
-                callback);
-    }
-
-    /**
-     * 获取指定会话历史消息。
-     *
-     * <p>此方法先从本地获取历史消息，本地有缺失的情况下会从服务端同步缺失的部分；从服务端同步失败的时候会返回非 0 的 errorCode，同时把本地能取到的消息回调上去。<br>
-     * 必须开通历史消息云存储功能。
-     *
-     * @param conversationIdentifier 会话标识
-     * @param historyMsgOption {@link HistoryMessageOption}
-     * @param callback 清除消息的回调。
-     */
-    public void getMessages(
-            final ConversationIdentifier conversationIdentifier,
-            final HistoryMessageOption historyMsgOption,
-            final IRongCoreCallback.IGetMessageCallback callback) {
-        ChannelClient.getInstance()
+        RongCoreClient.getInstance()
                 .getMessages(
-                        conversationIdentifier.getType(),
-                        conversationIdentifier.getTargetId(),
-                        conversationIdentifier.getChannelId(),
+                        conversationType,
+                        targetId,
                         historyMsgOption,
                         new IRongCoreCallback.IGetMessageCallback() {
                             @Override
@@ -1742,7 +1673,7 @@ public class RongIM {
         Bundle bundle = new Bundle();
         bundle.putBoolean(RouteUtils.CREATE_CHATROOM, createIfNotExist);
         RouteUtils.routeToConversationActivity(
-                context, ConversationIdentifier.obtainChatroom(chatRoomId), bundle);
+                context, Conversation.ConversationType.CHATROOM, chatRoomId, bundle);
     }
 
     /**
@@ -1763,8 +1694,7 @@ public class RongIM {
             Conversation.ConversationType conversationType,
             String targetId,
             Bundle bundle) {
-        RouteUtils.routeToConversationActivity(
-                context, ConversationIdentifier.obtain(conversationType, targetId, ""), bundle);
+        RouteUtils.routeToConversationActivity(context, conversationType, targetId, bundle);
     }
 
     /**
@@ -1785,7 +1715,7 @@ public class RongIM {
         bundle.putString(RouteUtils.TITLE, title);
         bundle.putParcelable(RouteUtils.CUSTOM_SERVICE_INFO, customServiceInfo);
         RouteUtils.routeToConversationActivity(
-                context, ConversationIdentifier.obtainCustomer(customerServiceId), bundle);
+                context, Conversation.ConversationType.CUSTOMER_SERVICE, customerServiceId, bundle);
     }
 
     /**

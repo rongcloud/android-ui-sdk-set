@@ -1,8 +1,5 @@
 package io.rong.imkit.conversationlist.provider;
 
-import static android.content.Context.MODE_PRIVATE;
-
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -21,7 +18,6 @@ import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.adapter.IViewProvider;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import java.util.List;
@@ -194,39 +190,5 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                         .getNotificationStatus()
                         .equals(Conversation.ConversationNotificationStatus.DO_NOT_DISTURB);
         holder.setVisible(R.id.rc_conversation_no_disturb, noDisturb);
-        if (Conversation.ConversationType.ULTRA_GROUP.equals(
-                uiConversation.mCore.getConversationType())) {
-            holder.setVisible(R.id.divider, false);
-        } else {
-            holder.setVisible(R.id.divider, true);
-        }
-        if (isDebugMode(holder.getContext())) {
-            if (uiConversation.mCore.getConversationType()
-                            == Conversation.ConversationType.ULTRA_GROUP
-                    && uiConversation.mCore.getChannelType() != null) {
-                holder.setText(
-                        R.id.rc_conversation_title,
-                        uiConversation.mCore.getConversationTitle()
-                                + (uiConversation.mCore.getChannelType()
-                                                == IRongCoreEnum.UltraGroupChannelType
-                                                        .ULTRA_GROUP_CHANNEL_TYPE_PRIVATE
-                                        ? "(私)"
-                                        : "(公)")
-                                + "("
-                                + uiConversation.mCore.getPushNotificationLevel()
-                                + ")");
-            } else {
-                holder.setText(
-                        R.id.rc_conversation_title,
-                        uiConversation.mCore.getConversationTitle()
-                                + "("
-                                + uiConversation.mCore.getPushNotificationLevel()
-                                + ")");
-            }
-        }
-    }
-
-    private boolean isDebugMode(Context context) {
-        return context.getSharedPreferences("config", MODE_PRIVATE).getBoolean("isDebug", false);
     }
 }

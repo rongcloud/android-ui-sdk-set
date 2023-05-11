@@ -23,12 +23,12 @@ public class FileUtil {
             writer = new BufferedWriter(new FileWriter(file));
             writer.write(content);
         } catch (IOException e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
         } finally {
             try {
                 if (writer != null) writer.close();
             } catch (IOException e) {
-                RLog.e(TAG, e.toString());
+                e.printStackTrace();
             }
         }
     }
@@ -45,17 +45,17 @@ public class FileUtil {
             }
             return sb.toString();
         } catch (FileNotFoundException e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
             return null;
         } catch (IOException e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
             return null;
         } finally {
             if (reader != null) {
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    RLog.e(TAG, e.toString());
+                    e.printStackTrace();
                 }
             }
         }

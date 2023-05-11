@@ -32,9 +32,7 @@ public class LocalMedia implements Parcelable {
     /** Whether the original image is displayed */
     private boolean isOriginal;
 
-    public LocalMedia() {
-        // default implementation ignored
-    }
+    public LocalMedia() {}
 
     public LocalMedia(String path, long duration, int chooseModel, String mimeType) {
         this.path = path;

@@ -17,7 +17,6 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
 import io.rong.imlib.common.SharedPreferencesUtils;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 
 public class PrivateBusinessProcessor extends BaseBusinessProcessor {
@@ -62,7 +61,8 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
                             .isShowReadReceipt(viewModel.getCurConversationType())) {
                 IMCenter.getInstance()
                         .syncConversationReadStatus(
-                                ConversationIdentifier.obtain(message.getMessage()),
+                                message.getConversationType(),
+                                message.getTargetId(),
                                 message.getSentTime(),
                                 null);
             }
@@ -92,7 +92,8 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
             if (syncReadStatus) {
                 IMCenter.getInstance()
                         .syncConversationReadStatus(
-                                viewModel.getConversationIdentifier(),
+                                viewModel.getCurConversationType(),
+                                viewModel.getCurTargetId(),
                                 conversation.getSentTime(),
                                 null);
             }

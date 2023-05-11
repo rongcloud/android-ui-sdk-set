@@ -2,7 +2,6 @@ package io.rong.imkit.utils;
 
 import android.os.Build;
 import android.text.TextUtils;
-import io.rong.common.RLog;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,7 +16,6 @@ public class OSUtils {
     public static final String ROM_SMARTISAN = "SMARTISAN";
     public static final String ROM_VIVO = "VIVO";
     public static final String ROM_QIKU = "QIKU";
-
     public static final String ROM_HARMONY = "HARMONY";
 
     private static final String KEY_VERSION_MIUI = "ro.miui.ui.version.name";
@@ -26,7 +24,6 @@ public class OSUtils {
     private static final String KEY_VERSION_SMARTISAN = "ro.smartisan.version";
     private static final String KEY_VERSION_VIVO = "ro.vivo.os.version";
     private static final String KEY_VERSION_HARMONY = "hw_sc.build.platform.version";
-    private static final String TAG = OSUtils.class.getSimpleName();
 
     private static String sName;
     private static String sVersion;
@@ -121,7 +118,7 @@ public class OSUtils {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    RLog.e(TAG, e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }

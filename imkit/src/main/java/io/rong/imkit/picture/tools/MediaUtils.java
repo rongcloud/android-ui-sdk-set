@@ -8,13 +8,10 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import io.rong.common.RLog;
 import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.entity.LocalMedia;
 
 public class MediaUtils {
-    private static final String TAG = MediaUtils.class.getSimpleName();
-
     /**
      * 创建一条图片地址uri,用于保存拍照后的照片
      *
@@ -117,7 +114,7 @@ public class MediaUtils {
             return Long.parseLong(
                     mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             return 0;
         }
     }
@@ -134,7 +131,7 @@ public class MediaUtils {
             return Long.parseLong(
                     mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             return 0;
         }
     }
@@ -166,7 +163,7 @@ public class MediaUtils {
                 }
             }
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return size;
     }
@@ -195,7 +192,7 @@ public class MediaUtils {
                 }
             }
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return size;
     }
@@ -217,7 +214,7 @@ public class MediaUtils {
                     ValueOf.toInt(
                             mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return size;
     }
@@ -239,7 +236,7 @@ public class MediaUtils {
                     ValueOf.toInt(
                             mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return size;
     }
@@ -258,7 +255,7 @@ public class MediaUtils {
             size[0] = options.outWidth;
             size[1] = options.outHeight;
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return size;
     }
@@ -312,7 +309,7 @@ public class MediaUtils {
                 return -1;
             }
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             return -1;
         }
     }

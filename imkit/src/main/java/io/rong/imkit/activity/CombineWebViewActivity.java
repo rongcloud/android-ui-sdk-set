@@ -458,6 +458,11 @@ public class CombineWebViewActivity extends RongBaseActivity {
             if (check) {
                 handler.proceed();
             } else {
+                if (CombineWebViewActivity.this.isDestroyed()
+                        || CombineWebViewActivity.this.isFinishing()) {
+                    RLog.e(TAG, "onReceivedSslError but activity is finish");
+                    return;
+                }
                 final AlertDialog.Builder builder =
                         new AlertDialog.Builder(CombineWebViewActivity.this);
                 builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);

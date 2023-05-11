@@ -49,13 +49,9 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
      */
     public abstract int getResourceId();
 
-    protected void initWidgets() {
-        // default implementation ignored
-    }
+    protected void initWidgets() {}
 
-    protected void initPictureSelectorStyle() {
-        // default implementation ignored
-    }
+    protected void initPictureSelectorStyle() {}
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -140,7 +136,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             dialog = null;
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -254,7 +250,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                             : MediaStore.Images.Media._ID + "=?";
             cr.delete(uri, selection, new String[] {Long.toString(id)});
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 

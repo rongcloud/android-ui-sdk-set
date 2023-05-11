@@ -68,7 +68,6 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         Uri thumbUri = sightMessage.getThumbUri();
         if (thumbUri != null && thumbUri.getPath() != null) {
             final ImageView imageView = holder.getView(R.id.rc_sight_thumb);
-            final ImageView readyButton = holder.getView(R.id.rc_sight_tag);
             if (!checkViewsValid(imageView)) {
                 RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
                 return;
@@ -99,8 +98,7 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
                                         Target<Drawable> target,
                                         DataSource dataSource,
                                         boolean isFirstResource) {
-
-                                    measureLayoutParams(imageView, readyButton, resource);
+                                    measureLayoutParams(imageView, resource);
                                     return false;
                                 }
                             })
@@ -191,7 +189,7 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
         return messageContent instanceof SightMessage && !messageContent.isDestruct();
     }
 
-    private void measureLayoutParams(View view, ImageView readyButton, Drawable drawable) {
+    private void measureLayoutParams(View view, Drawable drawable) {
         float width = drawable.getIntrinsicWidth();
         float height = drawable.getIntrinsicHeight();
         int finalWidth;
@@ -222,43 +220,13 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
                 params.height = finalHeight;
                 params.width = finalWidth;
                 view.setLayoutParams(params);
-                measureReadyButton(readyButton, drawable, finalWidth, finalHeight);
             } else {
                 ViewGroup.LayoutParams params = view.getLayoutParams();
                 params.height = (int) height;
                 params.width = (int) width;
                 view.setLayoutParams(params);
-                measureReadyButton(readyButton, drawable, width, height);
             }
         }
-    }
-
-    private void measureReadyButton(
-            ImageView readyButton, Drawable drawable, float finalWidth, float finalHeight) {
-        if (readyButton == null || drawable == null) {
-            return;
-        }
-        int intrinsicHeight = drawable.getIntrinsicHeight();
-        int intrinsicWidth = drawable.getIntrinsicWidth();
-        if (intrinsicHeight == 0 || intrinsicWidth == 0 || finalHeight == 0 || finalWidth == 0) {
-            return;
-        }
-        ViewGroup.LayoutParams layoutParams = readyButton.getLayoutParams();
-        int readyButtonSize;
-        if ((intrinsicWidth / (finalWidth * 1.0)) > (intrinsicHeight / (finalHeight * 1.0))) {
-            readyButtonSize = (int) (finalHeight * (intrinsicHeight / (intrinsicWidth * 1.0)));
-        } else {
-            readyButtonSize = (int) (finalWidth * (intrinsicWidth / (intrinsicHeight * 1.0)));
-        }
-        int min =
-                Math.min(
-                        readyButtonSize,
-                        readyButton
-                                .getResources()
-                                .getDimensionPixelSize(R.dimen.rc_sight_play_size));
-        layoutParams.width = min;
-        layoutParams.height = min;
-        readyButton.setLayoutParams(layoutParams);
     }
 
     private String getSightDuration(int time) {

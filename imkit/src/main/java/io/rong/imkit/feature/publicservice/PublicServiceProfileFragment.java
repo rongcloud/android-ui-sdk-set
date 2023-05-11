@@ -16,7 +16,6 @@ import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.SettingItemView;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.publicservice.model.PublicServiceProfile;
 import java.util.Locale;
 
@@ -167,8 +166,8 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
                             bundle.putString(RouteUtils.TITLE, info.getName());
                             RouteUtils.routeToConversationActivity(
                                     getActivity(),
-                                    ConversationIdentifier.obtain(
-                                            info.getConversationType(), info.getTargetId(), ""),
+                                    info.getConversationType(),
+                                    info.getTargetId(),
                                     bundle);
                         }
                     });
@@ -219,10 +218,8 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
                                                             RouteUtils.TITLE, info.getName());
                                                     RouteUtils.routeToConversationActivity(
                                                             getActivity(),
-                                                            ConversationIdentifier.obtain(
-                                                                    info.getConversationType(),
-                                                                    info.getTargetId(),
-                                                                    ""),
+                                                            info.getConversationType(),
+                                                            info.getTargetId(),
                                                             bundle);
                                                 }
 

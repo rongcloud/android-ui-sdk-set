@@ -50,41 +50,42 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                 }
             };
 
-    private RongIMClient.ConnectCallback connectCallback =
-            new RongIMClient.ConnectCallback() {
-                @Override
-                public void onSuccess(String s) {
-                    // do nothing
-                }
-
-                @Override
-                public void onError(RongIMClient.ConnectionErrorCode connectionErrorCode) {
-                    // do nothing
-                }
-
-                @Override
-                public void onDatabaseOpened(RongIMClient.DatabaseOpenStatus databaseOpenStatus) {
-                    syncUnreadCount();
-                }
-            };
-
-    private RongIMClient.OnRecallMessageListener recallMessageListener =
-            new RongIMClient.OnRecallMessageListener() {
-                @Override
-                public boolean onMessageRecalled(
-                        Message message, RecallNotificationMessage recallNotificationMessage) {
-                    syncUnreadCount();
-                    return false;
-                }
-            };
-
     private UnReadMessageManager() {
         this.mMultiConversationUnreadInfos = new ArrayList<>();
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
         IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
-        IMCenter.getInstance().addConnectStatusListener(connectCallback);
-        IMCenter.getInstance().addOnRecallMessageListener(recallMessageListener);
+        IMCenter.getInstance()
+                .addConnectStatusListener(
+                        new RongIMClient.ConnectCallback() {
+                            @Override
+                            public void onSuccess(String s) {
+                                // do nothing
+                            }
+
+                            @Override
+                            public void onError(
+                                    RongIMClient.ConnectionErrorCode connectionErrorCode) {
+                                // do nothing
+                            }
+
+                            @Override
+                            public void onDatabaseOpened(
+                                    RongIMClient.DatabaseOpenStatus databaseOpenStatus) {
+                                syncUnreadCount();
+                            }
+                        });
+        IMCenter.getInstance()
+                .addOnRecallMessageListener(
+                        new RongIMClient.OnRecallMessageListener() {
+                            @Override
+                            public boolean onMessageRecalled(
+                                    Message message,
+                                    RecallNotificationMessage recallNotificationMessage) {
+                                syncUnreadCount();
+                                return false;
+                            }
+                        });
         IMCenter.getInstance().addSyncConversationReadStatusListener(this);
     }
 

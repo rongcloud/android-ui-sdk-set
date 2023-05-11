@@ -24,9 +24,7 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     private SparseArrayCompat<View> mHeaderViews = new SparseArrayCompat<>();
     private SparseArrayCompat<View> mFootViews = new SparseArrayCompat<>();
 
-    public BaseAdapter() {
-        // default implementation ignored
-    }
+    public BaseAdapter() {}
 
     public BaseAdapter(IViewProviderListener<T> listener, ProviderManager<T> providerManager) {
         mListener = listener;

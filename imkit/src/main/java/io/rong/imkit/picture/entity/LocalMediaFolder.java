@@ -91,9 +91,7 @@ public class LocalMediaFolder implements Parcelable {
         isCameraFolder = cameraFolder;
     }
 
-    public LocalMediaFolder() {
-        // default implementation ignored
-    }
+    public LocalMediaFolder() {}
 
     @Override
     public int describeContents() {

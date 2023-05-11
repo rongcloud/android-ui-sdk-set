@@ -46,7 +46,6 @@ import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.NestedScrollingParent;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
-import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.widget.refresh.api.RefreshComponent;
 import io.rong.imkit.widget.refresh.api.RefreshContent;
@@ -76,7 +75,6 @@ import io.rong.imkit.widget.refresh.wrapper.RefreshHeaderWrapper;
 @SuppressWarnings({"unused"})
 public class SmartRefreshLayout extends ViewGroup
         implements RefreshLayout, NestedScrollingParent /*, NestedScrollingChild*/ {
-    private static final String TAG = SmartRefreshLayout.class.getSimpleName();
 
     // <editor-fold desc="属性变量 property and variable">
 
@@ -3300,7 +3298,7 @@ public class SmartRefreshLayout extends ViewGroup
                     mFooterNoMoreDataEffective = false;
                     String msg = "Footer:" + mRefreshFooter + " NoMoreData is not supported.";
                     Throwable e = new RuntimeException(msg);
-                    RLog.e(TAG, e.getMessage());
+                    e.printStackTrace();
                 }
             }
         }

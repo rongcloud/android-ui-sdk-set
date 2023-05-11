@@ -64,7 +64,7 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
 
         RongMentionManager.IGroupMembersProvider groupMembersProvider =
                 RongMentionManager.getInstance().getGroupMembersProvider();
-        if (conversationType.equals(Conversation.ConversationType.GROUP)
+        if (Conversation.ConversationType.GROUP.equals(conversationType)
                 && groupMembersProvider != null) {
             groupMembersProvider.getGroupMembers(
                     targetId,
@@ -120,7 +120,7 @@ public class MentionMemberSelectActivity extends RongBaseNoActionbarActivity {
                             }
                         }
                     });
-        } else if (conversationType.equals(Conversation.ConversationType.DISCUSSION)) {
+        } else if (Conversation.ConversationType.DISCUSSION.equals(conversationType)) {
             RongIMClient.getInstance()
                     .getDiscussion(
                             targetId,

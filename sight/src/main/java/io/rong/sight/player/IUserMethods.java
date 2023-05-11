@@ -55,8 +55,6 @@ interface IUserMethods {
             @FloatRange(from = 0f, to = 1f) float leftVolume,
             @FloatRange(from = 0f, to = 1f) float rightVolume);
 
-    void resume();
-
     void pause();
 
     void stop();

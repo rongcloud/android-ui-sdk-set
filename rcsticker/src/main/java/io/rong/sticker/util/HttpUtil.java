@@ -1,7 +1,6 @@
 package io.rong.sticker.util;
 
 import com.google.gson.Gson;
-import io.rong.common.rlog.RLog;
 import io.rong.imlib.common.NetUtils;
 import io.rong.sticker.model.FullResponse;
 import java.io.ByteArrayOutputStream;
@@ -17,7 +16,6 @@ import java.util.Set;
 /** Created by luoyanlong on 2018/08/09. */
 public class HttpUtil {
 
-    private static final String TAG = HttpUtil.class.getSimpleName();
     private static Gson gson = new Gson();
 
     public static <T> void get(String urlString, Callback<T> callback) {
@@ -40,10 +38,10 @@ public class HttpUtil {
             FullResponse response = gson.fromJson(result, new ResultType(type));
             callback.onSuccess((T) response.getData());
         } catch (MalformedURLException e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
             callback.onError(e);
         } catch (IOException e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
             callback.onError(e);
         }
     }

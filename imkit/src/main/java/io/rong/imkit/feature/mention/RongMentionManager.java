@@ -33,9 +33,7 @@ public class RongMentionManager {
         static RongMentionManager sInstance = new RongMentionManager();
     }
 
-    private RongMentionManager() {
-        // default implementation ignored
-    }
+    private RongMentionManager() {}
 
     public static RongMentionManager getInstance() {
         return SingletonHolder.sInstance;

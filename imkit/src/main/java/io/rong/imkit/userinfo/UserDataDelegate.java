@@ -8,9 +8,7 @@ public class UserDataDelegate {
     private UserDataProvider.GroupInfoProvider mGroupInfoProvider;
     private UserDataProvider.GroupUserInfoProvider mGroupUserInfoProvider;
 
-    UserDataDelegate() {
-        // default implementation ignored
-    }
+    UserDataDelegate() {}
 
     public void setUserInfoProvider(UserDataProvider.UserInfoProvider provider) {
         mUserInfoProvider = provider;

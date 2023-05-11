@@ -3,12 +3,9 @@ package io.rong.imkit.picture.tools;
 import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
-import io.rong.common.RLog;
 import java.lang.reflect.Field;
 
 public class ScreenUtils {
-    private static final String TAG = ScreenUtils.class.getSimpleName();
-
     /** dp2px */
     public static int dip2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
@@ -37,7 +34,7 @@ public class ScreenUtils {
             statusBarHeight =
                     context.getApplicationContext().getResources().getDimensionPixelSize(x);
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return statusBarHeight == 0 ? dip2px(context, 25) : statusBarHeight;
     }

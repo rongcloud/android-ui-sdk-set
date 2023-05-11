@@ -1,6 +1,7 @@
 package io.rong.sight.player;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,16 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import io.rong.common.RLog;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.SightMessage;
 import io.rong.sight.R;
 import java.lang.ref.WeakReference;
 
 public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback {
-
-    private static final String TAG = "PlaybackVideoFragment";
 
     private EasyVideoPlayer mPlayer;
     private static Conversation.ConversationType conversationType;
@@ -51,14 +48,12 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
             boolean fromSightList,
             boolean sightListImageVisible,
             int initialPosition,
-            int initialPlayerStatus,
-            boolean needAutoPlay) {
+            int initialPlayerStatus) {
         PlaybackVideoFragment fragment = new PlaybackVideoFragment();
         mPlaybackVideoFragment = new WeakReference<>(fragment);
         fragment.setRetainInstance(true);
         Bundle args = new Bundle();
         args.putString("output_uri", outputUri);
-        args.putBoolean("auto_play", needAutoPlay);
         mInitialPosition = initialPosition;
         mInitialPlayerStatus = initialPlayerStatus;
         mSightMessage = sightMessage;
@@ -72,21 +67,11 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
 
     @Override
     public void onResume() {
-        if (mPlayer != null) {
-            mPlayer.resume();
-        }
         super.onResume();
     }
 
     @Override
-    public void onDestroy() {
-        RLog.d(TAG, "onDestroy: ");
-        super.onDestroy();
-    }
-
-    @Override
     public void onPause() {
-        RLog.d(TAG, "onPause: ");
         super.onPause();
         if (mPlayer != null) {
             mPlayer.pause();
@@ -109,7 +94,7 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
         mPlayer.setSeekBarClickable(seekBarClickable);
         mPlayer.setSource(Uri.parse(getArguments().getString("output_uri")));
         mPlayer.setInitialPosition(mInitialPosition);
-        boolean needAutoPlay = getArguments().getBoolean("auto_play", false);
+        boolean needAutoPlay = true;
         if (mInitialPlayerStatus == EasyVideoPlayer.PLAYER_STATUS_PAUSED
                 || mInitialPlayerStatus == EasyVideoPlayer.PLAYER_STATUS_COMPLETION) {
             needAutoPlay = false;
@@ -148,9 +133,6 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
         if (mVideoCallback != null) {
             mVideoCallback.onPaused(player);
         }
-        if (mPlayer != null) {
-            mPlayer.setAutoPlay(false);
-        }
     }
 
     @Override
@@ -186,13 +168,6 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
     public void onCompletion(EasyVideoPlayer player) {
         if (mVideoCallback != null) {
             mVideoCallback.onCompletion(player);
-        }
-    }
-
-    @Override
-    public void onPlayError(Uri source, int what, int extra) {
-        if (mVideoCallback != null) {
-            mVideoCallback.onPlayError(source, what, extra);
         }
     }
 

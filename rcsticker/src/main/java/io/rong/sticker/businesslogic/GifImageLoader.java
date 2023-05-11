@@ -2,7 +2,6 @@ package io.rong.sticker.businesslogic;
 
 import android.os.Handler;
 import android.util.LruCache;
-import io.rong.common.RLog;
 import io.rong.sticker.message.StickerMessage;
 import io.rong.sticker.model.Sticker;
 import io.rong.sticker.util.FileUtil;
@@ -15,7 +14,6 @@ public class GifImageLoader {
 
     private static final String SEPARATOR = " ";
     private static final int CACHE_SIZE = 5 * 1024 * 1024; // 最大缓存5MB
-    private static final String TAG = GifImageLoader.class.getSimpleName();
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -36,7 +34,7 @@ public class GifImageLoader {
                                 StickerPackageStorageTask.getStickerImageFilePath(
                                         packageId, stickerId));
                     } catch (IOException e) {
-                        RLog.e(TAG, e.getMessage());
+                        e.printStackTrace();
                         return null;
                     }
                 }
@@ -51,9 +49,7 @@ public class GifImageLoader {
         return instance;
     }
 
-    private GifImageLoader() {
-        // default implementation ignored
-    }
+    private GifImageLoader() {}
 
     public void obtain(Sticker sticker, SimpleCallback callback) {
         Worker worker = new Worker(sticker, callback);

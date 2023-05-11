@@ -13,7 +13,7 @@ import androidx.annotation.NonNull;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
-import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.TextMessage;
 import java.util.List;
@@ -23,7 +23,8 @@ public class QuickReplyBoard {
     private ListView mListView;
     private List<String> mPhraseList;
     private View mRootView;
-    private ConversationIdentifier mConversationIdentifier;
+    private Conversation.ConversationType mConversationType;
+    private String mTargetId;
 
     public QuickReplyBoard(
             @NonNull Context context,
@@ -51,7 +52,7 @@ public class QuickReplyBoard {
                         TextMessage textMessage = TextMessage.obtain(text);
                         IMCenter.getInstance()
                                 .sendMessage(
-                                        Message.obtain(mConversationIdentifier, textMessage),
+                                        Message.obtain(mTargetId, mConversationType, textMessage),
                                         null,
                                         null,
                                         null);
@@ -64,7 +65,8 @@ public class QuickReplyBoard {
 
     public void setAttachedConversation(RongExtension extension) {
         if (extension != null) {
-            mConversationIdentifier = extension.getConversationIdentifier();
+            mConversationType = extension.getConversationType();
+            mTargetId = extension.getTargetId();
         }
     }
 

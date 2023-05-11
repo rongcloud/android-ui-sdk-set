@@ -13,7 +13,6 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
@@ -25,7 +24,6 @@ import io.rong.imkit.widget.FixedLinearLayoutManager;
 import java.util.List;
 
 public class FolderPopWindow extends PopupWindow {
-    private static final String TAG = FolderPopWindow.class.getSimpleName();
     private Context context;
     private View window;
     private RecyclerView recyclerView;
@@ -99,7 +97,7 @@ public class FolderPopWindow extends PopupWindow {
             ivArrowView.setImageDrawable(drawableUp);
             AnimUtils.rotateArrow(ivArrowView, true);
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -162,7 +160,7 @@ public class FolderPopWindow extends PopupWindow {
             }
             adapter.bindFolderData(folders);
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 }

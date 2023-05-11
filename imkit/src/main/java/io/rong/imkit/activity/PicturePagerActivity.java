@@ -61,7 +61,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -219,9 +218,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         mImageAdapter = new ImageAdapter();
         isFirstTime = true;
         if (!(mMessage.getContent().isDestruct()
-                || mMessage.getContent() instanceof ReferenceMessage
-                || Conversation.ConversationType.ULTRA_GROUP.equals(
-                        mMessage.getConversationType()))) {
+                || mMessage.getContent() instanceof ReferenceMessage)) {
             getConversationImageUris(
                     mCurrentMessageId,
                     RongCommonDefine.GetMessageDirection.FRONT); // 获取当前点开图片之前的图片消息。
@@ -533,7 +530,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     }
 
     protected class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
-        private List<ImageInfo> mImageList = new CopyOnWriteArrayList<>();
+        private ArrayList<ImageInfo> mImageList = new ArrayList<>();
 
         @NonNull
         @Override
@@ -843,11 +840,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             return false;
         }
 
-        @Nullable
         public ImageInfo getItem(int index) {
-            if (index >= mImageList.size()) {
-                return null;
-            }
             return mImageList.get(index);
         }
 

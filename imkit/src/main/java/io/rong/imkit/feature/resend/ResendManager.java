@@ -26,21 +26,6 @@ public class ResendManager {
     private Hashtable<Integer, Message> mMessageMap;
     private ConcurrentLinkedQueue<Integer> mMessageQueue;
     private Handler mResendHandler;
-    private RongIMClient.ConnectionStatusListener connectionStatusListener =
-            new RongIMClient.ConnectionStatusListener() {
-                @Override
-                public void onChanged(
-                        RongIMClient.ConnectionStatusListener.ConnectionStatus connectionStatus) {
-                    if (connectionStatus.equals(
-                            RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED)) {
-                        // 开始发送缓存队列因发送失败需要重发的消息
-                        ResendManager.getInstance().beginResend();
-                    } else if (connectionStatus.equals(
-                            RongIMClient.ConnectionStatusListener.ConnectionStatus.SIGN_OUT)) {
-                        ResendManager.getInstance().removeAllResendMessage();
-                    }
-                }
-            };
 
     private ResendManager() {
         mMessageMap = new Hashtable<>();
@@ -48,7 +33,19 @@ public class ResendManager {
         HandlerThread resendThread = new HandlerThread("RESEND_WORK");
         resendThread.start();
         mResendHandler = new Handler(resendThread.getLooper());
-        IMCenter.getInstance().addConnectionStatusListener(connectionStatusListener);
+        IMCenter.getInstance()
+                .addConnectionStatusListener(
+                        new RongIMClient.ConnectionStatusListener() {
+                            @Override
+                            public void onChanged(ConnectionStatus connectionStatus) {
+                                if (connectionStatus.equals(ConnectionStatus.CONNECTED)) {
+                                    // 开始发送缓存队列因发送失败需要重发的消息
+                                    ResendManager.getInstance().beginResend();
+                                } else if (connectionStatus.equals(ConnectionStatus.SIGN_OUT)) {
+                                    ResendManager.getInstance().removeAllResendMessage();
+                                }
+                            }
+                        });
     }
 
     private static class ResendManagerHolder {

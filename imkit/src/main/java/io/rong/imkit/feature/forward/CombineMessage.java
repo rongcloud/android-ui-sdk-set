@@ -61,9 +61,7 @@ public class CombineMessage extends MediaMessageContent {
         this.summaryList = summaryList;
     }
 
-    protected CombineMessage() {
-        // default implementation ignored
-    }
+    protected CombineMessage() {}
 
     public static CombineMessage obtain(Uri url) {
         CombineMessage model = new CombineMessage();

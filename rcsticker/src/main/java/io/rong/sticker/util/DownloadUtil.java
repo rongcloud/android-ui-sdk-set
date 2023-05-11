@@ -54,7 +54,7 @@ public class DownloadUtil {
             output.flush();
             notifyListenersOnComplete(savePath);
         } catch (IOException e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             notifyListenersOnError(e);
         } finally {
             if (input != null) {

@@ -21,7 +21,6 @@ import io.rong.imkit.feature.forward.ForwardClickActions;
 import io.rong.imkit.feature.mention.MentionMemberSelectActivity;
 import io.rong.imkit.subconversationlist.RongSubConversationListActivity;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.message.FileMessage;
 import java.util.ArrayList;
@@ -33,8 +32,6 @@ public class RouteUtils {
 
     public static final String CONVERSATION_TYPE = "ConversationType";
     public static final String TARGET_ID = "targetId";
-    public static final String CHANNEL_ID = "channelId";
-    public static final String CONVERSATION_IDENTIFIER = "ConversationIdentifier";
     public static final String CREATE_CHATROOM = "createIfNotExist";
     public static final String TITLE = "title";
     public static final String INDEX_MESSAGE_TIME = "indexTime";
@@ -61,8 +58,7 @@ public class RouteUtils {
 
     public static void routeToConversationActivity(
             Context context, Conversation.ConversationType type, String targetId) {
-        ConversationIdentifier identifier = ConversationIdentifier.obtain(type, targetId, "");
-        routeToConversationActivity(context, identifier, false, null);
+        routeToConversationActivity(context, type, targetId, null);
     }
 
     public static void routeToConversationActivity(
@@ -70,8 +66,39 @@ public class RouteUtils {
             Conversation.ConversationType type,
             String targetId,
             boolean disableSystemEmoji) {
-        ConversationIdentifier identifier = ConversationIdentifier.obtain(type, targetId, "");
-        routeToConversationActivity(context, identifier, disableSystemEmoji, null);
+        routeToConversationActivity(context, type, targetId, disableSystemEmoji, null);
+    }
+    /**
+     * 启动会话页面
+     *
+     * @param context 上下文
+     * @param type 会话类型
+     * @param targetId 目标 ID
+     * @param disableSystemEmoji 是否隐藏融云自带表情
+     * @param bundle 启动 activity 时 intent 里需要携带的 bundle 信息。
+     */
+    public static void routeToConversationActivity(
+            Context context,
+            Conversation.ConversationType type,
+            String targetId,
+            boolean disableSystemEmoji,
+            Bundle bundle) {
+        if (TextUtils.isEmpty(targetId)) {
+            RLog.e(TAG, "routeToConversationActivity: targetId is empty");
+            return;
+        }
+        Class<? extends Activity> activity = RongConversationActivity.class;
+        if (sActivityMap.get(RongActivityType.ConversationActivity) != null) {
+            activity = sActivityMap.get(RongActivityType.ConversationActivity);
+        }
+        Intent intent = new Intent(context, activity);
+        intent.putExtra(CONVERSATION_TYPE, type.getName().toLowerCase());
+        intent.putExtra(TARGET_ID, targetId);
+        intent.putExtra(DISABLE_SYSTEM_EMOJI, disableSystemEmoji);
+        if (bundle != null) {
+            intent.putExtras(bundle);
+        }
+        context.startActivity(intent);
     }
 
     /**
@@ -84,92 +111,7 @@ public class RouteUtils {
      */
     public static void routeToConversationActivity(
             Context context, Conversation.ConversationType type, String targetId, Bundle bundle) {
-        ConversationIdentifier identifier = ConversationIdentifier.obtain(type, targetId, "");
-        routeToConversationActivity(context, identifier, false, bundle);
-    }
-
-    /**
-     * 启动会话页面
-     *
-     * @param context 上下文
-     * @param type 会话类型
-     * @param targetId 目标 ID
-     * @param disableSystemEmoji 是否隐藏融云自带表情
-     * @param bundle 启动 activity 时 intent 里需要携带的 bundle 信息。
-     */
-    public static void routeToConversationActivity(
-            Context context,
-            Conversation.ConversationType type,
-            String targetId,
-            boolean disableSystemEmoji,
-            Bundle bundle) {
-        ConversationIdentifier identifier = ConversationIdentifier.obtain(type, targetId, "");
-        routeToConversationActivity(context, identifier, disableSystemEmoji, bundle);
-    }
-
-    /**
-     * 启动会话页面
-     *
-     * @param context 上下文
-     * @param conversationIdentifier 会话标识
-     */
-    public static void routeToConversationActivity(
-            Context context, ConversationIdentifier conversationIdentifier) {
-        routeToConversationActivity(context, conversationIdentifier, false, null);
-    }
-
-    /**
-     * 启动会话页面
-     *
-     * @param context 上下文
-     * @param conversationIdentifier 会话标识
-     * @param bundle 启动 activity 时 intent 里需要携带的 bundle 信息。
-     */
-    public static void routeToConversationActivity(
-            Context context, ConversationIdentifier conversationIdentifier, Bundle bundle) {
-        routeToConversationActivity(context, conversationIdentifier, false, bundle);
-    }
-
-    /**
-     * 启动会话页面
-     *
-     * @param context 上下文
-     * @param conversationIdentifier 会话标识
-     * @param disableSystemEmoji 是否隐藏融云自带表情
-     * @param bundle 启动 activity 时 intent 里需要携带的 bundle 信息。
-     */
-    public static void routeToConversationActivity(
-            Context context,
-            ConversationIdentifier conversationIdentifier,
-            boolean disableSystemEmoji,
-            Bundle bundle) {
-        if (conversationIdentifier == null) {
-            RLog.e(TAG, "routeToConversationActivity: conversationIdentifier is empty");
-            return;
-        }
-        if (TextUtils.isEmpty(conversationIdentifier.getTargetId())) {
-            RLog.e(TAG, "routeToConversationActivity: targetId is empty");
-            return;
-        }
-        if (conversationIdentifier.getType() == null) {
-            RLog.e(TAG, "routeToConversationActivity: type is empty");
-            return;
-        }
-        Class<? extends Activity> activity = RongConversationActivity.class;
-        if (sActivityMap.get(RongActivityType.ConversationActivity) != null) {
-            activity = sActivityMap.get(RongActivityType.ConversationActivity);
-        }
-        Intent intent = new Intent(context, activity);
-        // 旧字段依旧传，兼容旧版本逻辑
-        intent.putExtra(TARGET_ID, conversationIdentifier.getTargetId());
-        intent.putExtra(
-                CONVERSATION_TYPE, conversationIdentifier.getType().getName().toLowerCase());
-        intent.putExtra(CONVERSATION_IDENTIFIER, conversationIdentifier);
-        intent.putExtra(DISABLE_SYSTEM_EMOJI, disableSystemEmoji);
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-        context.startActivity(intent);
+        routeToConversationActivity(context, type, targetId, false, bundle);
     }
 
     /**

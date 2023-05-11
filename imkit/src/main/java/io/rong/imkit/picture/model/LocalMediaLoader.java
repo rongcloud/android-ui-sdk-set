@@ -9,7 +9,6 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
-import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
@@ -32,8 +31,6 @@ public class LocalMediaLoader implements Handler.Callback {
     private static final String NOT_GIF = "!='image/gif'";
     /** 过滤掉小于500毫秒的录音 */
     private static final int AUDIO_DURATION = 500;
-
-    private static final String TAG = LocalMediaLoader.class.getSimpleName();
 
     private Context mContext;
     private boolean isAndroidQ;
@@ -280,8 +277,7 @@ public class LocalMediaLoader implements Handler.Callback {
                                         mHandler.sendMessage(
                                                 mHandler.obtainMessage(MSG_QUERY_MEDIA_ERROR));
                                     }
-                                    RLog.e(TAG, e.getMessage());
-                                    ;
+                                    e.printStackTrace();
                                 }
                             }
                         });

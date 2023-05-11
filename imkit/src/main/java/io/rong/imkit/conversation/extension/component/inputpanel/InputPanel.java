@@ -32,19 +32,18 @@ import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
-import io.rong.imkit.utils.RongOperationPermissionUtils;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.widget.RongEditText;
-import io.rong.imlib.ChannelClient;
-import io.rong.imlib.IRongCoreCallback;
-import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.IMLibExtensionModuleManager;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.HardwareResource;
 
 public class InputPanel {
     private final String TAG = this.getClass().getSimpleName();
+    private Conversation.ConversationType mConversationType;
     private Context mContext;
-    private ConversationIdentifier mConversationIdentifier;
+    private String mTargetId;
     private InputStyle mInputStyle;
     private Fragment mFragment;
     private View mInputPanel;
@@ -63,10 +62,12 @@ public class InputPanel {
             Fragment fragment,
             ViewGroup parent,
             InputStyle inputStyle,
-            ConversationIdentifier conversationIdentifier) {
+            Conversation.ConversationType type,
+            String targetId) {
         mFragment = fragment;
         mInputStyle = inputStyle;
-        mConversationIdentifier = conversationIdentifier;
+        mConversationType = type;
+        mTargetId = targetId;
         initView(fragment.getContext(), parent);
 
         mExtensionViewModel = new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
@@ -83,9 +84,7 @@ public class InputPanel {
         if (fragment.getContext() != null) {
             mIsVoiceInputMode =
                     RongExtensionCacheHelper.isVoiceInputMode(
-                            fragment.getContext(),
-                            conversationIdentifier.getType(),
-                            conversationIdentifier.getTargetId());
+                            fragment.getContext(), mConversationType, mTargetId);
         }
         if (mIsVoiceInputMode) {
             mExtensionViewModel.getInputModeLiveData().setValue(InputMode.VoiceInput);
@@ -133,10 +132,7 @@ public class InputPanel {
                             mIsVoiceInputMode = true;
                         }
                         RongExtensionCacheHelper.saveVoiceInputMode(
-                                context,
-                                mConversationIdentifier.getType(),
-                                mConversationIdentifier.getTargetId(),
-                                mIsVoiceInputMode);
+                                context, mConversationType, mTargetId, mIsVoiceInputMode);
                     }
                 });
         mEmojiToggleBtn.setOnClickListener(
@@ -333,13 +329,12 @@ public class InputPanel {
         return !RongConfigCenter.featureConfig().isHideEmojiButton();
     }
 
-    public void getDraft() {
-        ChannelClient.getInstance()
+    private void getDraft() {
+        RongIMClient.getInstance()
                 .getTextMessageDraft(
-                        mConversationIdentifier.getType(),
-                        mConversationIdentifier.getTargetId(),
-                        mConversationIdentifier.getChannelId(),
-                        new IRongCoreCallback.ResultCallback<String>() {
+                        mConversationType,
+                        mTargetId,
+                        new RongIMClient.ResultCallback<String>() {
                             @Override
                             public void onSuccess(final String s) {
                                 if (!TextUtils.isEmpty(s)) {
@@ -364,7 +359,7 @@ public class InputPanel {
                             }
 
                             @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
+                            public void onError(RongIMClient.ErrorCode errorCode) {
                                 // do nothing
                             }
                         });
@@ -392,7 +387,13 @@ public class InputPanel {
                             AudioPlayManager.getInstance().stopPlay();
                         }
                         // 判断正在视频通话和语音通话中不能进行语音消息发送
-                        if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
+                        if (RongUtils.phoneIsInUse(v.getContext())
+                                || IMLibExtensionModuleManager.getInstance()
+                                        .onRequestHardwareResource(
+                                                HardwareResource.ResourceType.VIDEO)
+                                || IMLibExtensionModuleManager.getInstance()
+                                        .onRequestHardwareResource(
+                                                HardwareResource.ResourceType.AUDIO)) {
                             Toast.makeText(
                                             v.getContext(),
                                             v.getContext()
@@ -403,7 +404,7 @@ public class InputPanel {
                             return true;
                         }
                         AudioRecordManager.getInstance()
-                                .startRecord(v.getRootView(), mConversationIdentifier);
+                                .startRecord(v.getRootView(), mConversationType, mTargetId);
                         mLastTouchY = event.getY();
                         mUpDirection = false;
                         ((TextView) v).setText(R.string.rc_voice_release_to_send);
@@ -446,14 +447,9 @@ public class InputPanel {
                                                 .getResources()
                                                 .getDrawable(R.drawable.rc_ext_voice_idle_button));
                     }
-                    if (mConversationIdentifier
-                            .getType()
-                            .equals(Conversation.ConversationType.PRIVATE)) {
+                    if (Conversation.ConversationType.PRIVATE.equals(mConversationType)) {
                         RongIMClient.getInstance()
-                                .sendTypingStatus(
-                                        mConversationIdentifier.getType(),
-                                        mConversationIdentifier.getTargetId(),
-                                        "RC:VcMsg");
+                                .sendTypingStatus(mConversationType, mTargetId, "RC:VcMsg");
                     }
                     return true;
                 }
@@ -506,7 +502,8 @@ public class InputPanel {
                     if (s == null || s.length() == 0) {
                         IMCenter.getInstance()
                                 .saveTextMessageDraft(
-                                        mConversationIdentifier,
+                                        mConversationType,
+                                        mTargetId,
                                         mEditText.getText().toString(),
                                         null);
                         if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
@@ -532,14 +529,10 @@ public class InputPanel {
                         cursor = start;
                         offset = count;
                     }
-                    if ((Conversation.ConversationType.PRIVATE)
-                                    .equals(mConversationIdentifier.getType())
+                    if ((Conversation.ConversationType.PRIVATE).equals(mConversationType)
                             && offset != 0) {
                         RongIMClient.getInstance()
-                                .sendTypingStatus(
-                                        mConversationIdentifier.getType(),
-                                        mConversationIdentifier.getTargetId(),
-                                        "RC:TxtMsg");
+                                .sendTypingStatus(mConversationType, mTargetId, "RC:TxtMsg");
                     }
                 }
 
@@ -557,7 +550,7 @@ public class InputPanel {
                 && !mInitialDraft.equals(mEditText.getText().toString())) {
             IMCenter.getInstance()
                     .saveTextMessageDraft(
-                            mConversationIdentifier, mEditText.getText().toString(), null);
+                            mConversationType, mTargetId, mEditText.getText().toString(), null);
         }
     }
 

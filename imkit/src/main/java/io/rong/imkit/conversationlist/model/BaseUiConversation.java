@@ -2,13 +2,11 @@ package io.rong.imkit.conversationlist.model;
 
 import android.content.Context;
 import android.text.Spannable;
-import android.text.TextUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
@@ -33,17 +31,6 @@ public abstract class BaseUiConversation {
         mCore.setDraft(draft);
         mCore.setSentTime(System.currentTimeMillis() - RongIMClient.getInstance().getDeltaTime());
         buildConversationContent();
-    }
-
-    public ConversationIdentifier getConversationIdentifier() {
-        if (mCore == null) {
-            return null;
-        }
-        if (TextUtils.isEmpty(mCore.getTargetId()) || mCore.getConversationType() == null) {
-            return null;
-        }
-        return ConversationIdentifier.obtain(
-                mCore.getConversationType(), mCore.getTargetId(), mCore.getChannelId());
     }
 
     // 如果会话的lastMsg在重发列表中，则需要更新成sending状态

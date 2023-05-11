@@ -42,9 +42,7 @@ public class SpeechToTextUtility {
                         context,
                         new InitListener() {
                             @Override
-                            public void onInit(int code) {
-                                // default implementation ignored
-                            }
+                            public void onInit(int code) {}
                         });
     }
 
@@ -127,9 +125,7 @@ public class SpeechToTextUtility {
                     }
 
                     @Override
-                    public void onEvent(int i, int i1, int i2, Bundle bundle) {
-                        // default implementation ignored
-                    }
+                    public void onEvent(int i, int i1, int i2, Bundle bundle) {}
                 };
         int ret = recognizer.startListening(recognizerListener);
         if (ret == ErrorCode.SUCCESS) {

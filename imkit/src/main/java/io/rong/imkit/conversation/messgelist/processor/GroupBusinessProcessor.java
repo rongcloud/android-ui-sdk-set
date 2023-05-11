@@ -16,7 +16,6 @@ import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.UserInfo;
@@ -45,7 +44,8 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                             .isShowReadReceipt(viewModel.getCurConversationType())) {
                 IMCenter.getInstance()
                         .syncConversationReadStatus(
-                                ConversationIdentifier.obtain(message.getMessage()),
+                                message.getConversationType(),
+                                message.getTargetId(),
                                 message.getSentTime(),
                                 null);
 
@@ -100,48 +100,13 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
         if (syncReadStatus) {
             IMCenter.getInstance()
                     .syncConversationReadStatus(
-                            viewModel.getConversationIdentifier(),
+                            viewModel.getCurConversationType(),
+                            viewModel.getCurTargetId(),
                             conversation.getSentTime(),
                             null);
             if (Conversation.ConversationType.ULTRA_GROUP.equals(
                     viewModel.getCurConversationType())) {
-                RLog.e(
-                        TAG,
-                        "onExistUnreadMessage syncUltraGroupReadStatus"
-                                + "，t:"
-                                + viewModel.getCurTargetId()
-                                + "，c:"
-                                + viewModel.getConversationIdentifier().getChannelId());
-                ChannelClient.getInstance()
-                        .syncUltraGroupReadStatus(
-                                viewModel.getCurTargetId(),
-                                viewModel.getConversationIdentifier().getChannelId(),
-                                conversation.getSentTime(),
-                                new IRongCoreCallback.OperationCallback() {
-                                    @Override
-                                    public void onSuccess() {
-                                        //                                        Toast.makeText(
-                                        //
-                                        // viewModel.getApplication(),
-                                        //
-                                        // "超级群已读状态同步成功",
-                                        //
-                                        // Toast.LENGTH_LONG)
-                                        //                                                .show();
-                                    }
-
-                                    @Override
-                                    public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                        //                                        Toast.makeText(
-                                        //
-                                        // viewModel.getApplication(),
-                                        //
-                                        // "超级群已读状态同步失败",
-                                        //
-                                        // Toast.LENGTH_LONG)
-                                        //                                                .show();
-                                    }
-                                });
+                //                ToDo 8901 和 4992 冲突太多，暂不合并
             }
         }
     }
@@ -197,8 +162,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                                                         public void onSuccess() {
                                                             for (io.rong.imlib.model.Message
                                                                     message : messages) {
-                                                                message.getReadReceiptInfo()
-                                                                        .setHasRespond(true);
+                                                                updateMessageHadRespond(message);
                                                             }
                                                         }
 
@@ -248,10 +212,8 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                                                         @Override
                                                         public void onSuccess() {
                                                             for (UiMessage uiMessage : uiMessages) {
-                                                                uiMessage
-                                                                        .getMessage()
-                                                                        .getReadReceiptInfo()
-                                                                        .setHasRespond(true);
+                                                                updateMessageHadRespond(
+                                                                        uiMessage.getMessage());
                                                             }
                                                         }
 
@@ -298,9 +260,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                                     new IRongCoreCallback.OperationCallback() {
                                         @Override
                                         public void onSuccess() {
-                                            item.getMessage()
-                                                    .getReadReceiptInfo()
-                                                    .setHasRespond(true);
+                                            updateMessageHadRespond(item.getMessage());
                                         }
 
                                         @Override
@@ -315,5 +275,17 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                 }
             }
         }
+    }
+
+    private void updateMessageHadRespond(Message message) {
+        if (message == null) {
+            return;
+        }
+        ReadReceiptInfo readReceiptInfo = message.getReadReceiptInfo();
+        if (readReceiptInfo == null) {
+            readReceiptInfo = new ReadReceiptInfo();
+        }
+        readReceiptInfo.setHasRespond(true);
+        message.setReadReceiptInfo(readReceiptInfo);
     }
 }

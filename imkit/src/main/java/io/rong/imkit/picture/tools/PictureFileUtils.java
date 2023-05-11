@@ -15,9 +15,9 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
-import io.rong.common.RLog;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
 import java.io.BufferedOutputStream;
@@ -64,9 +64,7 @@ public class PictureFileUtils {
                 state.equals(Environment.MEDIA_MOUNTED)
                         ? Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
                         : getRootDirFile(context, chooseMode);
-        if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {
-            // default implementation ignored
-        }
+        if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {}
 
         File folderDir = null;
         if (rootDir != null) {
@@ -74,9 +72,7 @@ public class PictureFileUtils {
                     new File(
                             rootDir.getAbsolutePath() + File.separator + "Camera" + File.separator);
         }
-        if (folderDir != null && !folderDir.exists() && folderDir.mkdirs()) {
-            // default implementation ignored
-        }
+        if (folderDir != null && !folderDir.exists() && folderDir.mkdirs()) {}
         boolean isOutFileNameEmpty = TextUtils.isEmpty(fileName);
         switch (chooseMode) {
             case PictureConfig.TYPE_VIDEO:
@@ -114,9 +110,7 @@ public class PictureFileUtils {
     /** TAG for log messages. */
     static final String TAG = "PictureFileUtils";
 
-    private PictureFileUtils() {
-        // default implementation ignored
-    }
+    private PictureFileUtils() {}
 
     /**
      * @param uri The Uri to check.
@@ -180,7 +174,7 @@ public class PictureFileUtils {
                 return cursor.getString(column_index);
             }
         } catch (IllegalArgumentException ex) {
-            RLog.i(
+            Log.i(
                     TAG,
                     String.format(
                             Locale.getDefault(), "getDataColumn: _data - [%s]", ex.getMessage()));
@@ -326,7 +320,7 @@ public class PictureFileUtils {
                     break;
             }
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
         return degree;
     }
@@ -359,7 +353,7 @@ public class PictureFileUtils {
             bos.flush();
             bos.close();
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -397,7 +391,7 @@ public class PictureFileUtils {
                                 + "/Camera";
             }
         } catch (Exception e) {
-            RLog.e(TAG, e.getMessage());
+            e.printStackTrace();
             return "";
         }
         return absolutePath;
@@ -530,8 +524,7 @@ public class PictureFileUtils {
                     PictureFileUtils.saveBitmapFile(bmp, file);
                 }
             } catch (Exception e) {
-                RLog.e(TAG, e.getMessage());
-                ;
+                e.printStackTrace();
             }
         }
     }
@@ -570,8 +563,7 @@ public class PictureFileUtils {
                     }
                 }
             } catch (Exception e) {
-                RLog.e(TAG, e.getMessage());
-                ;
+                e.printStackTrace();
             }
         }
         return "";

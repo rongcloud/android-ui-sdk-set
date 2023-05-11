@@ -3,7 +3,6 @@ package io.rong.recognizer.speechtotext;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.os.AsyncTask;
-import android.util.Log;
 import androidx.annotation.NonNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,7 +10,6 @@ import java.io.IOException;
 /** 解码 amr 格式音频文件的异步任务 */
 public class DecodeAmrTask extends AsyncTask<String, Void, byte[]> {
 
-    private static final String TAG = DecodeAmrTask.class.getSimpleName();
     private MediaExtractor extractor = new MediaExtractor();
     private MediaCodecWrapper codecWrapper;
     private DecodeCallback callback;
@@ -99,7 +97,8 @@ public class DecodeAmrTask extends AsyncTask<String, Void, byte[]> {
                 // END_INCLUDE(pop_sample)
             }
         } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
+            e.printStackTrace();
+
             release();
         }
 

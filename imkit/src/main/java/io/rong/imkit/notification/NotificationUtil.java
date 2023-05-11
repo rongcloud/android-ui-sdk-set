@@ -27,9 +27,7 @@ public class NotificationUtil {
     private final int SOUND_INTERVAL = 3000;
     private long mLastSoundTime;
 
-    private NotificationUtil() {
-        // default implementation ignored
-    }
+    private NotificationUtil() {}
 
     public static NotificationUtil getInstance() {
         return SingletonHolder.sInstance;

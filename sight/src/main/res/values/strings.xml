@@ -10,6 +10,5 @@
     <string name="rc_save_video_success">视频保存成功</string>
     <string name="rc_src_file_not_found">源文件不存在</string>
     <string name="rc_sight_file_expired">视频被删除或过期</string>
-    <string name="rc_video_play_error_open_system_player">视频播放错误，是否打开外部播放器播放视频？</string>
 
 </resources>

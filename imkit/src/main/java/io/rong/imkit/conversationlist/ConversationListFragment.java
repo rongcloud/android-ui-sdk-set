@@ -295,7 +295,9 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                         baseUiConversation.mCore.getConversationTitle());
             } else {
                 RouteUtils.routeToConversationActivity(
-                        view.getContext(), baseUiConversation.getConversationIdentifier());
+                        view.getContext(),
+                        baseUiConversation.mCore.getConversationType(),
+                        baseUiConversation.mCore.getTargetId());
             }
         } else {
             RLog.e(TAG, "invalid conversation.");
@@ -356,7 +358,8 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                                         || items.get(which).equals(cancelTopItem)) {
                                     IMCenter.getInstance()
                                             .setConversationToTop(
-                                                    baseUiConversation.getConversationIdentifier(),
+                                                    baseUiConversation.mCore.getConversationType(),
+                                                    baseUiConversation.mCore.getTargetId(),
                                                     !baseUiConversation.mCore.isTop(),
                                                     false,
                                                     new RongIMClient.ResultCallback<Boolean>() {

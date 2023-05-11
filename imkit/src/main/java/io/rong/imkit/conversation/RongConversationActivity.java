@@ -107,15 +107,15 @@ public class RongConversationActivity extends RongBaseActivity {
 
     private void setTitle() {
         if (!TextUtils.isEmpty(mTargetId)
-                && mConversationType.equals(Conversation.ConversationType.GROUP)) {
+                && Conversation.ConversationType.GROUP.equals(mConversationType)) {
             Group group = RongUserInfoManager.getInstance().getGroupInfo(mTargetId);
             mTitleBar.setTitle(group == null ? mTargetId : group.getName());
         } else {
             UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(mTargetId);
             mTitleBar.setTitle(userInfo == null ? mTargetId : userInfo.getName());
         }
-        if (mConversationType.equals(Conversation.ConversationType.CUSTOMER_SERVICE)
-                || mConversationType.equals(Conversation.ConversationType.CHATROOM)) {
+        if (Conversation.ConversationType.CUSTOMER_SERVICE.equals(mConversationType)
+                || Conversation.ConversationType.CHATROOM.equals(mConversationType)) {
             mTitleBar.setRightVisible(false);
         }
     }

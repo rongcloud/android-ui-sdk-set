@@ -17,9 +17,7 @@ public class SimpleMultiListener implements OnMultiListener {
             float percent,
             int offset,
             int headerHeight,
-            int maxDragHeight) {
-        // default implementation ignored
-    }
+            int maxDragHeight) {}
 
     @Override
     public void onHeaderReleased(RefreshHeader header, int headerHeight, int maxDragHeight) {

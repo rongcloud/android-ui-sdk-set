@@ -21,7 +21,6 @@ public class ConversationProcessorFactory {
         mProcessorMap.put(Conversation.ConversationType.PRIVATE, new PrivateBusinessProcessor());
         mProcessorMap.put(Conversation.ConversationType.SYSTEM, new PrivateBusinessProcessor());
         mProcessorMap.put(Conversation.ConversationType.GROUP, new GroupBusinessProcessor());
-        mProcessorMap.put(Conversation.ConversationType.ULTRA_GROUP, new GroupBusinessProcessor());
         mProcessorMap.put(Conversation.ConversationType.DISCUSSION, new GroupBusinessProcessor());
         mProcessorMap.put(Conversation.ConversationType.CHATROOM, new ChatRoomBusinessProcessor());
         mProcessorMap.put(
@@ -31,7 +30,6 @@ public class ConversationProcessorFactory {
                 new PublicServiceBusinessProcessor();
         mProcessorMap.put(Conversation.ConversationType.PUBLIC_SERVICE, publicServiceProcessor);
         mProcessorMap.put(Conversation.ConversationType.APP_PUBLIC_SERVICE, publicServiceProcessor);
-        mProcessorMap.put(Conversation.ConversationType.ULTRA_GROUP, new GroupBusinessProcessor());
     }
 
     private static class Holder {

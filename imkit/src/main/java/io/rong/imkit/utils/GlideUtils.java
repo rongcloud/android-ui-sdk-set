@@ -20,7 +20,7 @@ public class GlideUtils {
      * @return
      */
     public static Object buildAuthUrl(Uri originalUri, String privateToken) {
-        if (FileUtils.uriStartWithFile(originalUri)) {
+        if (FileUtils.uriStartWithFile(originalUri) || FileUtils.uriStartWithContent(originalUri)) {
             return originalUri;
         }
         if (TextUtils.isEmpty(privateToken)) {

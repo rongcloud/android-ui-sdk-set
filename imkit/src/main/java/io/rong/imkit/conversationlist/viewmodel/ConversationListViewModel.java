@@ -65,6 +65,7 @@ public class ConversationListViewModel extends AndroidViewModel
         implements RongUserInfoManager.UserDataObserver {
     private final String TAG = ConversationListViewModel.class.getSimpleName();
     private final int REFRESH_INTERVAL = 500;
+    private final int OFFLINE_REFRESH_INTERVAL = 2500;
     protected Conversation.ConversationType[] mSupportedTypes;
     protected int mSizePerPage;
     protected long mLastSyncTime;
@@ -78,7 +79,7 @@ public class ConversationListViewModel extends AndroidViewModel
     private MutableLiveData<NoticeContent> mNoticeContentLiveData = new MutableLiveData<>();
     private MutableLiveData<Event.RefreshEvent> mRefreshEventLiveData = new MutableLiveData<>();
     private boolean isTaskScheduled;
-    private int mTime = 500;
+    private int mTime = REFRESH_INTERVAL;
     private ConversationEventListener mConversationEventListener =
             new ConversationEventListener() {
                 @Override
@@ -106,7 +107,7 @@ public class ConversationListViewModel extends AndroidViewModel
                                     type,
                                     targetId,
                                     mDataFilter.isGathered(
-                                            ConversationIdentifier.obtain(type, targetId, "")));
+                                            new ConversationIdentifier(type, targetId)));
                     if (oldItem != null) {
                         mUiConversationList.remove(oldItem);
                         mConversationListLiveData.postValue(mUiConversationList);
@@ -177,7 +178,7 @@ public class ConversationListViewModel extends AndroidViewModel
                                     type,
                                     targetId,
                                     mDataFilter.isGathered(
-                                            ConversationIdentifier.obtain(type, targetId, "")));
+                                            new ConversationIdentifier(type, targetId)));
                     if (oldItem != null
                             && oldItem.mCore.getLatestMessageId()
                                     == event.getMessage().getMessageId()
@@ -225,7 +226,7 @@ public class ConversationListViewModel extends AndroidViewModel
                                     type,
                                     targetId,
                                     mDataFilter.isGathered(
-                                            ConversationIdentifier.obtain(type, targetId, "")));
+                                            new ConversationIdentifier(type, targetId)));
                     getConversation(type, targetId);
                 }
 
@@ -240,11 +241,11 @@ public class ConversationListViewModel extends AndroidViewModel
                 public boolean onReceived(
                         Message message, int left, boolean hasPackage, boolean offline) {
                     if (!offline) {
-                        mTime = 500;
+                        mTime = REFRESH_INTERVAL;
                     } else if (offline && !hasPackage && left == 0) {
-                        mTime = 500;
+                        mTime = REFRESH_INTERVAL;
                     } else {
-                        mTime = 5000;
+                        mTime = OFFLINE_REFRESH_INTERVAL;
                     }
                     getConversationList(false, false, mTime);
                     return false;
@@ -261,8 +262,8 @@ public class ConversationListViewModel extends AndroidViewModel
                                         type,
                                         message.getTargetId(),
                                         mDataFilter.isGathered(
-                                                ConversationIdentifier.obtain(
-                                                        type, message.getTargetId(), "")));
+                                                new ConversationIdentifier(
+                                                        type, message.getTargetId())));
                         if (oldItem != null
                                 && type.equals(Conversation.ConversationType.PRIVATE)
                                 && oldItem.mCore.getSentTime()
@@ -310,7 +311,7 @@ public class ConversationListViewModel extends AndroidViewModel
                                     type,
                                     targetId,
                                     mDataFilter.isGathered(
-                                            ConversationIdentifier.obtain(type, targetId, "")));
+                                            new ConversationIdentifier(type, targetId)));
                     if (oldItem != null) {
                         oldItem.mCore.setUnreadMessageCount(0);
                         oldItem.mCore.setMentionedCount(0);
@@ -462,9 +463,11 @@ public class ConversationListViewModel extends AndroidViewModel
                                                                         boolean isGathered =
                                                                                 mDataFilter
                                                                                         .isGathered(
-                                                                                                ConversationIdentifier
-                                                                                                        .obtain(
-                                                                                                                conversation));
+                                                                                                new ConversationIdentifier(
+                                                                                                        conversation
+                                                                                                                .getConversationType(),
+                                                                                                        conversation
+                                                                                                                .getTargetId()));
                                                                         BaseUiConversation oldItem =
                                                                                 findConversationFromList(
                                                                                         conversation
@@ -628,8 +631,7 @@ public class ConversationListViewModel extends AndroidViewModel
                             type,
                             status.getTargetId(),
                             mDataFilter.isGathered(
-                                    ConversationIdentifier.obtain(
-                                            type, status.getTargetId(), status.getChannelId())));
+                                    new ConversationIdentifier(type, status.getTargetId())));
             if (oldItem != null) {
                 if (status.getStatus().get(ConversationStatus.TOP_KEY) != null) {
                     oldItem.mCore.setTop(status.isTop());
@@ -748,11 +750,16 @@ public class ConversationListViewModel extends AndroidViewModel
                     findConversationFromList(
                             conversation.getConversationType(),
                             conversation.getTargetId(),
-                            mDataFilter.isGathered(ConversationIdentifier.obtain(conversation)));
+                            mDataFilter.isGathered(
+                                    new ConversationIdentifier(
+                                            conversation.getConversationType(),
+                                            conversation.getTargetId())));
             if (oldItem != null) {
                 oldItem.onConversationUpdate(conversation);
             } else {
-                if (mDataFilter.isGathered(ConversationIdentifier.obtain(conversation))) {
+                if (mDataFilter.isGathered(
+                        new ConversationIdentifier(
+                                conversation.getConversationType(), conversation.getTargetId()))) {
                     mUiConversationList.add(
                             new GatheredConversation(
                                     mApplication.getApplicationContext(), conversation));
@@ -900,7 +907,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     public void onUserUpdate(UserInfo info) {
-        if (mTime == 5000) {
+        if (mTime == OFFLINE_REFRESH_INTERVAL) {
             return;
         }
         if (info == null) {
@@ -914,7 +921,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     public void onGroupUpdate(Group group) {
-        if (mTime == 5000) {
+        if (mTime == OFFLINE_REFRESH_INTERVAL) {
             return;
         }
         for (BaseUiConversation baseUiConversation : mUiConversationList) {
@@ -925,7 +932,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
-        if (mTime == 5000) {
+        if (mTime == OFFLINE_REFRESH_INTERVAL) {
             return;
         }
         for (BaseUiConversation baseUiConversation : mUiConversationList) {

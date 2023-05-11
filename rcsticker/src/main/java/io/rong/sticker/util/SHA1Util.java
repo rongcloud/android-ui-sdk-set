@@ -1,14 +1,11 @@
 package io.rong.sticker.util;
 
-import io.rong.common.rlog.RLog;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /** SHA1 哈希计算方法 */
 public class SHA1Util {
-    private static final String TAG = SHA1Util.class.getSimpleName();
-
     private static String convertToHex(byte[] data) {
         StringBuilder buf = new StringBuilder();
         for (byte b : data) {
@@ -27,13 +24,13 @@ public class SHA1Util {
         try {
             md = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
             return null;
         }
         try {
             md.update(text.getBytes("iso-8859-1"), 0, text.length());
         } catch (UnsupportedEncodingException e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
         }
         byte[] sha1hash = md.digest();
         return convertToHex(sha1hash);

@@ -74,7 +74,6 @@ import io.rong.imkit.widget.refresh.listener.OnLoadMoreListener;
 import io.rong.imkit.widget.refresh.listener.OnRefreshListener;
 import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -286,9 +285,10 @@ public class ConversationFragment extends Fragment
             };
     private LinearLayout mNotificationContainer;
     private boolean onViewCreated = false;
+    private String mTargetId;
     private boolean mDisableSystemEmoji;
     private Bundle mBundle;
-    private ConversationIdentifier conversationIdentifier;
+    private Conversation.ConversationType mConversationType;
     private final RecyclerView.OnScrollListener mScrollListener =
             new RecyclerView.OnScrollListener() {
                 @Override
@@ -319,30 +319,26 @@ public class ConversationFragment extends Fragment
     public void initConversation(
             String targetId, Conversation.ConversationType conversationType, Bundle bundle) {
         if (onViewCreated) {
-            bindConversation(
-                    ConversationIdentifier.obtain(conversationType, targetId, ""), false, bundle);
+            bindConversation(targetId, conversationType, false, bundle);
         } else {
-            conversationIdentifier = ConversationIdentifier.obtain(conversationType, targetId, "");
+            mTargetId = targetId;
+            mConversationType = conversationType;
             mBundle = bundle;
         }
     }
 
     private void bindConversation(
-            ConversationIdentifier conversationIdentifier,
+            String targetId,
+            Conversation.ConversationType conversationType,
             boolean disableSystemEmoji,
             Bundle bundle) {
-        if (conversationIdentifier.getType() != null
-                && !TextUtils.isEmpty(conversationIdentifier.getTargetId())) {
+        if (conversationType != null && !TextUtils.isEmpty(targetId)) {
             for (IConversationUIRenderer processor :
                     RongConfigCenter.conversationConfig().getViewProcessors()) {
-                processor.init(
-                        this,
-                        mRongExtension,
-                        conversationIdentifier.getType(),
-                        conversationIdentifier.getTargetId());
+                processor.init(this, mRongExtension, conversationType, targetId);
             }
-            mRongExtension.bindToConversation(this, conversationIdentifier, disableSystemEmoji);
-            mMessageViewModel.bindConversation(conversationIdentifier, bundle);
+            mRongExtension.bindToConversation(this, conversationType, targetId, disableSystemEmoji);
+            mMessageViewModel.bindConversation(conversationType, targetId, bundle);
             subscribeUi();
             bindToConversation = true;
         } else {
@@ -386,8 +382,7 @@ public class ConversationFragment extends Fragment
                                                     if (mMessageViewModel.isNormalState()) {
                                                         mList.scrollToPosition(
                                                                 mAdapter.getItemCount() - 1);
-                                                    } else if (!mMessageViewModel
-                                                            .isHistoryState()) {
+                                                    } else {
                                                         mMessageViewModel.newMessageBarClick();
                                                     }
                                                 }
@@ -670,42 +665,33 @@ public class ConversationFragment extends Fragment
             return;
         }
         super.onViewCreated(view, savedInstanceState);
-        initIntentExtra();
-        if (Conversation.ConversationType.SYSTEM.equals(conversationIdentifier.getType())) {
-            mRongExtension.setVisibility(View.GONE);
-        } else {
-            mRongExtension.setVisibility(View.VISIBLE);
-        }
-        mMessageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
-        mRongExtensionViewModel = new ViewModelProvider(this).get(RongExtensionViewModel.class);
-        bindConversation(conversationIdentifier, mDisableSystemEmoji, mBundle);
-
-        // NOTE: 2021/8/25  当初解决高清语音自动下载，现在高清语音下载不需要申请存储权限，删除此处.
-        onViewCreated = true;
-    }
-
-    private void initIntentExtra() {
         Intent intent = getActivity().getIntent();
-
-        if (intent.hasExtra(RouteUtils.CONVERSATION_IDENTIFIER)) {
-            ConversationIdentifier identifier =
-                    intent.getParcelableExtra(RouteUtils.CONVERSATION_IDENTIFIER);
-            if (identifier != null) {
-                conversationIdentifier = identifier;
-            }
+        if (mTargetId == null) {
+            mTargetId = intent.getStringExtra(RouteUtils.TARGET_ID);
         }
-        if (conversationIdentifier == null) {
-            String typeValue = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
-            Conversation.ConversationType type =
-                    Conversation.ConversationType.valueOf(typeValue.toUpperCase(Locale.US));
-            String targetId = intent.getStringExtra(RouteUtils.TARGET_ID);
-            conversationIdentifier = ConversationIdentifier.obtain(type, targetId, "");
+        if (mConversationType == null) {
+            String type = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
+            if (type != null) {
+                mConversationType =
+                        Conversation.ConversationType.valueOf(type.toUpperCase(Locale.US));
+            }
         }
 
         mDisableSystemEmoji = intent.getBooleanExtra(RouteUtils.DISABLE_SYSTEM_EMOJI, false);
         if (mBundle == null) {
             mBundle = intent.getExtras();
         }
+        if (Conversation.ConversationType.SYSTEM.equals(mConversationType)) {
+            mRongExtension.setVisibility(View.GONE);
+        } else {
+            mRongExtension.setVisibility(View.VISIBLE);
+        }
+        mMessageViewModel = new ViewModelProvider(this).get(MessageViewModel.class);
+        mRongExtensionViewModel = new ViewModelProvider(this).get(RongExtensionViewModel.class);
+        bindConversation(mTargetId, mConversationType, mDisableSystemEmoji, mBundle);
+
+        // NOTE: 2021/8/25  当初解决高清语音自动下载，现在高清语音下载不需要申请存储权限，删除此处.
+        onViewCreated = true;
     }
 
     @Override

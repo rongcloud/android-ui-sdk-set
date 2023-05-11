@@ -18,9 +18,7 @@ import java.nio.channels.FileChannel;
 public class VideoController {
     private static final String TAG = VideoController.class.getSimpleName();
 
-    private VideoController() {
-        // default implementation ignored
-    }
+    private VideoController() {}
 
     private static class SingletonHolder {
         static VideoController sInstance = new VideoController();

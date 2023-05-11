@@ -82,7 +82,7 @@ public class ZipUtil {
                 }
             }
         } catch (Exception e) {
-            RLog.e(TAG, e.toString());
+            e.printStackTrace();
         }
     }
 
