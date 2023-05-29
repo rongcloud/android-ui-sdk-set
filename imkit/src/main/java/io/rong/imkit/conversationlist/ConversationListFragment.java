@@ -275,7 +275,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
      */
     @Override
     public void onItemClick(View view, ViewHolder holder, int position) {
-        if (position < 0) {
+        if (position < 0 || position >= mAdapter.getData().size()) {
             return;
         }
         BaseUiConversation baseUiConversation = mAdapter.getItem(position);
@@ -312,7 +312,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
      */
     @Override
     public boolean onItemLongClick(final View view, ViewHolder holder, int position) {
-        if (position < 0) {
+        if (position < 0 || position >= mAdapter.getData().size()) {
             return false;
         }
         final BaseUiConversation baseUiConversation = mAdapter.getItem(position);

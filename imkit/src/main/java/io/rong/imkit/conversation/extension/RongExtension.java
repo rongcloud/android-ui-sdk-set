@@ -204,15 +204,11 @@ public class RongExtension extends LinearLayout {
                 new EmoticonBoard(
                         fragment,
                         mBoardContainer,
-                        mConversationIdentifier.getType(),
-                        mConversationIdentifier.getTargetId(),
+                        getConversationType(),
+                        getTargetId(),
                         disableSystemEmoji);
         mPluginBoard =
-                new PluginBoard(
-                        fragment,
-                        mBoardContainer,
-                        mConversationIdentifier.getType(),
-                        mConversationIdentifier.getTargetId());
+                new PluginBoard(fragment, mBoardContainer, getConversationType(), getTargetId());
         mInputPanel =
                 new InputPanel(
                         fragment, mInputPanelContainer, mInputStyle, mConversationIdentifier);
@@ -292,8 +288,8 @@ public class RongExtension extends LinearLayout {
                                     int cursorPos = editText.getSelectionStart();
                                     RongMentionManager.getInstance()
                                             .onDeleteClick(
-                                                    mConversationIdentifier.getType(),
-                                                    mConversationIdentifier.getTargetId(),
+                                                    getConversationType(),
+                                                    getTargetId(),
                                                     editText,
                                                     cursorPos);
                                 }
@@ -393,9 +389,7 @@ public class RongExtension extends LinearLayout {
             mAttachedInfoContainer.setVisibility(GONE);
             updateInputMode(
                     RongExtensionCacheHelper.isVoiceInputMode(
-                                    mFragment.getContext(),
-                                    mConversationIdentifier.getType(),
-                                    mConversationIdentifier.getTargetId())
+                                    mFragment.getContext(), getConversationType(), getTargetId())
                             ? InputMode.VoiceInput
                             : InputMode.TextInput);
             getInputPanel().getDraft();
@@ -555,6 +549,10 @@ public class RongExtension extends LinearLayout {
      * @return 会话类型。
      */
     public Conversation.ConversationType getConversationType() {
+        if (mConversationIdentifier == null) {
+            RLog.e(TAG, "getConversationType mConversationIdentifier is null");
+            return Conversation.ConversationType.NONE;
+        }
         return mConversationIdentifier.getType();
     }
 
@@ -564,6 +562,10 @@ public class RongExtension extends LinearLayout {
      * @return 目标 id。
      */
     public String getTargetId() {
+        if (mConversationIdentifier == null) {
+            RLog.e(TAG, "getTargetId mConversationIdentifier is null");
+            return "";
+        }
         return mConversationIdentifier.getTargetId();
     }
 
@@ -634,15 +636,11 @@ public class RongExtension extends LinearLayout {
         if (mInputPanel != null) {
             mInputPanel.onDestroy();
             RongMentionManager.getInstance()
-                    .destroyInstance(
-                            mConversationIdentifier.getType(),
-                            mConversationIdentifier.getTargetId(),
-                            getInputEditText());
+                    .destroyInstance(getConversationType(), getTargetId(), getInputEditText());
         }
         for (IExtensionEventWatcher watcher :
                 RongExtensionManager.getInstance().getExtensionEventWatcher()) {
-            watcher.onDestroy(
-                    mConversationIdentifier.getType(), mConversationIdentifier.getTargetId());
+            watcher.onDestroy(getConversationType(), getTargetId());
         }
         for (IExtensionModule extensionModule :
                 RongExtensionManager.getInstance().getExtensionModules()) {

@@ -314,6 +314,7 @@ public class ConversationListViewModel extends AndroidViewModel
                     if (oldItem != null) {
                         oldItem.mCore.setUnreadMessageCount(0);
                         oldItem.mCore.setMentionedCount(0);
+                        oldItem.mCore.setMentionedMeCount(0);
                         oldItem.onConversationUpdate(oldItem.mCore);
                         mConversationListLiveData.postValue(mUiConversationList);
                     }

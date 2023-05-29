@@ -29,7 +29,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".feature.mention.MentionMemberSelectActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
 
         <activity
             android:name=".activity.RongWebviewActivity"
@@ -55,7 +56,8 @@
         </activity>
         <activity
             android:name=".activity.ForwardSelectConversationActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
 
         <activity
             android:name=".activity.CombineWebViewActivity"

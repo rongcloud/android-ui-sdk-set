@@ -34,6 +34,7 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.HistoryMessageOption;
+import io.rong.imlib.model.InitOption;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.RemoteHistoryMsgOption;
@@ -94,6 +95,19 @@ public class RongIM {
     public static void init(
             Application application, String appKey, boolean enablePush, Boolean isMainProcess) {
         IMCenter.init(application, appKey, enablePush, isMainProcess);
+    }
+
+    /**
+     * 初始化 SDK，在整个应用程序全局只需要调用一次, 建议在 Application 继承类中调用。 调用此接口传入 AppKey 与在 AndroidManifest.xml 里写入
+     * RONG_CLOUD_APP_KEY 是同样效果，二选一即可。
+     *
+     * @param application 应用
+     * @param appKey 融云注册应用的AppKey。
+     * @param option 初始化所需要的配置信息，详情可参考 {@link InitOption}
+     * @since 5.4.5
+     */
+    public static void init(Application application, String appKey, InitOption option) {
+        IMCenter.init(application, appKey, option);
     }
 
     /**

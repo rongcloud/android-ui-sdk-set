@@ -391,6 +391,18 @@ public class IMCenter {
      * @since 5.4.1
      */
     public static void init(Application application, String appKey, InitOption option) {
+        if (application == null) {
+            RLog.e(TAG, "init error: application is null");
+            return;
+        }
+        if (TextUtils.isEmpty(appKey)) {
+            RLog.e(TAG, "init error: appKey is null");
+            return;
+        }
+        if (option == null) {
+            RLog.i(TAG, "init warn: option is null");
+            option = new InitOption.Builder().build();
+        }
         //        initEmojiConfig(application);
         SingletonHolder.sInstance.mContext = application.getApplicationContext();
         RongConfigCenter.syncFromXml(application);

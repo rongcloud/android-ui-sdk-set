@@ -59,11 +59,7 @@ public class PictureFileUtils {
 
     private static File createOutFile(
             Context context, int chooseMode, String fileName, String format) {
-        String state = Environment.getExternalStorageState();
-        File rootDir =
-                state.equals(Environment.MEDIA_MOUNTED)
-                        ? Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
-                        : getRootDirFile(context, chooseMode);
+        File rootDir = getRootDirFile(context, chooseMode);
         if (rootDir != null && !rootDir.exists() && rootDir.mkdirs()) {
             // default implementation ignored
         }
@@ -103,6 +99,12 @@ public class PictureFileUtils {
      * @return
      */
     private static File getRootDirFile(Context context, int type) {
+
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
+        }
+
         switch (type) {
             case PictureConfig.TYPE_VIDEO:
                 return context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);

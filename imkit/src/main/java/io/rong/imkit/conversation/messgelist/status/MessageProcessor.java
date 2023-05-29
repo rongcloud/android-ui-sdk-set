@@ -91,7 +91,7 @@ public class MessageProcessor {
             final GetMessageCallback callback) {
         final List<Message> allData = new ArrayList<>();
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
-        historyMessageOption.setDataTime(sentTime - 2);
+        historyMessageOption.setDataTime(sentTime + 1);
         historyMessageOption.setCount(before);
         historyMessageOption.setOrder(HistoryMessageOption.PullOrder.ASCEND);
         ChannelClient.getInstance()

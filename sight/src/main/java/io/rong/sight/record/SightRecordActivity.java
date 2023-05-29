@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Window;
 import android.view.WindowManager;
 import io.rong.common.RLog;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
@@ -19,7 +18,6 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow()
                 .setFlags(
                         WindowManager.LayoutParams.FLAG_FULLSCREEN,

@@ -9,6 +9,7 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:supportsRtl="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -24,7 +25,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="io.rong.sight.record.SightRecordActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
     </application>
 
 </manifest>

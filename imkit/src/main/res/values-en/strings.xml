@@ -445,7 +445,7 @@
     <string name="rc_picture_camera_roll">CameraRoll</string>
     <string name="rc_picture_camera_roll_num">%1$s (%2$d)</string>
     <string name="rc_picture_cancel">Cancel</string>
-    <string name="rc_picture_take_picture">Shot</string>
+    <string name="rc_picture_take_picture">Camera</string>
     <string name="rc_picture_rule">not pictures or video</string>
     <string name="rc_picture_min_video_num">Video Selection Cannot%1$dNumber</string>
     <string name="rc_picture_message_max_num_fir">Select up to</string>

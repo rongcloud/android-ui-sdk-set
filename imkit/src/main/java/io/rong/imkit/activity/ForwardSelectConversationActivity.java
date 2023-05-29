@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -58,7 +57,6 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
                 .setFlags(
                         WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.rc_activity_forward_select);
         btOK = findViewById(R.id.rc_btn_ok);
         TextView btCancel = findViewById(R.id.rc_btn_cancel);
