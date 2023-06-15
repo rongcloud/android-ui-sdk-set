@@ -79,6 +79,9 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
                 new Runnable() {
                     @Override
                     public void run() {
+                        if (activity.isFinishing() || activity.isDestroyed()) {
+                            return;
+                        }
                         try {
                             retryShowPopup(parent, gravity, x, y);
                         } catch (Exception e) {
@@ -87,7 +90,13 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
                                     new Runnable() {
                                         @Override
                                         public void run() {
-                                            retryShowPopup(parent, gravity, x, y);
+                                            if (activity.isFinishing() || activity.isDestroyed()) {
+                                                return;
+                                            }
+                                            try {
+                                                retryShowPopup(parent, gravity, x, y);
+                                            } catch (Exception exception) {
+                                            }
                                         }
                                     },
                                     1000);

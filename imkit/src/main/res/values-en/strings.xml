@@ -290,6 +290,7 @@
     <string name="rc_ac_file_download_preview">File Preview</string>
     <string name="rc_ac_file_download_progress_tv">Downloading...</string>
     <string name="rc_ac_file_download_open_file_btn">Open File</string>
+    <string name="rc_ac_file_download_open_file_direct_btn">Open File</string>
     <string name="rc_ac_file_preview_begin_download">Download</string>
     <string name="rc_ac_file_preview_downloaded">Downloaded</string>
     <string name="rc_ac_file_preview_download_error">Download failed</string>

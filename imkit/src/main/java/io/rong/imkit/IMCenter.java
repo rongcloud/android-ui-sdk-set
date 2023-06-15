@@ -830,6 +830,13 @@ public class IMCenter {
             final ConversationIdentifier conversationIdentifier,
             long timestamp,
             final RongIMClient.OperationCallback callback) {
+        if (conversationIdentifier == null) {
+            RLog.e(TAG, "syncConversationReadStatus conversationIdentifier is null");
+            if (callback != null) {
+                callback.onError(RongIMClient.ErrorCode.PARAMETER_ERROR);
+            }
+            return;
+        }
         ChannelClient.getInstance()
                 .syncConversationReadStatus(
                         conversationIdentifier.getType(),
@@ -1323,6 +1330,13 @@ public class IMCenter {
             final long recordTime,
             final boolean cleanRemote,
             final RongIMClient.OperationCallback callback) {
+        if (conversationIdentifier == null) {
+            RLog.e(TAG, "cleanHistoryMessages conversationIdentifier is null");
+            if (callback != null) {
+                callback.onError(RongIMClient.ErrorCode.PARAMETER_ERROR);
+            }
+            return;
+        }
         ChannelClient.getInstance()
                 .cleanHistoryMessages(
                         conversationIdentifier.getType(),
@@ -1377,6 +1391,13 @@ public class IMCenter {
     public void clearMessagesUnreadStatus(
             final ConversationIdentifier conversationIdentifier,
             final RongIMClient.ResultCallback<Boolean> callback) {
+        if (conversationIdentifier == null) {
+            RLog.e(TAG, "clearMessagesUnreadStatus conversationIdentifier is null");
+            if (callback != null) {
+                callback.onError(RongIMClient.ErrorCode.PARAMETER_ERROR);
+            }
+            return;
+        }
         ChannelClient.getInstance()
                 .clearMessagesUnreadStatus(
                         conversationIdentifier.getType(),
@@ -1442,6 +1463,13 @@ public class IMCenter {
             final ConversationIdentifier conversationIdentifier,
             final String content,
             final RongIMClient.ResultCallback<Boolean> callback) {
+        if (conversationIdentifier == null) {
+            RLog.e(TAG, "saveTextMessageDraft conversationIdentifier is null");
+            if (callback != null) {
+                callback.onError(RongIMClient.ErrorCode.PARAMETER_ERROR);
+            }
+            return;
+        }
         ChannelClient.getInstance()
                 .saveTextMessageDraft(
                         conversationIdentifier.getType(),
@@ -1546,6 +1574,13 @@ public class IMCenter {
             final boolean isTop,
             final boolean needCreate,
             final RongIMClient.ResultCallback<Boolean> callback) {
+        if (conversationIdentifier == null) {
+            RLog.e(TAG, "setConversationToTop conversationIdentifier is null");
+            if (callback != null) {
+                callback.onError(RongIMClient.ErrorCode.PARAMETER_ERROR);
+            }
+            return;
+        }
         ChannelClient.getInstance()
                 .setConversationToTop(
                         conversationIdentifier.getType(),
@@ -1617,6 +1652,13 @@ public class IMCenter {
             final Conversation.ConversationNotificationStatus notificationStatus,
             final RongIMClient.ResultCallback<Conversation.ConversationNotificationStatus>
                     callback) {
+        if (conversationIdentifier == null) {
+            RLog.e(TAG, "setConversationNotificationStatus conversationIdentifier is null");
+            if (callback != null) {
+                callback.onError(RongIMClient.ErrorCode.PARAMETER_ERROR);
+            }
+            return;
+        }
         ChannelClient.getInstance()
                 .setConversationNotificationStatus(
                         conversationIdentifier.getType(),
@@ -1718,6 +1760,13 @@ public class IMCenter {
             MessageContent content,
             long time,
             final RongIMClient.ResultCallback<Message> resultCallback) {
+        if (conversationIdentifier == null) {
+            RLog.e(TAG, "insertOutgoingMessage conversationIdentifier is null");
+            if (resultCallback != null) {
+                resultCallback.onError(RongIMClient.ErrorCode.PARAMETER_ERROR);
+            }
+            return;
+        }
         if (mMessageInterceptor != null
                 && mMessageInterceptor.interceptOnInsertOutgoingMessage(
                         conversationIdentifier.getType(),

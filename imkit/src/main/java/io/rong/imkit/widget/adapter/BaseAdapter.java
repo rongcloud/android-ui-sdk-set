@@ -166,19 +166,38 @@ public class BaseAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
     }
 
     public void addHeaderView(View view) {
+        if (view == null) {
+            return;
+        }
+        checkViewParent(view);
         mHeaderViews.put(mHeaderViews.size() + BASE_ITEM_TYPE_HEADER, view);
     }
 
     public void addFootView(View view) {
+        if (view == null) {
+            return;
+        }
+        checkViewParent(view);
         mFootViews.put(mFootViews.size() + BASE_ITEM_TYPE_FOOTER, view);
     }
 
     public void setEmptyView(View view) {
+        if (view == null) {
+            return;
+        }
+        checkViewParent(view);
         mEmptyView = view;
     }
 
     public void setEmptyView(@LayoutRes int emptyId) {
         mEmptyId = emptyId;
+    }
+
+    private void checkViewParent(View view) {
+        if (view.getParent() != null) {
+            ViewGroup parent = (ViewGroup) view.getParent();
+            parent.removeView(view);
+        }
     }
 
     public int getHeadersCount() {

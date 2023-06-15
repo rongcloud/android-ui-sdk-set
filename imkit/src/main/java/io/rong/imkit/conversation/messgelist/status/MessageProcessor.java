@@ -17,6 +17,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.HistoryMessageOption;
 import io.rong.imlib.model.Message;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ public class MessageProcessor {
         } else {
             historyMessageOption.setOrder(HistoryMessageOption.PullOrder.ASCEND);
         }
+        WeakReference<MessageViewModel> weakReference = new WeakReference<>(messageViewModel);
         RongIM.getInstance()
                 .getMessages(
                         messageViewModel.getConversationIdentifier(),
@@ -61,20 +63,30 @@ public class MessageProcessor {
                                 }
                                 if (IRongCoreEnum.ConversationLoadMessageType.ASK.equals(type)) {
                                     if (callback != null) {
-                                        messageViewModel.executePageEvent(
-                                                new ShowLoadMessageDialogEvent(
-                                                        callback, messageList));
+                                        if (weakReference.get() != null) {
+                                            weakReference
+                                                    .get()
+                                                    .executePageEvent(
+                                                            new ShowLoadMessageDialogEvent(
+                                                                    callback, messageList));
+                                        }
                                         callback.onErrorAsk(messageList);
                                     }
                                 } else if (IRongCoreEnum.ConversationLoadMessageType.ONLY_SUCCESS
                                         .equals(type)) {
-                                    messageViewModel.onGetHistoryMessage(
-                                            Collections.<Message>emptyList());
+                                    if (weakReference.get() != null) {
+                                        weakReference
+                                                .get()
+                                                .onGetHistoryMessage(
+                                                        Collections.<Message>emptyList());
+                                    }
                                     if (callback != null) {
                                         callback.onErrorOnlySuccess();
                                     }
                                 } else {
-                                    messageViewModel.onGetHistoryMessage(messageList);
+                                    if (weakReference.get() != null) {
+                                        weakReference.get().onGetHistoryMessage(messageList);
+                                    }
                                     if (callback != null) {
                                         callback.onErrorAlways(messageList);
                                     }

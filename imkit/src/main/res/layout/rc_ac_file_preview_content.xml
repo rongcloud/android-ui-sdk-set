@@ -87,11 +87,12 @@
 <!--            android:textSize="16sp" />-->
 <!--    </LinearLayout>-->
 
-    <Button
+    <TextView
         android:id="@+id/rc_ac_btn_download_button"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_file_preview_download_button_height"
         android:layout_gravity="center_horizontal"
+        android:gravity="center"
         android:layout_marginStart="@dimen/rc_file_preview_download_button_left_margin"
         android:layout_marginEnd="@dimen/rc_file_preview_download_button_left_margin"
         android:background="@drawable/rc_ac_btn_file_download_open_button"

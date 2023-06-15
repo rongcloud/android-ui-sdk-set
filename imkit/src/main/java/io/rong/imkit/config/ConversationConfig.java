@@ -117,7 +117,8 @@ public class ConversationConfig {
     private ConversationClickListener mConversationClickListener;
     private ProviderManager<UiMessage> mMessageListProvider = new ProviderManager<>();
     private List<IConversationUIRenderer> mConversationViewProcessors = new ArrayList<>();
-    private List<IConversationSummaryProvider> mConversationSummaryProviders = new ArrayList<>();
+    private CopyOnWriteArrayList<IConversationSummaryProvider> mConversationSummaryProviders =
+            new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<IClickActions> mMoreClickActions = new CopyOnWriteArrayList<>();
     private IMessageProvider defaultMessageProvider = new DefaultMessageItemProvider();
     private IMessageViewModelProcessor mViewModelProcessor;

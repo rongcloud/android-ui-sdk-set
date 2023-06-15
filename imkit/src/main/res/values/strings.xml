@@ -353,6 +353,7 @@
     <string name="rc_notice_network_unavailable">当前网络不可用，请检查你的网络设置</string>
     <string name="rc_ac_file_download_progress_tv">下载中...</string>
     <string name="rc_ac_file_download_open_file_btn">用其他应用打开</string>
+    <string name="rc_ac_file_download_open_file_direct_btn">打开文件</string>
     <string name="rc_ac_file_preview_downloaded">已下载</string>
     <string name="rc_ac_file_preview_download_error">下载失败</string>
     <string name="rc_ac_file_preview_download_cancel">已取消下载</string>

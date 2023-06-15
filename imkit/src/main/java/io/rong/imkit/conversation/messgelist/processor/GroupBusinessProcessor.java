@@ -2,6 +2,7 @@ package io.rong.imkit.conversation.messgelist.processor;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Toast;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
@@ -273,6 +274,9 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
             return;
         }
         for (final UiMessage item : viewModel.getUiMessages()) {
+            if (TextUtils.isEmpty(item.getMessage().getUId())) {
+                continue;
+            }
             if (item.getMessage().getUId().equals(messageUId)) {
                 ReadReceiptInfo readReceiptInfo = item.getMessage().getReadReceiptInfo();
                 if (readReceiptInfo == null) {

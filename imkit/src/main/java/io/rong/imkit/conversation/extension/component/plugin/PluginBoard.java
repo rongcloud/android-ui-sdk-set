@@ -13,7 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -78,23 +77,32 @@ public class PluginBoard {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        ConstraintLayout.LayoutParams layoutParams =
-                                                (ConstraintLayout.LayoutParams)
-                                                        mIndicator.getLayoutParams();
-                                        Pair<Integer, Integer> cellSize =
-                                                calculateCellSize(
-                                                        mRoot,
-                                                        DEFAULT_SHOW_COLUMN,
-                                                        DEFAULT_SHOW_ROW,
-                                                        0,
-                                                        mIndicator.getHeight()
-                                                                + layoutParams.topMargin
-                                                                + layoutParams.bottomMargin,
-                                                        0,
-                                                        0);
-                                        for (GridView gridView : mPagerAdapter.pageSet) {
-                                            ((PluginItemAdapter) gridView.getAdapter())
-                                                    .updateLayoutByCellSize(cellSize);
+                                        ViewGroup.LayoutParams indicatorLayoutParams =
+                                                mIndicator.getLayoutParams();
+                                        if (indicatorLayoutParams
+                                                instanceof ViewGroup.MarginLayoutParams) {
+                                            ViewGroup.MarginLayoutParams layoutParams =
+                                                    (ViewGroup.MarginLayoutParams)
+                                                            indicatorLayoutParams;
+                                            Pair<Integer, Integer> cellSize =
+                                                    calculateCellSize(
+                                                            mRoot,
+                                                            DEFAULT_SHOW_COLUMN,
+                                                            DEFAULT_SHOW_ROW,
+                                                            0,
+                                                            mIndicator.getHeight()
+                                                                    + layoutParams.topMargin
+                                                                    + layoutParams.bottomMargin,
+                                                            0,
+                                                            0);
+                                            for (GridView gridView : mPagerAdapter.pageSet) {
+                                                ((PluginItemAdapter) gridView.getAdapter())
+                                                        .updateLayoutByCellSize(cellSize);
+                                            }
+                                        } else {
+                                            RLog.d(
+                                                    TAG,
+                                                    "mViewContainer LayoutParams is not MarginLayoutParams");
                                         }
                                     }
                                 });

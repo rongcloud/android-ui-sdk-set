@@ -122,6 +122,7 @@
     <string name="rc_ac_file_download_preview">عرض الملف</string>
     <string name="rc_ac_file_download_progress_tv">جاري التحميل...</string>
     <string name="rc_ac_file_download_open_file_btn">فتح الملف</string>
+    <string name="rc_ac_file_download_open_file_direct_btn">فتح الملف</string>
     <string name="rc_ac_file_preview_can_not_open_file">يتغذر فتح الملف</string>
     <string name="rc_ac_file_preview_begin_download">تنزيل</string>
     <string name="rc_ac_file_preview_downloaded">تم تنزيله</string>

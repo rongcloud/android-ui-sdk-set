@@ -1703,13 +1703,13 @@ public class MessageViewModel extends AndroidViewModel
                         ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition()
                                 - headerCount;
             }
-            UiMessage firstMessage = getUiMessages().get(Math.max(firstVisibleItemPosition, 0));
-            UiMessage lastMessage =
-                    getUiMessages()
-                            .get(
-                                    lastPosition < getUiMessages().size()
-                                            ? lastPosition
-                                            : getUiMessages().size() - 1);
+            // 计算第一个和最后一个可见的消息的位置，需要确保在List的范围内
+            int msgSize = getUiMessages().size();
+            int firstMessagePosition = Math.min(msgSize - 1, Math.max(firstVisibleItemPosition, 0));
+            int lastMessagePosition =
+                    lastPosition < msgSize && lastPosition >= 0 ? lastPosition : msgSize - 1;
+            UiMessage firstMessage = getUiMessages().get(firstMessagePosition);
+            UiMessage lastMessage = getUiMessages().get(lastMessagePosition);
             long topTime = firstMessage.getSentTime();
             long bottomTime = lastMessage.getSentTime();
             int size = mNewUnReadMentionMessages.size();

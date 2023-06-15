@@ -354,7 +354,9 @@ public class InputPanel {
                                                     } else {
                                                         mEditText.setText(s);
                                                     }
-                                                    mEditText.setSelection(s.length());
+                                                    // 某些低安卓版本+机型，会出现EditText#setText后的text小于所设置的text的情况
+                                                    // 所以设置光标到最后一个，传EditText#length()来设置
+                                                    mEditText.setSelection(mEditText.length());
                                                     mEditText.requestFocus();
                                                     resetInputView();
                                                 }

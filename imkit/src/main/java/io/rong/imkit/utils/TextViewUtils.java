@@ -23,6 +23,16 @@ public class TextViewUtils {
      */
     public static SpannableStringBuilder getSpannable(
             String content, final RegularCallBack callBack) {
+        return getSpannable(content, true, callBack);
+    }
+
+    /**
+     * @param content 替换内容
+     * @param callBack 异步请求回调
+     * @return 内容的 spannable
+     */
+    public static SpannableStringBuilder getSpannable(
+            String content, boolean regular, final RegularCallBack callBack) {
         if (content == null) {
             return new SpannableStringBuilder("");
         }
@@ -31,6 +41,9 @@ public class TextViewUtils {
         SpannableStringBuilder spannable = new SpannableStringBuilder(adapterContent);
         final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
         AndroidEmoji.ensure(emojiSpannable);
+        if (!regular) {
+            return emojiSpannable;
+        }
         if (spannable.length() < CONTENT_LIMIT_LENGTH) {
             regularContent(emojiSpannable);
         } else {

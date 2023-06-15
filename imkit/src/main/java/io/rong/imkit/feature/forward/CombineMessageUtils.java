@@ -200,12 +200,12 @@ public class CombineMessageUtils {
         switch (type) {
             case TAG_TXT: // 文本
                 TextMessage text = (TextMessage) content;
-                html = html.replace(MSG_TEXT, text.getContent() == null ? "" : text.getContent());
+                html = html.replace(MSG_TEXT, optString(text.getContent()));
                 break;
             case TAG_IMG_TEXT: // 图文
             case TAG_VC: // 语音
             case TAG_HQVC: // 语音
-                html = html.replace(MSG_TEXT, getSpannable(content));
+                html = html.replace(MSG_TEXT, optString(getSpannable(content)));
                 break;
             case TAG_STK: // 表情
                 html =
@@ -245,14 +245,10 @@ public class CombineMessageUtils {
                 String sightBase64 = getBase64FromUrl(sight.getThumbUri());
                 int duration = sight.getDuration();
                 html =
-                        html.replace(MSG_FILE_NAME, sight.getName())
+                        html.replace(MSG_FILE_NAME, optString(sight.getName()))
                                 .replace(MSG_SIZE, FileTypeUtils.formatFileSize(sight.getSize()))
-                                .replace(
-                                        MSG_FILE_URL,
-                                        sight.getMediaUrl() == null
-                                                ? ""
-                                                : sight.getMediaUrl().toString())
-                                .replace(MSG_IMAGE_BASE64, sightBase64)
+                                .replace(MSG_FILE_URL, optString(sight.getMediaUrl()))
+                                .replace(MSG_IMAGE_BASE64, optString(sightBase64))
                                 .replace(MSG_DURATION, String.valueOf(duration));
 
                 break;
@@ -260,36 +256,24 @@ public class CombineMessageUtils {
                 ImageMessage image = (ImageMessage) content;
                 String base64 = getBase64FromUrl(image.getThumUri());
                 html =
-                        html.replace(
-                                        MSG_FILE_URL,
-                                        image.getMediaUrl() == null
-                                                ? ""
-                                                : image.getMediaUrl().toString())
-                                .replace(MSG_IMAG_URL, base64);
+                        html.replace(MSG_FILE_URL, optString(image.getMediaUrl()))
+                                .replace(MSG_IMAG_URL, optString(base64));
                 break;
             case TAG_GIF: // gif图片
                 GIFMessage gif = (GIFMessage) content;
                 String gifBase64 = getBase64FromUrl(gif.getRemoteUri());
                 html =
-                        html.replace(
-                                        MSG_FILE_URL,
-                                        gif.getRemoteUri() == null
-                                                ? ""
-                                                : gif.getRemoteUri().toString())
-                                .replace(MSG_IMAG_URL, gifBase64);
+                        html.replace(MSG_FILE_URL, optString(gif.getRemoteUri()))
+                                .replace(MSG_IMAG_URL, optString(gifBase64));
                 break;
             case TAG_FILE: // 文件
                 FileMessage file = (FileMessage) content;
                 html =
-                        html.replace(MSG_FILE_NAME, file.getName())
+                        html.replace(MSG_FILE_NAME, optString(file.getName()))
                                 .replace(MSG_SIZE, FileTypeUtils.formatFileSize(file.getSize()))
                                 .replace(MSG_FILE_SIZE, String.valueOf(file.getSize()))
-                                .replace(
-                                        MSG_FILE_URL,
-                                        file.getFileUrl() == null
-                                                ? ""
-                                                : file.getFileUrl().toString())
-                                .replace(MSG_FILE_TYPE, file.getType())
+                                .replace(MSG_FILE_URL, optString(file.getFileUrl()))
+                                .replace(MSG_FILE_TYPE, optString(file.getType()))
                                 .replace(
                                         MSG_FILE_ICON,
                                         getBase64FromImageId(
@@ -300,7 +284,7 @@ public class CombineMessageUtils {
             case TAG_LBS: // 位置
                 LocationMessage location = (LocationMessage) content;
                 html =
-                        html.replace(MSG_LOCATION_NAME, location.getPoi())
+                        html.replace(MSG_LOCATION_NAME, optString(location.getPoi()))
                                 .replace(MSG_LATITUDE, String.valueOf(location.getLat()))
                                 .replace(MSG_LONGITTUDE, String.valueOf(location.getLng()));
                 break;
@@ -310,16 +294,12 @@ public class CombineMessageUtils {
                 String combineBody = getHtmlFromType(TAG_MSG_COMBINE_BODY);
                 List<String> summarys = combine.getSummaryList();
                 for (String sum : summarys) {
-                    summary.append(combineBody.replace(MSG_TEXT, sum));
+                    summary.append(combineBody.replace(MSG_TEXT, optString(sum)));
                 }
                 html =
-                        html.replace(
-                                        MSG_FILE_URL,
-                                        combine.getMediaUrl() == null
-                                                ? ""
-                                                : combine.getMediaUrl().toString())
-                                .replace(MSG_TITLE, combine.getTitle())
-                                .replace(MSG_COMBINE_BODY, summary.toString())
+                        html.replace(MSG_FILE_URL, optString(combine.getMediaUrl()))
+                                .replace(MSG_TITLE, optString(combine.getTitle()))
+                                .replace(MSG_COMBINE_BODY, optString(summary.toString()))
                                 .replace(
                                         MSG_FOOT,
                                         IMCenter.getInstance()
@@ -426,10 +406,10 @@ public class CombineMessageUtils {
     private String setUserInfo(String str, Message msg) {
         String portrait = getUserPortrait(msg);
         String showUser = TextUtils.isEmpty(portrait) ? NO_USER : "";
-        return str.replace(MSG_PORTRAIT, portrait)
-                .replace(MSG_SHOW_USER, showUser)
-                .replace(MSG_USER_NAMEM, getUserName(msg))
-                .replace(MSG_SEND_TIME, getSendTime(msg));
+        return str.replace(MSG_PORTRAIT, optString(portrait))
+                .replace(MSG_SHOW_USER, optString(showUser))
+                .replace(MSG_USER_NAMEM, optString(getUserName(msg)))
+                .replace(MSG_SEND_TIME, optString(getSendTime(msg)));
     }
 
     private String getSendTime(Message msg) {
@@ -569,5 +549,13 @@ public class CombineMessageUtils {
                 + File.separator
                 + RongUtils.md5(uri)
                 + COMBINE_FILE_SUFFIX;
+    }
+
+    public String optString(String str) {
+        return str != null ? str : "";
+    }
+
+    public String optString(Object object) {
+        return object != null ? object.toString() : "";
     }
 }

@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -61,7 +60,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     private ImageView mFileTypeImage;
     private TextView mFileNameView;
     private TextView mFileSizeView;
-    private Button mFileButton;
+    private TextView mFileDownloadOpenView;
     private int mProgress;
 
     private String mFileName;
@@ -139,7 +138,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         mFileTypeImage = (ImageView) findViewById(R.id.rc_ac_iv_file_type_image);
         mFileNameView = (TextView) findViewById(R.id.rc_ac_tv_file_name);
         mFileSizeView = (TextView) findViewById(R.id.rc_ac_tv_file_size);
-        mFileButton = (Button) findViewById(R.id.rc_ac_btn_download_button);
+        mFileDownloadOpenView = (TextView) findViewById(R.id.rc_ac_btn_download_button);
         mTitleBar.setTitle(R.string.rc_ac_file_download_preview);
         mTitleBar.setRightVisible(false);
     }
@@ -167,7 +166,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         mFileNameView.setText(mFileName);
         mFileSize = mFileMessage.getSize();
         mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
-        mFileButton.setOnClickListener(this);
+        mFileDownloadOpenView.setOnClickListener(this);
     }
 
     private void initListener() {
@@ -187,9 +186,10 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
         if (!isLocalPathExist && fileUrl != null && !TextUtils.isEmpty(fileUrl.toString())) {
             String url = fileUrl.toString();
             final long init = System.currentTimeMillis();
-            mFileButton.setEnabled(false);
-            mFileButton.setText(R.string.rc_picture_please);
-            mFileButton.setBackgroundResource(R.drawable.rc_ac_btn_file_download_open_uncheck);
+            mFileDownloadOpenView.setEnabled(false);
+            mFileDownloadOpenView.setText(R.string.rc_picture_please);
+            mFileDownloadOpenView.setBackgroundResource(
+                    R.drawable.rc_ac_btn_file_download_open_uncheck);
             RLog.d("test", "init time" + init + ",url" + url);
             getFileDownloadInfoInSubThread();
         } else {
@@ -206,11 +206,11 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     private void setViewStatus() {
         if (mMessage.getMessageDirection() == Message.MessageDirection.RECEIVE) {
             if (mProgress == 0) {
-                mFileButton.setVisibility(View.VISIBLE);
+                mFileDownloadOpenView.setVisibility(View.VISIBLE);
             } else if (mProgress == 100) {
-                mFileButton.setVisibility(View.VISIBLE);
+                mFileDownloadOpenView.setVisibility(View.VISIBLE);
             } else {
-                mFileButton.setVisibility(View.GONE);
+                mFileDownloadOpenView.setVisibility(View.GONE);
             }
         }
     }
@@ -242,7 +242,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     protected void refreshDownloadState() {
         switch (mFileDownloadInfo.state) {
             case NOT_DOWNLOAD:
-                mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
+                mFileDownloadOpenView.setText(
+                        getString(R.string.rc_ac_file_preview_begin_download));
                 break;
             case DOWNLOADING:
                 downloadedFileLength =
@@ -256,15 +257,15 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + "/"
                                 + FileTypeUtils.formatFileSize(mFileSize)
                                 + ")");
-                mFileButton.setText(getString(R.string.rc_cancel));
+                mFileDownloadOpenView.setText(getString(R.string.rc_cancel));
                 break;
             case DOWNLOADED:
-                mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
+                mFileDownloadOpenView.setText(getOpenFileShowText());
                 break;
             case DOWNLOAD_SUCCESS:
                 //                mDownloadProgressView.setVisibility(View.GONE);
-                mFileButton.setVisibility(View.VISIBLE);
-                mFileButton.setText(getString(R.string.rc_ac_file_download_open_file_btn));
+                mFileDownloadOpenView.setVisibility(View.VISIBLE);
+                mFileDownloadOpenView.setText(getOpenFileShowText());
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
                 makeText(
                                 FilePreviewActivity.this,
@@ -285,7 +286,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + "/"
                                 + FileTypeUtils.formatFileSize(mFileSize)
                                 + ")");
-                mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
+                mFileDownloadOpenView.setText(
+                        getString(R.string.rc_ac_file_preview_download_resume));
                 Toast toast =
                         makeText(
                                 FilePreviewActivity.this,
@@ -299,8 +301,9 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
             case DOWNLOAD_CANCEL:
                 //                mDownloadProgressView.setVisibility(View.GONE);
                 //                mFileDownloadProgressBar.setProgress(0);
-                mFileButton.setVisibility(View.VISIBLE);
-                mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
+                mFileDownloadOpenView.setVisibility(View.VISIBLE);
+                mFileDownloadOpenView.setText(
+                        getString(R.string.rc_ac_file_preview_begin_download));
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
                 makeText(
                                 FilePreviewActivity.this,
@@ -310,7 +313,8 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 break;
             case DELETED:
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
-                mFileButton.setText(getString(R.string.rc_ac_file_preview_begin_download));
+                mFileDownloadOpenView.setText(
+                        getString(R.string.rc_ac_file_preview_begin_download));
                 break;
             case DOWNLOAD_PAUSE:
                 downloadedFileLength =
@@ -325,20 +329,30 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + "/"
                                 + FileTypeUtils.formatFileSize(mFileSize)
                                 + ")");
-                mFileButton.setText(getString(R.string.rc_ac_file_preview_download_resume));
+                mFileDownloadOpenView.setText(
+                        getString(R.string.rc_ac_file_preview_download_resume));
                 break;
             default:
                 break;
         }
     }
 
+    private String getOpenFileShowText() {
+        return getString(
+                mFileMessage != null
+                                && mFileMessage.getLocalPath() != null
+                                && isOpenInsideApp(mFileMessage.getLocalPath().toString())
+                        ? R.string.rc_ac_file_download_open_file_direct_btn
+                        : R.string.rc_ac_file_download_open_file_btn);
+    }
+
     private void setViewStatusForResumeTransfer() {
-        mFileButton.setVisibility(View.VISIBLE);
+        mFileDownloadOpenView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onClick(View v) {
-        if (v == mFileButton) {
+        if (v == mFileDownloadOpenView) {
             switch (mFileDownloadInfo.state) {
                 case NOT_DOWNLOAD:
                 case DOWNLOAD_CANCEL:
@@ -364,7 +378,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                     + "/"
                                     + FileTypeUtils.formatFileSize(mFileSize)
                                     + ")");
-                    mFileButton.setText(
+                    mFileDownloadOpenView.setText(
                             getResources().getString(R.string.rc_ac_file_preview_download_resume));
                     break;
                 case DOWNLOAD_PAUSE:
@@ -382,7 +396,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                     downloadFile();
                     if (mFileDownloadInfo.state != DOWNLOAD_ERROR
                             && mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
-                        mFileButton.setText(getResources().getString(R.string.rc_cancel));
+                        mFileDownloadOpenView.setText(getResources().getString(R.string.rc_cancel));
                     }
                     break;
                 default:
@@ -457,7 +471,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     private void downloadFile() {
         // KNOTE: 2021/8/18下载文件使用应用私有目录  不需要存储权限
         mFileDownloadInfo.state = DOWNLOADING;
-        mFileButton.setText(getResources().getString(R.string.rc_cancel));
+        mFileDownloadOpenView.setText(getResources().getString(R.string.rc_cancel));
         downloadedFileLength =
                 (long) (mFileMessage.getSize() * (mFileDownloadInfo.progress / 100.0) + 0.5f);
         mFileSizeView.setText(
@@ -491,11 +505,15 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
 
     protected boolean openInsidePreview(String fileName, Uri uri) {
         String fileSavePath = uri.toString();
-        if (fileSavePath.endsWith(TXT_FILE)) {
+        if (isOpenInsideApp(fileSavePath)) {
             processTxtFile(fileName, uri);
             return true;
         }
         return false;
+    }
+
+    private boolean isOpenInsideApp(String fileSavePath) {
+        return fileSavePath != null && fileSavePath.endsWith(TXT_FILE);
     }
 
     /**
@@ -668,9 +686,9 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
             activity.getInfoNow = false;
             activity.setViewStatusForResumeTransfer();
             activity.getFileDownloadInfoForResumeTransfer();
-            activity.mFileButton.setBackgroundResource(
+            activity.mFileDownloadOpenView.setBackgroundResource(
                     R.drawable.rc_ac_btn_file_download_open_button);
-            activity.mFileButton.setEnabled(true);
+            activity.mFileDownloadOpenView.setEnabled(true);
             RLog.d("getDownloadInfo", "getFileInfo finish");
         }
 

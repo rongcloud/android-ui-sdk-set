@@ -14,6 +14,7 @@ import java.io.File;
 public class SightRecordActivity extends RongBaseNoActionbarActivity {
     public static final String TAG = "Sight-SightRecordActivity";
     private CameraView mCameraView;
+    private static final int DEFAULT_MAX_RECORD_DURATION = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,12 @@ public class SightRecordActivity extends RongBaseNoActionbarActivity {
         mCameraView.setAutoFocus(false);
         mCameraView.setSupportCapture(getIntent().getBooleanExtra("supportCapture", false));
         mCameraView.setSaveVideoPath(getIntent().getStringExtra("recordSightDir"));
-        mCameraView.setMaxRecordDuration(getIntent().getIntExtra("maxRecordDuration", 10));
+        int maxRecordDuration =
+                getIntent().getIntExtra("maxRecordDuration", DEFAULT_MAX_RECORD_DURATION);
+        if (maxRecordDuration <= 0) {
+            maxRecordDuration = DEFAULT_MAX_RECORD_DURATION;
+        }
+        mCameraView.setMaxRecordDuration(maxRecordDuration);
         mCameraView.setCameraViewListener(
                 new CameraView.CameraViewListener() {
                     @Override

@@ -16,12 +16,18 @@ public class ScreenUtils {
     }
 
     public static int getScreenWidth(Context context) {
+        if (!(context instanceof Activity)) {
+            return 0;
+        }
         DisplayMetrics localDisplayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
         return localDisplayMetrics.widthPixels;
     }
 
     public static int getScreenHeight(Context context) {
+        if (!(context instanceof Activity)) {
+            return 0;
+        }
         DisplayMetrics localDisplayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(localDisplayMetrics);
         return localDisplayMetrics.heightPixels - getStatusBarHeight(context);
@@ -29,6 +35,9 @@ public class ScreenUtils {
 
     public static int getStatusBarHeight(Context context) {
         int statusBarHeight = 0;
+        if (context == null) {
+            return 0;
+        }
         try {
             Class<?> c = Class.forName("com.android.internal.R$dimen");
             Object o = c.newInstance();

@@ -241,6 +241,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                 SpannableStringBuilder spannable =
                         TextViewUtils.getSpannable(
                                 content,
+                                false,
                                 new TextViewUtils.RegularCallBack() {
                                     @Override
                                     public void finish(SpannableStringBuilder spannable) {
@@ -265,6 +266,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                 SpannableStringBuilder spannable =
                         TextViewUtils.getSpannable(
                                 content,
+                                false,
                                 new TextViewUtils.RegularCallBack() {
                                     @Override
                                     public void finish(SpannableStringBuilder spannable) {

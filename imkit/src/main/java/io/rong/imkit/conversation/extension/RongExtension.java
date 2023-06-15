@@ -540,7 +540,7 @@ public class RongExtension extends LinearLayout {
     }
 
     public EditText getInputEditText() {
-        return mInputPanel.getEditText();
+        return mInputPanel != null ? mInputPanel.getEditText() : null;
     }
 
     /**

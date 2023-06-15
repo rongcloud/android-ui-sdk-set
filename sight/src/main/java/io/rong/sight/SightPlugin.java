@@ -149,7 +149,7 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         }
         // 获取允许视频最长时间，小视频设置的最长录制时间不能超过此时间
         int videoLimitTime = RongIMClient.getInstance().getVideoLimitTime();
-        if (maxRecordDuration > videoLimitTime) {
+        if (videoLimitTime > 0 && maxRecordDuration > videoLimitTime) {
             maxRecordDuration = videoLimitTime;
         }
         intent.putExtra("maxRecordDuration", maxRecordDuration); // seconds

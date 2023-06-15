@@ -502,7 +502,9 @@ public class ConversationFragment extends Fragment
             if (mMessageViewModel != null) mMessageViewModel.forwardMessage(data);
             return;
         }
-        mRongExtension.onActivityPluginResult(requestCode, resultCode, data);
+        if (mRongExtension != null) {
+            mRongExtension.onActivityPluginResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
@@ -697,7 +699,10 @@ public class ConversationFragment extends Fragment
         if (conversationIdentifier == null) {
             String typeValue = intent.getStringExtra(RouteUtils.CONVERSATION_TYPE);
             Conversation.ConversationType type =
-                    Conversation.ConversationType.valueOf(typeValue.toUpperCase(Locale.US));
+                    !TextUtils.isEmpty(typeValue)
+                            ? Conversation.ConversationType.valueOf(
+                                    typeValue.toUpperCase(Locale.US))
+                            : Conversation.ConversationType.NONE;
             String targetId = intent.getStringExtra(RouteUtils.TARGET_ID);
             conversationIdentifier = ConversationIdentifier.obtain(type, targetId, "");
         }

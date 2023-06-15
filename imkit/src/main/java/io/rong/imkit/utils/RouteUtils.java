@@ -1,7 +1,6 @@
 package io.rong.imkit.utils;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,6 +54,9 @@ public class RouteUtils {
         Intent intent = new Intent(context, activity);
         if (!TextUtils.isEmpty(title)) {
             intent.putExtra(TITLE, title);
+        }
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
         context.startActivity(intent);
     }
@@ -169,6 +171,9 @@ public class RouteUtils {
         if (bundle != null) {
             intent.putExtras(bundle);
         }
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         context.startActivity(intent);
     }
 
@@ -188,6 +193,9 @@ public class RouteUtils {
         Intent intent = new Intent(context, activity);
         intent.putExtra(CONVERSATION_TYPE, type);
         intent.putExtra(TITLE, title);
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         context.startActivity(intent);
     }
 
@@ -230,7 +238,9 @@ public class RouteUtils {
         Intent intent = new Intent(context, activity);
         intent.putExtra("url", url);
         intent.putExtra("title", title);
-        if (context instanceof Application) intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         context.startActivity(intent);
     }
 
@@ -244,6 +254,9 @@ public class RouteUtils {
         intent.putExtra("FileMessage", content);
         intent.putExtra("Message", message);
         intent.putExtra("Progress", progress);
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         context.startActivity(intent);
     }
 
@@ -258,6 +271,10 @@ public class RouteUtils {
             Fragment fragment,
             ForwardClickActions.ForwardType type,
             ArrayList<Integer> messageIds) {
+        if (fragment == null || fragment.getContext() == null) {
+            RLog.e(TAG, "routeToForwardSelectConversationActivity: fragment or context is null");
+            return;
+        }
         Class<? extends Activity> activity = ForwardSelectConversationActivity.class;
         if (sActivityMap.get(RongActivityType.ForwardSelectConversationActivity) != null) {
             activity = sActivityMap.get(RongActivityType.ForwardSelectConversationActivity);
@@ -265,6 +282,9 @@ public class RouteUtils {
         Intent intent = new Intent(fragment.getContext(), activity);
         intent.putExtra(FORWARD_TYPE, type.getValue());
         intent.putIntegerArrayListExtra(MESSAGE_IDS, messageIds);
+        if (!(fragment.getContext() instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         fragment.startActivityForResult(intent, ConversationFragment.REQUEST_CODE_FORWARD);
     }
 
@@ -330,6 +350,9 @@ public class RouteUtils {
         intent.putExtra("fileUrl", fileUrl);
         intent.putExtra("fileName", fileName);
         intent.putExtra("fileSize", fileSize);
+        if (!(context instanceof Activity)) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         context.startActivity(intent);
     }
 

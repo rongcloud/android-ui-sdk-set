@@ -3,6 +3,7 @@ package io.rong.imkit.widget;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -13,6 +14,7 @@ import io.rong.imkit.R;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.widget.BaseDialogFragment;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.message.RecallNotificationMessage;
@@ -81,7 +83,16 @@ public class ReferenceDialog extends BaseDialogFragment
 
     @Override
     public void bindData() {
-        referenceShowText.setText(mUiMessage.getContentSpannable());
+        SpannableStringBuilder spannable =
+                TextViewUtils.getSpannable(
+                        mUiMessage.getReferenceContentSpannable().toString(),
+                        new TextViewUtils.RegularCallBack() {
+                            @Override
+                            public void finish(SpannableStringBuilder s) {
+                                referenceShowText.setText(s);
+                            }
+                        });
+        referenceShowText.setText(spannable);
     }
 
     @Override

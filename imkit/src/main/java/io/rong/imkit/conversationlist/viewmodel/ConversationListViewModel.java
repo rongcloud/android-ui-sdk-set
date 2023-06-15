@@ -79,6 +79,7 @@ public class ConversationListViewModel extends AndroidViewModel
     private MutableLiveData<Event.RefreshEvent> mRefreshEventLiveData = new MutableLiveData<>();
     private boolean isTaskScheduled;
     private int mTime = 500;
+    private int mDelayRefreshTime = 5000;
     private ConversationEventListener mConversationEventListener =
             new ConversationEventListener() {
                 @Override
@@ -244,7 +245,7 @@ public class ConversationListViewModel extends AndroidViewModel
                     } else if (offline && !hasPackage && left == 0) {
                         mTime = 500;
                     } else {
-                        mTime = 5000;
+                        mTime = mDelayRefreshTime;
                     }
                     getConversationList(false, false, mTime);
                     return false;
@@ -366,6 +367,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
         mSizePerPage = RongConfigCenter.conversationListConfig().getConversationCountPerPage();
         mDataFilter = RongConfigCenter.conversationListConfig().getDataProcessor();
+        mDelayRefreshTime = RongConfigCenter.conversationListConfig().getDelayRefreshTime();
 
         mConversationListLiveData = new MediatorLiveData<>();
         RongUserInfoManager.getInstance().addUserDataObserver(this);
@@ -901,7 +903,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     public void onUserUpdate(UserInfo info) {
-        if (mTime == 5000) {
+        if (mTime == mDelayRefreshTime) {
             return;
         }
         if (info == null) {
@@ -915,7 +917,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     public void onGroupUpdate(Group group) {
-        if (mTime == 5000) {
+        if (mTime == mDelayRefreshTime) {
             return;
         }
         for (BaseUiConversation baseUiConversation : mUiConversationList) {
@@ -926,7 +928,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
-        if (mTime == 5000) {
+        if (mTime == mDelayRefreshTime) {
             return;
         }
         for (BaseUiConversation baseUiConversation : mUiConversationList) {
