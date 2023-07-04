@@ -62,6 +62,7 @@ import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.MessageList;
+import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
@@ -999,8 +1000,7 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 case SendMediaEvent.ERROR:
                     if (event.getCode() != null
-                            && event.getCode().code
-                                    == RongIMClient.ErrorCode.RC_MEDIA_EXCEPTION.code) {
+                            && event.getCode().code == ErrorCodes.MEDIA_FILE_INVALID.getCode()) {
                         ToastUtils.s(
                                 getApplication(),
                                 getApplication().getString(R.string.rc_media_upload_error));
@@ -1382,12 +1382,13 @@ public class MessageViewModel extends AndroidViewModel
                                 RLog.e(
                                         TAG,
                                         "sendReadReceiptRequest failed, errorCode = " + errorCode);
-                                if (Objects.equals(
-                                                errorCode,
-                                                RongIMClient.ErrorCode.RC_NET_CHANNEL_INVALID)
-                                        || Objects.equals(
-                                                errorCode,
-                                                RongIMClient.ErrorCode.RC_NET_UNAVAILABLE)) {
+                                if ((errorCode != null
+                                                && errorCode.getValue()
+                                                        == ErrorCodes.CONNECTION_RELEASED.getCode())
+                                        || (errorCode != null
+                                                && errorCode.getValue()
+                                                        == ErrorCodes.CONNECTION_UNAVAILABLE
+                                                                .getCode())) {
                                     executePageEvent(
                                             new ToastEvent(
                                                     getApplication()

@@ -6,6 +6,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
+import androidx.annotation.NonNull;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
@@ -49,10 +50,7 @@ public class SingleConversation extends BaseUiConversation {
     }
 
     @Override
-    public void onUserInfoUpdate(UserInfo user) {
-        if (!TextUtils.isEmpty(mCore.getDraft()) || user == null) {
-            return; // 有草稿时，会话内容里显示草稿，不需要处理用户信息
-        }
+    public void onUserInfoUpdate(@NonNull UserInfo user) {
         if (user.getUserId().equals(mCore.getTargetId())) {
             mCore.setConversationTitle(RongUserInfoManager.getInstance().getUserDisplayName(user));
             mCore.setPortraitUrl(

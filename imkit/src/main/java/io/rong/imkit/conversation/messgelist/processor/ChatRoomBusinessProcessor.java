@@ -10,6 +10,7 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
@@ -42,10 +43,10 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 @Override
                                 public void onError(RongIMClient.ErrorCode coreErrorCode) {
                                     RLog.e(TAG, "joinChatRoom onError : " + coreErrorCode);
-                                    if (coreErrorCode == RongIMClient.ErrorCode.RC_NET_UNAVAILABLE
-                                            || coreErrorCode
-                                                    == RongIMClient.ErrorCode
-                                                            .RC_NET_CHANNEL_INVALID) {
+                                    if (coreErrorCode.getValue()
+                                                    == ErrorCodes.CONNECTION_UNAVAILABLE.getCode()
+                                            || coreErrorCode.getValue()
+                                                    == ErrorCodes.CONNECTION_RELEASED.getCode()) {
                                         messageViewModel.executePageEvent(
                                                 new ShowWarningDialogEvent(
                                                         messageViewModel
@@ -81,10 +82,10 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 @Override
                                 public void onError(RongIMClient.ErrorCode coreErrorCode) {
                                     RLog.e(TAG, "joinExistChatRoom onError : " + coreErrorCode);
-                                    if (coreErrorCode == RongIMClient.ErrorCode.RC_NET_UNAVAILABLE
-                                            || coreErrorCode
-                                                    == RongIMClient.ErrorCode
-                                                            .RC_NET_CHANNEL_INVALID) {
+                                    if (coreErrorCode.getValue()
+                                                    == ErrorCodes.CONNECTION_UNAVAILABLE.getCode()
+                                            || coreErrorCode.getValue()
+                                                    == ErrorCodes.CONNECTION_RELEASED.getCode()) {
                                         messageViewModel.executePageEvent(
                                                 new ShowWarningDialogEvent(
                                                         messageViewModel

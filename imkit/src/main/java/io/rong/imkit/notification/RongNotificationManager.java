@@ -26,6 +26,7 @@ import io.rong.imkit.conversation.RongConversationActivity;
 import io.rong.imkit.model.ConversationKey;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.RongCache;
 import io.rong.imlib.ChannelClient;
@@ -33,6 +34,7 @@ import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
@@ -601,6 +603,11 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     }
 
     private void sound() {
+        // 如果是主线程，就开启线程去播放声音（MediaPlayer#native_setup有可能被系统阻塞）
+        if (ExecutorFactory.isMainThread()) {
+            ExecutorHelper.getInstance().compressExecutor().execute(() -> sound());
+            return;
+        }
         Uri res = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 && RongConfigCenter.notificationConfig().getInterceptor() != null) {

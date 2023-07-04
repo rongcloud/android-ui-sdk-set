@@ -3,6 +3,7 @@ package io.rong.sticker.message;
 import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -119,7 +120,11 @@ public class StickerMessageItemProvider extends BaseMessageItemProvider<StickerM
 
     @Override
     public Spannable getSummarySpannable(Context context, StickerMessage stickerMessage) {
-        String content = String.format(Locale.getDefault(), FORMAT, stickerMessage.getDigest());
-        return new SpannableString(content);
+        if (stickerMessage != null && !TextUtils.isEmpty(stickerMessage.getDigest())) {
+            String content = String.format(Locale.getDefault(), FORMAT, stickerMessage.getDigest());
+            return new SpannableString(content);
+        } else {
+            return new SpannableString("");
+        }
     }
 }

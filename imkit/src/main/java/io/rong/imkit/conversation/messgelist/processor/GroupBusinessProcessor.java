@@ -322,9 +322,8 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
         }
         ReadReceiptInfo readReceiptInfo = message.getReadReceiptInfo();
         if (readReceiptInfo == null) {
-            readReceiptInfo = new ReadReceiptInfo();
+            return;
         }
         readReceiptInfo.setHasRespond(true);
-        message.setReadReceiptInfo(readReceiptInfo);
     }
 }

@@ -316,6 +316,9 @@ public class RongExtension extends LinearLayout {
                 mExtensionViewModel.collapseExtensionBoard();
             }
         }
+        if (mInputPanel != null) {
+            mInputPanel.onPause();
+        }
     }
 
     public void setAttachedInfo(View view) {

@@ -506,11 +506,6 @@ public class InputPanel {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s == null || s.length() == 0) {
-                        IMCenter.getInstance()
-                                .saveTextMessageDraft(
-                                        mConversationIdentifier,
-                                        mEditText.getText().toString(),
-                                        null);
                         if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
                                 || mInputStyle.equals(
                                         InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {
@@ -550,6 +545,30 @@ public class InputPanel {
                     // do nothing
                 }
             };
+
+    public void onPause() {
+        // 在onPause 中保存草稿，解决按Home按杀进程后没有保存草稿的问题，也统一逻辑
+        if (mEditText != null
+                && mEditText.getText() != null
+                && !mInitialDraft.equals(mEditText.getText().toString())) {
+            final String draft = mEditText.getText().toString();
+            IMCenter.getInstance()
+                    .saveTextMessageDraft(
+                            mConversationIdentifier,
+                            draft,
+                            new RongIMClient.ResultCallback<Boolean>() {
+                                @Override
+                                public void onSuccess(Boolean success) {
+                                    if (success) {
+                                        mInitialDraft = draft;
+                                    }
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode e) {}
+                            });
+        }
+    }
 
     public void onDestroy() {
         mFragment = null;

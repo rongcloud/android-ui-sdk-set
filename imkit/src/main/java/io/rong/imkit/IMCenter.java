@@ -26,6 +26,7 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.ChannelClient;
+import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -2398,46 +2399,45 @@ public class IMCenter {
      */
     private void filterSentMessage(
             Message message, RongIMClient.ErrorCode errorCode, final FilterSentListener listener) {
-
         if (errorCode != null
-                && errorCode != RongIMClient.ErrorCode.RC_MSG_REPLACED_SENSITIVE_WORD) {
-            if (errorCode.equals(RongIMClient.ErrorCode.NOT_IN_DISCUSSION)
-                    || errorCode.equals(RongIMClient.ErrorCode.NOT_IN_GROUP)
-                    || errorCode.equals(RongIMClient.ErrorCode.NOT_IN_CHATROOM)
-                    || errorCode.equals(RongIMClient.ErrorCode.REJECTED_BY_BLACKLIST)
-                    || errorCode.equals(RongIMClient.ErrorCode.FORBIDDEN_IN_GROUP)
-                    || errorCode.equals(RongIMClient.ErrorCode.FORBIDDEN_IN_CHATROOM)
-                    || errorCode.equals(RongIMClient.ErrorCode.KICKED_FROM_CHATROOM)) {
+                && errorCode.getValue() != ErrorCodes.MESSAGE_SENSITIVE_WORD_REPLACED.getCode()) {
+            if (errorCode.getValue() == RongIMClient.ErrorCode.NOT_IN_DISCUSSION.getValue()
+                    || errorCode.getValue() == ErrorCodes.NOT_IN_GROUP.getCode()
+                    || errorCode.getValue() == ErrorCodes.NOT_IN_CHATROOM.getCode()
+                    || errorCode.getValue() == ErrorCodes.REJECTED_BY_BLACKLIST.getCode()
+                    || errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_GROUP.getCode()
+                    || errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_CHATROOM.getCode()
+                    || errorCode.getValue() == ErrorCodes.KICKED_FROM_CHATROOM.getCode()) {
 
                 if (message.getContent() instanceof ReadReceiptMessage) {
                     return;
                 }
                 InformationNotificationMessage informationMessage = null;
-                if (errorCode.equals(RongIMClient.ErrorCode.NOT_IN_DISCUSSION)) {
+                if (errorCode.getValue() == RongIMClient.ErrorCode.NOT_IN_DISCUSSION.getValue()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_not_in_discussion));
-                } else if (errorCode.equals(RongIMClient.ErrorCode.NOT_IN_GROUP)) {
+                } else if (errorCode.getValue() == ErrorCodes.NOT_IN_GROUP.getCode()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_not_in_group));
-                } else if (errorCode.equals(RongIMClient.ErrorCode.NOT_IN_CHATROOM)) {
+                } else if (errorCode.getValue() == ErrorCodes.NOT_IN_CHATROOM.getCode()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_not_in_chatroom));
-                } else if (errorCode.equals(RongIMClient.ErrorCode.REJECTED_BY_BLACKLIST)) {
+                } else if (errorCode.getValue() == ErrorCodes.REJECTED_BY_BLACKLIST.getCode()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_rejected_by_blacklist_prompt));
-                } else if (errorCode.equals(RongIMClient.ErrorCode.FORBIDDEN_IN_GROUP)) {
+                } else if (errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_GROUP.getCode()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_forbidden_to_talk));
-                } else if (errorCode.equals(RongIMClient.ErrorCode.FORBIDDEN_IN_CHATROOM)) {
+                } else if (errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_CHATROOM.getCode()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_forbidden_in_chatroom));
-                } else if (errorCode.equals(RongIMClient.ErrorCode.KICKED_FROM_CHATROOM)) {
+                } else if (errorCode.getValue() == ErrorCodes.KICKED_FROM_CHATROOM.getCode()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_kicked_from_chatroom));
@@ -2463,7 +2463,7 @@ public class IMCenter {
             return;
         }
         if (errorCode != null
-                && errorCode.code == IRongCoreEnum.CoreErrorCode.RC_VIDEO_COMPRESS_FAILED.getValue()
+                && errorCode.code == ErrorCodes.VIDEO_COMPRESSED_ERROR.getCode()
                 && message.getContent() instanceof SightMessage) {
             // 压缩失败不走重发队列，需要用户自己重试
             if (listener != null) {

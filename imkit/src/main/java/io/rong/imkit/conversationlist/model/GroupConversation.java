@@ -97,22 +97,7 @@ public class GroupConversation extends BaseUiConversation {
         if (mCore.getSenderUserId().equals(user.getUserId())
                 && !mNicknameIds.contains(user.getUserId())) {
             mCore.setSenderUserName(RongUserInfoManager.getInstance().getUserDisplayName(user));
-            Spannable messageSummary =
-                    RongConfigCenter.conversationConfig()
-                            .getMessageSummary(mContext, mCore.getLatestMessage());
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            if (!TextUtils.isEmpty(mPreString)) {
-                builder.append(mPreString);
-            }
-            String userDisplayName = RongUserInfoManager.getInstance().getUserDisplayName(user);
-            if (!mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())
-                    && !TextUtils.isEmpty(userDisplayName)) {
-                builder.append(userDisplayName).append(COLON_SPLIT);
-            }
-            if (!TextUtils.isEmpty(messageSummary)) {
-                builder.append(messageSummary);
-            }
-            mConversationContent = builder;
+            buildConversationContent();
         }
     }
 
@@ -138,22 +123,7 @@ public class GroupConversation extends BaseUiConversation {
                 && groupMember.getUserId().equals(mCore.getSenderUserId())) {
             mNicknameIds.add(groupMember.getUserId());
             mCore.setSenderUserName(groupMember.getNickname());
-
-            Spannable messageSummary =
-                    RongConfigCenter.conversationConfig()
-                            .getMessageSummary(mContext, mCore.getLatestMessage());
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            if (!TextUtils.isEmpty(mPreString)) {
-                builder.append(mPreString);
-            }
-            if (!mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())
-                    && !TextUtils.isEmpty(mCore.getSenderUserName())) {
-                builder.append(mCore.getSenderUserName()).append(COLON_SPLIT);
-            }
-            if (!TextUtils.isEmpty(messageSummary)) {
-                builder.append(messageSummary);
-            }
-            mConversationContent = builder;
+            buildConversationContent();
         }
     }
 
