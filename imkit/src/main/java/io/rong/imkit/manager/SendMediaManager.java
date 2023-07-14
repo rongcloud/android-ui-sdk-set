@@ -10,8 +10,8 @@ import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.destruct.DestructManager;
-import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -212,7 +212,8 @@ public class SendMediaManager {
                                         Message message, RongIMClient.ErrorCode errorCode) {
                                     // 压缩失败的错误码才弹提示
                                     if (errorCode.code
-                                            == ErrorCodes.VIDEO_COMPRESSED_ERROR.getCode()) {
+                                            == IRongCoreEnum.CoreErrorCode.RC_VIDEO_COMPRESS_FAILED
+                                                    .code) {
                                         Toast.makeText(
                                                         IMCenter.getInstance().getContext(),
                                                         IMCenter.getInstance()

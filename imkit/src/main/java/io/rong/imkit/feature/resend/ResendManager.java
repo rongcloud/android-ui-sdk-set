@@ -5,8 +5,8 @@ import android.os.HandlerThread;
 import android.text.TextUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
-import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
@@ -205,10 +205,10 @@ public class ResendManager {
      */
     public boolean isResendErrorCode(RongIMClient.ErrorCode errorCode) {
         int code = errorCode.getValue();
-        return (code == ErrorCodes.CONNECTION_RELEASED.getCode()
-                || code == ErrorCodes.CONNECTION_UNAVAILABLE.getCode()
-                || code == ErrorCodes.MESSAGE_RESPONSE_TIMEOUT.getCode()
-                || code == ErrorCodes.FILE_UPLOAD_ERROR.getCode());
+        return (code == IRongCoreEnum.CoreErrorCode.RC_NET_CHANNEL_INVALID.getValue()
+                || code == IRongCoreEnum.CoreErrorCode.RC_NET_UNAVAILABLE.getValue()
+                || code == IRongCoreEnum.CoreErrorCode.RC_MSG_RESP_TIMEOUT.getValue()
+                || code == IRongCoreEnum.CoreErrorCode.RC_FILE_UPLOAD_FAILED.getValue());
     }
 
     /**

@@ -30,8 +30,8 @@ import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.widget.CircleProgressView;
-import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.message.SightMessage;
@@ -479,7 +479,7 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
                                     fragment.downloadSight();
                                 }
                             });
-                    if (code.getValue() == ErrorCodes.FILE_EXPIRED.getCode()) {
+                    if (code.getValue() == IRongCoreEnum.CoreErrorCode.RC_FILE_EXPIRED.code) {
                         fragment.failedImageView.setVisibility(View.GONE);
                         fragment.mFailedText.setText(R.string.rc_sight_file_expired);
                     } else {

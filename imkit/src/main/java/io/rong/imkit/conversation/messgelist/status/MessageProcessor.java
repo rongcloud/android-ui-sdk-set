@@ -30,6 +30,55 @@ public class MessageProcessor {
             int count,
             final boolean isForward,
             final GetMessageCallback callback) {
+        // 为了加速第一次加载速度：如果是私群聊，且sentTime为0。则先加载本地消息，成功或回调后，再调用断档消息。
+        if (needLoadLocalMessagesAtFirst(messageViewModel.getCurConversationType(), sentTime)) {
+            RongIMClient.getInstance()
+                    .getHistoryMessages(
+                            messageViewModel.getCurConversationType(),
+                            messageViewModel.getCurTargetId(),
+                            messageViewModel.getRefreshMessageId(),
+                            DEFAULT_COUNT,
+                            new RongIMClient.ResultCallback<List<Message>>() {
+                                @Override
+                                public void onSuccess(List<Message> messages) {
+                                    if (!isForward) {
+                                        Collections.reverse(messages);
+                                    }
+                                    if (callback != null) {
+                                        callback.onSuccess(messages, false);
+                                    }
+
+                                    // 无论成功或者失败，均需要再调用一次断档接口
+                                    getMessages(
+                                            messageViewModel, sentTime, count, isForward, callback);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                    // 无论成功或者失败，均需要再调用一次断档接口
+                                    getMessages(
+                                            messageViewModel, sentTime, count, isForward, callback);
+                                }
+                            });
+        } else {
+            getMessages(messageViewModel, sentTime, count, isForward, callback);
+        }
+    }
+
+    private static boolean needLoadLocalMessagesAtFirst(
+            Conversation.ConversationType type, long sentTime) {
+        boolean supportType =
+                Conversation.ConversationType.PRIVATE.equals(type)
+                        || Conversation.ConversationType.GROUP.equals(type);
+        return supportType && sentTime == 0;
+    }
+
+    public static void getMessages(
+            final MessageViewModel messageViewModel,
+            long sentTime,
+            int count,
+            final boolean isForward,
+            final GetMessageCallback callback) {
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(count);
@@ -101,9 +150,10 @@ public class MessageProcessor {
             int before,
             final int after,
             final GetMessageCallback callback) {
+        final long finalSendTime = sentTime + 1;
         final List<Message> allData = new ArrayList<>();
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
-        historyMessageOption.setDataTime(sentTime + 1);
+        historyMessageOption.setDataTime(finalSendTime);
         historyMessageOption.setCount(before);
         historyMessageOption.setOrder(HistoryMessageOption.PullOrder.ASCEND);
         ChannelClient.getInstance()
@@ -125,7 +175,7 @@ public class MessageProcessor {
                                 allData.addAll(messageList);
                                 if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
                                     getMessagesDescend(
-                                            sentTime,
+                                            finalSendTime,
                                             after,
                                             messageViewModel,
                                             allData,
@@ -149,7 +199,7 @@ public class MessageProcessor {
                                     }
                                 } else {
                                     getMessagesDescend(
-                                            sentTime,
+                                            finalSendTime,
                                             after,
                                             messageViewModel,
                                             allData,
@@ -183,14 +233,14 @@ public class MessageProcessor {
                             public void onComplete(
                                     List<Message> messageList,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                if (!(messageList == null || messageList.size() == 0)) {
+                                if (!(messageList == null || messageList.isEmpty())) {
                                     allData.addAll(messageList);
-                                    if (callback != null) {
-                                        if (code == IRongCoreEnum.CoreErrorCode.SUCCESS) {
-                                            callback.onSuccess(allData, false);
-                                        } else {
-                                            callback.onErrorAlways(allData);
-                                        }
+                                }
+                                if (callback != null) {
+                                    if (code == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+                                        callback.onSuccess(allData, false);
+                                    } else {
+                                        callback.onErrorAlways(allData);
                                     }
                                 }
                             }

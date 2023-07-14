@@ -182,6 +182,11 @@ public class NotificationUtil {
         }
 
         Notification.Builder builder = new Notification.Builder(context);
+        // 针对 Android7.0以上8.0以下的设备可以采用该方法强制不合并通知
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            builder.setGroupSummary(false).setGroup("group");
+        }
         builder.setLargeIcon(appIcon);
         builder.setSmallIcon(smallIcon);
         builder.setTicker(tickerText);

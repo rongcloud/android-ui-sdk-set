@@ -26,7 +26,6 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.ChannelClient;
-import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -407,11 +406,7 @@ public class IMCenter {
         //        initEmojiConfig(application);
         SingletonHolder.sInstance.mContext = application.getApplicationContext();
         RongConfigCenter.syncFromXml(application);
-        RongCoreClient.init(
-                application.getApplicationContext(),
-                appKey,
-                option.isEnablePush(),
-                option.isMainProcess());
+        RongCoreClient.init(application.getApplicationContext(), appKey, option);
         // RongCoreClientImpl#initSDK有处理isMainProcess逻辑，所以RongCoreClient.init不需要判断进程
         if (option.isMainProcess() == null) {
             String current = io.rong.common.SystemUtils.getCurrentProcessName(application);
@@ -2400,14 +2395,20 @@ public class IMCenter {
     private void filterSentMessage(
             Message message, RongIMClient.ErrorCode errorCode, final FilterSentListener listener) {
         if (errorCode != null
-                && errorCode.getValue() != ErrorCodes.MESSAGE_SENSITIVE_WORD_REPLACED.getCode()) {
-            if (errorCode.getValue() == RongIMClient.ErrorCode.NOT_IN_DISCUSSION.getValue()
-                    || errorCode.getValue() == ErrorCodes.NOT_IN_GROUP.getCode()
-                    || errorCode.getValue() == ErrorCodes.NOT_IN_CHATROOM.getCode()
-                    || errorCode.getValue() == ErrorCodes.REJECTED_BY_BLACKLIST.getCode()
-                    || errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_GROUP.getCode()
-                    || errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_CHATROOM.getCode()
-                    || errorCode.getValue() == ErrorCodes.KICKED_FROM_CHATROOM.getCode()) {
+                && errorCode.getValue()
+                        != IRongCoreEnum.CoreErrorCode.RC_MSG_REPLACED_SENSITIVE_WORD.getValue()) {
+            if (errorCode.getValue() == IRongCoreEnum.CoreErrorCode.NOT_IN_DISCUSSION.getValue()
+                    || errorCode.getValue() == IRongCoreEnum.CoreErrorCode.NOT_IN_GROUP.getValue()
+                    || errorCode.getValue()
+                            == IRongCoreEnum.CoreErrorCode.NOT_IN_CHATROOM.getValue()
+                    || errorCode.getValue()
+                            == IRongCoreEnum.CoreErrorCode.REJECTED_BY_BLACKLIST.getValue()
+                    || errorCode.getValue()
+                            == IRongCoreEnum.CoreErrorCode.FORBIDDEN_IN_GROUP.getValue()
+                    || errorCode.getValue()
+                            == IRongCoreEnum.CoreErrorCode.FORBIDDEN_IN_CHATROOM.getValue()
+                    || errorCode.getValue()
+                            == IRongCoreEnum.CoreErrorCode.KICKED_FROM_CHATROOM.getValue()) {
 
                 if (message.getContent() instanceof ReadReceiptMessage) {
                     return;
@@ -2417,27 +2418,33 @@ public class IMCenter {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_not_in_discussion));
-                } else if (errorCode.getValue() == ErrorCodes.NOT_IN_GROUP.getCode()) {
+                } else if (errorCode.getValue()
+                        == IRongCoreEnum.CoreErrorCode.NOT_IN_GROUP.getValue()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_not_in_group));
-                } else if (errorCode.getValue() == ErrorCodes.NOT_IN_CHATROOM.getCode()) {
+                } else if (errorCode.getValue()
+                        == IRongCoreEnum.CoreErrorCode.NOT_IN_CHATROOM.getValue()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_not_in_chatroom));
-                } else if (errorCode.getValue() == ErrorCodes.REJECTED_BY_BLACKLIST.getCode()) {
+                } else if (errorCode.getValue()
+                        == IRongCoreEnum.CoreErrorCode.REJECTED_BY_BLACKLIST.getValue()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_rejected_by_blacklist_prompt));
-                } else if (errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_GROUP.getCode()) {
+                } else if (errorCode.getValue()
+                        == IRongCoreEnum.CoreErrorCode.FORBIDDEN_IN_GROUP.getValue()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_info_forbidden_to_talk));
-                } else if (errorCode.getValue() == ErrorCodes.FORBIDDEN_IN_CHATROOM.getCode()) {
+                } else if (errorCode.getValue()
+                        == IRongCoreEnum.CoreErrorCode.FORBIDDEN_IN_CHATROOM.getValue()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_forbidden_in_chatroom));
-                } else if (errorCode.getValue() == ErrorCodes.KICKED_FROM_CHATROOM.getCode()) {
+                } else if (errorCode.getValue()
+                        == IRongCoreEnum.CoreErrorCode.KICKED_FROM_CHATROOM.getValue()) {
                     informationMessage =
                             InformationNotificationMessage.obtain(
                                     mContext.getString(R.string.rc_kicked_from_chatroom));
@@ -2463,7 +2470,7 @@ public class IMCenter {
             return;
         }
         if (errorCode != null
-                && errorCode.code == ErrorCodes.VIDEO_COMPRESSED_ERROR.getCode()
+                && errorCode.code == IRongCoreEnum.CoreErrorCode.RC_VIDEO_COMPRESS_FAILED.code
                 && message.getContent() instanceof SightMessage) {
             // 压缩失败不走重发队列，需要用户自己重试
             if (listener != null) {

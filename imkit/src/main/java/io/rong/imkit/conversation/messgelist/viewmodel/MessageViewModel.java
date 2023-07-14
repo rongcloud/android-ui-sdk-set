@@ -62,7 +62,6 @@ import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.MessageList;
-import io.rong.imlib.ErrorCodes;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
@@ -1000,7 +999,8 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 case SendMediaEvent.ERROR:
                     if (event.getCode() != null
-                            && event.getCode().code == ErrorCodes.MEDIA_FILE_INVALID.getCode()) {
+                            && event.getCode().code
+                                    == IRongCoreEnum.CoreErrorCode.RC_MEDIA_EXCEPTION.getValue()) {
                         ToastUtils.s(
                                 getApplication(),
                                 getApplication().getString(R.string.rc_media_upload_error));
@@ -1384,11 +1384,14 @@ public class MessageViewModel extends AndroidViewModel
                                         "sendReadReceiptRequest failed, errorCode = " + errorCode);
                                 if ((errorCode != null
                                                 && errorCode.getValue()
-                                                        == ErrorCodes.CONNECTION_RELEASED.getCode())
+                                                        == IRongCoreEnum.CoreErrorCode
+                                                                .RC_NET_CHANNEL_INVALID
+                                                                .getValue())
                                         || (errorCode != null
                                                 && errorCode.getValue()
-                                                        == ErrorCodes.CONNECTION_UNAVAILABLE
-                                                                .getCode())) {
+                                                        == IRongCoreEnum.CoreErrorCode
+                                                                .RC_NET_UNAVAILABLE
+                                                                .getValue())) {
                                     executePageEvent(
                                             new ToastEvent(
                                                     getApplication()
