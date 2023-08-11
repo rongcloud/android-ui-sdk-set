@@ -3,6 +3,7 @@ package io.rong.imkit.conversation.messgelist.status;
 import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
 import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_REMOTE_COUNT;
 
+import io.rong.imkit.IMCenter;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
@@ -14,6 +15,7 @@ import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.HistoryMessageOption;
 import io.rong.imlib.model.Message;
@@ -70,7 +72,9 @@ public class MessageProcessor {
         boolean supportType =
                 Conversation.ConversationType.PRIVATE.equals(type)
                         || Conversation.ConversationType.GROUP.equals(type);
-        return supportType && sentTime == 0;
+        return sentTime == 0
+                && (supportType
+                        || !NetUtils.isNetWorkAvailable(IMCenter.getInstance().getContext()));
     }
 
     public static void getMessages(

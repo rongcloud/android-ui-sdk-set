@@ -506,6 +506,11 @@ public class InputPanel {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s == null || s.length() == 0) {
+                        IMCenter.getInstance()
+                                .saveTextMessageDraft(
+                                        mConversationIdentifier,
+                                        mEditText.getText().toString(),
+                                        null);
                         if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
                                 || mInputStyle.equals(
                                         InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {

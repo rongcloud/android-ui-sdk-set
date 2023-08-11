@@ -255,6 +255,15 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
+        // finish后清除全屏标志位，避免此问题
+        int flagForceNotFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+        getWindow().setFlags(flagForceNotFullscreen, flagForceNotFullscreen);
+    }
+
     BaseMessageEvent mBaseMessageEvent =
             new BaseMessageEvent() {
                 @Override

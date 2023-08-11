@@ -155,7 +155,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                 uiConversation.mConversationContent,
                 TextView.BufferType.SPANNABLE);
         // 未读数
-        int unreadCount = uiConversation.mCore.getUnreadMessageCount();
+        int unreadCount = uiConversation.getUnreadMessageCount();
         if (unreadCount > 0) {
             holder.setVisible(R.id.rc_conversation_unread, true);
             if (unreadCount > 99) {

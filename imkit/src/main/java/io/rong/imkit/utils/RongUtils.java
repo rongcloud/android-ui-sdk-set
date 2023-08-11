@@ -510,9 +510,16 @@ public class RongUtils {
 
     public static boolean checkSDKVersionAndTargetIsTIRAMISU(Context context) {
         ApplicationInfo applicationInfo = context.getApplicationInfo();
-        return Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_TIRAMISU
+        return Build.VERSION.SDK_INT == AndroidConstant.ANDROID_TIRAMISU
                 && applicationInfo != null
-                && applicationInfo.targetSdkVersion >= AndroidConstant.ANDROID_TIRAMISU;
+                && applicationInfo.targetSdkVersion == AndroidConstant.ANDROID_TIRAMISU;
+    }
+
+    public static boolean checkSDKVersionAndTargetIsUDC(Context context) {
+        ApplicationInfo applicationInfo = context.getApplicationInfo();
+        return Build.VERSION.SDK_INT == AndroidConstant.ANDROID_UPSIDE_DOWN_CAKE
+                && applicationInfo != null
+                && applicationInfo.targetSdkVersion == AndroidConstant.ANDROID_UPSIDE_DOWN_CAKE;
     }
 
     // 解决 Android 8.0 透明主题 Activity 崩溃问题

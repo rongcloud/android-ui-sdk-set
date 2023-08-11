@@ -658,6 +658,7 @@ public class ConversationConfig {
                 case GROUP:
                 case ULTRA_GROUP:
                 case DISCUSSION:
+                case SYSTEM: // 5.6.2需求
                     return true;
             }
         }

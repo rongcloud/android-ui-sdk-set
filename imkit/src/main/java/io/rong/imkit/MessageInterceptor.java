@@ -81,6 +81,18 @@ public interface MessageInterceptor {
             MessageContent content,
             long sentTime);
 
+    /**
+     * 准备插入发送消息的拦截回调。
+     *
+     * @param type 会话类型。
+     * @param targetId 会话 id。比如私人会话时，是对方的 id； 群组会话时，是群 id； 讨论组会话时，则为该讨论组的 id。
+     * @param sentStatus 发送状态 {@link Message.SentStatus}
+     * @param content 消息内容。如{@link TextMessage} {@link ImageMessage} 等。
+     * @param time 消息的发送时间 {@link Message#getSentTime()} 。
+     * @param callback 1，拦截图片消息时，此方法return true，并且此callback返回需返回onError，处理业务侧拦截图片消息逻辑。
+     *     2，图片消息设置消息扩展时，此方法return true，构建message将可扩展属性设置为ture，并调用callback.onSuccess(message);
+     * @return true 用户拦截此次消息，sdk不再做后续处理，false,交由sdk处理
+     */
     default boolean interceptOnInsertOutgoingMessage(
             Conversation.ConversationType type,
             String targetId,

@@ -313,10 +313,11 @@ public class ConversationListViewModel extends AndroidViewModel
                                     mDataFilter.isGathered(
                                             ConversationIdentifier.obtain(type, targetId, "")));
                     if (oldItem != null) {
-                        oldItem.mCore.setUnreadMessageCount(0);
-                        oldItem.mCore.setMentionedCount(0);
-                        oldItem.mCore.setMentionedMeCount(0);
-                        oldItem.onConversationUpdate(oldItem.mCore);
+                        Conversation conversation = oldItem.currentConversation(targetId);
+                        conversation.setUnreadMessageCount(0);
+                        conversation.setMentionedCount(0);
+                        conversation.setMentionedMeCount(0);
+                        oldItem.onConversationUpdate(conversation);
                         mConversationListLiveData.postValue(mUiConversationList);
                     }
                 }
@@ -394,6 +395,7 @@ public class ConversationListViewModel extends AndroidViewModel
     public void getConversationList(
             final boolean loadMore, final boolean isEventManual, long delayTime) {
         if (isTaskScheduled) {
+            sendRefreshEvent(isEventManual, loadMore);
             return;
         }
         isTaskScheduled = true;
@@ -416,23 +418,8 @@ public class ConversationListViewModel extends AndroidViewModel
                                                         new Runnable() {
                                                             @Override
                                                             public void run() {
-                                                                if (isEventManual) {
-                                                                    if (loadMore) {
-                                                                        mRefreshEventLiveData
-                                                                                .postValue(
-                                                                                        new Event
-                                                                                                .RefreshEvent(
-                                                                                                RefreshState
-                                                                                                        .LoadFinish));
-                                                                    } else {
-                                                                        mRefreshEventLiveData
-                                                                                .postValue(
-                                                                                        new Event
-                                                                                                .RefreshEvent(
-                                                                                                RefreshState
-                                                                                                        .RefreshFinish));
-                                                                    }
-                                                                }
+                                                                sendRefreshEvent(
+                                                                        isEventManual, loadMore);
                                                                 if (conversations == null
                                                                         || conversations.size()
                                                                                 == 0) {
@@ -543,15 +530,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
                                             @Override
                                             public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                                if (loadMore) {
-                                                    mRefreshEventLiveData.postValue(
-                                                            new Event.RefreshEvent(
-                                                                    RefreshState.LoadFinish));
-                                                } else {
-                                                    mRefreshEventLiveData.postValue(
-                                                            new Event.RefreshEvent(
-                                                                    RefreshState.RefreshFinish));
-                                                }
+                                                sendRefreshEvent(isEventManual, loadMore);
                                             }
                                         },
                                         timestamp,
@@ -563,6 +542,20 @@ public class ConversationListViewModel extends AndroidViewModel
             mHandler.post(runnable);
         } else {
             mHandler.postDelayed(runnable, delayTime);
+        }
+    }
+
+    /**
+     * 发送刷新事件
+     *
+     * @param isEventManual 是否是手动触发的刷新
+     * @param loadMore 是否是加载更多
+     */
+    protected void sendRefreshEvent(boolean isEventManual, boolean loadMore) {
+        if (isEventManual) {
+            RefreshState refreshState =
+                    loadMore ? RefreshState.LoadFinish : RefreshState.RefreshFinish;
+            mRefreshEventLiveData.postValue(new Event.RefreshEvent(refreshState));
         }
     }
 

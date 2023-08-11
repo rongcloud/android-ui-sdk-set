@@ -17,6 +17,7 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.location.message.RealTimeLocationStartMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -199,8 +200,10 @@ public class MessageItemLongClickActionManager {
                                     public boolean onMessageItemLongClick(
                                             final Context context, UiMessage uiMessage) {
                                         if (IMCenter.getInstance().getCurrentConnectionStatus()
-                                                == RongIMClient.ConnectionStatusListener
-                                                        .ConnectionStatus.NETWORK_UNAVAILABLE) {
+                                                        == RongIMClient.ConnectionStatusListener
+                                                                .ConnectionStatus
+                                                                .NETWORK_UNAVAILABLE
+                                                || !NetUtils.isNetWorkAvailable(context)) {
                                             makeText(
                                                             context,
                                                             context.getResources()

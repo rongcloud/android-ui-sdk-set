@@ -196,16 +196,66 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         (AudioManager) mApplication.getSystemService(Context.AUDIO_SERVICE);
                 if (audio != null && audio.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                     mLastSoundTime = System.currentTimeMillis();
-                    if (RongConfigCenter.featureConfig().isVibrateInForeground()) {
+                    if (ifVrate(message)) {
                         vibrate();
                     }
-                    if (audio.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE
-                            && RongConfigCenter.featureConfig().isSoundInForeground()) {
+                    if (ifSound(audio, message)) {
                         sound();
                     }
                 }
             }
         }
+    }
+
+    /**
+     * 此条接收消息是否震动
+     *
+     * @param message
+     * @return
+     */
+    private boolean ifVrate(Message message) {
+        //        设置消息震动功能关闭，不震动
+        if (!RongConfigCenter.featureConfig().isVibrateInForeground()) {
+            return false;
+        }
+        //        message 为空 不震动
+        if (message == null) {
+            return false;
+        }
+        //        消息发送者是自己不震动（多端出现此情况）
+        if (TextUtils.equals(
+                message.getSenderUserId(), RongIMClient.getInstance().getCurrentUserId())) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 此条接收消息是否响铃
+     *
+     * @param audio
+     * @param message
+     * @return
+     */
+    private boolean ifSound(AudioManager audio, Message message) {
+        //        震动模式 不响铃
+        if (audio.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE) {
+            return false;
+        }
+        //        设置消息铃声关闭，不响铃
+        if (!RongConfigCenter.featureConfig().isSoundInForeground()) {
+            return false;
+        }
+        //        message 为空 不响铃
+        if (message == null) {
+            return false;
+        }
+        //        消息发送者是自己不响铃（多端出现此情况）
+        if (TextUtils.equals(
+                message.getSenderUserId(), RongIMClient.getInstance().getCurrentUserId())) {
+            return false;
+        }
+        return true;
     }
 
     private void prepareToSendNotification(Message message) {

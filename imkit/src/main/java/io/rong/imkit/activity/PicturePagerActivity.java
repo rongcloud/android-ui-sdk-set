@@ -251,6 +251,15 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         IMCenter.getInstance().removeMessageEventListener(mBaseMessageEvent);
     }
 
+    @Override
+    public void finish() {
+        super.finish();
+        // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
+        // finish后清除全屏标志位，避免此问题
+        int flagForceNotFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+        getWindow().setFlags(flagForceNotFullscreen, flagForceNotFullscreen);
+    }
+
     private void getConversationImageUris(
             int messageId, final RongCommonDefine.GetMessageDirection direction) {
         if (mConversationType != null && !TextUtils.isEmpty(mTargetId)) {
@@ -624,16 +633,18 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                         @Nullable Transition<? super Bitmap> transition) {
                                     holder.itemView.removeCallbacks(mLoadFailedAction);
                                     int maxLoader = Utils.getMaxLoader(); // openGL最大允许的长或宽
+                                    Bitmap desBitmap = null;
                                     if (resource != null
                                             && resource.getWidth() < maxLoader
                                             && resource.getHeight() < maxLoader) {
-
                                         try {
-                                            resource = resource.copy(Bitmap.Config.ARGB_8888, true);
+                                            desBitmap =
+                                                    resource.copy(Bitmap.Config.ARGB_8888, true);
                                         } catch (Throwable e) {
                                             RLog.e(TAG, "onResourceReady Bitmap copy error: " + e);
                                         }
-
+                                    }
+                                    if (desBitmap != null) {
                                         if (mCurrentImageMessage.isDestruct()
                                                 && mMessage.getMessageDirection()
                                                         .equals(Message.MessageDirection.RECEIVE)) {
@@ -643,7 +654,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                         holder.failImg.setVisibility(View.GONE);
                                         holder.progressBar.setVisibility(View.GONE);
                                         holder.photoView.setVisibility(View.VISIBLE);
-                                        holder.photoView.setBitmapAndFileUri(resource, null);
+                                        holder.photoView.setBitmapAndFileUri(desBitmap, null);
                                         imageInfo.download = true;
                                     } else {
                                         if (FileUtils.uriStartWithFile(originalUri)) {

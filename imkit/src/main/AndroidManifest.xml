@@ -3,6 +3,7 @@
     <!-- 访问相册，访问文件系统等 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name = "android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <!-- 拍照 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- 拍照等 -->

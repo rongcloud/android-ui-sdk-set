@@ -67,6 +67,13 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
                     new String[] {
                         Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
                     };
+        } else if (RongUtils.checkSDKVersionAndTargetIsUDC(extension.getContext())) {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES,
+                        Manifest.permission.READ_MEDIA_VIDEO,
+                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                    };
         } else {
             permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
         }

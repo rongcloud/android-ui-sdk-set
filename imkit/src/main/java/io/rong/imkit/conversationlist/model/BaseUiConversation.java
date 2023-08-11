@@ -53,6 +53,17 @@ public abstract class BaseUiConversation {
         }
     }
 
+    public Conversation currentConversation(String targetId) {
+        return this.mCore;
+    }
+
+    public int getUnreadMessageCount() {
+        if (this.mCore == null) {
+            return -1;
+        }
+        return this.mCore.getUnreadMessageCount();
+    }
+
     abstract void buildConversationContent();
 
     /**

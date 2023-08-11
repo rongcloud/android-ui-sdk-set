@@ -117,6 +117,9 @@
     <string name="rc_pub_service_notification">新消息通知</string>
 
     //permission
+    <string name="rc_android.permission.READ_MEDIA_IMAGES">照片</string>
+    <string name="rc_android.permission.READ_MEDIA_VIDEO">视频</string>
+    <string name="rc_android.permission.READ_MEDIA_VISUAL_USER_SELECTED">部分访问</string>
     <string name="rc_android.permission.CAMERA">相机</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">位置信息</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">位置信息</string>

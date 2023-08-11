@@ -15,13 +15,18 @@ import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GatheredConversation extends BaseUiConversation {
     public Conversation.ConversationType mGatheredType;
     private String mLastTargetId; // 聚合会话里最新一条会话的 targetId. 聚会会话内容里需要拼接此 targetId 对应的名称。
+    private final Map<String, Conversation> gatheredConversationMap =
+            new ConcurrentHashMap<>(); // 存储当前聚合会话中 所有的Conversation
 
     public GatheredConversation(Context context, Conversation conversation) {
         super(context, conversation);
+        gatheredConversationMap.put(conversation.getTargetId(), conversation);
         mGatheredType = conversation.getConversationType();
         mLastTargetId = conversation.getTargetId();
         setConversationTitle();
@@ -117,14 +122,38 @@ public class GatheredConversation extends BaseUiConversation {
 
     @Override
     public void onConversationUpdate(Conversation conversation) {
-        if (conversation != null
-                && conversation.getConversationType().equals(mGatheredType)
-                && conversation.getSentTime() >= mCore.getSentTime()) {
-            mCore = conversation;
-            mLastTargetId = conversation.getTargetId();
-            buildConversationContent();
-            setConversationTitle();
+
+        if (conversation != null && conversation.getConversationType().equals(mGatheredType)) {
+            gatheredConversationMap.put(conversation.getTargetId(), conversation);
+
+            if (conversation.getSentTime() >= mCore.getSentTime()) {
+                mCore = conversation;
+                mLastTargetId = conversation.getTargetId();
+                buildConversationContent();
+                setConversationTitle();
+            }
         }
+    }
+
+    @Override
+    public int getUnreadMessageCount() {
+        int count = 0;
+        for (String targetId : gatheredConversationMap.keySet()) {
+            Conversation conversation = gatheredConversationMap.get(targetId);
+            if (conversation != null) {
+                count += conversation.getUnreadMessageCount();
+            }
+        }
+        return count;
+    }
+
+    @Override
+    public Conversation currentConversation(String targetId) {
+        Conversation conversation = gatheredConversationMap.get(targetId);
+        if (conversation != null) {
+            return conversation;
+        }
+        return super.currentConversation(targetId);
     }
 
     private void setConversationTitle() {
