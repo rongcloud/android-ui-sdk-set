@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.sticker.R;
 import io.rong.sticker.StickerExtensionModule;
 import io.rong.sticker.businesslogic.StickerPackageDownloadTask;
@@ -184,11 +185,10 @@ public class RecommendTab implements IEmoticonTab {
                                                                                             .sticker_download_fail,
                                                                                     stickerPackage
                                                                                             .getName());
-                                                            Toast.makeText(
-                                                                            holder.context,
-                                                                            content,
-                                                                            Toast.LENGTH_SHORT)
-                                                                    .show();
+                                                            ToastUtils.show(
+                                                                    holder.context,
+                                                                    content,
+                                                                    Toast.LENGTH_SHORT);
                                                         }
                                                     });
                                         }

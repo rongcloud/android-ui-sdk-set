@@ -11,6 +11,7 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.ExecutorHelper;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -69,21 +70,19 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                                     new IRongCoreCallback.OperationCallback() {
                                         @Override
                                         public void onSuccess() {
-                                            Toast.makeText(
-                                                            viewModel.getApplication(),
-                                                            "超级群已读状态同步成功",
-                                                            Toast.LENGTH_LONG)
-                                                    .show();
+                                            ToastUtils.show(
+                                                    viewModel.getApplication(),
+                                                    "超级群已读状态同步成功",
+                                                    Toast.LENGTH_LONG);
                                         }
 
                                         @Override
                                         public void onError(
                                                 IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                            Toast.makeText(
-                                                            viewModel.getApplication(),
-                                                            "超级群已读状态同步失败",
-                                                            Toast.LENGTH_LONG)
-                                                    .show();
+                                            ToastUtils.show(
+                                                    viewModel.getApplication(),
+                                                    "超级群已读状态同步失败",
+                                                    Toast.LENGTH_LONG);
                                         }
                                     });
                 }
@@ -121,26 +120,14 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                                 new IRongCoreCallback.OperationCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        //                                        Toast.makeText(
-                                        //
-                                        // viewModel.getApplication(),
-                                        //
-                                        // "超级群已读状态同步成功",
-                                        //
-                                        // Toast.LENGTH_LONG)
-                                        //                                                .show();
+                                        // ToastUtils.show(viewModel.getApplication(),
+                                        // "超级群已读状态同步成功",Toast.LENGTH_LONG);
                                     }
 
                                     @Override
                                     public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                        //                                        Toast.makeText(
-                                        //
-                                        // viewModel.getApplication(),
-                                        //
-                                        // "超级群已读状态同步失败",
-                                        //
-                                        // Toast.LENGTH_LONG)
-                                        //                                                .show();
+                                        // ToastUtils.show(viewModel.getApplication(),"超级群已读状态同步失败"
+                                        // ,Toast.LENGTH_LONG);
                                     }
                                 });
             }
@@ -226,7 +213,8 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                             public void run() {
                                 List<io.rong.imlib.model.Message> responseMessageList =
                                         new ArrayList<>();
-                                final List<UiMessage> uiMessages = viewModel.getUiMessages();
+                                final List<UiMessage> uiMessages =
+                                        new ArrayList<>(viewModel.getUiMessages());
                                 for (UiMessage uiMessage : uiMessages) {
                                     ReadReceiptInfo readReceiptInfo =
                                             uiMessage.getMessage().getReadReceiptInfo();
@@ -273,7 +261,8 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                 .isShowReadReceiptRequest(viewModel.getCurConversationType())) {
             return;
         }
-        for (final UiMessage item : viewModel.getUiMessages()) {
+        final List<UiMessage> uiMessages = new ArrayList<>(viewModel.getUiMessages());
+        for (final UiMessage item : uiMessages) {
             if (TextUtils.isEmpty(item.getMessage().getUId())) {
                 continue;
             }

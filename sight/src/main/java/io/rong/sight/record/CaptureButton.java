@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.sight.R;
 
 /** 445263848@qq.com. */
@@ -540,11 +541,8 @@ public class CaptureButton extends View {
         if (!record_anim.isRunning() || playTime < 1000) {
             Log.d(TAG, "recordEnd-retryRecord()");
             if (needAnimation) {
-                Toast.makeText(
-                                mContext,
-                                R.string.rc_sight_record_too_short_time,
-                                Toast.LENGTH_SHORT)
-                        .show();
+                String text = mContext.getString(R.string.rc_sight_record_too_short_time);
+                ToastUtils.show(mContext, text, Toast.LENGTH_SHORT);
             }
             if (mCaptureListener != null) {
                 mCaptureListener.retryRecord();

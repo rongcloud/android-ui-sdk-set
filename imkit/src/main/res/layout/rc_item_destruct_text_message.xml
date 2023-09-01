@@ -19,7 +19,7 @@
         android:text="@string/rc_click_to_view"
         android:textColor="#A0A5AB"
         android:visibility="gone"
-        app:drawableEndCompat="@drawable/rc_item_fire_t"
+        android:drawableEnd="@drawable/rc_item_fire_t"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

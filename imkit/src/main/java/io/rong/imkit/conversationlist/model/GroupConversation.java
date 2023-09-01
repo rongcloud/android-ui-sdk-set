@@ -40,40 +40,49 @@ public class GroupConversation extends BaseUiConversation {
                 RongConfigCenter.conversationConfig().showSummaryWithName(mCore.getLatestMessage());
 
         if (mCore.getUnreadMentionedCount() > 0) {
-            preStr = mContext.getString(R.string.rc_conversation_summary_content_mentioned);
-            mPreString = new SpannableString(preStr);
-            mPreString.setSpan(
-                    new ForegroundColorSpan(
-                            mContext.getResources().getColor(R.color.rc_warning_color)),
-                    0,
-                    preStr.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            Spannable messageSummary =
-                    RongConfigCenter.conversationConfig()
-                            .getMessageSummary(mContext, mCore.getLatestMessage());
-            builder.append(mPreString);
+            if (mContext != null) {
+                preStr = mContext.getString(R.string.rc_conversation_summary_content_mentioned);
+                mPreString = new SpannableString(preStr);
+                mPreString.setSpan(
+                        new ForegroundColorSpan(
+                                mContext.getResources().getColor(R.color.rc_warning_color)),
+                        0,
+                        preStr.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.append(mPreString);
+            }
             if (!TextUtils.isEmpty(senderName) && isShowName) {
                 builder.append(senderName).append(COLON_SPLIT);
             }
-            builder.append(messageSummary);
+            Spannable messageSummary =
+                    RongConfigCenter.conversationConfig()
+                            .getMessageSummary(mContext, mCore.getLatestMessage());
+            if (!TextUtils.isEmpty(messageSummary)) {
+                builder.append(messageSummary);
+            }
         } else if (!TextUtils.isEmpty(mCore.getDraft())) {
-            preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
+            if (mContext != null) {
+                preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
+                mPreString = new SpannableString(preStr);
+                mPreString.setSpan(
+                        new ForegroundColorSpan(
+                                mContext.getResources().getColor(R.color.rc_warning_color)),
+                        0,
+                        preStr.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.append(mPreString);
+            }
             String draft = mCore.getDraft();
             draft = draft.replace("\n", "");
-            mPreString = new SpannableString(preStr);
-            mPreString.setSpan(
-                    new ForegroundColorSpan(
-                            mContext.getResources().getColor(R.color.rc_warning_color)),
-                    0,
-                    preStr.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.append(mPreString).append(draft);
+            builder.append(draft);
         } else {
             mPreString = new SpannableString("");
             Spannable messageSummary =
                     RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore);
             if (mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())) {
-                builder.append(messageSummary);
+                if (!TextUtils.isEmpty(messageSummary)) {
+                    builder.append(messageSummary);
+                }
             } else {
                 if (!TextUtils.isEmpty(senderName)
                         && !TextUtils.isEmpty(messageSummary)

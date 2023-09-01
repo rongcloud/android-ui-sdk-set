@@ -30,6 +30,7 @@ import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
@@ -193,24 +194,21 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
                                         return;
                                     }
 
+                                    String text =
+                                            GIFPreviewActivity.this.getString(
+                                                    R.string.rc_save_picture_at);
                                     if (file.exists()) {
                                         KitStorageUtils.saveMediaToPublicDir(
                                                 GIFPreviewActivity.this,
                                                 file,
                                                 KitStorageUtils.MediaType.IMAGE);
-                                        Toast.makeText(
-                                                        GIFPreviewActivity.this,
-                                                        GIFPreviewActivity.this.getString(
-                                                                R.string.rc_save_picture_at),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
+
                                     } else {
-                                        Toast.makeText(
-                                                        GIFPreviewActivity.this,
-                                                        getString(R.string.rc_src_file_not_found),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
+                                        text = getString(R.string.rc_src_file_not_found);
                                     }
+
+                                    ToastUtils.show(
+                                            GIFPreviewActivity.this, text, Toast.LENGTH_SHORT);
                                 }
                             }
                         })

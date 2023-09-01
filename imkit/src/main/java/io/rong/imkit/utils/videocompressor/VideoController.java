@@ -217,7 +217,8 @@ public class VideoController {
                                         resultWidth,
                                         resultHeight,
                                         bitrate,
-                                        listener);
+                                        (io.rong.common.videoslimmer.listner.SlimProgressListener)
+                                                listener);
                 if (!result) {
                     File file = new File(destinationPath);
                     if (file != null && file.exists()) {
@@ -234,7 +235,9 @@ public class VideoController {
                                             resultWidth,
                                             resultHeight,
                                             (resultWidth / 2) * (resultHeight / 2) * 10,
-                                            listener);
+                                            (io.rong.common.videoslimmer.listner
+                                                            .SlimProgressListener)
+                                                    listener);
                 }
                 return result;
             } catch (Exception e) {

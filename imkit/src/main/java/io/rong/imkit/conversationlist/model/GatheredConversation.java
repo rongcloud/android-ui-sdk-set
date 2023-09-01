@@ -45,7 +45,9 @@ public class GatheredConversation extends BaseUiConversation {
         String preStr;
         // 前缀字符，如【有人@我】【草稿】
         SpannableString mPreString;
-        if (mCore.getMentionedCount() > 0) {
+        if (mContext == null) {
+            mPreString = new SpannableString("");
+        } else if (mCore.getMentionedCount() > 0) {
             preStr = mContext.getString(R.string.rc_conversation_summary_content_mentioned);
             mPreString = new SpannableString(preStr);
             mPreString.setSpan(
@@ -159,6 +161,10 @@ public class GatheredConversation extends BaseUiConversation {
     private void setConversationTitle() {
         Conversation.ConversationType type = mCore.getConversationType();
         String title = "";
+        if (mContext == null) {
+            mCore.setConversationTitle(title);
+            return;
+        }
         Integer titleId = RongConfigCenter.gatheredConversationConfig().getConversationTitle(type);
         if (titleId != null) {
             title = mContext.getString(titleId);
@@ -184,9 +190,13 @@ public class GatheredConversation extends BaseUiConversation {
     private void setConversationPortrait() {
         Conversation.ConversationType type = mCore.getConversationType();
         Uri uri = RongConfigCenter.gatheredConversationConfig().getGatherConversationPortrait(type);
-        if (uri == null) {
-            uri = RongUtils.getUriFromDrawableRes(mContext, R.drawable.rc_default_portrait);
+        if (uri != null) {
+            mCore.setPortraitUrl(uri.toString());
+            return;
         }
-        mCore.setPortraitUrl(uri.toString());
+        if (mContext != null) {
+            uri = RongUtils.getUriFromDrawableRes(mContext, R.drawable.rc_default_portrait);
+            mCore.setPortraitUrl(uri.toString());
+        }
     }
 }

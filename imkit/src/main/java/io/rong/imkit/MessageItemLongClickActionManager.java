@@ -1,7 +1,5 @@
 package io.rong.imkit;
 
-import static android.widget.Toast.makeText;
-
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -14,6 +12,7 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
@@ -175,16 +174,6 @@ public class MessageItemLongClickActionManager {
                                                         .cancelDownloadMediaMessage(message, null);
                                             }
                                         }
-                                        IMCenter.getInstance()
-                                                .deleteMessages(
-                                                        uiMessage
-                                                                .getMessage()
-                                                                .getConversationType(),
-                                                        uiMessage.getMessage().getTargetId(),
-                                                        new int[] {
-                                                            uiMessage.getMessage().getMessageId()
-                                                        },
-                                                        null);
                                         deleteRemoteMessage(uiMessage);
                                         return true;
                                     }
@@ -204,14 +193,12 @@ public class MessageItemLongClickActionManager {
                                                                 .ConnectionStatus
                                                                 .NETWORK_UNAVAILABLE
                                                 || !NetUtils.isNetWorkAvailable(context)) {
-                                            makeText(
-                                                            context,
-                                                            context.getResources()
-                                                                    .getString(
-                                                                            R.string
-                                                                                    .rc_recall_failed_for_network_unavailable),
-                                                            Toast.LENGTH_SHORT)
-                                                    .show();
+                                            String text =
+                                                    context.getResources()
+                                                            .getString(
+                                                                    R.string
+                                                                            .rc_recall_failed_for_network_unavailable);
+                                            ToastUtils.show(context, text, Toast.LENGTH_SHORT);
                                             return true;
                                         }
                                         long deltaTime = RongIMClient.getInstance().getDeltaTime();
@@ -247,15 +234,16 @@ public class MessageItemLongClickActionManager {
                                                                 public void onError(
                                                                         RongIMClient.ErrorCode
                                                                                 errorCode) {
-                                                                    makeText(
-                                                                                    context,
-                                                                                    context.getResources()
-                                                                                            .getString(
-                                                                                                    R.string
-                                                                                                            .rc_recall_failed_for_network_unavailable),
-                                                                                    Toast
-                                                                                            .LENGTH_SHORT)
-                                                                            .show();
+
+                                                                    String text =
+                                                                            context.getResources()
+                                                                                    .getString(
+                                                                                            R.string
+                                                                                                    .rc_recall_failed_for_network_unavailable);
+                                                                    ToastUtils.show(
+                                                                            context,
+                                                                            text,
+                                                                            Toast.LENGTH_SHORT);
                                                                 }
                                                             });
                                         } else {
@@ -376,14 +364,39 @@ public class MessageItemLongClickActionManager {
     }
 
     private void deleteRemoteMessage(UiMessage uiMessage) {
+        // 不需要删除远端，那就只把本地删除
         if (!RongConfigCenter.conversationConfig().isNeedDeleteRemoteMessage()) {
+            deleteLocalMessage(uiMessage);
             return;
         }
+        // 先删远端，远端删除成功才删本地
         IMCenter.getInstance()
                 .deleteRemoteMessages(
                         uiMessage.getMessage().getConversationType(),
                         uiMessage.getMessage().getTargetId(),
                         new Message[] {uiMessage.getMessage()},
+                        new RongIMClient.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                deleteLocalMessage(uiMessage);
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                RLog.e(
+                                        TAG,
+                                        "deleteRemoteMessage fail, will not deleteLocalMessage ："
+                                                + errorCode);
+                            }
+                        });
+    }
+
+    private void deleteLocalMessage(UiMessage uiMessage) {
+        IMCenter.getInstance()
+                .deleteMessages(
+                        uiMessage.getMessage().getConversationType(),
+                        uiMessage.getMessage().getTargetId(),
+                        new int[] {uiMessage.getMessage().getMessageId()},
                         null);
     }
 

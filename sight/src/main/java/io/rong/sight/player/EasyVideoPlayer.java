@@ -45,6 +45,7 @@ import io.rong.common.RLog;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.sight.R;
 import java.io.File;
@@ -1162,25 +1163,17 @@ public class EasyVideoPlayer extends FrameLayout
                                                     getContext(),
                                                     file,
                                                     KitStorageUtils.MediaType.VIDEO);
+                                    String text = null;
                                     if (result) {
-                                        Toast.makeText(
-                                                        getContext(),
-                                                        getContext()
-                                                                .getString(
-                                                                        R.string
-                                                                                .rc_save_video_success),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
+                                        text =
+                                                getContext()
+                                                        .getString(R.string.rc_save_video_success);
                                     } else {
-                                        Toast.makeText(
-                                                        getContext(),
-                                                        getContext()
-                                                                .getString(
-                                                                        R.string
-                                                                                .rc_src_file_not_found),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
+                                        text =
+                                                getContext()
+                                                        .getString(R.string.rc_src_file_not_found);
                                     }
+                                    ToastUtils.show(getContext(), text, Toast.LENGTH_SHORT);
                                 }
                             }
                         })

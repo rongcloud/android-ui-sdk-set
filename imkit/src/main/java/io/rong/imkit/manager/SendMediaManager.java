@@ -10,6 +10,7 @@ import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
@@ -214,15 +215,11 @@ public class SendMediaManager {
                                     if (errorCode.code
                                             == IRongCoreEnum.CoreErrorCode.RC_VIDEO_COMPRESS_FAILED
                                                     .code) {
-                                        Toast.makeText(
-                                                        IMCenter.getInstance().getContext(),
-                                                        IMCenter.getInstance()
-                                                                .getContext()
-                                                                .getString(
-                                                                        R.string
-                                                                                .rc_picsel_video_corrupted),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
+                                        Context context = IMCenter.getInstance().getContext();
+                                        String text =
+                                                context.getString(
+                                                        R.string.rc_picsel_video_corrupted);
+                                        ToastUtils.show(context, text, Toast.LENGTH_SHORT);
                                         return;
                                     }
                                     polling();

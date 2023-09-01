@@ -62,17 +62,17 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
 
         // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
         String[] permissions = null;
-        if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(extension.getContext())) {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                    };
-        } else if (RongUtils.checkSDKVersionAndTargetIsUDC(extension.getContext())) {
+        if (RongUtils.checkSDKVersionAndTargetIsUDC(extension.getContext())) {
             permissions =
                     new String[] {
                         Manifest.permission.READ_MEDIA_IMAGES,
                         Manifest.permission.READ_MEDIA_VIDEO,
                         Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                    };
+        } else if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(extension.getContext())) {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
                     };
         } else {
             permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
@@ -91,6 +91,15 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
+            if (conversationIdentifier == null) {
+                RLog.e(
+                        TAG,
+                        "onActivityResult conversationIdentifier is null, requestCode="
+                                + requestCode
+                                + ",resultCode="
+                                + resultCode);
+                return;
+            }
             // 图片、视频、音频选择结果回调
             List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
             if (selectList != null && selectList.size() > 0) {

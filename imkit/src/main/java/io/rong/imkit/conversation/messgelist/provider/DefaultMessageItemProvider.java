@@ -47,6 +47,9 @@ public class DefaultMessageItemProvider
 
     @Override
     public Spannable getSummarySpannable(Context context, MessageContent messageContent) {
+        if (context == null) {
+            return new SpannableString("");
+        }
         return new SpannableString(context.getResources().getString(R.string.rc_message_unknown));
     }
 }

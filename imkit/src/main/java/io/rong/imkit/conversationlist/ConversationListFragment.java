@@ -28,6 +28,7 @@ import io.rong.imkit.conversationlist.viewmodel.ConversationListViewModel;
 import io.rong.imkit.event.Event;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.ViewHolder;
@@ -362,11 +363,10 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                                                     new RongIMClient.ResultCallback<Boolean>() {
                                                         @Override
                                                         public void onSuccess(Boolean value) {
-                                                            Toast.makeText(
-                                                                            view.getContext(),
-                                                                            items.get(which),
-                                                                            Toast.LENGTH_SHORT)
-                                                                    .show();
+                                                            ToastUtils.show(
+                                                                    view.getContext(),
+                                                                    items.get(which),
+                                                                    Toast.LENGTH_SHORT);
                                                         }
 
                                                         @Override

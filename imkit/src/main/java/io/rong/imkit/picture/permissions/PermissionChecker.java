@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import io.rong.imkit.utils.PermissionCheckUtil;
 
 public class PermissionChecker {
 
@@ -34,6 +34,6 @@ public class PermissionChecker {
      */
     public static void requestPermissions(
             Activity activity, @NonNull String[] permissions, int code) {
-        ActivityCompat.requestPermissions(activity, permissions, code);
+        PermissionCheckUtil.requestPermissions(activity, permissions, code);
     }
 }

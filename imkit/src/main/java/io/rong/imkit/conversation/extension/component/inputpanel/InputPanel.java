@@ -33,6 +33,7 @@ import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
@@ -395,13 +396,11 @@ public class InputPanel {
                         }
                         // 判断正在视频通话和语音通话中不能进行语音消息发送
                         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-                            Toast.makeText(
-                                            v.getContext(),
-                                            v.getContext()
-                                                    .getResources()
-                                                    .getString(R.string.rc_voip_occupying),
-                                            Toast.LENGTH_SHORT)
-                                    .show();
+                            String text =
+                                    v.getContext()
+                                            .getResources()
+                                            .getString(R.string.rc_voip_occupying);
+                            ToastUtils.show(v.getContext(), text, Toast.LENGTH_SHORT);
                             return true;
                         }
                         AudioRecordManager.getInstance()
@@ -506,11 +505,7 @@ public class InputPanel {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s == null || s.length() == 0) {
-                        IMCenter.getInstance()
-                                .saveTextMessageDraft(
-                                        mConversationIdentifier,
-                                        mEditText.getText().toString(),
-                                        null);
+                        saveTextMessageDraft(mEditText.getText().toString());
                         if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
                                 || mInputStyle.equals(
                                         InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {
@@ -556,22 +551,7 @@ public class InputPanel {
         if (mEditText != null
                 && mEditText.getText() != null
                 && !mInitialDraft.equals(mEditText.getText().toString())) {
-            final String draft = mEditText.getText().toString();
-            IMCenter.getInstance()
-                    .saveTextMessageDraft(
-                            mConversationIdentifier,
-                            draft,
-                            new RongIMClient.ResultCallback<Boolean>() {
-                                @Override
-                                public void onSuccess(Boolean success) {
-                                    if (success) {
-                                        mInitialDraft = draft;
-                                    }
-                                }
-
-                                @Override
-                                public void onError(RongIMClient.ErrorCode e) {}
-                            });
+            saveTextMessageDraft(mEditText.getText().toString());
         }
     }
 
@@ -581,10 +561,26 @@ public class InputPanel {
         if (mEditText != null
                 && mEditText.getText() != null
                 && !mInitialDraft.equals(mEditText.getText().toString())) {
-            IMCenter.getInstance()
-                    .saveTextMessageDraft(
-                            mConversationIdentifier, mEditText.getText().toString(), null);
+            saveTextMessageDraft(mEditText.getText().toString());
         }
+    }
+
+    private void saveTextMessageDraft(final String draft) {
+        IMCenter.getInstance()
+                .saveTextMessageDraft(
+                        mConversationIdentifier,
+                        draft,
+                        new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean success) {
+                                if (success) {
+                                    mInitialDraft = draft;
+                                }
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {}
+                        });
     }
 
     public enum InputStyle {

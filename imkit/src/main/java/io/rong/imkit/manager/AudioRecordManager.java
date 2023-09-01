@@ -389,8 +389,10 @@ public class AudioRecordManager implements Handler.Callback {
             mHandler.sendMessageDelayed(message, RECORD_INTERVAL * 1000 - 10 * 1000);
         } catch (IOException | RuntimeException e) {
             RLog.e(TAG, "startRec", e);
-            mMediaRecorder.release();
-            mMediaRecorder = null;
+            if (mMediaRecorder != null) {
+                mMediaRecorder.release();
+                mMediaRecorder = null;
+            }
             mHandler.sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
         }
     }

@@ -51,6 +51,13 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
             new ViewPager2.OnPageChangeCallback() {
                 @Override
                 public void onPageSelected(int position) {
+                    if (position >= 0 && position < mVideoPagerAdapter.getItemCount()) {
+                        currentSelectMessageId =
+                                mVideoPagerAdapter.getItem(position).getMessageId();
+                    }
+                    if (isLoadSingleMessage()) {
+                        return;
+                    }
                     if (position == (mVideoPagerAdapter.getItemCount() - 1)) {
                         if (mVideoPagerAdapter.getItemCount() > 0) {
                             getSightMessageList(
@@ -64,7 +71,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
                                     RongCommonDefine.GetMessageDirection.FRONT);
                         }
                     }
-                    currentSelectMessageId = mVideoPagerAdapter.getItem(position).getMessageId();
                 }
             };
 
@@ -187,11 +193,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
         ArrayList<Message> messages = new ArrayList<>();
         mViewPager.setAdapter(mVideoPagerAdapter);
-
-        if (mMessage.getContent().isDestruct()
-                || mMessage.getContent() instanceof ReferenceMessage
-                || Conversation.ConversationType.ULTRA_GROUP.equals(
-                        mMessage.getConversationType())) {
+        if (isLoadSingleMessage()) {
             messages.add(mMessage);
             mVideoPagerAdapter.addMessage(messages, mFromList, true);
         } else {
@@ -200,6 +202,13 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
             getSightMessageList(
                     mMessage.getMessageId(), RongCommonDefine.GetMessageDirection.BEHIND);
         }
+    }
+
+    // 阅后即焚、引用消息、超级群类型会话，只显示一个
+    private boolean isLoadSingleMessage() {
+        return mMessage.getContent().isDestruct()
+                || mMessage.getContent() instanceof ReferenceMessage
+                || Conversation.ConversationType.ULTRA_GROUP.equals(mMessage.getConversationType());
     }
 
     private void getSightMessageList(

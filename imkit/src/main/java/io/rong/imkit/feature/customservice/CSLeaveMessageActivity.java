@@ -27,6 +27,7 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.feature.customservice.event.CSQuitEvent;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.cs.model.CSLMessageItem;
 import io.rong.imlib.model.Conversation;
@@ -225,11 +226,8 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
                 return false;
             }
             if (config.isRequired() && TextUtils.isEmpty(editText.getText().toString())) {
-                Toast.makeText(
-                                getBaseContext(),
-                                config.getMessage().get(CSLMessageItem.RemindType.EMPTY.getName()),
-                                Toast.LENGTH_SHORT)
-                        .show();
+                String text = config.getMessage().get(CSLMessageItem.RemindType.EMPTY.getName());
+                ToastUtils.show(getBaseContext(), text, Toast.LENGTH_SHORT);
                 return false;
             } else if (config.getVerification() != null && editText.getText().length() > 0) {
                 boolean isValid = true;
@@ -239,21 +237,16 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
                     isValid = isEmail(editText.getText().toString());
                 }
                 if (!isValid) {
-                    Toast.makeText(
-                                    getBaseContext(),
-                                    config.getMessage()
-                                            .get(CSLMessageItem.RemindType.WRONG_FORMAT.getName()),
-                                    Toast.LENGTH_SHORT)
-                            .show();
+                    String text =
+                            config.getMessage()
+                                    .get(CSLMessageItem.RemindType.WRONG_FORMAT.getName());
+                    ToastUtils.show(getBaseContext(), text, Toast.LENGTH_SHORT);
                     return false;
                 }
             } else if (config.getMax() > 0 && editText.length() > config.getMax()) {
-                Toast.makeText(
-                                getBaseContext(),
-                                config.getMessage()
-                                        .get(CSLMessageItem.RemindType.OVER_LENGTH.getName()),
-                                Toast.LENGTH_SHORT)
-                        .show();
+                String text =
+                        config.getMessage().get(CSLMessageItem.RemindType.OVER_LENGTH.getName());
+                ToastUtils.show(getBaseContext(), text, Toast.LENGTH_SHORT);
                 return false;
             }
         }

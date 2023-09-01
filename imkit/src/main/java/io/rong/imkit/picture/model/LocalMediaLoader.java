@@ -172,6 +172,8 @@ public class LocalMediaLoader implements Handler.Callback {
                                                         ORDER_BY);
                                 try {
                                     if (data != null) {
+                                        String title =
+                                                mContext.getString(R.string.rc_picture_camera_roll);
                                         List<LocalMediaFolder> imageFolders = new ArrayList<>();
                                         LocalMediaFolder allImageFolder = new LocalMediaFolder();
                                         List<LocalMedia> latelyImages = new ArrayList<>();
@@ -220,6 +222,9 @@ public class LocalMediaLoader implements Handler.Callback {
                                                         data.getString(
                                                                 data.getColumnIndexOrThrow(
                                                                         PROJECTION[7]));
+                                                if (folderName == null) {
+                                                    folderName = title;
+                                                }
 
                                                 if (PictureMimeType.eqVideo(mimeType)) {
                                                     if (duration == 0) {
@@ -258,9 +263,6 @@ public class LocalMediaLoader implements Handler.Callback {
                                                 imageFolders.add(0, allImageFolder);
                                                 allImageFolder.setFirstImagePath(
                                                         latelyImages.get(0).getPath());
-                                                String title =
-                                                        mContext.getString(
-                                                                R.string.rc_picture_camera_roll);
                                                 allImageFolder.setName(title);
                                                 allImageFolder.setOfAllType(config.chooseMode);
                                                 allImageFolder.setCameraFolder(true);

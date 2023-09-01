@@ -32,6 +32,7 @@ import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -248,13 +249,11 @@ public class DestructInputPanel {
                         }
                         // 判断正在视频通话和语音通话中不能进行语音消息发送
                         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-                            Toast.makeText(
-                                            v.getContext(),
-                                            v.getContext()
-                                                    .getResources()
-                                                    .getString(R.string.rc_voip_occupying),
-                                            Toast.LENGTH_SHORT)
-                                    .show();
+                            String text =
+                                    v.getContext()
+                                            .getResources()
+                                            .getString(R.string.rc_voip_occupying);
+                            ToastUtils.show(v.getContext(), text, Toast.LENGTH_SHORT);
                             return true;
                         }
                         AudioRecordManager.getInstance()
