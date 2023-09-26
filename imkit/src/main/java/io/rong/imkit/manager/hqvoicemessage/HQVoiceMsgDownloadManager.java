@@ -69,7 +69,12 @@ public class HQVoiceMsgDownloadManager {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             context.getApplicationContext()
-                    .registerReceiver(autoDownloadNetWorkChangeReceiver, intentFilter);
+                    .registerReceiver(
+                            autoDownloadNetWorkChangeReceiver,
+                            intentFilter,
+                            context.getApplicationInfo().packageName
+                                    + ".permission.RONG_ACCESS_RECEIVER",
+                            null);
         } catch (Exception e) {
             RLog.e(TAG, "registerReceiver Exception", e);
         }

@@ -14,7 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
@@ -151,6 +150,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         mWebView.getSettings().setAllowFileAccess(true);
         // 允许小视频自动播放
         mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        mWebView.getSettings().setSavePassword(false);
 
         // 允许混合内容 解决部分手机https请求里面加载不出http的图片
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -253,7 +253,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
     }
 
     private void openFile(JSONObject jsonObj) {
-        Log.e("openFile", jsonObj.toString());
+        RLog.e("openFile", jsonObj.toString());
         //        Intent intent = new Intent(RongKitIntent.RONG_INTENT_ACTION_OPENWEBFILE);
         //        intent.setPackage(getPackageName());
         //        intent.putExtra("fileUrl", jsonObj.optString("fileUrl"));

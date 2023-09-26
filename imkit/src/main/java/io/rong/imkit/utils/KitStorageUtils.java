@@ -12,6 +12,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import androidx.annotation.StringRes;
+import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.R;
@@ -27,6 +28,7 @@ import java.nio.channels.FileChannel;
 /** Created by Android Studio. User: lvhongzhen Date: 2019-11-28 Time: 11:43 */
 public class KitStorageUtils {
     private static final String TAG = "LibStorageUtils";
+    private static final String VIDEO_SUFFIX = ".mp4";
 
     public static class MediaType {
         public static final String IMAGE = "image";
@@ -124,6 +126,11 @@ public class KitStorageUtils {
                     name = file.getName();
                 }
                 String filePath = dirFile.getPath() + "/" + name;
+                // 如果保存的视频没有后缀，则补充后缀。原因：某些机型的相册无法识别无后缀的视频文件
+                String suffix = FileUtils.getSuffix(name);
+                if (TextUtils.isEmpty(suffix)) {
+                    filePath = filePath + VIDEO_SUFFIX;
+                }
                 fis = new FileInputStream(file);
                 fos = new FileOutputStream(filePath);
                 copy(fis, fos);

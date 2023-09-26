@@ -1,6 +1,5 @@
 package io.rong.sticker.util;
 
-import android.util.Log;
 import io.rong.common.rlog.RLog;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -25,7 +24,7 @@ public class ZipUtil {
             byte[] data = new byte[BUFFER];
 
             for (String file : files) {
-                Log.v("Compress", "Adding: " + file);
+                RLog.v("Compress", "Adding: " + file);
                 fi = new FileInputStream(file);
                 try (BufferedInputStream origin = new BufferedInputStream(fi, BUFFER)) {
                     ZipEntry entry = new ZipEntry(file.substring(file.lastIndexOf("/") + 1));

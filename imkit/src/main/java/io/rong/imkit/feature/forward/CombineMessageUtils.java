@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import io.rong.common.FileUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
@@ -200,7 +199,8 @@ public class CombineMessageUtils {
         switch (type) {
             case TAG_TXT: // 文本
                 TextMessage text = (TextMessage) content;
-                html = html.replace(MSG_TEXT, optString(text.getContent()));
+                String translationString = translation(text.getContent());
+                html = html.replace(MSG_TEXT, optString(translationString));
                 break;
             case TAG_IMG_TEXT: // 图文
             case TAG_VC: // 语音
@@ -481,7 +481,7 @@ public class CombineMessageUtils {
         Uri uri = info.getPortraitUri();
         String userId = info.getUserId();
         if (uri == null || userId == null || uri.equals(URI) && userId.equals(sendUserId)) {
-            Log.d(TAG, "getUserPortrait is same uri:" + uri);
+            RLog.d(TAG, "getUserPortrait is same uri:" + uri);
             return "";
         }
         URI = uri;
@@ -557,5 +557,16 @@ public class CombineMessageUtils {
 
     public String optString(Object object) {
         return object != null ? object.toString() : "";
+    }
+
+    /** 将文本消息中的 html 符号转义 */
+    private String translation(String str) {
+        if (TextUtils.isEmpty(str)) {
+            return "";
+        }
+        return str.replace("“", "&quot;")
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
     }
 }

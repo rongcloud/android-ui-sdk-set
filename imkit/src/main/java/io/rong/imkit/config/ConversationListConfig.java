@@ -32,7 +32,7 @@ public class ConversationListConfig {
     private boolean mEnableAutomaticDownloadHQVoice = true;
     // 每页拉取的会话条数, 默认 100.
     private int mConversationCountPerPage = 100;
-    //    会话列表延时刷新时间（防止消息量过大导致卡顿）
+    //    会话列表延时刷新时间（防止消息量过大导致卡顿,此值不能设置为500ms）
     private int delayRefreshTime = 5000;
     private ProviderManager<BaseUiConversation> mProviderManager;
     private DataProcessor<Conversation> mDataProcessor;
@@ -128,7 +128,7 @@ public class ConversationListConfig {
     }
 
     /**
-     * 设置会话列表延时刷新时间
+     * 设置会话列表延时刷新时间，此值不能设置为500ms
      *
      * @param delayRefreshTime 毫秒
      */

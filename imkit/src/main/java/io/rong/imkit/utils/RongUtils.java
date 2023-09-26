@@ -29,7 +29,6 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import androidx.core.content.ContextCompat;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.RLog;
@@ -111,7 +110,7 @@ public class RongUtils {
         densityDpi = dm.densityDpi;
         statusbarheight = getStatusBarHeight(context);
         navbarheight = getNavBarHeight(context);
-        Log.d(
+        RLog.d(
                 TAG,
                 "screenWidth="
                         + screenWidth
@@ -313,7 +312,7 @@ public class RongUtils {
                             bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         } catch (OutOfMemoryError e) {
             RLog.e(TAG, "getResizedBitmap", e);
-            Log.e(
+            RLog.e(
                     "ResourceCompressHandler",
                     "OOM"
                             + "Height:"

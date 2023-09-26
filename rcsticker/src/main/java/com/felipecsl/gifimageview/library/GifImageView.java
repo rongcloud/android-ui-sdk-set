@@ -5,8 +5,8 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.ImageView;
+import io.rong.common.RLog;
 
 public class GifImageView extends ImageView implements Runnable {
     private static final String TAG = "GifDecoderView";
@@ -61,7 +61,7 @@ public class GifImageView extends ImageView implements Runnable {
             gifDecoder.read(bytes);
         } catch (final Exception e) {
             gifDecoder = null;
-            Log.e(TAG, e.getMessage(), e);
+            RLog.e(TAG, e.getMessage(), e);
             return;
         }
 
@@ -200,7 +200,7 @@ public class GifImageView extends ImageView implements Runnable {
                 frameDecodeTime = (System.nanoTime() - before) / 1000000;
                 handler.post(updateResults);
             } catch (final ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
-                Log.w(TAG, e);
+                RLog.w(TAG, "e:" + e);
             }
 
             renderFrame = false;

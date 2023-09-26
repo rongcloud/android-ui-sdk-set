@@ -52,7 +52,11 @@ public class RongConfigurationManager {
         if (!isInit) {
             IntentFilter filter = new IntentFilter();
             filter.addAction(Intent.ACTION_LOCALE_CHANGED);
-            context.registerReceiver(new SystemConfigurationChangedReceiver(), filter);
+            context.registerReceiver(
+                    new SystemConfigurationChangedReceiver(),
+                    filter,
+                    context.getApplicationInfo().packageName + ".permission.RONG_ACCESS_RECEIVER",
+                    null);
 
             // 初始化时将应用语言重新设置为之前设置的语言
             LangUtils.RCLocale locale =

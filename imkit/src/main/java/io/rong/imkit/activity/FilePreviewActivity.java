@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.core.content.FileProvider;
 import io.rong.common.FileUtils;
+import io.rong.common.LibStorageUtils;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -29,6 +31,8 @@ import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.common.DeviceUtils;
+import io.rong.imlib.filetransfer.FtUtilities;
 import io.rong.imlib.model.DownloadInfo;
 import io.rong.imlib.model.Message;
 import io.rong.message.FileMessage;
@@ -159,7 +163,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
             RLog.e(TAG, "message is null, return directly!");
             return;
         }
-
+        processReferenceMessageFileCache();
         mToasts = new ArrayList<>();
         mFileName = mFileMessage.getName();
         mFileTypeImage.setImageResource(FileTypeUtils.fileTypeImageId(this, mFileName));
@@ -172,6 +176,44 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     private void initListener() {
         IMCenter.getInstance().addMessageEventListener(mEventListener);
         IMCenter.getInstance().addOnRecallMessageListener(mRecallListener);
+    }
+
+    // 如果是引用消息，则优先查找本地缓存，找到则设置到mFileMessage中
+    private void processReferenceMessageFileCache() {
+        if (!(mMessage.getContent() instanceof ReferenceMessage)) {
+            return;
+        }
+        if (mFileMessage.getFileUrl() == null) {
+            return;
+        }
+        String name =
+                DeviceUtils.ShortMD5(Base64.NO_WRAP, mFileMessage.getFileUrl().toString())
+                        + FtUtilities.getFileSuffix(mFileMessage.getName());
+        if (TextUtils.isEmpty(name)) {
+            return;
+        }
+        if (name.length() > 25) {
+            name = name.substring(name.length() - 25);
+        }
+        String path = FileUtils.getMediaDownloadDir(this, LibStorageUtils.FILE);
+        File parentFile = new File(path);
+        if (!parentFile.exists()) {
+            return;
+        }
+        File[] allFiles = parentFile.listFiles();
+        if (allFiles == null || allFiles.length == 0) {
+            return;
+        }
+        for (File file : allFiles) {
+            if (file == null || !file.exists() || !file.isFile()) {
+                continue;
+            }
+            // 文件规则消息id+文件名，用endsWith判断；同时判断文件长度
+            if (file.getName().endsWith(name) && file.length() == mFileMessage.getSize()) {
+                mFileMessage.setLocalPath(Uri.parse("file://" + file.getPath()));
+                return;
+            }
+        }
     }
 
     private void getFileMessageStatus() {

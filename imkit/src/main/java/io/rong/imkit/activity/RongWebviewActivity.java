@@ -54,6 +54,7 @@ public class RongWebviewActivity extends RongBaseActivity {
         mWebView.setDownloadListener(new RongWebViewDownLoadListener());
         mWebView.getSettings().setDomStorageEnabled(true);
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
+        mWebView.getSettings().setSavePassword(false);
 
         String url = intent.getStringExtra("url");
         Uri data = intent.getData();

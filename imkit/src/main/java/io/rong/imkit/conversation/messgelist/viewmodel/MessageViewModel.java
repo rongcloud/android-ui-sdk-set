@@ -976,12 +976,19 @@ public class MessageViewModel extends AndroidViewModel
                     uiMessage.setProgress(event.getProgress());
                     break;
                 case SendMediaEvent.ERROR:
-                    if (event.getCode() != null
-                            && event.getCode().code
-                                    == IRongCoreEnum.CoreErrorCode.RC_MEDIA_EXCEPTION.getValue()) {
-                        ToastUtils.s(
-                                getApplication(),
-                                getApplication().getString(R.string.rc_media_upload_error));
+                    if (event.getCode() != null) {
+                        int code = event.getCode().code;
+                        if (code == IRongCoreEnum.CoreErrorCode.RC_MEDIA_EXCEPTION.getValue()) {
+                            ToastUtils.s(
+                                    getApplication(),
+                                    getApplication().getString(R.string.rc_media_upload_error));
+                        } else if (code
+                                == IRongCoreEnum.CoreErrorCode.RC_GIF_MSG_SIZE_LIMIT_EXCEED
+                                        .getValue()) {
+                            ToastUtils.s(
+                                    getApplication(),
+                                    getApplication().getString(R.string.rc_gif_message_too_large));
+                        }
                     }
                     sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();
                     msg.setSentTime(sentTime); // 更新成服务器时间
@@ -1682,8 +1689,14 @@ public class MessageViewModel extends AndroidViewModel
             int firstMessagePosition = Math.min(msgSize - 1, Math.max(firstVisibleItemPosition, 0));
             int lastMessagePosition =
                     lastPosition < msgSize && lastPosition >= 0 ? lastPosition : msgSize - 1;
-            UiMessage firstMessage = getUiMessages().get(firstMessagePosition);
-            UiMessage lastMessage = getUiMessages().get(lastMessagePosition);
+            UiMessage firstMessage = getUiMessages().get(0);
+            if (firstMessagePosition >= 0 && firstMessagePosition < msgSize) {
+                firstMessage = getUiMessages().get(firstMessagePosition);
+            }
+            UiMessage lastMessage = getUiMessages().get(msgSize - 1);
+            if (lastMessagePosition >= 0 && lastMessagePosition < msgSize) {
+                lastMessage = getUiMessages().get(lastMessagePosition);
+            }
             long topTime = firstMessage.getSentTime();
             long bottomTime = lastMessage.getSentTime();
             int size = mNewUnReadMentionMessages.size();

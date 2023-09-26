@@ -1,10 +1,12 @@
 package io.rong.imkit.notification;
 
 import android.annotation.TargetApi;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Build;
+import android.text.TextUtils;
 import io.rong.imlib.model.Message;
 
 public class NotificationConfig {
@@ -13,6 +15,23 @@ public class NotificationConfig {
     private TitleType mTitleType;
     private ForegroundOtherPageAction mOtherPageAction;
     private Interceptor mInterceptor;
+    private String categoryNotification = Notification.CATEGORY_MESSAGE; // 设置默认的category
+
+    public String getCategoryNotification() {
+        return categoryNotification;
+    }
+
+    /**
+     * 设置本地通知 category 初始化之后设置
+     *
+     * @param categoryNotification
+     */
+    public void setCategoryNotification(String categoryNotification) {
+        if (TextUtils.isEmpty(categoryNotification)) {
+            categoryNotification = Notification.CATEGORY_MESSAGE;
+        }
+        this.categoryNotification = categoryNotification;
+    }
 
     public NotificationConfig() {
         mTitleType = TitleType.TARGET_NAME;

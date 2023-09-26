@@ -46,8 +46,11 @@ public class MessageProcessor {
                                     if (!isForward) {
                                         Collections.reverse(messages);
                                     }
-                                    if (callback != null) {
-                                        callback.onSuccess(messages, false);
+                                    // 如果本地查询的消息有断档，则不抛给上层数据，使用断档接口查询最新消息
+                                    if (!isMayHasMoreMessagesBefore(messages)) {
+                                        if (callback != null) {
+                                            callback.onSuccess(messages, false);
+                                        }
                                     }
 
                                     // 无论成功或者失败，均需要再调用一次断档接口
@@ -75,6 +78,18 @@ public class MessageProcessor {
         return sentTime == 0
                 && (supportType
                         || !NetUtils.isNetWorkAvailable(IMCenter.getInstance().getContext()));
+    }
+
+    private static boolean isMayHasMoreMessagesBefore(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return false;
+        }
+        for (Message message : messages) {
+            if (message.isMayHasMoreMessagesBefore()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void getMessages(

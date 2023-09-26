@@ -51,6 +51,7 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -399,150 +400,135 @@ public class ConversationListViewModel extends AndroidViewModel
             return;
         }
         isTaskScheduled = true;
-        Runnable runnable =
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        long timestamp = 0;
-                        isTaskScheduled = false;
-                        if (loadMore) {
-                            timestamp = mLastSyncTime;
-                        }
-                        RongCoreClient.getInstance()
-                                .getConversationListByPage(
-                                        new IRongCoreCallback.ResultCallback<List<Conversation>>() {
-                                            @Override
-                                            public void onCallback(
-                                                    List<Conversation> conversations) {
-                                                mHandler.post(
-                                                        new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                sendRefreshEvent(
-                                                                        isEventManual, loadMore);
-                                                                if (conversations == null
-                                                                        || conversations.size()
-                                                                                == 0) {
-                                                                    return;
-                                                                }
-                                                                RLog.d(
-                                                                        TAG,
-                                                                        "getConversationListByPage. size:"
-                                                                                + conversations
-                                                                                        .size());
-                                                                mLastSyncTime =
-                                                                        conversations
-                                                                                .get(
-                                                                                        conversations
-                                                                                                        .size()
-                                                                                                - 1)
-                                                                                .getSentTime();
-                                                                CopyOnWriteArrayList<Conversation>
-                                                                        copyList =
-                                                                                new CopyOnWriteArrayList<>(
-                                                                                        conversations);
-                                                                List<Conversation> filterResult =
-                                                                        mDataFilter.filtered(
-                                                                                copyList);
-                                                                if (filterResult != null
-                                                                        && filterResult.size()
-                                                                                > 0) {
-                                                                    for (Conversation conversation :
-                                                                            filterResult) {
-                                                                        boolean isGathered =
-                                                                                mDataFilter
-                                                                                        .isGathered(
-                                                                                                ConversationIdentifier
-                                                                                                        .obtain(
-                                                                                                                conversation));
-                                                                        BaseUiConversation oldItem =
-                                                                                findConversationFromList(
-                                                                                        conversation
-                                                                                                .getConversationType(),
-                                                                                        conversation
-                                                                                                .getTargetId(),
-                                                                                        isGathered);
-
-                                                                        if (oldItem != null) {
-                                                                            oldItem
-                                                                                    .onConversationUpdate(
-                                                                                            conversation);
-                                                                        } else {
-                                                                            if (isGathered) {
-                                                                                mUiConversationList
-                                                                                        .add(
-                                                                                                new GatheredConversation(
-                                                                                                        mApplication
-                                                                                                                .getApplicationContext(),
-                                                                                                        conversation));
-                                                                            } else if (conversation
-                                                                                    .getConversationType()
-                                                                                    .equals(
-                                                                                            Conversation
-                                                                                                    .ConversationType
-                                                                                                    .GROUP)) {
-                                                                                mUiConversationList
-                                                                                        .add(
-                                                                                                new GroupConversation(
-                                                                                                        mApplication
-                                                                                                                .getApplicationContext(),
-                                                                                                        conversation));
-                                                                            } else if (conversation
-                                                                                            .getConversationType()
-                                                                                            .equals(
-                                                                                                    Conversation
-                                                                                                            .ConversationType
-                                                                                                            .PUBLIC_SERVICE)
-                                                                                    || conversation
-                                                                                            .getConversationType()
-                                                                                            .equals(
-                                                                                                    Conversation
-                                                                                                            .ConversationType
-                                                                                                            .APP_PUBLIC_SERVICE)) {
-                                                                                mUiConversationList
-                                                                                        .add(
-                                                                                                new PublicServiceConversation(
-                                                                                                        mApplication
-                                                                                                                .getApplicationContext(),
-                                                                                                        conversation));
-                                                                            } else {
-                                                                                mUiConversationList
-                                                                                        .add(
-                                                                                                new SingleConversation(
-                                                                                                        mApplication
-                                                                                                                .getApplicationContext(),
-                                                                                                        conversation));
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                    sort();
-                                                                    mConversationListLiveData
-                                                                            .postValue(
-                                                                                    mUiConversationList);
-                                                                }
-                                                            }
-                                                        });
-                                            }
-
-                                            @Override
-                                            public void onSuccess(
-                                                    List<Conversation> conversations) {}
-
-                                            @Override
-                                            public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                                sendRefreshEvent(isEventManual, loadMore);
-                                            }
-                                        },
-                                        timestamp,
-                                        mSizePerPage,
-                                        mSupportedTypes);
-                    }
-                };
+        GetConversationListRunnable runnable =
+                new GetConversationListRunnable(this, loadMore, isEventManual, delayTime);
         if (delayTime == 0) {
             mHandler.post(runnable);
         } else {
             mHandler.postDelayed(runnable, delayTime);
         }
+    }
+
+    private void getConversationListFromRunnable(
+            WeakReference<ConversationListViewModel> weakViewModel,
+            final boolean loadMore,
+            final boolean isEventManual,
+            final long delayTime) {
+        if (weakViewModel == null) {
+            return;
+        }
+
+        long timestamp = 0;
+        isTaskScheduled = false;
+        if (loadMore) {
+            timestamp = mLastSyncTime;
+        }
+        RongCoreClient.getInstance()
+                .getConversationListByPage(
+                        new IRongCoreCallback.ResultCallback<List<Conversation>>() {
+                            @Override
+                            public void onCallback(List<Conversation> conversations) {
+                                if (weakViewModel.get() != null) {
+                                    weakViewModel
+                                            .get()
+                                            .doUpdate(
+                                                    conversations,
+                                                    loadMore,
+                                                    isEventManual,
+                                                    delayTime);
+                                }
+                            }
+
+                            @Override
+                            public void onSuccess(List<Conversation> conversations) {}
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                if (weakViewModel.get() != null) {
+                                    weakViewModel.get().sendRefreshEvent(isEventManual, loadMore);
+                                }
+                            }
+                        },
+                        timestamp,
+                        mSizePerPage,
+                        mSupportedTypes);
+    }
+
+    private void doUpdate(
+            List<Conversation> conversations,
+            final boolean loadMore,
+            final boolean isEventManual,
+            final long delayTime) {
+        mHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        sendRefreshEvent(isEventManual, loadMore);
+                        if (conversations == null || conversations.size() == 0) {
+                            return;
+                        }
+                        RLog.d(TAG, "getConversationListByPage. size:" + conversations.size());
+                        if (mLastSyncTime <= 0 || loadMore || delayTime == mDelayRefreshTime) {
+                            mLastSyncTime =
+                                    conversations.get(conversations.size() - 1).getSentTime();
+                        }
+
+                        CopyOnWriteArrayList<Conversation> copyList =
+                                new CopyOnWriteArrayList<>(conversations);
+                        List<Conversation> filterResult = mDataFilter.filtered(copyList);
+                        if (filterResult != null && filterResult.size() > 0) {
+                            for (Conversation conversation : filterResult) {
+                                boolean isGathered =
+                                        mDataFilter.isGathered(
+                                                ConversationIdentifier.obtain(conversation));
+                                BaseUiConversation oldItem =
+                                        findConversationFromList(
+                                                conversation.getConversationType(),
+                                                conversation.getTargetId(),
+                                                isGathered);
+
+                                if (oldItem != null) {
+                                    oldItem.onConversationUpdate(conversation);
+                                } else {
+                                    if (isGathered) {
+                                        mUiConversationList.add(
+                                                new GatheredConversation(
+                                                        mApplication.getApplicationContext(),
+                                                        conversation));
+                                    } else if (conversation
+                                            .getConversationType()
+                                            .equals(Conversation.ConversationType.GROUP)) {
+                                        mUiConversationList.add(
+                                                new GroupConversation(
+                                                        mApplication.getApplicationContext(),
+                                                        conversation));
+                                    } else if (conversation
+                                                    .getConversationType()
+                                                    .equals(
+                                                            Conversation.ConversationType
+                                                                    .PUBLIC_SERVICE)
+                                            || conversation
+                                                    .getConversationType()
+                                                    .equals(
+                                                            Conversation.ConversationType
+                                                                    .APP_PUBLIC_SERVICE)) {
+                                        mUiConversationList.add(
+                                                new PublicServiceConversation(
+                                                        mApplication.getApplicationContext(),
+                                                        conversation));
+                                    } else {
+                                        mUiConversationList.add(
+                                                new SingleConversation(
+                                                        mApplication.getApplicationContext(),
+                                                        conversation));
+                                    }
+                                }
+                            }
+                            sort();
+                            mConversationListLiveData.postValue(mUiConversationList);
+                        }
+                    }
+                });
     }
 
     /**
@@ -928,5 +914,33 @@ public class ConversationListViewModel extends AndroidViewModel
             baseUiConversation.onGroupMemberUpdate(groupUserInfo);
         }
         refreshConversationList();
+    }
+
+    private class GetConversationListRunnable implements Runnable {
+        private WeakReference<ConversationListViewModel> mWeakViewModel;
+        final boolean mLoadMore;
+        final boolean mIsEventManual;
+        final long mDelayTime;
+
+        protected GetConversationListRunnable(
+                ConversationListViewModel viewModel,
+                final boolean loadMore,
+                final boolean isEventManual,
+                final long delayTime) {
+            mWeakViewModel = new WeakReference<>(viewModel);
+            mLoadMore = loadMore;
+            mIsEventManual = isEventManual;
+            mDelayTime = delayTime;
+        }
+
+        @Override
+        public void run() {
+            if (mWeakViewModel.get() != null) {
+                mWeakViewModel
+                        .get()
+                        .getConversationListFromRunnable(
+                                mWeakViewModel, mLoadMore, mIsEventManual, mDelayTime);
+            }
+        }
     }
 }

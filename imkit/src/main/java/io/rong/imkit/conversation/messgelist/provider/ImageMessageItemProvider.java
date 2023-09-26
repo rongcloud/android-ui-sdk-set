@@ -46,6 +46,7 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
         mConfig.showContentBubble = false;
         mConfig.showProgress = false;
         mConfig.showReadState = true;
+        mConfig.showWarning = false;
         Context context = IMCenter.getInstance().getContext();
         if (context != null) {
             Resources resources = context.getResources();
@@ -124,6 +125,7 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                                         Object model,
                                         Target<Drawable> target,
                                         boolean isFirstResource) {
+                                    mConfig.showWarning = true;
                                     ViewGroup.LayoutParams params = view.getLayoutParams();
                                     params.height = ScreenUtils.dip2px(view.getContext(), 35);
                                     params.width = ScreenUtils.dip2px(view.getContext(), 35);
@@ -138,12 +140,14 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                                         Target<Drawable> target,
                                         DataSource dataSource,
                                         boolean isFirstResource) {
+                                    mConfig.showWarning = true;
                                     measureLayoutParams(holder.getView(R.id.rl_content), resource);
                                     return false;
                                 }
                             })
                     .into(view);
         } else {
+            mConfig.showWarning = true;
             ViewGroup.LayoutParams params = view.getLayoutParams();
             params.height = ScreenUtils.dip2px(view.getContext(), 35);
             params.width = ScreenUtils.dip2px(view.getContext(), 35);

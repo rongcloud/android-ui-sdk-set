@@ -31,7 +31,7 @@
     <string name="rc_conversation_summary_content_vst">[音视频通话]</string>
     <string name="rc_conversation_summary_content_combine">[聊天记录]</string>
     <string name="rc_conversation_summary_content_draft">[草稿]</string>
-    <string name="rc_conversation_summary_content_mentioned">[有人@我]</string>
+    <string name="rc_conversation_summary_content_mentioned">[有人 @ 我]</string>
     <string name="rc_conversation_summary_content_burn">[阅后即焚]</string>
 
     //聚合会话名称
@@ -517,7 +517,8 @@
     <string name="rc_load_local_message">网络异常，查看本地历史消息？</string>
 
     <string name="rc_message_too_long">你输入的文本过长，无法发送</string>
-    
+    <string name="rc_gif_message_too_large">该 GIF 图尺寸过大，无法发送</string>
+
     <string name="rc_translate_failed_try_again">翻译失败，请重试</string>
     <string name="rc_translate_message">翻译消息</string>
 </resources>

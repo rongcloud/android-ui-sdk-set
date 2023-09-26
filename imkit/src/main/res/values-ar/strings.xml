@@ -498,6 +498,7 @@
     <string name = "rc_load_local_message"> خطأ في الشبكة ، عرض رسائل السجل المحلي؟ </string>
 
     <string name="rc_message_too_long">النص الذي أدخلته طويل جدًا بحيث لا يمكن إرساله</string>
+    <string name="rc_gif_message_too_large">فشل في الإرسال، حجم ملف ال GIF كبير جداً</string>
 
     <string name="rc_permission_request_failed">فشل في الحصول على إذن</string>
 

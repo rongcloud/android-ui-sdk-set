@@ -3,6 +3,7 @@ package io.rong.sight.player;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.WindowManager;
 import androidx.annotation.NonNull;
@@ -35,6 +36,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
     private static final String TAG = "SightPlayerActivity";
     private static final int VIDEO_MESSAGE_COUNT = 10; // 每次获取的图片消息数量。
+    private static final long LOAD_MORE_VIDEO_DELAYED_TIME = 800;
     protected ViewPager2 mViewPager;
     protected SightMessage mCurrentSightMessage;
     protected Message mMessage;
@@ -43,7 +45,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
     protected String mTargetId;
 
-    private boolean isFirstTime = true;
     private VideoPagerAdapter mVideoPagerAdapter;
     private int currentSelectMessageId = -1;
 
@@ -193,15 +194,24 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
         ArrayList<Message> messages = new ArrayList<>();
         mViewPager.setAdapter(mVideoPagerAdapter);
+        // 先加载当前视频消息，再加载前面和后面的视频消息
+        messages.add(mMessage);
+        mVideoPagerAdapter.addMessage(messages, mFromList, true);
         if (isLoadSingleMessage()) {
-            messages.add(mMessage);
-            mVideoPagerAdapter.addMessage(messages, mFromList, true);
-        } else {
-            getSightMessageList(
-                    mMessage.getMessageId(), RongCommonDefine.GetMessageDirection.FRONT);
-            getSightMessageList(
-                    mMessage.getMessageId(), RongCommonDefine.GetMessageDirection.BEHIND);
+            return;
         }
+        // 延迟前面和后面的视频消息，加载过快会导致ViewPager当前Item不是第一个
+        new Handler()
+                .postDelayed(
+                        () -> {
+                            getSightMessageList(
+                                    mMessage.getMessageId(),
+                                    RongCommonDefine.GetMessageDirection.FRONT);
+                            getSightMessageList(
+                                    mMessage.getMessageId(),
+                                    RongCommonDefine.GetMessageDirection.BEHIND);
+                        },
+                        LOAD_MORE_VIDEO_DELAYED_TIME);
     }
 
     // 阅后即焚、引用消息、超级群类型会话，只显示一个
@@ -241,23 +251,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
                                                     if (direction.equals(
                                                             RongCommonDefine.GetMessageDirection
                                                                     .FRONT)) {
-                                                        if (isFirstTime) {
-                                                            lists.add(mMessage);
-                                                        }
                                                         mVideoPagerAdapter.addMessage(
                                                                 lists, mFromList, true);
-                                                        if (isFirstTime) {
-                                                            int index =
-                                                                    mVideoPagerAdapter
-                                                                            .getIndexByMessageId(
-                                                                                    mMessage
-                                                                                            .getMessageId());
-                                                            if (index != -1) {
-                                                                mViewPager.setCurrentItem(
-                                                                        index, false);
-                                                            }
-                                                            isFirstTime = false;
-                                                        }
                                                     } else if (lists.size() > 0) {
                                                         mVideoPagerAdapter.addMessage(
                                                                 lists, mFromList, false);

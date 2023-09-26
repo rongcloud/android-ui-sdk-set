@@ -152,6 +152,8 @@ public class NotificationUtil {
                                                 context.getPackageName()));
         Notification notification;
         boolean isLollipop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        String categoryNotification =
+                RongConfigCenter.notificationConfig().getCategoryNotification();
         int smallIcon =
                 context.getResources()
                         .getIdentifier(
@@ -186,6 +188,9 @@ public class NotificationUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             builder.setGroupSummary(false).setGroup("group");
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            builder.setCategory(categoryNotification);
         }
         builder.setLargeIcon(appIcon);
         builder.setSmallIcon(smallIcon);
