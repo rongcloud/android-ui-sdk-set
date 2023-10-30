@@ -295,7 +295,11 @@ public class CameraView extends RelativeLayout
                     public void onClick(View v) {
                         if (mCamera != null) {
                             RLog.i(TAG, "Touch To Focus");
-                            mCamera.autoFocus(CameraView.this);
+                            try {
+                                mCamera.autoFocus(CameraView.this);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });

@@ -36,6 +36,9 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
 import io.rong.imlib.common.NetUtils;
@@ -179,47 +182,36 @@ public class CombineWebViewActivity extends RongBaseActivity {
     }
 
     private void openSight(JSONObject jsonObj) {
-        String mediaUrl = jsonObj.optString("fileUrl");
-        int duration = jsonObj.optInt("duration");
-        String base64 = jsonObj.optString("imageBase64");
-        int dotIndex = base64.indexOf(",");
-        base64 = base64.substring(dotIndex + 1);
-
-        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
-        String sightThumb = encodeFile.getThumb();
-        String sightName = encodeFile.getName();
-
+        SightMessage sightMessage = getSightMessage(jsonObj);
         Message message = new Message();
-
-        SightMessage sightMessage = new SightMessage();
-        sightMessage.setThumbUri(Uri.parse(FILE + sightThumb + sightName));
-        sightMessage.setMediaUrl(Uri.parse(mediaUrl));
-        sightMessage.setDuration(duration);
-        if (new IsSightFileExists(sightMessage, message.getMessageId()).invoke()) {
-            String sightPath =
-                    LibStorageUtils.getMediaDownloadDir(
-                            getApplicationContext(), LibStorageUtils.VIDEO);
-            String name =
-                    message.getMessageId() + "_" + DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
-            if (sightPath.startsWith(FILE)) {
-                sightPath = sightPath.substring(7);
-            }
-            sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
-        }
-
         message.setContent(sightMessage);
-        message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
-        message.setConversationType(Conversation.ConversationType.PRIVATE);
 
-        ComponentName cn =
-                new ComponentName(
-                        CombineWebViewActivity.this, "io.rong.sight.player.SightPlayerActivity");
-        Intent intent = new Intent();
-        intent.setComponent(cn);
-        intent.putExtra("Message", message);
-        intent.putExtra("SightMessage", sightMessage);
-        intent.putExtra("fromSightListImageVisible", false);
-        startActivity(intent);
+        // 此处的 会话类型和会话 id 都是不正确的，仅当做占位使用
+        message.setConversationType(Conversation.ConversationType.PRIVATE);
+        message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
+
+        if (mMessageId <= 0) {
+            // 非法的消息 id，那么直接跳转
+            routeToSightPlayerActivity(message, sightMessage);
+            return;
+        }
+        RongCoreClient.getInstance()
+                .getMessage(
+                        mMessageId,
+                        new IRongCoreCallback.ResultCallback<Message>() {
+                            @Override
+                            public void onSuccess(Message msg) {
+                                // 拿到正确消息的时候再修正会话类型和会话 id
+                                message.setConversationType(msg.getConversationType());
+                                message.setTargetId(msg.getTargetId());
+                                routeToSightPlayerActivity(message, sightMessage);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                routeToSightPlayerActivity(message, sightMessage);
+                            }
+                        });
     }
 
     private void openImage(JSONObject jsonObj) {
@@ -322,6 +314,56 @@ public class CombineWebViewActivity extends RongBaseActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private SightMessage getSightMessage(JSONObject jsonObj) {
+        String mediaUrl = jsonObj.optString("fileUrl");
+        int duration = jsonObj.optInt("duration");
+        String base64 = jsonObj.optString("imageBase64");
+        int dotIndex = base64.indexOf(",");
+        base64 = base64.substring(dotIndex + 1);
+
+        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
+        String sightThumb = encodeFile.getThumb();
+        String sightName = encodeFile.getName();
+
+        Message message = new Message();
+
+        SightMessage sightMessage = new SightMessage();
+        sightMessage.setThumbUri(Uri.parse(FILE + sightThumb + sightName));
+        sightMessage.setMediaUrl(Uri.parse(mediaUrl));
+        sightMessage.setDuration(duration);
+        if (new IsSightFileExists(sightMessage, message.getMessageId()).invoke()) {
+            String sightPath =
+                    LibStorageUtils.getMediaDownloadDir(
+                            getApplicationContext(), LibStorageUtils.VIDEO);
+            String name =
+                    message.getMessageId() + "_" + DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
+            if (sightPath.startsWith(FILE)) {
+                sightPath = sightPath.substring(7);
+            }
+            sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
+        }
+        return sightMessage;
+    }
+
+    private void routeToSightPlayerActivity(Message message, SightMessage sightMessage) {
+        runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        ComponentName cn =
+                                new ComponentName(
+                                        CombineWebViewActivity.this,
+                                        "io.rong.sight.player.SightPlayerActivity");
+                        Intent intent = new Intent();
+                        intent.setComponent(cn);
+                        intent.putExtra("Message", message);
+                        intent.putExtra("SightMessage", sightMessage);
+                        intent.putExtra("fromSightListImageVisible", false);
+                        startActivity(intent);
+                    }
+                });
     }
 
     private static class DownloadTask extends AsyncTask<String, Void, Void> {

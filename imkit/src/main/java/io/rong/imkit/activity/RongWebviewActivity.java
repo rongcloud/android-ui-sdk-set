@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import io.rong.common.RLog;
 import io.rong.common.RongWebView;
 import io.rong.imkit.R;
+import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import java.util.List;
 
@@ -138,18 +139,30 @@ public class RongWebviewActivity extends RongBaseActivity {
                 RLog.e(TAG, "onReceivedSslError but activity is finish");
                 return;
             }
-            final AlertDialog.Builder builder = new AlertDialog.Builder(RongWebviewActivity.this);
-            builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
-            builder.setNegativeButton(
-                    R.string.rc_cancel,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            handler.cancel();
-                        }
-                    });
-            final AlertDialog dialog = builder.create();
-            dialog.show();
+            FeatureConfig.SSLInterceptor interceptor =
+                    RongConfigCenter.featureConfig().getSSLInterceptor();
+            boolean check = false;
+            if (interceptor != null) {
+                check = interceptor.check(error.getCertificate());
+            }
+            if (check) {
+                handler.proceed();
+            } else {
+                final AlertDialog.Builder builder =
+                        new AlertDialog.Builder(RongWebviewActivity.this);
+                builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
+                builder.setNegativeButton(
+                        R.string.rc_cancel,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                handler.cancel();
+                            }
+                        });
+
+                final AlertDialog dialog = builder.create();
+                dialog.show();
+            }
         }
     }
 

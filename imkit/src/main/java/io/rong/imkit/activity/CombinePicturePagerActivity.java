@@ -1,6 +1,7 @@
 package io.rong.imkit.activity;
 
 import android.os.Bundle;
+import io.rong.common.FileUtils;
 import io.rong.imkit.R;
 import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
@@ -35,7 +36,7 @@ public class CombinePicturePagerActivity extends PicturePagerActivity {
                 new ImageInfo(
                         mMessage,
                         mCurrentImageMessage.getThumUri(),
-                        mCurrentImageMessage.getLocalUri() == null
+                        !FileUtils.isFileExistsWithUri(this, mCurrentImageMessage.getLocalUri())
                                 ? mCurrentImageMessage.getRemoteUri()
                                 : mCurrentImageMessage.getLocalUri()));
         mImageAdapter.addData(lists, true);

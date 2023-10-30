@@ -174,6 +174,7 @@ public class RecommendTab implements IEmoticonTab {
                                                     new Runnable() {
                                                         @Override
                                                         public void run() {
+                                                            task = null;
                                                             holder.downloadBtn.setStatus(
                                                                     DownloadProgressView
                                                                             .NOT_DOWNLOAD);

@@ -237,7 +237,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                     new ImageInfo(
                             mMessage,
                             mCurrentImageMessage.getThumUri(),
-                            mCurrentImageMessage.getLocalUri() == null
+                            !FileUtils.isFileExistsWithUri(this, mCurrentImageMessage.getLocalUri())
                                     ? mCurrentImageMessage.getRemoteUri()
                                     : mCurrentImageMessage.getLocalUri()));
             mImageAdapter.addData(lists, true);
@@ -291,7 +291,10 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                                 ImageMessage imageMessage =
                                                         (ImageMessage) message.getContent();
                                                 Uri largeImageUri =
-                                                        imageMessage.getLocalUri() == null
+                                                        !FileUtils.isFileExistsWithUri(
+                                                                        PicturePagerActivity.this,
+                                                                        mCurrentImageMessage
+                                                                                .getLocalUri())
                                                                 ? imageMessage.getRemoteUri()
                                                                 : imageMessage.getLocalUri();
 
@@ -313,8 +316,11 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                                     new ImageInfo(
                                                             mMessage,
                                                             mCurrentImageMessage.getThumUri(),
-                                                            mCurrentImageMessage.getLocalUri()
-                                                                            == null
+                                                            !FileUtils.isFileExistsWithUri(
+                                                                            PicturePagerActivity
+                                                                                    .this,
+                                                                            mCurrentImageMessage
+                                                                                    .getLocalUri())
                                                                     ? mCurrentImageMessage
                                                                             .getRemoteUri()
                                                                     : mCurrentImageMessage
