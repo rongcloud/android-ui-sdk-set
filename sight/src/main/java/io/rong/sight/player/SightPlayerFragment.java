@@ -412,8 +412,12 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
                         return;
                     }
                     fragment.rlSightDownload.setVisibility(View.GONE);
-                    fragment.mThumbImageView.setVisibility(View.GONE);
-                    fragment.mSightDownloadProgress.setVisibility(View.GONE);
+                    if (fragment.mThumbImageView != null) {
+                        fragment.mThumbImageView.setVisibility(View.GONE);
+                    }
+                    if (fragment.mSightDownloadProgress != null) {
+                        fragment.mSightDownloadProgress.setVisibility(View.GONE);
+                    }
                     fragment.mSightMessage = (SightMessage) message.getContent();
                     fragment.mMessage = message;
                     fragment.initSightPlayer();
@@ -451,8 +455,10 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
                         && uri.equals(fragment.mSightMessage.getMediaUrl())) {
                     RLog.e(TAG, "DownloadEvent:" + "coming ===");
                     fragment.mProgress = progress;
-                    fragment.mSightDownloadProgress.setVisibility(View.VISIBLE);
-                    fragment.mSightDownloadProgress.setProgress(fragment.mProgress, true);
+                    if (fragment.mSightDownloadProgress != null) {
+                        fragment.mSightDownloadProgress.setVisibility(View.VISIBLE);
+                        fragment.mSightDownloadProgress.setProgress(fragment.mProgress, true);
+                    }
                 }
             }
         }
@@ -468,7 +474,9 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
                 if (uri != null
                         && fragment.mSightMessage != null
                         && uri.equals(fragment.mSightMessage.getMediaUrl())) {
-                    fragment.mSightDownloadProgress.setVisibility(View.GONE);
+                    if (fragment.mSightDownloadProgress != null) {
+                        fragment.mSightDownloadProgress.setVisibility(View.GONE);
+                    }
                     fragment.mSightDownloadFailedReminder.setVisibility(View.VISIBLE);
                     fragment.mSightDownloadFailedReminder.setOnClickListener(
                             new View.OnClickListener() {

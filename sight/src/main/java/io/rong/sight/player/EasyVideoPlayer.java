@@ -810,9 +810,11 @@ public class EasyVideoPlayer extends FrameLayout
         mSurfaceAvailable = true;
         mSurface = new Surface(surfaceTexture);
         if (mIsPrepared) {
-            mPlayer.setSurface(mSurface);
-            if ("oppo".equals(Build.BRAND.toLowerCase()) && "OPPO R9sk".equals(Build.MODEL)) {
-                mPlayer.seekTo(getCurrentPosition());
+            if (mPlayer != null) {
+                mPlayer.setSurface(mSurface);
+                if ("oppo".equals(Build.BRAND.toLowerCase()) && "OPPO R9sk".equals(Build.MODEL)) {
+                    mPlayer.seekTo(getCurrentPosition());
+                }
             }
         } else {
             prepare();
@@ -822,7 +824,9 @@ public class EasyVideoPlayer extends FrameLayout
     @Override
     public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
         RLog.d(TAG, "Surface texture changed: " + width + " " + height);
-        adjustAspectRatio(width, height, mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
+        if (mPlayer != null) {
+            adjustAspectRatio(width, height, mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
+        }
     }
 
     @Override
@@ -957,7 +961,7 @@ public class EasyVideoPlayer extends FrameLayout
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btnPlayPause) {
-            if (mPlayer.isPlaying()) {
+            if (isPlaying()) {
                 pause();
             } else {
                 if (mHideControlsOnPlay && !mControlsDisabled) hideControls();

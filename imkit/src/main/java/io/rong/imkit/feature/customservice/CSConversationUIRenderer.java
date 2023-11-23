@@ -210,6 +210,9 @@ public class CSConversationUIRenderer implements IConversationUIRenderer {
     }
 
     private void configRongExtension(CustomServiceConfig customServiceConfig) {
+        if (mRongExtension == null || customServiceConfig == null) {
+            return;
+        }
         if (customServiceConfig.evaEntryPoint.equals(
                 CustomServiceConfig.CSEvaEntryPoint.EVA_EXTENSION)) {
             mRongExtension
@@ -235,7 +238,13 @@ public class CSConversationUIRenderer implements IConversationUIRenderer {
     }
 
     private void setRongExtensionBarMode(CustomServiceMode customServiceMode) {
+        if (mRongExtension == null) {
+            return;
+        }
         InputPanel inputPanel = mRongExtension.getInputPanel();
+        if (inputPanel == null) {
+            return;
+        }
 
         switch (customServiceMode) {
             case CUSTOM_SERVICE_MODE_NO_SERVICE:
@@ -266,11 +275,14 @@ public class CSConversationUIRenderer implements IConversationUIRenderer {
     }
 
     private void destroyConversation() {
+        if (mFragment == null) {
+            return;
+        }
         FragmentManager fm = mFragment.getChildFragmentManager();
-        if (fm.getBackStackEntryCount() > 0) {
+        if (fm != null && fm.getBackStackEntryCount() > 0) {
             fm.popBackStack();
         } else {
-            if (mFragment != null && mFragment.getActivity() != null) {
+            if (mFragment.getActivity() != null) {
                 mFragment.getActivity().finish();
             }
         }

@@ -708,7 +708,9 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                     new MediaPlayer.OnPreparedListener() {
                         @Override
                         public void onPrepared(MediaPlayer mp) {
-                            mediaPlayer.start();
+                            if (mediaPlayer != null) {
+                                mediaPlayer.start();
+                            }
                         }
                     });
         } catch (Exception e) {

@@ -1,12 +1,13 @@
 package io.rong.imkit.widget;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.SpannableStringBuilder;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import io.rong.imkit.IMCenter;
@@ -15,6 +16,7 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.widget.BaseDialogFragment;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.utils.TextViewUtils;
+import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.message.RecallNotificationMessage;
@@ -31,6 +33,11 @@ public class ReferenceDialog extends BaseDialogFragment
     @Override
     protected void findView() {
         referenceShowText = mRootView.findViewById(R.id.rc_reference_window_text);
+        referenceShowText.setOnLongClickListener(
+                view -> {
+                    showCopyDialog();
+                    return false;
+                });
         referenceShowText.setMovementMethod(
                 new LinkTextViewMovementMethod(
                         new ILinkClickListener() {
@@ -49,17 +56,6 @@ public class ReferenceDialog extends BaseDialogFragment
 
     @Override
     protected void initView() {
-        referenceShowText.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ViewParent parent = view.getParent();
-                        if (parent instanceof View) {
-                            ((View) parent).performClick();
-                        }
-                    }
-                });
-
         mRootView.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -135,5 +131,37 @@ public class ReferenceDialog extends BaseDialogFragment
                     .show();
         }
         return false;
+    }
+
+    private void showCopyDialog() {
+        if (getActivity() == null || getActivity().isDestroyed() || getActivity().isFinishing()) {
+            return;
+        }
+        String[] items = new String[] {getString(R.string.rc_dialog_item_message_copy)};
+        OptionsPopupDialog.newInstance(getActivity(), items)
+                .setOptionsPopupDialogListener(
+                        new OptionsPopupDialog.OnOptionsItemClickedListener() {
+                            @Override
+                            public void onOptionsItemClicked(int which) {
+                                if (which == 0) {
+                                    copyText(mUiMessage.getReferenceContentSpannable().toString());
+                                }
+                            }
+                        })
+                .show();
+    }
+
+    private void copyText(String text) {
+        if (getActivity() == null || getActivity().isDestroyed() || getActivity().isFinishing()) {
+            return;
+        }
+        ClipboardManager clipboard =
+                (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            try {
+                clipboard.setPrimaryClip(ClipData.newPlainText(null, text));
+            } catch (Exception e) {
+            }
+        }
     }
 }

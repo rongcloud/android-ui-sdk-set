@@ -110,6 +110,12 @@ public class Recognizer extends RelativeLayout implements RecognizerListener {
         if (null == mIat) {
             mIat = SpeechRecognizer.createRecognizer(getContext(), mInitListener);
         }
+        // 如果SpeechUtility.createUtility构建异常，导致SpeechUtility.getUtility()为空
+        // 则导致SpeechRecognizer.createRecognizer可能返回null
+        if (null == mIat) {
+            RLog.e(TAG, "startRecognize createRecognizer error");
+            return;
+        }
         if (mIat.isListening()) {
             return;
         }
