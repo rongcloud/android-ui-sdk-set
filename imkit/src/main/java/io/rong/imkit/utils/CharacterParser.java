@@ -1,6 +1,6 @@
 package io.rong.imkit.utils;
 
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 
 /** Java汉字转换为拼音 */
 public class CharacterParser {

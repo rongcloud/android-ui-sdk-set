@@ -11,7 +11,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 
 public class PictureVideoPlayActivity extends PictureBaseActivity

@@ -1,5 +1,7 @@
 package io.rong.imkit.utils;
 
+import android.annotation.SuppressLint;
+import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +16,7 @@ import android.text.TextUtils;
 import androidx.annotation.StringRes;
 import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imlib.common.SavePathUtils;
 import java.io.File;
@@ -183,9 +185,10 @@ public class KitStorageUtils {
                 name = file.getName();
             }
             Uri uri = insertVideoIntoMediaStore(context, name);
-            if (uri != null) {
-                filePath = uri.getPath();
+            if (uri == null) {
+                return false;
             }
+            filePath = uri.getPath();
             try {
                 ParcelFileDescriptor w = context.getContentResolver().openFileDescriptor(uri, "w");
                 writeToPublicDir(file, w);
@@ -276,6 +279,9 @@ public class KitStorageUtils {
                     }
                 }
                 Uri uri = insertImageIntoMediaStore(pContext, name, imgMimeType);
+                if (uri == null) {
+                    return false;
+                }
                 try {
                     ParcelFileDescriptor w =
                             pContext.getContentResolver().openFileDescriptor(uri, "w");
@@ -293,26 +299,52 @@ public class KitStorageUtils {
     }
 
     public static Uri insertImageIntoMediaStore(Context context, String fileName, String mimeType) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-        contentValues.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType);
-        Uri uri =
-                context.getContentResolver()
-                        .insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        ContentResolver resolver = context.getContentResolver();
+        if (!checkUriValid(resolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)) {
+            RLog.e(TAG, "insertImageIntoMediaStore error: uri valid");
+            return null;
+        }
+
+        Uri uri = null;
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+            contentValues.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis());
+            contentValues.put(MediaStore.Images.Media.MIME_TYPE, mimeType);
+            uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+        } catch (Exception e) {
+            RLog.e(TAG, "insertImageIntoMediaStore error: ", e);
+        }
         return uri;
     }
 
     public static Uri insertVideoIntoMediaStore(Context context, String fileName) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, fileName);
-        contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
-        contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+        ContentResolver resolver = context.getContentResolver();
+        if (!checkUriValid(resolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)) {
+            RLog.e(TAG, "insertVideoIntoMediaStore error: uri valid");
+            return null;
+        }
 
-        Uri uri =
-                context.getContentResolver()
-                        .insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+        Uri uri = null;
+        try {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, fileName);
+            contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
+            contentValues.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+            uri = resolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
+        } catch (Exception e) {
+            RLog.e(TAG, "insertVideoIntoMediaStore error: ", e);
+        }
         return uri;
+    }
+
+    private static boolean checkUriValid(ContentResolver resolver, Uri uri) {
+        boolean acquire = false;
+        try (@SuppressLint("Recycle")
+                ContentProviderClient client = resolver.acquireContentProviderClient(uri)) {
+            acquire = client != null;
+        }
+        return acquire;
     }
 
     public static void writeToPublicDir(File pFile, ParcelFileDescriptor pParcelFileDescriptor) {

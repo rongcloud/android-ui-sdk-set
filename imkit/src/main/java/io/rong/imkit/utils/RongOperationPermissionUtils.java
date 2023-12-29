@@ -1,7 +1,7 @@
 package io.rong.imkit.utils;
 
 import android.content.Context;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imlib.IMLibExtensionModuleManager;
 import io.rong.imlib.model.HardwareResource;
 import java.lang.reflect.Method;

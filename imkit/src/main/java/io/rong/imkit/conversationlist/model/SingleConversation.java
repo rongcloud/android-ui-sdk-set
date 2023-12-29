@@ -7,7 +7,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import androidx.annotation.NonNull;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;

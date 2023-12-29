@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingChild;
 import androidx.core.view.NestedScrollingParent;
 import androidx.viewpager.widget.ViewPager;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.widget.refresh.api.RefreshContent;
 import io.rong.imkit.widget.refresh.api.RefreshKernel;

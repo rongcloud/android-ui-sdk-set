@@ -10,7 +10,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.widget.adapter.BaseListViewAdapter;

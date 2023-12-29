@@ -3,7 +3,7 @@ package io.rong.imkit;
 import android.app.Application;
 import android.content.Context;
 import android.text.TextUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.ConversationListBehaviorListener;
 import io.rong.imkit.config.RongConfigCenter;
@@ -483,6 +483,21 @@ public class IMCenter {
         RongConfigCenter.conversationListConfig().setBehaviorListener(listener);
     }
 
+    /**
+     * 连接服务器，在整个应用程序全局，只需要调用一次。
+     *
+     * <p>调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一： 第一、连接成功，回调 onSuccess(userId)。 第二、超时，回调
+     * onError(RC_CONNECT_TIMEOUT)，并不再重连。 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如 token 非法），并不再重连。
+     * 连接成功后，SDK 将接管所有的重连处理。当因为网络原因断线的情况下，SDK 会不停重连直到连接成功为止，不需要您做额外的连接操作。
+     *
+     * @param token 从服务端获取的 <a href="http://docs.rongcloud.cn/android#token">用户身份令牌（ Token）</a>。
+     * @param timeLimit 连接超时时间，单位：秒。{@code timeLimit <= 0}，则 IM 将一直连接，直到连接成功或者无法连接（如 {@code token}
+     *     非法） {@code timeLimit > 0} ,则 IM 将最多连接 timeLimit 秒： 如果在 timeLimit
+     *     秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连； 如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError
+     *     告知连接超时，您需要再自行调用 connect 接口
+     * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     */
     public void connect(
             String token, int timeLimit, final RongIMClient.ConnectCallback connectCallback) {
         ConnectOption connectOption = ConnectOption.obtain(token, timeLimit);
@@ -555,7 +570,7 @@ public class IMCenter {
      *
      * @param conversationType 会话类型。不支持传入 ConversationType.CHATROOM。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 清空是否成功的回调。
+     * @param callback 清空是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void clearMessages(
             final Conversation.ConversationType conversationType,
@@ -588,6 +603,13 @@ public class IMCenter {
         connect(token, -1, connectCallback);
     }
 
+    /**
+     * 撤回消息
+     *
+     * @param message 将被撤回的消息
+     * @param pushContent 被撤回时，通知栏显示的信息
+     * @param callback 成功回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     */
     public void recallMessage(
             final Message message, String pushContent, final RongIMClient.ResultCallback callback) {
         RongIMClient.getInstance()
@@ -639,6 +661,7 @@ public class IMCenter {
      * @param pushData 远程推送附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback 发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendMessage(
             final Conversation.ConversationType type,
@@ -651,6 +674,17 @@ public class IMCenter {
         sendMessage(message, pushContent, pushData, callback);
     }
 
+    /**
+     * 发送消息。 通过 {@link IRongCallback.ISendMessageCallback} 中的方法回调发送的消息状态及消息体。
+     *
+     * @param message 将要发送的消息体。
+     * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到 push 消息。 如果发送 sdk
+     *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
+     * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
+     *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
+     * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     */
     public void sendMessage(
             Message message,
             String pushContent,
@@ -668,6 +702,7 @@ public class IMCenter {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendMessage(
             Message message,
@@ -745,6 +780,7 @@ public class IMCenter {
      * @param targetId 会话 id。根据不同的 conversationType，可能是用户 id、讨论组 id、群组 id 或聊天室 id。
      * @param timestamp 时间戳
      * @param callback 发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendReadReceiptMessage(
             final Conversation.ConversationType conversationType,
@@ -804,7 +840,7 @@ public class IMCenter {
      * @param type 会话类型
      * @param targetId 会话 id
      * @param timestamp 会话中已读的最后一条消息的发送时间戳 {@link Message#getSentTime()}
-     * @param callback 回调函数
+     * @param callback 回调函数。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void syncConversationReadStatus(
             final Conversation.ConversationType type,
@@ -820,7 +856,7 @@ public class IMCenter {
      *
      * @param conversationIdentifier 会话标识
      * @param timestamp 会话中已读的最后一条消息的发送时间戳 {@link Message#getSentTime()}
-     * @param callback 回调函数
+     * @param callback 回调函数。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void syncConversationReadStatus(
             final ConversationIdentifier conversationIdentifier,
@@ -874,6 +910,7 @@ public class IMCenter {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMediaMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendMediaMessage(
             Message message,
@@ -892,6 +929,7 @@ public class IMCenter {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMediaMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      * @param option 发送消息附加选项，目前仅支持设置 isVoIPPush，如果对端设备是 iOS，设置 isVoIPPush 为 True，会走 VoIP 通道推送 Push。
      * @since 5.4.4
      */
@@ -1098,6 +1136,7 @@ public class IMCenter {
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param userIds 会话中将会接收到此消息的用户列表。
      * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendDirectionalMessage(
             Conversation.ConversationType type,
@@ -1186,6 +1225,7 @@ public class IMCenter {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback 发送消息的回调 {@link RongIMClient.SendMediaMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendDirectionalMediaMessage(
             Message message,
@@ -1294,7 +1334,7 @@ public class IMCenter {
      * @param recordTime 清除消息截止时间戳，{@code 0 <= recordTime <= }当前会话最后一条消息的 sentTime,0
      *     清除所有消息，其他值清除小于等于 recordTime 的消息。
      * @param cleanRemote 是否删除服务器端消息
-     * @param callback 清除消息的回调。
+     * @param callback 清除消息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void cleanHistoryMessages(
             final Conversation.ConversationType conversationType,
@@ -1319,7 +1359,7 @@ public class IMCenter {
      * @param recordTime 清除消息截止时间戳，{@code 0 <= recordTime <= }当前会话最后一条消息的 sentTime,0
      *     清除所有消息，其他值清除小于等于 recordTime 的消息。
      * @param cleanRemote 是否删除服务器端消息
-     * @param callback 清除消息的回调。
+     * @param callback 清除消息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void cleanHistoryMessages(
             final ConversationIdentifier conversationIdentifier,
@@ -1368,7 +1408,7 @@ public class IMCenter {
      *
      * @param conversationType 会话类型。不支持传入 ConversationType.CHATROOM。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 清除是否成功的回调。
+     * @param callback 清除是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void clearMessagesUnreadStatus(
             final Conversation.ConversationType conversationType,
@@ -1382,7 +1422,7 @@ public class IMCenter {
      * 清除某会话的消息未读状态
      *
      * @param conversationIdentifier 会话标识。
-     * @param callback 清除是否成功的回调。
+     * @param callback 清除是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void clearMessagesUnreadStatus(
             final ConversationIdentifier conversationIdentifier,
@@ -1422,7 +1462,7 @@ public class IMCenter {
      *
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param callback 是否清除成功的回调。
+     * @param callback 是否清除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void clearTextMessageDraft(
             Conversation.ConversationType conversationType,
@@ -1437,7 +1477,7 @@ public class IMCenter {
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
      * @param content 草稿的文字内容。
-     * @param callback 是否保存成功的回调。
+     * @param callback 是否保存成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void saveTextMessageDraft(
             final Conversation.ConversationType conversationType,
@@ -1453,7 +1493,7 @@ public class IMCenter {
      *
      * @param conversationIdentifier 会话标识。
      * @param content 草稿的文字内容。
-     * @param callback 是否保存成功的回调。
+     * @param callback 是否保存成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void saveTextMessageDraft(
             final ConversationIdentifier conversationIdentifier,
@@ -1507,7 +1547,7 @@ public class IMCenter {
      *
      * @param type 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param callback 移除会话是否成功的回调。
+     * @param callback 移除会话是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void removeConversation(
             final Conversation.ConversationType type,
@@ -1541,20 +1581,38 @@ public class IMCenter {
     /**
      * 设置某一会话为置顶或者取消置顶，回调方式获取设置是否成功。
      *
-     * @param type 会话类型。
-     * @param id 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
+     * @param conversationIdentifier 会话标识。
      * @param isTop 是否置顶。
-     * @param needCreate 会话不存在时，是否创建会话。
-     * @param callback 设置置顶或取消置顶是否成功的回调。
+     * @param callback 设置置顶或取消置顶是否成功的回调。 该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @since 5.6.8
      */
     public void setConversationToTop(
+            final ConversationIdentifier conversationIdentifier,
+            final boolean isTop,
+            final RongIMClient.ResultCallback<Boolean> callback) {
+        setConversationToTop(conversationIdentifier, isTop, true, callback);
+    }
+
+    /**
+     * 设置某一会话为置顶或者取消置顶，回调方式获取设置是否成功。
+     *
+     * @param type 会话类型。
+     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
+     * @param isTop 是否置顶。
+     * @param needCreate 会话不存在时，是否创建会话。
+     * @param callback 设置置顶或取消置顶是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @discussion 5.6.8 版本开始废弃该接口，使用 {@link #setConversationToTop(ConversationIdentifier, boolean,
+     *     RongIMClient.ResultCallback)} 替换。
+     */
+    @Deprecated
+    public void setConversationToTop(
             final Conversation.ConversationType type,
-            final String id,
+            final String targetId,
             final boolean isTop,
             final boolean needCreate,
             final RongIMClient.ResultCallback<Boolean> callback) {
         setConversationToTop(
-                ConversationIdentifier.obtain(type, id, ""), isTop, needCreate, callback);
+                ConversationIdentifier.obtain(type, targetId, ""), isTop, needCreate, callback);
     }
 
     /**
@@ -1563,8 +1621,11 @@ public class IMCenter {
      * @param conversationIdentifier 会话标识。
      * @param isTop 是否置顶。
      * @param needCreate 会话不存在时，是否创建会话。
-     * @param callback 设置置顶或取消置顶是否成功的回调。
+     * @param callback 设置置顶或取消置顶是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @discussion 5.6.8 版本开始废弃该接口，使用 {@link #setConversationToTop(ConversationIdentifier, boolean,
+     *     RongIMClient.ResultCallback)} 替换。
      */
+    @Deprecated
     public void setConversationToTop(
             final ConversationIdentifier conversationIdentifier,
             final boolean isTop,
@@ -1622,7 +1683,7 @@ public class IMCenter {
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
      * @param notificationStatus 是否屏蔽。
-     * @param callback 设置状态的回调。
+     * @param callback 设置状态的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void setConversationNotificationStatus(
             final Conversation.ConversationType conversationType,
@@ -1641,7 +1702,7 @@ public class IMCenter {
      *
      * @param conversationIdentifier 会话标识。
      * @param notificationStatus 是否屏蔽。
-     * @param callback 设置状态的回调。
+     * @param callback 设置状态的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void setConversationNotificationStatus(
             final ConversationIdentifier conversationIdentifier,
@@ -1709,7 +1770,7 @@ public class IMCenter {
      * @param targetId 目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
      * @param sentStatus 接收状态 @see {@link Message.ReceivedStatus}
      * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
-     * @param resultCallback 获得消息发送实体的回调。
+     * @param resultCallback 获得消息发送实体的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void insertOutgoingMessage(
             Conversation.ConversationType type,
@@ -1748,7 +1809,7 @@ public class IMCenter {
      * @param sentStatus 发送状态 @see {@link Message.SentStatus}
      * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
      * @param time 插入消息所要模拟的发送时间。
-     * @param resultCallback 获得消息发送实体的回调。
+     * @param resultCallback 获得消息发送实体的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void insertOutgoingMessage(
             ConversationIdentifier conversationIdentifier,
@@ -1870,7 +1931,7 @@ public class IMCenter {
      *
      * @param conversationType 要删除的消息 Id 数组。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 是否删除成功的回调。
+     * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void deleteMessages(
             final Conversation.ConversationType conversationType,
@@ -1905,7 +1966,7 @@ public class IMCenter {
      * @param conversationType 会话类型
      * @param targetId 会话 Id
      * @param messageIds 待删除的消息 Id 数组。
-     * @param callback 删除操作的回调。
+     * @param callback 删除操作的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void deleteMessages(
             final Conversation.ConversationType conversationType,
@@ -1943,7 +2004,7 @@ public class IMCenter {
      * @param conversationType 会话类型。暂时不支持聊天室、超级群
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、客服 Id。
      * @param messages 要删除的消息数组, 数组大小不能超过100条。
-     * @param callback 是否删除成功的回调。
+     * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void deleteRemoteMessages(
             final Conversation.ConversationType conversationType,
@@ -1996,7 +2057,7 @@ public class IMCenter {
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
      * @param mediaType 文件类型。
      * @param imageUrl 文件的 URL 地址。
-     * @param callback 下载文件的回调。
+     * @param callback 下载文件的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void downloadMedia(
             Conversation.ConversationType conversationType,
@@ -2016,7 +2077,7 @@ public class IMCenter {
      * @param fileName 文件名
      * @param path 文件下载保存目录，如果是 targetVersion 29 为目标，由于访问权限原因，建议使用 context.getExternalFilesDir()
      *     方法保存到私有目录
-     * @param callback 回调
+     * @param callback 回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void downloadMediaFile(
             final String uid,
@@ -2068,6 +2129,12 @@ public class IMCenter {
                         });
     }
 
+    /**
+     * 取消下载多媒体文件。
+     *
+     * @param message 包含多媒体文件的消息，即{@link MessageContent}为 FileMessage, ImageMessage 等。
+     * @param callback 取消下载多媒体文件时的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     */
     public void cancelDownloadMediaMessage(
             Message message, RongIMClient.OperationCallback callback) {
         RongIMClient.getInstance().cancelDownloadMediaMessage(message, callback);
@@ -2108,7 +2175,7 @@ public class IMCenter {
      * <p>用来获取媒体原文件时调用。如果本地缓存中包含此文件，则从本地缓存中直接获取，否则将从服务器端下载。
      *
      * @param message 文件消息。
-     * @param callback 下载文件的回调。
+     * @param callback 下载文件的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void downloadMediaMessage(
             Message message, final IRongCallback.IDownloadMediaMessageCallback callback) {
@@ -2187,7 +2254,7 @@ public class IMCenter {
      * 判断是否支持断点续传。
      *
      * @param url 文件 Url
-     * @param callback 回调
+     * @param callback 回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void supportResumeBrokenTransfer(
             String url, final RongIMClient.ResultCallback<Boolean> callback) {
@@ -2215,7 +2282,7 @@ public class IMCenter {
      * 暂停下载多媒体文件
      *
      * @param message 包含多媒体文件的消息，即{@link MessageContent}为 FileMessage, ImageMessage 等。
-     * @param callback 暂停下载多媒体文件时的回调
+     * @param callback 暂停下载多媒体文件时的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void pauseDownloadMediaMessage(
             final Message message, final RongIMClient.OperationCallback callback) {
@@ -2271,6 +2338,7 @@ public class IMCenter {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param sendMessageCallback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
+     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendLocationMessage(
             Message message,
@@ -2339,7 +2407,7 @@ public class IMCenter {
      * 根据消息 Message 设置消息状态，回调方式获取设置是否成功。
      *
      * @param message 消息实体。要设置的发送状态包含在 message 中
-     * @param callback 是否设置成功的回调。
+     * @param callback 是否设置成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void setMessageSentStatus(
             final Message message, final RongIMClient.ResultCallback<Boolean> callback) {
@@ -2516,7 +2584,7 @@ public class IMCenter {
      * 取消发送多媒体文件。
      *
      * @param message 包含多媒体文件的消息，即{@link MessageContent}为 FileMessage, ImageMessage 等。
-     * @param callback 取消发送多媒体文件时的回调。
+     * @param callback 取消发送多媒体文件时的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void cancelSendMediaMessage(
             final Message message, final RongIMClient.OperationCallback callback) {

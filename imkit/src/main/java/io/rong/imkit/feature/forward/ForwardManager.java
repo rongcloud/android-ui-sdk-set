@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.Spannable;
 import android.text.TextUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;

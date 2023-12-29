@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.WindowManager;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;

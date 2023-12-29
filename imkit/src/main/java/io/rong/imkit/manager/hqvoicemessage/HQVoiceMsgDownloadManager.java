@@ -8,7 +8,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.text.TextUtils;
 import androidx.fragment.app.Fragment;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.utils.AndroidConstant;

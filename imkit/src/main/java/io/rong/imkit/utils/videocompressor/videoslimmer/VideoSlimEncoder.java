@@ -11,7 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import io.rong.common.FileUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.common.videoslimmer.listner.SlimProgressListener;
 import io.rong.common.videoslimmer.muxer.CodecInputSurface;
 import io.rong.imlib.NativeClient;

@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.widget.ImageView;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 
 public class GifImageView extends ImageView implements Runnable {
     private static final String TAG = "GifDecoderView";

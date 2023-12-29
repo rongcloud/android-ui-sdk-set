@@ -9,7 +9,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.fragment.app.FragmentManager;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.ConversationFragment;
 import io.rong.imkit.conversation.extension.RongExtension;

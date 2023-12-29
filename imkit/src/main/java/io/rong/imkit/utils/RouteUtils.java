@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.fragment.app.Fragment;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.activity.CombinePicturePagerActivity;
 import io.rong.imkit.activity.CombineWebViewActivity;
 import io.rong.imkit.activity.FilePreviewActivity;

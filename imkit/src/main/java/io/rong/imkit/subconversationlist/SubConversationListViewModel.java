@@ -2,7 +2,7 @@ package io.rong.imkit.subconversationlist;
 
 import android.app.Application;
 import androidx.lifecycle.MutableLiveData;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.BaseDataProcessor;
 import io.rong.imkit.config.DataProcessor;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;

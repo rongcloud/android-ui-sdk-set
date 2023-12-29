@@ -44,7 +44,8 @@ import android.view.View;
 import android.view.ViewParent;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
-import io.rong.common.RLog;
+import io.rong.common.CursorUtils;
+import io.rong.common.rlog.RLog;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1561,8 +1562,7 @@ public class SubsamplingScaleImageView extends View {
             try {
                 String[] columns = {MediaStore.Images.Media.ORIENTATION};
                 cursor =
-                        context.getContentResolver()
-                                .query(Uri.parse(sourceUri), columns, null, null, null);
+                        CursorUtils.query(context, Uri.parse(sourceUri), columns, null, null, null);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
                         int orientation = cursor.getInt(0);

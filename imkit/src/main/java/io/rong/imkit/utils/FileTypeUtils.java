@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import androidx.core.content.FileProvider;
 import androidx.core.os.EnvironmentCompat;
 import io.rong.common.FileUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.FileInfo;

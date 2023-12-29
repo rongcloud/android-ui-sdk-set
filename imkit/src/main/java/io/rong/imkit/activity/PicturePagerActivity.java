@@ -31,7 +31,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import io.rong.common.FileUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
@@ -204,6 +204,11 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rc_fr_photo);
         Message currentMessage = getIntent().getParcelableExtra("message");
+        if (currentMessage == null || currentMessage.getContent() == null) {
+            RLog.e(TAG, "onCreate error, message or message content is null");
+            finish();
+            return;
+        }
 
         mMessage = currentMessage;
         if (currentMessage.getContent() instanceof ReferenceMessage) {

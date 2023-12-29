@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.widget.Toast;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.model.State;

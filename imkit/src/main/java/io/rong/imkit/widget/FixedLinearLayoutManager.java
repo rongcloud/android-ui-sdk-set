@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 
 /** RecyclerView官方的BUG，继承封装LinearLayoutManager类，重写onLayoutChildren()方法，try-catch捕获该异常 */
 public class FixedLinearLayoutManager extends LinearLayoutManager {

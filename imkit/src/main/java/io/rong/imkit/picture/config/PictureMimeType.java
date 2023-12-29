@@ -6,7 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import io.rong.common.RLog;
+import io.rong.common.CursorUtils;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import java.io.File;
 
@@ -238,24 +239,31 @@ public final class PictureMimeType {
     public static String getMimeType(Context context, Uri uri) {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             Cursor cursor =
-                    context.getApplicationContext()
-                            .getContentResolver()
-                            .query(
-                                    uri,
-                                    new String[] {MediaStore.Files.FileColumns.MIME_TYPE},
-                                    null,
-                                    null,
-                                    null);
-            if (cursor != null) {
+                    CursorUtils.query(
+                            context.getApplicationContext(),
+                            uri,
+                            new String[] {MediaStore.Files.FileColumns.MIME_TYPE},
+                            null,
+                            null,
+                            null);
+            if (cursor == null) {
+                return MIME_TYPE_IMAGE;
+            }
+            String mimeType = MIME_TYPE_IMAGE;
+            try {
                 if (cursor.moveToFirst()) {
                     int columnIndex =
                             cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.MIME_TYPE);
                     if (columnIndex > -1) {
-                        return cursor.getString(columnIndex);
+                        mimeType = cursor.getString(columnIndex);
                     }
                 }
+            } catch (Exception e) {
+                RLog.e(TAG, "getMimeType cursor error  ", e);
+            } finally {
                 cursor.close();
             }
+            return mimeType;
         }
         return MIME_TYPE_IMAGE;
     }

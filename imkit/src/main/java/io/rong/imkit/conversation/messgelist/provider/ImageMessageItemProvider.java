@@ -19,7 +19,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.PicturePagerActivity;
@@ -167,8 +167,13 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
+        Message message = uiMessage.getMessage();
+        if (message == null || message.getContent() == null) {
+            RLog.e(TAG, "onItemClick error, message or message content is null");
+            return false;
+        }
         Intent intent = new Intent(holder.getContext(), PicturePagerActivity.class);
-        intent.putExtra("message", uiMessage.getMessage());
+        intent.putExtra("message", message);
         holder.getContext().startActivity(intent);
         return true;
     }

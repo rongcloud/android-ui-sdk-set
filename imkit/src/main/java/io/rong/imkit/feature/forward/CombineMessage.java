@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.text.TextUtils;
 import io.rong.common.ParcelUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.MediaMessageContent;

@@ -13,7 +13,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.PopupWindow;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import java.lang.ref.WeakReference;
 
@@ -74,7 +74,13 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
 
     @Override
     public void showAtLocation(final View parent, final int gravity, final int x, final int y) {
-        super.showAtLocation(parent, gravity, x, y);
+        if (activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+        try {
+            super.showAtLocation(parent, gravity, x, y);
+        } catch (Exception e) {
+        }
         popupView.postDelayed(
                 new Runnable() {
                     @Override
@@ -139,6 +145,8 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
     public void stop() {
         isStart = false;
         popupView.removeCallbacks(mKeyboardChangeAction);
+        // 移除mGlobalLayoutListener，防止内存泄露、减少FD句柄占用
+        popupView.getViewTreeObserver().removeOnGlobalLayoutListener(mGlobalLayoutListener);
         dismiss();
     }
 

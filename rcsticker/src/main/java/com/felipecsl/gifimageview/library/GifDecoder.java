@@ -24,7 +24,7 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

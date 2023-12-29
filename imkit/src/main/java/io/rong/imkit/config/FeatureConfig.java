@@ -6,7 +6,7 @@ import android.content.res.Resources;
 import android.net.http.SslCertificate;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.GlideKitImageEngine;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitImageEngine;

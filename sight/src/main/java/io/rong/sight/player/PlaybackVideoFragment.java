@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.SightMessage;
 import io.rong.sight.R;

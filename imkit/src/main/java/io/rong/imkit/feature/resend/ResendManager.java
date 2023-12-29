@@ -3,7 +3,7 @@ package io.rong.imkit.feature.resend;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;

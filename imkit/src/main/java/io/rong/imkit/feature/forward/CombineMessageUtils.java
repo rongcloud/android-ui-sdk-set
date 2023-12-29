@@ -8,7 +8,7 @@ import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.Base64;
 import io.rong.common.FileUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;

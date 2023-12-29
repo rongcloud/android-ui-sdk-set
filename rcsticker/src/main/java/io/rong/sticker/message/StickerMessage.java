@@ -1,7 +1,7 @@
 package io.rong.sticker.message;
 
 import android.os.Parcel;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.model.MessageContent;
 import io.rong.sticker.model.Sticker;

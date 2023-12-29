@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import io.rong.common.FileUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.destruct.DestructManager;

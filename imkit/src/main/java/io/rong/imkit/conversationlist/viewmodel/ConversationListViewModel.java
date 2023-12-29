@@ -9,7 +9,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -470,7 +470,7 @@ public class ConversationListViewModel extends AndroidViewModel
                         RLog.d(TAG, "getConversationListByPage. size:" + conversations.size());
                         if (mLastSyncTime <= 0 || loadMore || delayTime == mDelayRefreshTime) {
                             mLastSyncTime =
-                                    conversations.get(conversations.size() - 1).getSentTime();
+                                    conversations.get(conversations.size() - 1).getOperationTime();
                         }
 
                         CopyOnWriteArrayList<Conversation> copyList =

@@ -41,7 +41,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
@@ -836,6 +836,9 @@ public class EasyVideoPlayer extends FrameLayout
             currentPos = getCurrentPosition();
         }
         mSurfaceAvailable = false;
+        if (mSurface != null) {
+            mSurface.release();
+        }
         mSurface = null;
         return false;
     }

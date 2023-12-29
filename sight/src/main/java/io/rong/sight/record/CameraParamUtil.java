@@ -2,7 +2,7 @@ package io.rong.sight.record;
 
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;

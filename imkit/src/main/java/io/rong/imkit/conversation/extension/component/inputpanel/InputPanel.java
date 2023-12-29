@@ -117,6 +117,9 @@ public class InputPanel {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (mExtensionViewModel == null) {
+                            return;
+                        }
                         if (mIsVoiceInputMode) {
                             mIsVoiceInputMode = false;
                             mExtensionViewModel
@@ -167,6 +170,9 @@ public class InputPanel {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (mExtensionViewModel == null) {
+                            return;
+                        }
                         if (mExtensionViewModel.getInputModeLiveData().getValue() != null
                                 && mExtensionViewModel
                                         .getInputModeLiveData()
@@ -464,6 +470,9 @@ public class InputPanel {
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mExtensionViewModel == null) {
+                        return;
+                    }
                     mExtensionViewModel.onSendClick();
                 }
             };
@@ -557,6 +566,7 @@ public class InputPanel {
 
     public void onDestroy() {
         mFragment = null;
+        mContext = null;
         mExtensionViewModel = null;
         if (mEditText != null
                 && mEditText.getText() != null

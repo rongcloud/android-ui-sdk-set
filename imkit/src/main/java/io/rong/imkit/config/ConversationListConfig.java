@@ -2,7 +2,7 @@ package io.rong.imkit.config;
 
 import android.content.Context;
 import android.content.res.Resources;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.conversationlist.provider.BaseConversationProvider;

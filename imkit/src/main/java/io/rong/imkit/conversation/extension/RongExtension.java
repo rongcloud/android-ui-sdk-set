@@ -19,7 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.emoticon.EmoticonBoard;
 import io.rong.imkit.conversation.extension.component.inputpanel.InputPanel;

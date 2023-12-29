@@ -30,7 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 import androidx.annotation.NonNull;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;
 import io.rong.sight.util.ValueAnimatorUtil;

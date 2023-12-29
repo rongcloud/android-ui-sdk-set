@@ -1,7 +1,7 @@
 package io.rong.imkit.conversation.messgelist.processor;
 
 import android.util.ArrayMap;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.feature.customservice.CustomServiceBusinessProcessor;
 import io.rong.imkit.feature.publicservice.PublicServiceBusinessProcessor;
 import io.rong.imlib.model.Conversation;

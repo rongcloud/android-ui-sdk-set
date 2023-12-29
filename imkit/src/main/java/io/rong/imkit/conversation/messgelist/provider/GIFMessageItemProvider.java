@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.GIFPreviewActivity;
@@ -291,7 +291,7 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
     @Override
     public Spannable getSummarySpannable(Context context, GIFMessage gifMessage) {
         return new SpannableString(
-                context.getString(R.string.rc_conversation_summary_content_image));
+                context.getString(R.string.rc_conversation_summary_content_sticker));
     }
 
     @Override

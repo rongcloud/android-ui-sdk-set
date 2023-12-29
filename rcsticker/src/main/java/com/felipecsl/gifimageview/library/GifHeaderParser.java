@@ -18,7 +18,7 @@
  */
 package com.felipecsl.gifimageview.library;
 
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

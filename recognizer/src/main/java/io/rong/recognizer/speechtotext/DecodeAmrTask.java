@@ -4,7 +4,7 @@ import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.os.AsyncTask;
 import androidx.annotation.NonNull;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 

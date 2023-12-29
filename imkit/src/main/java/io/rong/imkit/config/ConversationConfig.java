@@ -6,7 +6,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.LayoutDirection;
 import androidx.core.text.TextUtilsCompat;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.moreaction.DeleteClickActions;
 import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;

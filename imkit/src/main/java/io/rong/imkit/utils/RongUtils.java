@@ -30,8 +30,9 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import androidx.core.content.ContextCompat;
+import io.rong.common.CursorUtils;
 import io.rong.common.LibStorageUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -195,24 +196,36 @@ public class RongUtils {
     public static Bitmap getResizedBitmap(Context context, Uri uri, int widthLimit, int heightLimit)
             throws IOException {
 
-        String path;
+        String path = null;
         Bitmap result;
 
         if (uri.getScheme().equals("file")) {
             path = uri.getPath();
         } else if (uri.getScheme().equals("content")) {
             Cursor cursor =
-                    context.getContentResolver()
-                            .query(
-                                    uri,
-                                    new String[] {MediaStore.Images.Media.DATA},
-                                    null,
-                                    null,
-                                    null);
-            cursor.moveToFirst();
-            path = cursor.getString(0);
-            cursor.close();
+                    CursorUtils.query(
+                            context,
+                            uri,
+                            new String[] {MediaStore.Images.Media.DATA},
+                            null,
+                            null,
+                            null);
+            try {
+                if (cursor != null) {
+                    cursor.moveToFirst();
+                    path = cursor.getString(0);
+                }
+            } catch (Exception e) {
+                RLog.e(TAG, "getResizedBitmap cursor error  ", e);
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+            }
         } else {
+            return null;
+        }
+        if (TextUtils.isEmpty(path)) {
             return null;
         }
 

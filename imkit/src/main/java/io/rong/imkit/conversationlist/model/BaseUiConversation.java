@@ -3,7 +3,7 @@ package io.rong.imkit.conversationlist.model;
 import android.content.Context;
 import android.text.Spannable;
 import android.text.TextUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.RongIMClient;

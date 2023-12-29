@@ -1,7 +1,7 @@
 package io.rong.imkit.manager;
 
 import android.net.Uri;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.destruct.DestructManager;

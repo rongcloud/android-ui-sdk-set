@@ -2,7 +2,7 @@ package io.rong.sight.record;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;

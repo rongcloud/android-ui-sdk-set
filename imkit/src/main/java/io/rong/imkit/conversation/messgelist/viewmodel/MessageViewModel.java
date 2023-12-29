@@ -16,7 +16,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rong.common.FileUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.BaseConversationEventListener;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.MessageItemLongClickAction;
@@ -1701,9 +1701,12 @@ public class MessageViewModel extends AndroidViewModel
             long bottomTime = lastMessage.getSentTime();
             int size = mNewUnReadMentionMessages.size();
             for (int i = size - 1; i >= 0; i--) {
-                if (mNewUnReadMentionMessages.get(i).getSentTime() >= topTime
-                        && mNewUnReadMentionMessages.get(i).getSentTime() <= bottomTime) {
-                    mNewUnReadMentionMessages.remove(mNewUnReadMentionMessages.get(i));
+                if (i < mNewUnReadMentionMessages.size()) {
+                    Message newUnReadMentionMessage = mNewUnReadMentionMessages.get(i);
+                    if (newUnReadMentionMessage.getSentTime() >= topTime
+                            && newUnReadMentionMessage.getSentTime() <= bottomTime) {
+                        mNewUnReadMentionMessages.remove(newUnReadMentionMessage);
+                    }
                 }
             }
         }

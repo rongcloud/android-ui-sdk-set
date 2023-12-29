@@ -10,7 +10,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 
 /**
  * Created by luck on 2017/12/4.

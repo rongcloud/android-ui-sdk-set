@@ -14,7 +14,7 @@ import android.text.style.ReplacementSpan;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import androidx.emoji2.text.EmojiCompat;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;

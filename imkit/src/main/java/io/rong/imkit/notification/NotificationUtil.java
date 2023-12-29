@@ -16,7 +16,7 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.text.TextUtils;
 import androidx.annotation.RequiresApi;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.utils.ExecutorHelper;

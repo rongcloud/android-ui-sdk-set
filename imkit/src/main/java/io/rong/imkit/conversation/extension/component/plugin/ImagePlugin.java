@@ -2,7 +2,6 @@ package io.rong.imkit.conversation.extension.component.plugin;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -24,7 +23,6 @@ import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.utils.PermissionCheckUtil;
-import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -61,26 +59,11 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
         }
 
         // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
-        String[] permissions = null;
-        if (RongUtils.checkSDKVersionAndTargetIsUDC(extension.getContext())) {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_MEDIA_IMAGES,
-                        Manifest.permission.READ_MEDIA_VIDEO,
-                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-                    };
-        } else if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(extension.getContext())) {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                    };
-        } else {
-            permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-        }
-
-        if (PermissionCheckUtil.checkPermissions(currentFragment.getContext(), permissions)) {
+        if (PermissionCheckUtil.checkMediaStoragePermissions(currentFragment.getContext())) {
             openPictureSelector(currentFragment);
         } else {
+            String[] permissions =
+                    PermissionCheckUtil.getMediaStoragePermissions(currentFragment.getContext());
             extension.requestPermissionForPluginResult(
                     permissions,
                     IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,

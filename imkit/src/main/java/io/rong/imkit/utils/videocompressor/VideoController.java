@@ -5,7 +5,7 @@ import android.annotation.TargetApi;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
 import android.text.TextUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.utils.videocompressor.videoslimmer.VideoSlimEncoder;
 import io.rong.imkit.utils.videocompressor.videoslimmer.listner.SlimProgressListener;
 import java.io.File;

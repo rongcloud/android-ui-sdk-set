@@ -2,7 +2,7 @@ package io.rong.imkit.utils;
 
 import android.os.Build;
 import android.text.TextUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;

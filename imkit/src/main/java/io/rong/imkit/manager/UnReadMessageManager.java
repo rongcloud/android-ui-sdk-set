@@ -1,6 +1,6 @@
 package io.rong.imkit.manager;
 
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.BaseConversationEventListener;
 import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
