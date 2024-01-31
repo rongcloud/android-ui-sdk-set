@@ -54,13 +54,16 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
         // 会话头像
 
         if (!TextUtils.isEmpty(uiConversation.mCore.getPortraitUrl())) {
-            RongConfigCenter.featureConfig()
-                    .getKitImageEngine()
-                    .loadConversationListPortrait(
-                            holder.getContext(),
-                            uiConversation.mCore.getPortraitUrl(),
-                            holder.<ImageView>getView(R.id.rc_conversation_portrait),
-                            uiConversation.mCore);
+            if (holder.getView(R.id.rc_conversation_portrait) instanceof ImageView) {
+                RongConfigCenter.featureConfig()
+                        .getKitImageEngine()
+                        .loadConversationListPortrait(
+                                holder.getContext(),
+                                uiConversation.mCore.getPortraitUrl(),
+                                holder.<ImageView>getView(R.id.rc_conversation_portrait),
+                                uiConversation.mCore);
+            }
+
         } else {
             int drawableId = R.drawable.rc_default_portrait;
             if (uiConversation
@@ -79,15 +82,16 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                     .equals(Conversation.ConversationType.CUSTOMER_SERVICE)) {
                 drawableId = R.drawable.rc_default_chatroom_portrait;
             }
-
-            Uri uri = RongUtils.getUriFromDrawableRes(holder.getContext(), drawableId);
-            RongConfigCenter.featureConfig()
-                    .getKitImageEngine()
-                    .loadConversationListPortrait(
-                            holder.getContext(),
-                            uri.toString(),
-                            holder.<ImageView>getView(R.id.rc_conversation_portrait),
-                            uiConversation.mCore);
+            if (holder.getView(R.id.rc_conversation_portrait) instanceof ImageView) {
+                Uri uri = RongUtils.getUriFromDrawableRes(holder.getContext(), drawableId);
+                RongConfigCenter.featureConfig()
+                        .getKitImageEngine()
+                        .loadConversationListPortrait(
+                                holder.getContext(),
+                                uri.toString(),
+                                holder.<ImageView>getView(R.id.rc_conversation_portrait),
+                                uiConversation.mCore);
+            }
         }
         holder.getView(R.id.rc_conversation_portrait)
                 .setOnClickListener(

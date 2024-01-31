@@ -104,9 +104,11 @@ public class RongExtensionViewModel extends AndroidViewModel {
                     int selectionStart = mEditText.getSelectionStart();
                     if (AndroidEmoji.isEmoji(s.subSequence(start, start + count).toString())) {
                         isProcess = true;
-                        String resultStr = AndroidEmoji.replaceEmojiWithText(s.toString());
+                        // mEditText不替换为系统Unicode表情
+                        String replacedText =
+                                AndroidEmoji.replaceEmojiWithText(s.toString(), false);
                         mEditText.setText(
-                                AndroidEmoji.ensure(resultStr), TextView.BufferType.SPANNABLE);
+                                AndroidEmoji.ensure(replacedText), TextView.BufferType.SPANNABLE);
                         mEditText.setSelection(
                                 Math.min(
                                         mEditText.getText().length(), Math.max(0, selectionStart)));
@@ -155,6 +157,12 @@ public class RongExtensionViewModel extends AndroidViewModel {
             return;
         }
         mEditText.setText("");
+
+        // 准备发送前替换待发送文本的系统Unicode表情
+        if (AndroidEmoji.isEmoji(text)) {
+            String replacedText = AndroidEmoji.replaceEmojiWithText(text, true);
+            text = AndroidEmoji.ensure(replacedText).toString();
+        }
 
         TextMessage textMessage = TextMessage.obtain(text);
         if (DestructManager.isActive()) {

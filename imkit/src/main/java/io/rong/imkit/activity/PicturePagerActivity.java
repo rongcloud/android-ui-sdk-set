@@ -11,7 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -74,6 +74,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     private static final String TAG = "PicturePagerActivity";
     private static final int IMAGE_MESSAGE_COUNT = 10; // 每次获取的图片消息数量。
     private static final int LOAD_PICTURE_TIMEOUT = 30 * 1000; //  最小图片加载时间
+    private static final long LOAD_MORE_IMAGE_DELAYED_TIME = 500;
+    private static final String OBJECT_NAME = "RC:ImgMsg";
     protected ViewPager2 mViewPager;
     protected ImageMessage mCurrentImageMessage;
     protected Message mMessage;
@@ -82,7 +84,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     protected int currentSelectMessageId;
     protected String mTargetId = null;
     protected ImageAdapter mImageAdapter;
-    protected boolean isFirstTime = false;
+    Handler mainHandler = new Handler();
 
     protected ViewPager2.OnPageChangeCallback mPageChangeListener =
             new ViewPager2.OnPageChangeCallback() {
@@ -106,14 +108,18 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                     if (null == message) {
                         return;
                     }
-                    int msgId = message.getMessageId();
-                    if (position == (mImageAdapter.getItemCount() - 1)) {
-                        getConversationImageUris(
-                                msgId, RongCommonDefine.GetMessageDirection.BEHIND);
-                    } else if (position == 0) {
-                        getConversationImageUris(msgId, RongCommonDefine.GetMessageDirection.FRONT);
+                    currentSelectMessageId = message.getMessageId();
+
+                    // 第一次加载只有传进页面的消息，position为0且Item是1，获取前后的图片消息
+                    if (position == 0 && mImageAdapter.getItemCount() == 1) {
+                        fetchImageMessage(currentSelectMessageId, true, true);
                     }
-                    currentSelectMessageId = msgId;
+                    // 左右滑动到头分页加载
+                    else if (position == (mImageAdapter.getItemCount() - 1)) {
+                        fetchImageMessage(currentSelectMessageId, true, false);
+                    } else if (position == 0) {
+                        fetchImageMessage(currentSelectMessageId, false, true);
+                    }
                 }
             };
     RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
@@ -128,13 +134,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                 .setMessage(getString(R.string.rc_recall_success))
                                 .setPositiveButton(
                                         getString(R.string.rc_dialog_ok),
-                                        new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                finish();
-                                            }
-                                        })
+                                        (dialog, which) -> finish())
                                 .setCancelable(false)
                                 .show();
                     } else {
@@ -225,29 +225,16 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         mViewPager = findViewById(R.id.viewpager);
         mViewPager.registerOnPageChangeCallback(mPageChangeListener);
         mImageAdapter = new ImageAdapter();
-        isFirstTime = true;
-        if (!(mMessage.getContent().isDestruct()
-                || mMessage.getContent() instanceof ReferenceMessage
-                || Conversation.ConversationType.ULTRA_GROUP.equals(
-                        mMessage.getConversationType()))) {
-            getConversationImageUris(
-                    mCurrentMessageId,
-                    RongCommonDefine.GetMessageDirection.FRONT); // 获取当前点开图片之前的图片消息。
-            getConversationImageUris(
-                    mCurrentMessageId, RongCommonDefine.GetMessageDirection.BEHIND);
-        } else {
-            // 阅后即焚和引用消息只显示1张照片
-            ArrayList<ImageInfo> lists = new ArrayList<>();
-            lists.add(
-                    new ImageInfo(
-                            mMessage,
-                            mCurrentImageMessage.getThumUri(),
-                            !FileUtils.isFileExistsWithUri(this, mCurrentImageMessage.getLocalUri())
-                                    ? mCurrentImageMessage.getRemoteUri()
-                                    : mCurrentImageMessage.getLocalUri()));
-            mImageAdapter.addData(lists, true);
-        }
         mViewPager.setAdapter(mImageAdapter);
+        // 加载当前传过来的图片消息
+        ArrayList<ImageInfo> lists = new ArrayList<>();
+        lists.add(
+                new ImageInfo(
+                        mMessage,
+                        mCurrentImageMessage.getThumUri(),
+                        getLargeImageUri(mCurrentImageMessage)));
+        mImageAdapter.addData(lists, true);
+
         IMCenter.getInstance().addMessageEventListener(mBaseMessageEvent);
         IMCenter.getInstance().addOnRecallMessageListener(mOnRecallMessageListener);
     }
@@ -264,101 +251,89 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         super.finish();
         // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
         // finish后清除全屏标志位，避免此问题
-        int flagForceNotFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-        getWindow().setFlags(flagForceNotFullscreen, flagForceNotFullscreen);
+        if (getWindow() != null) {
+            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+            getWindow().setFlags(flag, flag);
+        }
     }
 
     private void getConversationImageUris(
             int messageId, final RongCommonDefine.GetMessageDirection direction) {
-        if (mConversationType != null && !TextUtils.isEmpty(mTargetId)) {
-            RongIMClient.getInstance()
-                    .getHistoryMessages(
-                            mConversationType,
-                            mTargetId,
-                            "RC:ImgMsg",
-                            messageId,
-                            IMAGE_MESSAGE_COUNT,
-                            direction,
-                            new RongIMClient.ResultCallback<List<Message>>() {
-                                @Override
-                                public void onSuccess(List<Message> messages) {
-                                    int i;
-                                    ArrayList<ImageInfo> lists = new ArrayList<>();
-                                    if (messages != null) {
-                                        if (direction.equals(
-                                                RongCommonDefine.GetMessageDirection.FRONT)) {
-                                            Collections.reverse(messages);
-                                        }
-                                        for (i = 0; i < messages.size(); i++) {
-                                            Message message = messages.get(i);
-                                            if (message.getContent() instanceof ImageMessage
-                                                    && !message.getContent().isDestruct()) {
-                                                ImageMessage imageMessage =
-                                                        (ImageMessage) message.getContent();
-                                                Uri largeImageUri =
-                                                        !FileUtils.isFileExistsWithUri(
-                                                                        PicturePagerActivity.this,
-                                                                        mCurrentImageMessage
-                                                                                .getLocalUri())
-                                                                ? imageMessage.getRemoteUri()
-                                                                : imageMessage.getLocalUri();
-
-                                                if (imageMessage.getThumUri() != null
-                                                        && largeImageUri != null) {
-                                                    lists.add(
-                                                            new ImageInfo(
-                                                                    message,
-                                                                    imageMessage.getThumUri(),
-                                                                    largeImageUri));
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (direction.equals(
-                                            RongCommonDefine.GetMessageDirection.FRONT)) {
-                                        if (isFirstTime) {
-                                            lists.add(
-                                                    new ImageInfo(
-                                                            mMessage,
-                                                            mCurrentImageMessage.getThumUri(),
-                                                            !FileUtils.isFileExistsWithUri(
-                                                                            PicturePagerActivity
-                                                                                    .this,
-                                                                            mCurrentImageMessage
-                                                                                    .getLocalUri())
-                                                                    ? mCurrentImageMessage
-                                                                            .getRemoteUri()
-                                                                    : mCurrentImageMessage
-                                                                            .getLocalUri()));
-                                        }
-                                        mImageAdapter.addData(lists, true);
-                                        if (isFirstTime) {
-                                            int index =
-                                                    mImageAdapter.getIndexByMessageId(
-                                                            mMessage.getMessageId());
-                                            if (index != -1) {
-                                                mViewPager.setCurrentItem(index, false);
-                                            }
-                                            isFirstTime = false;
-                                        }
-                                    } else if (lists.size() > 0) {
-                                        mImageAdapter.addData(lists, false);
-                                    }
-                                }
-
-                                @Override
-                                public void onError(RongIMClient.ErrorCode e) {
-                                    // do nothing
-                                }
-                            });
+        if (mConversationType == null || TextUtils.isEmpty(mTargetId)) {
+            return;
         }
+        RongIMClient.getInstance()
+                .getHistoryMessages(
+                        mConversationType,
+                        mTargetId,
+                        OBJECT_NAME,
+                        messageId,
+                        IMAGE_MESSAGE_COUNT,
+                        direction,
+                        new RongIMClient.ResultCallback<List<Message>>() {
+                            @Override
+                            public void onSuccess(List<Message> messages) {
+                                mImageAdapter.addData(
+                                        convertToImageInfo(messages, direction),
+                                        direction.equals(
+                                                RongCommonDefine.GetMessageDirection.FRONT));
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {
+                                // do nothing
+                            }
+                        });
     }
 
-    @Override
-    public void onSaveInstanceState(
-            @NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+    // 消息列表转换为 ImageInfo 列表
+    private @NonNull List<ImageInfo> convertToImageInfo(
+            List<Message> messages, RongCommonDefine.GetMessageDirection direction) {
+        ArrayList<ImageInfo> lists = new ArrayList<>();
+        if (messages == null) {
+            return lists;
+        }
+        if (direction.equals(RongCommonDefine.GetMessageDirection.FRONT)) {
+            Collections.reverse(messages);
+        }
+        for (Message message : messages) {
+            if (!(message.getContent() instanceof ImageMessage)
+                    || message.getContent().isDestruct()) {
+                continue;
+            }
+            ImageMessage imageMessage = (ImageMessage) message.getContent();
+            Uri largeImageUri = getLargeImageUri(imageMessage);
+            if (imageMessage.getThumUri() != null && largeImageUri != null) {
+                lists.add(new ImageInfo(message, imageMessage.getThumUri(), largeImageUri));
+            }
+        }
+        return lists;
+    }
 
-        super.onSaveInstanceState(outState, outPersistentState);
+    // 本地Uri存在则使用本地Uri，否则使用远程Uri
+    protected Uri getLargeImageUri(ImageMessage imageMessage) {
+        return FileUtils.isFileExistsWithUri(this, imageMessage.getLocalUri())
+                ? imageMessage.getLocalUri()
+                : imageMessage.getRemoteUri();
+    }
+
+    // 延迟拉取前面或后面的图片消息，加载过快会导致ViewPager当前Item不是第一个，造成预览错乱
+    private void fetchImageMessage(final int msgId, boolean fetchBehind, boolean fetchFront) {
+        mainHandler.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (fetchBehind) {
+                            getConversationImageUris(
+                                    msgId, RongCommonDefine.GetMessageDirection.BEHIND);
+                        }
+                        if (fetchFront) {
+                            getConversationImageUris(
+                                    msgId, RongCommonDefine.GetMessageDirection.FRONT);
+                        }
+                    }
+                },
+                LOAD_MORE_IMAGE_DELAYED_TIME);
     }
 
     @Override
@@ -578,9 +553,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                         public void onClick(View v) {
                             Window window = PicturePagerActivity.this.getWindow();
                             if (window != null) {
-                                window.setFlags(
-                                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-                                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                                int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+                                window.setFlags(flag, flag);
                             }
                             finish();
                         }
@@ -828,8 +802,10 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             return newbm;
         }
 
-        public void addData(ArrayList<ImageInfo> newImages, boolean direction) {
-            if (newImages == null || newImages.size() == 0) return;
+        public void addData(List<ImageInfo> newImages, boolean direction) {
+            if (newImages == null || newImages.isEmpty()) {
+                return;
+            }
             if (direction && !isDuplicate(newImages.get(0).getMessage().getMessageId())) {
                 mImageList.addAll(0, newImages);
                 notifyItemRangeInserted(0, newImages.size());
@@ -841,7 +817,9 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
 
         private boolean isDuplicate(int messageId) {
             for (ImageInfo info : mImageList) {
-                if (info.getMessage().getMessageId() == messageId) return true;
+                if (info.getMessage().getMessageId() == messageId) {
+                    return true;
+                }
             }
             return false;
         }

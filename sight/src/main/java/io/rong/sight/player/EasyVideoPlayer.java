@@ -11,6 +11,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.PorterDuff;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -372,6 +373,42 @@ public class EasyVideoPlayer extends FrameLayout
 
         setControlsEnabled(false);
         prepare();
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                // 落点在mControlsFrame，并且可见，自己处理事件
+                if (mControlsFrame != null
+                        && mControlsFrame.getVisibility() == View.VISIBLE
+                        && isTouchInView(mControlsFrame, event)) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                }
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                getParent().requestDisallowInterceptTouchEvent(false);
+            default:
+                break;
+        }
+        return super.onInterceptTouchEvent(event);
+    }
+
+    private boolean isTouchInView(View view, MotionEvent event) {
+        if (view == null || event == null) {
+            return false;
+        }
+        int[] location = new int[2];
+        // 获取控件在屏幕中的位置，返回的数组分别为控件左顶点的 x、y 的值
+        view.getLocationOnScreen(location);
+        RectF rectF =
+                new RectF(
+                        location[0],
+                        location[1],
+                        location[0] + view.getWidth(),
+                        location[1] + view.getHeight());
+        return rectF.contains(event.getRawX(), event.getRawY());
     }
 
     private boolean notifyErrorEvent(int what, int extra) {

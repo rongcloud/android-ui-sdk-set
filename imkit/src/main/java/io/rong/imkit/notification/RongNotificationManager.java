@@ -259,6 +259,14 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     }
 
     private void prepareToSendNotification(Message message) {
+        // 如果在主线程，就开启线程去发送通知
+        if (ExecutorFactory.isMainThread()) {
+            ExecutorHelper.getInstance()
+                    .compressExecutor()
+                    .execute(() -> prepareToSendNotification(message));
+            return;
+        }
+
         String title;
         String content;
         int mNotificationId = RongNotificationHelper.getNotificationId(message.getUId());

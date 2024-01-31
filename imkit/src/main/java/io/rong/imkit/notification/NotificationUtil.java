@@ -19,8 +19,6 @@ import androidx.annotation.RequiresApi;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.utils.ExecutorHelper;
-import io.rong.imlib.common.ExecutorFactory;
 import io.rong.push.notification.RongNotificationHelper;
 
 /** Created by jiangecho on 2016/11/29. */
@@ -52,21 +50,6 @@ public class NotificationUtil {
             PendingIntent pendingIntent,
             int notificationId,
             int defaults) {
-        // 如果在主线程，就开启线程去发送通知
-        if (ExecutorFactory.isMainThread()) {
-            ExecutorHelper.getInstance()
-                    .compressExecutor()
-                    .execute(
-                            () ->
-                                    showNotification(
-                                            context,
-                                            title,
-                                            content,
-                                            pendingIntent,
-                                            notificationId,
-                                            defaults));
-            return;
-        }
         Notification notification;
         NotificationManager nm =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

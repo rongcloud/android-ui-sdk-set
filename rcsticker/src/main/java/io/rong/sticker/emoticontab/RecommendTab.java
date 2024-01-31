@@ -5,6 +5,7 @@ import static io.rong.sticker.StickerExtensionModule.sRongExtensionWeakReference
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ import io.rong.sticker.widget.DownloadProgressView;
 import io.rong.sticker.widget.IndicatorView;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /** Created by luoyanlong on 2018/08/09. 展示多个未下载的表情包 */
 public class RecommendTab implements IEmoticonTab {
@@ -136,6 +138,15 @@ public class RecommendTab implements IEmoticonTab {
             final StickerPackage stickerPackage = packages.get(position);
             Glide.with(holder.context).load(stickerPackage.getCover()).into(holder.icon);
             holder.description.setText(stickerPackage.getName());
+
+            // 根据当前的 LayoutDirection 设置 View 镜像反转
+            if (TextUtils.getLayoutDirectionFromLocale(Locale.getDefault())
+                    == View.LAYOUT_DIRECTION_RTL) {
+                holder.icon.setScaleX(-1f);
+            } else {
+                holder.icon.setScaleX(1f);
+            }
+
             holder.downloadBtn.setOnClickListener(
                     new View.OnClickListener() {
                         @Override

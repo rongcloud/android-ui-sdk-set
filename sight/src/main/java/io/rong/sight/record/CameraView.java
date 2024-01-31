@@ -458,7 +458,7 @@ public class CameraView extends RelativeLayout
         imageViewSubmitParam.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
         imageViewSubmitParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         imageViewSubmitParam.setMargins(0, 0, 0, controlIconMarginBottom);
-        imageViewSubmitParam.setMarginEnd(controlIconMarginBottom);
+        imageViewSubmitParam.setMarginEnd(controlIconMargin);
         mImageViewSubmit.setLayoutParams(imageViewSubmitParam);
         mImageViewSubmit.setImageResource(R.drawable.rc_ic_sight_record_submit);
         mImageViewSubmit.setVisibility(View.GONE);

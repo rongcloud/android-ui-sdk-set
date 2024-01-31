@@ -46,7 +46,9 @@ public class ProviderManager<T> {
                                 + ". Already registered ItemViewProvider is "
                                 + viewProvider);
             } else {
-                mProviders.put(viewType, provider);
+                if (provider != null) {
+                    mProviders.put(viewType, provider);
+                }
             }
         }
     }
@@ -58,7 +60,8 @@ public class ProviderManager<T> {
 
     public void removeProvider(IViewProvider<T> provider) {
         if (provider == null) {
-            throw new NullPointerException("ItemViewProvider is null");
+            RLog.e(TAG, "ItemViewProvider is null");
+            return;
         }
         int indexToRemove = mProviders.indexOfValue(provider);
 
@@ -105,7 +108,7 @@ public class ProviderManager<T> {
         int count = mProviders.size();
         for (int i = count - 1; i >= 0; i--) {
             IViewProvider<T> provider = mProviders.valueAt(i);
-            if (provider.isItemViewType(item)) {
+            if (provider != null && provider.isItemViewType(item)) {
                 return mProviders.keyAt(i);
             }
         }
@@ -115,7 +118,7 @@ public class ProviderManager<T> {
     public IViewProvider<T> getProvider(T item) {
         for (int i = 0; i < mProviders.size(); i++) {
             IViewProvider<T> provider = mProviders.valueAt(i);
-            if (provider.isItemViewType(item)) {
+            if (provider != null && provider.isItemViewType(item)) {
                 return provider;
             }
         }

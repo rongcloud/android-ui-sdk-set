@@ -132,6 +132,12 @@ public class IMCenter {
                                 profile.isOffline());
                     }
                 }
+
+                @Override
+                public void onOfflineMessageSyncCompleted() {
+                    super.onOfflineMessageSyncCompleted();
+                    dispatchOnOfflineMessageSyncCompleted();
+                }
             };
 
     private void dispatchOnReceiveMessageObserver(Message message, ReceivedProfile profile) {
@@ -149,6 +155,22 @@ public class IMCenter {
                 mOnReceiveMessageObserverList) {
             observer.onReceived(
                     message, profile.getLeft(), profile.hasPackage(), profile.isOffline());
+        }
+    }
+
+    private void dispatchOnOfflineMessageSyncCompleted() {
+        if (mOnReceiveMessageObserverList.isEmpty()) {
+            return;
+        }
+        if (!ExecutorFactory.isMainThread()) {
+            ExecutorFactory.getInstance()
+                    .getMainHandler()
+                    .post(() -> dispatchOnOfflineMessageSyncCompleted());
+            return;
+        }
+        for (IRongCoreListener.OnReceiveMessageWrapperListener observer :
+                mOnReceiveMessageObserverList) {
+            observer.onOfflineMessageSyncCompleted();
         }
     }
 
@@ -1127,8 +1149,10 @@ public class IMCenter {
      * MediaMessageContent}的消息须调用 {@link #sendDirectionalMediaMessage(Message, String[], String,
      * String, IRongCallback.ISendMediaMessageCallback)}。
      *
+     * <p>从 5.6.9 版本开始，支持超级群会话类型。
+     *
      * @param type 会话类型。
-     * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
+     * @param targetId 目标 Id。根据不同的 conversationType，可能是群组 Id 、超级群 Id。
      * @param content 消息内容，例如 {@link TextMessage}
      * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 如果发送的是自定义消息，该字段必须填写，否则无法收到 push 消息。 如果发送 sdk
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
@@ -1147,20 +1171,28 @@ public class IMCenter {
             final String pushData,
             final IRongCallback.ISendMessageCallback callback) {
         Message message = Message.obtain(targetId, type, content);
+        sendDirectionalMessage(message, userIds, pushContent, pushData, callback);
+    }
+
+    public void sendDirectionalMessage(
+            Message message,
+            final String[] userIds,
+            String pushContent,
+            final String pushData,
+            final IRongCallback.ISendMessageCallback callback) {
         if (mMessageInterceptor != null && mMessageInterceptor.interceptOnSendMessage(message)) {
             RLog.d(TAG, "message has been intercepted.");
             return;
         }
         handleBeforeSend(message);
-        RongIMClient.getInstance()
+        ChannelClient.getInstance()
                 .sendDirectionalMessage(
-                        type,
-                        targetId,
-                        content,
+                        message,
                         userIds,
                         pushContent,
                         pushData,
-                        new IRongCallback.ISendMessageCallback() {
+                        null,
+                        new IRongCoreCallback.ISendMessageCallback() {
                             @Override
                             public void onAttached(Message message) {
                                 if (callback != null) {
@@ -1188,11 +1220,10 @@ public class IMCenter {
                             }
 
                             @Override
-                            public void onError(
-                                    final Message message, RongIMClient.ErrorCode errorCode) {
+                            public void onError(Message message, IRongCoreEnum.CoreErrorCode e) {
                                 filterSentMessage(
                                         message,
-                                        errorCode,
+                                        RongIMClient.ErrorCode.valueOf(e.code),
                                         new FilterSentListener() {
                                             @Override
                                             public void onComplete() {
@@ -1205,7 +1236,8 @@ public class IMCenter {
                                             }
                                         });
                                 if (callback != null) {
-                                    callback.onError(message, errorCode);
+                                    callback.onError(
+                                            message, RongIMClient.ErrorCode.valueOf(e.code));
                                 }
                             }
                         });
@@ -1218,6 +1250,8 @@ public class IMCenter {
      * FileMessage}
      *
      * <p>或者其他继承自 {@link MediaMessageContent} 的消息
+     *
+     * <p>从 5.6.9 版本开始，支持超级群会话类型。
      *
      * @param message 发送消息的实体。
      * @param userIds 定向接收者 id 数组
@@ -2001,7 +2035,9 @@ public class IMCenter {
      *
      * <p>请注意，此方法会删除远端消息，请慎重使用
      *
-     * @param conversationType 会话类型。暂时不支持聊天室、超级群
+     * <p>5.6.9版本以下不支持超级群会话类型，从 5.6.9 版本开始支持超级群会话类型
+     *
+     * @param conversationType 会话类型。暂时不支持聊天室
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、客服 Id。
      * @param messages 要删除的消息数组, 数组大小不能超过100条。
      * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
@@ -2011,12 +2047,33 @@ public class IMCenter {
             final String targetId,
             final Message[] messages,
             final RongIMClient.OperationCallback callback) {
-        RongIMClient.getInstance()
+        deleteRemoteMessages(
+                ConversationIdentifier.obtain(conversationType, targetId, ""), messages, callback);
+    }
+
+    /**
+     * 删除指定的一条或者一组消息。会同时删除本地和远端消息。
+     *
+     * <p>请注意，此方法会删除远端消息，请慎重使用
+     *
+     * <p>5.6.9版本以下不支持超级群会话类型，从 5.6.9 版本开始支持超级群会话类型
+     *
+     * @param identifier 会话标识。会话类型不支持聊天室。
+     * @param messages 要删除的消息数组, 数组大小不能超过100条。
+     * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @since 5.6.9
+     */
+    public void deleteRemoteMessages(
+            final ConversationIdentifier identifier,
+            final Message[] messages,
+            final RongIMClient.OperationCallback callback) {
+        ChannelClient.getInstance()
                 .deleteRemoteMessages(
-                        conversationType,
-                        targetId,
+                        identifier.getType(),
+                        identifier.getTargetId(),
+                        identifier.optChannelId(),
                         messages,
-                        new RongIMClient.OperationCallback() {
+                        new IRongCoreCallback.OperationCallback() {
                             @Override
                             public void onSuccess() {
                                 int[] messageIds = new int[messages.length];
@@ -2026,7 +2083,9 @@ public class IMCenter {
                                 for (MessageEventListener item : mMessageEventListeners) {
                                     item.onDeleteMessage(
                                             new DeleteEvent(
-                                                    conversationType, targetId, messageIds));
+                                                    identifier.getType(),
+                                                    identifier.getTargetId(),
+                                                    messageIds));
                                 }
                                 if (callback != null) {
                                     callback.onSuccess();
@@ -2034,9 +2093,10 @@ public class IMCenter {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
                                 if (callback != null) {
-                                    callback.onError(errorCode);
+                                    callback.onError(
+                                            RongIMClient.ErrorCode.valueOf(errorCode.code));
                                 }
                             }
                         });

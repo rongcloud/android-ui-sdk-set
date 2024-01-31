@@ -236,6 +236,10 @@ public class AudioRecordManager implements Handler.Callback {
      * @deprecated 接口已废弃。
      */
     public void setMaxVoiceDuration(int maxVoiceDuration) {
+        // 此值必须大于0，否则计算语音消息UI长度会出现除0问题
+        if (maxVoiceDuration <= 0) {
+            return;
+        }
         RECORD_INTERVAL = maxVoiceDuration;
     }
 

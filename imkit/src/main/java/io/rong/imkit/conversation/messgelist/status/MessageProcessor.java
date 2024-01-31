@@ -32,6 +32,13 @@ public class MessageProcessor {
             int count,
             final boolean isForward,
             final GetMessageCallback callback) {
+        if (messageViewModel == null) {
+            if (callback != null) {
+                callback.onSuccess(new ArrayList<>(), false);
+            }
+            return;
+        }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         // 为了加速第一次加载速度：如果是私群聊，且sentTime为0。则先加载本地消息，成功或回调后，再调用断档消息。
         if (needLoadLocalMessagesAtFirst(messageViewModel.getCurConversationType(), sentTime)) {
             RongIMClient.getInstance()
@@ -54,15 +61,13 @@ public class MessageProcessor {
                                     }
 
                                     // 无论成功或者失败，均需要再调用一次断档接口
-                                    getMessages(
-                                            messageViewModel, sentTime, count, isForward, callback);
+                                    getMessages(weakVM.get(), sentTime, count, isForward, callback);
                                 }
 
                                 @Override
                                 public void onError(RongIMClient.ErrorCode errorCode) {
                                     // 无论成功或者失败，均需要再调用一次断档接口
-                                    getMessages(
-                                            messageViewModel, sentTime, count, isForward, callback);
+                                    getMessages(weakVM.get(), sentTime, count, isForward, callback);
                                 }
                             });
         } else {
@@ -106,7 +111,7 @@ public class MessageProcessor {
         } else {
             historyMessageOption.setOrder(HistoryMessageOption.PullOrder.ASCEND);
         }
-        WeakReference<MessageViewModel> weakReference = new WeakReference<>(messageViewModel);
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         RongIM.getInstance()
                 .getMessages(
                         messageViewModel.getConversationIdentifier(),
@@ -131,9 +136,8 @@ public class MessageProcessor {
                                 }
                                 if (IRongCoreEnum.ConversationLoadMessageType.ASK.equals(type)) {
                                     if (callback != null) {
-                                        if (weakReference.get() != null) {
-                                            weakReference
-                                                    .get()
+                                        if (weakVM.get() != null) {
+                                            weakVM.get()
                                                     .executePageEvent(
                                                             new ShowLoadMessageDialogEvent(
                                                                     callback, messageList));
@@ -142,9 +146,8 @@ public class MessageProcessor {
                                     }
                                 } else if (IRongCoreEnum.ConversationLoadMessageType.ONLY_SUCCESS
                                         .equals(type)) {
-                                    if (weakReference.get() != null) {
-                                        weakReference
-                                                .get()
+                                    if (weakVM.get() != null) {
+                                        weakVM.get()
                                                 .onGetHistoryMessage(
                                                         Collections.<Message>emptyList());
                                     }
@@ -152,8 +155,8 @@ public class MessageProcessor {
                                         callback.onErrorOnlySuccess();
                                     }
                                 } else {
-                                    if (weakReference.get() != null) {
-                                        weakReference.get().onGetHistoryMessage(messageList);
+                                    if (weakVM.get() != null) {
+                                        weakVM.get().onGetHistoryMessage(messageList);
                                     }
                                     if (callback != null) {
                                         callback.onErrorAlways(messageList);
@@ -169,12 +172,14 @@ public class MessageProcessor {
             int before,
             final int after,
             final GetMessageCallback callback) {
-        final long finalSendTime = sentTime + 1;
         final List<Message> allData = new ArrayList<>();
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
-        historyMessageOption.setDataTime(finalSendTime);
+        historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(before);
         historyMessageOption.setOrder(HistoryMessageOption.PullOrder.ASCEND);
+        // 降序拉取的时间
+        final long finalDescendSentTime = sentTime + 1;
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         ChannelClient.getInstance()
                 .getMessages(
                         messageViewModel.getCurConversationType(),
@@ -194,9 +199,9 @@ public class MessageProcessor {
                                 allData.addAll(messageList);
                                 if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
                                     getMessagesDescend(
-                                            finalSendTime,
+                                            finalDescendSentTime,
                                             after,
-                                            messageViewModel,
+                                            weakVM.get(),
                                             allData,
                                             errorCode,
                                             callback);
@@ -204,23 +209,30 @@ public class MessageProcessor {
                                 }
 
                                 if (IRongCoreEnum.ConversationLoadMessageType.ASK.equals(type)) {
+                                    if (weakVM.get() != null) {
+                                        weakVM.get()
+                                                .executePageEvent(
+                                                        new ShowLoadMessageDialogEvent(
+                                                                callback, allData));
+                                    }
                                     if (callback != null) {
-                                        messageViewModel.executePageEvent(
-                                                new ShowLoadMessageDialogEvent(callback, allData));
                                         callback.onErrorAsk(allData);
                                     }
                                 } else if (IRongCoreEnum.ConversationLoadMessageType.ONLY_SUCCESS
                                         .equals(type)) {
-                                    messageViewModel.onGetHistoryMessage(
-                                            Collections.<Message>emptyList());
+                                    if (weakVM.get() != null) {
+                                        weakVM.get()
+                                                .onGetHistoryMessage(
+                                                        Collections.<Message>emptyList());
+                                    }
                                     if (callback != null) {
                                         callback.onErrorOnlySuccess();
                                     }
                                 } else {
                                     getMessagesDescend(
-                                            finalSendTime,
+                                            finalDescendSentTime,
                                             after,
-                                            messageViewModel,
+                                            weakVM.get(),
                                             allData,
                                             errorCode,
                                             callback);
@@ -236,6 +248,12 @@ public class MessageProcessor {
             final List<Message> allData,
             final IRongCoreEnum.CoreErrorCode code,
             final GetMessageCallback callback) {
+        if (viewModel == null) {
+            if (callback != null) {
+                callback.onErrorAlways(allData);
+            }
+            return;
+        }
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(after);
@@ -267,6 +285,10 @@ public class MessageProcessor {
     }
 
     public static void processUnread(final MessageViewModel messageViewModel) {
+        if (messageViewModel == null) {
+            return;
+        }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         ChannelClient.getInstance()
                 .getConversation(
                         messageViewModel.getCurConversationType(),
@@ -282,13 +304,16 @@ public class MessageProcessor {
                                 int unreadMessageCount = conversation.getUnreadMessageCount();
                                 // 交给不同会话类型处理未读消息
                                 if (unreadMessageCount > 0) {
-                                    messageViewModel.onExistUnreadMessage(
-                                            conversation, unreadMessageCount);
+                                    if (weakVM.get() != null) {
+                                        weakVM.get()
+                                                .onExistUnreadMessage(
+                                                        conversation, unreadMessageCount);
+                                    }
                                 }
                                 // 获得第一条未读消息
-                                initUnreadMessage(messageViewModel, unreadMessageCount);
+                                initUnreadMessage(weakVM.get(), unreadMessageCount);
                                 // 判断有无 @ 记录
-                                initMentionedMessage(conversation, messageViewModel);
+                                initMentionedMessage(conversation, weakVM.get());
                             }
 
                             @Override
@@ -300,6 +325,10 @@ public class MessageProcessor {
 
     private static void initUnreadMessage(
             final MessageViewModel messageViewModel, final int unreadMessageCount) {
+        if (messageViewModel == null) {
+            return;
+        }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         RongIMClient.getInstance()
                 .getTheFirstUnreadMessage(
                         messageViewModel.getCurConversationType(),
@@ -307,29 +336,42 @@ public class MessageProcessor {
                         new RongIMClient.ResultCallback<Message>() {
                             @Override
                             public void onSuccess(Message message) {
+                                if (weakVM.get() == null) {
+                                    return;
+                                }
                                 if (unreadMessageCount > MessageViewModel.SHOW_UNREAD_MESSAGE_COUNT
                                         && message != null) {
-                                    messageViewModel.setFirstUnreadMessage(message);
+                                    weakVM.get().setFirstUnreadMessage(message);
                                     if (RongConfigCenter.conversationConfig()
                                             .isShowHistoryMessageBar(
-                                                    messageViewModel.getCurConversationType())) {
-                                        messageViewModel.showHistoryBar(unreadMessageCount);
+                                                    weakVM.get().getCurConversationType())) {
+                                        weakVM.get().showHistoryBar(unreadMessageCount);
                                     }
                                 }
-                                messageViewModel.setInitUnreadMessageFinish(true);
-                                messageViewModel.cleanUnreadStatus();
+                                weakVM.get().setInitUnreadMessageFinish(true);
+                                weakVM.get().cleanUnreadStatus();
                             }
 
                             @Override
                             public void onError(RongIMClient.ErrorCode e) {
-                                messageViewModel.setInitUnreadMessageFinish(true);
-                                messageViewModel.cleanUnreadStatus();
+                                if (weakVM.get() == null) {
+                                    return;
+                                }
+                                weakVM.get().setInitUnreadMessageFinish(true);
+                                weakVM.get().cleanUnreadStatus();
                             }
                         });
     }
 
     private static void initMentionedMessage(
             Conversation conversation, final MessageViewModel messageViewModel) {
+        if (conversation == null) {
+            return;
+        }
+        if (messageViewModel == null) {
+            return;
+        }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         if (conversation.getMentionedCount() > 0) {
             RongIMClient.getInstance()
                     .getUnreadMentionedMessages(
@@ -338,18 +380,24 @@ public class MessageProcessor {
                             new RongIMClient.ResultCallback<List<Message>>() {
                                 @Override
                                 public void onSuccess(List<Message> messages) {
-                                    if (messages != null && messages.size() > 0) {
-                                        messageViewModel.setNewUnReadMentionMessages(messages);
-                                        messageViewModel.executePageEvent(new ScrollMentionEvent());
+                                    if (weakVM.get() == null) {
+                                        return;
                                     }
-                                    messageViewModel.setInitMentionedMessageFinish(true);
-                                    messageViewModel.cleanUnreadStatus();
+                                    if (messages != null && messages.size() > 0) {
+                                        weakVM.get().setNewUnReadMentionMessages(messages);
+                                        weakVM.get().executePageEvent(new ScrollMentionEvent());
+                                    }
+                                    weakVM.get().setInitMentionedMessageFinish(true);
+                                    weakVM.get().cleanUnreadStatus();
                                 }
 
                                 @Override
                                 public void onError(RongIMClient.ErrorCode e) {
-                                    messageViewModel.setInitMentionedMessageFinish(true);
-                                    messageViewModel.cleanUnreadStatus();
+                                    if (weakVM.get() == null) {
+                                        return;
+                                    }
+                                    weakVM.get().setInitMentionedMessageFinish(true);
+                                    weakVM.get().cleanUnreadStatus();
                                 }
                             });
         } else {
@@ -359,6 +407,10 @@ public class MessageProcessor {
     }
 
     public static void getLocalMessage(final MessageViewModel messageViewModel) {
+        if (messageViewModel == null) {
+            return;
+        }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         RongIMClient.getInstance()
                 .getHistoryMessages(
                         messageViewModel.getCurConversationType(),
@@ -369,6 +421,9 @@ public class MessageProcessor {
                             // 返回列表（10，9，8，7，6，按messageId倒序）
                             @Override
                             public void onSuccess(List<Message> messages) {
+                                if (weakVM.get() == null) {
+                                    return;
+                                }
                                 // 不为空且大于0证明还有本地数据
                                 if (messages != null && messages.size() > 0) {
                                     List<Message> result;
@@ -378,17 +433,21 @@ public class MessageProcessor {
                                     } else {
                                         result = messages.subList(0, DEFAULT_COUNT);
                                     }
-                                    messageViewModel.onGetHistoryMessage(result);
-                                    messageViewModel.executePageEvent(
-                                            new Event.RefreshEvent(RefreshState.RefreshFinish));
+                                    weakVM.get().onGetHistoryMessage(result);
+                                    weakVM.get()
+                                            .executePageEvent(
+                                                    new Event.RefreshEvent(
+                                                            RefreshState.RefreshFinish));
                                 } else {
                                     // 如果远端消息已经全部拉取完，则直接关闭
-                                    if (!messageViewModel.isRemoteMessageLoadFinish()) {
+                                    if (!weakVM.get().isRemoteMessageLoadFinish()) {
                                         // 拉取不到本地消息，表示拉取完,调用拉取远端离线消息
-                                        getRemoteMessage(messageViewModel);
+                                        getRemoteMessage(weakVM.get());
                                     } else {
-                                        messageViewModel.executePageEvent(
-                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
+                                        weakVM.get()
+                                                .executePageEvent(
+                                                        new Event.RefreshEvent(
+                                                                RefreshState.RefreshFinish));
                                     }
                                 }
                             }
@@ -401,6 +460,10 @@ public class MessageProcessor {
     }
 
     private static void getRemoteMessage(final MessageViewModel messageViewModel) {
+        if (messageViewModel == null) {
+            return;
+        }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         RongIMClient.getInstance()
                 .getRemoteHistoryMessages(
                         messageViewModel.getCurConversationType(),
@@ -410,21 +473,29 @@ public class MessageProcessor {
                         new RongIMClient.ResultCallback<List<Message>>() {
                             @Override
                             public void onSuccess(List<Message> messages) {
+                                if (weakVM.get() == null) {
+                                    return;
+                                }
                                 // 不为空且大于0证明还有本地数据
                                 if (messages != null && messages.size() > 0) {
                                     // 如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
                                     List<Message> result;
                                     result = messages;
-                                    messageViewModel.onGetHistoryMessage(result);
+                                    weakVM.get().onGetHistoryMessage(result);
                                 }
-                                messageViewModel.executePageEvent(
-                                        new Event.RefreshEvent(RefreshState.RefreshFinish));
+                                weakVM.get()
+                                        .executePageEvent(
+                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
                             }
 
                             @Override
                             public void onError(RongIMClient.ErrorCode errorCode) {
-                                messageViewModel.executePageEvent(
-                                        new Event.RefreshEvent(RefreshState.RefreshFinish));
+                                if (weakVM.get() == null) {
+                                    return;
+                                }
+                                weakVM.get()
+                                        .executePageEvent(
+                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
                             }
                         });
     }

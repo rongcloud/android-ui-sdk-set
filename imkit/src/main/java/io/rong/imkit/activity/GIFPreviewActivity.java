@@ -79,9 +79,8 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
                     public void onClick(View v) {
                         Window window = GIFPreviewActivity.this.getWindow();
                         if (window != null) {
-                            window.setFlags(
-                                    WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-                                    WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+                            window.setFlags(flag, flag);
                         }
                         finish();
                     }
@@ -258,8 +257,10 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
         super.finish();
         // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
         // finish后清除全屏标志位，避免此问题
-        int flagForceNotFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-        getWindow().setFlags(flagForceNotFullscreen, flagForceNotFullscreen);
+        if (getWindow() != null) {
+            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+            getWindow().setFlags(flag, flag);
+        }
     }
 
     BaseMessageEvent mBaseMessageEvent =

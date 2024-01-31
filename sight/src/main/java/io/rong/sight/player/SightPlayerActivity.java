@@ -151,10 +151,10 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow()
-                .setFlags(
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (getWindow() != null) {
+            int flag = WindowManager.LayoutParams.FLAG_FULLSCREEN;
+            getWindow().setFlags(flag, flag);
+        }
         setContentView(R.layout.rc_activity_sight_player);
         initView();
         initData();
@@ -174,8 +174,10 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
         super.finish();
         // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
         // finish后清除全屏标志位，避免此问题
-        int flagForceNotFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-        getWindow().setFlags(flagForceNotFullscreen, flagForceNotFullscreen);
+        if (getWindow() != null) {
+            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+            getWindow().setFlags(flag, flag);
+        }
     }
 
     private void initData() {
@@ -272,7 +274,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
     private void initView() {
         mViewPager = findViewById(R.id.viewpager);
         mViewPager.registerOnPageChangeCallback(mPageChangeListener);
-        mViewPager.setOffscreenPageLimit(3);
+        mViewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
     }
 
     public static class VideoPagerAdapter extends FragmentStateAdapter {

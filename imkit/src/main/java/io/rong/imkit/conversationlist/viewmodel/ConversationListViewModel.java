@@ -69,6 +69,7 @@ public class ConversationListViewModel extends AndroidViewModel
     protected Conversation.ConversationType[] mSupportedTypes;
     protected int mSizePerPage;
     protected long mLastSyncTime;
+    protected boolean mTopPriority;
     protected Application mApplication;
     protected CopyOnWriteArrayList<BaseUiConversation> mUiConversationList =
             new CopyOnWriteArrayList<>();
@@ -370,6 +371,7 @@ public class ConversationListViewModel extends AndroidViewModel
         mSizePerPage = RongConfigCenter.conversationListConfig().getConversationCountPerPage();
         mDataFilter = RongConfigCenter.conversationListConfig().getDataProcessor();
         mDelayRefreshTime = RongConfigCenter.conversationListConfig().getDelayRefreshTime();
+        mTopPriority = RongConfigCenter.conversationListConfig().isTopPriority();
 
         mConversationListLiveData = new MediatorLiveData<>();
         RongUserInfoManager.getInstance().addUserDataObserver(this);
@@ -427,7 +429,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 .getConversationListByPage(
                         new IRongCoreCallback.ResultCallback<List<Conversation>>() {
                             @Override
-                            public void onCallback(List<Conversation> conversations) {
+                            public void onSuccess(List<Conversation> conversations) {
                                 if (weakViewModel.get() != null) {
                                     weakViewModel
                                             .get()
@@ -440,9 +442,6 @@ public class ConversationListViewModel extends AndroidViewModel
                             }
 
                             @Override
-                            public void onSuccess(List<Conversation> conversations) {}
-
-                            @Override
                             public void onError(IRongCoreEnum.CoreErrorCode e) {
                                 if (weakViewModel.get() != null) {
                                     weakViewModel.get().sendRefreshEvent(isEventManual, loadMore);
@@ -451,6 +450,7 @@ public class ConversationListViewModel extends AndroidViewModel
                         },
                         timestamp,
                         mSizePerPage,
+                        isTopPriority(),
                         mSupportedTypes);
     }
 
@@ -637,7 +637,7 @@ public class ConversationListViewModel extends AndroidViewModel
                         targetId,
                         new IRongCoreCallback.ResultCallback<Conversation>() {
                             @Override
-                            public void onCallback(Conversation conversation) {
+                            public void onSuccess(Conversation conversation) {
                                 mHandler.post(
                                         new Runnable() {
                                             @Override
@@ -661,9 +661,6 @@ public class ConversationListViewModel extends AndroidViewModel
                                             }
                                         });
                             }
-
-                            @Override
-                            public void onSuccess(Conversation conversation) {}
 
                             @Override
                             public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
@@ -774,6 +771,11 @@ public class ConversationListViewModel extends AndroidViewModel
             }
         }
         return false;
+    }
+
+    /** 是否优先显示置顶会话（查询结果的排序方式，是否置顶优先，true 表示置顶会话优先返回，false 结果只以会话时间排序） */
+    protected boolean isTopPriority() {
+        return mTopPriority;
     }
 
     @Override

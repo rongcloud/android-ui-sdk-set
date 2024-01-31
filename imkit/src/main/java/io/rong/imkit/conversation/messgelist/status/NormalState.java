@@ -83,7 +83,7 @@ public class NormalState implements IMessageState {
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(viewModel);
         MessageProcessor.getMessagesDirection(
                 viewModel,
-                viewModel.getLoadMoreSentTime() + 1,
+                viewModel.getLoadMoreSentTime(),
                 DEFAULT_COUNT,
                 false,
                 new MessageProcessor.GetMessageCallback() {

@@ -143,4 +143,24 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
             return count;
         }
     }
+
+    @Override
+    public void onDestroy(MessageViewModel viewModel) {
+        String mTargetId = viewModel.getCurTargetId();
+        RLog.i(TAG, "quitChatRoom : " + mTargetId);
+        RongIMClient.getInstance()
+                .quitChatRoom(
+                        mTargetId,
+                        new RongIMClient.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                RLog.i(TAG, "quitChatRoom onSuccess : " + mTargetId);
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                RLog.e(TAG, "quitChatRoom onError : " + errorCode);
+                            }
+                        });
+    }
 }

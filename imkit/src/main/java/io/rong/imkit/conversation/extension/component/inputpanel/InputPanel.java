@@ -41,6 +41,7 @@ import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
+import java.lang.ref.WeakReference;
 
 public class InputPanel {
     private final String TAG = this.getClass().getSimpleName();
@@ -91,7 +92,6 @@ public class InputPanel {
         if (mIsVoiceInputMode) {
             mExtensionViewModel.getInputModeLiveData().setValue(InputMode.VoiceInput);
         } else {
-            getDraft();
             mExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
         }
     }
@@ -127,9 +127,6 @@ public class InputPanel {
                                     .setValue(InputMode.TextInput);
                             // 切换到文本输入模式后需要弹出软键盘
                             mEditText.requestFocus();
-                            if (TextUtils.isEmpty(mInitialDraft)) {
-                                getDraft();
-                            }
                         } else {
                             mExtensionViewModel
                                     .getInputModeLiveData()
@@ -188,11 +185,12 @@ public class InputPanel {
                                     .setValue(InputMode.PluginMode);
                             ReferenceManager.getInstance().hideReferenceView();
                         }
-                        if (TextUtils.isEmpty(mInitialDraft)) {
-                            getDraft();
-                        }
                     }
                 });
+
+        if (TextUtils.isEmpty(mInitialDraft)) {
+            getDraft();
+        }
         mVoiceInputBtn.setOnTouchListener(mOnVoiceBtnTouchListener);
         setInputPanelStyle(mInputStyle);
     }
@@ -341,42 +339,36 @@ public class InputPanel {
     }
 
     public void getDraft() {
+        WeakReference<InputPanel> weakThis = new WeakReference<>(this);
         ChannelClient.getInstance()
                 .getTextMessageDraft(
                         mConversationIdentifier.getType(),
                         mConversationIdentifier.getTargetId(),
                         mConversationIdentifier.getChannelId(),
-                        new IRongCoreCallback.ResultCallback<String>() {
-                            @Override
-                            public void onSuccess(final String s) {
-                                if (!TextUtils.isEmpty(s)) {
-                                    mEditText.postDelayed(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    mInitialDraft = s;
-                                                    if (mEditText instanceof RongEditText) {
-                                                        ((RongEditText) mEditText)
-                                                                .setText(s, false);
-                                                    } else {
-                                                        mEditText.setText(s);
-                                                    }
-                                                    // 某些低安卓版本+机型，会出现EditText#setText后的text小于所设置的text的情况
-                                                    // 所以设置光标到最后一个，传EditText#length()来设置
-                                                    mEditText.setSelection(mEditText.length());
-                                                    mEditText.requestFocus();
-                                                    resetInputView();
-                                                }
-                                            },
-                                            50);
-                                }
-                            }
+                        new GetDraftCallback(weakThis));
+    }
 
-                            @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
-                                // do nothing
-                            }
-                        });
+    private static class GetDraftCallback extends IRongCoreCallback.ResultCallback<String> {
+        private WeakReference<InputPanel> mWeakInputPanel;
+
+        GetDraftCallback(WeakReference<InputPanel> weakInputPanel) {
+            mWeakInputPanel = weakInputPanel;
+        }
+
+        @Override
+        public void onSuccess(String s) {
+            if (mWeakInputPanel == null) {
+                return;
+            }
+            if (mWeakInputPanel.get() != null) {
+                mWeakInputPanel.get().updateMessageDraft(s);
+            }
+        }
+
+        @Override
+        public void onError(IRongCoreEnum.CoreErrorCode e) {
+            // do nothing
+        }
     }
 
     private float mLastTouchY;
@@ -591,6 +583,30 @@ public class InputPanel {
                             @Override
                             public void onError(RongIMClient.ErrorCode e) {}
                         });
+    }
+
+    private void updateMessageDraft(final String draft) {
+        if (TextUtils.isEmpty(draft)) {
+            return;
+        }
+        mEditText.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        mInitialDraft = draft;
+                        if (mEditText instanceof RongEditText) {
+                            ((RongEditText) mEditText).setText(draft, false);
+                        } else {
+                            mEditText.setText(draft);
+                        }
+                        // 某些低安卓版本+机型，会出现EditText#setText后的text小于所设置的text的情况
+                        // 所以设置光标到最后一个，传EditText#length()来设置
+                        mEditText.setSelection(mEditText.length());
+                        mEditText.requestFocus();
+                        resetInputView();
+                    }
+                },
+                50);
     }
 
     public enum InputStyle {

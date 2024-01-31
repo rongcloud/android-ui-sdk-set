@@ -12,13 +12,14 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.RecallNotificationMessage;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperListener
         implements RongIMClient.SyncConversationReadStatusListener {
     private static final String TAG = "UnReadMessageManager";
-    private final List<MultiConversationUnreadMsgInfo> mMultiConversationUnreadInfos;
+    private final List<WeakReference<MultiConversationUnreadMsgInfo>> mMultiConversationUnreadInfos;
     private ConversationEventListener mConversationEventListener =
             new BaseConversationEventListener() {
                 @Override
@@ -106,7 +107,15 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
     }
 
     private void syncUnreadCount() {
-        for (final MultiConversationUnreadMsgInfo msgInfo : mMultiConversationUnreadInfos) {
+        for (final WeakReference<MultiConversationUnreadMsgInfo> weakMsgInfo :
+                mMultiConversationUnreadInfos) {
+            if (weakMsgInfo == null) {
+                continue;
+            }
+            MultiConversationUnreadMsgInfo msgInfo = weakMsgInfo.get();
+            if (msgInfo == null) {
+                continue;
+            }
             RongIMClient.getInstance()
                     .getUnreadCount(
                             msgInfo.conversationTypes,
@@ -114,6 +123,13 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                                 @Override
                                 public void onSuccess(Integer integer) {
                                     RLog.d(TAG, "get result: " + integer);
+                                    if (weakMsgInfo == null) {
+                                        return;
+                                    }
+                                    MultiConversationUnreadMsgInfo msgInfo = weakMsgInfo.get();
+                                    if (msgInfo == null) {
+                                        return;
+                                    }
                                     msgInfo.count = integer;
                                     msgInfo.observer.onCountChanged(integer);
                                 }
@@ -148,15 +164,20 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
             final MultiConversationUnreadMsgInfo msgInfo = new MultiConversationUnreadMsgInfo();
             msgInfo.conversationTypes = conversationTypes;
             msgInfo.observer = observer;
-            mMultiConversationUnreadInfos.add(msgInfo);
+            final WeakReference<MultiConversationUnreadMsgInfo> weakMsgInfo =
+                    new WeakReference<>(msgInfo);
+            mMultiConversationUnreadInfos.add(weakMsgInfo);
             RongIMClient.getInstance()
                     .getUnreadCount(
                             conversationTypes,
                             new RongIMClient.ResultCallback<Integer>() {
                                 @Override
                                 public void onSuccess(Integer integer) {
-                                    msgInfo.count = integer;
-                                    msgInfo.observer.onCountChanged(integer);
+                                    if (weakMsgInfo.get() == null) {
+                                        return;
+                                    }
+                                    weakMsgInfo.get().count = integer;
+                                    weakMsgInfo.get().observer.onCountChanged(integer);
                                 }
 
                                 @Override
@@ -173,10 +194,18 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
             return;
         }
         synchronized (mMultiConversationUnreadInfos) {
-            MultiConversationUnreadMsgInfo result = null;
-            for (final MultiConversationUnreadMsgInfo msgInfo : mMultiConversationUnreadInfos) {
+            WeakReference<MultiConversationUnreadMsgInfo> result = null;
+            for (final WeakReference<MultiConversationUnreadMsgInfo> weakMsgInfo :
+                    mMultiConversationUnreadInfos) {
+                if (weakMsgInfo == null) {
+                    continue;
+                }
+                MultiConversationUnreadMsgInfo msgInfo = weakMsgInfo.get();
+                if (msgInfo == null) {
+                    continue;
+                }
                 if (msgInfo.observer == observer) {
-                    result = msgInfo;
+                    result = weakMsgInfo;
                     break;
                 }
             }

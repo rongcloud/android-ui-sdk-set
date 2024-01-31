@@ -34,6 +34,8 @@ public class ConversationListConfig {
     private int mConversationCountPerPage = 100;
     //    会话列表延时刷新时间（防止消息量过大导致卡顿,此值不能设置为500ms）
     private int delayRefreshTime = 5000;
+    // ConversationListViewModel 拉取会话列表是否优先显示置顶会话
+    private boolean topPriority = true;
     private ProviderManager<BaseUiConversation> mProviderManager;
     private DataProcessor<Conversation> mDataProcessor;
 
@@ -134,5 +136,18 @@ public class ConversationListConfig {
      */
     public void setDelayRefreshTime(int delayRefreshTime) {
         this.delayRefreshTime = delayRefreshTime;
+    }
+
+    public boolean isTopPriority() {
+        return topPriority;
+    }
+
+    /**
+     * ConversationListViewModel 拉取会话列表是否优先显示置顶会话
+     *
+     * @param topPriority 是否优先显示置顶会话（查询结果的排序方式，是否置顶优先，传 true 表示置顶会话优先返回，传 false 结果只以会话时间排序）
+     */
+    public void setTopPriority(boolean topPriority) {
+        this.topPriority = topPriority;
     }
 }

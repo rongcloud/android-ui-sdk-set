@@ -738,7 +738,7 @@ public class RongIM {
      *
      * <p>请注意，此方法会删除远端消息，请慎重使用
      *
-     * @param conversationType 会话类型。暂时不支持聊天室、超级群
+     * @param conversationType 会话类型。暂时不支持聊天室
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、客服 Id。
      * @param messages 要删除的消息数组, 数组大小不能超过100条。
      * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。

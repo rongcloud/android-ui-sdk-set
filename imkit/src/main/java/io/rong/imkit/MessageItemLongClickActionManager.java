@@ -19,6 +19,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.location.message.RealTimeLocationStartMessage;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.publicservice.message.PublicServiceMultiRichContentMessage;
@@ -372,8 +373,7 @@ public class MessageItemLongClickActionManager {
         // 先删远端，远端删除成功才删本地
         IMCenter.getInstance()
                 .deleteRemoteMessages(
-                        uiMessage.getMessage().getConversationType(),
-                        uiMessage.getMessage().getTargetId(),
+                        ConversationIdentifier.obtain(uiMessage.getMessage()),
                         new Message[] {uiMessage.getMessage()},
                         new RongIMClient.OperationCallback() {
                             @Override
