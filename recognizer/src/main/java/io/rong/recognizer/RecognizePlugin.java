@@ -19,7 +19,6 @@ import io.rong.imkit.conversation.extension.component.plugin.IPluginRequestPermi
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
-import io.rong.imkit.utils.ToastUtils;
 
 public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionResultCallback {
     private static final String TAG = "RecognizePlugin";
@@ -47,8 +46,11 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
         // 判断正在视频通话和语音通话中不能进行语音消息发送
         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-            String text = currentFragment.getString(R.string.rc_voip_occupying);
-            ToastUtils.show(currentFragment.getActivity(), text, Toast.LENGTH_SHORT);
+            Toast.makeText(
+                            currentFragment.getActivity(),
+                            R.string.rc_voip_occupying,
+                            Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
         String[] permissions = {Manifest.permission.RECORD_AUDIO};

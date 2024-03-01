@@ -25,7 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
 import io.rong.imkit.picture.adapter.PictureImageGridAdapter;

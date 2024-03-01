@@ -1,7 +1,7 @@
 package io.rong.imkit.model;
 
 import android.text.TextUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imlib.model.Conversation;
 
 /** Created by zhjchen on 4/29/15. */

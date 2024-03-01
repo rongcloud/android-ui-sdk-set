@@ -30,10 +30,12 @@
             android:layout_height="105dp"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="11dp"
+            android:layout_marginStart="41dp"
+            android:layout_marginEnd="41dp"
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:textColor="@android:color/white"
-            android:textSize="65sp"
+            android:textSize="80sp"
             android:visibility="gone" />
 
         <TextView

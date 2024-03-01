@@ -1,6 +1,6 @@
 package io.rong.imkit.picture.tools;
 
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;

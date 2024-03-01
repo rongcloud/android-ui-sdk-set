@@ -3,7 +3,6 @@ package io.rong.sight.player;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.view.WindowManager;
 import androidx.annotation.NonNull;
@@ -11,7 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
@@ -36,7 +35,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
     private static final String TAG = "SightPlayerActivity";
     private static final int VIDEO_MESSAGE_COUNT = 10; // 每次获取的图片消息数量。
-    private static final long LOAD_MORE_VIDEO_DELAYED_TIME = 800;
     protected ViewPager2 mViewPager;
     protected SightMessage mCurrentSightMessage;
     protected Message mMessage;
@@ -45,6 +43,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
     protected String mTargetId;
 
+    private boolean isFirstTime = true;
     private VideoPagerAdapter mVideoPagerAdapter;
     private int currentSelectMessageId = -1;
 
@@ -151,10 +150,10 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getWindow() != null) {
-            int flag = WindowManager.LayoutParams.FLAG_FULLSCREEN;
-            getWindow().setFlags(flag, flag);
-        }
+        getWindow()
+                .setFlags(
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.rc_activity_sight_player);
         initView();
         initData();
@@ -174,10 +173,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
         super.finish();
         // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
         // finish后清除全屏标志位，避免此问题
-        if (getWindow() != null) {
-            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-            getWindow().setFlags(flag, flag);
-        }
+        int flagForceNotFullscreen = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+        getWindow().setFlags(flagForceNotFullscreen, flagForceNotFullscreen);
     }
 
     private void initData() {
@@ -196,24 +193,15 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
 
         ArrayList<Message> messages = new ArrayList<>();
         mViewPager.setAdapter(mVideoPagerAdapter);
-        // 先加载当前视频消息，再加载前面和后面的视频消息
-        messages.add(mMessage);
-        mVideoPagerAdapter.addMessage(messages, mFromList, true);
         if (isLoadSingleMessage()) {
-            return;
+            messages.add(mMessage);
+            mVideoPagerAdapter.addMessage(messages, mFromList, true);
+        } else {
+            getSightMessageList(
+                    mMessage.getMessageId(), RongCommonDefine.GetMessageDirection.FRONT);
+            getSightMessageList(
+                    mMessage.getMessageId(), RongCommonDefine.GetMessageDirection.BEHIND);
         }
-        // 延迟前面和后面的视频消息，加载过快会导致ViewPager当前Item不是第一个
-        new Handler()
-                .postDelayed(
-                        () -> {
-                            getSightMessageList(
-                                    mMessage.getMessageId(),
-                                    RongCommonDefine.GetMessageDirection.FRONT);
-                            getSightMessageList(
-                                    mMessage.getMessageId(),
-                                    RongCommonDefine.GetMessageDirection.BEHIND);
-                        },
-                        LOAD_MORE_VIDEO_DELAYED_TIME);
     }
 
     // 阅后即焚、引用消息、超级群类型会话，只显示一个
@@ -253,8 +241,23 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
                                                     if (direction.equals(
                                                             RongCommonDefine.GetMessageDirection
                                                                     .FRONT)) {
+                                                        if (isFirstTime) {
+                                                            lists.add(mMessage);
+                                                        }
                                                         mVideoPagerAdapter.addMessage(
                                                                 lists, mFromList, true);
+                                                        if (isFirstTime) {
+                                                            int index =
+                                                                    mVideoPagerAdapter
+                                                                            .getIndexByMessageId(
+                                                                                    mMessage
+                                                                                            .getMessageId());
+                                                            if (index != -1) {
+                                                                mViewPager.setCurrentItem(
+                                                                        index, false);
+                                                            }
+                                                            isFirstTime = false;
+                                                        }
                                                     } else if (lists.size() > 0) {
                                                         mVideoPagerAdapter.addMessage(
                                                                 lists, mFromList, false);
@@ -274,7 +277,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
     private void initView() {
         mViewPager = findViewById(R.id.viewpager);
         mViewPager.registerOnPageChangeCallback(mPageChangeListener);
-        mViewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
+        mViewPager.setOffscreenPageLimit(3);
     }
 
     public static class VideoPagerAdapter extends FragmentStateAdapter {

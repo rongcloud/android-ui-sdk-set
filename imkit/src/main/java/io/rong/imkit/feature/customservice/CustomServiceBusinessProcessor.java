@@ -7,7 +7,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.processor.BaseBusinessProcessor;

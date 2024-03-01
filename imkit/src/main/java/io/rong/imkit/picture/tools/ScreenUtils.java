@@ -3,7 +3,7 @@ package io.rong.imkit.picture.tools;
 import android.app.Activity;
 import android.content.Context;
 import android.util.DisplayMetrics;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import java.lang.reflect.Field;
 
 public class ScreenUtils {

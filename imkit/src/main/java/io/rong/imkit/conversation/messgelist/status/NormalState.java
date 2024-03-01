@@ -12,7 +12,6 @@ import io.rong.imkit.event.uievent.SmoothScrollEvent;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.model.Message;
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,7 +34,6 @@ public class NormalState implements IMessageState {
      */
     @Override
     public void init(final MessageViewModel messageViewModel, Bundle bundle) {
-        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         MessageProcessor.getMessagesDirection(
                 messageViewModel,
                 0,
@@ -44,26 +42,20 @@ public class NormalState implements IMessageState {
                 new MessageProcessor.GetMessageCallback() {
                     @Override
                     public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
-                        if (weakVM.get() != null) {
-                            weakVM.get().onGetHistoryMessage(list);
-                            // 处理未读消息
-                            MessageProcessor.processUnread(weakVM.get());
-                        }
+                        messageViewModel.onGetHistoryMessage(list);
+                        // 处理未读消息
+                        MessageProcessor.processUnread(messageViewModel);
                     }
 
                     @Override
                     public void onErrorAsk(List<Message> list) {
-                        if (weakVM.get() != null) {
-                            weakVM.get().onGetHistoryMessage(Collections.<Message>emptyList());
-                        }
+                        messageViewModel.onGetHistoryMessage(Collections.<Message>emptyList());
                     }
 
                     @Override
                     public void onErrorAlways(List<Message> list) {
                         // 处理未读消息
-                        if (weakVM.get() != null) {
-                            MessageProcessor.processUnread(weakVM.get());
-                        }
+                        MessageProcessor.processUnread(messageViewModel);
                     }
 
                     @Override
@@ -80,7 +72,6 @@ public class NormalState implements IMessageState {
      */
     @Override
     public void onLoadMore(final MessageViewModel viewModel) {
-        WeakReference<MessageViewModel> weakVM = new WeakReference<>(viewModel);
         MessageProcessor.getMessagesDirection(
                 viewModel,
                 viewModel.getLoadMoreSentTime(),
@@ -89,41 +80,25 @@ public class NormalState implements IMessageState {
                 new MessageProcessor.GetMessageCallback() {
                     @Override
                     public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
-                        if (weakVM.get() != null) {
-                            weakVM.get().onLoadMoreMessage(list);
-                            weakVM.get()
-                                    .executePageEvent(
-                                            new Event.RefreshEvent(RefreshState.LoadFinish));
-                        }
+                        viewModel.onLoadMoreMessage(list);
+                        viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
                     }
 
                     @Override
                     public void onErrorAsk(List<Message> list) {
-                        if (weakVM.get() != null) {
-                            weakVM.get().onLoadMoreMessage(Collections.<Message>emptyList());
-                            weakVM.get()
-                                    .executePageEvent(
-                                            new Event.RefreshEvent(RefreshState.LoadFinish));
-                        }
+                        viewModel.onLoadMoreMessage(Collections.<Message>emptyList());
+                        viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
                     }
 
                     @Override
                     public void onErrorAlways(List<Message> list) {
-                        if (weakVM.get() != null) {
-                            weakVM.get().onLoadMoreMessage(list);
-                            weakVM.get()
-                                    .executePageEvent(
-                                            new Event.RefreshEvent(RefreshState.LoadFinish));
-                        }
+                        viewModel.onLoadMoreMessage(list);
+                        viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
                     }
 
                     @Override
                     public void onErrorOnlySuccess() {
-                        if (weakVM.get() != null) {
-                            weakVM.get()
-                                    .executePageEvent(
-                                            new Event.RefreshEvent(RefreshState.LoadFinish));
-                        }
+                        viewModel.executePageEvent(new Event.RefreshEvent(RefreshState.LoadFinish));
                     }
                 });
     }
@@ -132,7 +107,6 @@ public class NormalState implements IMessageState {
     public void onRefresh(final MessageViewModel viewModel) {
         if (!isRefreshLoading) {
             isRefreshLoading = true;
-            WeakReference<MessageViewModel> weakVM = new WeakReference<>(viewModel);
             MessageProcessor.getMessagesDirection(
                     viewModel,
                     viewModel.getRefreshSentTime(),
@@ -143,44 +117,32 @@ public class NormalState implements IMessageState {
                         @Override
                         public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
                             isRefreshLoading = loadOnlyOnce;
-                            if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(list);
-                                weakVM.get()
-                                        .executePageEvent(
-                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
-                            }
+                            viewModel.onGetHistoryMessage(list);
+                            viewModel.executePageEvent(
+                                    new Event.RefreshEvent(RefreshState.RefreshFinish));
                         }
 
                         @Override
                         public void onErrorAsk(List<Message> list) {
                             isRefreshLoading = false;
-                            if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(Collections.<Message>emptyList());
-                                weakVM.get()
-                                        .executePageEvent(
-                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
-                            }
+                            viewModel.onGetHistoryMessage(Collections.<Message>emptyList());
+                            viewModel.executePageEvent(
+                                    new Event.RefreshEvent(RefreshState.RefreshFinish));
                         }
 
                         @Override
                         public void onErrorAlways(List<Message> list) {
                             isRefreshLoading = false;
-                            if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(list);
-                                weakVM.get()
-                                        .executePageEvent(
-                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
-                            }
+                            viewModel.onGetHistoryMessage(list);
+                            viewModel.executePageEvent(
+                                    new Event.RefreshEvent(RefreshState.RefreshFinish));
                         }
 
                         @Override
                         public void onErrorOnlySuccess() {
                             isRefreshLoading = false;
-                            if (weakVM.get() != null) {
-                                weakVM.get()
-                                        .executePageEvent(
-                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
-                            }
+                            viewModel.executePageEvent(
+                                    new Event.RefreshEvent(RefreshState.RefreshFinish));
                         }
                     });
         } else {
@@ -267,7 +229,6 @@ public class NormalState implements IMessageState {
 
     private void getMentionMessage(
             final MessageViewModel viewModel, boolean isNewMentionMessage, final Message message) {
-        WeakReference<MessageViewModel> weakVM = new WeakReference<>(viewModel);
         if (isNewMentionMessage) {
             if (!isLoading) {
                 isLoading = true;
@@ -285,19 +246,13 @@ public class NormalState implements IMessageState {
                                 } else {
                                     context.setCurrentState(context.historyState);
                                 }
-                                if (weakVM.get() != null) {
-                                    weakVM.get().onLoadMoreMessage(list);
-                                    weakVM.get()
-                                            .executePageEvent(
-                                                    new Event.RefreshEvent(
-                                                            RefreshState.LoadFinish));
-                                    int position =
-                                            weakVM.get()
-                                                    .findPositionByMessageId(
-                                                            message.getMessageId());
-                                    if (position >= 0) {
-                                        weakVM.get().executePageEvent(new ScrollEvent(position));
-                                    }
+                                viewModel.onLoadMoreMessage(list);
+                                viewModel.executePageEvent(
+                                        new Event.RefreshEvent(RefreshState.LoadFinish));
+                                int position =
+                                        viewModel.findPositionByMessageId(message.getMessageId());
+                                if (position >= 0) {
+                                    viewModel.executePageEvent(new ScrollEvent(position));
                                 }
                             }
 
@@ -313,19 +268,13 @@ public class NormalState implements IMessageState {
                                 } else {
                                     context.setCurrentState(context.historyState);
                                 }
-                                if (weakVM.get() != null) {
-                                    weakVM.get().onLoadMoreMessage(list);
-                                    weakVM.get()
-                                            .executePageEvent(
-                                                    new Event.RefreshEvent(
-                                                            RefreshState.LoadFinish));
-                                    int position =
-                                            weakVM.get()
-                                                    .findPositionByMessageId(
-                                                            message.getMessageId());
-                                    if (position >= 0) {
-                                        weakVM.get().executePageEvent(new ScrollEvent(position));
-                                    }
+                                viewModel.onLoadMoreMessage(list);
+                                viewModel.executePageEvent(
+                                        new Event.RefreshEvent(RefreshState.LoadFinish));
+                                int position =
+                                        viewModel.findPositionByMessageId(message.getMessageId());
+                                if (position >= 0) {
+                                    viewModel.executePageEvent(new ScrollEvent(position));
                                 }
                                 isLoading = false;
                             }
@@ -345,23 +294,17 @@ public class NormalState implements IMessageState {
                     new MessageProcessor.GetMessageCallback() {
                         @Override
                         public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
-                            if (weakVM.get() != null) {
-                                executeMentionHistoryMsg(list, weakVM.get());
-                            }
+                            executeMentionHistoryMsg(list, viewModel);
                         }
 
                         @Override
                         public void onErrorAsk(List<Message> list) {
-                            if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(Collections.<Message>emptyList());
-                            }
+                            viewModel.onGetHistoryMessage(Collections.<Message>emptyList());
                         }
 
                         @Override
                         public void onErrorAlways(List<Message> list) {
-                            if (weakVM.get() != null) {
-                                executeMentionHistoryMsg(list, weakVM.get());
-                            }
+                            executeMentionHistoryMsg(list, viewModel);
                         }
 
                         @Override
@@ -395,7 +338,6 @@ public class NormalState implements IMessageState {
     public void onHistoryBarClick(final MessageViewModel messageViewModel) {
         Message firstUnreadMessage = messageViewModel.getFirstUnreadMessage();
         if (firstUnreadMessage != null) {
-            WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
             MessageProcessor.getMessagesDirection(
                     messageViewModel,
                     firstUnreadMessage.getSentTime() - 2,
@@ -404,23 +346,17 @@ public class NormalState implements IMessageState {
                     new MessageProcessor.GetMessageCallback() {
                         @Override
                         public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
-                            if (weakVM.get() != null) {
-                                executeHistoryBarClick(list, weakVM.get());
-                            }
+                            executeHistoryBarClick(list, messageViewModel);
                         }
 
                         @Override
                         public void onErrorAsk(List<Message> list) {
-                            if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(Collections.<Message>emptyList());
-                            }
+                            messageViewModel.onGetHistoryMessage(Collections.<Message>emptyList());
                         }
 
                         @Override
                         public void onErrorAlways(List<Message> list) {
-                            if (weakVM.get() != null) {
-                                executeHistoryBarClick(list, weakVM.get());
-                            }
+                            executeHistoryBarClick(list, messageViewModel);
                         }
 
                         @Override

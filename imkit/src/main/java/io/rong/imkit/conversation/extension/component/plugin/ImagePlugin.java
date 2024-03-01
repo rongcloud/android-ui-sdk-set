@@ -2,6 +2,7 @@ package io.rong.imkit.conversation.extension.component.plugin;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -23,6 +24,7 @@ import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -59,11 +61,19 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
         }
 
         // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
-        if (PermissionCheckUtil.checkMediaStoragePermissions(currentFragment.getContext())) {
+        String[] permissions = null;
+        if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(extension.getContext())) {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+        } else {
+            permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+        }
+
+        if (PermissionCheckUtil.checkPermissions(currentFragment.getContext(), permissions)) {
             openPictureSelector(currentFragment);
         } else {
-            String[] permissions =
-                    PermissionCheckUtil.getMediaStoragePermissions(currentFragment.getContext());
             extension.requestPermissionForPluginResult(
                     permissions,
                     IPluginRequestPermissionResultCallback.REQUEST_CODE_PERMISSION_PLUGIN,
@@ -74,15 +84,6 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (conversationIdentifier == null) {
-                RLog.e(
-                        TAG,
-                        "onActivityResult conversationIdentifier is null, requestCode="
-                                + requestCode
-                                + ",resultCode="
-                                + resultCode);
-                return;
-            }
             // 图片、视频、音频选择结果回调
             List<LocalMedia> selectList = PictureSelector.obtainMultipleResult(data);
             if (selectList != null && selectList.size() > 0) {

@@ -19,7 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.emoticon.EmoticonBoard;
 import io.rong.imkit.conversation.extension.component.inputpanel.InputPanel;
@@ -172,11 +172,6 @@ public class RongExtension extends LinearLayout {
                                     if (((InputBarEvent) pageEvent)
                                             .mType.equals(InputBarEvent.Type.ReEdit)) {
                                         insertToEditText(((InputBarEvent) pageEvent).mExtra);
-
-                                        // 点击撤回时可能处于语音识别模式，需要切换为文本模式
-                                        mExtensionViewModel
-                                                .getInputModeLiveData()
-                                                .postValue(InputMode.TextInput);
                                     } else if (((InputBarEvent) pageEvent)
                                             .mType.equals(InputBarEvent.Type.ShowMoreMenu)) {
                                         mExtensionViewModel
@@ -321,9 +316,6 @@ public class RongExtension extends LinearLayout {
                 mExtensionViewModel.collapseExtensionBoard();
             }
         }
-        if (mInputPanel != null) {
-            mInputPanel.onPause();
-        }
     }
 
     public void setAttachedInfo(View view) {
@@ -367,7 +359,6 @@ public class RongExtension extends LinearLayout {
 
     public void resetToDefaultView() {
         resetToDefaultView(null);
-        getInputPanel().getDraft();
     }
 
     public void resetToDefaultView(String conversationType) {
@@ -396,8 +387,12 @@ public class RongExtension extends LinearLayout {
         if (mFragment.getContext() != null) {
             mAttachedInfoContainer.removeAllViews();
             mAttachedInfoContainer.setVisibility(GONE);
-            // 在退出更多模式或阅后即焚模式后，重置为普通模式即非输入状态
-            updateInputMode(InputMode.NormalMode);
+            updateInputMode(
+                    RongExtensionCacheHelper.isVoiceInputMode(
+                                    mFragment.getContext(), getConversationType(), getTargetId())
+                            ? InputMode.VoiceInput
+                            : InputMode.TextInput);
+            getInputPanel().getDraft();
         }
     }
 

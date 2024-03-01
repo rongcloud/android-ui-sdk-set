@@ -13,8 +13,6 @@ import androidx.annotation.NonNull;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
-import io.rong.imkit.conversation.extension.RongExtensionManager;
-import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.message.TextMessage;
@@ -49,24 +47,19 @@ public class QuickReplyBoard {
                     @Override
                     public void onItemClick(
                             AdapterView<?> parent, View view, int position, long id) {
-                        sendMessage(mPhraseList.get(position));
+                        String text = mPhraseList.get(position);
+                        TextMessage textMessage = TextMessage.obtain(text);
+                        IMCenter.getInstance()
+                                .sendMessage(
+                                        Message.obtain(mConversationIdentifier, textMessage),
+                                        null,
+                                        null,
+                                        null);
                         if (mListener != null) {
                             mListener.onItemClick(parent, view, position, id);
                         }
                     }
                 });
-    }
-
-    private void sendMessage(String text) {
-        Message message = Message.obtain(mConversationIdentifier, TextMessage.obtain(text));
-        List<IExtensionEventWatcher> watchers =
-                RongExtensionManager.getInstance().getExtensionEventWatcher();
-        if (!watchers.isEmpty()) {
-            for (IExtensionEventWatcher watcher : watchers) {
-                watcher.onSendToggleClick(message);
-            }
-        }
-        IMCenter.getInstance().sendMessage(message, null, null, null);
     }
 
     public void setAttachedConversation(RongExtension extension) {

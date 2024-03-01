@@ -4,9 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.http.SslCertificate;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.GlideKitImageEngine;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitImageEngine;
@@ -28,7 +26,6 @@ public class FeatureConfig {
     private IQuickReplyProvider quickReplyProvider;
     private IMCenter.VoiceMessageType voiceMessageType;
     private List<Conversation.ConversationType> readReceiptSupportTypes;
-    private MutableLiveData<Boolean> isQuickReply = new MediatorLiveData<>();
     // 设置 AMR_NB 语音消息的码率 (单位 bps)[rc_audio_encoding_bit_rate]
     private int audioNBEncodingBitRate;
     // 设置 AMR_WB 语音消息的码率 (单位 bps)[rc_audio_wb_encoding_bit_rate]
@@ -167,10 +164,6 @@ public class FeatureConfig {
         return quickReplyProvider;
     }
 
-    public MutableLiveData<Boolean> getIsQuickReply() {
-        return isQuickReply;
-    }
-
     public boolean isReadReceiptConversationType(Conversation.ConversationType type) {
         if (readReceiptSupportTypes != null) {
             return readReceiptSupportTypes.contains(type);
@@ -205,7 +198,6 @@ public class FeatureConfig {
     public void enableQuickReply(IQuickReplyProvider provider) {
         isQuickReplyEnable = true;
         quickReplyProvider = provider;
-        isQuickReply.setValue(true);
     }
 
     /** @return 用户信息内存最大值 */

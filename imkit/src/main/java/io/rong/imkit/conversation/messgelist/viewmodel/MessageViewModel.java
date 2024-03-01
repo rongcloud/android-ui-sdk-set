@@ -16,7 +16,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rong.common.FileUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.BaseConversationEventListener;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.MessageItemLongClickAction;
@@ -107,14 +107,18 @@ public class MessageViewModel extends AndroidViewModel
     private MediatorLiveData<PageEvent> mPageEventLiveData = new MediatorLiveData<>();
     private MediatorLiveData<List<UiMessage>> mUiMessageLiveData = new MediatorLiveData<>();
     private ConversationIdentifier mConversationIdentifier;
+    private Conversation.ConversationType mCurConversationType = null;
+    private String mCurTargetId = null;
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
             new RongIMClient.ReadReceiptListener() {
                 @Override
                 public void onReadReceiptReceived(Message message) {
-                    if (!isSameConversationMessage(message)) {
+                    if (mCurConversationType == null || TextUtils.isEmpty(mCurTargetId)) {
                         return;
                     }
-                    if (message.getMessageDirection().equals(Message.MessageDirection.RECEIVE)) {
+                    if (mConversationIdentifier.equalsWithMessage(message)
+                            && message.getMessageDirection()
+                                    .equals(Message.MessageDirection.RECEIVE)) {
                         ReadReceiptMessage content = (ReadReceiptMessage) message.getContent();
                         long ntfTime = content.getLastMessageSendTime();
                         int count = 0;
@@ -141,17 +145,17 @@ public class MessageViewModel extends AndroidViewModel
                         Conversation.ConversationType conversationType,
                         String targetId,
                         String messageUId) {
-                    if (!Objects.equals(getCurConversationType(), conversationType)
-                            || !Objects.equals(getCurTargetId(), targetId)) {
+                    if (!Objects.equals(mCurConversationType, conversationType)
+                            || !Objects.equals(mCurTargetId, targetId)) {
                         return;
                     }
-                    if (!(Conversation.ConversationType.GROUP.equals(getCurConversationType())
+                    if (!(Conversation.ConversationType.GROUP.equals(mCurConversationType)
                             || Conversation.ConversationType.DISCUSSION.equals(
-                                    getCurConversationType()))) {
+                                    mCurConversationType))) {
                         return;
                     }
                     mProcessor.onMessageReceiptRequest(
-                            MessageViewModel.this, getCurConversationType(), targetId, messageUId);
+                            MessageViewModel.this, mCurConversationType, targetId, messageUId);
                 }
 
                 @Override
@@ -160,16 +164,21 @@ public class MessageViewModel extends AndroidViewModel
                         String targetId,
                         String messageUid,
                         HashMap<String, Long> respondUserIdList) {
-                    if (getCurConversationType() == null || TextUtils.isEmpty(getCurTargetId())) {
+                    if (mCurConversationType == null || TextUtils.isEmpty(mCurTargetId)) {
                         return;
                     }
-                    if (!(Conversation.ConversationType.GROUP.equals(conversationType)
-                            || Conversation.ConversationType.DISCUSSION.equals(conversationType)
-                            || Conversation.ConversationType.PRIVATE.equals(conversationType))) {
+                    if (!(mCurConversationType.equals(Conversation.ConversationType.GROUP)
+                            || mCurConversationType.equals(
+                                    Conversation.ConversationType.DISCUSSION))) {
                         return;
                     }
-                    if (!conversationType.equals(getCurConversationType())
-                            || !targetId.equals(getCurTargetId())) {
+                    if (!(conversationType.equals(Conversation.ConversationType.GROUP)
+                            || conversationType.equals(Conversation.ConversationType.DISCUSSION)
+                            || conversationType.equals(Conversation.ConversationType.PRIVATE))) {
+                        return;
+                    }
+                    if (!conversationType.equals(mCurConversationType)
+                            || !targetId.equals(mCurTargetId)) {
                         return;
                     }
                     for (final UiMessage item : mUiMessages) {
@@ -213,9 +222,6 @@ public class MessageViewModel extends AndroidViewModel
                 @Override
                 public boolean onReceived(
                         Message message, int left, boolean hasPackage, boolean offline) {
-                    if (!isSameConversationMessage(message)) {
-                        return false;
-                    }
                     ExecutorHelper.getInstance()
                             .mainThread()
                             .execute(
@@ -225,58 +231,66 @@ public class MessageViewModel extends AndroidViewModel
                                             if (mProcessor == null) {
                                                 return;
                                             }
-
-                                            final MessageTag msgTag =
-                                                    message.getContent()
-                                                            .getClass()
-                                                            .getAnnotation(MessageTag.class);
-                                            if (!(msgTag.flag() == MessageTag.ISCOUNTED
-                                                    || msgTag.flag() == MessageTag.ISPERSISTED)) {
-                                                if (mProcessor.onReceivedCmd(
-                                                        MessageViewModel.this, message)) {
-                                                    return;
-                                                }
+                                            if (message == null) {
+                                                return;
                                             }
-                                            UiMessage uiMessage = mapUIMessage(message);
-                                            // 处理在线消息，高清语音下载、消息回执、多端同步
-                                            if (left == 0 && !hasPackage) {
-                                                // 高清语音下载
-                                                if (message.getContent()
-                                                        instanceof HQVoiceMessage) {
-                                                    if (RongConfigCenter.conversationConfig()
-                                                            .rc_enable_automatic_download_voice_msg) {
-                                                        HQVoiceMsgDownloadManager.getInstance()
-                                                                .enqueue(
-                                                                        new AutoDownloadEntry(
-                                                                                message,
-                                                                                AutoDownloadEntry
-                                                                                        .DownloadPriority
-                                                                                        .HIGH));
-                                                    } else {
-                                                        RLog.e(
-                                                                TAG,
-                                                                "rc_enable_automatic_download_voice_msg disable");
+                                            if (mCurConversationType
+                                                            == message.getConversationType()
+                                                    && Objects.equals(
+                                                            mCurTargetId, message.getTargetId())) {
+                                                final MessageTag msgTag =
+                                                        message.getContent()
+                                                                .getClass()
+                                                                .getAnnotation(MessageTag.class);
+                                                if (!(msgTag.flag() == MessageTag.ISCOUNTED
+                                                        || msgTag.flag()
+                                                                == MessageTag.ISPERSISTED)) {
+                                                    if (mProcessor.onReceivedCmd(
+                                                            MessageViewModel.this, message)) {
+                                                        return;
                                                     }
-                                                    uiMessage.setState(State.PROGRESS);
                                                 }
-                                            }
-                                            // 已读状态设置
-                                            if (message.getMessageId() > 0) {
-                                                if (isForegroundActivity()) {
-                                                    message.getReceivedStatus().setRead();
-                                                    RongIMClient.getInstance()
-                                                            .setMessageReceivedStatus(
-                                                                    message.getMessageId(),
-                                                                    message.getReceivedStatus(),
-                                                                    null);
+                                                UiMessage uiMessage = mapUIMessage(message);
+                                                // 处理在线消息，高清语音下载、消息回执、多端同步
+                                                if (left == 0 && !hasPackage) {
+                                                    // 高清语音下载
+                                                    if (message.getContent()
+                                                            instanceof HQVoiceMessage) {
+                                                        if (RongConfigCenter.conversationConfig()
+                                                                .rc_enable_automatic_download_voice_msg) {
+                                                            HQVoiceMsgDownloadManager.getInstance()
+                                                                    .enqueue(
+                                                                            new AutoDownloadEntry(
+                                                                                    message,
+                                                                                    AutoDownloadEntry
+                                                                                            .DownloadPriority
+                                                                                            .HIGH));
+                                                        } else {
+                                                            RLog.e(
+                                                                    TAG,
+                                                                    "rc_enable_automatic_download_voice_msg disable");
+                                                        }
+                                                        uiMessage.setState(State.PROGRESS);
+                                                    }
                                                 }
+                                                // 已读状态设置
+                                                if (message.getMessageId() > 0) {
+                                                    if (isForegroundActivity()) {
+                                                        message.getReceivedStatus().setRead();
+                                                        RongIMClient.getInstance()
+                                                                .setMessageReceivedStatus(
+                                                                        message.getMessageId(),
+                                                                        message.getReceivedStatus(),
+                                                                        null);
+                                                    }
+                                                }
+                                                mProcessor.onReceived(
+                                                        MessageViewModel.this,
+                                                        uiMessage,
+                                                        left,
+                                                        hasPackage,
+                                                        offline);
                                             }
-                                            mProcessor.onReceived(
-                                                    MessageViewModel.this,
-                                                    uiMessage,
-                                                    left,
-                                                    hasPackage,
-                                                    offline);
                                         }
                                     });
                     return false;
@@ -288,12 +302,16 @@ public class MessageViewModel extends AndroidViewModel
                 @Override
                 public boolean onMessageRecalled(
                         Message message, RecallNotificationMessage recallNotificationMessage) {
-                    if (!isSameConversationMessage(message)) {
+                    if (mCurConversationType == null || TextUtils.isEmpty(mCurTargetId)) {
                         return false;
                     }
                     RLog.d(TAG, "onRecallMessage");
                     Conversation.ConversationType conversationType = message.getConversationType();
                     String targetId = message.getTargetId();
+                    if (!conversationType.equals(mCurConversationType)
+                            || !targetId.equals(mCurTargetId)) {
+                        return false;
+                    }
                     UiMessage uiMessage = findUIMessage(message.getMessageId());
                     removeRecallMentionMsg(message);
                     // 当uiMessage = null, 从mNewUnReadMessages中遍历
@@ -346,11 +364,10 @@ public class MessageViewModel extends AndroidViewModel
             new BaseConversationEventListener() {
                 @Override
                 public void onClearedMessage(Conversation.ConversationType type, String targetId) {
-                    if (getCurConversationType() == null || TextUtils.isEmpty(getCurTargetId())) {
+                    if (mCurConversationType == null || TextUtils.isEmpty(mCurTargetId)) {
                         return;
                     }
-                    if (type.equals(getCurConversationType())
-                            && targetId.equals(getCurTargetId())) {
+                    if (type.equals(mCurConversationType) && targetId.equals(mCurTargetId)) {
                         mUiMessages.clear();
                         mFirstUnreadMessage = null;
                         mRemoteMessageLoadFinish = false;
@@ -384,8 +401,9 @@ public class MessageViewModel extends AndroidViewModel
 
     public void bindConversation(ConversationIdentifier conversationIdentifier, Bundle bundle) {
         mConversationIdentifier = conversationIdentifier;
-        mProcessor =
-                ConversationProcessorFactory.getInstance().getProcessor(getCurConversationType());
+        mCurConversationType = conversationIdentifier.getType();
+        mCurTargetId = conversationIdentifier.getTargetId();
+        mProcessor = ConversationProcessorFactory.getInstance().getProcessor(mCurConversationType);
         mBundle = bundle;
         mProcessor.init(this, bundle);
         mIsEditStatus.setValue(false);
@@ -482,17 +500,11 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public String getCurTargetId() {
-        if (mConversationIdentifier == null) {
-            return null;
-        }
-        return mConversationIdentifier.getTargetId();
+        return mCurTargetId;
     }
 
     public Conversation.ConversationType getCurConversationType() {
-        if (mConversationIdentifier == null) {
-            return null;
-        }
-        return mConversationIdentifier.getType();
+        return mCurConversationType;
     }
 
     public ConversationIdentifier getConversationIdentifier() {
@@ -787,8 +799,8 @@ public class MessageViewModel extends AndroidViewModel
                                     RongIM.getInstance()
                                             .setMessageReceivedStatus(
                                                     message.getMessageId(),
-                                                    getCurConversationType(),
-                                                    getCurTargetId(),
+                                                    mCurConversationType,
+                                                    mCurTargetId,
                                                     message.getReceivedStatus(),
                                                     null);
                                     if (message.getContent().isDestruct()
@@ -903,8 +915,7 @@ public class MessageViewModel extends AndroidViewModel
         mUiMessageLiveData.setValue(mUiMessages);
         // 通知输入框刷新
         mPageEventLiveData.setValue(
-                new InputBarEvent(
-                        InputBarEvent.Type.HideMoreMenu, getCurConversationType().getName()));
+                new InputBarEvent(InputBarEvent.Type.HideMoreMenu, mCurConversationType.getName()));
     }
 
     public UiMessage findUIMessage(String messageUId) {
@@ -922,7 +933,9 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     public void onSendMessage(SendEvent event) {
         Message msg = event.getMessage();
-        if (isSameConversationMessage(msg) && msg.getMessageId() > 0) {
+        if (Objects.equals(mCurTargetId, msg.getTargetId())
+                && Objects.equals(mCurConversationType, msg.getConversationType())
+                && msg.getMessageId() > 0) {
             UiMessage uiMessage = findUIMessage(msg.getMessageId());
             boolean isAdd = uiMessage == null;
             if (isAdd) {
@@ -957,7 +970,9 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     public void onSendMediaMessage(SendMediaEvent event) {
         Message msg = event.getMessage();
-        if (isSameConversationMessage(msg) && msg.getMessageId() > 0) {
+        if (Objects.equals(mCurTargetId, msg.getTargetId())
+                && Objects.equals(mCurConversationType, msg.getConversationType())
+                && msg.getMessageId() > 0) {
             UiMessage uiMessage = findUIMessage(msg.getMessageId());
             boolean isAdd = uiMessage == null;
             if (isAdd) {
@@ -976,19 +991,12 @@ public class MessageViewModel extends AndroidViewModel
                     uiMessage.setProgress(event.getProgress());
                     break;
                 case SendMediaEvent.ERROR:
-                    if (event.getCode() != null) {
-                        int code = event.getCode().code;
-                        if (code == IRongCoreEnum.CoreErrorCode.RC_MEDIA_EXCEPTION.getValue()) {
-                            ToastUtils.s(
-                                    getApplication(),
-                                    getApplication().getString(R.string.rc_media_upload_error));
-                        } else if (code
-                                == IRongCoreEnum.CoreErrorCode.RC_GIF_MSG_SIZE_LIMIT_EXCEED
-                                        .getValue()) {
-                            ToastUtils.s(
-                                    getApplication(),
-                                    getApplication().getString(R.string.rc_gif_message_too_large));
-                        }
+                    if (event.getCode() != null
+                            && event.getCode().code
+                                    == RongIMClient.ErrorCode.RC_MEDIA_EXCEPTION.code) {
+                        ToastUtils.s(
+                                getApplication(),
+                                getApplication().getString(R.string.rc_media_upload_error));
                     }
                     sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();
                     msg.setSentTime(sentTime); // 更新成服务器时间
@@ -1015,7 +1023,10 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     public void onDownloadMessage(DownloadEvent event) {
         Message msg = event.getMessage();
-        if (isSameConversationMessage(msg) && msg.getMessageId() > 0) {
+        if (msg != null
+                && Objects.equals(mCurTargetId, msg.getTargetId())
+                && Objects.equals(mCurConversationType, msg.getConversationType())
+                && msg.getMessageId() > 0) {
             UiMessage uiMessage = findUIMessage(msg.getMessageId());
             if (uiMessage != null) {
                 switch (event.getEvent()) {
@@ -1146,8 +1157,8 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     public void onClearMessages(ClearEvent event) {
         RLog.d(TAG, "onClearMessages");
-        if (event.getTargetId().equals(getCurTargetId())
-                && event.getConversationType().equals(getCurConversationType())) {
+        if (event.getTargetId().equals(mCurTargetId)
+                && event.getConversationType().equals(mCurConversationType)) {
             mUiMessages.clear();
             mUiMessageLiveData.setValue(mUiMessages);
             mNewUnReadMentionMessages.clear();
@@ -1219,15 +1230,18 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void processNewMessageUnread(boolean isMainThread) {
-        if (RongConfigCenter.conversationConfig().isShowNewMessageBar(getCurConversationType())) {
-            // 之前逻辑是主线程setValue、非主线程postValue，有时序问题。统一切到主线程执行避免时序问题
-            mainHandler.post(() -> mNewMessageUnreadLiveData.setValue(mNewUnReadMessages.size()));
+        if (RongConfigCenter.conversationConfig().isShowNewMessageBar(mCurConversationType)) {
+            if (isMainThread) {
+                mNewMessageUnreadLiveData.setValue(mNewUnReadMessages.size());
+            } else {
+                mNewMessageUnreadLiveData.postValue(mNewUnReadMessages.size());
+            }
         }
     }
 
     public void updateNewMentionMessageUnreadBar() {
         if (RongConfigCenter.conversationConfig()
-                .isShowNewMentionMessageBar(getCurConversationType())) {
+                .isShowNewMentionMessageBar(mCurConversationType)) {
             if (Looper.getMainLooper().getThread().equals(Thread.currentThread())) {
                 mNewMentionMessageUnreadLiveData.setValue(mNewUnReadMentionMessages.size());
             } else {
@@ -1361,16 +1375,12 @@ public class MessageViewModel extends AndroidViewModel
                                 RLog.e(
                                         TAG,
                                         "sendReadReceiptRequest failed, errorCode = " + errorCode);
-                                if ((errorCode != null
-                                                && errorCode.getValue()
-                                                        == IRongCoreEnum.CoreErrorCode
-                                                                .RC_NET_CHANNEL_INVALID
-                                                                .getValue())
-                                        || (errorCode != null
-                                                && errorCode.getValue()
-                                                        == IRongCoreEnum.CoreErrorCode
-                                                                .RC_NET_UNAVAILABLE
-                                                                .getValue())) {
+                                if (Objects.equals(
+                                                errorCode,
+                                                RongIMClient.ErrorCode.RC_NET_CHANNEL_INVALID)
+                                        || Objects.equals(
+                                                errorCode,
+                                                RongIMClient.ErrorCode.RC_NET_UNAVAILABLE)) {
                                     executePageEvent(
                                             new ToastEvent(
                                                     getApplication()
@@ -1388,7 +1398,9 @@ public class MessageViewModel extends AndroidViewModel
 
     public void onReEditClick(UiMessage uiMessage) {
         Message message = uiMessage.getMessage();
-        if (isSameConversationMessage(message)) {
+        if (message != null
+                && message.getConversationType() == getCurConversationType()
+                && getCurTargetId().equals(message.getTargetId())) {
             MessageContent messageContent = message.getContent();
             if (messageContent instanceof RecallNotificationMessage) {
                 String content = ((RecallNotificationMessage) messageContent).getRecallContent();
@@ -1658,7 +1670,7 @@ public class MessageViewModel extends AndroidViewModel
             setScrollToBottom(false);
         }
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if (RongConfigCenter.conversationConfig().isShowHistoryMessageBar(getCurConversationType())
+        if (RongConfigCenter.conversationConfig().isShowHistoryMessageBar(mCurConversationType)
                 && getFirstUnreadMessage() != null) {
             int firstPosition = findPositionByMessageId(getFirstUnreadMessage().getMessageId());
             if (layoutManager instanceof LinearLayoutManager) {
@@ -1670,7 +1682,7 @@ public class MessageViewModel extends AndroidViewModel
             }
         }
 
-        if (RongConfigCenter.conversationConfig().isShowHistoryMessageBar(getCurConversationType())
+        if (RongConfigCenter.conversationConfig().isShowHistoryMessageBar(mCurConversationType)
                 && mNewUnReadMentionMessages != null
                 && mNewUnReadMentionMessages.size() > 0
                 && getUiMessages().size() > 0) {
@@ -1824,9 +1836,9 @@ public class MessageViewModel extends AndroidViewModel
 
     @Override
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
-        if (!Conversation.ConversationType.GROUP.equals(getCurConversationType())
+        if (!Conversation.ConversationType.GROUP.equals(mCurConversationType)
                 || groupUserInfo == null
-                || !groupUserInfo.getGroupId().equals(getCurTargetId())) {
+                || !groupUserInfo.getGroupId().equals(mCurTargetId)) {
             return;
         }
         for (UiMessage item : getUiMessages()) {
@@ -1885,28 +1897,5 @@ public class MessageViewModel extends AndroidViewModel
             }
         }
         return null;
-    }
-
-    /**
-     * 是否是同一个会话的消息，同一个会话的消息才需要处理
-     *
-     * @param message 消息
-     * @return true 代表和 mConversationIdentifier 相同会话的消息。false 代表和 mConversationIdentifier 不同的会话消息
-     */
-    private boolean isSameConversationMessage(Message message) {
-        if (mConversationIdentifier == null
-                || mConversationIdentifier.getType() == null
-                || TextUtils.isEmpty(mConversationIdentifier.getTargetId())) {
-            return false;
-        }
-        if (message == null
-                || message.getConversationType() == null
-                || TextUtils.isEmpty(message.getTargetId())) {
-            return false;
-        }
-        if (mConversationIdentifier.equalsWithMessage(message)) {
-            return true;
-        }
-        return false;
     }
 }

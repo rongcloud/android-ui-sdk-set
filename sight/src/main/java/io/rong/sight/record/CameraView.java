@@ -30,7 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 import androidx.annotation.NonNull;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;
 import io.rong.sight.util.ValueAnimatorUtil;
@@ -295,11 +295,7 @@ public class CameraView extends RelativeLayout
                     public void onClick(View v) {
                         if (mCamera != null) {
                             RLog.i(TAG, "Touch To Focus");
-                            try {
-                                mCamera.autoFocus(CameraView.this);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            mCamera.autoFocus(CameraView.this);
                         }
                     }
                 });
@@ -458,7 +454,7 @@ public class CameraView extends RelativeLayout
         imageViewSubmitParam.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
         imageViewSubmitParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         imageViewSubmitParam.setMargins(0, 0, 0, controlIconMarginBottom);
-        imageViewSubmitParam.setMarginEnd(controlIconMargin);
+        imageViewSubmitParam.setMarginEnd(controlIconMarginBottom);
         mImageViewSubmit.setLayoutParams(imageViewSubmitParam);
         mImageViewSubmit.setImageResource(R.drawable.rc_ic_sight_record_submit);
         mImageViewSubmit.setVisibility(View.GONE);

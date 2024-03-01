@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Consumer;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.common.utils.function.Action0;
 import io.rong.common.utils.function.Action1;
 import io.rong.common.utils.function.Func0;

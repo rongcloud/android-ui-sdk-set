@@ -16,7 +16,7 @@ import android.media.RingtoneManager;
 import android.os.Build;
 import android.text.TextUtils;
 import androidx.annotation.RequiresApi;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.push.notification.RongNotificationHelper;
@@ -135,8 +135,6 @@ public class NotificationUtil {
                                                 context.getPackageName()));
         Notification notification;
         boolean isLollipop = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
-        String categoryNotification =
-                RongConfigCenter.notificationConfig().getCategoryNotification();
         int smallIcon =
                 context.getResources()
                         .getIdentifier(
@@ -167,14 +165,6 @@ public class NotificationUtil {
         }
 
         Notification.Builder builder = new Notification.Builder(context);
-        // 针对 Android7.0以上8.0以下的设备可以采用该方法强制不合并通知
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            builder.setGroupSummary(false).setGroup("group");
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            builder.setCategory(categoryNotification);
-        }
         builder.setLargeIcon(appIcon);
         builder.setSmallIcon(smallIcon);
         builder.setTicker(tickerText);

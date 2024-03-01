@@ -14,7 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.text.TextUtilsCompat;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;

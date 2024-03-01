@@ -1,6 +1,5 @@
 package io.rong.imkit.utils.videocompressor.videoslimmer;
 
-import android.annotation.SuppressLint;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaExtractor;
@@ -10,21 +9,17 @@ import android.media.MediaMuxer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
+import androidx.annotation.RequiresApi;
 import io.rong.common.FileUtils;
-import io.rong.common.rlog.RLog;
-import io.rong.common.videoslimmer.listner.SlimProgressListener;
-import io.rong.common.videoslimmer.muxer.CodecInputSurface;
-import io.rong.imlib.NativeClient;
-import io.rong.imlib.RongRuntimeException;
+import io.rong.common.RLog;
+import io.rong.imkit.IMCenter;
+import io.rong.imkit.utils.videocompressor.videoslimmer.listner.SlimProgressListener;
+import io.rong.imkit.utils.videocompressor.videoslimmer.muxer.CodecInputSurface;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-/**
- * trans code for video to mp4 mediacodec support 3gp and mp4 已废弃，使用 {@link
- * io.rong.common.videoslimmer.VideoSlimEncoder} 代替
- */
-@Deprecated
+/** trans code for video to mp4 mediacodec support 3gp and mp4 */
 public class VideoSlimEncoder {
     private static final String TAG = "VideoSlimEncoder";
     private static final boolean VERBOSE = true; // lots of logging
@@ -36,22 +31,23 @@ public class VideoSlimEncoder {
     private MediaCodec mEncoder;
     private MediaCodec mDecoder;
     private int mTrackIndex;
-    private io.rong.common.videoslimmer.muxer.CodecInputSurface mInputSurface;
+    private CodecInputSurface mInputSurface;
     // size of a frame, in pixels
     private int mWidth = -1;
     private int mHeight = -1;
     // bit rate, in bits per second
     private int mBitRate = -1;
     private static final int MEDIATYPE_NOT_AUDIO_VIDEO = -233;
-    private static final int FRAME_RATE = 25; // 15fps
-    private static final int IFRAME_INTERVAL = 10; // 10 seconds between I-frames
-    private static final int TIMEOUT_USEC = 2500;
+    private static int FRAME_RATE = 25; // 15fps
+    private static int IFRAME_INTERVAL = 10; // 10 seconds between I-frames
+    private final int TIMEOUT_USEC = 2500;
 
     public VideoSlimEncoder() {
-        // default implementation ignored
+        // do nothing
     }
 
     /** trans video and audio by mediacodec */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public boolean convertVideo(
             final String sourcePath,
             String destinationPath,
@@ -73,7 +69,8 @@ public class VideoSlimEncoder {
                 retriever.setDataSource(sourcePath.substring(7));
             } else if (FileUtils.uriStartWithContent(Uri.parse(sourcePath))) {
                 ParcelFileDescriptor r =
-                        NativeClient.getApplicationContext()
+                        IMCenter.getInstance()
+                                .getContext()
                                 .getContentResolver()
                                 .openFileDescriptor(Uri.parse(sourcePath), "r");
                 retriever.setDataSource(r.getFileDescriptor());
@@ -84,14 +81,19 @@ public class VideoSlimEncoder {
             RLog.e(TAG, e.toString());
             return false;
         }
+        String width = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+        String height = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
         long duration =
-                Long.parseLong(
+                Long.valueOf(
                                 retriever.extractMetadata(
                                         MediaMetadataRetriever.METADATA_KEY_DURATION))
                         * 1000;
 
         long startTime = -1;
         long endTime = -1;
+
+        int originalWidth = Integer.valueOf(width);
+        int originalHeight = Integer.valueOf(height);
 
         mBitRate = nbitrate;
         mWidth = nwidth;
@@ -101,6 +103,11 @@ public class VideoSlimEncoder {
         long videoStartTime = -1;
 
         File cacheFile = new File(destinationPath);
+        File inputFile = new File(path);
+        if (!inputFile.canRead()) {
+
+            return false;
+        }
 
         MediaExtractor extractor = null;
         MediaExtractor mAudioExtractor = null;
@@ -108,45 +115,16 @@ public class VideoSlimEncoder {
         try {
             // video MediaExtractor
             extractor = new MediaExtractor();
-            try {
-                if (FileUtils.uriStartWithFile(Uri.parse(path))) {
-                    extractor.setDataSource(sourcePath.substring(7));
-                } else if (FileUtils.uriStartWithContent(Uri.parse(path))) {
-                    ParcelFileDescriptor r =
-                            NativeClient.getApplicationContext()
-                                    .getContentResolver()
-                                    .openFileDescriptor(Uri.parse(sourcePath), "r");
-                    extractor.setDataSource(r.getFileDescriptor());
-                } else {
-                    extractor.setDataSource(sourcePath);
-                }
-            } catch (Exception e) {
-                RLog.e(TAG, e.toString());
-                return false;
-            }
+            extractor.setDataSource(inputFile.toString());
+
             // audio MediaExtractor
             mAudioExtractor = new MediaExtractor();
-            try {
-                if (FileUtils.uriStartWithFile(Uri.parse(path))) {
-                    mAudioExtractor.setDataSource(sourcePath.substring(7));
-                } else if (FileUtils.uriStartWithContent(Uri.parse(path))) {
-                    ParcelFileDescriptor r =
-                            NativeClient.getApplicationContext()
-                                    .getContentResolver()
-                                    .openFileDescriptor(Uri.parse(sourcePath), "r");
-                    mAudioExtractor.setDataSource(r.getFileDescriptor());
-                } else {
-                    mAudioExtractor.setDataSource(sourcePath);
-                }
-            } catch (Exception e) {
-                RLog.e(TAG, e.toString());
-                return false;
-            }
+            mAudioExtractor.setDataSource(inputFile.toString());
             try {
                 mMuxer = new MediaMuxer(outputPath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
             } catch (IOException ioe) {
 
-                throw new RongRuntimeException("MediaMuxer creation failed", ioe);
+                throw new RuntimeException("MediaMuxer creation failed", ioe);
             }
 
             int muxerAudioTrackIndex = 0;
@@ -157,50 +135,78 @@ public class VideoSlimEncoder {
                 mAudioExtractor.seekTo(0, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
                 MediaFormat trackFormat = mAudioExtractor.getTrackFormat(audioIndex);
                 muxerAudioTrackIndex = mMuxer.addTrack(trackFormat);
+
+                // extractor.unselectTrack(muxerAudioTrackIndex);
             }
 
-            int videoIndex = selectTrack(extractor, false);
+            // mediacodec + surface + opengl
+            if (nwidth != originalWidth || nheight != originalHeight) {
 
-            if (videoIndex >= 0) {
+                int videoIndex = selectTrack(extractor, false);
 
-                long videoTime = -1;
-                boolean outputDone = false;
-                boolean inputDone = false;
-                boolean decoderDone = false;
-                int videoTrackIndex = MEDIATYPE_NOT_AUDIO_VIDEO;
+                if (videoIndex >= 0) {
 
-                extractor.selectTrack(videoIndex);
-                if (startTime > 0) {
-                    extractor.seekTo(startTime, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
-                } else {
-                    extractor.seekTo(0, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
-                }
-                MediaFormat inputFormat = extractor.getTrackFormat(videoIndex);
+                    long videoTime = -1;
+                    boolean outputDone = false;
+                    boolean inputDone = false;
+                    boolean decoderDone = false;
+                    int videoTrackIndex = MEDIATYPE_NOT_AUDIO_VIDEO;
 
-                // init mediacodec  / encoder and decoder
-                prepareEncoder(inputFormat);
+                    extractor.selectTrack(videoIndex);
+                    if (startTime > 0) {
+                        extractor.seekTo(startTime, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+                    } else {
+                        extractor.seekTo(0, MediaExtractor.SEEK_TO_PREVIOUS_SYNC);
+                    }
+                    MediaFormat inputFormat = extractor.getTrackFormat(videoIndex);
 
-                ByteBuffer[] decoderInputBuffers;
-                ByteBuffer[] encoderOutputBuffers;
+                    // init mediacodec  / encoder and decoder
+                    prepareEncoder(inputFormat);
 
-                decoderInputBuffers = mDecoder.getInputBuffers();
-                encoderOutputBuffers = mEncoder.getOutputBuffers();
+                    ByteBuffer[] decoderInputBuffers = null;
+                    ByteBuffer[] encoderOutputBuffers = null;
 
-                while (!outputDone) {
-                    if (!inputDone) {
-                        boolean eof = false;
-                        int index = extractor.getSampleTrackIndex();
-                        if (index == videoIndex) {
-                            int inputBufIndex = mDecoder.dequeueInputBuffer(TIMEOUT_USEC);
-                            if (inputBufIndex >= 0) {
-                                ByteBuffer inputBuf;
-                                if (Build.VERSION.SDK_INT < 21) {
-                                    inputBuf = decoderInputBuffers[inputBufIndex];
-                                } else {
-                                    inputBuf = mDecoder.getInputBuffer(inputBufIndex);
+                    decoderInputBuffers = mDecoder.getInputBuffers();
+                    encoderOutputBuffers = mEncoder.getOutputBuffers();
+
+                    while (!outputDone) {
+                        if (!inputDone) {
+                            boolean eof = false;
+                            int index = extractor.getSampleTrackIndex();
+                            if (index == videoIndex) {
+                                int inputBufIndex = mDecoder.dequeueInputBuffer(TIMEOUT_USEC);
+                                if (inputBufIndex >= 0) {
+                                    ByteBuffer inputBuf;
+                                    if (Build.VERSION.SDK_INT < 21) {
+                                        inputBuf = decoderInputBuffers[inputBufIndex];
+                                    } else {
+                                        inputBuf = mDecoder.getInputBuffer(inputBufIndex);
+                                    }
+                                    int chunkSize = extractor.readSampleData(inputBuf, 0);
+                                    if (chunkSize < 0) {
+                                        mDecoder.queueInputBuffer(
+                                                inputBufIndex,
+                                                0,
+                                                0,
+                                                0L,
+                                                MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+                                        inputDone = true;
+                                    } else {
+                                        mDecoder.queueInputBuffer(
+                                                inputBufIndex,
+                                                0,
+                                                chunkSize,
+                                                extractor.getSampleTime(),
+                                                0);
+                                        extractor.advance();
+                                    }
                                 }
-                                int chunkSize = extractor.readSampleData(inputBuf, 0);
-                                if (chunkSize < 0) {
+                            } else if (index == -1) {
+                                eof = true;
+                            }
+                            if (eof) {
+                                int inputBufIndex = mDecoder.dequeueInputBuffer(TIMEOUT_USEC);
+                                if (inputBufIndex >= 0) {
                                     mDecoder.queueInputBuffer(
                                             inputBufIndex,
                                             0,
@@ -208,190 +214,180 @@ public class VideoSlimEncoder {
                                             0L,
                                             MediaCodec.BUFFER_FLAG_END_OF_STREAM);
                                     inputDone = true;
-                                } else {
-                                    mDecoder.queueInputBuffer(
-                                            inputBufIndex,
-                                            0,
-                                            chunkSize,
-                                            extractor.getSampleTime(),
-                                            0);
-                                    extractor.advance();
                                 }
                             }
-                        } else if (index == -1) {
-                            eof = true;
                         }
-                        if (eof) {
-                            int inputBufIndex = mDecoder.dequeueInputBuffer(TIMEOUT_USEC);
-                            if (inputBufIndex >= 0) {
-                                mDecoder.queueInputBuffer(
-                                        inputBufIndex,
-                                        0,
-                                        0,
-                                        0L,
-                                        MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-                                inputDone = true;
-                            }
-                        }
-                    }
 
-                    boolean decoderOutputAvailable = !decoderDone;
-                    boolean encoderOutputAvailable = true;
+                        boolean decoderOutputAvailable = !decoderDone;
+                        boolean encoderOutputAvailable = true;
 
-                    while (decoderOutputAvailable || encoderOutputAvailable) {
+                        while (decoderOutputAvailable || encoderOutputAvailable) {
 
-                        int encoderStatus = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
-                        if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                            encoderOutputAvailable = false;
-                        } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                            if (Build.VERSION.SDK_INT < 21) {
-                                encoderOutputBuffers = mEncoder.getOutputBuffers();
-                            }
-                        } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                            MediaFormat newFormat = mEncoder.getOutputFormat();
-                            if (videoTrackIndex == MEDIATYPE_NOT_AUDIO_VIDEO) {
-                                videoTrackIndex = mMuxer.addTrack(newFormat);
-                                mTrackIndex = videoTrackIndex;
-                                mMuxer.start();
-                            }
-                        } else if (encoderStatus < 0) {
-                            throw new RongRuntimeException(
-                                    "unexpected result from mEncoder.dequeueOutputBuffer: "
-                                            + encoderStatus);
-                        } else {
-                            ByteBuffer encodedData;
-                            if (Build.VERSION.SDK_INT < 21) {
-                                encodedData = encoderOutputBuffers[encoderStatus];
-                            } else {
-                                encodedData = mEncoder.getOutputBuffer(encoderStatus);
-                            }
-                            if (encodedData == null) {
-                                throw new RongRuntimeException(
-                                        "encoderOutputBuffer " + encoderStatus + " was null");
-                            }
-                            if (mBufferInfo.size > 1) {
-                                if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG)
-                                        == 0) {
-                                    mMuxer.writeSampleData(
-                                            videoTrackIndex, encodedData, mBufferInfo);
-                                } else if (videoTrackIndex == MEDIATYPE_NOT_AUDIO_VIDEO) {
-                                    byte[] csd = new byte[mBufferInfo.size];
-                                    encodedData.limit(mBufferInfo.offset + mBufferInfo.size);
-                                    encodedData.position(mBufferInfo.offset);
-                                    encodedData.get(csd);
-                                    ByteBuffer sps = null;
-                                    ByteBuffer pps = null;
-                                    for (int a = mBufferInfo.size - 1; a >= 0; a--) {
-                                        if (a > 3) {
-                                            if (csd[a] == 1
-                                                    && csd[a - 1] == 0
-                                                    && csd[a - 2] == 0
-                                                    && csd[a - 3] == 0) {
-                                                sps = ByteBuffer.allocate(a - 3);
-                                                pps =
-                                                        ByteBuffer.allocate(
-                                                                mBufferInfo.size - (a - 3));
-                                                sps.put(csd, 0, a - 3).position(0);
-                                                pps.put(csd, a - 3, mBufferInfo.size - (a - 3))
-                                                        .position(0);
-                                                break;
-                                            }
-                                        } else {
-                                            break;
-                                        }
-                                    }
-
-                                    MediaFormat newFormat =
-                                            MediaFormat.createVideoFormat(
-                                                    MIME_TYPE, nwidth, nheight);
-                                    if (sps != null && pps != null) {
-                                        newFormat.setByteBuffer("csd-0", sps);
-                                        newFormat.setByteBuffer("csd-1", pps);
-                                    }
+                            int encoderStatus =
+                                    mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
+                            if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
+                                encoderOutputAvailable = false;
+                            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+                                if (Build.VERSION.SDK_INT < 21) {
+                                    encoderOutputBuffers = mEncoder.getOutputBuffers();
+                                }
+                            } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                                MediaFormat newFormat = mEncoder.getOutputFormat();
+                                if (videoTrackIndex == MEDIATYPE_NOT_AUDIO_VIDEO) {
                                     videoTrackIndex = mMuxer.addTrack(newFormat);
+                                    mTrackIndex = videoTrackIndex;
                                     mMuxer.start();
                                 }
-                            }
-                            outputDone =
-                                    (mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
-                            mEncoder.releaseOutputBuffer(encoderStatus, false);
-                        }
-                        if (encoderStatus != MediaCodec.INFO_TRY_AGAIN_LATER) {
-                            continue;
-                        }
-
-                        if (!decoderDone) {
-                            int decoderStatus =
-                                    mDecoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
-                            if (decoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
-                                decoderOutputAvailable = false;
-                            } else if (decoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-
-                            } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
-                                MediaFormat newFormat = mDecoder.getOutputFormat();
-                            } else if (decoderStatus < 0) {
-                                throw new RongRuntimeException(
-                                        "unexpected result from mDecoder.dequeueOutputBuffer: "
-                                                + decoderStatus);
+                            } else if (encoderStatus < 0) {
+                                throw new RuntimeException(
+                                        "unexpected result from mEncoder.dequeueOutputBuffer: "
+                                                + encoderStatus);
                             } else {
-                                boolean doRender;
-
-                                doRender = mBufferInfo.size != 0;
-
-                                if (endTime > 0 && mBufferInfo.presentationTimeUs >= endTime) {
-                                    inputDone = true;
-                                    decoderDone = true;
-                                    doRender = false;
-                                    mBufferInfo.flags |= MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+                                ByteBuffer encodedData;
+                                if (Build.VERSION.SDK_INT < 21) {
+                                    encodedData = encoderOutputBuffers[encoderStatus];
+                                } else {
+                                    encodedData = mEncoder.getOutputBuffer(encoderStatus);
                                 }
-                                if (startTime > 0 && videoTime == -1) {
-                                    if (mBufferInfo.presentationTimeUs < startTime) {
-                                        doRender = false;
-                                    } else {
-                                        videoTime = mBufferInfo.presentationTimeUs;
-                                    }
+                                if (encodedData == null) {
+                                    throw new RuntimeException(
+                                            "encoderOutputBuffer " + encoderStatus + " was null");
                                 }
-                                mDecoder.releaseOutputBuffer(decoderStatus, doRender);
-                                if (doRender) {
-                                    boolean errorWait = false;
-                                    try {
-                                        mInputSurface.awaitNewImage();
-                                    } catch (Exception e) {
-                                        errorWait = true;
-                                        RLog.e(TAG, e.getMessage());
-                                    }
-                                    if (!errorWait) {
-
-                                        mInputSurface.drawImage();
-                                        mInputSurface.setPresentationTime(
-                                                mBufferInfo.presentationTimeUs * 1000);
-
-                                        if (listener != null) {
-                                            listener.onProgress(
-                                                    (float) mBufferInfo.presentationTimeUs
-                                                            / (float) duration
-                                                            * 100);
+                                if (mBufferInfo.size > 1) {
+                                    if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG)
+                                            == 0) {
+                                        mMuxer.writeSampleData(
+                                                videoTrackIndex, encodedData, mBufferInfo);
+                                    } else if (videoTrackIndex == MEDIATYPE_NOT_AUDIO_VIDEO) {
+                                        byte[] csd = new byte[mBufferInfo.size];
+                                        encodedData.limit(mBufferInfo.offset + mBufferInfo.size);
+                                        encodedData.position(mBufferInfo.offset);
+                                        encodedData.get(csd);
+                                        ByteBuffer sps = null;
+                                        ByteBuffer pps = null;
+                                        for (int a = mBufferInfo.size - 1; a >= 0; a--) {
+                                            if (a > 3) {
+                                                if (csd[a] == 1
+                                                        && csd[a - 1] == 0
+                                                        && csd[a - 2] == 0
+                                                        && csd[a - 3] == 0) {
+                                                    sps = ByteBuffer.allocate(a - 3);
+                                                    pps =
+                                                            ByteBuffer.allocate(
+                                                                    mBufferInfo.size - (a - 3));
+                                                    sps.put(csd, 0, a - 3).position(0);
+                                                    pps.put(csd, a - 3, mBufferInfo.size - (a - 3))
+                                                            .position(0);
+                                                    break;
+                                                }
+                                            } else {
+                                                break;
+                                            }
                                         }
 
-                                        mInputSurface.swapBuffers();
+                                        MediaFormat newFormat =
+                                                MediaFormat.createVideoFormat(
+                                                        MIME_TYPE, nwidth, nheight);
+                                        if (sps != null && pps != null) {
+                                            newFormat.setByteBuffer("csd-0", sps);
+                                            newFormat.setByteBuffer("csd-1", pps);
+                                        }
+                                        videoTrackIndex = mMuxer.addTrack(newFormat);
+                                        mMuxer.start();
                                     }
                                 }
-                                if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM)
-                                        != 0) {
-                                    decoderOutputAvailable = false;
+                                outputDone =
+                                        (mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                                                != 0;
+                                mEncoder.releaseOutputBuffer(encoderStatus, false);
+                            }
+                            if (encoderStatus != MediaCodec.INFO_TRY_AGAIN_LATER) {
+                                continue;
+                            }
 
-                                    mEncoder.signalEndOfInputStream();
+                            if (!decoderDone) {
+                                int decoderStatus =
+                                        mDecoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC);
+                                if (decoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
+                                    decoderOutputAvailable = false;
+                                } else if (decoderStatus
+                                        == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
+
+                                } else if (decoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
+                                    MediaFormat newFormat = mDecoder.getOutputFormat();
+                                } else if (decoderStatus < 0) {
+                                    throw new RuntimeException(
+                                            "unexpected result from mDecoder.dequeueOutputBuffer: "
+                                                    + decoderStatus);
+                                } else {
+                                    boolean doRender = false;
+
+                                    doRender = mBufferInfo.size != 0;
+
+                                    if (endTime > 0 && mBufferInfo.presentationTimeUs >= endTime) {
+                                        inputDone = true;
+                                        decoderDone = true;
+                                        doRender = false;
+                                        mBufferInfo.flags |= MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+                                    }
+                                    if (startTime > 0 && videoTime == -1) {
+                                        if (mBufferInfo.presentationTimeUs < startTime) {
+                                            doRender = false;
+                                            ;
+                                        } else {
+                                            videoTime = mBufferInfo.presentationTimeUs;
+                                        }
+                                    }
+                                    mDecoder.releaseOutputBuffer(decoderStatus, doRender);
+                                    if (doRender) {
+                                        boolean errorWait = false;
+                                        try {
+                                            mInputSurface.awaitNewImage();
+                                        } catch (Exception e) {
+                                            errorWait = true;
+                                            RLog.e(TAG, e.getMessage());
+                                        }
+                                        if (!errorWait) {
+
+                                            mInputSurface.drawImage();
+                                            mInputSurface.setPresentationTime(
+                                                    mBufferInfo.presentationTimeUs * 1000);
+
+                                            if (listener != null) {
+                                                listener.onProgress(
+                                                        (float) mBufferInfo.presentationTimeUs
+                                                                / (float) duration
+                                                                * 100);
+                                            }
+
+                                            mInputSurface.swapBuffers();
+                                        }
+                                    }
+                                    if ((mBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+                                            != 0) {
+                                        decoderOutputAvailable = false;
+
+                                        mEncoder.signalEndOfInputStream();
+                                    }
                                 }
                             }
                         }
                     }
+                    if (videoTime != -1) {
+                        videoStartTime = videoTime;
+                    }
                 }
+
+                extractor.unselectTrack(videoIndex);
+
+            } else {
+                long videoTime =
+                        simpleReadAndWriteTrack(
+                                extractor, mMuxer, mBufferInfo, startTime, endTime, false);
                 if (videoTime != -1) {
                     videoStartTime = videoTime;
                 }
             }
-
-            extractor.unselectTrack(videoIndex);
 
             writeAudioTrack(
                     mAudioExtractor,
@@ -404,28 +400,32 @@ public class VideoSlimEncoder {
 
         } catch (Exception e) {
             error = true;
-            RLog.e(TAG, "convertVideo", e);
+            RLog.e(TAG, e.getMessage());
         } finally {
             if (extractor != null) {
                 extractor.release();
+                extractor = null;
             }
 
             if (mAudioExtractor != null) {
                 mAudioExtractor.release();
+                mAudioExtractor = null;
             }
         }
 
         boolean b = releaseCoder();
 
-        return !error || b;
+        if (error && !b) return false;
+        else return true;
     }
 
     private boolean checkParmsError(int nwidth, int nheight, int nbitrate) {
 
-        return nwidth <= 0 || nheight <= 0 || nbitrate <= 0;
+        if (nwidth <= 0 || nheight <= 0 || nbitrate <= 0) return true;
+        else return false;
     }
 
-    @SuppressLint("WrongConstant")
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private long simpleReadAndWriteTrack(
             MediaExtractor extractor,
             MediaMuxer mediaMuxer,
@@ -490,7 +490,7 @@ public class VideoSlimEncoder {
         return -1;
     }
 
-    @SuppressLint("WrongConstant")
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private long writeAudioTrack(
             MediaExtractor extractor,
             MediaMuxer mediaMuxer,
@@ -572,6 +572,7 @@ public class VideoSlimEncoder {
     }
 
     /** Configures encoder and muxer state, and prepares the input Surface. */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void prepareEncoder(MediaFormat inputFormat) {
         mBufferInfo = new MediaCodec.BufferInfo();
 
@@ -626,6 +627,7 @@ public class VideoSlimEncoder {
     }
 
     /** Releases encoder resources. May be called after partial / failed initialization. */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private boolean releaseCoder() {
         if (VERBOSE) RLog.d(TAG, "releasing encoder objects");
         if (mEncoder != null) {

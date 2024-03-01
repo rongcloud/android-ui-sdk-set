@@ -20,7 +20,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.core.app.AppOpsManagerCompat;
 import androidx.fragment.app.Fragment;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -202,31 +202,6 @@ public class PermissionCheckUtil {
             }
         }
         return true;
-    }
-
-    public static String[] getMediaStoragePermissions(Context context) {
-        String[] permissions;
-        if (RongUtils.checkSDKVersionAndTargetIsUDC(context)) {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_MEDIA_IMAGES,
-                        Manifest.permission.READ_MEDIA_VIDEO,
-                        Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-                    };
-        } else if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(context)) {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                    };
-        } else {
-            permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-        }
-        return permissions;
-    }
-
-    public static boolean checkMediaStoragePermissions(Context context) {
-        String[] permissions = getMediaStoragePermissions(context);
-        return checkPermissions(context, permissions);
     }
 
     private static boolean isFlyme() {

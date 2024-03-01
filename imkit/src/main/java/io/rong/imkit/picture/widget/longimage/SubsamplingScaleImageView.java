@@ -37,6 +37,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -44,8 +45,6 @@ import android.view.View;
 import android.view.ViewParent;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
-import io.rong.common.CursorUtils;
-import io.rong.common.rlog.RLog;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -360,7 +359,7 @@ public class SubsamplingScaleImageView extends View {
             float heightScale = viewHeight / bitmapHeight;
             float widthScale = viewWidth / bitmapWidth;
             float scaleMax = Math.max(widthScale, heightScale);
-            RLog.e(
+            Log.e(
                     "setBitmapAndFileUri",
                     "bitmapHeight:"
                             + bitmapHeight
@@ -1369,14 +1368,14 @@ public class SubsamplingScaleImageView extends View {
             int subTileWidth = sTileWidth / sampleSize;
             int subTileHeight = sTileHeight / sampleSize;
 
-            RLog.i("initialiseTileMap", " sampleSize = " + sampleSize);
-            RLog.i("initialiseTileMap", " sWidth() = " + sWidth() + " xTiles = " + xTiles);
-            RLog.i("initialiseTileMap", " sHeight() = " + sHeight() + " yTiles = " + yTiles);
-            RLog.i("initialiseTileMap", " sTileWidth = " + sTileWidth);
-            RLog.i("initialiseTileMap", " sTileWidth = " + sTileHeight);
-            RLog.i("initialiseTileMap", " subTileWidth = " + subTileWidth);
-            RLog.i("initialiseTileMap", " subTileHeight = " + subTileHeight);
-            RLog.i(
+            Log.i("initialiseTileMap", " sampleSize = " + sampleSize);
+            Log.i("initialiseTileMap", " sWidth() = " + sWidth() + " xTiles = " + xTiles);
+            Log.i("initialiseTileMap", " sHeight() = " + sHeight() + " yTiles = " + yTiles);
+            Log.i("initialiseTileMap", " sTileWidth = " + sTileWidth);
+            Log.i("initialiseTileMap", " sTileWidth = " + sTileHeight);
+            Log.i("initialiseTileMap", " subTileWidth = " + subTileWidth);
+            Log.i("initialiseTileMap", " subTileHeight = " + subTileHeight);
+            Log.i(
                     "initialiseTileMap",
                     " maxTileDimensions.x = "
                             + maxTileDimensions.x
@@ -1397,7 +1396,7 @@ public class SubsamplingScaleImageView extends View {
                 sTileHeight = sHeight() / yTiles;
                 subTileHeight = sTileHeight / sampleSize; // 计算抽样后的实际像素
             }
-            RLog.i(
+            Log.i(
                     "initialiseTileMap",
                     "xTiles = "
                             + xTiles
@@ -1424,12 +1423,12 @@ public class SubsamplingScaleImageView extends View {
                     tileGrid.add(tile);
                 }
             }
-            RLog.i("initialiseTileMap", "tileGrid.size() = " + tileGrid.size());
+            Log.i("initialiseTileMap", "tileGrid.size() = " + tileGrid.size());
             tileMap.put(sampleSize, tileGrid);
             if (sampleSize == 1) {
                 break;
             } else {
-                RLog.i("initialiseTileMap", " sampleSize = " + sampleSize);
+                Log.i("initialiseTileMap", " sampleSize = " + sampleSize);
                 sampleSize /= 2; // 加大抽样率
             }
         }
@@ -1562,7 +1561,8 @@ public class SubsamplingScaleImageView extends View {
             try {
                 String[] columns = {MediaStore.Images.Media.ORIENTATION};
                 cursor =
-                        CursorUtils.query(context, Uri.parse(sourceUri), columns, null, null, null);
+                        context.getContentResolver()
+                                .query(Uri.parse(sourceUri), columns, null, null, null);
                 if (cursor != null) {
                     if (cursor.moveToFirst()) {
                         int orientation = cursor.getInt(0);
@@ -1570,12 +1570,12 @@ public class SubsamplingScaleImageView extends View {
                                 && orientation != ORIENTATION_USE_EXIF) {
                             exifOrientation = orientation;
                         } else {
-                            RLog.w(TAG, "Unsupported orientation: " + orientation);
+                            Log.w(TAG, "Unsupported orientation: " + orientation);
                         }
                     }
                 }
             } catch (Exception e) {
-                RLog.w(TAG, "Could not get orientation of image from media store");
+                Log.w(TAG, "Could not get orientation of image from media store");
             } finally {
                 if (cursor != null) {
                     cursor.close();
@@ -1597,10 +1597,10 @@ public class SubsamplingScaleImageView extends View {
                 } else if (orientationAttr == ExifInterface.ORIENTATION_ROTATE_270) {
                     exifOrientation = ORIENTATION_270;
                 } else {
-                    RLog.w(TAG, "Unsupported EXIF orientation: " + orientationAttr);
+                    Log.w(TAG, "Unsupported EXIF orientation: " + orientationAttr);
                 }
             } catch (Exception e) {
-                RLog.w(TAG, "Could not get EXIF orientation of image");
+                Log.w(TAG, "Could not get EXIF orientation of image");
             }
         }
         return exifOrientation;
@@ -2721,7 +2721,7 @@ public class SubsamplingScaleImageView extends View {
                 try {
                     anim.listener.onInterruptedByUser();
                 } catch (Exception e) {
-                    RLog.w(TAG, "Error thrown by animation listener, e:" + e);
+                    Log.w(TAG, "Error thrown by animation listener", e);
                 }
             }
             anim = null;
@@ -2861,7 +2861,7 @@ public class SubsamplingScaleImageView extends View {
                     try {
                         anim.listener.onComplete();
                     } catch (Exception e) {
-                        RLog.w(TAG, "Error thrown by animation listener, e:" + e);
+                        Log.w(TAG, "Error thrown by animation listener", e);
                     }
                 }
                 anim = null;
@@ -3132,7 +3132,7 @@ public class SubsamplingScaleImageView extends View {
     @AnyThread
     private void debug(String message, Object... args) {
         if (debug) {
-            RLog.d(TAG, String.format(message, args));
+            Log.d(TAG, String.format(message, args));
         }
     }
 
@@ -3376,7 +3376,7 @@ public class SubsamplingScaleImageView extends View {
                     return new int[] {sWidth, sHeight, exifOrientation};
                 }
             } catch (Exception e) {
-                RLog.e(TAG, "Failed to initialise bitmap decoder", e);
+                Log.e(TAG, "Failed to initialise bitmap decoder", e);
                 this.exception = e;
             }
             return null;
@@ -3442,10 +3442,10 @@ public class SubsamplingScaleImageView extends View {
                     tile.loading = false;
                 }
             } catch (Exception e) {
-                RLog.e(TAG, "Failed to decode tile", e);
+                Log.e(TAG, "Failed to decode tile", e);
                 this.exception = e;
             } catch (OutOfMemoryError e) {
-                RLog.e(TAG, "Failed to decode tile - OutOfMemoryError", e);
+                Log.e(TAG, "Failed to decode tile - OutOfMemoryError", e);
                 this.exception = new RuntimeException(e);
             }
             return null;
@@ -3505,10 +3505,10 @@ public class SubsamplingScaleImageView extends View {
                     return view.getExifOrientation(context, sourceUri);
                 }
             } catch (Exception e) {
-                RLog.e(TAG, "Failed to load bitmap", e);
+                Log.e(TAG, "Failed to load bitmap", e);
                 this.exception = e;
             } catch (OutOfMemoryError e) {
-                RLog.e(TAG, "Failed to load bitmap - OutOfMemoryError", e);
+                Log.e(TAG, "Failed to load bitmap - OutOfMemoryError", e);
                 this.exception = new RuntimeException(e);
             }
             return null;
@@ -3764,7 +3764,7 @@ public class SubsamplingScaleImageView extends View {
                 try {
                     anim.listener.onInterruptedByNewAnim();
                 } catch (Exception e) {
-                    RLog.w(TAG, "Error thrown by animation listener, e:" + e);
+                    Log.w(TAG, "Error thrown by animation listener", e);
                 }
             }
 

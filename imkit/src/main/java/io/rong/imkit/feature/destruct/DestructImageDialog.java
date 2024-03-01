@@ -15,10 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.RongUtils;
-import io.rong.imkit.utils.ToastUtils;
 
 /** BaseDialogFragment Created by lvhongzhen on 18/8/21. */
 public class DestructImageDialog extends DialogFragment implements View.OnClickListener {
@@ -136,9 +135,13 @@ public class DestructImageDialog extends DialogFragment implements View.OnClickL
     public void show(FragmentManager manager) {
         if (!hasSight && !hasImage) {
             if (getContext() != null) {
-                String text =
-                        getContext().getResources().getString(R.string.rc_dialog_no_plugin_warning);
-                ToastUtils.show(getContext(), text, Toast.LENGTH_SHORT);
+                Toast.makeText(
+                                getContext(),
+                                getContext()
+                                        .getResources()
+                                        .getString(R.string.rc_dialog_no_plugin_warning),
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
             return;
         }

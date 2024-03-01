@@ -17,11 +17,9 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
-import io.rong.common.CursorUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
-import io.rong.imkit.utils.PermissionCheckUtil;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -170,20 +168,20 @@ public class PictureFileUtils {
      */
     public static String getDataColumn(
             Context context, Uri uri, String selection, String[] selectionArgs) {
-        if (!PermissionCheckUtil.checkMediaStoragePermissions(context)) {
-            return "";
-        }
+
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = {column};
 
         try {
-            cursor = CursorUtils.query(context, uri, projection, selection, selectionArgs, null);
+            cursor =
+                    context.getContentResolver()
+                            .query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
-        } catch (Exception ex) {
+        } catch (IllegalArgumentException ex) {
             RLog.i(
                     TAG,
                     String.format(
@@ -575,6 +573,7 @@ public class PictureFileUtils {
                 }
             } catch (Exception e) {
                 RLog.e(TAG, e.getMessage());
+                ;
             }
         }
         return "";

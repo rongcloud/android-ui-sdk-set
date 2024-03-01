@@ -18,8 +18,7 @@ import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
-import io.rong.common.rlog.RLog;
-import io.rong.imkit.utils.ToastUtils;
+import io.rong.common.RLog;
 import java.util.Locale;
 import java.util.Random;
 import org.json.JSONException;
@@ -289,8 +288,11 @@ public class Recognizer extends RelativeLayout implements RecognizerListener {
     @Override
     public void onError(SpeechError speechError) {
         if (speechError.getErrorCode() == ErrorCode.ERROR_NO_NETWORK) {
-            String text = getContext().getString(R.string.rc_plugin_recognize_check_network);
-            ToastUtils.show(getContext(), text, Toast.LENGTH_SHORT);
+            Toast.makeText(
+                            getContext(),
+                            getContext().getString(R.string.rc_plugin_recognize_check_network),
+                            Toast.LENGTH_SHORT)
+                    .show();
         }
         if (imgMic != null) {
             imgMic.setImageResource(R.drawable.rc_recognize_disable);

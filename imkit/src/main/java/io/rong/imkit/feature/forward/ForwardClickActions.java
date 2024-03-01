@@ -7,7 +7,7 @@ import android.os.Build;
 import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.ConversationFragment;
 import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;

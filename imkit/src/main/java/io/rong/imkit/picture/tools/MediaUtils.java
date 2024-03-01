@@ -8,8 +8,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
-import io.rong.common.CursorUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.picture.config.PictureMimeType;
 import io.rong.imkit.picture.entity.LocalMedia;
 
@@ -148,33 +147,26 @@ public class MediaUtils {
     @Deprecated
     public static int[] getLocalSizeToAndroidQ(Context context, String videoPath) {
         int[] size = new int[2];
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) {
-            return size;
-        }
-        Cursor query = null;
         try {
-            query =
-                    CursorUtils.query(
-                            context.getApplicationContext(),
-                            Uri.parse(videoPath),
-                            null,
-                            null,
-                            null);
-            if (query != null) {
-                query.moveToFirst();
-                size[0] =
-                        query.getInt(
-                                query.getColumnIndexOrThrow(MediaStore.Files.FileColumns.WIDTH));
-                size[1] =
-                        query.getInt(
-                                query.getColumnIndexOrThrow(MediaStore.Files.FileColumns.HEIGHT));
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                Cursor query =
+                        context.getApplicationContext()
+                                .getContentResolver()
+                                .query(Uri.parse(videoPath), null, null, null);
+                if (query != null) {
+                    query.moveToFirst();
+                    size[0] =
+                            query.getInt(
+                                    query.getColumnIndexOrThrow(
+                                            MediaStore.Files.FileColumns.WIDTH));
+                    size[1] =
+                            query.getInt(
+                                    query.getColumnIndexOrThrow(
+                                            MediaStore.Files.FileColumns.HEIGHT));
+                }
             }
         } catch (Exception e) {
             RLog.e(TAG, e.getMessage());
-        } finally {
-            if (query != null) {
-                query.close();
-            }
         }
         return size;
     }
@@ -186,29 +178,24 @@ public class MediaUtils {
      */
     public static int[] getLocalImageSizeToAndroidQ(Context context, String videoPath) {
         int[] size = new int[2];
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) {
-            return size;
-        }
-        Cursor query = null;
         try {
-            query =
-                    CursorUtils.query(
-                            context.getApplicationContext(),
-                            Uri.parse(videoPath),
-                            null,
-                            null,
-                            null);
-            if (query != null) {
-                query.moveToFirst();
-                size[0] = query.getInt(query.getColumnIndexOrThrow(MediaStore.Images.Media.WIDTH));
-                size[1] = query.getInt(query.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT));
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                Cursor query =
+                        context.getApplicationContext()
+                                .getContentResolver()
+                                .query(Uri.parse(videoPath), null, null, null);
+                if (query != null) {
+                    query.moveToFirst();
+                    size[0] =
+                            query.getInt(
+                                    query.getColumnIndexOrThrow(MediaStore.Images.Media.WIDTH));
+                    size[1] =
+                            query.getInt(
+                                    query.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT));
+                }
             }
         } catch (Exception e) {
             RLog.e(TAG, e.getMessage());
-        } finally {
-            if (query != null) {
-                query.close();
-            }
         }
         return size;
     }
@@ -283,8 +270,6 @@ public class MediaUtils {
      */
     @Deprecated
     public static int getLastImageId(Context context, String mimeType) {
-        Cursor imageCursor = null;
-        int imageId = -1;
         try {
             // selection: 指定查询条件
             boolean isMimeType = PictureMimeType.eqImage(mimeType);
@@ -296,17 +281,17 @@ public class MediaUtils {
                             : MediaStore.Images.Media.DATA + " like ?";
             // 定义selectionArgs：
             String[] selectionArgs = {absolutePath + "%"};
-            imageCursor =
-                    CursorUtils.query(
-                            context,
-                            isMimeType
-                                    ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                                    : MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            null,
-                            selection,
-                            selectionArgs,
-                            ORDER_BY);
-            if (imageCursor != null && imageCursor.moveToFirst()) {
+            Cursor imageCursor =
+                    context.getContentResolver()
+                            .query(
+                                    isMimeType
+                                            ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                                            : MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                                    null,
+                                    selection,
+                                    selectionArgs,
+                                    ORDER_BY);
+            if (imageCursor.moveToFirst()) {
                 int id =
                         imageCursor.getInt(
                                 isMimeType
@@ -320,16 +305,15 @@ public class MediaUtils {
                                         : imageCursor.getColumnIndex(
                                                 MediaStore.Images.Media.DATE_ADDED));
                 int duration = DateUtils.getInstance().dateDiffer(date);
+                imageCursor.close();
                 // DCIM文件下最近时间30s以内的图片，可以判定是最新生成的重复照片
-                imageId = duration <= 30 ? id : -1;
+                return duration <= 30 ? id : -1;
+            } else {
+                return -1;
             }
         } catch (Exception e) {
             RLog.e(TAG, e.getMessage());
-        } finally {
-            if (imageCursor != null) {
-                imageCursor.close();
-            }
+            return -1;
         }
-        return imageId;
     }
 }

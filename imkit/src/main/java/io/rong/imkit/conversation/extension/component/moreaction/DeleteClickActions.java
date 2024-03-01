@@ -9,7 +9,6 @@ import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import java.util.List;
 
@@ -53,7 +52,8 @@ public class DeleteClickActions implements IClickActions {
         }
         IMCenter.getInstance()
                 .deleteRemoteMessages(
-                        ConversationIdentifier.obtain(uiMessages.get(0).getMessage()),
+                        uiMessages.get(0).getMessage().getConversationType(),
+                        uiMessages.get(0).getMessage().getTargetId(),
                         messages,
                         null);
     }

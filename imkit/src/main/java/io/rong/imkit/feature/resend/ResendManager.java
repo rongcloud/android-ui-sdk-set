@@ -3,10 +3,9 @@ package io.rong.imkit.feature.resend;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.TextUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imlib.IRongCallback;
-import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
@@ -204,11 +203,10 @@ public class ResendManager {
      * @return 是否重发，true 会重发， false 不需要重发处理。
      */
     public boolean isResendErrorCode(RongIMClient.ErrorCode errorCode) {
-        int code = errorCode.getValue();
-        return (code == IRongCoreEnum.CoreErrorCode.RC_NET_CHANNEL_INVALID.getValue()
-                || code == IRongCoreEnum.CoreErrorCode.RC_NET_UNAVAILABLE.getValue()
-                || code == IRongCoreEnum.CoreErrorCode.RC_MSG_RESP_TIMEOUT.getValue()
-                || code == IRongCoreEnum.CoreErrorCode.RC_FILE_UPLOAD_FAILED.getValue());
+        return (errorCode.equals(RongIMClient.ErrorCode.RC_NET_CHANNEL_INVALID)
+                || errorCode.equals(RongIMClient.ErrorCode.RC_NET_UNAVAILABLE)
+                || errorCode.equals(RongIMClient.ErrorCode.RC_MSG_RESP_TIMEOUT)
+                || errorCode.equals(RongIMClient.ErrorCode.RC_FILE_UPLOAD_FAILED));
     }
 
     /**

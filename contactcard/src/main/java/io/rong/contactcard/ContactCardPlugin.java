@@ -12,7 +12,6 @@ import io.rong.contactcard.activities.ContactDetailActivity;
 import io.rong.contactcard.activities.ContactListActivity;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
-import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
 
@@ -74,10 +73,11 @@ public class ContactCardPlugin implements IPluginModule {
             intent.putExtra(IS_FROM_CARD, true);
             extension.collapseExtension();
         } else {
-            ToastUtils.show(
-                    context,
-                    "The related interface of \"business card module\" has not been implemented",
-                    Toast.LENGTH_LONG);
+            Toast.makeText(
+                            context,
+                            "The related interface of \"business card module\" has not been implemented",
+                            Toast.LENGTH_LONG)
+                    .show();
         }
     }
 

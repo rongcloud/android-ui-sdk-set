@@ -14,7 +14,6 @@
         android:textColor="@color/rc_text_main_color"
         android:textColorLink="@color/rc_main_theme"
         android:textSize="@dimen/rc_font_secondary_size"
-        android:breakStrategy="simple"
         app:layout_constraintBottom_toTopOf="@+id/rc_translated_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

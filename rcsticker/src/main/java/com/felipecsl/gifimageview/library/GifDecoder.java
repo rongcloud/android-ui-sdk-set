@@ -22,9 +22,9 @@ package com.felipecsl.gifimageview.library;
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import io.rong.common.rlog.RLog;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -325,16 +325,20 @@ class GifDecoder {
      */
     synchronized Bitmap getNextFrame() {
         if (header.frameCount <= 0 || framePointer < 0) {
-            RLog.d(
-                    TAG,
-                    "unable to decode frame, frameCount="
-                            + header.frameCount
-                            + " framePointer="
-                            + framePointer);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(
+                        TAG,
+                        "unable to decode frame, frameCount="
+                                + header.frameCount
+                                + " framePointer="
+                                + framePointer);
+            }
             status = STATUS_FORMAT_ERROR;
         }
         if (status == STATUS_FORMAT_ERROR || status == STATUS_OPEN_ERROR) {
-            RLog.d(TAG, "Unable to decode frame, status=" + status);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Unable to decode frame, status=" + status);
+            }
             return null;
         }
         status = STATUS_OK;
@@ -349,7 +353,9 @@ class GifDecoder {
         // Set the appropriate color table.
         act = currentFrame.lct != null ? currentFrame.lct : header.gct;
         if (act == null) {
-            RLog.d(TAG, "No Valid Color Table for frame #" + framePointer);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "No Valid Color Table for frame #" + framePointer);
+            }
             // No color table defined.
             status = STATUS_FORMAT_ERROR;
             return null;
@@ -389,7 +395,7 @@ class GifDecoder {
 
                 read(buffer.toByteArray());
             } catch (IOException e) {
-                RLog.w(TAG, "Error reading data from stream, e:" + e);
+                Log.w(TAG, "Error reading data from stream", e);
             }
         } else {
             status = STATUS_OPEN_ERROR;
@@ -400,7 +406,7 @@ class GifDecoder {
                 is.close();
             }
         } catch (IOException e) {
-            RLog.w(TAG, "Error closing stream, e:" + e);
+            Log.w(TAG, "Error closing stream", e);
         }
 
         return status;
@@ -905,7 +911,7 @@ class GifDecoder {
                     status = STATUS_FORMAT_ERROR;
                 }
             } catch (Exception e) {
-                RLog.w(TAG, "Error Reading Block, e:" + e);
+                Log.w(TAG, "Error Reading Block", e);
                 status = STATUS_FORMAT_ERROR;
             }
         }

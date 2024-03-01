@@ -2,7 +2,7 @@ package io.rong.imkit.conversation.messgelist.processor;
 
 import android.content.Context;
 import android.os.Bundle;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.status.StateContext;
@@ -10,7 +10,6 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.UserInfo;
@@ -43,14 +42,10 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 @Override
                                 public void onError(RongIMClient.ErrorCode coreErrorCode) {
                                     RLog.e(TAG, "joinChatRoom onError : " + coreErrorCode);
-                                    if (coreErrorCode.getValue()
-                                                    == IRongCoreEnum.CoreErrorCode
-                                                            .RC_NET_UNAVAILABLE
-                                                            .getValue()
-                                            || coreErrorCode.getValue()
-                                                    == IRongCoreEnum.CoreErrorCode
-                                                            .RC_NET_CHANNEL_INVALID
-                                                            .getValue()) {
+                                    if (coreErrorCode == RongIMClient.ErrorCode.RC_NET_UNAVAILABLE
+                                            || coreErrorCode
+                                                    == RongIMClient.ErrorCode
+                                                            .RC_NET_CHANNEL_INVALID) {
                                         messageViewModel.executePageEvent(
                                                 new ShowWarningDialogEvent(
                                                         messageViewModel
@@ -86,14 +81,10 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 @Override
                                 public void onError(RongIMClient.ErrorCode coreErrorCode) {
                                     RLog.e(TAG, "joinExistChatRoom onError : " + coreErrorCode);
-                                    if (coreErrorCode.getValue()
-                                                    == IRongCoreEnum.CoreErrorCode
-                                                            .RC_NET_UNAVAILABLE
-                                                            .getValue()
-                                            || coreErrorCode.getValue()
-                                                    == IRongCoreEnum.CoreErrorCode
-                                                            .RC_NET_CHANNEL_INVALID
-                                                            .getValue()) {
+                                    if (coreErrorCode == RongIMClient.ErrorCode.RC_NET_UNAVAILABLE
+                                            || coreErrorCode
+                                                    == RongIMClient.ErrorCode
+                                                            .RC_NET_CHANNEL_INVALID) {
                                         messageViewModel.executePageEvent(
                                                 new ShowWarningDialogEvent(
                                                         messageViewModel
@@ -142,25 +133,5 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
         } else {
             return count;
         }
-    }
-
-    @Override
-    public void onDestroy(MessageViewModel viewModel) {
-        String mTargetId = viewModel.getCurTargetId();
-        RLog.i(TAG, "quitChatRoom : " + mTargetId);
-        RongIMClient.getInstance()
-                .quitChatRoom(
-                        mTargetId,
-                        new RongIMClient.OperationCallback() {
-                            @Override
-                            public void onSuccess() {
-                                RLog.i(TAG, "quitChatRoom onSuccess : " + mTargetId);
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
-                                RLog.e(TAG, "quitChatRoom onError : " + errorCode);
-                            }
-                        });
     }
 }

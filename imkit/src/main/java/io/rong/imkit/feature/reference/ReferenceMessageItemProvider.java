@@ -2,8 +2,6 @@ package io.rong.imkit.feature.reference;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -12,7 +10,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import android.util.DisplayMetrics;
 import android.util.LayoutDirection;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +17,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.text.TextUtilsCompat;
@@ -32,7 +28,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.FilePreviewActivity;
@@ -64,7 +60,6 @@ import java.util.List;
 import java.util.Locale;
 
 public class ReferenceMessageItemProvider extends BaseMessageItemProvider<ReferenceMessage> {
-    private static final int MAX_DENSITY_DPI = 500;
 
     public ReferenceMessageItemProvider() {
         mConfig.showReadState = true;
@@ -171,8 +166,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             holder.setVisible(R.id.rc_msg_iv_reference, false);
             holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
         }
-
-        setMaximumDisplaySize(holder);
     }
 
     @Override
@@ -710,28 +703,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                     textView.setText(text + truncate.toString());
                 }
             }
-        }
-    }
-
-    /**
-     * 如果 DisplayMetrics.densityDpi 大于 500 并且是竖屏的情况下需要改变父 View 的宽度
-     *
-     * @param holder ViewHolder
-     */
-    private void setMaximumDisplaySize(ViewHolder holder) {
-        Resources resources = holder.getContext().getResources();
-        if (resources == null) {
-            return;
-        }
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        Configuration config = resources.getConfiguration();
-        if (metrics.densityDpi > MAX_DENSITY_DPI
-                && config.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            LinearLayout rootView = holder.getView(R.id.rc_reference_root_view);
-            ViewGroup.LayoutParams params = rootView.getLayoutParams();
-            params.width = LinearLayout.LayoutParams.WRAP_CONTENT;
-            params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-            rootView.setLayoutParams(params);
         }
     }
 }

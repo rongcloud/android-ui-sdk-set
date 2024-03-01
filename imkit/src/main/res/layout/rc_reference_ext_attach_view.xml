@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textSize="13dp" />
+            android:textSize="@dimen/rc_font_nav_or_date_size" />
 
         <TextView
             android:id="@+id/rc_reference_content"
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="13dp" />
+            android:textSize="@dimen/rc_font_nav_or_date_size" />
 
     </LinearLayout>
 

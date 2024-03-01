@@ -13,7 +13,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
@@ -29,22 +29,6 @@ import java.util.List;
 
 public class PublicServiceMultiRichContentMessageProvider
         extends BaseMessageItemProvider<PublicServiceMultiRichContentMessage> {
-
-    /** 公众号内容只有一个时，header 高度 */
-    private final int ONE_ITEM_HEAD_HEIGHT = 219;
-
-    /** 公众号内容多个时，header 高度 */
-    private final int MULTI_ITEM_HEAD_HEIGHT = 151;
-
-    /** 公众号内容多个时，每个 item 高度 */
-    private final int MULTI_ITEM_HEIGHT = 76;
-
-    /** 公众号距右边屏幕间隔 */
-    private final int RIGHT_PADDING = 14;
-
-    public PublicServiceMultiRichContentMessageProvider() {
-        mConfig.showPortrait = false;
-    }
 
     @Override
     protected io.rong.imkit.widget.adapter.ViewHolder onCreateMessageContentViewHolder(
@@ -86,6 +70,7 @@ public class PublicServiceMultiRichContentMessageProvider
                     .into(imageView);
         }
 
+        int height;
         ViewGroup.LayoutParams params = holder.getConvertView().getLayoutParams();
 
         PublicAccountMsgAdapter mAdapter =
@@ -103,17 +88,9 @@ public class PublicServiceMultiRichContentMessageProvider
                     }
                 });
 
-        int height = 0;
-        if (msgList.size() == 1) {
-            height = RongUtils.dip2px(ONE_ITEM_HEAD_HEIGHT);
-        } else if (msgList.size() > 1) {
-            height =
-                    RongUtils.dip2px(MULTI_ITEM_HEAD_HEIGHT)
-                            + RongUtils.dip2px(MULTI_ITEM_HEIGHT) * (msgList.size() - 1);
-        }
-
+        height = getListViewHeight(lv) + ((MyViewHolder) holder).height;
         params.height = height;
-        params.width = RongUtils.getScreenWidth() - RongUtils.dip2px(RIGHT_PADDING);
+        params.width = RongUtils.getScreenWidth() - RongUtils.dip2px(32);
 
         holder.getConvertView().setLayoutParams(params);
         holder.getConvertView().requestLayout();

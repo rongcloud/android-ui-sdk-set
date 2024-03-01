@@ -18,7 +18,7 @@ import android.os.Vibrator;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
@@ -26,7 +26,6 @@ import io.rong.imkit.conversation.RongConversationActivity;
 import io.rong.imkit.model.ConversationKey;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
-import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.cache.RongCache;
 import io.rong.imlib.ChannelClient;
@@ -34,7 +33,6 @@ import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
@@ -196,10 +194,11 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                         (AudioManager) mApplication.getSystemService(Context.AUDIO_SERVICE);
                 if (audio != null && audio.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                     mLastSoundTime = System.currentTimeMillis();
-                    if (ifVrate(message)) {
+                    if (RongConfigCenter.featureConfig().isVibrateInForeground()) {
                         vibrate();
                     }
-                    if (ifSound(audio, message)) {
+                    if (audio.getRingerMode() != AudioManager.RINGER_MODE_VIBRATE
+                            && RongConfigCenter.featureConfig().isSoundInForeground()) {
                         sound();
                     }
                 }
@@ -207,66 +206,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         }
     }
 
-    /**
-     * 此条接收消息是否震动
-     *
-     * @param message
-     * @return
-     */
-    private boolean ifVrate(Message message) {
-        //        设置消息震动功能关闭，不震动
-        if (!RongConfigCenter.featureConfig().isVibrateInForeground()) {
-            return false;
-        }
-        //        message 为空 不震动
-        if (message == null) {
-            return false;
-        }
-        //        消息发送者是自己不震动（多端出现此情况）
-        if (TextUtils.equals(
-                message.getSenderUserId(), RongIMClient.getInstance().getCurrentUserId())) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * 此条接收消息是否响铃
-     *
-     * @param audio
-     * @param message
-     * @return
-     */
-    private boolean ifSound(AudioManager audio, Message message) {
-        //        震动模式 不响铃
-        if (audio.getRingerMode() == AudioManager.RINGER_MODE_VIBRATE) {
-            return false;
-        }
-        //        设置消息铃声关闭，不响铃
-        if (!RongConfigCenter.featureConfig().isSoundInForeground()) {
-            return false;
-        }
-        //        message 为空 不响铃
-        if (message == null) {
-            return false;
-        }
-        //        消息发送者是自己不响铃（多端出现此情况）
-        if (TextUtils.equals(
-                message.getSenderUserId(), RongIMClient.getInstance().getCurrentUserId())) {
-            return false;
-        }
-        return true;
-    }
-
     private void prepareToSendNotification(Message message) {
-        // 如果在主线程，就开启线程去发送通知
-        if (ExecutorFactory.isMainThread()) {
-            ExecutorHelper.getInstance()
-                    .compressExecutor()
-                    .execute(() -> prepareToSendNotification(message));
-            return;
-        }
-
         String title;
         String content;
         int mNotificationId = RongNotificationHelper.getNotificationId(message.getUId());
@@ -661,11 +601,6 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
     }
 
     private void sound() {
-        // 如果是主线程，就开启线程去播放声音（MediaPlayer#native_setup有可能被系统阻塞）
-        if (ExecutorFactory.isMainThread()) {
-            ExecutorHelper.getInstance().compressExecutor().execute(() -> sound());
-            return;
-        }
         Uri res = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
                 && RongConfigCenter.notificationConfig().getInterceptor() != null) {

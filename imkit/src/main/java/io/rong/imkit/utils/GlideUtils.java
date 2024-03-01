@@ -5,9 +5,6 @@ import android.text.TextUtils;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import io.rong.common.FileUtils;
-import io.rong.imlib.filetransfer.upload.MediaUploadAuthorInfo;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Glide工具类
@@ -22,39 +19,16 @@ public class GlideUtils {
      * @param originalUri
      * @return
      */
-    public static Object buildAuthUrl(Uri originalUri, MediaUploadAuthorInfo auth) {
+    public static Object buildAuthUrl(Uri originalUri, String privateToken) {
         if (FileUtils.uriStartWithFile(originalUri)) {
             return originalUri;
         }
-        if (auth == null) {
+        if (TextUtils.isEmpty(privateToken)) {
             return new GlideUrl(originalUri.toString());
-        } else {
-            String downloadUrl = originalUri.toString();
-            Map<String, String> map = new HashMap<>();
-            String token = auth.getToken();
-            if (!TextUtils.isEmpty(token)) {
-                map.put("authorization", token);
-            } else if (auth.getDownloadAuthInfo() != null) {
-                switch (auth.getDownloadAuthInfo().getType()) {
-                    case 1:
-                        downloadUrl = auth.getDownloadAuthInfo().getUrl();
-                        break;
-                        //                    case 2:
-                        //
-                        // map.putAll(auth.getDownloadAuthInfo().getAuthParams());
-                        //                        break;
-                }
-            }
-            if (map.isEmpty()) {
-                return new GlideUrl(downloadUrl);
-            } else {
-                LazyHeaders.Builder builder = new LazyHeaders.Builder();
-                for (Map.Entry<String, String> item : map.entrySet()) {
-                    builder.addHeader(item.getKey(), item.getValue());
-                }
-                return new GlideUrl(downloadUrl, builder.build());
-            }
         }
+        return new GlideUrl(
+                originalUri.toString(),
+                new LazyHeaders.Builder().addHeader("authorization", privateToken).build());
     }
 
     /**

@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.ViewPagerAdapter;
 import io.rong.imkit.picture.anim.OptAnimationLoader;

@@ -46,7 +46,7 @@ import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.NestedScrollingParent;
 import androidx.core.view.NestedScrollingParentHelper;
 import androidx.core.view.ViewCompat;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.widget.refresh.api.RefreshComponent;
 import io.rong.imkit.widget.refresh.api.RefreshContent;

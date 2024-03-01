@@ -2,7 +2,7 @@ package io.rong.sight.util;
 
 import android.animation.ValueAnimator;
 import androidx.annotation.NonNull;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import java.lang.reflect.Field;
 
 /** Created by zhouxuming on 2018/11/8. */

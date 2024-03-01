@@ -53,10 +53,10 @@ public class ForwardSelectConversationActivity extends RongBaseNoActionbarActivi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getWindow() != null) {
-            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
-            getWindow().setFlags(flag, flag);
-        }
+        getWindow()
+                .setFlags(
+                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         setContentView(R.layout.rc_activity_forward_select);
         btOK = findViewById(R.id.rc_btn_ok);
         TextView btCancel = findViewById(R.id.rc_btn_cancel);

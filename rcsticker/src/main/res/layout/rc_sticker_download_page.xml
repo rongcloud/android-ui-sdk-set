@@ -5,23 +5,20 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center">
+        android:layout_gravity="center">
 
         <ImageView
             android:id="@+id/iv_cover"
-            style="@style/TextStyle.Alignment"
             android:layout_width="164dp"
-            android:layout_height="140dp"
-            android:layout_marginEnd="10dp" />
+            android:layout_height="140dp" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="10dp"
+            android:layout_marginLeft="28dp"
             android:orientation="vertical">
 
             <TextView

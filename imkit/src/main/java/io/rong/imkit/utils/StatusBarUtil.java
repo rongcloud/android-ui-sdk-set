@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import androidx.annotation.IntDef;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;

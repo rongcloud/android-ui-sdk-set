@@ -4,7 +4,4 @@ package io.rong.imkit.utils;
 public class AndroidConstant {
     /** Android 33 版本号 */
     public static final int ANDROID_TIRAMISU = 33;
-
-    /** Android 34 版本号 */
-    public static final int ANDROID_UPSIDE_DOWN_CAKE = 34;
 }

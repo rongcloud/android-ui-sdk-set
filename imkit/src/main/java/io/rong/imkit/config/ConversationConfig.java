@@ -6,7 +6,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.util.LayoutDirection;
 import androidx.core.text.TextUtilsCompat;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.moreaction.DeleteClickActions;
 import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;
@@ -109,14 +109,8 @@ public class ConversationConfig {
     private boolean showMoreClickAction = true;
     /** 是否显示，历史消息模板 */
     private boolean showHistoryDividerMessage = true;
-    /**
-     * true:长按删除消息，会把本地消息、远端消息都删除
-     *
-     * <p>false:长按只删除本地消息，
-     *
-     * <p>5.6.3 版本将默认值改为 true
-     */
-    private boolean needDeleteRemoteMessage = true;
+    /** 默认为 false 长按只删除本地消息，设置为 true 时长按删除消息，会把远端的消息也删除 */
+    private boolean needDeleteRemoteMessage = false;
     /** 默认为 true 当会话页面删除消息后列表消息为空时，是否重新刷新列表 */
     private boolean needRefreshWhenListIsEmptyAfterDelete = true;
 
@@ -395,13 +389,7 @@ public class ConversationConfig {
         }
         for (IConversationSummaryProvider item : mConversationSummaryProviders) {
             if (item.isSummaryType(messageContent)) {
-                try {
-                    // SDK内置Provider均用Context拿资源但未判空，所以加判断
-                    spannable = item.getSummarySpannable(context, messageContent);
-                } catch (Exception e) {
-                    RLog.e(TAG, "getMessageSummary error", e);
-                    spannable = null;
-                }
+                spannable = item.getSummarySpannable(context, messageContent);
             }
         }
         return spannable == null ? defaultSpannable : spannable;
@@ -424,13 +412,7 @@ public class ConversationConfig {
         }
         for (IConversationSummaryProvider item : mConversationSummaryProviders) {
             if (item.isSummaryType(conversation.getLatestMessage())) {
-                try {
-                    // SDK内置Provider均用Context拿资源但未判空，所以加判断
-                    spannable = item.getSummarySpannable(context, conversation);
-                } catch (Exception e) {
-                    RLog.e(TAG, "getMessageSummary error", e);
-                    spannable = null;
-                }
+                spannable = item.getSummarySpannable(context, conversation);
             }
         }
         return spannable == null ? defaultSpannable : spannable;
@@ -676,7 +658,6 @@ public class ConversationConfig {
                 case GROUP:
                 case ULTRA_GROUP:
                 case DISCUSSION:
-                case SYSTEM: // 5.6.2需求
                     return true;
             }
         }

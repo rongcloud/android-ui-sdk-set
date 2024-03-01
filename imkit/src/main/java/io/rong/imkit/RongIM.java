@@ -5,7 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.ConversationListBehaviorListener;
 import io.rong.imkit.config.RongConfigCenter;
@@ -120,7 +120,6 @@ public class RongIM {
      *
      * @param token 从服务端获取的 <a href="http://docs.rongcloud.cn/android#token">用户身份令牌（ Token）</a>。
      * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public static void connect(
             final String token, final RongIMClient.ConnectCallback connectCallback) {
@@ -140,7 +139,6 @@ public class RongIM {
      *     秒内连接成功，后面再发生了网络变化或前后台切换，SDK 会自动重连； 如果在 timeLimit 秒无法连接成功则不再进行重连，通过 onError
      *     告知连接超时，您需要再自行调用 connect 接口
      * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public static void connect(
             String token, int timeLimit, final RongIMClient.ConnectCallback connectCallback) {
@@ -156,7 +154,6 @@ public class RongIM {
      *     告知连接超时，您需要再自行调用 connect 接口.
      *     <p>3. connectExt 从App服务器端获取的鉴权数据，该数据会通过 SDK -> IMServer -> App的服务器，让App的服务器做连接鉴权.
      * @param connectCallback 连接服务器的回调扩展类，新增打开数据库的回调，用户可以在此回调中执行拉取会话列表操作。
-     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      * @return RongIM IM 客户端核心类的实例。
      * @discussion 调用该接口，SDK 会在 timeLimit 秒内尝试重连，直到出现下面三种情况之一： 第一、连接成功，回调 onSuccess(userId)。
      *     第二、超时，回调 onError(RC_CONNECT_TIMEOUT)，并不再重连。 第三、出现 SDK 无法处理的错误，回调 onError(errorCode)（如
@@ -353,7 +350,7 @@ public class RongIM {
      * <p>当你把对方加入黑名单后，对方再发消息时，就会提示“已被加入黑名单，消息发送失败”。 但你依然可以发消息个对方。
      *
      * @param userId 用户 Id。
-     * @param callback 加到黑名单回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 加到黑名单回调。
      */
     public void addToBlacklist(final String userId, final RongIMClient.OperationCallback callback) {
         RongIMClient.getInstance().addToBlacklist(userId, callback);
@@ -382,7 +379,7 @@ public class RongIM {
      * 取消下载多媒体文件。
      *
      * @param message 包含多媒体文件的消息，即{@link MessageContent}为 FileMessage, ImageMessage 等。
-     * @param callback 取消下载多媒体文件时的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 取消下载多媒体文件时的回调。
      */
     public void cancelDownloadMediaMessage(
             Message message, RongIMClient.OperationCallback callback) {
@@ -393,7 +390,7 @@ public class RongIM {
      * 取消发送多媒体文件。
      *
      * @param message 包含多媒体文件的消息，即{@link MessageContent}为 FileMessage, ImageMessage 等。
-     * @param callback 取消发送多媒体文件时的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 取消发送多媒体文件时的回调。
      */
     public void cancelSendMediaMessage(Message message, RongIMClient.OperationCallback callback) {
         IMCenter.getInstance().cancelSendMediaMessage(message, callback);
@@ -402,8 +399,8 @@ public class RongIM {
     /**
      * 清空所有会话及会话消息，回调方式通知是否清空成功。
      *
-     * @param callback 是否清空成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
-     * @param conversationTypes 会话类型。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 是否清空成功的回调。
+     * @param conversationTypes 会话类型。
      */
     public void clearConversations(
             final RongIMClient.ResultCallback callback,
@@ -416,8 +413,7 @@ public class RongIM {
      *
      * @param conversationType 会话类型。不支持传入 ConversationType.CHATROOM。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 清空是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。 该回调在主线程中执行，请避免在回调中执行耗时操作，防止
-     *     SDK 线程阻塞。
+     * @param callback 清空是否成功的回调。
      */
     public void clearMessages(
             Conversation.ConversationType conversationType,
@@ -431,7 +427,7 @@ public class RongIM {
      *
      * @param conversationType 会话类型。不支持传入 ConversationType.CHATROOM。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 清除是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 清除是否成功的回调。
      */
     public void clearMessagesUnreadStatus(
             final Conversation.ConversationType conversationType,
@@ -447,7 +443,7 @@ public class RongIM {
      *
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param callback 是否清除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 是否清除成功的回调。
      */
     public void clearTextMessageDraft(
             Conversation.ConversationType conversationType,
@@ -466,7 +462,7 @@ public class RongIM {
      * @param receivedStatus 接收状态 @see {@link Message.ReceivedStatus}
      * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
      * @param sentTime 插入消息所要模拟的消息发送时间
-     * @param callback 获得消息发送实体的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获得消息发送实体的回调。
      */
     public void insertIncomingMessage(
             Conversation.ConversationType type,
@@ -490,7 +486,7 @@ public class RongIM {
      * @param senderUserId 发送方 Id
      * @param receivedStatus 接收状态 @see {@link Message.ReceivedStatus}
      * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
-     * @param callback 获得消息发送实体的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获得消息发送实体的回调。
      */
     public void insertIncomingMessage(
             Conversation.ConversationType type,
@@ -517,7 +513,7 @@ public class RongIM {
      * @param targetId 目标会话Id。比如私人会话时，是对方的id； 群组会话时，是群id; 讨论组会话时，则为该讨论,组的id.
      * @param sentStatus 接收状态 @see {@link Message.ReceivedStatus}
      * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
-     * @param callback 获得消息发送实体的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获得消息发送实体的回调。
      */
     public void insertOutgoingMessage(
             Conversation.ConversationType type,
@@ -538,7 +534,7 @@ public class RongIM {
      * @param sentStatus 发送状态 @see {@link Message.SentStatus}
      * @param content 消息内容。如{@link TextMessage} {@link ImageMessage}等。
      * @param sentTime 插入消息所要模拟的发送时间。
-     * @param callback 获得消息发送实体的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获得消息发送实体的回调。
      */
     public void insertOutgoingMessage(
             Conversation.ConversationType type,
@@ -710,7 +706,7 @@ public class RongIM {
      *
      * @param conversationType 要删除的消息 Id 数组。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 是否删除成功的回调。
      */
     public void deleteMessages(
             final Conversation.ConversationType conversationType,
@@ -723,7 +719,7 @@ public class RongIM {
      * 删除指定的一条或者一组消息，回调方式获取是否删除成功。
      *
      * @param messageIds 要删除的消息 Id 数组。
-     * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 是否删除成功的回调。
      */
     public void deleteMessages(
             Conversation.ConversationType conversationType,
@@ -738,10 +734,10 @@ public class RongIM {
      *
      * <p>请注意，此方法会删除远端消息，请慎重使用
      *
-     * @param conversationType 会话类型。暂时不支持聊天室
+     * @param conversationType 会话类型。暂时不支持聊天室、超级群
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、客服 Id。
      * @param messages 要删除的消息数组, 数组大小不能超过100条。
-     * @param callback 是否删除成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 是否删除成功的回调。
      */
     public void deleteRemoteMessages(
             Conversation.ConversationType conversationType,
@@ -765,7 +761,7 @@ public class RongIM {
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
      * @param mediaType 文件类型。
      * @param imageUrl 文件的 URL 地址。
-     * @param callback 下载文件的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 下载文件的回调。
      */
     public void downloadMedia(
             Conversation.ConversationType conversationType,
@@ -785,7 +781,7 @@ public class RongIM {
      * @param fileName 文件名
      * @param path 文件下载保存目录，如果是 targetVersion 29 为目标，由于访问权限原因，建议使用 context.getExternalFilesDir()
      *     方法保存到私有目录
-     * @param callback 回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 回调
      */
     public void downloadMediaFile(
             final String uid,
@@ -803,7 +799,7 @@ public class RongIM {
      * <p>用来获取媒体原文件时调用。如果本地缓存中包含此文件，则从本地缓存中直接获取，否则将从服务器端下载。
      *
      * @param message 文件消息。
-     * @param callback 下载文件的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 下载文件的回调。
      */
     public void downloadMediaMessage(
             Message message, final IRongCallback.IDownloadMediaMessageCallback callback) {
@@ -834,7 +830,7 @@ public class RongIM {
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
      * @param notificationStatus 是否屏蔽。
-     * @param callback 设置状态的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 设置状态的回调。
      */
     public void setConversationNotificationStatus(
             final Conversation.ConversationType conversationType,
@@ -856,7 +852,7 @@ public class RongIM {
      * @param id 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
      * @param isTop 是否置顶。
      * @param needCreate 会话不存在时，是否创建会话。
-     * @param callback 设置置顶或取消置顶是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 设置置顶或取消置顶是否成功的回调。
      */
     public void setConversationToTop(
             final Conversation.ConversationType type,
@@ -987,7 +983,7 @@ public class RongIM {
      *
      * @param type 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param callback 获取会话信息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取会话信息的回调。
      */
     public void getConversation(
             Conversation.ConversationType type,
@@ -999,7 +995,7 @@ public class RongIM {
     /**
      * 获取会话列表。
      *
-     * @param callback 会话列表数据回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 会话列表数据回调。 Conversation。
      */
     public void getConversationList(RongIMClient.ResultCallback<List<Conversation>> callback) {
         RongIMClient.getInstance().getConversationList(callback);
@@ -1008,7 +1004,7 @@ public class RongIM {
     /**
      * 根据会话类型，回调方式获取会话列表。
      *
-     * @param callback 获取会话列表的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取会话列表的回调。
      * @param types 会话类型。
      */
     public void getConversationList(
@@ -1022,7 +1018,7 @@ public class RongIM {
      *
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 获取状态的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取状态的回调。
      */
     public void getConversationNotificationStatus(
             final Conversation.ConversationType conversationType,
@@ -1046,7 +1042,7 @@ public class RongIM {
      * 获取某用户是否在黑名单中。
      *
      * @param userId 用户 Id。
-     * @param callback 获取用户是否在黑名单回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取用户是否在黑名单回调。
      */
     public void getBlacklistStatus(
             String userId, RongIMClient.ResultCallback<RongIMClient.BlacklistStatus> callback) {
@@ -1078,7 +1074,7 @@ public class RongIM {
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
      * @param oldestMessageId 最后一条消息的 Id，获取此消息之前的 count 条消息，没有消息第一次调用应设置为:-1。
      * @param count 要获取的消息数量。
-     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。
      */
     public void getHistoryMessages(
             Conversation.ConversationType conversationType,
@@ -1098,7 +1094,7 @@ public class RongIM {
      * @param objectName 消息类型标识。
      * @param oldestMessageId 最后一条消息的 Id，获取此消息之前的 count 条消息,没有消息第一次调用应设置为:-1。
      * @param count 要获取的消息数量。
-     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。
      */
     public void getHistoryMessages(
             Conversation.ConversationType conversationType,
@@ -1121,7 +1117,7 @@ public class RongIM {
      * @param conversationType 会话类型 {@link io.rong.imlib.model.Conversation.ConversationType} 。
      * @param targetId 会话 id。
      * @param historyMsgOption {@link HistoryMessageOption}
-     * @param callback 获取消息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 清除消息的回调。
      */
     public void getMessages(
             final Conversation.ConversationType conversationType,
@@ -1142,7 +1138,7 @@ public class RongIM {
      *
      * @param conversationIdentifier 会话标识
      * @param historyMsgOption {@link HistoryMessageOption}
-     * @param callback 获取消息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 清除消息的回调。
      */
     public void getMessages(
             final ConversationIdentifier conversationIdentifier,
@@ -1177,7 +1173,7 @@ public class RongIM {
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
      * @param count 要获取的消息数量。
-     * @param callback 获取最新消息记录的回调，按照时间顺序从新到旧排列。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取最新消息记录的回调，按照时间顺序从新到旧排列。
      */
     public void getLatestMessages(
             Conversation.ConversationType conversationType,
@@ -1190,7 +1186,7 @@ public class RongIM {
     /**
      * 获取己关注公共账号列表。
      *
-     * @param callback 获取己关注公共账号列表回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取己关注公共账号列表回调。
      */
     public void getPublicServiceList(
             final RongIMClient.ResultCallback<PublicServiceProfileList> callback) {
@@ -1255,7 +1251,7 @@ public class RongIM {
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
      * @param dataTime 从该时间点开始获取消息。即：消息中的 sendTime；第一次可传 0，获取最新 count 条。
      * @param count 要获取的消息数量，最多 20 条。
-     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。
      */
     public void getRemoteHistoryMessages(
             Conversation.ConversationType conversationType,
@@ -1275,7 +1271,7 @@ public class RongIM {
      * @param conversationType 会话类型。不支持传入 ConversationType.CHATROOM。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
      * @param remoteHistoryMsgOption {@link RemoteHistoryMsgOption}
-     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取历史消息记录的回调，按照时间顺序从新到旧排列。
      */
     public void getRemoteHistoryMessages(
             Conversation.ConversationType conversationType,
@@ -1292,7 +1288,7 @@ public class RongIM {
      *
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id 或聊天室 Id。
-     * @param callback 获取草稿文字内容的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取草稿文字内容的回调。
      */
     public void getTextMessageDraft(
             Conversation.ConversationType conversationType,
@@ -1306,7 +1302,7 @@ public class RongIM {
      *
      * @param conversationType 会话类型。
      * @param targetId 目标 Id。根据不同的 conversationType，可能是用户 Id、讨论组 Id、群组 Id。
-     * @param callback 未读消息数的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 未读消息数的回调
      */
     public void getUnreadCount(
             Conversation.ConversationType conversationType,
@@ -1318,7 +1314,7 @@ public class RongIM {
     /**
      * 回调方式获取某会话类型的未读消息数。
      *
-     * @param callback 未读消息数的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 未读消息数的回调。
      * @param conversationTypes 会话类型。
      */
     public void getUnreadCount(
@@ -1332,7 +1328,7 @@ public class RongIM {
      *
      * @param conversationTypes 会话类型。
      * @param containBlocked 是否包含消息免打扰的未读消息数，true 包含， false 不包含
-     * @param callback 未读消息数的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 未读消息数的回调。
      */
     public void getUnreadCount(
             Conversation.ConversationType[] conversationTypes,
@@ -1345,7 +1341,7 @@ public class RongIM {
      * 根据会话类型数组，回调方式获取某会话类型的未读消息数。
      *
      * @param conversationTypes 会话类型。
-     * @param callback 未读消息数的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 未读消息数的回调。
      */
     public void getUnreadCount(
             Conversation.ConversationType[] conversationTypes,
@@ -1385,7 +1381,7 @@ public class RongIM {
      *
      * @param startTime 起始时间 格式 HH:MM:SS。
      * @param spanMinutes 间隔分钟数大于 0 小于 1440。
-     * @param callback 设置会话通知免打扰时间回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 设置会话通知免打扰时间回调。
      */
     public void setNotificationQuietHours(
             final String startTime,
@@ -1398,7 +1394,7 @@ public class RongIM {
     /**
      * 获取会话通知免打扰时间。
      *
-     * @param callback 获取会话通知免打扰时间回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 获取会话通知免打扰时间回调。
      */
     public void getNotificationQuietHours(
             final RongIMClient.GetNotificationQuietHoursCallback callback) {
@@ -1408,7 +1404,7 @@ public class RongIM {
     /**
      * 移除会话通知免打扰时间。
      *
-     * @param callback 移除会话通知免打扰时间回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 移除会话通知免打扰时间回调。
      */
     public void removeNotificationQuietHours(final RongIMClient.OperationCallback callback) {
         RongNotificationManager.getInstance().removeNotificationQuietHours(callback);
@@ -1441,8 +1437,7 @@ public class RongIM {
      * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 发送文件消息时，此字段必须填写，否则会收不到 push 推送。
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调 {@link
-     *     RongIMClient.SendMediaMessageCallback}。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 发送消息的回调 {@link RongIMClient.SendMediaMessageCallback}。
      */
     public void sendDirectionalMediaMessage(
             Message message,
@@ -1468,8 +1463,7 @@ public class RongIM {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param userIds 会话中将会接收到此消息的用户列表。
-     * @param callback 发送消息的回调，参考 {@link
-     *     IRongCallback.ISendMessageCallback}。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
      */
     public void sendDirectionalMessage(
             Conversation.ConversationType type,
@@ -1497,8 +1491,7 @@ public class RongIM {
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param sendMessageCallback 发送消息的回调，参考 {@link
-     *     IRongCallback.ISendMessageCallback}。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param sendMessageCallback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
      */
     public void sendLocationMessage(
             Message message,
@@ -1518,8 +1511,7 @@ public class RongIM {
      * @param pushContent 当下发 push 消息时，在通知栏里会显示这个字段。 发送文件消息时，此字段必须填写，否则会收不到 push 推送。
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调 {@link
-     *     RongIMClient.SendMediaMessageCallback}。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 发送消息的回调 {@link RongIMClient.SendMediaMessageCallback}。
      */
     public void sendMediaMessage(
             Message message,
@@ -1543,7 +1535,6 @@ public class RongIM {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param callback 发送消息的回调，回调中携带 {@link IRongCallback.MediaMessageUploader} 对象，用户调用该对象中的方法更新状态。
-     *     该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      */
     public void sendMediaMessage(
             Message message,
@@ -1566,8 +1557,7 @@ public class RongIM {
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
      * @param pushData 远程推送附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调。参考 {@link
-     *     IRongCallback.ISendMessageCallback}。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 发送消息的回调。参考 {@link IRongCallback.ISendMessageCallback}。
      */
     public void sendMessage(
             final Conversation.ConversationType type,
@@ -1588,8 +1578,7 @@ public class RongIM {
      *     中默认的消息类型，例如 RC:TxtMsg, RC:VcMsg, RC:ImgMsg，则不需要填写，默认已经指定。
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
-     * @param callback 发送消息的回调，参考 {@link
-     *     IRongCallback.ISendMessageCallback}。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
      */
     public void sendMessage(
             Message message,
@@ -1608,8 +1597,7 @@ public class RongIM {
      * @param pushData push 附加信息。如果设置该字段，用户在收到 push 消息时，能通过 {@link
      *     io.rong.push.notification.PushNotificationMessage#getPushData()} 方法获取。
      * @param option 发送消息附加选项，目前仅支持设置 isVoIPPush，如果对端设备是 iOS,设置 isVoIPPush 为 True，会走 VoIP 通道推送 Push.
-     * @param callback 发送消息的回调，参考 {@link
-     *     IRongCallback.ISendMessageCallback}。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 发送消息的回调，参考 {@link IRongCallback.ISendMessageCallback}。
      */
     public void sendMessage(
             Message message,
@@ -1833,7 +1821,7 @@ public class RongIM {
      * @param messageId 消息 ID
      * @param conversationType 聊天类型
      * @param receivedStatus 消息接收状态
-     * @param callback 回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @param callback 回调
      */
     public void setMessageReceivedStatus(
             final int messageId,

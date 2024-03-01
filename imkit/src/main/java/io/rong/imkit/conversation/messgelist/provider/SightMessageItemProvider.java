@@ -20,13 +20,12 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
-import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.CircleProgressView;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
@@ -176,8 +175,11 @@ public class SightMessageItemProvider extends BaseMessageItemProvider<SightMessa
             if (intent.resolveActivity(holder.getContext().getPackageManager()) != null) {
                 holder.getContext().startActivity(intent);
             } else {
-                ToastUtils.show(
-                        holder.getContext(), "Sight Module does not exist.", Toast.LENGTH_SHORT);
+                Toast.makeText(
+                                holder.getContext(),
+                                "Sight Module does not exist.",
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
             return true;
         }

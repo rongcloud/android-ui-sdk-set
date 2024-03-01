@@ -36,7 +36,7 @@
             android:maxLines="1"
             android:singleLine="true"
             android:textColor="@android:color/darker_gray"
-            android:textSize="12dp"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/rc_ext_plugin_icon" />

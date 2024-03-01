@@ -2,7 +2,7 @@ package io.rong.sticker.businesslogic;
 
 import android.os.Handler;
 import android.util.LruCache;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.sticker.message.StickerMessage;
 import io.rong.sticker.model.Sticker;
 import io.rong.sticker.util.FileUtil;

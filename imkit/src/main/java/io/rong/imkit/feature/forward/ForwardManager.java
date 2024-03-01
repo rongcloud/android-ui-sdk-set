@@ -9,10 +9,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.Spannable;
 import android.text.TextUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
@@ -431,6 +432,16 @@ public class ForwardManager {
             summaryList.add(userName + " : " + text);
         }
         return summaryList;
+    }
+
+    // todo
+    public void exitDestructMode() {
+        if (ForwardExtensionModule.sRongExtension != null) {
+            RongExtension extension = ForwardExtensionModule.sRongExtension.get();
+            if (extension != null) {
+                extension.resetToDefaultView();
+            }
+        }
     }
 
     private static class SingletonHolder {

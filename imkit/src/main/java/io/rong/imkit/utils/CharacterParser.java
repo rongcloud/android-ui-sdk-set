@@ -1,7 +1,5 @@
 package io.rong.imkit.utils;
 
-import io.rong.common.rlog.RLog;
-
 /** Java汉字转换为拼音 */
 public class CharacterParser {
 
@@ -118,9 +116,7 @@ public class CharacterParser {
                 asc = (256 * hightByte + lowByte) - 256 * 256;
             }
         } catch (Exception e) {
-            RLog.e(
-                    "CharacterParser",
-                    "ERROR:ChineseSpelling.class-getChsAscii(String chs), e:" + e);
+            System.out.println("ERROR:ChineseSpelling.class-getChsAscii(String chs)" + e);
         }
         return asc;
     }

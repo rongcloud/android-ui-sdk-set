@@ -4,14 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.ExecutorHelper;
-import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -70,19 +69,21 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                                     new IRongCoreCallback.OperationCallback() {
                                         @Override
                                         public void onSuccess() {
-                                            ToastUtils.show(
-                                                    viewModel.getApplication(),
-                                                    "超级群已读状态同步成功",
-                                                    Toast.LENGTH_LONG);
+                                            Toast.makeText(
+                                                            viewModel.getApplication(),
+                                                            "超级群已读状态同步成功",
+                                                            Toast.LENGTH_LONG)
+                                                    .show();
                                         }
 
                                         @Override
                                         public void onError(
                                                 IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                            ToastUtils.show(
-                                                    viewModel.getApplication(),
-                                                    "超级群已读状态同步失败",
-                                                    Toast.LENGTH_LONG);
+                                            Toast.makeText(
+                                                            viewModel.getApplication(),
+                                                            "超级群已读状态同步失败",
+                                                            Toast.LENGTH_LONG)
+                                                    .show();
                                         }
                                     });
                 }
@@ -120,14 +121,26 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                                 new IRongCoreCallback.OperationCallback() {
                                     @Override
                                     public void onSuccess() {
-                                        // ToastUtils.show(viewModel.getApplication(),
-                                        // "超级群已读状态同步成功",Toast.LENGTH_LONG);
+                                        //                                        Toast.makeText(
+                                        //
+                                        // viewModel.getApplication(),
+                                        //
+                                        // "超级群已读状态同步成功",
+                                        //
+                                        // Toast.LENGTH_LONG)
+                                        //                                                .show();
                                     }
 
                                     @Override
                                     public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                        // ToastUtils.show(viewModel.getApplication(),"超级群已读状态同步失败"
-                                        // ,Toast.LENGTH_LONG);
+                                        //                                        Toast.makeText(
+                                        //
+                                        // viewModel.getApplication(),
+                                        //
+                                        // "超级群已读状态同步失败",
+                                        //
+                                        // Toast.LENGTH_LONG)
+                                        //                                                .show();
                                     }
                                 });
             }
@@ -213,8 +226,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                             public void run() {
                                 List<io.rong.imlib.model.Message> responseMessageList =
                                         new ArrayList<>();
-                                final List<UiMessage> uiMessages =
-                                        new ArrayList<>(viewModel.getUiMessages());
+                                final List<UiMessage> uiMessages = viewModel.getUiMessages();
                                 for (UiMessage uiMessage : uiMessages) {
                                     ReadReceiptInfo readReceiptInfo =
                                             uiMessage.getMessage().getReadReceiptInfo();
@@ -261,9 +273,8 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                 .isShowReadReceiptRequest(viewModel.getCurConversationType())) {
             return;
         }
-        final List<UiMessage> uiMessages = new ArrayList<>(viewModel.getUiMessages());
-        for (final UiMessage item : uiMessages) {
-            if (TextUtils.isEmpty(item.getMessage().getUId())) {
+        for (final UiMessage item : viewModel.getUiMessages()) {
+            if (item.getMessage() == null || TextUtils.isEmpty(item.getMessage().getUId())) {
                 continue;
             }
             if (item.getMessage().getUId().equals(messageUId)) {
@@ -311,8 +322,9 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
         }
         ReadReceiptInfo readReceiptInfo = message.getReadReceiptInfo();
         if (readReceiptInfo == null) {
-            return;
+            readReceiptInfo = new ReadReceiptInfo();
         }
         readReceiptInfo.setHasRespond(true);
+        message.setReadReceiptInfo(readReceiptInfo);
     }
 }

@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.provider.Settings;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import java.lang.reflect.Method;
 
 /**

@@ -19,10 +19,9 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
+import io.rong.common.RLog;
 import io.rong.common.RongWebView;
-import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import java.util.List;
 
@@ -55,7 +54,6 @@ public class RongWebviewActivity extends RongBaseActivity {
         mWebView.setDownloadListener(new RongWebViewDownLoadListener());
         mWebView.getSettings().setDomStorageEnabled(true);
         mWebView.getSettings().setDefaultTextEncodingName("utf-8");
-        mWebView.getSettings().setSavePassword(false);
 
         String url = intent.getStringExtra("url");
         Uri data = intent.getData();
@@ -139,30 +137,18 @@ public class RongWebviewActivity extends RongBaseActivity {
                 RLog.e(TAG, "onReceivedSslError but activity is finish");
                 return;
             }
-            FeatureConfig.SSLInterceptor interceptor =
-                    RongConfigCenter.featureConfig().getSSLInterceptor();
-            boolean check = false;
-            if (interceptor != null) {
-                check = interceptor.check(error.getCertificate());
-            }
-            if (check) {
-                handler.proceed();
-            } else {
-                final AlertDialog.Builder builder =
-                        new AlertDialog.Builder(RongWebviewActivity.this);
-                builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
-                builder.setNegativeButton(
-                        R.string.rc_cancel,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                handler.cancel();
-                            }
-                        });
-
-                final AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+            final AlertDialog.Builder builder = new AlertDialog.Builder(RongWebviewActivity.this);
+            builder.setMessage(R.string.rc_notification_error_ssl_cert_invalid);
+            builder.setNegativeButton(
+                    R.string.rc_cancel,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            handler.cancel();
+                        }
+                    });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
         }
     }
 

@@ -76,13 +76,4 @@ public interface ConversationClickListener {
      * @return 如果用户自己处理了长按后的逻辑处理，则返回 true，否则返回 false，false 走融云默认处理方式。
      */
     boolean onReadReceiptStateClick(Context context, Message message);
-
-    /**
-     * 当点击常用语时执行
-     *
-     * @return 如果用户自己处理了点击常用语的逻辑处理，则返回 true，否则返回 false，false 走融云默认处理方式。
-     */
-    default boolean onQuickReplyClick(Context context) {
-        return false;
-    }
 }

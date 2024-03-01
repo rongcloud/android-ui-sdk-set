@@ -19,7 +19,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.PicturePagerActivity;
@@ -46,7 +46,6 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
         mConfig.showContentBubble = false;
         mConfig.showProgress = false;
         mConfig.showReadState = true;
-        mConfig.showWarning = false;
         Context context = IMCenter.getInstance().getContext();
         if (context != null) {
             Resources resources = context.getResources();
@@ -125,7 +124,6 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                                         Object model,
                                         Target<Drawable> target,
                                         boolean isFirstResource) {
-                                    mConfig.showWarning = true;
                                     ViewGroup.LayoutParams params = view.getLayoutParams();
                                     params.height = ScreenUtils.dip2px(view.getContext(), 35);
                                     params.width = ScreenUtils.dip2px(view.getContext(), 35);
@@ -140,14 +138,12 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                                         Target<Drawable> target,
                                         DataSource dataSource,
                                         boolean isFirstResource) {
-                                    mConfig.showWarning = true;
                                     measureLayoutParams(holder.getView(R.id.rl_content), resource);
                                     return false;
                                 }
                             })
                     .into(view);
         } else {
-            mConfig.showWarning = true;
             ViewGroup.LayoutParams params = view.getLayoutParams();
             params.height = ScreenUtils.dip2px(view.getContext(), 35);
             params.width = ScreenUtils.dip2px(view.getContext(), 35);
@@ -167,13 +163,8 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
-        Message message = uiMessage.getMessage();
-        if (message == null || message.getContent() == null) {
-            RLog.e(TAG, "onItemClick error, message or message content is null");
-            return false;
-        }
         Intent intent = new Intent(holder.getContext(), PicturePagerActivity.class);
-        intent.putExtra("message", message);
+        intent.putExtra("message", uiMessage.getMessage());
         holder.getContext().startActivity(intent);
         return true;
     }

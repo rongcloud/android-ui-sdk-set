@@ -1,7 +1,7 @@
 package io.rong.imkit.widget.refresh.util;
 
 import android.view.View;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.widget.refresh.api.RefreshKernel;
 import io.rong.imkit.widget.refresh.listener.CoordinatorLayoutListener;
 

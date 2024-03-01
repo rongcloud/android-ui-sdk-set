@@ -22,7 +22,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 
 public class ViewHolder extends RecyclerView.ViewHolder {
     private SparseArray<View> mViews;

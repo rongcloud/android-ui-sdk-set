@@ -27,9 +27,7 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import io.rong.common.CursorUtils;
-import io.rong.common.rlog.RLog;
-import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.common.RLog;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -101,20 +99,20 @@ public class FileUtils {
      */
     public static String getDataColumn(
             Context context, Uri uri, String selection, String[] selectionArgs) {
-        if (!PermissionCheckUtil.checkMediaStoragePermissions(context)) {
-            return "";
-        }
+
         Cursor cursor = null;
         final String column = "_data";
         final String[] projection = {column};
 
         try {
-            cursor = CursorUtils.query(context, uri, projection, selection, selectionArgs, null);
+            cursor =
+                    context.getContentResolver()
+                            .query(uri, projection, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
-        } catch (Exception ex) {
+        } catch (IllegalArgumentException ex) {
             RLog.i(
                     TAG,
                     String.format(

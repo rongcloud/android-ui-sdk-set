@@ -1,7 +1,7 @@
 package io.rong.imkit.notification;
 
 import android.text.TextUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;

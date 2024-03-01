@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.widget.adapter.BaseListViewAdapter;
@@ -23,7 +22,6 @@ import io.rong.imlib.publicservice.model.PublicServiceProfileList;
 
 /** Created by zhjchen on 4/19/15. */
 public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
-    private static final String TAG = "PSSubscribeListFrag";
     private PublicServiceListAdapter mAdapter;
 
     @Override
@@ -88,8 +86,7 @@ public class PublicServiceSubscribeListFragment extends DispatchResultFragment {
                                                                 Conversation.PublicServiceType
                                                                         .PUBLIC_SERVICE;
                                                     else
-                                                        RLog.e(
-                                                                TAG,
+                                                        System.err.print(
                                                                 "the public service type is error!!");
 
                                                     RongIMClient.getInstance()

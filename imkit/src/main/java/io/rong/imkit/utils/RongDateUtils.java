@@ -2,7 +2,7 @@ package io.rong.imkit.utils;
 
 import android.content.Context;
 import android.text.TextUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.language.LangUtils;
 import io.rong.imkit.utils.language.RongConfigurationManager;

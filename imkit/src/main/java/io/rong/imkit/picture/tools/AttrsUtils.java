@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 
 public class AttrsUtils {
 

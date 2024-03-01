@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.text.style.CharacterStyle;
 import android.util.AttributeSet;
 import android.widget.TextView;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import java.util.ArrayList;
 import java.util.Collections;

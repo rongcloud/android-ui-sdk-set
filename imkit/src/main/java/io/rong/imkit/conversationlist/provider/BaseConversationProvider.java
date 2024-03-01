@@ -54,16 +54,13 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
         // 会话头像
 
         if (!TextUtils.isEmpty(uiConversation.mCore.getPortraitUrl())) {
-            if (holder.getView(R.id.rc_conversation_portrait) instanceof ImageView) {
-                RongConfigCenter.featureConfig()
-                        .getKitImageEngine()
-                        .loadConversationListPortrait(
-                                holder.getContext(),
-                                uiConversation.mCore.getPortraitUrl(),
-                                holder.<ImageView>getView(R.id.rc_conversation_portrait),
-                                uiConversation.mCore);
-            }
-
+            RongConfigCenter.featureConfig()
+                    .getKitImageEngine()
+                    .loadConversationListPortrait(
+                            holder.getContext(),
+                            uiConversation.mCore.getPortraitUrl(),
+                            holder.<ImageView>getView(R.id.rc_conversation_portrait),
+                            uiConversation.mCore);
         } else {
             int drawableId = R.drawable.rc_default_portrait;
             if (uiConversation
@@ -82,16 +79,15 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                     .equals(Conversation.ConversationType.CUSTOMER_SERVICE)) {
                 drawableId = R.drawable.rc_default_chatroom_portrait;
             }
-            if (holder.getView(R.id.rc_conversation_portrait) instanceof ImageView) {
-                Uri uri = RongUtils.getUriFromDrawableRes(holder.getContext(), drawableId);
-                RongConfigCenter.featureConfig()
-                        .getKitImageEngine()
-                        .loadConversationListPortrait(
-                                holder.getContext(),
-                                uri.toString(),
-                                holder.<ImageView>getView(R.id.rc_conversation_portrait),
-                                uiConversation.mCore);
-            }
+
+            Uri uri = RongUtils.getUriFromDrawableRes(holder.getContext(), drawableId);
+            RongConfigCenter.featureConfig()
+                    .getKitImageEngine()
+                    .loadConversationListPortrait(
+                            holder.getContext(),
+                            uri.toString(),
+                            holder.<ImageView>getView(R.id.rc_conversation_portrait),
+                            uiConversation.mCore);
         }
         holder.getView(R.id.rc_conversation_portrait)
                 .setOnClickListener(
@@ -159,7 +155,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                 uiConversation.mConversationContent,
                 TextView.BufferType.SPANNABLE);
         // 未读数
-        int unreadCount = uiConversation.getUnreadMessageCount();
+        int unreadCount = uiConversation.mCore.getUnreadMessageCount();
         if (unreadCount > 0) {
             holder.setVisible(R.id.rc_conversation_unread, true);
             if (unreadCount > 99) {

@@ -66,10 +66,12 @@ public class ReferenceView extends FrameLayout {
                     RongConfigCenter.conversationConfig()
                             .getMessageSummary(mContext, message.getContent());
             MessageContent messageContent = message.getContent();
+            String fileName;
             String fileTile;
             SpannableStringBuilder ssb;
             if (messageContent instanceof FileMessage) {
-                ssb = new SpannableStringBuilder(content);
+                fileName = ((FileMessage) messageContent).getName();
+                ssb = new SpannableStringBuilder(content + fileName);
             } else if (messageContent instanceof RichContentMessage) {
                 fileTile = ((RichContentMessage) messageContent).getTitle();
                 ssb = new SpannableStringBuilder(content + fileTile);

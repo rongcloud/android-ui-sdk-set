@@ -11,14 +11,16 @@ import android.text.TextUtils;
 import androidx.core.content.FileProvider;
 import androidx.core.os.EnvironmentCompat;
 import io.rong.common.FileUtils;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.FileInfo;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -409,6 +411,36 @@ public class FileTypeUtils {
         } else if (size < MEGABYTE) return String.format("%.2f KB", (float) size / KILOBYTE);
         else if (size < GIGABYTE) return String.format("%.2f MB", (float) size / MEGABYTE);
         else return String.format("%.2f G", (float) size / GIGABYTE);
+    }
+
+    public String getSDCardPath() {
+        String SDCardPath = null;
+        String SDCardDefaultPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        if (SDCardDefaultPath.endsWith("/")) {
+            SDCardDefaultPath = SDCardDefaultPath.substring(0, SDCardDefaultPath.length() - 1);
+        }
+        try {
+            Runtime runtime = Runtime.getRuntime();
+            Process process = runtime.exec("mount");
+            InputStream inputStream = process.getInputStream();
+            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+            String line;
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            while ((line = bufferedReader.readLine()) != null) {
+                if (line.toLowerCase().contains("sdcard") && line.contains(".android_secure")) {
+                    String[] array = line.split(" ");
+                    if (array.length > 1) {
+                        String temp = array[1].replace("/.android_secure", "");
+                        if (!SDCardDefaultPath.equals(temp)) {
+                            SDCardPath = temp;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            RLog.e(TAG, "getSDCardPath", e);
+        }
+        return SDCardPath;
     }
 
     /* returns external storage paths (directory of external memory card) as array of Strings */

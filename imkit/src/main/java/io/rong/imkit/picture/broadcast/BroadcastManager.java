@@ -7,9 +7,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.TextUtils;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import io.rong.common.rlog.RLog;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +42,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
         intent.putExtras(bundle);
@@ -53,7 +53,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -65,7 +65,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -77,7 +77,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -89,7 +89,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -101,7 +101,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -113,7 +113,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -125,7 +125,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -137,7 +137,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -149,7 +149,7 @@ public class BroadcastManager {
         createIntent();
 
         if (intent == null) {
-            RLog.e(TAG, "intent create failed");
+            Log.e(TAG, "intent create failed");
             return this;
         }
 
@@ -159,14 +159,14 @@ public class BroadcastManager {
 
     private void createIntent() {
         if (intent == null) {
-            RLog.d(TAG, "intent is not created");
+            Log.d(TAG, "intent is not created");
         }
 
         if (intent == null) {
             if (!TextUtils.isEmpty(action)) {
                 intent = new Intent(action);
             }
-            RLog.d(TAG, "intent created with action");
+            Log.d(TAG, "intent created with action");
         }
     }
 

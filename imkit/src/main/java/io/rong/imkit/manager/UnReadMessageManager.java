@@ -1,6 +1,6 @@
 package io.rong.imkit.manager;
 
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.BaseConversationEventListener;
 import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
@@ -20,6 +20,7 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         implements RongIMClient.SyncConversationReadStatusListener {
     private static final String TAG = "UnReadMessageManager";
     private final List<WeakReference<MultiConversationUnreadMsgInfo>> mMultiConversationUnreadInfos;
+    private final List<MultiConversationUnreadMsgInfo> mForeverMultiConversationUnreadInfos;
     private ConversationEventListener mConversationEventListener =
             new BaseConversationEventListener() {
                 @Override
@@ -81,6 +82,7 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
 
     private UnReadMessageManager() {
         this.mMultiConversationUnreadInfos = new ArrayList<>();
+        this.mForeverMultiConversationUnreadInfos = new ArrayList<>();
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
         IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
@@ -107,6 +109,11 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
     }
 
     private void syncUnreadCount() {
+        syncWeakReferenceUnreadCount();
+        syncForeverObserverUnreadCount();
+    }
+
+    private void syncWeakReferenceUnreadCount() {
         for (final WeakReference<MultiConversationUnreadMsgInfo> weakMsgInfo :
                 mMultiConversationUnreadInfos) {
             if (weakMsgInfo == null) {
@@ -130,6 +137,30 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                                     if (msgInfo == null) {
                                         return;
                                     }
+                                    msgInfo.count = integer;
+                                    msgInfo.observer.onCountChanged(integer);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    // do nothing
+                                }
+                            });
+        }
+    }
+
+    private void syncForeverObserverUnreadCount() {
+        for (MultiConversationUnreadMsgInfo msgInfo : mForeverMultiConversationUnreadInfos) {
+            if (msgInfo == null) {
+                continue;
+            }
+            RongIMClient.getInstance()
+                    .getUnreadCount(
+                            msgInfo.conversationTypes,
+                            new RongIMClient.ResultCallback<Integer>() {
+                                @Override
+                                public void onSuccess(Integer integer) {
+                                    RLog.d(TAG, "get result: " + integer);
                                     msgInfo.count = integer;
                                     msgInfo.observer.onCountChanged(integer);
                                 }
@@ -188,6 +219,47 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         }
     }
 
+    /**
+     * 设置未读消息数变化监听器。 注意:如果是在 activity 中设置,那么要在 activity 销毁时, 调用 {@link
+     * UnReadMessageManager#removeObserver(UnReadMessageManager.IUnReadMessageObserver)} 否则会造成内存泄漏。
+     *
+     * @param observer 接收未读消息消息的监听器。
+     * @param conversationTypes 接收未读消息的会话类型。
+     */
+    public void addForeverObserver(
+            Conversation.ConversationType[] conversationTypes,
+            final IUnReadMessageObserver observer) {
+        if (observer == null) {
+            RLog.e(TAG, "can't add a null observer!");
+            return;
+        }
+        if (conversationTypes == null) {
+            conversationTypes =
+                    RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
+        }
+        synchronized (mForeverMultiConversationUnreadInfos) {
+            final MultiConversationUnreadMsgInfo msgInfo = new MultiConversationUnreadMsgInfo();
+            msgInfo.conversationTypes = conversationTypes;
+            msgInfo.observer = observer;
+            mForeverMultiConversationUnreadInfos.add(msgInfo);
+            RongIMClient.getInstance()
+                    .getUnreadCount(
+                            conversationTypes,
+                            new RongIMClient.ResultCallback<Integer>() {
+                                @Override
+                                public void onSuccess(Integer integer) {
+                                    msgInfo.count = integer;
+                                    msgInfo.observer.onCountChanged(integer);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode e) {
+                                    // do nothing
+                                }
+                            });
+        }
+    }
+
     public void removeObserver(final IUnReadMessageObserver observer) {
         if (observer == null) {
             RLog.w(TAG, "removeOnReceiveUnreadCountChangedListener Illegal argument");
@@ -215,9 +287,37 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         }
     }
 
+    public void removeForeverObserver(final IUnReadMessageObserver observer) {
+        if (observer == null) {
+            RLog.w(TAG, "removeOnReceiveUnreadCountChangedListener Illegal argument");
+            return;
+        }
+        synchronized (mForeverMultiConversationUnreadInfos) {
+            MultiConversationUnreadMsgInfo result = null;
+            for (MultiConversationUnreadMsgInfo msgInfo : mForeverMultiConversationUnreadInfos) {
+                if (msgInfo == null) {
+                    continue;
+                }
+                if (msgInfo.observer == observer) {
+                    result = msgInfo;
+                    break;
+                }
+            }
+            if (result != null) {
+                mForeverMultiConversationUnreadInfos.remove(result);
+            }
+        }
+    }
+
     public void clearObserver() {
         synchronized (mMultiConversationUnreadInfos) {
             mMultiConversationUnreadInfos.clear();
+        }
+    }
+
+    public void clearForeverObserver() {
+        synchronized (mForeverMultiConversationUnreadInfos) {
+            mForeverMultiConversationUnreadInfos.clear();
         }
     }
 

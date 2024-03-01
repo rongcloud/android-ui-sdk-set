@@ -10,12 +10,11 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
-import io.rong.common.rlog.RLog;
-import io.rong.imkit.utils.ToastUtils;
 import io.rong.sight.R;
 
 /** 445263848@qq.com. */
@@ -535,14 +534,17 @@ public class CaptureButton extends View {
 
     private void recordEnd(boolean needAnimation) {
         long playTime = record_anim.getCurrentPlayTime();
-        RLog.d(TAG, "recordEnd " + playTime);
+        Log.d(TAG, "recordEnd " + playTime);
         progress = 0;
         captureProgressed = 0;
         if (!record_anim.isRunning() || playTime < 1000) {
-            RLog.d(TAG, "recordEnd-retryRecord()");
+            Log.d(TAG, "recordEnd-retryRecord()");
             if (needAnimation) {
-                String text = mContext.getString(R.string.rc_sight_record_too_short_time);
-                ToastUtils.show(mContext, text, Toast.LENGTH_SHORT);
+                Toast.makeText(
+                                mContext,
+                                R.string.rc_sight_record_too_short_time,
+                                Toast.LENGTH_SHORT)
+                        .show();
             }
             if (mCaptureListener != null) {
                 mCaptureListener.retryRecord();
@@ -574,7 +576,7 @@ public class CaptureButton extends View {
     }
 
     public void onPause() {
-        RLog.d(TAG, "onPause");
+        Log.d(TAG, "onPause");
         removeCallbacks(longPressRunnable);
         if (STATE_SELECTED == STATE_KEY_DOWN) {
             capture();

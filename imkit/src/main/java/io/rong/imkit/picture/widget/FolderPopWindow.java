@@ -7,12 +7,13 @@ import android.os.Handler;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rong.common.rlog.RLog;
+import io.rong.common.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
@@ -73,6 +74,11 @@ public class FolderPopWindow extends PopupWindow {
 
     public void bindFolder(List<LocalMediaFolder> folders) {
         adapter.bindFolderData(folders);
+        ViewGroup.LayoutParams lp = recyclerView.getLayoutParams();
+        lp.height =
+                folders != null && folders.size() > 8
+                        ? maxHeight
+                        : ViewGroup.LayoutParams.WRAP_CONTENT;
     }
 
     public void setArrowImageView(ImageView ivArrowView) {
