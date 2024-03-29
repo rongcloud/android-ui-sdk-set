@@ -14,7 +14,7 @@ import android.text.style.ReplacementSpan;
 import android.util.DisplayMetrics;
 import androidx.annotation.NonNull;
 import androidx.emoji2.text.EmojiCompat;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +27,9 @@ public class AndroidEmoji {
     private static Context mContext;
     private static final int MAX_DISPLAY_EMOJI = 600;
     private static Boolean useEmoji;
+    private static Map<Integer, EmojiInfo> sEmojiMap;
+    private static Map<Integer, String> replaceEmojiMap;
+    private static List<EmojiInfo> sEmojiList;
 
     public static void init(Context context) {
         sEmojiMap = new HashMap<>();
@@ -67,22 +70,33 @@ public class AndroidEmoji {
             sEmojiMap.put(codes[i], emoji);
             sEmojiList.add(emoji);
         }
-        replaceEmojiMap = new HashMap<>();
-
-        replaceEmojiMap.put(0x2601, "☁️");
-
+        initReplaceEmojiMap();
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         density = dm.density;
         array.recycle();
     }
 
+    // iOS端合并转发页面下列emoji异常，需要使用此Map中的emoji字符
+    private static void initReplaceEmojiMap() {
+        if (replaceEmojiMap == null) {
+            replaceEmojiMap = new HashMap<>();
+        }
+        replaceEmojiMap.put(0x2601, "☁️");
+        replaceEmojiMap.put(0x263a, "☺️");
+        replaceEmojiMap.put(0x2764, "❤️");
+        replaceEmojiMap.put(0x26a1, "⚡️");
+        replaceEmojiMap.put(0x2600, "☀️");
+        replaceEmojiMap.put(0x2744, "❄️");
+        replaceEmojiMap.put(0x2614, "☔️");
+        replaceEmojiMap.put(0x270c, "✌️");
+        replaceEmojiMap.put(0x261d, "☝️");
+        replaceEmojiMap.put(0x2615, "☕️");
+        replaceEmojiMap.put(0x270f, "✏️");
+    }
+
     public static List<EmojiInfo> getEmojiList() {
         return sEmojiList;
     }
-
-    private static Map<Integer, EmojiInfo> sEmojiMap;
-    private static Map<Integer, String> replaceEmojiMap;
-    private static List<EmojiInfo> sEmojiList;
 
     public static class EmojiImageSpan extends ReplacementSpan {
         Drawable mDrawable;
@@ -420,11 +434,11 @@ public class AndroidEmoji {
         // extract the single chars that will be operated on
         final char[] chars = spannable.toString().toCharArray();
 
-        String resultSpanStr = getReplaceEmojiText(chars, spannable.toString());
+        String resultSpanStr = getReplaceEmojiText(chars, spannable.toString(), true);
         return new SpannableStringBuilder(resultSpanStr);
     }
 
-    public static String replaceEmojiWithText(String input) {
+    public static String replaceEmojiWithText(String input, boolean replaceUnicodeEmoji) {
         if (input == null) {
             return null;
         }
@@ -432,10 +446,11 @@ public class AndroidEmoji {
         // extract the single chars that will be operated on
         final char[] chars = input.toCharArray();
 
-        return getReplaceEmojiText(chars, input);
+        return getReplaceEmojiText(chars, input, replaceUnicodeEmoji);
     }
 
-    private static String getReplaceEmojiText(final char[] chars, String srcString) {
+    private static String getReplaceEmojiText(
+            final char[] chars, String srcString, boolean replaceUnicodeEmoji) {
         int codePoint;
         boolean isSurrogatePair;
         int emojiCount = 0;
@@ -470,15 +485,34 @@ public class AndroidEmoji {
                         resultSpanStr.append("]");
                     } else {
                         resultSpanStr =
-                                appendSpanStr(isSurrogatePair, resultSpanStr, chars, i, codePoint);
+                                appendSpanStr(
+                                        isSurrogatePair,
+                                        resultSpanStr,
+                                        chars,
+                                        i,
+                                        codePoint,
+                                        replaceUnicodeEmoji);
                     }
                 } else {
                     resultSpanStr =
-                            appendSpanStr(isSurrogatePair, resultSpanStr, chars, i, codePoint);
+                            appendSpanStr(
+                                    isSurrogatePair,
+                                    resultSpanStr,
+                                    chars,
+                                    i,
+                                    codePoint,
+                                    replaceUnicodeEmoji);
                 }
 
             } else {
-                resultSpanStr = appendSpanStr(isSurrogatePair, resultSpanStr, chars, i, codePoint);
+                resultSpanStr =
+                        appendSpanStr(
+                                isSurrogatePair,
+                                resultSpanStr,
+                                chars,
+                                i,
+                                codePoint,
+                                replaceUnicodeEmoji);
             }
         }
         return resultSpanStr == null ? null : resultSpanStr.toString();
@@ -489,11 +523,14 @@ public class AndroidEmoji {
             StringBuilder resultSpanStr,
             char[] chars,
             int index,
-            int codePoint) {
+            int codePoint,
+            boolean replaceUnicodeEmoji) {
         if (resultSpanStr == null) {
             return null;
         }
-        if (replaceEmojiMap != null && replaceEmojiMap.containsKey(codePoint)) {
+        if (replaceUnicodeEmoji
+                && replaceEmojiMap != null
+                && replaceEmojiMap.containsKey(codePoint)) {
             resultSpanStr.append(replaceEmojiMap.get(codePoint));
             return resultSpanStr;
         }

@@ -30,6 +30,7 @@
         android:ellipsize="end"
         android:maxLines="4"
         android:text="summary"
+        android:breakStrategy="simple"
         android:textColor="@color/rc_secondary_color"
         android:textSize="12dp" />
 

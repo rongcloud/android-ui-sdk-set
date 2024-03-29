@@ -7,10 +7,12 @@ import android.net.Uri;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import io.rong.common.RLog;
+import io.rong.common.FileUtils;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtension;
+import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -66,6 +68,10 @@ public class FilePlugin implements IPluginModule {
                                 & (Intent.FLAG_GRANT_READ_URI_PERMISSION
                                         | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 mContext.getContentResolver().takePersistableUriPermission(uri, takeFlags);
+                if (!FileUtils.isFileExistsWithUri(mContext, uri)) {
+                    ToastUtils.s(mContext, mContext.getString(R.string.rc_file_not_exist));
+                    return;
+                }
                 ExecutorHelper.getInstance()
                         .diskIO()
                         .execute(

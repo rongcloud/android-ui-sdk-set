@@ -19,7 +19,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
@@ -30,6 +30,7 @@ import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
@@ -78,9 +79,8 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
                     public void onClick(View v) {
                         Window window = GIFPreviewActivity.this.getWindow();
                         if (window != null) {
-                            window.setFlags(
-                                    WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-                                    WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+                            window.setFlags(flag, flag);
                         }
                         finish();
                     }
@@ -193,24 +193,21 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
                                         return;
                                     }
 
+                                    String text =
+                                            GIFPreviewActivity.this.getString(
+                                                    R.string.rc_save_picture_at);
                                     if (file.exists()) {
                                         KitStorageUtils.saveMediaToPublicDir(
                                                 GIFPreviewActivity.this,
                                                 file,
                                                 KitStorageUtils.MediaType.IMAGE);
-                                        Toast.makeText(
-                                                        GIFPreviewActivity.this,
-                                                        GIFPreviewActivity.this.getString(
-                                                                R.string.rc_save_picture_at),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
+
                                     } else {
-                                        Toast.makeText(
-                                                        GIFPreviewActivity.this,
-                                                        getString(R.string.rc_src_file_not_found),
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
+                                        text = getString(R.string.rc_src_file_not_found);
                                     }
+
+                                    ToastUtils.show(
+                                            GIFPreviewActivity.this, text, Toast.LENGTH_SHORT);
                                 }
                             }
                         })
@@ -253,6 +250,17 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
         super.onDestroy();
         IMCenter.getInstance().removeMessageEventListener(mBaseMessageEvent);
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
+        // finish后清除全屏标志位，避免此问题
+        if (getWindow() != null) {
+            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+            getWindow().setFlags(flag, flag);
+        }
     }
 
     BaseMessageEvent mBaseMessageEvent =

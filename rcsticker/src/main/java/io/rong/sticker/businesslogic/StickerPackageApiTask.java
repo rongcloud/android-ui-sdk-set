@@ -1,7 +1,7 @@
 package io.rong.sticker.businesslogic;
 
 import androidx.annotation.Nullable;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.sticker.model.Sticker;
 import io.rong.sticker.model.StickerPackageDownloadUrlInfo;
 import io.rong.sticker.model.StickerPackagesConfigInfo;

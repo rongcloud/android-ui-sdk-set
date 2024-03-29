@@ -1,5 +1,6 @@
 package io.rong.imkit;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.widget.ImageView;
@@ -13,6 +14,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.utils.GlideUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 
@@ -120,12 +123,7 @@ public class GlideKitImageEngine implements KitImageEngine {
             default:
                 break;
         }
-        Glide.with(imageView)
-                .load(url)
-                .placeholder(resourceId)
-                .error(resourceId)
-                .apply(RequestOptions.bitmapTransform(getPortraitTransformation()))
-                .into(imageView);
+        loadPortrait(context, url, imageView, resourceId);
     }
 
     @Override
@@ -144,8 +142,46 @@ public class GlideKitImageEngine implements KitImageEngine {
             default:
                 break;
         }
+
+        loadPortrait(context, url, imageView, resourceId);
+    }
+
+    // 加载头像
+    private void loadPortrait(
+            @NonNull Context context,
+            @NonNull String url,
+            @NonNull ImageView imageView,
+            @DrawableRes int resourceId) {
+        KitMediaInterceptor interceptor = RongConfigCenter.featureConfig().getKitMediaInterceptor();
+        boolean isHttpUrl = url.startsWith("http") || url.startsWith("https");
+        if (!isHttpUrl || interceptor == null) {
+            loadImage(context, url, imageView, resourceId);
+            return;
+        }
+
+        // 是网络图片地址 + 且设置拦截器，走拦截器逻辑
+        interceptor.onGlidePrepareLoad(
+                url,
+                null,
+                map ->
+                        imageView.post(
+                                () ->
+                                        loadImage(
+                                                context,
+                                                GlideUtils.buildGlideUrl(url, map),
+                                                imageView,
+                                                resourceId)));
+    }
+
+    private void loadImage(Context context, Object model, ImageView imageView, int resourceId) {
+        if (context instanceof Activity) {
+            if (((Activity) context).isDestroyed() || ((Activity) context).isFinishing()) {
+                return;
+            }
+        }
+
         Glide.with(imageView)
-                .load(url)
+                .load(model)
                 .placeholder(resourceId)
                 .error(resourceId)
                 .apply(RequestOptions.bitmapTransform(getPortraitTransformation()))

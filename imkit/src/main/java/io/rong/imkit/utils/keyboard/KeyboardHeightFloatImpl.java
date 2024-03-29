@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 
 /** @author gusd */
 public class KeyboardHeightFloatImpl

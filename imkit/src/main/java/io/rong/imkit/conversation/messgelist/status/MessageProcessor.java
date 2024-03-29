@@ -3,6 +3,7 @@ package io.rong.imkit.conversation.messgelist.status;
 import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_COUNT;
 import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.DEFAULT_REMOTE_COUNT;
 
+import io.rong.imkit.IMCenter;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
@@ -14,6 +15,7 @@ import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.HistoryMessageOption;
 import io.rong.imlib.model.Message;
@@ -36,6 +38,71 @@ public class MessageProcessor {
             }
             return;
         }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
+        // 为了加速第一次加载速度：如果是私群聊，且sentTime为0。则先加载本地消息，成功或回调后，再调用断档消息。
+        if (needLoadLocalMessagesAtFirst(messageViewModel.getCurConversationType(), sentTime)) {
+            RongIMClient.getInstance()
+                    .getHistoryMessages(
+                            messageViewModel.getCurConversationType(),
+                            messageViewModel.getCurTargetId(),
+                            messageViewModel.getRefreshMessageId(),
+                            DEFAULT_COUNT,
+                            new RongIMClient.ResultCallback<List<Message>>() {
+                                @Override
+                                public void onSuccess(List<Message> messages) {
+                                    if (!isForward) {
+                                        Collections.reverse(messages);
+                                    }
+                                    // 如果本地查询的消息有断档，则不抛给上层数据，使用断档接口查询最新消息
+                                    if (!isMayHasMoreMessagesBefore(messages)) {
+                                        if (callback != null) {
+                                            callback.onSuccess(messages, false);
+                                        }
+                                    }
+
+                                    // 无论成功或者失败，均需要再调用一次断档接口
+                                    getMessages(weakVM.get(), sentTime, count, isForward, callback);
+                                }
+
+                                @Override
+                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                    // 无论成功或者失败，均需要再调用一次断档接口
+                                    getMessages(weakVM.get(), sentTime, count, isForward, callback);
+                                }
+                            });
+        } else {
+            getMessages(messageViewModel, sentTime, count, isForward, callback);
+        }
+    }
+
+    private static boolean needLoadLocalMessagesAtFirst(
+            Conversation.ConversationType type, long sentTime) {
+        boolean supportType =
+                Conversation.ConversationType.PRIVATE.equals(type)
+                        || Conversation.ConversationType.GROUP.equals(type);
+        return sentTime == 0
+                && (supportType
+                        || !NetUtils.isNetWorkAvailable(IMCenter.getInstance().getContext()));
+    }
+
+    private static boolean isMayHasMoreMessagesBefore(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return false;
+        }
+        for (Message message : messages) {
+            if (message.isMayHasMoreMessagesBefore()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void getMessages(
+            final MessageViewModel messageViewModel,
+            long sentTime,
+            int count,
+            final boolean isForward,
+            final GetMessageCallback callback) {
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(count);
@@ -105,12 +172,6 @@ public class MessageProcessor {
             int before,
             final int after,
             final GetMessageCallback callback) {
-        if (messageViewModel == null) {
-            if (callback != null) {
-                callback.onSuccess(new ArrayList<>(), false);
-            }
-            return;
-        }
         final List<Message> allData = new ArrayList<>();
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);
@@ -209,14 +270,14 @@ public class MessageProcessor {
                             public void onComplete(
                                     List<Message> messageList,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                if (!(messageList == null || messageList.size() == 0)) {
+                                if (!(messageList == null || messageList.isEmpty())) {
                                     allData.addAll(messageList);
-                                    if (callback != null) {
-                                        if (code == IRongCoreEnum.CoreErrorCode.SUCCESS) {
-                                            callback.onSuccess(allData, false);
-                                        } else {
-                                            callback.onErrorAlways(allData);
-                                        }
+                                }
+                                if (callback != null) {
+                                    if (code == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+                                        callback.onSuccess(allData, false);
+                                    } else {
+                                        callback.onErrorAlways(allData);
                                     }
                                 }
                             }

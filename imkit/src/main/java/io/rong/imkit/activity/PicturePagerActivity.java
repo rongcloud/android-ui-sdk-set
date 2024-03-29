@@ -11,7 +11,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -28,12 +28,15 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import io.rong.common.FileUtils;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
+import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.RecallEvent;
@@ -45,12 +48,15 @@ import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.GlideUtils;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCommonDefine;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongCoreClientImpl;
 import io.rong.imlib.RongIMClient;
+import io.rong.imlib.filetransfer.upload.MediaUploadAuthorInfo;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
@@ -60,6 +66,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
@@ -71,6 +78,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     private static final String TAG = "PicturePagerActivity";
     private static final int IMAGE_MESSAGE_COUNT = 10; // 每次获取的图片消息数量。
     private static final int LOAD_PICTURE_TIMEOUT = 30 * 1000; //  最小图片加载时间
+    private static final long LOAD_MORE_IMAGE_DELAYED_TIME = 500;
+    private static final String OBJECT_NAME = "RC:ImgMsg";
     protected ViewPager2 mViewPager;
     protected ImageMessage mCurrentImageMessage;
     protected Message mMessage;
@@ -79,7 +88,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
     protected int currentSelectMessageId;
     protected String mTargetId = null;
     protected ImageAdapter mImageAdapter;
-    protected boolean isFirstTime = false;
+    Handler mainHandler = new Handler();
 
     protected ViewPager2.OnPageChangeCallback mPageChangeListener =
             new ViewPager2.OnPageChangeCallback() {
@@ -103,14 +112,18 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                     if (null == message) {
                         return;
                     }
-                    int msgId = message.getMessageId();
-                    if (position == (mImageAdapter.getItemCount() - 1)) {
-                        getConversationImageUris(
-                                msgId, RongCommonDefine.GetMessageDirection.BEHIND);
-                    } else if (position == 0) {
-                        getConversationImageUris(msgId, RongCommonDefine.GetMessageDirection.FRONT);
+                    currentSelectMessageId = message.getMessageId();
+
+                    // 第一次加载只有传进页面的消息，position为0且Item是1，获取前后的图片消息
+                    if (position == 0 && mImageAdapter.getItemCount() == 1) {
+                        fetchImageMessage(currentSelectMessageId, true, true);
                     }
-                    currentSelectMessageId = msgId;
+                    // 左右滑动到头分页加载
+                    else if (position == (mImageAdapter.getItemCount() - 1)) {
+                        fetchImageMessage(currentSelectMessageId, true, false);
+                    } else if (position == 0) {
+                        fetchImageMessage(currentSelectMessageId, false, true);
+                    }
                 }
             };
     RongIMClient.OnRecallMessageListener mOnRecallMessageListener =
@@ -125,13 +138,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                 .setMessage(getString(R.string.rc_recall_success))
                                 .setPositiveButton(
                                         getString(R.string.rc_dialog_ok),
-                                        new DialogInterface.OnClickListener() {
-
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                finish();
-                                            }
-                                        })
+                                        (dialog, which) -> finish())
                                 .setCancelable(false)
                                 .show();
                     } else {
@@ -201,6 +208,11 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rc_fr_photo);
         Message currentMessage = getIntent().getParcelableExtra("message");
+        if (currentMessage == null || currentMessage.getContent() == null) {
+            RLog.e(TAG, "onCreate error, message or message content is null");
+            finish();
+            return;
+        }
 
         mMessage = currentMessage;
         if (currentMessage.getContent() instanceof ReferenceMessage) {
@@ -217,29 +229,16 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         mViewPager = findViewById(R.id.viewpager);
         mViewPager.registerOnPageChangeCallback(mPageChangeListener);
         mImageAdapter = new ImageAdapter();
-        isFirstTime = true;
-        if (!(mMessage.getContent().isDestruct()
-                || mMessage.getContent() instanceof ReferenceMessage
-                || Conversation.ConversationType.ULTRA_GROUP.equals(
-                        mMessage.getConversationType()))) {
-            getConversationImageUris(
-                    mCurrentMessageId,
-                    RongCommonDefine.GetMessageDirection.FRONT); // 获取当前点开图片之前的图片消息。
-            getConversationImageUris(
-                    mCurrentMessageId, RongCommonDefine.GetMessageDirection.BEHIND);
-        } else {
-            // 阅后即焚和引用消息只显示1张照片
-            ArrayList<ImageInfo> lists = new ArrayList<>();
-            lists.add(
-                    new ImageInfo(
-                            mMessage,
-                            mCurrentImageMessage.getThumUri(),
-                            mCurrentImageMessage.getLocalUri() == null
-                                    ? mCurrentImageMessage.getRemoteUri()
-                                    : mCurrentImageMessage.getLocalUri()));
-            mImageAdapter.addData(lists, true);
-        }
         mViewPager.setAdapter(mImageAdapter);
+        // 加载当前传过来的图片消息
+        ArrayList<ImageInfo> lists = new ArrayList<>();
+        lists.add(
+                new ImageInfo(
+                        mMessage,
+                        mCurrentImageMessage.getThumUri(),
+                        getLargeImageUri(mCurrentImageMessage)));
+        mImageAdapter.addData(lists, true);
+
         IMCenter.getInstance().addMessageEventListener(mBaseMessageEvent);
         IMCenter.getInstance().addOnRecallMessageListener(mOnRecallMessageListener);
     }
@@ -251,91 +250,94 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         IMCenter.getInstance().removeMessageEventListener(mBaseMessageEvent);
     }
 
-    private void getConversationImageUris(
-            int messageId, final RongCommonDefine.GetMessageDirection direction) {
-        if (mConversationType != null && !TextUtils.isEmpty(mTargetId)) {
-            RongIMClient.getInstance()
-                    .getHistoryMessages(
-                            mConversationType,
-                            mTargetId,
-                            "RC:ImgMsg",
-                            messageId,
-                            IMAGE_MESSAGE_COUNT,
-                            direction,
-                            new RongIMClient.ResultCallback<List<Message>>() {
-                                @Override
-                                public void onSuccess(List<Message> messages) {
-                                    int i;
-                                    ArrayList<ImageInfo> lists = new ArrayList<>();
-                                    if (messages != null) {
-                                        if (direction.equals(
-                                                RongCommonDefine.GetMessageDirection.FRONT)) {
-                                            Collections.reverse(messages);
-                                        }
-                                        for (i = 0; i < messages.size(); i++) {
-                                            Message message = messages.get(i);
-                                            if (message.getContent() instanceof ImageMessage
-                                                    && !message.getContent().isDestruct()) {
-                                                ImageMessage imageMessage =
-                                                        (ImageMessage) message.getContent();
-                                                Uri largeImageUri =
-                                                        imageMessage.getLocalUri() == null
-                                                                ? imageMessage.getRemoteUri()
-                                                                : imageMessage.getLocalUri();
-
-                                                if (imageMessage.getThumUri() != null
-                                                        && largeImageUri != null) {
-                                                    lists.add(
-                                                            new ImageInfo(
-                                                                    message,
-                                                                    imageMessage.getThumUri(),
-                                                                    largeImageUri));
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (direction.equals(
-                                            RongCommonDefine.GetMessageDirection.FRONT)) {
-                                        if (isFirstTime) {
-                                            lists.add(
-                                                    new ImageInfo(
-                                                            mMessage,
-                                                            mCurrentImageMessage.getThumUri(),
-                                                            mCurrentImageMessage.getLocalUri()
-                                                                            == null
-                                                                    ? mCurrentImageMessage
-                                                                            .getRemoteUri()
-                                                                    : mCurrentImageMessage
-                                                                            .getLocalUri()));
-                                        }
-                                        mImageAdapter.addData(lists, true);
-                                        if (isFirstTime) {
-                                            int index =
-                                                    mImageAdapter.getIndexByMessageId(
-                                                            mMessage.getMessageId());
-                                            if (index != -1) {
-                                                mViewPager.setCurrentItem(index, false);
-                                            }
-                                            isFirstTime = false;
-                                        }
-                                    } else if (lists.size() > 0) {
-                                        mImageAdapter.addData(lists, false);
-                                    }
-                                }
-
-                                @Override
-                                public void onError(RongIMClient.ErrorCode e) {
-                                    // do nothing
-                                }
-                            });
+    @Override
+    public void finish() {
+        super.finish();
+        // 全屏Activity在finish后回到非全屏，会造成页面重绘闪动问题（典型现象是RecyclerView向下滑动一点距离）
+        // finish后清除全屏标志位，避免此问题
+        if (getWindow() != null) {
+            int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+            getWindow().setFlags(flag, flag);
         }
     }
 
-    @Override
-    public void onSaveInstanceState(
-            @NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+    private void getConversationImageUris(
+            int messageId, final RongCommonDefine.GetMessageDirection direction) {
+        if (mConversationType == null || TextUtils.isEmpty(mTargetId)) {
+            return;
+        }
+        RongIMClient.getInstance()
+                .getHistoryMessages(
+                        mConversationType,
+                        mTargetId,
+                        OBJECT_NAME,
+                        messageId,
+                        IMAGE_MESSAGE_COUNT,
+                        direction,
+                        new RongIMClient.ResultCallback<List<Message>>() {
+                            @Override
+                            public void onSuccess(List<Message> messages) {
+                                mImageAdapter.addData(
+                                        convertToImageInfo(messages, direction),
+                                        direction.equals(
+                                                RongCommonDefine.GetMessageDirection.FRONT));
+                            }
 
-        super.onSaveInstanceState(outState, outPersistentState);
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {
+                                // do nothing
+                            }
+                        });
+    }
+
+    // 消息列表转换为 ImageInfo 列表
+    private @NonNull List<ImageInfo> convertToImageInfo(
+            List<Message> messages, RongCommonDefine.GetMessageDirection direction) {
+        ArrayList<ImageInfo> lists = new ArrayList<>();
+        if (messages == null) {
+            return lists;
+        }
+        if (direction.equals(RongCommonDefine.GetMessageDirection.FRONT)) {
+            Collections.reverse(messages);
+        }
+        for (Message message : messages) {
+            if (!(message.getContent() instanceof ImageMessage)
+                    || message.getContent().isDestruct()) {
+                continue;
+            }
+            ImageMessage imageMessage = (ImageMessage) message.getContent();
+            Uri largeImageUri = getLargeImageUri(imageMessage);
+            if (imageMessage.getThumUri() != null && largeImageUri != null) {
+                lists.add(new ImageInfo(message, imageMessage.getThumUri(), largeImageUri));
+            }
+        }
+        return lists;
+    }
+
+    // 本地Uri存在则使用本地Uri，否则使用远程Uri
+    protected Uri getLargeImageUri(ImageMessage imageMessage) {
+        return FileUtils.isFileExistsWithUri(this, imageMessage.getLocalUri())
+                ? imageMessage.getLocalUri()
+                : imageMessage.getRemoteUri();
+    }
+
+    // 延迟拉取前面或后面的图片消息，加载过快会导致ViewPager当前Item不是第一个，造成预览错乱
+    private void fetchImageMessage(final int msgId, boolean fetchBehind, boolean fetchFront) {
+        mainHandler.postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (fetchBehind) {
+                            getConversationImageUris(
+                                    msgId, RongCommonDefine.GetMessageDirection.BEHIND);
+                        }
+                        if (fetchFront) {
+                            getConversationImageUris(
+                                    msgId, RongCommonDefine.GetMessageDirection.FRONT);
+                        }
+                    }
+                },
+                LOAD_MORE_IMAGE_DELAYED_TIME);
     }
 
     @Override
@@ -468,14 +470,13 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                                                                     @Override
                                                                                     public void
                                                                                             run() {
-                                                                                        Toast
-                                                                                                .makeText(
+                                                                                        ToastUtils
+                                                                                                .show(
                                                                                                         PicturePagerActivity
                                                                                                                 .this,
                                                                                                         toast,
                                                                                                         Toast
-                                                                                                                .LENGTH_SHORT)
-                                                                                                .show();
+                                                                                                                .LENGTH_SHORT);
                                                                                     }
                                                                                 });
                                                             }
@@ -556,9 +557,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                         public void onClick(View v) {
                             Window window = PicturePagerActivity.this.getWindow();
                             if (window != null) {
-                                window.setFlags(
-                                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-                                        WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                                int flag = WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN;
+                                window.setFlags(flag, flag);
                             }
                             finish();
                         }
@@ -574,26 +574,28 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             final Uri originalUri = mImageList.get(position).getLargeImageUri();
             // 图片url为file地址、图片url非file地址，并且是私有云，需要在请求私有云token成功后，再请求图片
             if (!FileUtils.uriStartWithFile(originalUri) && RongCoreClientImpl.isPrivateSDK()) {
-                RongIMClient.getInstance()
-                        .getPrivateDownloadToken(
+                RongCoreClient.getInstance()
+                        .getMediaUploadAuthorInfo(
                                 GlideUtils.getUrlName(originalUri.toString()),
-                                new IRongCoreCallback.ResultCallback<String>() {
+                                originalUri.toString(),
+                                new IRongCoreCallback.ResultCallback<MediaUploadAuthorInfo>() {
                                     @Override
-                                    public void onSuccess(String token) {
-                                        updatePhotoView(position, holder, token);
+                                    public void onSuccess(MediaUploadAuthorInfo auth) {
+                                        updatePhotoView(position, holder, auth);
                                     }
 
                                     @Override
                                     public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                        updatePhotoView(position, holder, "");
+                                        updatePhotoView(position, holder, null);
                                     }
                                 });
             } else {
-                updatePhotoView(position, holder, "");
+                updatePhotoView(position, holder, null);
             }
         }
 
-        private void updatePhotoView(final int position, final ViewHolder holder, String token) {
+        private void updatePhotoView(
+                final int position, final ViewHolder holder, MediaUploadAuthorInfo auth) {
             final ImageInfo imageInfo = mImageList.get(position);
             final Uri originalUri = imageInfo.getLargeImageUri();
             final Uri thumbUri = imageInfo.getThumbUri();
@@ -610,9 +612,45 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                 new DestructListener(holder, mMessage.getUId()),
                                 TAG);
             }
+            Object originalBitmapModel = GlideUtils.buildAuthUrl(originalUri, auth);
+            KitMediaInterceptor interceptor =
+                    RongConfigCenter.featureConfig().getKitMediaInterceptor();
+            if (interceptor != null && originalBitmapModel instanceof GlideUrl) {
+                GlideUrl originalGlideUrl = (GlideUrl) originalBitmapModel;
+                interceptor.onGlidePrepareLoad(
+                        originalUri.toString(),
+                        new HashMap<>(originalGlideUrl.getHeaders()),
+                        map ->
+                                runOnUiThread(
+                                        () ->
+                                                loadImageBitmapResource(
+                                                        GlideUtils.buildGlideUrl(
+                                                                originalUri.toString(), map),
+                                                        holder,
+                                                        originalUri,
+                                                        thumbUri,
+                                                        imageInfo)));
+            } else {
+                loadImageBitmapResource(
+                        originalBitmapModel, holder, originalUri, thumbUri, imageInfo);
+            }
+        }
+
+        // Glide以Bitmap形式加载图片
+        private void loadImageBitmapResource(
+                Object model,
+                final ViewHolder holder,
+                final Uri originalUri,
+                Uri thumbUri,
+                final ImageInfo imageInfo) {
+            if (isDestroyed() || isFinishing()) {
+                io.rong.common.RLog.d(
+                        TAG, "loadImageBitmapResource activity isDestroyed or isFinishing");
+                return;
+            }
             Glide.with(PicturePagerActivity.this)
                     .asBitmap()
-                    .load(GlideUtils.buildAuthUrl(originalUri, token))
+                    .load(model)
                     .timeout(LOAD_PICTURE_TIMEOUT)
                     .into(
                             new CustomTarget<Bitmap>() {
@@ -624,16 +662,18 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                         @Nullable Transition<? super Bitmap> transition) {
                                     holder.itemView.removeCallbacks(mLoadFailedAction);
                                     int maxLoader = Utils.getMaxLoader(); // openGL最大允许的长或宽
+                                    Bitmap desBitmap = null;
                                     if (resource != null
                                             && resource.getWidth() < maxLoader
                                             && resource.getHeight() < maxLoader) {
-
                                         try {
-                                            resource = resource.copy(Bitmap.Config.ARGB_8888, true);
+                                            desBitmap =
+                                                    resource.copy(Bitmap.Config.ARGB_8888, true);
                                         } catch (Throwable e) {
                                             RLog.e(TAG, "onResourceReady Bitmap copy error: " + e);
                                         }
-
+                                    }
+                                    if (desBitmap != null) {
                                         if (mCurrentImageMessage.isDestruct()
                                                 && mMessage.getMessageDirection()
                                                         .equals(Message.MessageDirection.RECEIVE)) {
@@ -643,7 +683,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                                         holder.failImg.setVisibility(View.GONE);
                                         holder.progressBar.setVisibility(View.GONE);
                                         holder.photoView.setVisibility(View.VISIBLE);
-                                        holder.photoView.setBitmapAndFileUri(resource, null);
+                                        holder.photoView.setBitmapAndFileUri(desBitmap, null);
                                         imageInfo.download = true;
                                     } else {
                                         if (FileUtils.uriStartWithFile(originalUri)) {
@@ -786,6 +826,17 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                     });
             holder.photoView.setVisibility(View.INVISIBLE);
         }
+        // Glide以File形式加载图片
+        private void loadImageFileResource(
+                Object model, final ViewHolder holder, final ImageInfo imageInfo) {
+            if (isDestroyed() || isFinishing()) {
+                io.rong.common.RLog.d(
+                        TAG, "loadImageFileResource activity isDestroyed or isFinishing");
+                return;
+            }
+            // Glide以Bitmap形式加载失败，再次以File形式加载一次
+            loadImageFileResource(model, holder, imageInfo);
+        }
 
         public Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
             // 获得图片的宽高
@@ -802,8 +853,10 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             return newbm;
         }
 
-        public void addData(ArrayList<ImageInfo> newImages, boolean direction) {
-            if (newImages == null || newImages.size() == 0) return;
+        public void addData(List<ImageInfo> newImages, boolean direction) {
+            if (newImages == null || newImages.isEmpty()) {
+                return;
+            }
             if (direction && !isDuplicate(newImages.get(0).getMessage().getMessageId())) {
                 mImageList.addAll(0, newImages);
                 notifyItemRangeInserted(0, newImages.size());
@@ -815,7 +868,9 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
 
         private boolean isDuplicate(int messageId) {
             for (ImageInfo info : mImageList) {
-                if (info.getMessage().getMessageId() == messageId) return true;
+                if (info.getMessage().getMessageId() == messageId) {
+                    return true;
+                }
             }
             return false;
         }

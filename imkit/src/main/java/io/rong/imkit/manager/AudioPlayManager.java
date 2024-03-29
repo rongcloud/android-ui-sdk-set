@@ -17,7 +17,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.view.WindowManager;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.io.FileInputStream;
 import java.io.IOException;
 

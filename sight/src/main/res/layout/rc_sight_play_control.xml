@@ -6,8 +6,8 @@
     android:background="#BF000000"
     android:clickable="true"
     android:orientation="horizontal"
-    android:paddingBottom="8dp"
-    android:paddingTop="16dp">
+    android:paddingBottom="7dp"
+    android:paddingTop="15dp">
 
     <ImageView
         android:id="@+id/btnPlayPause"
@@ -34,6 +34,8 @@
         android:layout_gravity="center"
         android:layout_marginStart="7dp"
         android:layout_weight="1"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
         android:maxHeight="3dp"
         android:minHeight="3dp"
         android:thumbOffset="0dp"

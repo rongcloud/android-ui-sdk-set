@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.fragment.app.Fragment;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.activity.CombinePicturePagerActivity;
 import io.rong.imkit.activity.CombineWebViewActivity;
 import io.rong.imkit.activity.FilePreviewActivity;
@@ -47,6 +47,10 @@ public class RouteUtils {
             new HashMap<>();
 
     public static void routeToConversationListActivity(Context context, String title) {
+        if (context == null) {
+            RLog.e(TAG, "routeToConversationListActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = RongConversationListActivity.class;
         if (sActivityMap.get(RongActivityType.ConversationListActivity) != null) {
             activity = sActivityMap.get(RongActivityType.ConversationListActivity);
@@ -145,6 +149,10 @@ public class RouteUtils {
             ConversationIdentifier conversationIdentifier,
             boolean disableSystemEmoji,
             Bundle bundle) {
+        if (context == null) {
+            RLog.e(TAG, "routeToConversationActivity: context is null");
+            return;
+        }
         if (conversationIdentifier == null) {
             RLog.e(TAG, "routeToConversationActivity: conversationIdentifier is empty");
             return;
@@ -186,6 +194,10 @@ public class RouteUtils {
      */
     public static void routeToSubConversationListActivity(
             Context context, Conversation.ConversationType type, String title) {
+        if (context == null) {
+            RLog.e(TAG, "routeToSubConversationListActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = RongSubConversationListActivity.class;
         if (sActivityMap.get(RongActivityType.SubConversationListActivity) != null) {
             activity = sActivityMap.get(RongActivityType.SubConversationListActivity);
@@ -208,6 +220,10 @@ public class RouteUtils {
      */
     public static void routeToMentionMemberSelectActivity(
             Context context, String targetId, Conversation.ConversationType type) {
+        if (context == null) {
+            RLog.e(TAG, "routeToMentionMemberSelectActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = MentionMemberSelectActivity.class;
         if (sActivityMap.get(RongActivityType.MentionMemberSelectActivity) != null) {
             activity = sActivityMap.get(RongActivityType.MentionMemberSelectActivity);
@@ -231,6 +247,10 @@ public class RouteUtils {
      * @param title 标题
      */
     public static void routeToWebActivity(Context context, String url, String title) {
+        if (context == null) {
+            RLog.e(TAG, "routeToWebActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = RongWebviewActivity.class;
         if (sActivityMap.get(RongActivityType.RongWebViewActivity) != null) {
             activity = sActivityMap.get(RongActivityType.RongWebViewActivity);
@@ -246,6 +266,10 @@ public class RouteUtils {
 
     public static void routeToFilePreviewActivity(
             Context context, Message message, FileMessage content, int progress) {
+        if (context == null) {
+            RLog.e(TAG, "routeToFilePreviewActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = FilePreviewActivity.class;
         if (sActivityMap.get(RongActivityType.FilePreviewActivity) != null) {
             activity = sActivityMap.get(RongActivityType.FilePreviewActivity);
@@ -295,6 +319,10 @@ public class RouteUtils {
      * @param message 合并转发时携带的原始消息
      */
     public static void routeToCombinePicturePagerActivity(Context context, Message message) {
+        if (context == null) {
+            RLog.e(TAG, "routeToCombinePicturePagerActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = CombinePicturePagerActivity.class;
         if (sActivityMap.get(RongActivityType.CombinePicturePagerActivity) != null) {
             activity = sActivityMap.get(RongActivityType.CombinePicturePagerActivity);
@@ -317,6 +345,10 @@ public class RouteUtils {
      */
     public static void routeToCombineWebViewActivity(
             Context context, int messageId, String uri, String type, String title) {
+        if (context == null) {
+            RLog.e(TAG, "routeToCombineWebViewActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = CombineWebViewActivity.class;
         if (sActivityMap.get(RongActivityType.CombineWebViewActivity) != null) {
             activity = sActivityMap.get(RongActivityType.CombineWebViewActivity);
@@ -341,6 +373,10 @@ public class RouteUtils {
      */
     public static void routeToWebFilePreviewActivity(
             Context context, String fileUrl, String fileName, String fileSize) {
+        if (context == null) {
+            RLog.e(TAG, "routeToWebFilePreviewActivity: context is null");
+            return;
+        }
         Class<? extends Activity> activity = WebFilePreviewActivity.class;
         if (sActivityMap.get(RongActivityType.WebFilePreviewActivity) != null) {
             activity = sActivityMap.get(RongActivityType.WebFilePreviewActivity);

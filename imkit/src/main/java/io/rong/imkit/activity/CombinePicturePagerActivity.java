@@ -28,16 +28,13 @@ public class CombinePicturePagerActivity extends PicturePagerActivity {
         mViewPager = findViewById(R.id.viewpager);
         mViewPager.registerOnPageChangeCallback(mPageChangeListener);
         mImageAdapter = new ImageAdapter();
-        isFirstTime = true;
         // 只显示1张照片
         ArrayList<ImageInfo> lists = new ArrayList<>();
         lists.add(
                 new ImageInfo(
                         mMessage,
                         mCurrentImageMessage.getThumUri(),
-                        mCurrentImageMessage.getLocalUri() == null
-                                ? mCurrentImageMessage.getRemoteUri()
-                                : mCurrentImageMessage.getLocalUri()));
+                        getLargeImageUri(mCurrentImageMessage)));
         mImageAdapter.addData(lists, true);
         mViewPager.setAdapter(mImageAdapter);
     }

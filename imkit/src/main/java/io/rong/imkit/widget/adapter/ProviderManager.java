@@ -1,9 +1,12 @@
 package io.rong.imkit.widget.adapter;
 
 import androidx.collection.SparseArrayCompat;
+import io.rong.common.rlog.RLog;
 import java.util.List;
 
 public class ProviderManager<T> {
+    private static final String TAG = "ProviderManager";
+    final Object mLock = new Object();
     private final int DEFAULT_ITEM_VIEW_TYPE = -100;
     private SparseArrayCompat<IViewProvider<T>> mProviders = new SparseArrayCompat<>();
     private IViewProvider<T> mDefaultProvider;
@@ -24,21 +27,30 @@ public class ProviderManager<T> {
     }
 
     public void addProvider(IViewProvider<T> provider) {
-        int viewType = mProviders.size();
-        if (provider != null) {
-            mProviders.put(viewType, provider);
+        synchronized (mLock) {
+            int viewType = mProviders.size();
+            if (provider != null) {
+                mProviders.put(viewType, provider);
+            }
         }
     }
 
     public void addProvider(int viewType, IViewProvider<T> provider) {
-        if (mProviders.get(viewType) != null) {
-            throw new IllegalArgumentException(
-                    "An ItemViewProvider is already registered for the viewType = "
-                            + viewType
-                            + ". Already registered ItemViewProvider is "
-                            + mProviders.get(viewType));
+        synchronized (mLock) {
+            IViewProvider<T> viewProvider = mProviders.get(viewType);
+            if (viewProvider != null) {
+                RLog.e(
+                        TAG,
+                        "An ItemViewProvider is already registered for the viewType = "
+                                + viewType
+                                + ". Already registered ItemViewProvider is "
+                                + viewProvider);
+            } else {
+                if (provider != null) {
+                    mProviders.put(viewType, provider);
+                }
+            }
         }
-        mProviders.put(viewType, provider);
     }
 
     /** 设置默认模板。当找不到和 viewType 对应的模板时，使用此默认模板进行 ui 处理。 */
@@ -48,7 +60,8 @@ public class ProviderManager<T> {
 
     public void removeProvider(IViewProvider<T> provider) {
         if (provider == null) {
-            throw new NullPointerException("ItemViewProvider is null");
+            RLog.e(TAG, "ItemViewProvider is null");
+            return;
         }
         int indexToRemove = mProviders.indexOfValue(provider);
 
@@ -95,7 +108,7 @@ public class ProviderManager<T> {
         int count = mProviders.size();
         for (int i = count - 1; i >= 0; i--) {
             IViewProvider<T> provider = mProviders.valueAt(i);
-            if (provider.isItemViewType(item)) {
+            if (provider != null && provider.isItemViewType(item)) {
                 return mProviders.keyAt(i);
             }
         }
@@ -105,7 +118,7 @@ public class ProviderManager<T> {
     public IViewProvider<T> getProvider(T item) {
         for (int i = 0; i < mProviders.size(); i++) {
             IViewProvider<T> provider = mProviders.valueAt(i);
-            if (provider.isItemViewType(item)) {
+            if (provider != null && provider.isItemViewType(item)) {
                 return provider;
             }
         }

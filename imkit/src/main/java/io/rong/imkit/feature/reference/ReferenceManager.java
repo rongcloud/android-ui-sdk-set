@@ -8,7 +8,7 @@ import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.MessageItemLongClickAction;
 import io.rong.imkit.MessageItemLongClickActionManager;
@@ -74,7 +74,8 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                     if (rongExtension == null
                                             || fragment == null
                                             || fragment.isDetached()
-                                            || fragment.getContext() == null) {
+                                            || fragment.getContext() == null
+                                            || fragment.getFragmentManager() == null) {
                                         return false;
                                     }
                                     mUiMessage = uiMessage;
@@ -204,7 +205,10 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
 
     @Override
     public void onAttachedToExtension(Fragment fragment, final RongExtension extension) {
-        if (fragment == null || fragment.isDetached() || fragment.getContext() == null) {
+        if (fragment == null
+                || fragment.isDetached()
+                || fragment.getContext() == null
+                || fragment.getFragmentManager() == null) {
             return;
         }
         mFragment = new WeakReference<>(fragment);

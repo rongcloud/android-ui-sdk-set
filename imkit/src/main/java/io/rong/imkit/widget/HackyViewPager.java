@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import androidx.viewpager.widget.ViewPager;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 
 public class HackyViewPager extends ViewPager {
     private static final String TAG = "HackyViewPager";

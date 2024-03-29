@@ -29,6 +29,7 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     private boolean isQuickReplyShow;
     private WeakReference<RongExtension> mExtension;
     private RelativeLayout attachContainer;
+    private IQuickReplyProvider provider;
 
     @Override
     public void onInit(Context context, String appKey) {
@@ -38,15 +39,13 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     @Override
     public void onAttachedToExtension(final Fragment fragment, final RongExtension extension) {
         final Conversation.ConversationType type = extension.getConversationType();
-        final IQuickReplyProvider provider =
-                RongConfigCenter.featureConfig().getQuickReplyProvider();
+        provider = RongConfigCenter.featureConfig().getQuickReplyProvider();
         mExtension = new WeakReference<>(extension);
         if (DestructManager.isActive()) {
             return;
         }
-        if (provider != null
-                && provider.getPhraseList(type) != null
-                && provider.getPhraseList(type).size() > 0
+
+        if (showReply(provider, type)
                 && fragment != null
                 && fragment.getContext() != null
                 && !fragment.isDetached()) {
@@ -71,69 +70,108 @@ public class QuickReplyExtensionModule implements IExtensionModule {
                                     }
                                 }
                             });
+            RongConfigCenter.featureConfig()
+                    .getIsQuickReply()
+                    .observe(
+                            fragment,
+                            new Observer<Boolean>() {
+                                @Override
+                                public void onChanged(Boolean aBoolean) {
+                                    if (isQuickReplyShow) {
+                                        uploadReply(
+                                                fragment.getContext(),
+                                                extension,
+                                                type,
+                                                rongExtensionViewModel);
+                                    }
+                                }
+                            });
             mQuickReplyIcon
                     .findViewById(R.id.ext_common_phrases)
                     .setOnClickListener(
                             new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    if (isQuickReplyShow
-                                            && rongExtensionViewModel
-                                                    .getExtensionBoardState()
-                                                    .getValue()) {
-                                        isQuickReplyShow = false;
-                                        if (rongExtensionViewModel.getEditTextWidget() != null) {
+                                    if (RongConfigCenter.conversationConfig()
+                                                            .getConversationClickListener()
+                                                    != null
+                                            && RongConfigCenter.conversationConfig()
+                                                    .getConversationClickListener()
+                                                    .onQuickReplyClick(v.getContext())) {
+                                        return;
+                                    }
+                                    provider =
+                                            RongConfigCenter.featureConfig()
+                                                    .getQuickReplyProvider();
+                                    if (showReply(provider, type)) {
+                                        if (isQuickReplyShow
+                                                && rongExtensionViewModel
+                                                        .getExtensionBoardState()
+                                                        .getValue()) {
+                                            isQuickReplyShow = false;
+                                            if (rongExtensionViewModel.getEditTextWidget()
+                                                    != null) {
+                                                rongExtensionViewModel
+                                                        .getEditTextWidget()
+                                                        .requestFocus();
+                                            }
                                             rongExtensionViewModel
-                                                    .getEditTextWidget()
-                                                    .requestFocus();
+                                                    .getInputModeLiveData()
+                                                    .setValue(InputMode.TextInput);
+                                        } else {
+                                            isQuickReplyShow = true;
+                                            rongExtensionViewModel
+                                                    .getInputModeLiveData()
+                                                    .setValue(InputMode.QuickReplyMode);
+                                            uploadReply(
+                                                    v.getContext(),
+                                                    extension,
+                                                    type,
+                                                    rongExtensionViewModel);
                                         }
-                                        rongExtensionViewModel
-                                                .getInputModeLiveData()
-                                                .setValue(InputMode.TextInput);
-                                    } else {
-                                        isQuickReplyShow = true;
-                                        rongExtensionViewModel
-                                                .getInputModeLiveData()
-                                                .setValue(InputMode.QuickReplyMode);
-                                        RelativeLayout boardContainer =
-                                                extension.getContainer(
-                                                        RongExtension.ContainerType.BOARD);
-                                        boardContainer.removeAllViews();
-                                        QuickReplyBoard quickReplyBoard =
-                                                new QuickReplyBoard(
-                                                        v.getContext(),
-                                                        boardContainer,
-                                                        provider.getPhraseList(type),
-                                                        new AdapterView.OnItemClickListener() {
-                                                            @Override
-                                                            public void onItemClick(
-                                                                    AdapterView<?> parent,
-                                                                    View view,
-                                                                    int position,
-                                                                    long id) {
-                                                                isQuickReplyShow = false;
-                                                                if (rongExtensionViewModel
-                                                                                .getEditTextWidget()
-                                                                        != null) {
-                                                                    rongExtensionViewModel
-                                                                            .getEditTextWidget()
-                                                                            .requestFocus();
-                                                                }
-                                                                rongExtensionViewModel
-                                                                        .getInputModeLiveData()
-                                                                        .setValue(
-                                                                                InputMode
-                                                                                        .TextInput);
-                                                            }
-                                                        });
-                                        quickReplyBoard.setAttachedConversation(extension);
-                                        boardContainer.addView(quickReplyBoard.getRootView());
-                                        boardContainer.setVisibility(View.VISIBLE);
                                     }
                                 }
                             });
             ReferenceManager.getInstance().setReferenceStatusListener(ReferenceStatusListener);
         }
+    }
+
+    public void uploadReply(
+            Context context,
+            RongExtension extension,
+            Conversation.ConversationType type,
+            RongExtensionViewModel rongExtensionViewModel) {
+        provider = RongConfigCenter.featureConfig().getQuickReplyProvider();
+        RelativeLayout boardContainer = extension.getContainer(RongExtension.ContainerType.BOARD);
+        boardContainer.removeAllViews();
+        QuickReplyBoard quickReplyBoard =
+                new QuickReplyBoard(
+                        context,
+                        boardContainer,
+                        provider.getPhraseList(type),
+                        new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(
+                                    AdapterView<?> parent, View view, int position, long id) {
+                                isQuickReplyShow = false;
+                                if (rongExtensionViewModel.getEditTextWidget() != null) {
+                                    rongExtensionViewModel.getEditTextWidget().requestFocus();
+                                }
+                                rongExtensionViewModel
+                                        .getInputModeLiveData()
+                                        .setValue(InputMode.TextInput);
+                            }
+                        });
+        quickReplyBoard.setAttachedConversation(extension);
+        boardContainer.addView(quickReplyBoard.getRootView());
+        boardContainer.setVisibility(View.VISIBLE);
+    }
+
+    private boolean showReply(
+            IQuickReplyProvider iQuickReplyProvider, Conversation.ConversationType type) {
+        return iQuickReplyProvider != null
+                && iQuickReplyProvider.getPhraseList(type) != null
+                && iQuickReplyProvider.getPhraseList(type).size() > 0;
     }
 
     @Override

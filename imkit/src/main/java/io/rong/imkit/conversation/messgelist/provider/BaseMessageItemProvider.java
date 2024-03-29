@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.RongConfigCenter;
@@ -232,9 +232,10 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                                                         uiMessage.getUserInfo(),
                                                         uiMessage.getMessage().getTargetId());
                                 if (!result) {
-                                    return listener.onViewLongClick(
+                                    listener.onViewLongClick(
                                             MessageClickType.USER_PORTRAIT_LONG_CLICK, uiMessage);
                                 }
+                                return result;
                             }
                             return false;
                         }
@@ -258,9 +259,10 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                                                         uiMessage.getUserInfo(),
                                                         uiMessage.getMessage().getTargetId());
                                 if (!result) {
-                                    return listener.onViewLongClick(
+                                    listener.onViewLongClick(
                                             MessageClickType.USER_PORTRAIT_LONG_CLICK, uiMessage);
                                 }
+                                return result;
                             }
                             return false;
                         }
@@ -385,9 +387,10 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                                                 listener);
                             }
                             if (!result) {
-                                return listener.onViewLongClick(
+                                listener.onViewLongClick(
                                         MessageClickType.CONTENT_LONG_CLICK, uiMessage);
                             }
+                            return result;
                         }
                         return false;
                     }

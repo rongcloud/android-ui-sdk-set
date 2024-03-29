@@ -21,6 +21,7 @@ import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.RongIMClient;
@@ -123,11 +124,8 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
             if (intent.resolveActivity(holder.getContext().getPackageManager()) != null) {
                 holder.getContext().startActivity(intent);
             } else {
-                Toast.makeText(
-                                holder.getContext(),
-                                "Sight Module does not exist.",
-                                Toast.LENGTH_SHORT)
-                        .show();
+                ToastUtils.show(
+                        holder.getContext(), "Sight Module does not exist.", Toast.LENGTH_SHORT);
             }
             return true;
         }

@@ -4,10 +4,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.http.SslCertificate;
-import io.rong.common.RLog;
+import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.GlideKitImageEngine;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitImageEngine;
+import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.quickreply.IQuickReplyProvider;
 import io.rong.imlib.model.Conversation;
@@ -18,7 +21,6 @@ import java.util.List;
 public class FeatureConfig {
 
     private static final String TAG = "FeatureConfig";
-    private static String KIT_VERSION = "4.1.0.98";
     // <!--是否支持消息引用功能，默认打开，聊天页面长按消息支持引用（目前仅支持文本消息、文件消息、图文消息、图片消息、引用消息的引用）-->
     private boolean isReferenceEnable; // 引用
     private boolean isDestructEnable; // 阅后即焚
@@ -26,6 +28,7 @@ public class FeatureConfig {
     private IQuickReplyProvider quickReplyProvider;
     private IMCenter.VoiceMessageType voiceMessageType;
     private List<Conversation.ConversationType> readReceiptSupportTypes;
+    private MutableLiveData<Boolean> isQuickReply = new MediatorLiveData<>();
     // 设置 AMR_NB 语音消息的码率 (单位 bps)[rc_audio_encoding_bit_rate]
     private int audioNBEncodingBitRate;
     // 设置 AMR_WB 语音消息的码率 (单位 bps)[rc_audio_wb_encoding_bit_rate]
@@ -49,6 +52,7 @@ public class FeatureConfig {
     public String rc_translation_src_language;
     public String rc_translation_target_language;
     public boolean hideEmojiButton = false;
+    private KitMediaInterceptor kitMediaInterceptor;
 
     public FeatureConfig() {
         isReferenceEnable = true;
@@ -164,6 +168,10 @@ public class FeatureConfig {
         return quickReplyProvider;
     }
 
+    public MutableLiveData<Boolean> getIsQuickReply() {
+        return isQuickReply;
+    }
+
     public boolean isReadReceiptConversationType(Conversation.ConversationType type) {
         if (readReceiptSupportTypes != null) {
             return readReceiptSupportTypes.contains(type);
@@ -198,6 +206,7 @@ public class FeatureConfig {
     public void enableQuickReply(IQuickReplyProvider provider) {
         isQuickReplyEnable = true;
         quickReplyProvider = provider;
+        isQuickReply.setValue(true);
     }
 
     /** @return 用户信息内存最大值 */
@@ -320,5 +329,13 @@ public class FeatureConfig {
 
     public interface SSLInterceptor {
         boolean check(SslCertificate sslCertificate);
+    }
+
+    public KitMediaInterceptor getKitMediaInterceptor() {
+        return kitMediaInterceptor;
+    }
+
+    public void setKitMediaInterceptor(KitMediaInterceptor kitMediaInterceptor) {
+        this.kitMediaInterceptor = kitMediaInterceptor;
     }
 }

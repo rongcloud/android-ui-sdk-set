@@ -18,8 +18,7 @@
  */
 package com.felipecsl.gifimageview.library;
 
-import android.util.Log;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -318,9 +317,7 @@ public class GifHeaderParser {
                 tab[i++] = 0xff000000 | (r << 16) | (g << 8) | b;
             }
         } catch (BufferUnderflowException e) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Format Error Reading Color Table", e);
-            }
+            RLog.d(TAG, "Format Error Reading Color Table, e:" + e);
             header.status = GifDecoder.STATUS_FORMAT_ERROR;
         }
 
@@ -366,17 +363,16 @@ public class GifHeaderParser {
                     n += count;
                 }
             } catch (Exception e) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Log.d(
-                            TAG,
-                            "Error Reading Block n: "
-                                    + n
-                                    + " count: "
-                                    + count
-                                    + " blockSize: "
-                                    + blockSize,
-                            e);
-                }
+                RLog.d(
+                        TAG,
+                        "Error Reading Block n: "
+                                + n
+                                + " count: "
+                                + count
+                                + " blockSize: "
+                                + blockSize
+                                + " e:"
+                                + e);
                 header.status = GifDecoder.STATUS_FORMAT_ERROR;
             }
         }

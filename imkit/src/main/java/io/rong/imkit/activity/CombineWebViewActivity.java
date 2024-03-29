@@ -14,29 +14,34 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
 import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
-import io.rong.common.RLog;
 import io.rong.common.RongWebView;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
+import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
 import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
 import io.rong.imlib.common.NetUtils;
@@ -151,6 +156,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
         mWebView.getSettings().setAllowFileAccess(true);
         // 允许小视频自动播放
         mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+        mWebView.getSettings().setSavePassword(false);
 
         // 允许混合内容 解决部分手机https请求里面加载不出http的图片
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -179,47 +185,36 @@ public class CombineWebViewActivity extends RongBaseActivity {
     }
 
     private void openSight(JSONObject jsonObj) {
-        String mediaUrl = jsonObj.optString("fileUrl");
-        int duration = jsonObj.optInt("duration");
-        String base64 = jsonObj.optString("imageBase64");
-        int dotIndex = base64.indexOf(",");
-        base64 = base64.substring(dotIndex + 1);
-
-        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
-        String sightThumb = encodeFile.getThumb();
-        String sightName = encodeFile.getName();
-
+        SightMessage sightMessage = getSightMessage(jsonObj);
         Message message = new Message();
-
-        SightMessage sightMessage = new SightMessage();
-        sightMessage.setThumbUri(Uri.parse(FILE + sightThumb + sightName));
-        sightMessage.setMediaUrl(Uri.parse(mediaUrl));
-        sightMessage.setDuration(duration);
-        if (new IsSightFileExists(sightMessage, message.getMessageId()).invoke()) {
-            String sightPath =
-                    LibStorageUtils.getMediaDownloadDir(
-                            getApplicationContext(), LibStorageUtils.VIDEO);
-            String name =
-                    message.getMessageId() + "_" + DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
-            if (sightPath.startsWith(FILE)) {
-                sightPath = sightPath.substring(7);
-            }
-            sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
-        }
-
         message.setContent(sightMessage);
-        message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
-        message.setConversationType(Conversation.ConversationType.PRIVATE);
 
-        ComponentName cn =
-                new ComponentName(
-                        CombineWebViewActivity.this, "io.rong.sight.player.SightPlayerActivity");
-        Intent intent = new Intent();
-        intent.setComponent(cn);
-        intent.putExtra("Message", message);
-        intent.putExtra("SightMessage", sightMessage);
-        intent.putExtra("fromSightListImageVisible", false);
-        startActivity(intent);
+        // 此处的 会话类型和会话 id 都是不正确的，仅当做占位使用
+        message.setConversationType(Conversation.ConversationType.PRIVATE);
+        message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
+
+        if (mMessageId <= 0) {
+            // 非法的消息 id，那么直接跳转
+            routeToSightPlayerActivity(message, sightMessage);
+            return;
+        }
+        RongCoreClient.getInstance()
+                .getMessage(
+                        mMessageId,
+                        new IRongCoreCallback.ResultCallback<Message>() {
+                            @Override
+                            public void onSuccess(Message msg) {
+                                // 拿到正确消息的时候再修正会话类型和会话 id
+                                message.setConversationType(msg.getConversationType());
+                                message.setTargetId(msg.getTargetId());
+                                routeToSightPlayerActivity(message, sightMessage);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                routeToSightPlayerActivity(message, sightMessage);
+                            }
+                        });
     }
 
     private void openImage(JSONObject jsonObj) {
@@ -253,7 +248,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
     }
 
     private void openFile(JSONObject jsonObj) {
-        Log.e("openFile", jsonObj.toString());
+        RLog.e("openFile", jsonObj.toString());
         //        Intent intent = new Intent(RongKitIntent.RONG_INTENT_ACTION_OPENWEBFILE);
         //        intent.setPackage(getPackageName());
         //        intent.putExtra("fileUrl", jsonObj.optString("fileUrl"));
@@ -322,6 +317,56 @@ public class CombineWebViewActivity extends RongBaseActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private SightMessage getSightMessage(JSONObject jsonObj) {
+        String mediaUrl = jsonObj.optString("fileUrl");
+        int duration = jsonObj.optInt("duration");
+        String base64 = jsonObj.optString("imageBase64");
+        int dotIndex = base64.indexOf(",");
+        base64 = base64.substring(dotIndex + 1);
+
+        EncodeFile encodeFile = new EncodeFile(mediaUrl, base64).invoke();
+        String sightThumb = encodeFile.getThumb();
+        String sightName = encodeFile.getName();
+
+        Message message = new Message();
+
+        SightMessage sightMessage = new SightMessage();
+        sightMessage.setThumbUri(Uri.parse(FILE + sightThumb + sightName));
+        sightMessage.setMediaUrl(Uri.parse(mediaUrl));
+        sightMessage.setDuration(duration);
+        if (new IsSightFileExists(sightMessage, message.getMessageId()).invoke()) {
+            String sightPath =
+                    LibStorageUtils.getMediaDownloadDir(
+                            getApplicationContext(), LibStorageUtils.VIDEO);
+            String name =
+                    message.getMessageId() + "_" + DeviceUtils.ShortMD5(Base64.NO_WRAP, mediaUrl);
+            if (sightPath.startsWith(FILE)) {
+                sightPath = sightPath.substring(7);
+            }
+            sightMessage.setLocalPath(Uri.parse(sightPath + File.separator + name));
+        }
+        return sightMessage;
+    }
+
+    private void routeToSightPlayerActivity(Message message, SightMessage sightMessage) {
+        runOnUiThread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        ComponentName cn =
+                                new ComponentName(
+                                        CombineWebViewActivity.this,
+                                        "io.rong.sight.player.SightPlayerActivity");
+                        Intent intent = new Intent();
+                        intent.setComponent(cn);
+                        intent.putExtra("Message", message);
+                        intent.putExtra("SightMessage", sightMessage);
+                        intent.putExtra("fromSightListImageVisible", false);
+                        startActivity(intent);
+                    }
+                });
     }
 
     private static class DownloadTask extends AsyncTask<String, Void, Void> {
@@ -473,6 +518,17 @@ public class CombineWebViewActivity extends RongBaseActivity {
                 final AlertDialog dialog = builder.create();
                 dialog.show();
             }
+        }
+
+        @Nullable
+        @Override
+        public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
+            KitMediaInterceptor interceptor =
+                    RongConfigCenter.featureConfig().getKitMediaInterceptor();
+            if (interceptor != null && interceptor.shouldInterceptRequest(view, url)) {
+                return new WebResourceResponse(null, null, null);
+            }
+            return super.shouldInterceptRequest(view, url);
         }
     }
 

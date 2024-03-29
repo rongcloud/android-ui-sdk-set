@@ -2,7 +2,7 @@ package io.rong.imkit.conversation.extension;
 
 import android.app.Application;
 import android.content.Context;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.feature.destruct.DestructExtensionModule;

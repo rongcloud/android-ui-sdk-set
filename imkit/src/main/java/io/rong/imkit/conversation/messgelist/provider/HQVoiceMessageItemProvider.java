@@ -14,14 +14,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.text.TextUtilsCompat;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -130,8 +129,7 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
                         R.id.rc_voice_unread,
                         !uiMessage.getMessage().getReceivedStatus().isListened());
             } else {
-                if (uiMessage.getState() == State.ERROR
-                        || !NetUtils.isNetWorkAvailable(holder.getContext())) {
+                if (uiMessage.getState() == State.ERROR) {
                     holder.setVisible(R.id.rc_voice_unread, false);
                     holder.setVisible(R.id.rc_voice_download_error, true);
                     holder.setVisible(R.id.rc_download_progress, false);

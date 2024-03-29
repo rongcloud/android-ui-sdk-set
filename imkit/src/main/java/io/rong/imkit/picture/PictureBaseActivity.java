@@ -1,6 +1,5 @@
 package io.rong.imkit.picture;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +10,7 @@ import android.provider.MediaStore;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import io.rong.common.CursorUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureConfig;
@@ -243,7 +243,6 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     @Deprecated
     protected void removeImage(int id, boolean eqVideo) {
         try {
-            ContentResolver cr = getContentResolver();
             Uri uri =
                     eqVideo
                             ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -252,7 +251,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                     eqVideo
                             ? MediaStore.Video.Media._ID + "=?"
                             : MediaStore.Images.Media._ID + "=?";
-            cr.delete(uri, selection, new String[] {Long.toString(id)});
+            CursorUtils.delete(this, uri, selection, new String[] {Long.toString(id)});
         } catch (Exception e) {
             RLog.e(TAG, e.getMessage());
         }

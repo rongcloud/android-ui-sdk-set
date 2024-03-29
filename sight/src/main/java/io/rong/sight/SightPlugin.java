@@ -23,6 +23,7 @@ import io.rong.imkit.conversation.extension.component.plugin.IPluginRequestPermi
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -58,11 +59,8 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         }
         // 判断正在视频通话和语音通话中不能进行语音消息发送
         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-            Toast.makeText(
-                            currentFragment.getActivity(),
-                            R.string.rc_voip_occupying,
-                            Toast.LENGTH_SHORT)
-                    .show();
+            String text = context.getString(R.string.rc_voip_occupying);
+            ToastUtils.show(currentFragment.getActivity(), text, Toast.LENGTH_SHORT);
             return;
         }
 

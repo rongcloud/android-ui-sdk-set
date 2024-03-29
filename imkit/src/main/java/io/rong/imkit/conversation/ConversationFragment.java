@@ -29,7 +29,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.MessageItemLongClickAction;
 import io.rong.imkit.MessageItemLongClickActionManager;
@@ -58,10 +58,10 @@ import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.MessageProviderPermissionHandler;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongViewUtils;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
@@ -187,7 +187,7 @@ public class ConversationFragment extends Fragment
                     } else if (event instanceof ToastEvent) {
                         String msg = ((ToastEvent) event).getMessage();
                         if (!TextUtils.isEmpty(msg)) {
-                            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                            ToastUtils.show(getContext(), msg, Toast.LENGTH_SHORT);
                         }
                     } else if (event instanceof ScrollToEndEvent) {
                         mList.scrollToPosition(mAdapter.getItemCount() - 1);
@@ -200,11 +200,20 @@ public class ConversationFragment extends Fragment
                                 mAdapter.getFootersCount());
                     } else if (event instanceof ScrollEvent) {
                         if (mList.getLayoutManager() instanceof LinearLayoutManager) {
-                            ((LinearLayoutManager) mList.getLayoutManager())
-                                    .scrollToPositionWithOffset(
-                                            mAdapter.getHeadersCount()
-                                                    + ((ScrollEvent) event).getPosition(),
-                                            0);
+                            int positionScrollEvent = ((ScrollEvent) event).getPosition();
+                            // 如果是History模式，索引需要减1，否则会看不见搜索的这条消息；
+                            int scrollPosition =
+                                    mMessageViewModel.isHistoryState()
+                                            ? Math.max(positionScrollEvent - 1, 0)
+                                            : Math.max(positionScrollEvent, 0);
+                            mList.postDelayed(
+                                    () ->
+                                            ((LinearLayoutManager) mList.getLayoutManager())
+                                                    .scrollToPositionWithOffset(
+                                                            mAdapter.getHeadersCount()
+                                                                    + scrollPosition,
+                                                            0),
+                                    150);
                         }
                     } else if (event instanceof SmoothScrollEvent) {
                         if (mList.getLayoutManager() instanceof LinearLayoutManager) {
@@ -512,7 +521,10 @@ public class ConversationFragment extends Fragment
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (PermissionCheckUtil.checkPermissionResultIncompatible(permissions, grantResults)) {
             if (getContext() != null) {
-                ToastUtils.s(getContext(), getString(R.string.rc_permission_request_failed));
+                ToastUtils.show(
+                        getContext(),
+                        getString(R.string.rc_permission_request_failed),
+                        Toast.LENGTH_SHORT);
             }
             return;
         }

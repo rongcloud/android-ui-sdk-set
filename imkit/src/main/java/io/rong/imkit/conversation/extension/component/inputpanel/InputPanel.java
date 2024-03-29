@@ -33,6 +33,7 @@ import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
@@ -116,6 +117,9 @@ public class InputPanel {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (mExtensionViewModel == null) {
+                            return;
+                        }
                         if (mIsVoiceInputMode) {
                             mIsVoiceInputMode = false;
                             mExtensionViewModel
@@ -163,6 +167,9 @@ public class InputPanel {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        if (mExtensionViewModel == null) {
+                            return;
+                        }
                         if (mExtensionViewModel.getInputModeLiveData().getValue() != null
                                 && mExtensionViewModel
                                         .getInputModeLiveData()
@@ -387,13 +394,11 @@ public class InputPanel {
                         }
                         // 判断正在视频通话和语音通话中不能进行语音消息发送
                         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-                            Toast.makeText(
-                                            v.getContext(),
-                                            v.getContext()
-                                                    .getResources()
-                                                    .getString(R.string.rc_voip_occupying),
-                                            Toast.LENGTH_SHORT)
-                                    .show();
+                            String text =
+                                    v.getContext()
+                                            .getResources()
+                                            .getString(R.string.rc_voip_occupying);
+                            ToastUtils.show(v.getContext(), text, Toast.LENGTH_SHORT);
                             return true;
                         }
                         AudioRecordManager.getInstance()
@@ -457,6 +462,9 @@ public class InputPanel {
             new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (mExtensionViewModel == null) {
+                        return;
+                    }
                     mExtensionViewModel.onSendClick();
                 }
             };
@@ -498,11 +506,7 @@ public class InputPanel {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s == null || s.length() == 0) {
-                        IMCenter.getInstance()
-                                .saveTextMessageDraft(
-                                        mConversationIdentifier,
-                                        mEditText.getText().toString(),
-                                        null);
+                        saveTextMessageDraft(mEditText.getText().toString());
                         if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
                                 || mInputStyle.equals(
                                         InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {
@@ -543,16 +547,48 @@ public class InputPanel {
                 }
             };
 
+    public void onPause() {
+        // 在onPause 中保存草稿，解决按Home按杀进程后没有保存草稿的问题，也统一逻辑
+        if (mEditText != null
+                && mEditText.getText() != null
+                && !mInitialDraft.equals(mEditText.getText().toString())) {
+            saveTextMessageDraft(mEditText.getText().toString());
+        }
+    }
+
     public void onDestroy() {
+        // 退出页面时，需要保存当前的输入模式
+        RongExtensionCacheHelper.saveVoiceInputMode(
+                mContext,
+                mConversationIdentifier.getType(),
+                mConversationIdentifier.getTargetId(),
+                mIsVoiceInputMode);
         mFragment = null;
+        mContext = null;
         mExtensionViewModel = null;
         if (mEditText != null
                 && mEditText.getText() != null
                 && !mInitialDraft.equals(mEditText.getText().toString())) {
-            IMCenter.getInstance()
-                    .saveTextMessageDraft(
-                            mConversationIdentifier, mEditText.getText().toString(), null);
+            saveTextMessageDraft(mEditText.getText().toString());
         }
+    }
+
+    private void saveTextMessageDraft(final String draft) {
+        IMCenter.getInstance()
+                .saveTextMessageDraft(
+                        mConversationIdentifier,
+                        draft,
+                        new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean success) {
+                                if (success) {
+                                    mInitialDraft = draft;
+                                }
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {}
+                        });
     }
 
     private void updateMessageDraft(final String draft) {

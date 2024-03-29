@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
@@ -236,6 +236,10 @@ public class AudioRecordManager implements Handler.Callback {
      * @deprecated 接口已废弃。
      */
     public void setMaxVoiceDuration(int maxVoiceDuration) {
+        // 此值必须大于0，否则计算语音消息UI长度会出现除0问题
+        if (maxVoiceDuration <= 0) {
+            return;
+        }
         RECORD_INTERVAL = maxVoiceDuration;
     }
 
@@ -389,8 +393,10 @@ public class AudioRecordManager implements Handler.Callback {
             mHandler.sendMessageDelayed(message, RECORD_INTERVAL * 1000 - 10 * 1000);
         } catch (IOException | RuntimeException e) {
             RLog.e(TAG, "startRec", e);
-            mMediaRecorder.release();
-            mMediaRecorder = null;
+            if (mMediaRecorder != null) {
+                mMediaRecorder.release();
+                mMediaRecorder = null;
+            }
             mHandler.sendEmptyMessage(AUDIO_RECORD_EVENT_ABORT);
         }
     }

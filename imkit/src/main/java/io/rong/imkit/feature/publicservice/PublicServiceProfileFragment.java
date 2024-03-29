@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.SettingItemView;
@@ -23,6 +23,7 @@ import java.util.Locale;
 public class PublicServiceProfileFragment extends DispatchResultFragment {
     public static final String AGS_PUBLIC_ACCOUNT_INFO = "arg_public_account_info";
     PublicServiceProfile mPublicAccountInfo;
+    public static final String TAG = "PSProfileFragment";
 
     private ImageView mPortraitIV;
     private TextView mNameTV;
@@ -67,7 +68,7 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
                     publicServiceType = Conversation.PublicServiceType.APP_PUBLIC_SERVICE;
                 else if (mConversationType == Conversation.ConversationType.PUBLIC_SERVICE)
                     publicServiceType = Conversation.PublicServiceType.PUBLIC_SERVICE;
-                else System.err.print("the public service type is error!!");
+                else RLog.e(TAG, "the public service type is error!!");
 
                 PublicServiceManager.getInstance()
                         .getPublicServiceProfile(
@@ -185,7 +186,7 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
                             else if (mConversationType
                                     == Conversation.ConversationType.PUBLIC_SERVICE)
                                 publicServiceType = Conversation.PublicServiceType.PUBLIC_SERVICE;
-                            else System.err.print("the public service type is error!!");
+                            else RLog.e(TAG, "the public service type is error!!");
 
                             RongIMClient.getInstance()
                                     .subscribePublicService(
@@ -248,7 +249,7 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
                             else if (mConversationType
                                     == Conversation.ConversationType.PUBLIC_SERVICE)
                                 publicServiceType = Conversation.PublicServiceType.PUBLIC_SERVICE;
-                            else System.err.print("the public service type is error!!");
+                            else RLog.e(TAG, "the public service type is error!!");
 
                             RongIMClient.getInstance()
                                     .unsubscribePublicService(

@@ -6,7 +6,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -40,40 +40,49 @@ public class GroupConversation extends BaseUiConversation {
                 RongConfigCenter.conversationConfig().showSummaryWithName(mCore.getLatestMessage());
 
         if (mCore.getUnreadMentionedCount() > 0) {
-            preStr = mContext.getString(R.string.rc_conversation_summary_content_mentioned);
-            mPreString = new SpannableString(preStr);
-            mPreString.setSpan(
-                    new ForegroundColorSpan(
-                            mContext.getResources().getColor(R.color.rc_warning_color)),
-                    0,
-                    preStr.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            Spannable messageSummary =
-                    RongConfigCenter.conversationConfig()
-                            .getMessageSummary(mContext, mCore.getLatestMessage());
-            builder.append(mPreString);
+            if (mContext != null) {
+                preStr = mContext.getString(R.string.rc_conversation_summary_content_mentioned);
+                mPreString = new SpannableString(preStr);
+                mPreString.setSpan(
+                        new ForegroundColorSpan(
+                                mContext.getResources().getColor(R.color.rc_warning_color)),
+                        0,
+                        preStr.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.append(mPreString);
+            }
             if (!TextUtils.isEmpty(senderName) && isShowName) {
                 builder.append(senderName).append(COLON_SPLIT);
             }
-            builder.append(messageSummary);
+            Spannable messageSummary =
+                    RongConfigCenter.conversationConfig()
+                            .getMessageSummary(mContext, mCore.getLatestMessage());
+            if (!TextUtils.isEmpty(messageSummary)) {
+                builder.append(messageSummary);
+            }
         } else if (!TextUtils.isEmpty(mCore.getDraft())) {
-            preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
+            if (mContext != null) {
+                preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
+                mPreString = new SpannableString(preStr);
+                mPreString.setSpan(
+                        new ForegroundColorSpan(
+                                mContext.getResources().getColor(R.color.rc_warning_color)),
+                        0,
+                        preStr.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                builder.append(mPreString);
+            }
             String draft = mCore.getDraft();
             draft = draft.replace("\n", "");
-            mPreString = new SpannableString(preStr);
-            mPreString.setSpan(
-                    new ForegroundColorSpan(
-                            mContext.getResources().getColor(R.color.rc_warning_color)),
-                    0,
-                    preStr.length(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            builder.append(mPreString).append(draft);
+            builder.append(draft);
         } else {
             mPreString = new SpannableString("");
             Spannable messageSummary =
                     RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore);
             if (mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())) {
-                builder.append(messageSummary);
+                if (!TextUtils.isEmpty(messageSummary)) {
+                    builder.append(messageSummary);
+                }
             } else {
                 if (!TextUtils.isEmpty(senderName)
                         && !TextUtils.isEmpty(messageSummary)
@@ -97,22 +106,7 @@ public class GroupConversation extends BaseUiConversation {
         if (mCore.getSenderUserId().equals(user.getUserId())
                 && !mNicknameIds.contains(user.getUserId())) {
             mCore.setSenderUserName(RongUserInfoManager.getInstance().getUserDisplayName(user));
-            Spannable messageSummary =
-                    RongConfigCenter.conversationConfig()
-                            .getMessageSummary(mContext, mCore.getLatestMessage());
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            if (!TextUtils.isEmpty(mPreString)) {
-                builder.append(mPreString);
-            }
-            String userDisplayName = RongUserInfoManager.getInstance().getUserDisplayName(user);
-            if (!mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())
-                    && !TextUtils.isEmpty(userDisplayName)) {
-                builder.append(userDisplayName).append(COLON_SPLIT);
-            }
-            if (!TextUtils.isEmpty(messageSummary)) {
-                builder.append(messageSummary);
-            }
-            mConversationContent = builder;
+            buildConversationContent();
         }
     }
 
@@ -138,22 +132,7 @@ public class GroupConversation extends BaseUiConversation {
                 && groupMember.getUserId().equals(mCore.getSenderUserId())) {
             mNicknameIds.add(groupMember.getUserId());
             mCore.setSenderUserName(groupMember.getNickname());
-
-            Spannable messageSummary =
-                    RongConfigCenter.conversationConfig()
-                            .getMessageSummary(mContext, mCore.getLatestMessage());
-            SpannableStringBuilder builder = new SpannableStringBuilder();
-            if (!TextUtils.isEmpty(mPreString)) {
-                builder.append(mPreString);
-            }
-            if (!mCore.getSenderUserId().equals(RongIMClient.getInstance().getCurrentUserId())
-                    && !TextUtils.isEmpty(mCore.getSenderUserName())) {
-                builder.append(mCore.getSenderUserName()).append(COLON_SPLIT);
-            }
-            if (!TextUtils.isEmpty(messageSummary)) {
-                builder.append(messageSummary);
-            }
-            mConversationContent = builder;
+            buildConversationContent();
         }
     }
 

@@ -2,7 +2,7 @@ package io.rong.sight.record;
 
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
-import android.util.Log;
+import io.rong.common.rlog.RLog;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -34,7 +34,7 @@ public class CameraParamUtil {
         int i = 0;
         for (Size s : list) {
             if ((s.width > th) && equalRate(s, rate)) {
-                Log.i(TAG, "MakeSure Preview :w = " + s.width + " h = " + s.height);
+                RLog.i(TAG, "MakeSure Preview :w = " + s.width + " h = " + s.height);
                 break;
             }
             i++;
@@ -60,7 +60,7 @@ public class CameraParamUtil {
         int i = 0;
         for (Size s : list) {
             if ((s.width > th) && equalRate(s, rate)) {
-                Log.i(TAG, "MakeSure Picture :w = " + s.width + " h = " + s.height);
+                RLog.i(TAG, "MakeSure Picture :w = " + s.width + " h = " + s.height);
                 break;
             }
             i++;
@@ -94,22 +94,22 @@ public class CameraParamUtil {
     public boolean isSupportedFocusMode(List<String> focusList, String focusMode) {
         for (int i = 0; i < focusList.size(); i++) {
             if (focusMode.equals(focusList.get(i))) {
-                Log.i(TAG, "FocusMode supported " + focusMode);
+                RLog.i(TAG, "FocusMode supported " + focusMode);
                 return true;
             }
         }
-        Log.i(TAG, "FocusMode not supported " + focusMode);
+        RLog.i(TAG, "FocusMode not supported " + focusMode);
         return false;
     }
 
     public boolean isSupportedPictureFormats(List<Integer> supportedPictureFormats, int jpeg) {
         for (int i = 0; i < supportedPictureFormats.size(); i++) {
             if (jpeg == supportedPictureFormats.get(i)) {
-                Log.i(TAG, "Formats supported " + jpeg);
+                RLog.i(TAG, "Formats supported " + jpeg);
                 return true;
             }
         }
-        Log.i(TAG, "Formats not supported " + jpeg);
+        RLog.i(TAG, "Formats not supported " + jpeg);
         return false;
     }
 

@@ -2,7 +2,9 @@ package io.rong.imkit.subconversationlist;
 
 import android.app.Application;
 import androidx.lifecycle.MutableLiveData;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
+import io.rong.imkit.config.BaseDataProcessor;
+import io.rong.imkit.config.DataProcessor;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.conversationlist.model.GroupConversation;
 import io.rong.imkit.conversationlist.model.PublicServiceConversation;
@@ -22,6 +24,33 @@ class SubConversationListViewModel extends ConversationListViewModel {
             Application application, Conversation.ConversationType conversationType) {
         super(application);
         mSupportedTypes = new Conversation.ConversationType[] {conversationType};
+
+        // 处理 DataProcessor, SubConversationFragment页面, 会话是不需要聚合的
+        final DataProcessor<Conversation> userSetDataFilter = mDataFilter;
+        mDataFilter =
+                new BaseDataProcessor<Conversation>() {
+
+                    @Override
+                    public Conversation.ConversationType[] supportedTypes() {
+                        if (userSetDataFilter != null) {
+                            return userSetDataFilter.supportedTypes();
+                        }
+                        return super.supportedTypes();
+                    }
+
+                    @Override
+                    public List<Conversation> filtered(List<Conversation> data) {
+                        if (userSetDataFilter != null) {
+                            return userSetDataFilter.filtered(data);
+                        }
+                        return super.filtered(data);
+                    }
+
+                    @Override
+                    public boolean isGathered(Conversation.ConversationType type) {
+                        return false;
+                    }
+                };
     }
 
     /**

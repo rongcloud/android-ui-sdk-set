@@ -4,15 +4,16 @@ android {
     compileSdkVersion 33
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 31
-        versionName "5.5.3_opensource"
+        versionName "5.8.0_opensource"
     }
 
     sourceSets {
         main {
             manifest.srcFile 'src/main/AndroidManifest.xml'
             jniLibs.srcDirs = ['libs']
+            res.srcDirs = ['res']
         }
     }
 }

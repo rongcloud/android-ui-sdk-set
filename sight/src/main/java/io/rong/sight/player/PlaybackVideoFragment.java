@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imlib.model.Conversation;
 import io.rong.message.SightMessage;
 import io.rong.sight.R;
@@ -104,7 +104,9 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mPlayer = view.findViewById(R.id.playbackView);
-        mPlayer.setCallback(mPlaybackVideoFragment.get());
+        if (mPlaybackVideoFragment != null) {
+            mPlayer.setCallback(mPlaybackVideoFragment.get());
+        }
         mPlayer.setplayBtnVisible(playBtnVisible);
         mPlayer.setSeekBarClickable(seekBarClickable);
         mPlayer.setSource(Uri.parse(getArguments().getString("output_uri")));
@@ -198,11 +200,15 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
 
     @Override
     public void onSightListRequest() {
+        if (getActivity() == null) {
+            return;
+        }
         if (isFromSightList) {
-            if (getActivity() != null) {
-                getActivity().finish();
-            }
+            getActivity().finish();
         } else {
+            if (conversationType == null) {
+                return;
+            }
             Intent intent = new Intent(getActivity(), SightListActivity.class);
             intent.putExtra("conversationType", conversationType.getValue());
             intent.putExtra("targetId", targetId);

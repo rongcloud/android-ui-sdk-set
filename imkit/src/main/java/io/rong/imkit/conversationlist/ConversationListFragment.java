@@ -1,5 +1,6 @@
 package io.rong.imkit.conversationlist;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,7 +18,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.ConversationListBehaviorListener;
@@ -28,6 +29,7 @@ import io.rong.imkit.conversationlist.viewmodel.ConversationListViewModel;
 import io.rong.imkit.event.Event;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.ViewHolder;
@@ -354,27 +356,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                             public void onOptionsItemClicked(final int which) {
                                 if (items.get(which).equals(setTopItem)
                                         || items.get(which).equals(cancelTopItem)) {
-                                    IMCenter.getInstance()
-                                            .setConversationToTop(
-                                                    baseUiConversation.getConversationIdentifier(),
-                                                    !baseUiConversation.mCore.isTop(),
-                                                    false,
-                                                    new RongIMClient.ResultCallback<Boolean>() {
-                                                        @Override
-                                                        public void onSuccess(Boolean value) {
-                                                            Toast.makeText(
-                                                                            view.getContext(),
-                                                                            items.get(which),
-                                                                            Toast.LENGTH_SHORT)
-                                                                    .show();
-                                                        }
-
-                                                        @Override
-                                                        public void onError(
-                                                                RongIMClient.ErrorCode errorCode) {
-                                                            // do nothing
-                                                        }
-                                                    });
+                                    setConversationToTop(baseUiConversation, items.get(which));
                                 } else if (items.get(which).equals(removeItem)) {
                                     IMCenter.getInstance()
                                             .removeConversation(
@@ -386,6 +368,31 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                         })
                 .show();
         return true;
+    }
+
+    private void setConversationToTop(BaseUiConversation baseUiConversation, String text) {
+        IMCenter.getInstance()
+                .setConversationToTop(
+                        baseUiConversation.getConversationIdentifier(),
+                        !baseUiConversation.mCore.isTop(),
+                        false,
+                        new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean value) {
+                                Activity activity = getActivity();
+                                if (activity == null
+                                        || activity.isFinishing()
+                                        || activity.isDestroyed()) {
+                                    return;
+                                }
+                                ToastUtils.show(activity, text, Toast.LENGTH_SHORT);
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // do nothing
+                            }
+                        });
     }
 
     /** @param view 自定义列表 header view */

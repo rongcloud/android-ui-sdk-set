@@ -7,7 +7,7 @@ import android.os.Looper;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -280,8 +280,7 @@ public class UltraGroupConversationListViewModel extends ConversationListViewMod
         super(application);
         mApplication = application;
         mHandler = new Handler(Looper.getMainLooper());
-        mSupportedTypes =
-                RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
+        mSupportedTypes = ultraGroupSupportedType();
         mSizePerPage = RongConfigCenter.conversationListConfig().getConversationCountPerPage();
         mDataFilter = RongConfigCenter.conversationListConfig().getDataProcessor();
 
@@ -641,6 +640,26 @@ public class UltraGroupConversationListViewModel extends ConversationListViewMod
             }
         }
         return false;
+    }
+
+    private Conversation.ConversationType[] ultraGroupSupportedType() {
+        Conversation.ConversationType[] mSupportedTypes =
+                RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
+        if (mSupportedTypes == null || mSupportedTypes.length == 0) {
+            return mSupportedTypes;
+        }
+        for (Conversation.ConversationType type : mSupportedTypes) {
+            if (type == Conversation.ConversationType.ULTRA_GROUP) {
+                return mSupportedTypes;
+            }
+        }
+        Conversation.ConversationType[] mixTypes =
+                new Conversation.ConversationType[mSupportedTypes.length + 1];
+        for (int i = 0; i < mSupportedTypes.length; i++) {
+            mixTypes[i] = mSupportedTypes[i];
+        }
+        mixTypes[mSupportedTypes.length] = Conversation.ConversationType.ULTRA_GROUP;
+        return mixTypes;
     }
 
     @Override

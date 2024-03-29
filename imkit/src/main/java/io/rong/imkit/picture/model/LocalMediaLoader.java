@@ -9,7 +9,8 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
-import io.rong.common.RLog;
+import io.rong.common.CursorUtils;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
@@ -163,15 +164,18 @@ public class LocalMediaLoader implements Handler.Callback {
                             @Override
                             public void run() {
                                 Cursor data =
-                                        mContext.getContentResolver()
-                                                .query(
-                                                        QUERY_URI,
-                                                        PROJECTION,
-                                                        getSelection(),
-                                                        getSelectionArgs(),
-                                                        ORDER_BY);
+                                        CursorUtils.query(
+                                                mContext,
+                                                QUERY_URI,
+                                                PROJECTION,
+                                                getSelection(),
+                                                getSelectionArgs(),
+                                                ORDER_BY);
+
                                 try {
                                     if (data != null) {
+                                        String title =
+                                                mContext.getString(R.string.rc_picture_camera_roll);
                                         List<LocalMediaFolder> imageFolders = new ArrayList<>();
                                         LocalMediaFolder allImageFolder = new LocalMediaFolder();
                                         List<LocalMedia> latelyImages = new ArrayList<>();
@@ -220,6 +224,9 @@ public class LocalMediaLoader implements Handler.Callback {
                                                         data.getString(
                                                                 data.getColumnIndexOrThrow(
                                                                         PROJECTION[7]));
+                                                if (folderName == null) {
+                                                    folderName = title;
+                                                }
 
                                                 if (PictureMimeType.eqVideo(mimeType)) {
                                                     if (duration == 0) {
@@ -258,9 +265,6 @@ public class LocalMediaLoader implements Handler.Callback {
                                                 imageFolders.add(0, allImageFolder);
                                                 allImageFolder.setFirstImagePath(
                                                         latelyImages.get(0).getPath());
-                                                String title =
-                                                        mContext.getString(
-                                                                R.string.rc_picture_camera_roll);
                                                 allImageFolder.setName(title);
                                                 allImageFolder.setOfAllType(config.chooseMode);
                                                 allImageFolder.setCameraFolder(true);
@@ -281,7 +285,11 @@ public class LocalMediaLoader implements Handler.Callback {
                                                 mHandler.obtainMessage(MSG_QUERY_MEDIA_ERROR));
                                     }
                                     RLog.e(TAG, e.getMessage());
-                                    ;
+                                } finally {
+                                    // Cursor需要关闭
+                                    if (data != null) {
+                                        data.close();
+                                    }
                                 }
                             }
                         });

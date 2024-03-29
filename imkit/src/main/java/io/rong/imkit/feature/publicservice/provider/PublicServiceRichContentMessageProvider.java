@@ -9,10 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
@@ -26,6 +27,13 @@ import java.util.List;
 public class PublicServiceRichContentMessageProvider
         extends BaseMessageItemProvider<PublicServiceRichContentMessage> {
     private final String TAG = getClass().getSimpleName();
+
+    /** 公众号距右边屏幕间隔 */
+    private final int RIGHT_PADDING = 14;
+
+    public PublicServiceRichContentMessageProvider() {
+        mConfig.showPortrait = false;
+    }
 
     @Override
     protected io.rong.imkit.widget.adapter.ViewHolder onCreateMessageContentViewHolder(
@@ -68,6 +76,11 @@ public class PublicServiceRichContentMessageProvider
                         uiMessage.getReceivedTime(),
                         holder.getContext().getString(R.string.rc_date_format));
         holder.setText(R.id.rc_time, time);
+        ViewGroup.LayoutParams params = holder.getConvertView().getLayoutParams();
+        params.width = RongUtils.getScreenWidth() - RongUtils.dip2px(RIGHT_PADDING);
+
+        holder.getConvertView().setLayoutParams(params);
+        holder.getConvertView().requestLayout();
     }
 
     @Override

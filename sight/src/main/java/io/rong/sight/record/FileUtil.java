@@ -2,8 +2,7 @@ package io.rong.sight.record;
 
 import android.graphics.Bitmap;
 import android.os.Environment;
-import android.util.Log;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,7 +22,7 @@ public class FileUtil {
             if (!f.exists()) {
                 boolean mkdirSuccess = f.mkdir();
                 if (!mkdirSuccess) {
-                    Log.e(TAG, "initPath mkdir failed");
+                    RLog.e(TAG, "initPath mkdir failed");
                 }
             }
         }
@@ -34,7 +33,7 @@ public class FileUtil {
         String path = initPath();
         long dataTake = System.currentTimeMillis();
         String jpegName = path + "/" + dataTake + ".jpg";
-        Log.i(TAG, "saveBitmap:jpegName = " + jpegName);
+        RLog.i(TAG, "saveBitmap:jpegName = " + jpegName);
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream(jpegName);
@@ -42,9 +41,9 @@ public class FileUtil {
             b.compress(Bitmap.CompressFormat.JPEG, 100, bos);
             bos.flush();
             bos.close();
-            Log.i(TAG, "saveBitmap success");
+            RLog.i(TAG, "saveBitmap success");
         } catch (IOException e) {
-            Log.i(TAG, "saveBitmap:fail");
+            RLog.i(TAG, "saveBitmap:fail");
         } finally {
             if (fileOutputStream != null) {
                 try {

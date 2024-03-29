@@ -4,7 +4,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.core.util.Consumer;
 import androidx.room.RoomDatabase;
-import io.rong.common.RLog;
+import io.rong.common.rlog.RLog;
 import io.rong.common.utils.function.Action0;
 import io.rong.common.utils.function.Action1;
 import io.rong.common.utils.function.Func0;

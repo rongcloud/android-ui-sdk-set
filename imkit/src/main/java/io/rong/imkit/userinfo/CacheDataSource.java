@@ -58,4 +58,10 @@ public class CacheDataSource {
             mGroupCache.put(group.id, group);
         }
     }
+
+    public void cleanCache() {
+        mUserCache.clear();
+        mGroupCache.clear();
+        mGroupMemberCache.clear();
+    }
 }
