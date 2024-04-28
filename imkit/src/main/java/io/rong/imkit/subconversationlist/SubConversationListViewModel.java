@@ -14,11 +14,12 @@ import io.rong.imkit.event.Event;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 class SubConversationListViewModel extends ConversationListViewModel {
-    private final String TAG = SubConversationListViewModel.class.getSimpleName();
+    private static final String TAG = SubConversationListViewModel.class.getSimpleName();
 
     SubConversationListViewModel(
             Application application, Conversation.ConversationType conversationType) {
@@ -66,88 +67,10 @@ class SubConversationListViewModel extends ConversationListViewModel {
         if (loadMore) {
             timestamp = mLastSyncTime;
         }
+        ConversationListResultCallback callback =
+                new ConversationListResultCallback(this, loadMore, isEventManual);
         RongIMClient.getInstance()
-                .getConversationListByPage(
-                        new RongIMClient.ResultCallback<List<Conversation>>() {
-                            @Override
-                            public void onSuccess(List<Conversation> conversations) {
-                                RLog.d(TAG, "getConversationListByPage.");
-                                if (isEventManual) {
-                                    if (loadMore) {
-                                        ((MutableLiveData<Event.RefreshEvent>)
-                                                        getRefreshEventLiveData())
-                                                .postValue(
-                                                        new Event.RefreshEvent(
-                                                                RefreshState.LoadFinish));
-                                    } else {
-                                        ((MutableLiveData<Event.RefreshEvent>)
-                                                        getRefreshEventLiveData())
-                                                .postValue(
-                                                        new Event.RefreshEvent(
-                                                                RefreshState.RefreshFinish));
-                                    }
-                                }
-                                if (conversations == null || conversations.size() == 0) {
-                                    return;
-                                }
-                                RLog.d(
-                                        TAG,
-                                        "getConversationListByPage. size:" + conversations.size());
-                                mLastSyncTime =
-                                        conversations.get(conversations.size() - 1).getSentTime();
-
-                                for (Conversation conversation : conversations) {
-                                    //                        boolean isGathered =
-                                    // mDataFilter.isGathered(conversation.getConversationType());
-                                    BaseUiConversation oldItem =
-                                            findConversationFromList(
-                                                    conversation.getConversationType(),
-                                                    conversation.getTargetId(),
-                                                    false);
-                                    if (oldItem != null) {
-                                        oldItem.onConversationUpdate(conversation);
-                                    } else {
-                                        if (conversation
-                                                .getConversationType()
-                                                .equals(Conversation.ConversationType.GROUP)) {
-                                            mUiConversationList.add(
-                                                    new GroupConversation(
-                                                            mApplication.getApplicationContext(),
-                                                            conversation));
-                                        } else if (conversation
-                                                        .getConversationType()
-                                                        .equals(
-                                                                Conversation.ConversationType
-                                                                        .PUBLIC_SERVICE)
-                                                || conversation
-                                                        .getConversationType()
-                                                        .equals(
-                                                                Conversation.ConversationType
-                                                                        .APP_PUBLIC_SERVICE)) {
-                                            mUiConversationList.add(
-                                                    new PublicServiceConversation(
-                                                            mApplication.getApplicationContext(),
-                                                            conversation));
-                                        } else {
-                                            mUiConversationList.add(
-                                                    new SingleConversation(
-                                                            mApplication.getApplicationContext(),
-                                                            conversation));
-                                        }
-                                    }
-                                }
-                                sort();
-                                mConversationListLiveData.postValue(mUiConversationList);
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode e) {
-                                // Todo 通知上层数据获取失败，刷新重试？
-                            }
-                        },
-                        timestamp,
-                        mSizePerPage,
-                        mSupportedTypes);
+                .getConversationListByPage(callback, timestamp, mSizePerPage, mSupportedTypes);
     }
 
     @Override
@@ -190,6 +113,88 @@ class SubConversationListViewModel extends ConversationListViewModel {
             }
             sort();
             mConversationListLiveData.postValue(mUiConversationList);
+        }
+    }
+
+    private static class ConversationListResultCallback
+            extends RongIMClient.ResultCallback<List<Conversation>> {
+        private final WeakReference<SubConversationListViewModel> viewModelRef;
+        private final boolean loadMore;
+        private final boolean isEventManual;
+
+        ConversationListResultCallback(
+                SubConversationListViewModel viewModel,
+                final boolean loadMore,
+                final boolean isEventManual) {
+            this.viewModelRef = new WeakReference<>(viewModel);
+            this.loadMore = loadMore;
+            this.isEventManual = isEventManual;
+        }
+
+        @Override
+        public void onSuccess(List<Conversation> conversations) {
+            RLog.d(TAG, "getConversationListByPage.");
+            SubConversationListViewModel viewModel = viewModelRef.get();
+            if (viewModel == null) {
+                RLog.d(TAG, "viewModelRef is null.");
+                return;
+            }
+            if (isEventManual) {
+                if (loadMore) {
+                    ((MutableLiveData<Event.RefreshEvent>) viewModel.getRefreshEventLiveData())
+                            .postValue(new Event.RefreshEvent(RefreshState.LoadFinish));
+                } else {
+                    ((MutableLiveData<Event.RefreshEvent>) viewModel.getRefreshEventLiveData())
+                            .postValue(new Event.RefreshEvent(RefreshState.RefreshFinish));
+                }
+            }
+            if (conversations == null || conversations.size() == 0) {
+                return;
+            }
+            RLog.d(TAG, "getConversationListByPage. size:" + conversations.size());
+            viewModel.mLastSyncTime = conversations.get(conversations.size() - 1).getSentTime();
+
+            for (Conversation conversation : conversations) {
+                BaseUiConversation oldItem =
+                        viewModel.findConversationFromList(
+                                conversation.getConversationType(),
+                                conversation.getTargetId(),
+                                false);
+                if (oldItem != null) {
+                    oldItem.onConversationUpdate(conversation);
+                } else {
+                    if (conversation
+                            .getConversationType()
+                            .equals(Conversation.ConversationType.GROUP)) {
+                        viewModel.mUiConversationList.add(
+                                new GroupConversation(
+                                        viewModel.mApplication.getApplicationContext(),
+                                        conversation));
+                    } else if (conversation
+                                    .getConversationType()
+                                    .equals(Conversation.ConversationType.PUBLIC_SERVICE)
+                            || conversation
+                                    .getConversationType()
+                                    .equals(Conversation.ConversationType.APP_PUBLIC_SERVICE)) {
+                        viewModel.mUiConversationList.add(
+                                new PublicServiceConversation(
+                                        viewModel.mApplication.getApplicationContext(),
+                                        conversation));
+                    } else {
+                        viewModel.mUiConversationList.add(
+                                new SingleConversation(
+                                        viewModel.mApplication.getApplicationContext(),
+                                        conversation));
+                    }
+                }
+            }
+            viewModel.sort();
+            viewModel.mConversationListLiveData.postValue(viewModel.mUiConversationList);
+        }
+
+        @Override
+        public void onError(RongIMClient.ErrorCode e) {
+            // Todo 通知上层数据获取失败，刷新重试？
         }
     }
 }

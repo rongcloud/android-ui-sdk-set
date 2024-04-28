@@ -500,15 +500,7 @@ public class PictureSelectorActivity extends PictureBaseActivity
         int[] newSize = new int[2];
         final File file = new File(cameraPath);
         if (!isAndroidQ) {
-            new PictureMediaScannerConnection(
-                    getApplicationContext(),
-                    cameraPath,
-                    new PictureMediaScannerConnection.ScanListener() {
-                        @Override
-                        public void onScanFinish() {
-                            // do nothing
-                        }
-                    });
+            new PictureMediaScannerConnection(getApplicationContext(), cameraPath, null);
         }
         LocalMedia media = new LocalMedia();
         mimeType = PictureMimeType.fileToType(file);

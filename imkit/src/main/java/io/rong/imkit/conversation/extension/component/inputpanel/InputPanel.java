@@ -573,22 +573,31 @@ public class InputPanel {
         }
     }
 
+    private static class SaveDraftCallback extends RongIMClient.ResultCallback<Boolean> {
+        private final WeakReference<InputPanel> panelRef;
+        private final String draft;
+
+        public SaveDraftCallback(InputPanel panel, final String draft) {
+            this.panelRef = new WeakReference<>(panel);
+            this.draft = draft;
+        }
+
+        @Override
+        public void onSuccess(Boolean success) {
+            InputPanel panel = panelRef.get();
+            if (panel != null && success) {
+                panel.mInitialDraft = draft;
+            }
+        }
+
+        @Override
+        public void onError(RongIMClient.ErrorCode e) {}
+    }
+
     private void saveTextMessageDraft(final String draft) {
         IMCenter.getInstance()
                 .saveTextMessageDraft(
-                        mConversationIdentifier,
-                        draft,
-                        new RongIMClient.ResultCallback<Boolean>() {
-                            @Override
-                            public void onSuccess(Boolean success) {
-                                if (success) {
-                                    mInitialDraft = draft;
-                                }
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode e) {}
-                        });
+                        mConversationIdentifier, draft, new SaveDraftCallback(this, draft));
     }
 
     private void updateMessageDraft(final String draft) {
