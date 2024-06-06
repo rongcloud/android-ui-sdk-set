@@ -38,6 +38,7 @@ import io.rong.imkit.event.actionevent.RefreshEvent;
 import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.event.uievent.InputBarEvent;
+import io.rong.imkit.event.uievent.MessageEvent;
 import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
 import io.rong.imkit.event.uievent.ScrollToEndEvent;
@@ -394,6 +395,15 @@ public class MessageViewModel extends AndroidViewModel
         mBundle = bundle;
         mProcessor.init(this, bundle);
         mIsEditStatus.setValue(false);
+    }
+
+    /** 初始化加载本地消息 下拉加载历史消息 */
+    public void onGetHistoryMessage(List<Message> messages, boolean isHasMoreMsg) {
+        onGetHistoryMessage(messages);
+        // 没有更多历史消息
+        if (!isHasMoreMsg) {
+            executePageEvent(new MessageEvent(false));
+        }
     }
 
     /** 初始化加载本地消息 下拉加载历史消息 */

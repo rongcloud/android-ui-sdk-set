@@ -92,6 +92,7 @@
 
     <!--Long click-->
     <string name="rc_dialog_item_message_delete">Delete</string>
+    <string name="rc_dialog_item_message_delete_failed_msg">Connection has been disconnected. Please try again later.</string>
     <string name="rc_dialog_item_message_copy">Copy</string>
     <string name="rc_dialog_item_message_recall">Recall</string>
     <string name="rc_dialog_item_message_reference">Quote</string>
@@ -395,6 +396,7 @@
     <string name="rc_voice_failure">Recording failed</string>
     <string name="rc_voice_too_long">Recording time is too long</string>
     <string name="rc_load_image_failed">Picture loading failed</string>
+    <string name="rc_send_large_gif_failed">GIF image size too large, Unable to send</string>
     //刷新库
     <string name="srl_content_empty">The content view in SmartRefreshLayout is empty. Do you forget to add it in xml layout file?</string>
     <string name="srl_component_falsify" formatted="false">%s falsify area,\n Represents the height[%.1fdp] of drag at run time,\n It does not show anything.</string>

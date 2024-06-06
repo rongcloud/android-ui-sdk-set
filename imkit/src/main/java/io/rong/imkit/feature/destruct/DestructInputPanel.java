@@ -172,6 +172,9 @@ public class DestructInputPanel {
             new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
+                    if (mExtensionViewModel == null) {
+                        return;
+                    }
                     if (hasFocus) {
                         mExtensionViewModel.getInputModeLiveData().postValue(InputMode.TextInput);
                         if (!TextUtils.isEmpty(mEditText.getText())) {

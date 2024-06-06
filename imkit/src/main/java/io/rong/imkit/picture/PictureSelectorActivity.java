@@ -49,7 +49,6 @@ import io.rong.imkit.picture.tools.StringUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.picture.widget.FolderPopWindow;
 import io.rong.imkit.utils.PermissionCheckUtil;
-import io.rong.imkit.utils.RongUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -208,15 +207,7 @@ public class PictureSelectorActivity extends PictureBaseActivity
 
     /** 加载数据 */
     private void loadAllMediaData() {
-        String[] permissions = null;
-        if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(this)) {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                    };
-        } else {
-            permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
-        }
+        String[] permissions = PermissionCheckUtil.getMediaStoragePermissions(this);
         if (PermissionChecker.checkSelfPermission(this, permissions)) {
             mHandler.sendEmptyMessage(SHOW_DIALOG);
             readLocalMedia();

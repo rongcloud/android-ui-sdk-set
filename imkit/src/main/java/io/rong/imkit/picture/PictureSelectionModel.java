@@ -266,4 +266,15 @@ public class PictureSelectionModel {
         selectionConfig.videoDurationLimit = duration;
         return this;
     }
+
+    /**
+     * 不可发送gif图片大小
+     *
+     * @param size 单位秒
+     * @return
+     */
+    public PictureSelectionModel gifSizeLimit(int limit) {
+        selectionConfig.gifSizeLimit = limit;
+        return this;
+    }
 }

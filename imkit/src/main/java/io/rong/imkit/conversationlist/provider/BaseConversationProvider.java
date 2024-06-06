@@ -18,6 +18,7 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.TimeUtils;
 import io.rong.imkit.widget.adapter.IViewProvider;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
@@ -180,7 +181,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
 
         String time =
                 RongDateUtils.getConversationListFormatDate(
-                        uiConversation.mCore.getSentTime(), holder.getContext());
+                        TimeUtils.getLatestTime(uiConversation.mCore), holder.getContext());
         holder.setText(R.id.rc_conversation_date, time);
 
         if (uiConversation.mCore.isTop()) {

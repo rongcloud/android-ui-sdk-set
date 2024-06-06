@@ -156,6 +156,7 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
                 .loadImageEngine(RongConfigCenter.featureConfig().getKitImageEngine())
                 .setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
                 .videoDurationLimit(RongIMClient.getInstance().getVideoLimitTime())
+                .gifSizeLimit(RongIMClient.getInstance().getGIFLimitSize() * 1024)
                 .maxSelectNum(9)
                 .imageSpanCount(3)
                 .isGif(true)

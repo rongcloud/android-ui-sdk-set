@@ -6,9 +6,11 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.widget.Toast;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
@@ -175,7 +177,7 @@ public class MessageItemLongClickActionManager {
                                                         .cancelDownloadMediaMessage(message, null);
                                             }
                                         }
-                                        deleteRemoteMessage(uiMessage);
+                                        deleteRemoteMessage(context, uiMessage);
                                         return true;
                                     }
                                 })
@@ -364,10 +366,23 @@ public class MessageItemLongClickActionManager {
         }
     }
 
-    private void deleteRemoteMessage(UiMessage uiMessage) {
+    private void deleteRemoteMessage(Context context, UiMessage uiMessage) {
         // 不需要删除远端，那就只把本地删除
         if (!RongConfigCenter.conversationConfig().isNeedDeleteRemoteMessage()) {
             deleteLocalMessage(uiMessage);
+            return;
+        }
+        // 未发送成功的消息，删除本地
+        if (Message.MessageDirection.SEND == uiMessage.getMessageDirection()
+                && (uiMessage.getState() == State.ERROR || uiMessage.getState() == State.PROGRESS)
+                && TextUtils.isEmpty(uiMessage.getUId())) {
+            deleteLocalMessage(uiMessage);
+            return;
+        }
+        // 无网络则删除失败，本地消息也不会删除
+        String errorTxt = context.getString(R.string.rc_dialog_item_message_delete_failed_msg);
+        if (!NetUtils.isNetWorkAvailable(context)) {
+            ToastUtils.show(context, errorTxt, Toast.LENGTH_SHORT);
             return;
         }
         // 先删远端，远端删除成功才删本地
@@ -387,6 +402,7 @@ public class MessageItemLongClickActionManager {
                                         TAG,
                                         "deleteRemoteMessage fail, will not deleteLocalMessage ："
                                                 + errorCode);
+                                ToastUtils.show(context, errorTxt, Toast.LENGTH_SHORT);
                             }
                         });
     }
@@ -397,7 +413,18 @@ public class MessageItemLongClickActionManager {
                         uiMessage.getMessage().getConversationType(),
                         uiMessage.getMessage().getTargetId(),
                         new int[] {uiMessage.getMessage().getMessageId()},
-                        null);
+                        new RongIMClient.ResultCallback<Boolean>() {
+                            @Override
+                            public void onSuccess(Boolean result) {
+                                if (result) {
+                                    int messageId = uiMessage.getMessage().getMessageId();
+                                    ResendManager.getInstance().removeResendMessage(messageId);
+                                }
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode e) {}
+                        });
     }
 
     private void translateText(Context context, UiMessage message) {

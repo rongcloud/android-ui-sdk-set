@@ -172,6 +172,9 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
     }
 
     private void saveGif(GIFMessage message) {
+        if (message.getLocalUri() == null) {
+            return;
+        }
         String path = message.getLocalUri().getPath();
         final File file = new File(path);
         if (!file.exists()) {

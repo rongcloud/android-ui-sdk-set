@@ -72,15 +72,13 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
         holder.setVisible(R.id.rc_length, false);
         int progress = uiMessage.getProgress();
         if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND) {
-            if ((progress > 0 && progress < 100)
+            if (((progress > 0 && progress < 100) || uiMessage.getState() == State.PROGRESS)
                     || (uiMessage.getState() == State.ERROR)
                             && ResendManager.getInstance()
                                     .needResend(uiMessage.getMessage().getMessageId())) {
                 loadingProgress.setProgress(progress, true);
                 loadingProgress.setVisibility(View.VISIBLE);
                 holder.setVisible(R.id.rc_pre_progress, false);
-            } else if (uiMessage.getState() == State.PROGRESS) {
-                loadingProgress.setVisibility(View.GONE);
             } else if (uiMessage.getState() == State.ERROR) {
                 loadingProgress.setVisibility(View.GONE);
                 holder.setVisible(R.id.rc_pre_progress, false);

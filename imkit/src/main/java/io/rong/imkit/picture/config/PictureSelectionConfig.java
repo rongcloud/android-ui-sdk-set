@@ -36,6 +36,7 @@ public final class PictureSelectionConfig implements Parcelable {
     public String cameraFileName;
     public boolean isCheckOriginalImage;
     public int videoDurationLimit;
+    public long gifSizeLimit;
 
     private void reset() {
         chooseMode = PictureMimeType.ofImage();
@@ -62,6 +63,7 @@ public final class PictureSelectionConfig implements Parcelable {
         selectionMedias = new ArrayList<>();
         imageEngine = null;
         videoDurationLimit = PictureConfig.DEFAULT_VIDEO_DURATION_LIMIT;
+        gifSizeLimit = -1;
     }
 
     public static PictureSelectionConfig getInstance() {
@@ -111,6 +113,7 @@ public final class PictureSelectionConfig implements Parcelable {
         dest.writeByte(this.isNotPreviewDownload ? (byte) 1 : (byte) 0);
         dest.writeTypedList(this.selectionMedias);
         dest.writeInt(this.videoDurationLimit);
+        dest.writeLong(this.gifSizeLimit);
     }
 
     protected PictureSelectionConfig(Parcel in) {
@@ -136,6 +139,7 @@ public final class PictureSelectionConfig implements Parcelable {
         this.isNotPreviewDownload = in.readByte() != 0;
         this.selectionMedias = in.createTypedArrayList(LocalMedia.CREATOR);
         this.videoDurationLimit = in.readInt();
+        this.gifSizeLimit = in.readLong();
     }
 
     public static final Creator<PictureSelectionConfig> CREATOR =

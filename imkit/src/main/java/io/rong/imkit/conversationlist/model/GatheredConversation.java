@@ -12,6 +12,7 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RongUtils;
+import io.rong.imkit.utils.TimeUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.UserInfo;
@@ -128,7 +129,7 @@ public class GatheredConversation extends BaseUiConversation {
         if (conversation != null && conversation.getConversationType().equals(mGatheredType)) {
             gatheredConversationMap.put(conversation.getTargetId(), conversation);
 
-            if (conversation.getSentTime() >= mCore.getSentTime()) {
+            if (TimeUtils.getLatestTime(conversation) >= TimeUtils.getLatestTime(mCore)) {
                 mCore = conversation;
                 mLastTargetId = conversation.getTargetId();
                 buildConversationContent();

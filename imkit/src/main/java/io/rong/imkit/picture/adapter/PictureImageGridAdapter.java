@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +28,7 @@ import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imlib.RongCoreClient;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -182,6 +184,9 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                                         ToastUtils.s(context, PictureMimeType.s(context, mimeType));
                                         return;
                                     }
+                                    if (isGIFAboveMaxSize(image)) {
+                                        return;
+                                    }
 
                                     if (PictureMimeType.eqVideo(mimeType)) {
                                         if (TextUtils.isEmpty(contentHolder.tvDuration.getText()))
@@ -208,7 +213,11 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                                                                 .getString(
                                                                         R.string
                                                                                 .rc_picsel_selected_max_time_span_with_param,
-                                                                        maxDuration / 60.0);
+                                                                        Math.round(
+                                                                                        maxDuration
+                                                                                                / 60.0
+                                                                                                * 10)
+                                                                                / 10.0);
                                             } else {
                                                 time =
                                                         context.getResources()
@@ -227,7 +236,22 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                                             return;
                                         }
                                     }
-
+                                    if (PictureMimeType.isGif(mimeType)) {
+                                        long limit = config.gifSizeLimit;
+                                        if (limit != -1 && limit < image.getSize()) {
+                                            new AlertDialog.Builder(context)
+                                                    .setMessage(
+                                                            context.getResources()
+                                                                    .getString(
+                                                                            R.string
+                                                                                    .rc_send_large_gif_failed))
+                                                    .setPositiveButton(R.string.rc_confirm, null)
+                                                    .setCancelable(false)
+                                                    .create()
+                                                    .show();
+                                            return;
+                                        }
+                                    }
                                     changeCheckboxState(contentHolder, image);
                                 }
                             }
@@ -451,5 +475,21 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
     public void setOnPhotoSelectChangedListener(
             OnPhotoSelectChangedListener imageSelectChangedListener) {
         this.imageSelectChangedListener = imageSelectChangedListener;
+    }
+
+    private boolean isGIFAboveMaxSize(LocalMedia media) {
+
+        if (media == null) {
+            return false;
+        }
+        String mimeType = media.getMimeType();
+        if (!mimeType.toLowerCase().contains("gif")) {
+            return false;
+        }
+        if (media.getSize() > RongCoreClient.getInstance().getGIFLimitSize() * 1024) {
+            Toast.makeText(context, R.string.rc_gif_message_too_large, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return false;
     }
 }

@@ -1,7 +1,9 @@
 package io.rong.imkit.utils;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
 import io.rong.imkit.R;
+import io.rong.imlib.model.Conversation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -53,5 +55,12 @@ public class TimeUtils {
     private static String fromatDate(long timeMillis, String fromat) {
         SimpleDateFormat sdf = new SimpleDateFormat(fromat);
         return sdf.format(new Date(timeMillis));
+    }
+
+    public static long getLatestTime(@NonNull Conversation conversation) {
+        if (conversation.getLatestMessage() != null) {
+            return conversation.getSentTime();
+        }
+        return conversation.getOperationTime();
     }
 }

@@ -93,7 +93,9 @@ public class RongUserInfoManager {
      */
     public void initAndUpdateUserDataBase(Context context) {
         this.context = context;
-        initDbDataSource(RongIMClient.getInstance().getCurrentUserId());
+        ExecutorHelper.getInstance()
+                .diskIO()
+                .execute(() -> initDbDataSource(RongIMClient.getInstance().getCurrentUserId()));
     }
 
     private void initDbDataSource(String userId) {

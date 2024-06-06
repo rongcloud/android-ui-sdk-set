@@ -37,6 +37,7 @@ import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.utils.TimeUtils;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -553,9 +554,11 @@ public class ConversationListViewModel extends AndroidViewModel
                     public int compare(BaseUiConversation o1, BaseUiConversation o2) {
                         if (o1.mCore.isTop() && o2.mCore.isTop()
                                 || !o1.mCore.isTop() && !o2.mCore.isTop()) {
-                            if (o1.mCore.getSentTime() > o2.mCore.getSentTime()) {
+                            if (TimeUtils.getLatestTime(o1.mCore)
+                                    > TimeUtils.getLatestTime(o2.mCore)) {
                                 return -1;
-                            } else if (o1.mCore.getSentTime() < o2.mCore.getSentTime()) {
+                            } else if (TimeUtils.getLatestTime(o1.mCore)
+                                    < TimeUtils.getLatestTime(o2.mCore)) {
                                 return 1;
                             } else {
                                 return 0;

@@ -214,6 +214,14 @@ public class InputPanel {
             mEditText.setVisibility(GONE);
             mEmojiToggleBtn.setImageDrawable(
                     mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+            if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
+                    || mInputStyle.equals(InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {
+                mAddOrSendBtn.setVisibility(VISIBLE);
+                mAddBtn.setVisibility(VISIBLE);
+                mSendBtn.setVisibility(GONE);
+            } else {
+                mAddOrSendBtn.setVisibility(GONE);
+            }
         } else if (inputMode.equals(InputMode.EmoticonMode)) {
             mVoiceToggleBtn.setImageDrawable(
                     mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_voice_btn));
@@ -221,6 +229,7 @@ public class InputPanel {
                     mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_keyboard_btn));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
+            resetInputView();
         } else if (inputMode.equals(InputMode.QuickReplyMode)) {
             mIsVoiceInputMode = false;
             mVoiceToggleBtn.setImageDrawable(

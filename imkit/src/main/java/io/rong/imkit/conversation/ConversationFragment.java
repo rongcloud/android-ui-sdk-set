@@ -43,6 +43,7 @@ import io.rong.imkit.conversation.messgelist.status.MessageProcessor;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageItemLongClickBean;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.Event;
+import io.rong.imkit.event.uievent.MessageEvent;
 import io.rong.imkit.event.uievent.PageDestroyEvent;
 import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
@@ -177,7 +178,9 @@ public class ConversationFragment extends Fragment
                             return;
                         }
                     }
-                    if (event instanceof Event.RefreshEvent) {
+                    if (event instanceof MessageEvent) {
+                        noMoreMessageToFetch();
+                    } else if (event instanceof Event.RefreshEvent) {
                         if (((Event.RefreshEvent) event).state.equals(RefreshState.RefreshFinish)) {
                             mRefreshLayout.finishRefresh();
                         } else if (((Event.RefreshEvent) event)
@@ -901,6 +904,13 @@ public class ConversationFragment extends Fragment
             mRongExtensionViewModel.collapseExtensionBoard();
         }
     }
+
+    /**
+     * 拉取消息结束，没有更多消息可以拉取
+     *
+     * @since 5.8.2
+     */
+    protected void noMoreMessageToFetch() {}
 
     /**
      * 获取 adapter. 可复写此方法实现自定义 adapter.

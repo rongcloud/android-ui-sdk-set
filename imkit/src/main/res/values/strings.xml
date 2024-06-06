@@ -31,7 +31,7 @@
     <string name="rc_conversation_summary_content_vst">[音视频通话]</string>
     <string name="rc_conversation_summary_content_combine">[聊天记录]</string>
     <string name="rc_conversation_summary_content_draft">[草稿]</string>
-    <string name="rc_conversation_summary_content_mentioned">[有人 @ 我]</string>
+    <string name="rc_conversation_summary_content_mentioned">[有人@我]</string>
     <string name="rc_conversation_summary_content_burn">[阅后即焚]</string>
 
     //聚合会话名称
@@ -78,6 +78,7 @@
     <string name="rc_user_recalled_message">%s撤回了一条消息</string>
     <string name="rc_recall_failed">撤回失败</string>
     <string name="rc_load_image_failed">图片加载失败</string>
+    <string name="rc_send_large_gif_failed">该 GIF 图尺寸过大，无法发送</string>
 
     <string name="rc_voice_rec">手指上滑，取消发送</string>
     <string name="rc_voice_cancel">手指上滑，取消发送</string>
@@ -181,6 +182,7 @@
     <string name="rc_search_no_result">暂无结果</string>
     <string name="rc_dialog_item_message_copy">复制消息</string>
     <string name="rc_dialog_item_message_delete">删除消息</string>
+    <string name="rc_dialog_item_message_delete_failed_msg">连接已断开，请稍后再试</string>
     <string name="rc_dialog_item_message_recall">撤回消息</string>
     <string name="rc_dialog_item_message_reference">引用消息</string>
     <string name="rc_dialog_got_it">知道了</string>

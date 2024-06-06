@@ -100,6 +100,24 @@ public class ResendManager {
                 });
     }
 
+    public void removeResendMessages(final int[] messageIds) {
+        if (messageIds == null || messageIds.length == 0) {
+            return;
+        }
+        mResendHandler.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMessageMap != null) {
+                            for (int messageId : messageIds) {
+                                mMessageMap.remove(messageId);
+                                mMessageQueue.remove(messageId);
+                            }
+                        }
+                    }
+                });
+    }
+
     public void removeAllResendMessage() {
         mResendHandler.post(
                 new Runnable() {
