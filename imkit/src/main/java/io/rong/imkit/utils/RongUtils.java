@@ -31,6 +31,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import androidx.core.content.ContextCompat;
 import io.rong.common.CursorUtils;
+import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.rlog.RLog;
 import java.io.ByteArrayOutputStream;
@@ -214,6 +215,8 @@ public class RongUtils {
                 if (cursor != null) {
                     cursor.moveToFirst();
                     path = cursor.getString(0);
+                    // 优化：对文件路径进行清理，防止路径遍历攻击
+                    path = FileUtils.sanitizeFilename(path);
                 }
             } catch (Exception e) {
                 RLog.e(TAG, "getResizedBitmap cursor error  ", e);

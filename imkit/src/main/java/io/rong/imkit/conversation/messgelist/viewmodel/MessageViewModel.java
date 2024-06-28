@@ -455,6 +455,9 @@ public class MessageViewModel extends AndroidViewModel
         if (position >= 0) {
             // 插入历史未读数
             if (RongConfigCenter.conversationConfig().isShowHistoryDividerMessage()) {
+                if (hasHistoryDividerMessage()) {
+                    return;
+                }
                 Message hisMessage =
                         Message.obtain(
                                 mConversationIdentifier,
@@ -470,6 +473,15 @@ public class MessageViewModel extends AndroidViewModel
                 mUiMessages.add(position, uiMessage);
             }
         }
+    }
+
+    private boolean hasHistoryDividerMessage() {
+        for (UiMessage uiMessage : mUiMessages) {
+            if (uiMessage.getContent() instanceof HistoryDividerMessage) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void refreshAllMessage() {
