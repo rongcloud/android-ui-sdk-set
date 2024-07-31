@@ -45,11 +45,13 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
 
     @Override
     public String obtainTitle(Context context) {
+        this.context = context;
         return context.getString(R.string.rc_plugin_sight);
     }
 
     @Override
     public void onClick(Fragment currentFragment, RongExtension extension, int index) {
+        this.context = currentFragment.getContext();
         if (extension == null) {
             RLog.e(TAG, "onClick extension null");
             return;

@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.view.ContextThemeWrapper;
+import io.rong.common.SystemUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imlib.RongIMClient;
@@ -52,11 +53,8 @@ public class RongConfigurationManager {
         if (!isInit) {
             IntentFilter filter = new IntentFilter();
             filter.addAction(Intent.ACTION_LOCALE_CHANGED);
-            context.registerReceiver(
-                    new SystemConfigurationChangedReceiver(),
-                    filter,
-                    context.getApplicationInfo().packageName + ".permission.RONG_ACCESS_RECEIVER",
-                    null);
+            SystemUtils.registerReceiverCompat(
+                    context, new SystemConfigurationChangedReceiver(), filter);
 
             // 初始化时将应用语言重新设置为之前设置的语言
             LangUtils.RCLocale locale =

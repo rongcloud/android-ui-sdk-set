@@ -1015,6 +1015,12 @@ public class MessageViewModel extends AndroidViewModel
                             ToastUtils.s(
                                     getApplication(),
                                     getApplication().getString(R.string.rc_gif_message_too_large));
+                        } else if (code
+                                == IRongCoreEnum.CoreErrorCode.RC_FILE_SIZE_EXCEED_LIMIT
+                                        .getValue()) {
+                            ToastUtils.s(
+                                    getApplication(),
+                                    getApplication().getString(R.string.rc_upload_file_too_large));
                         }
                     }
                     sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();

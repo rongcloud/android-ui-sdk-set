@@ -46,6 +46,20 @@ public abstract class BaseUiConversation {
                 mCore.getConversationType(), mCore.getTargetId(), mCore.getChannelId());
     }
 
+    // 拼接ConversationType + targetID + ChannelID，返回能代表会话唯一的Key
+    public String getConversationKey() {
+        if (mCore == null) {
+            return "";
+        }
+        Conversation.ConversationType type =
+                mCore.getConversationType() != null
+                        ? mCore.getConversationType()
+                        : Conversation.ConversationType.NONE;
+        String targetId = mCore.getTargetId() != null ? mCore.getTargetId() : "";
+        String channelId = mCore.getChannelId() != null ? mCore.getChannelId() : "";
+        return "type=" + type + "&tid=" + targetId + "&cid=" + channelId;
+    }
+
     // 如果会话的lastMsg在重发列表中，则需要更新成sending状态
     public void processResending(Conversation conversation) {
         if (ResendManager.getInstance().needResend(conversation.getLatestMessageId())) {

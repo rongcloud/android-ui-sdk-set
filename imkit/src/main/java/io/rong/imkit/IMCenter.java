@@ -61,6 +61,8 @@ import io.rong.message.TextMessage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class IMCenter {
@@ -81,6 +83,8 @@ public class IMCenter {
             new CopyOnWriteArrayList<>();
 
     private List<MessageEventListener> mMessageEventListeners = new CopyOnWriteArrayList<>();
+    private Map<String, IRongCallback.IDownloadMediaFileCallback> mMediaListeners =
+            new ConcurrentHashMap<>();
     private List<ConversationEventListener> mConversationEventListener =
             new CopyOnWriteArrayList<>();
 
@@ -2154,6 +2158,11 @@ public class IMCenter {
                         new IRongCallback.IDownloadMediaFileCallback() {
                             @Override
                             public void onFileNameChanged(String newFileName) {
+                                IRongCallback.IDownloadMediaFileCallback listener =
+                                        mMediaListeners.get(uid);
+                                if (listener != null) {
+                                    listener.onFileNameChanged(newFileName);
+                                }
                                 if (callback != null) {
                                     callback.onFileNameChanged(newFileName);
                                 }
@@ -2161,6 +2170,11 @@ public class IMCenter {
 
                             @Override
                             public void onSuccess() {
+                                IRongCallback.IDownloadMediaFileCallback listener =
+                                        mMediaListeners.get(uid);
+                                if (listener != null) {
+                                    listener.onSuccess();
+                                }
                                 if (callback != null) {
                                     callback.onSuccess();
                                 }
@@ -2168,6 +2182,11 @@ public class IMCenter {
 
                             @Override
                             public void onProgress(int progress) {
+                                IRongCallback.IDownloadMediaFileCallback listener =
+                                        mMediaListeners.get(uid);
+                                if (listener != null) {
+                                    listener.onProgress(progress);
+                                }
                                 if (callback != null) {
                                     callback.onProgress(progress);
                                 }
@@ -2175,6 +2194,11 @@ public class IMCenter {
 
                             @Override
                             public void onError(RongIMClient.ErrorCode code) {
+                                IRongCallback.IDownloadMediaFileCallback listener =
+                                        mMediaListeners.get(uid);
+                                if (listener != null) {
+                                    listener.onError(code);
+                                }
                                 if (callback != null) {
                                     callback.onError(code);
                                 }
@@ -2182,6 +2206,11 @@ public class IMCenter {
 
                             @Override
                             public void onCanceled() {
+                                IRongCallback.IDownloadMediaFileCallback listener =
+                                        mMediaListeners.get(uid);
+                                if (listener != null) {
+                                    listener.onCanceled();
+                                }
                                 if (callback != null) {
                                     callback.onCanceled();
                                 }
@@ -2784,6 +2813,17 @@ public class IMCenter {
 
     public void removeMessageEventListener(MessageEventListener listener) {
         mMessageEventListeners.remove(listener);
+    }
+
+    public void addMediaListener(String uid, IRongCallback.IDownloadMediaFileCallback listener) {
+        if (listener == null) {
+            return;
+        }
+        mMediaListeners.put(uid, listener);
+    }
+
+    public void removeMediaListener(String uid) {
+        mMediaListeners.remove(uid);
     }
 
     public void addConversationStatusListener(RongIMClient.ConversationStatusListener listener) {

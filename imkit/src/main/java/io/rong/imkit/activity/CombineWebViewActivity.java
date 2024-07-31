@@ -45,7 +45,6 @@ import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
-import io.rong.imlib.RongCoreClientImpl;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.DeviceUtils;
 import io.rong.imlib.common.NetUtils;
@@ -265,17 +264,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
     }
 
     private void replacePortraitUrl(String url) {
-        String result = url;
-        if (RongCoreClientImpl.isPrivateSDK()) {
-            String address = RongCoreClient.getInstance().getMinioOSSAddr();
-            if (!TextUtils.isEmpty(address)) {
-                result += "?target=" + address;
-                if (!result.startsWith("file://")) {
-                    result = "file://" + result;
-                }
-            }
-        }
-        mWebView.loadUrl(result);
+        mWebView.loadUrl(url);
     }
 
     private boolean isRemoteUri(String uri) {
@@ -833,8 +822,11 @@ public class CombineWebViewActivity extends RongBaseActivity {
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
             KitMediaInterceptor interceptor =
                     RongConfigCenter.featureConfig().getKitMediaInterceptor();
-            if (interceptor != null && interceptor.shouldInterceptRequest(view, url)) {
-                return new WebResourceResponse(null, null, null);
+            if (interceptor != null) {
+                url = interceptor.onCombinePortraitLoad(url);
+                if (interceptor.shouldInterceptRequest(view, url)) {
+                    return new WebResourceResponse(null, null, null);
+                }
             }
             return super.shouldInterceptRequest(view, url);
         }

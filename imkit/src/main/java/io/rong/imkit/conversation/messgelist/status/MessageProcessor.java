@@ -104,6 +104,12 @@ public class MessageProcessor {
             int count,
             final boolean isForward,
             final GetMessageCallback callback) {
+        if (messageViewModel == null) {
+            if (callback != null) {
+                callback.onSuccess(new ArrayList<>(), false);
+            }
+            return;
+        }
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(count);
@@ -178,6 +184,12 @@ public class MessageProcessor {
             int before,
             final int after,
             final GetMessageCallback callback) {
+        if (messageViewModel == null) {
+            if (callback != null) {
+                callback.onSuccess(new ArrayList<>(), false);
+            }
+            return;
+        }
         final List<Message> allData = new ArrayList<>();
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);

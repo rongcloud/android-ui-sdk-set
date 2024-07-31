@@ -1,5 +1,6 @@
 package io.rong.imkit.feature.publicservice.provider;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.text.Spannable;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import androidx.fragment.app.FragmentActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import io.rong.common.rlog.RLog;
@@ -145,6 +147,15 @@ public class PublicServiceMultiRichContentMessageProvider
 
     private static void loadImg(
             Context context, ImageView img, String url, MediaUploadAuthorInfo auth) {
+        if (context instanceof FragmentActivity) {
+            if (((FragmentActivity) context).isDestroyed()) {
+                return;
+            }
+        } else if (context instanceof Activity) {
+            if (((Activity) context).isDestroyed()) {
+                return;
+            }
+        }
         Glide.with(context)
                 .load(GlideUtils.buildAuthUrl(Uri.parse(url), auth))
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)

@@ -618,16 +618,17 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
             if (interceptor != null && originalBitmapModel instanceof GlideUrl) {
                 GlideUrl originalGlideUrl = (GlideUrl) originalBitmapModel;
                 interceptor.onGlidePrepareLoad(
-                        originalUri.toString(),
+                        originalGlideUrl.getCacheKey(),
                         new HashMap<>(originalGlideUrl.getHeaders()),
                         map ->
                                 runOnUiThread(
                                         () ->
                                                 loadImageBitmapResource(
                                                         GlideUtils.buildGlideUrl(
-                                                                originalUri.toString(), map),
+                                                                originalGlideUrl.getCacheKey(),
+                                                                map),
                                                         holder,
-                                                        originalUri,
+                                                        Uri.parse(originalGlideUrl.getCacheKey()),
                                                         thumbUri,
                                                         imageInfo)));
             } else {

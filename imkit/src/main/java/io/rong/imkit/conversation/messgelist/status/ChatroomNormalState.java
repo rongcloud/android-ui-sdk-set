@@ -7,6 +7,7 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class ChatroomNormalState implements IMessageState {
@@ -18,7 +19,11 @@ public class ChatroomNormalState implements IMessageState {
     }
 
     @Override
-    public void init(final MessageViewModel viewModel, Bundle bundle) {
+    public void init(MessageViewModel viewModel, Bundle bundle) {
+        if (viewModel == null) {
+            return;
+        }
+        WeakReference<MessageViewModel> reference = new WeakReference<>(viewModel);
         RongIMClient.getInstance()
                 .getHistoryMessages(
                         viewModel.getCurConversationType(),
@@ -29,6 +34,10 @@ public class ChatroomNormalState implements IMessageState {
                             @Override
                             // 返回列表（10，9，8，7，6，按messageId倒序）
                             public void onSuccess(List<Message> messages) {
+                                MessageViewModel messageViewModel = reference.get();
+                                if (messageViewModel == null) {
+                                    return;
+                                }
                                 // 不为空且大于0证明还有本地数据
                                 if (messages != null && messages.size() > 0) {
                                     List<Message> result;
@@ -38,10 +47,10 @@ public class ChatroomNormalState implements IMessageState {
                                     } else {
                                         result = messages.subList(0, DEFAULT_COUNT);
                                     }
-                                    viewModel.onGetHistoryMessage(result);
+                                    messageViewModel.onGetHistoryMessage(result);
                                 }
                                 // 处理未读消息
-                                MessageProcessor.processUnread(viewModel);
+                                MessageProcessor.processUnread(messageViewModel);
                             }
 
                             @Override

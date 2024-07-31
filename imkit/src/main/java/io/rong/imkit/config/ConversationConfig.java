@@ -410,10 +410,10 @@ public class ConversationConfig {
     /**
      * 获得消息展示信息
      *
-     * @since 5.2.5
      * @param context 上下文
      * @param conversation 消息内容
      * @return
+     * @since 5.2.5
      */
     public Spannable getMessageSummary(Context context, Conversation conversation) {
         Spannable spannable = new SpannableString("");
@@ -443,6 +443,9 @@ public class ConversationConfig {
      * @return
      */
     public boolean showSummaryWithName(MessageContent messageContent) {
+        if (messageContent == null) {
+            return false;
+        }
         for (IConversationSummaryProvider item : mConversationSummaryProviders) {
             if (item.isSummaryType(messageContent)) {
                 return item.showSummaryWithName();

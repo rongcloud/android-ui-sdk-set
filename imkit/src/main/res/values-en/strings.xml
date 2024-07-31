@@ -512,6 +512,7 @@
 
     <string name="rc_message_too_long">The text you entered is too long to send</string>
     <string name="rc_gif_message_too_large">GIF image size too large, Unable to send</string>
+    <string name="rc_upload_file_too_large">Upload file exceeds the maximum limit</string>
 
     <string name="rc_translate_failed_try_again">Translation failed, please try again</string>
     <string name="rc_translate_message">Translate Message</string>

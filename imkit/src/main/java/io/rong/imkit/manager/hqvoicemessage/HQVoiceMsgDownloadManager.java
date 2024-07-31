@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.os.Build;
 import android.text.TextUtils;
 import androidx.fragment.app.Fragment;
+import io.rong.common.SystemUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
@@ -68,13 +69,8 @@ public class HQVoiceMsgDownloadManager {
         try {
             IntentFilter intentFilter = new IntentFilter();
             intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-            context.getApplicationContext()
-                    .registerReceiver(
-                            autoDownloadNetWorkChangeReceiver,
-                            intentFilter,
-                            context.getApplicationInfo().packageName
-                                    + ".permission.RONG_ACCESS_RECEIVER",
-                            null);
+            SystemUtils.registerReceiverCompat(
+                    context, autoDownloadNetWorkChangeReceiver, intentFilter);
         } catch (Exception e) {
             RLog.e(TAG, "registerReceiver Exception", e);
         }

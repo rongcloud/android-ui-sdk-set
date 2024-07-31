@@ -58,6 +58,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -76,6 +77,7 @@ public class ConversationListViewModel extends AndroidViewModel
             new CopyOnWriteArrayList<>();
     protected MediatorLiveData<List<BaseUiConversation>> mConversationListLiveData;
     protected DataProcessor<Conversation> mDataFilter;
+    protected HandlerThread workThread;
     protected Handler mHandler;
     private MutableLiveData<ConnectionStatus> mConnectionStatusLiveData = new MutableLiveData<>();
     private MutableLiveData<NoticeContent> mNoticeContentLiveData = new MutableLiveData<>();
@@ -105,16 +107,23 @@ public class ConversationListViewModel extends AndroidViewModel
                 @Override
                 public void onConversationRemoved(
                         Conversation.ConversationType type, String targetId) {
-                    BaseUiConversation oldItem =
-                            findConversationFromList(
-                                    type,
-                                    targetId,
-                                    mDataFilter.isGathered(
-                                            ConversationIdentifier.obtain(type, targetId, "")));
-                    if (oldItem != null) {
-                        mUiConversationList.remove(oldItem);
-                        mConversationListLiveData.postValue(mUiConversationList);
-                    }
+                    mHandler.post(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    BaseUiConversation oldItem =
+                                            findConversationFromList(
+                                                    type,
+                                                    targetId,
+                                                    mDataFilter.isGathered(
+                                                            ConversationIdentifier.obtain(
+                                                                    type, targetId, "")));
+                                    if (oldItem != null) {
+                                        mUiConversationList.remove(oldItem);
+                                        refreshConversationList();
+                                    }
+                                }
+                            });
                 }
 
                 @Override
@@ -125,17 +134,25 @@ public class ConversationListViewModel extends AndroidViewModel
                 @Override
                 public void onClearConversations(
                         Conversation.ConversationType... conversationTypes) {
-                    RLog.d(TAG, "onClearConversations");
-                    List<Conversation.ConversationType> clearedTypes =
-                            Arrays.asList(conversationTypes);
-                    Iterator<BaseUiConversation> iterator = mUiConversationList.iterator();
-                    while (iterator.hasNext()) {
-                        BaseUiConversation item = iterator.next();
-                        if (clearedTypes.contains(item.mCore.getConversationType())) {
-                            mUiConversationList.remove(item);
-                        }
-                    }
-                    mConversationListLiveData.postValue(mUiConversationList);
+                    mHandler.post(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    RLog.d(TAG, "onClearConversations");
+                                    List<Conversation.ConversationType> clearedTypes =
+                                            Arrays.asList(conversationTypes);
+                                    Iterator<BaseUiConversation> iterator =
+                                            mUiConversationList.iterator();
+                                    while (iterator.hasNext()) {
+                                        BaseUiConversation item = iterator.next();
+                                        if (clearedTypes.contains(
+                                                item.mCore.getConversationType())) {
+                                            mUiConversationList.remove(item);
+                                        }
+                                    }
+                                    refreshConversationList();
+                                }
+                            });
                 }
 
                 @Override
@@ -259,22 +276,33 @@ public class ConversationListViewModel extends AndroidViewModel
                 @Override
                 public void onReadReceiptReceived(Message message) {
                     if (message != null && message.getContent() instanceof ReadReceiptMessage) {
-                        Conversation.ConversationType type = message.getConversationType();
-                        BaseUiConversation oldItem =
-                                findConversationFromList(
-                                        type,
-                                        message.getTargetId(),
-                                        mDataFilter.isGathered(
-                                                ConversationIdentifier.obtain(
-                                                        type, message.getTargetId(), "")));
-                        if (oldItem != null
-                                && type.equals(Conversation.ConversationType.PRIVATE)
-                                && oldItem.mCore.getSentTime()
-                                        == ((ReadReceiptMessage) message.getContent())
-                                                .getLastMessageSendTime()) {
-                            oldItem.mCore.setSentStatus(Message.SentStatus.READ);
-                            mConversationListLiveData.postValue(mUiConversationList);
-                        }
+                        mHandler.post(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Conversation.ConversationType type =
+                                                message.getConversationType();
+                                        BaseUiConversation oldItem =
+                                                findConversationFromList(
+                                                        type,
+                                                        message.getTargetId(),
+                                                        mDataFilter.isGathered(
+                                                                ConversationIdentifier.obtain(
+                                                                        type,
+                                                                        message.getTargetId(),
+                                                                        "")));
+                                        if (oldItem != null
+                                                && type.equals(
+                                                        Conversation.ConversationType.PRIVATE)
+                                                && oldItem.mCore.getSentTime()
+                                                        == ((ReadReceiptMessage)
+                                                                        message.getContent())
+                                                                .getLastMessageSendTime()) {
+                                            oldItem.mCore.setSentStatus(Message.SentStatus.READ);
+                                            refreshConversationList();
+                                        }
+                                    }
+                                });
                     }
                 }
 
@@ -309,20 +337,28 @@ public class ConversationListViewModel extends AndroidViewModel
                 @Override
                 public void onSyncConversationReadStatus(
                         Conversation.ConversationType type, String targetId) {
-                    BaseUiConversation oldItem =
-                            findConversationFromList(
-                                    type,
-                                    targetId,
-                                    mDataFilter.isGathered(
-                                            ConversationIdentifier.obtain(type, targetId, "")));
-                    if (oldItem != null) {
-                        Conversation conversation = oldItem.currentConversation(targetId);
-                        conversation.setUnreadMessageCount(0);
-                        conversation.setMentionedCount(0);
-                        conversation.setMentionedMeCount(0);
-                        oldItem.onConversationUpdate(conversation);
-                        mConversationListLiveData.postValue(mUiConversationList);
-                    }
+                    mHandler.post(
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    BaseUiConversation oldItem =
+                                            findConversationFromList(
+                                                    type,
+                                                    targetId,
+                                                    mDataFilter.isGathered(
+                                                            ConversationIdentifier.obtain(
+                                                                    type, targetId, "")));
+                                    if (oldItem != null) {
+                                        Conversation conversation =
+                                                oldItem.currentConversation(targetId);
+                                        conversation.setUnreadMessageCount(0);
+                                        conversation.setMentionedCount(0);
+                                        conversation.setMentionedMeCount(0);
+                                        oldItem.onConversationUpdate(conversation);
+                                        refreshConversationList();
+                                    }
+                                }
+                            });
                 }
             };
     private ConnectionStatus preConnectionStatus;
@@ -343,7 +379,7 @@ public class ConversationListViewModel extends AndroidViewModel
             new RongIMClient.ConversationStatusListener() {
                 @Override
                 public void onStatusChanged(ConversationStatus[] conversationStatus) {
-                    onConversationStatusChange(conversationStatus);
+                    mHandler.post(() -> onConversationStatusChange(conversationStatus));
                 }
             };
 
@@ -364,7 +400,7 @@ public class ConversationListViewModel extends AndroidViewModel
     public ConversationListViewModel(Application application) {
         super(application);
         mApplication = application;
-        HandlerThread workThread = new HandlerThread("Conversation_Thread");
+        workThread = new HandlerThread("Conversation_Thread");
         workThread.start();
         mHandler = new Handler(workThread.getLooper());
         mSupportedTypes =
@@ -502,7 +538,7 @@ public class ConversationListViewModel extends AndroidViewModel
                             }
                         }
                         sort();
-                        mConversationListLiveData.postValue(mUiConversationList);
+                        refreshConversationList();
                     }
                 });
     }
@@ -601,7 +637,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 }
                 MessageNotificationHelper.updateLevelMap(oldItem.mCore);
                 sort();
-                mConversationListLiveData.postValue(mUiConversationList);
+                refreshConversationList();
             } else {
                 getConversation(type, status.getTargetId());
             }
@@ -674,14 +710,23 @@ public class ConversationListViewModel extends AndroidViewModel
                                         return;
                                     }
                                 }
-                                if (Objects.equals(
-                                                conversation.getSentStatus(),
-                                                Message.SentStatus.FAILED)
-                                        && ResendManager.getInstance()
-                                                .needResend(conversation.getLatestMessageId())) {
-                                    conversation.setSentStatus(Message.SentStatus.SENDING);
-                                }
-                                updateByConversation(conversation);
+                                mHandler.post(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (Objects.equals(
+                                                                conversation.getSentStatus(),
+                                                                Message.SentStatus.FAILED)
+                                                        && ResendManager.getInstance()
+                                                                .needResend(
+                                                                        conversation
+                                                                                .getLatestMessageId())) {
+                                                    conversation.setSentStatus(
+                                                            Message.SentStatus.SENDING);
+                                                }
+                                                updateByConversation(conversation);
+                                            }
+                                        });
                             }
 
                             @Override
@@ -735,7 +780,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 }
             }
             sort();
-            mConversationListLiveData.postValue(mUiConversationList);
+            refreshConversationList();
         }
     }
 
@@ -758,6 +803,9 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     protected void onCleared() {
+        if (workThread != null) {
+            workThread.quit();
+        }
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
@@ -853,11 +901,33 @@ public class ConversationListViewModel extends AndroidViewModel
     }
 
     private void refreshConversationList() {
+        removeDupData();
         if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
             mConversationListLiveData.setValue(mUiConversationList);
         } else {
             mConversationListLiveData.postValue(mUiConversationList);
         }
+    }
+
+    // 刷新列表前先做去重操作
+    private void removeDupData() {
+        List<BaseUiConversation> dupList = new ArrayList<>();
+        HashSet<String> removeDupSet = new HashSet<>();
+        for (BaseUiConversation c : mUiConversationList) {
+            String key = c.getConversationKey();
+            if (!removeDupSet.contains(key)) {
+                removeDupSet.add(key);
+            } else {
+                dupList.add(c);
+            }
+        }
+        removeDupSet.clear();
+        if (!dupList.isEmpty()) {
+            for (BaseUiConversation c : dupList) {
+                mUiConversationList.remove(c);
+            }
+        }
+        dupList.clear();
     }
 
     @Override
@@ -925,6 +995,7 @@ public class ConversationListViewModel extends AndroidViewModel
         final boolean isLoadMore;
         private final boolean isEventManual;
         private final long mDelayTime;
+        private final long session;
 
         ConversationListResultCallback(
                 ConversationListViewModel viewModel,
@@ -935,12 +1006,25 @@ public class ConversationListViewModel extends AndroidViewModel
             this.isLoadMore = isLoadMore;
             this.isEventManual = isEventManual;
             this.mDelayTime = delayTime;
+            session = System.currentTimeMillis();
+            RLog.e(
+                    viewModelRef.get().TAG,
+                    "session:"
+                            + session
+                            + " ,loadMore:"
+                            + isLoadMore
+                            + " ,manual:"
+                            + isEventManual
+                            + " ,delay:"
+                            + mDelayTime);
         }
 
         @Override
         public void onSuccess(List<Conversation> conversations) {
             if (viewModelRef.get() != null) {
                 viewModelRef.get().doUpdate(conversations, isLoadMore, isEventManual, mDelayTime);
+                String log = createLogMsgFromConversationList(conversations);
+                RLog.e(viewModelRef.get().TAG, "session:" + session + " ,data:" + log);
             }
         }
 
@@ -949,6 +1033,18 @@ public class ConversationListViewModel extends AndroidViewModel
             if (viewModelRef.get() != null) {
                 viewModelRef.get().sendRefreshEvent(isEventManual, isLoadMore);
             }
+        }
+
+        private String createLogMsgFromConversationList(List<Conversation> conversationListList) {
+            StringBuilder sb = new StringBuilder();
+            for (Conversation c : conversationListList) {
+                sb.append("{")
+                        .append(c.getConversationType().getValue())
+                        .append(",")
+                        .append(c.getTargetId())
+                        .append("};");
+            }
+            return sb.toString();
         }
     }
 }
