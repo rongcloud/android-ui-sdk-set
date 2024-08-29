@@ -274,20 +274,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                         messageId,
                         IMAGE_MESSAGE_COUNT,
                         direction,
-                        new RongIMClient.ResultCallback<List<Message>>() {
-                            @Override
-                            public void onSuccess(List<Message> messages) {
-                                mImageAdapter.addData(
-                                        convertToImageInfo(messages, direction),
-                                        direction.equals(
-                                                RongCommonDefine.GetMessageDirection.FRONT));
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode e) {
-                                // do nothing
-                            }
-                        });
+                        new PicturePagerResultCallback(this, direction));
     }
 
     // 消息列表转换为 ImageInfo 列表
@@ -827,6 +814,7 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                     });
             holder.photoView.setVisibility(View.INVISIBLE);
         }
+
         // Glide以File形式加载图片
         private void loadImageFileResource(
                 Object model, final ViewHolder holder, final ImageInfo imageInfo) {
@@ -955,5 +943,31 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         public void setDownload(boolean download) {
             this.download = download;
         }
+    }
+
+    private static class PicturePagerResultCallback
+            extends RongIMClient.ResultCallback<List<Message>> {
+
+        WeakReference<PicturePagerActivity> activityWeakReference;
+        RongCommonDefine.GetMessageDirection direction;
+
+        public PicturePagerResultCallback(
+                PicturePagerActivity activity, RongCommonDefine.GetMessageDirection direction) {
+            activityWeakReference = new WeakReference<>(activity);
+            this.direction = direction;
+        }
+
+        @Override
+        public void onSuccess(List<Message> messages) {
+            PicturePagerActivity activity = activityWeakReference.get();
+            if (activity != null) {
+                activity.mImageAdapter.addData(
+                        activity.convertToImageInfo(messages, direction),
+                        direction.equals(RongCommonDefine.GetMessageDirection.FRONT));
+            }
+        }
+
+        @Override
+        public void onError(RongIMClient.ErrorCode e) {}
     }
 }

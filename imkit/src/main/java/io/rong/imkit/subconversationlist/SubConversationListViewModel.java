@@ -65,7 +65,7 @@ class SubConversationListViewModel extends ConversationListViewModel {
             final boolean loadMore, final boolean isEventManual, long delayTime) {
         long timestamp = 0;
         if (loadMore) {
-            timestamp = mLastSyncTime;
+            mSizePerPage += mPageLimit;
         }
         ConversationListResultCallback callback =
                 new ConversationListResultCallback(this, loadMore, isEventManual);
@@ -112,7 +112,7 @@ class SubConversationListViewModel extends ConversationListViewModel {
                 }
             }
             sort();
-            mConversationListLiveData.postValue(mUiConversationList);
+            refreshConversationList();
         }
     }
 
@@ -139,6 +139,13 @@ class SubConversationListViewModel extends ConversationListViewModel {
                 RLog.d(TAG, "viewModelRef is null.");
                 return;
             }
+            if (loadMore) {
+                if (conversations != null) {
+                    viewModel.mSizePerPage += conversations.size();
+                }
+            } else {
+                viewModel.mUiConversationList.clear();
+            }
             if (isEventManual) {
                 if (loadMore) {
                     ((MutableLiveData<Event.RefreshEvent>) viewModel.getRefreshEventLiveData())
@@ -152,8 +159,6 @@ class SubConversationListViewModel extends ConversationListViewModel {
                 return;
             }
             RLog.d(TAG, "getConversationListByPage. size:" + conversations.size());
-            viewModel.mLastSyncTime = conversations.get(conversations.size() - 1).getSentTime();
-
             for (Conversation conversation : conversations) {
                 BaseUiConversation oldItem =
                         viewModel.findConversationFromList(
@@ -189,7 +194,7 @@ class SubConversationListViewModel extends ConversationListViewModel {
                 }
             }
             viewModel.sort();
-            viewModel.mConversationListLiveData.postValue(viewModel.mUiConversationList);
+            viewModel.refreshConversationList();
         }
 
         @Override

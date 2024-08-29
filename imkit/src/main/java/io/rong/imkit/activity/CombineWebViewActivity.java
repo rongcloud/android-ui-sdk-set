@@ -264,6 +264,9 @@ public class CombineWebViewActivity extends RongBaseActivity {
     }
 
     private void replacePortraitUrl(String url) {
+        if (!TextUtils.isEmpty(url) && (!url.startsWith("file://"))) {
+            url = "file://" + url;
+        }
         mWebView.loadUrl(url);
     }
 

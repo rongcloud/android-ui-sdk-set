@@ -1659,15 +1659,16 @@ public class IMCenter {
      * @param conversationIdentifier 会话标识。
      * @param isTop 是否置顶。
      * @param needCreate 会话不存在时，是否创建会话。
+     * @param needUpdateTime 是否更新操作时间。
      * @param callback 设置置顶或取消置顶是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
      * @discussion 5.6.8 版本开始废弃该接口，使用 {@link #setConversationToTop(ConversationIdentifier, boolean,
      *     RongIMClient.ResultCallback)} 替换。
      */
-    @Deprecated
     public void setConversationToTop(
             final ConversationIdentifier conversationIdentifier,
             final boolean isTop,
             final boolean needCreate,
+            final boolean needUpdateTime,
             final RongIMClient.ResultCallback<Boolean> callback) {
         if (conversationIdentifier == null) {
             RLog.e(TAG, "setConversationToTop conversationIdentifier is null");
@@ -1683,6 +1684,7 @@ public class IMCenter {
                         conversationIdentifier.getChannelId(),
                         isTop,
                         needCreate,
+                        needUpdateTime,
                         new IRongCoreCallback.ResultCallback<Boolean>() {
                             @Override
                             public void onSuccess(Boolean bool) {
@@ -1713,6 +1715,26 @@ public class IMCenter {
                                     callback.onError(RongIMClient.ErrorCode.valueOf(e.code));
                             }
                         });
+    }
+
+    /**
+     * 设置某一会话为置顶或者取消置顶，回调方式获取设置是否成功。
+     *
+     * @param conversationIdentifier 会话标识。
+     * @param isTop 是否置顶。
+     * @param needCreate 会话不存在时，是否创建会话。
+     * @param callback 设置置顶或取消置顶是否成功的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @discussion 5.6.8 版本开始废弃该接口，使用 {@link #setConversationToTop(ConversationIdentifier, boolean,
+     *     RongIMClient.ResultCallback)} 替换。
+     */
+    @Deprecated
+    public void setConversationToTop(
+            final ConversationIdentifier conversationIdentifier,
+            final boolean isTop,
+            final boolean needCreate,
+            final RongIMClient.ResultCallback<Boolean> callback) {
+        IMCenter.getInstance()
+                .setConversationToTop(conversationIdentifier, isTop, needCreate, false, callback);
     }
 
     /**
