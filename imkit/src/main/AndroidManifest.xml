@@ -2,8 +2,8 @@
     package="io.rong.imkit">
     <!-- 访问相册，访问文件系统等 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name = "android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <!-- 拍照 -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- 拍照等 -->
@@ -16,8 +16,28 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!-- 录音权限，语音消息使用   -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
     <application android:supportsRtl="true">
+        <activity
+            android:name=".usermanage.friend.my.profile.MyProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".usermanage.friend.add.AddFriendListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".usermanage.friend.user.profile.UserProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".usermanage.friend.apply.ApplyFriendListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".usermanage.friend.my.gender.UpdateGenderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".usermanage.friend.my.nikename.UpdateNickNameActivity"
+            android:exported="false" />
         <activity
             android:name="io.rong.imkit.conversationlist.RongConversationListActivity"
             android:screenOrientation="portrait" />
@@ -31,7 +51,7 @@
         <activity
             android:name=".feature.mention.MentionMemberSelectActivity"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
 
         <activity
             android:name=".activity.RongWebviewActivity"
@@ -59,7 +79,7 @@
         <activity
             android:name=".activity.ForwardSelectConversationActivity"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
 
         <activity
             android:name=".activity.CombineWebViewActivity"
@@ -108,6 +128,61 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".picture.PictureVideoPlayActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.friend.select.FriendSelectActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.create.GroupCreateActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.profile.GroupProfileActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.add.AddGroupMembersActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.remove.RemoveGroupMembersActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.nickname.GroupNicknameActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.notice.GroupNoticeActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.memberlist.GroupMemberListActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.friend.friendlist.FriendListActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.friend.search.FriendSearchActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".usermanage.group.name.GroupNameActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait" />
         <!--end图库配置项-->

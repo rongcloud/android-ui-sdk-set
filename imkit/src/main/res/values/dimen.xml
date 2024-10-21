@@ -105,4 +105,5 @@
     <dimen name="rc_ext_more_imgage_width">30dp</dimen>
     <dimen name="rc_ext_more_imgage_height">30dp</dimen>
 
+    <dimen name="common_dialog_button_height">44dp</dimen>
 </resources>

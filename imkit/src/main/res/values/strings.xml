@@ -202,7 +202,7 @@
     <string name="rc_ext_common_phrase">常用语</string>
 
     //@ 功能
-    <string name="rc_mention_title_choose_members">选择联系人</string>
+    <string name="rc_mention_title_choose_members">选择好友</string>
 
     //通知
     <string name="rc_notification_channel_name">新消息</string>
@@ -348,7 +348,7 @@
     <string name="rc_reference_file">[文件]</string>
     <string name="rc_search_file_prefix">[文件]&#160;</string>
     <string name="rc_message_unknown">当前版本暂不支持查看此消息</string>
-    <string name="rc_choose_members">选择联系人</string>
+    <string name="rc_choose_members">选择好友</string>
 
 
     <string name="rc_ac_file_download_preview">文件预览</string>
@@ -524,4 +524,107 @@
 
     <string name="rc_translate_failed_try_again">翻译失败，请重试</string>
     <string name="rc_translate_message">翻译消息</string>
+
+    <string name="rc_user_info">个人信息</string>
+    <string name="rc_new_friends">新的好友</string>
+    <string name="rc_head">头像</string>
+    <string name="rc_app">应用号</string>
+    <string name="rc_email">Email</string>
+    <string name="rc_gender">性别</string>
+    <string name="rc_gender_man">男</string>
+    <string name="rc_gender_female">女</string>
+
+    // 群组功能
+    <string name="rc_create_group">创建群组</string>
+    <string name="rc_group_name_hint">填写群名称</string>
+    <string name="rc_input_length_invalid">长度为 1-64 个字符</string>
+    <string name="rc_create_group_failure">创建群组失败</string>
+
+    <string name="rc_group_info">群组信息(%d)</string>
+    <string name="rc_group_members_label">群成员(%d)</string>
+    <string name="rc_group_avatar">群组头像</string>
+    <string name="rc_group_name">群名称</string>
+    <string name="rc_group_announcement">群公告</string>
+    <string name="rc_my_nickname_in_group">我在本群的昵称</string>
+    <string name="rc_dissolve_group">解散群组</string>
+
+    <string name="rc_remove_member">移除成员</string>
+
+    <string name="rc_nickname_label">昵称</string>
+    <string name="rc_nickname_hint">请输入昵称</string>
+    <string name="rc_nickname_description">设置在当前群组中的用户名，其他群成员都可以看见</string>
+
+    <string name="rc_group_notice_hint">请输入群公告</string>
+
+    <string name="rc_friends">好友</string>
+    <string name="rc_search_friends">搜索好友</string>
+    <string name="rc_leave_group">退出群组</string>
+
+    <string name="rc_admin">管理员</string>
+    <string name="rc_group_owner">群主</string>
+
+    <string name="rc_profile_add_friend_hint">加好友信息...</string>
+
+    <string name="rc_empty_notice">该群还未添加公告信息</string>
+    <string name="rc_edit_permission">只有群主及管理员可以编辑</string>
+
+    <string name="rc_user_profile">用户详情</string>
+    <string name="rc_gender_edit">性别修改</string>
+    <string name="rc_set_remark_name">设置备注名</string>
+    <string name="rc_set_nick_name">昵称更改</string>
+
+    <string name="rc_delete_friend_success">删除好友成功</string>
+    <string name="rc_delete_friend_failed">删除好友失败</string>
+    <string name="rc_group_dismiss_success">解散群组成功</string>
+    <string name="rc_group_dismiss_failed">解散群组失败</string>
+    <string name="rc_group_quit_success">退出群组成功</string>
+    <string name="rc_group_quit_failed">退出群组失败</string>
+    <string name="rc_set_success">设置成功</string>
+    <string name="rc_set_failed">设置失败</string>
+    <string name="rc_group_members_kick_success">移除群成员成功</string>
+    <string name="rc_group_members_kick_failed">移除群成员失败</string>
+    <string name="rc_invite_join_group_success">邀请加入群组成功</string>
+    <string name="rc_invite_join_group_failed">邀请加入群组失败</string>
+
+    <string name="rc_group_notice_success">群公告发布成功</string>
+    <string name="rc_group_notice_failed">群公告发布失败</string>
+
+    <string name="rc_no_friend_added">还未添加好友</string>
+    <string name="rc_group_name_cannot_be_empty">群组名称不能为空</string>
+    <string name="rc_no_permission_to_modify_group_info">没有修改群信息权限</string>
+    <string name="rc_max_group_members_selection">最多可选择%d个群成员</string>
+
+    <string name="rc_add_friend">添加好友</string>
+    <string name="rc_add_as_friend">加为好友</string>
+    <string name="rc_user_does_not_exist">该用户不存在</string>
+    <string name="rc_reject_request">拒绝请求</string>
+    <string name="rc_reject_success">拒绝成功</string>
+    <string name="rc_passed">已通过</string>
+    <string name="rc_reject">拒绝</string>
+    <string name="rc_accept">接受</string>
+    <string name="rc_friend_nickname_hint">请添加备注名</string>
+    <string name="rc_remark">备注</string>
+    <string name="rc_unknow_type">未知</string>
+    <string name="rc_start_chat">发起聊天</string>
+    <string name="rc_start_audio">语音通话</string>
+    <string name="rc_start_video">视频聊天</string>
+    <string name="rc_delete_friend">删除好友</string>
+    <string name="rc_add_friend_hint">请输入添加理由（可选）</string>
+    <string name="rc_send_apply_success">好友请求已发送</string>
+    <string name="rc_send_apply_fail">好友请求发送失败</string>
+    <string name="rc_delete_friend_title">确认删除此好友</string>
+    <string name="rc_just_now">刚刚</string>
+    <string name="rc_within_three_days">三天内</string>
+    <string name="rc_three_days_ago">三天前</string>
+
+    <string name="rc_rejected">已拒绝</string>
+    <string name="rc_expired">已过期</string>
+    <string name="rc_added">已添加</string>
+    <string name="rc_waiting">等待验证</string>
+    <string name="rc_app_id">用户应用号</string>
+    <string name="rc_expand">展开</string>
+    <string name="rc_all_friend_request">全部好友请求</string>
+    <string name="rc_my_received_request">我接收的好友请求</string>
+    <string name="rc_my_sent_request">我发送的好友请求</string>
+    <string name="rc_request_add_friend">请求添加好友</string>
 </resources>

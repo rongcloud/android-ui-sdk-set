@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <io.rong.imkit.usermanage.component.HeadComponent
+        android:id="@+id/rc_head_component"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_title_bar_height"
+        app:head_title_text="@string/rc_user_profile" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/user_info_container"
+        android:layout_width="match_parent"
+        android:layout_height="82dp"
+        android:layout_marginTop="12dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/user_portrait"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginStart="15dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@color/app_color_black" />
+
+        <TextView
+            android:id="@+id/tv_display_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="17dp"
+            android:ellipsize="end"
+            android:maxLength="16"
+            android:maxLines="1"
+            android:textColor="#111f2c"
+            android:textSize="17dp"
+            app:layout_constraintBottom_toTopOf="@id/tv_nickname"
+            app:layout_constraintStart_toEndOf="@id/user_portrait"
+            app:layout_constraintTop_toTopOf="@id/user_portrait"
+            tools:text="ABC" />
+
+        <TextView
+            android:id="@+id/tv_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#a0a5ab"
+            android:textSize="11dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/user_portrait"
+            app:layout_constraintStart_toStartOf="@id/tv_display_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_display_name"
+            tools:text="aaaaaaaaaaaaaaaaa" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_friend_actions"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/nickname_container"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="#ffffff"
+            android:paddingStart="@dimen/rc_margin_size_15">
+
+            <TextView
+                android:id="@+id/remark_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rc_remark"
+                android:textColor="#111f2c"
+                android:textSize="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/icon_arrow"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="15dp"
+                android:src="@drawable/rc_right_arrow"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="#e3e5e6"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/remark_label" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/btn_start_chat"
+            android:layout_marginTop="80dp"
+            style="@style/rc_profile_user_detail_btn"
+            android:background="@drawable/rc_profile_btn_contact_blue_selector"
+            android:text="@string/rc_start_chat"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/btn_start_audio"
+            style="@style/rc_profile_user_detail_btn"
+            android:background="@drawable/rc_profile_btn_contact_white_selector"
+            android:text="@string/rc_start_audio"
+            android:visibility="gone"
+            android:textColor="#111f2c" />
+
+        <Button
+            android:id="@+id/btn_start_video"
+            style="@style/rc_profile_user_detail_btn"
+            android:background="@drawable/rc_profile_btn_contact_white_selector"
+            android:text="@string/rc_start_video"
+            android:visibility="gone"
+            android:textColor="#111f2c" />
+
+        <Button
+            android:id="@+id/btn_delete_user"
+            style="@style/rc_profile_user_detail_btn"
+            android:background="@drawable/rc_profile_btn_contact_white_selector"
+            android:text="@string/rc_delete_friend"
+            android:textColor="#ff0000" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_no_friend_actions"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btn_add_friend"
+            android:layout_marginTop="80dp"
+            style="@style/rc_profile_user_detail_btn"
+            android:background="@drawable/rc_profile_btn_contact_blue_selector"
+            android:text="@string/rc_add_as_friend"
+            android:textColor="#ffffff" />
+    </LinearLayout>
+</LinearLayout>

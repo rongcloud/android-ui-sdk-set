@@ -515,5 +515,102 @@
     <string name="srl_content_empty">" طريقة عرض المحتوى في SmartRefreshLayout فارغة. هل نسيت إضافته في ملف تخطيط xml؟ "</string>
 
 
+    // 群组功能
+    <string name="rc_create_group"> أنشأ %d المجموعة</string>
+    <string name="rc_group_name_hint">املأ اسم المجموعة</string>
+    <string name="rc_input_length_invalid">الطول من 1 إلى 64 حرفًا.</string>
+    <string name="rc_create_group_failure">فشل إنشاء المجموعة</string>
 
+    <string name="rc_group_info">معلومات المجموعة</string>
+    <string name="rc_group_members_label">أعضاء المجموعة(%d)</string>
+    <string name="rc_group_avatar">صورة جماعية</string>
+    <string name="rc_group_name">اسم المجموعة</string>
+    <string name="rc_group_announcement">إنشاء إشعار</string>
+    <string name="rc_my_nickname_in_group">الاسم المستعار الخاص بي في المجموعة</string>
+    <string name="rc_dissolve_group">رفض المجموعة</string>
+
+    <string name="rc_remove_member">إزالة العضو</string>
+
+    <string name="rc_nickname_label">كنية</string>
+    <string name="rc_nickname_hint">يرجى إدخال اللقب</string>
+    <string name="rc_nickname_description">يمكن لأعضاء المجموعة الآخرين رؤية اسم المستخدم الذي تم تعيينه في المجموعة الحالية.</string>
+
+    <string name="rc_group_notice_hint">أدخل محتوى الإشعار</string>
+
+    <string name="rc_friends">اتصالات</string>
+    <string name="rc_search_friends">بحث الاتصال</string>
+    <string name="rc_leave_group">الخروج من المجموعة</string>
+
+    <string name="rc_admin">مشرف</string>
+    <string name="rc_group_owner">مالك</string>
+
+    <string name="rc_empty_notice">لم تتم إضافة أي إعلانات إلى هذه المجموعة حتى الآن</string>
+    <string name="rc_edit_permission">يمكن فقط لمالكي المجموعة ومسؤوليها التعديل</string>
+
+    <string name="rc_user_profile">ملف تعريف المستخدم</string>
+    <string name="rc_gender_edit">تعديل الجنس</string>
+    <string name="rc_set_remark_name">تعيين اسم الملاحظة</string>
+    <string name="rc_set_nick_name">تغيير اللقب</string>
+
+    <string name="rc_delete_friend_success">تم حذف جهة الاتصال بنجاح</string>
+    <string name="rc_delete_friend_failed">فشل حذف جهة الاتصال</string>
+    <string name="rc_group_dismiss_success">تم حلها بنجاح</string>
+    <string name="rc_group_dismiss_failed">فشل الذوبان</string>
+    <string name="rc_group_quit_success">قم بالإنهاء بنجاح</string>
+    <string name="rc_group_quit_failed">فشل الإنهاء</string>
+    <string name="rc_set_success">تم الإعداد بنجاح</string>
+    <string name="rc_set_failed">فشل الإعداد</string>
+    <string name="rc_group_members_kick_success">تمت إزالة عضو المجموعة بنجاح</string>
+    <string name="rc_group_members_kick_failed">فشل حذف أعضاء المجموعة</string>
+    <string name="rc_invite_join_group_success">تمت الدعوة بنجاح للانضمام إلى المجموعة</string>
+    <string name="rc_invite_join_group_failed">فشلت الدعوة للانضمام إلى المجموعة</string>
+
+    <string name="rc_group_notice_success">تم النشر بنجاح</string>
+    <string name="rc_group_notice_failed">فشل النشر</string>
+
+    <string name="rc_no_friend_added">لم تتم إضافة أي جهة اتصال</string>
+    <string name="rc_group_name_cannot_be_empty">لا يمكن أن يكون اسم المجموعة فارغًا</string>
+    <string name="rc_no_permission_to_modify_group_info">لا يوجد إذن التحديث</string>
+    <string name="rc_max_group_members_selection">حدد ما يصل إلى %d من أعضاء المجموعة</string>
+
+    <string name="rc_user_info">معلومات شخصية</string>
+    <string name="rc_new_friends">صديق جديد</string>
+    <string name="rc_head">الصورة الرمزية</string>
+    <string name="rc_app">رقم التطبيق</string>
+    <string name="rc_email">البريد الإلكتروني</string>
+    <string name="rc_gender">الجنس</string>
+    <string name="rc_gender_man">ذكر</string>
+    <string name="rc_gender_female">أنثى</string>
+
+    <string name="rc_profile_add_friend_hint">إضافة معلومات الصديق...</string>
+    <string name="rc_add_friend">إضافة صديق</string>
+    <string name="rc_add_as_friend">أضف كصديق</string>
+    <string name="rc_user_does_not_exist">هذا المستخدم غير موجود</string>
+    <string name="rc_reject_request">رفض الطلب</string>
+    <string name="rc_reject_success">تم الرفض بنجاح</string>
+    <string name="rc_passed">موافق عليه</string>
+    <string name="rc_reject">رفض</string>
+    <string name="rc_accept">قبول</string>
+    <string name="rc_friend_nickname_hint">يرجى إضافة اسم ملاحظة</string>
+    <string name="rc_remark">اسم الملاحظة</string>
+    <string name="rc_unknow_type">غير معروف</string>
+    <string name="rc_start_chat">ابدأ الدردشة</string>
+    <string name="rc_start_audio">ابدأ مكالمة صوتية</string>
+    <string name="rc_start_video">ابدأ الدردشة بالفيديو</string>
+    <string name="rc_delete_friend">حذف جهة الاتصال</string>
+    <string name="rc_add_friend_hint">يرجى إدخال سبب الإضافة (اختياري)</string>
+    <string name="rc_send_apply_success">تم إرسال طلب الصداقة بنجاح</string>
+    <string name="rc_send_apply_fail">فشل في إرسال طلب الصداقة</string>
+    <string name="rc_delete_friend_title">تأكيد حذف جهة الاتصال هذه</string>
+
+    <string name="rc_just_now">الآن</string>
+    <string name="rc_within_three_days">في غضون ثلاثة أيام</string>
+    <string name="rc_three_days_ago">قبل ثلاثة أيام</string>
+
+    <string name="rc_rejected">تم الرفض</string>
+    <string name="rc_expired">انتهت الصلاحية</string>
+    <string name="rc_added">تمت الإضافة</string>
+    <string name="rc_waiting">في انتظار التحقق</string>
+    <string name="rc_app_id">معرف فريد</string>
+    <string name="rc_request_add_friend">طلب إضافتك كصديق</string>
 </resources>

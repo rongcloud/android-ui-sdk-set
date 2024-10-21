@@ -245,7 +245,7 @@
     <string name="rc_notification_voip_channel_name">VOIP</string>
 
     //@ 功能
-    <string name="rc_mention_title_choose_members">Select contacts</string>
+    <string name="rc_mention_title_choose_members">Select friends</string>
 
     //Custom Service
     <string name="rc_cs_evaluate">appraise</string>
@@ -518,4 +518,109 @@
     <string name="rc_translate_message">Translate Message</string>
     <string name="rc_recalled_message">Recalled a message</string>
 
+
+    <string name="rc_user_info">Profile</string>
+    <string name="rc_new_friends">New Friends</string>
+    <string name="rc_head">Avatar</string>
+    <string name="rc_app">Application Number</string>
+    <string name="rc_email">Email</string>
+    <string name="rc_gender">Gender</string>
+    <string name="rc_gender_man">Male</string>
+    <string name="rc_gender_female">Female</string>
+    // 群组功能
+    <string name="rc_create_group">Create Group</string>
+    <string name="rc_group_name_hint">Enter group name</string>
+    <string name="rc_input_length_invalid">Length must be between 1 and 64 characters</string>
+    <string name="rc_create_group_failure">Failed to create group</string>
+
+    <string name="rc_group_info">Group Info(%d)</string>
+    <string name="rc_group_members_label">Group Members(%d)</string>
+    <string name="rc_group_avatar">Group Avatar</string>
+    <string name="rc_group_name">Group Name</string>
+    <string name="rc_group_announcement">Group Announcement</string>
+    <string name="rc_my_nickname_in_group">My Nickname in Group</string>
+    <string name="rc_dissolve_group">Disband Group</string>
+
+    <string name="rc_remove_member">Remove Member</string>
+
+    <string name="rc_nickname_label">Nickname</string>
+    <string name="rc_nickname_hint">Please enter group name</string>
+    <string name="rc_nickname_description">The username set in the current group can be seen by other group members.</string>
+
+
+    <string name="rc_group_notice_hint">Please enter the content of announcement</string>
+
+    <string name="rc_friends">Friends</string>
+    <string name="rc_search_friends">Friend Searching</string>
+
+    <string name="rc_leave_group">Leave Group</string>
+
+    <string name="rc_admin">Admin</string>
+    <string name="rc_group_owner">Owner</string>
+
+    <string name="rc_empty_notice">No announcement has been added to this group</string>
+    <string name="rc_edit_permission">Only the group owner and administrators can edit</string>
+
+    <string name="rc_user_profile">User Profile</string>
+    <string name="rc_gender_edit">Edit Gender</string>
+    <string name="rc_set_remark_name">Set Remark</string>
+
+    <string name="rc_delete_friend_success">Friend deleted successfully</string>
+    <string name="rc_delete_friend_failed">Failed to delete friend</string>
+    <string name="rc_group_dismiss_success">Group disbanded successfully</string>
+    <string name="rc_group_dismiss_failed">Failed to disband group</string>
+    <string name="rc_group_quit_success">Quit group successfully</string>
+    <string name="rc_group_quit_failed">Failed to quit group</string>
+    <string name="rc_set_success">Settings updated successfully</string>
+    <string name="rc_set_failed">Failed to update settings</string>
+    <string name="rc_group_members_kick_success">Group member removed successfully</string>
+    <string name="rc_group_members_kick_failed">Failed to remove Group member</string>
+    <string name="rc_invite_join_group_success">Invitation to join the group was successful</string>
+    <string name="rc_invite_join_group_failed">Invitation to join the group failed</string>
+
+    <string name="rc_group_notice_success">Published successfully</string>
+    <string name="rc_group_notice_failed">Publishing failed</string>
+
+    <string name="rc_no_friend_added">No friends added yet</string>
+    <string name="rc_group_name_cannot_be_empty">Group name cannot be empty</string>
+    <string name="rc_no_permission_to_modify_group_info">No permission to modify group info</string>
+    <string name="rc_max_group_members_selection">You can select up to %d group members</string>
+
+
+    <string name="rc_profile_add_friend_hint">Add friends information...</string>
+    <string name="rc_set_nick_name">Change Nickname</string>
+    <string name="rc_add_friend">Add Friends</string>
+    <string name="rc_add_as_friend">Add Friends</string>
+    <string name="rc_user_does_not_exist">This user does not exist</string>
+    <string name="rc_reject_request">Reject Request</string>
+    <string name="rc_reject_success">Reject successful</string>
+    <string name="rc_passed">Added</string>
+    <string name="rc_reject">Decline</string>
+    <string name="rc_accept">Accept</string>
+    <string name="rc_friend_nickname_hint">Please enter remark</string>
+    <string name="rc_remark">Remark</string>
+    <string name="rc_unknow_type">Unknown</string>
+    <string name="rc_start_chat">Chat</string>
+    <string name="rc_start_audio">Audio Call</string>
+    <string name="rc_start_video">Video Chat</string>
+    <string name="rc_delete_friend">Delete Friend</string>
+    <string name="rc_add_friend_hint">Please enter a reason for adding (optional)</string>
+    <string name="rc_send_apply_success">Friend request sent successfully</string>
+    <string name="rc_send_apply_fail">Friend request failed to send</string>
+    <string name="rc_delete_friend_title">Confirm to delete this friend</string>
+
+    <string name="rc_just_now">Just Now</string>
+    <string name="rc_within_three_days">Within Three Days</string>
+    <string name="rc_three_days_ago">Three Days Ago</string>
+
+    <string name="rc_rejected">Declined</string>
+    <string name="rc_expired">Expired</string>
+    <string name="rc_added">Added</string>
+    <string name="rc_waiting">Pending</string>
+    <string name="rc_app_id">App ID</string>
+    <string name="rc_expand">Expand</string>
+    <string name="rc_all_friend_request">All friend requests</string>
+    <string name="rc_my_received_request">Friend requests received</string>
+    <string name="rc_my_sent_request">Friend request sent</string>
+    <string name="rc_request_add_friend">Request to be added as a friend</string>
 </resources>
