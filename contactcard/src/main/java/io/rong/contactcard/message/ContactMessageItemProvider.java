@@ -3,7 +3,6 @@ package io.rong.contactcard.message;
 import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +20,6 @@ import io.rong.contactcard.IContactCardInfoProvider;
 import io.rong.contactcard.R;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.RongIM;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ScreenUtils;
@@ -80,9 +78,7 @@ public class ContactMessageItemProvider extends BaseMessageItemProvider<ContactM
                 .into(imageView);
 
         if (!TextUtils.isEmpty(contactMessage.getName())) {
-            SpannableStringBuilder spannable = new SpannableStringBuilder(contactMessage.getName());
-            AndroidEmoji.ensure(spannable);
-            holder.setText(R.id.rc_name, spannable);
+            holder.setText(R.id.rc_name, contactMessage.getName());
         }
 
         IContactCardInfoProvider iContactCardInfoProvider =

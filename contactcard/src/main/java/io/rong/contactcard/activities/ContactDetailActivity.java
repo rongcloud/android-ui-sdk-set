@@ -25,7 +25,6 @@ import io.rong.contactcard.R;
 import io.rong.contactcard.message.ContactMessage;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -216,7 +215,7 @@ public class ContactDetailActivity extends RongBaseNoActionbarActivity
                             int start = mMessage.getSelectionStart();
                             int end = mMessage.getSelectionEnd();
                             mMessage.removeTextChangedListener(this);
-                            mMessage.setText(AndroidEmoji.ensure(s.toString()));
+                            mMessage.setText(s);
                             mMessage.addTextChangedListener(this);
                             mMessage.setSelection(start, end);
                         }

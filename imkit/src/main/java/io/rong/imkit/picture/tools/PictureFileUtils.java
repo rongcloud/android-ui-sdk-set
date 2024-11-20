@@ -1,5 +1,6 @@
 package io.rong.imkit.picture.tools;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
@@ -21,6 +22,8 @@ import io.rong.common.CursorUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
+import io.rong.imkit.picture.permissions.PermissionChecker;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -171,7 +174,15 @@ public class PictureFileUtils {
     public static String getDataColumn(
             Context context, Uri uri, String selection, String[] selectionArgs) {
         if (!PermissionCheckUtil.checkMediaStoragePermissions(context)) {
-            return "";
+            if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_UPSIDE_DOWN_CAKE) {
+                String[] subPermissions =
+                        new String[] {Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED};
+                if (!PermissionChecker.checkSelfPermission(context, subPermissions)) {
+                    return "";
+                }
+            } else {
+                return "";
+            }
         }
         Cursor cursor = null;
         final String column = "_data";

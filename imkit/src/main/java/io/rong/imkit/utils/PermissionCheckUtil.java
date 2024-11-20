@@ -303,6 +303,7 @@ public class PermissionCheckUtil {
                     .append(TextUtils.join(" ", permissionNameList))
                     .append(")")
                     .toString();
+
         } catch (Resources.NotFoundException e) {
             RLog.e(
                     TAG,

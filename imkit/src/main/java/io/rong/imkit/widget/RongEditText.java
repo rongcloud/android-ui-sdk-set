@@ -4,12 +4,12 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.widget.EditText;
+import androidx.appcompat.widget.AppCompatEditText;
 import java.util.ArrayList;
 import java.util.List;
 
 /** @author gusd @Date 2021/10/22 */
-public class RongEditText extends EditText {
+public class RongEditText extends AppCompatEditText {
 
     private List<TextWatcher> mTextWatcherList;
 

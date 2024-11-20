@@ -229,6 +229,31 @@ public class PictureSelectionModel {
     }
 
     /**
+     * Start to select media and wait for result.
+     *
+     * @param requestCode Identity of the request Activity or Fragment.
+     * @param isAll Require all picture or not.
+     */
+    public void forResult(int requestCode, boolean isAll) {
+        if (!DoubleUtils.isFastDoubleClick()) {
+            Activity activity = selector.getActivity();
+            if (activity == null || selectionConfig == null) {
+                return;
+            }
+            Intent intent = new Intent(activity, PictureSelectorActivity.class);
+            intent.putExtra("isAll", isAll);
+            Fragment fragment = selector.getFragment();
+            if (fragment != null) {
+                fragment.startActivityForResult(intent, requestCode);
+            } else {
+                activity.startActivityForResult(intent, requestCode);
+            }
+            activity.overridePendingTransition(
+                    R.anim.rc_picture_anim_enter, R.anim.rc_picture_anim_fade_in);
+        }
+    }
+
+    /**
      * # replace for setPictureWindowAnimationStyle(); Start to select media and wait for result.
      *
      * @param requestCode Identity of the request Activity or Fragment.

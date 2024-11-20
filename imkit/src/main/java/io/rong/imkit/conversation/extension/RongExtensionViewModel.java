@@ -7,14 +7,12 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
@@ -37,7 +35,6 @@ public class RongExtensionViewModel extends AndroidViewModel {
             new TextWatcher() {
                 private int start;
                 private int count;
-                private boolean isProcess;
 
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -46,9 +43,6 @@ public class RongExtensionViewModel extends AndroidViewModel {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if (isProcess) {
-                        return;
-                    }
                     this.start = start;
                     this.count = count;
 
@@ -97,24 +91,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
                 }
 
                 @Override
-                public void afterTextChanged(Editable s) {
-                    if (isProcess) {
-                        return;
-                    }
-                    int selectionStart = mEditText.getSelectionStart();
-                    if (AndroidEmoji.isEmoji(s.subSequence(start, start + count).toString())) {
-                        isProcess = true;
-                        // mEditText不替换为系统Unicode表情
-                        String replacedText =
-                                AndroidEmoji.replaceEmojiWithText(s.toString(), false);
-                        mEditText.setText(
-                                AndroidEmoji.ensure(replacedText), TextView.BufferType.SPANNABLE);
-                        mEditText.setSelection(
-                                Math.min(
-                                        mEditText.getText().length(), Math.max(0, selectionStart)));
-                        isProcess = false;
-                    }
-                }
+                public void afterTextChanged(Editable s) {}
             };
 
     public RongExtensionViewModel(@NonNull Application application) {
@@ -157,12 +134,6 @@ public class RongExtensionViewModel extends AndroidViewModel {
             return;
         }
         mEditText.setText("");
-
-        // 准备发送前替换待发送文本的系统Unicode表情
-        if (AndroidEmoji.isEmoji(text)) {
-            String replacedText = AndroidEmoji.replaceEmojiWithText(text, true);
-            text = AndroidEmoji.ensure(replacedText).toString();
-        }
 
         TextMessage textMessage = TextMessage.obtain(text);
         if (DestructManager.isActive()) {

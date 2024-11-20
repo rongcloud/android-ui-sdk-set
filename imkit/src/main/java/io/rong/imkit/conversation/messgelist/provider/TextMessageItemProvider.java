@@ -17,7 +17,6 @@ import androidx.core.text.TextUtilsCompat;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RouteUtils;
@@ -245,7 +244,7 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
             if (content.length() > 100) {
                 content = content.substring(0, 100);
             }
-            return new SpannableString(AndroidEmoji.ensure(content));
+            return new SpannableString(content);
         } else {
             return new SpannableString("");
         }

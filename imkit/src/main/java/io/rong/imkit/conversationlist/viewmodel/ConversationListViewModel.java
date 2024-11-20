@@ -257,7 +257,7 @@ public class ConversationListViewModel extends AndroidViewModel
                                                 && type.equals(
                                                         Conversation.ConversationType.PRIVATE)
                                                 && oldItem.mCore.getSentTime()
-                                                        == ((ReadReceiptMessage)
+                                                        <= ((ReadReceiptMessage)
                                                                         message.getContent())
                                                                 .getLastMessageSendTime()) {
                                             oldItem.mCore.setSentStatus(Message.SentStatus.READ);

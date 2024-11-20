@@ -8,7 +8,6 @@ import android.text.style.URLSpan;
 import android.text.util.Linkify;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 
 /** 处理 textMessage 和 ReferenceMessage 的文本内容 */
 public class TextViewUtils {
@@ -38,13 +37,11 @@ public class TextViewUtils {
         }
         // 处理RTL
         String adapterContent = RTLUtils.adapterAitInRTL(content);
-        SpannableStringBuilder spannable = new SpannableStringBuilder(adapterContent);
-        final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
-        AndroidEmoji.ensure(emojiSpannable);
+        SpannableStringBuilder emojiSpannable = new SpannableStringBuilder(adapterContent);
         if (!regular) {
             return emojiSpannable;
         }
-        if (spannable.length() < CONTENT_LIMIT_LENGTH) {
+        if (emojiSpannable.length() < CONTENT_LIMIT_LENGTH) {
             regularContent(emojiSpannable);
         } else {
             final SpannableStringBuilder spannableStringBuilder =
@@ -73,15 +70,13 @@ public class TextViewUtils {
         if (content == null) {
             return new SpannableStringBuilder("");
         }
-        SpannableStringBuilder spannable = new SpannableStringBuilder(content);
-        final SpannableStringBuilder emojiSpannable = AndroidEmoji.replaceEmojiWithText(spannable);
+        SpannableStringBuilder emojiSpannable = new SpannableStringBuilder(content);
         emojiSpannable.setSpan(
                 new ForegroundColorSpan(foregroundColor),
                 0,
                 content.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        AndroidEmoji.ensure(emojiSpannable);
-        if (spannable.length() < CONTENT_LIMIT_LENGTH) {
+        if (emojiSpannable.length() < CONTENT_LIMIT_LENGTH) {
             regularContent(emojiSpannable);
         } else {
             ExecutorHelper.getInstance()

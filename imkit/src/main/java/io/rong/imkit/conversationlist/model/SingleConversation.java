@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.model.Conversation;
@@ -48,7 +47,6 @@ public class SingleConversation extends BaseUiConversation {
                 builder.append(summary);
             }
         }
-        AndroidEmoji.ensure(builder);
         mConversationContent = builder;
     }
 

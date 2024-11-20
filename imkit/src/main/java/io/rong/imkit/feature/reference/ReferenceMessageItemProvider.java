@@ -38,7 +38,6 @@ import io.rong.imkit.R;
 import io.rong.imkit.activity.FilePreviewActivity;
 import io.rong.imkit.activity.PicturePagerActivity;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ScreenUtils;
@@ -237,7 +236,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
 
     private SpannableStringBuilder createSpan(String content) {
         SpannableStringBuilder spannable = new SpannableStringBuilder(content);
-        AndroidEmoji.ensure(spannable);
         return spannable;
     }
 
@@ -515,7 +513,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                 0,
                 string.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        AndroidEmoji.ensure(ssb);
         holder.setText(R.id.rc_msg_tv_reference_file_name, ssb);
         holder.setOnClickListener(
                 R.id.rc_msg_tv_reference_file_name,

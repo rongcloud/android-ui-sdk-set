@@ -48,6 +48,7 @@ import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.StringUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.picture.widget.FolderPopWindow;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import java.io.File;
 import java.util.ArrayList;
@@ -207,6 +208,43 @@ public class PictureSelectorActivity extends PictureBaseActivity
 
     /** 加载数据 */
     private void loadAllMediaData() {
+        // 如果是Android 14， 判断两种情况
+        // 第一种：获取到所有权限：READ_MEDIA_IMAGES 和 READ_MEDIA_VIDEO
+        // 第二种：获取到部分权限：READ_MEDIA_VISUAL_USER_SELECTED
+        // 此两种都可以打开媒体库并发送媒体消息，不属于上述两种则弹出警示框
+        boolean isAll = true;
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            isAll = getIntent().getExtras().getBoolean("isAll");
+        }
+
+        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_UPSIDE_DOWN_CAKE) {
+            String[] allPermissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+            String[] subPermissions =
+                    new String[] {Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED};
+
+            if (isAll) {
+                if (PermissionChecker.checkSelfPermission(this, allPermissions)) {
+                    mHandler.sendEmptyMessage(SHOW_DIALOG);
+                    readLocalMedia();
+                } else {
+                    PermissionChecker.requestPermissions(
+                            this, allPermissions, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
+                }
+            } else {
+                if (PermissionChecker.checkSelfPermission(this, subPermissions)) {
+                    mHandler.sendEmptyMessage(SHOW_DIALOG);
+                    readLocalMedia();
+                } else {
+                    PermissionChecker.requestPermissions(
+                            this, subPermissions, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
+                }
+            }
+            return;
+        }
+
         String[] permissions = PermissionCheckUtil.getMediaStoragePermissions(this);
         if (PermissionChecker.checkSelfPermission(this, permissions)) {
             mHandler.sendEmptyMessage(SHOW_DIALOG);

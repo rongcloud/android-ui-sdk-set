@@ -12,7 +12,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -76,8 +75,6 @@ public class ReferenceView extends FrameLayout {
             } else {
                 ssb = new SpannableStringBuilder(StringUtils.getStringNoBlank(content.toString()));
             }
-
-            AndroidEmoji.ensure(ssb);
             mReferenceSenderName.setText(getDisplayName(uiMessage));
             mReferenceContent.setText(ssb);
         }
