@@ -24,10 +24,10 @@ import io.rong.imkit.usermanage.friend.user.profile.UserProfileActivity;
 import io.rong.imlib.model.FriendInfo;
 
 /**
- * 功能描述: 搜索联系人页面
+ * 好友搜索页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class FriendSearchFragment extends BaseViewModelFragment<FriendSearchViewModel> {
 

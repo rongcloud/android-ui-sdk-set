@@ -12,9 +12,10 @@ import io.rong.imkit.R;
 import io.rong.imkit.base.BaseActivity;
 
 /**
- * 搜索联系人页面
+ * 搜索好友页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class FriendSearchActivity extends BaseActivity {
 

@@ -20,7 +20,7 @@
 
     <!-- groupnotificationmessage -->
     <string name="rc_item_divided_string">、</string>
-    <string name="rc_item_invitation">has invited</string>
+    <string name="rc_item_invitation"> has invited</string>
     <string name="rc_item_you">you</string>
     <string name="rc_item_you_invitation">You have invited</string>
     <string name="rc_item_you_remove_self">You have removed by</string>
@@ -529,7 +529,7 @@
     <string name="rc_gender_female">Female</string>
     // 群组功能
     <string name="rc_create_group">Create Group</string>
-    <string name="rc_group_name_hint">Enter group name</string>
+    <string name="rc_group_name_hint">Please enter group name</string>
     <string name="rc_input_length_invalid">Length must be between 1 and 64 characters</string>
     <string name="rc_create_group_failure">Failed to create group</string>
 
@@ -559,7 +559,7 @@
     <string name="rc_group_owner">Owner</string>
 
     <string name="rc_empty_notice">No announcement has been added to this group</string>
-    <string name="rc_edit_permission">Only the group owner and administrators can edit</string>
+    <string name="rc_edit_permission">Only the group owner and admins can edit</string>
 
     <string name="rc_user_profile">User Profile</string>
     <string name="rc_gender_edit">Edit Gender</string>
@@ -623,4 +623,73 @@
     <string name="rc_my_received_request">Friend requests received</string>
     <string name="rc_my_sent_request">Friend request sent</string>
     <string name="rc_request_add_friend">Request to be added as a friend</string>
+
+    <!--5.12.2-->
+    <string name="rc_add_success">Added</string>
+    <string name="rc_add_failed">Add failed</string>
+    <string name="rc_remove_success">Removed</string>
+    <string name="rc_remove_failed">Remove failed</string>
+    <string name="rc_group_transfer_success">Transfer success</string>
+    <string name="rc_group_transfer_failed">Transfer failed</string>
+    <string name="rc_invite_confirm_failed">Confirm invitation failed</string>
+    <string name="rc_invite_reject_failed">Decline invitation failed</string>
+
+    <string name="rc_group_permission_owner_only">Group owner</string>
+    <string name="rc_group_permission_owner_and_admins">Group owner or admins</string>
+    <string name="rc_group_permission_all">All staff</string>
+    <string name="rc_group_edit_permission_owner_only">Group owner</string>
+    <string name="rc_invite_join_group_send">The invitation has been sent and the invited user needs to agree to join the group</string>
+    <string name="rc_invite_join_group_send_need_manange">Invitation sent, admin approval required to join group</string>
+
+    <string name="rc_group_transfer_hint">%1$s will be the group owner</string>
+    <string name="rc_remove_manager_hint">Are you sure you want to remove %1$s from the admin list?</string>
+    <string name="rc_add_manager_hint">Are you sure you want to set %@ as admin?</string>
+    <string name="rc_remove_follow_hint">After removal, \'%1$s\' will not send you a reminder</string>
+    <string name="rc_publish_announcement_hint">This announcement will notify all group members, will it be released?</string>
+
+    <string name="rc_group_title">Group Name</string>
+    <string name="rc_group_remark">Group Chat Notes</string>
+    <string name="rc_group_member_remark">Group remarks</string>
+    <string name="rc_group_note_hint">Please enter the group remarks</string>
+    <string name="rc_group_nickname">Nickname in Group</string>
+    <string name="rc_group_notification">Group notification</string>
+    <string name="rc_group_name_edit">Update Group Name</string>
+    <string name="rc_group_no_special_attention">No special attention</string>
+    <string name="rc_no_data">No data</string>
+
+    <string name="rc_group_management">Group Management</string>
+    <string name="rc_group_follows">Special Attention</string>
+    <string name="rc_group_managers">Group Admins</string>
+    <string name="rc_group_add_manager">Add Admins</string>
+    <string name="rc_group_add_member">Add Members</string>
+    <string name="rc_group_select_member">Select Group Members</string>
+    <string name="rc_group_edit_info_permission">Who can edit group info</string>
+    <string name="rc_group_add_member_permission">Who can add members</string>
+    <string name="rc_group_remove_member_permission">Who can remove members</string>
+    <string name="rc_group_edit_member_info_permission">Who can edit members\' info</string>
+    <string name="rc_group_invitation_confirmation">Group Chat Invitation Confirmation</string>
+    <string name="rc_group_transfer">Transfer Group</string>
+    <string name="rc_group_transfer_title">Transfer of The Group</string>
+
+    <string name="rc_joined">Joined</string>
+    <string name="rc_invitee_pending">Invited person to be processed</string>
+    <string name="rc_manager_pending">Admin pending processing</string>
+    <string name="rc_manager_rejected">Refused by admin</string>
+    <string name="rc_invitee_rejected">The invitee has declined</string>
+
+    <string name="rc_my_groups">My group</string>
+    <string name="rc_all_requests">All requests</string>
+    <string name="rc_pending_confirmation">Pending approval</string>
+    <string name="rc_completed">Processed</string>
+    <string name="rc_group_application_sent">You apply to join</string>
+    <string name="rc_group_invitation_sent">You invite %1$s to join</string>
+    <string name="rc_group_invitation_received_inviter">%1$s invite you to join</string>
+    <string name="rc_group_application_received_invitation">%1$s invite %2$s to join</string>
+    <string name="rc_group_application_received_request">%1$s wants to join </string>
+    <string name="rc_user_not_found">User not found</string>
+
+    <string name="rc_chat_pin">Sticky on Top</string>
+    <string name="rc_notification_mute">Mute Notifications</string>
+    <string name="rc_remove">Remove</string>
+    <!--5.12.2-->
 </resources>

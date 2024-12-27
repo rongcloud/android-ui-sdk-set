@@ -22,10 +22,10 @@ import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.UserProfile;
 
 /**
- * 功能描述: 创建群组页面
+ * 添加好友列表页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class AddFriendListFragment extends BaseViewModelFragment<AddFriendListViewModel> {
     protected SearchComponent searchComponent;

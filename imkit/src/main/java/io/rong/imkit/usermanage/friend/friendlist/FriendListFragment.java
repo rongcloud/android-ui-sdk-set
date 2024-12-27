@@ -20,10 +20,10 @@ import io.rong.imkit.usermanage.friend.user.profile.UserProfileActivity;
 import io.rong.imlib.model.FriendInfo;
 
 /**
- * 功能描述: 联系人页面
+ * 好友列表页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class FriendListFragment extends BaseViewModelFragment<FriendListViewModel> {
 
@@ -74,7 +74,7 @@ public class FriendListFragment extends BaseViewModelFragment<FriendListViewMode
                             }
                         });
         // 设置联系人列表点击事件
-        contactListComponent.setOnContactClickListener(
+        contactListComponent.setOnItemClickListener(
                 contactModel -> {
                     if (contactModel != null && contactModel.getBean() instanceof FriendInfo) {
                         FriendInfo friendInfo = (FriendInfo) contactModel.getBean();

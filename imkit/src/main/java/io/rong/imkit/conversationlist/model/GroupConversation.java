@@ -140,23 +140,24 @@ public class GroupConversation extends BaseUiConversation {
     public void onConversationUpdate(Conversation conversation) {
         processResending(conversation);
         mCore = conversation;
-        io.rong.imlib.model.Group group =
-                RongUserInfoManager.getInstance()
-                        .getGroupInfo(conversation.getTargetId() + conversation.getChannelId());
+        String groupId = conversation.getTargetId();
+        if (conversation.getConversationType() == Conversation.ConversationType.ULTRA_GROUP) {
+            groupId = conversation.getTargetId() + conversation.getChannelId();
+        }
+        io.rong.imlib.model.Group group = RongUserInfoManager.getInstance().getGroupInfo(groupId);
         if (group != null) {
             RLog.d(TAG, "onConversationUpdate. name:" + group.getName());
         } else {
             RLog.d(TAG, "onConversationUpdate. group info is null");
         }
-        mCore.setConversationTitle(group == null ? conversation.getTargetId() : group.getName());
+        mCore.setConversationTitle(group == null ? "" : group.getName());
         mCore.setPortraitUrl(
                 group == null || group.getPortraitUri() == null
                         ? ""
                         : group.getPortraitUri().toString());
         GroupUserInfo groupUserInfo =
                 RongUserInfoManager.getInstance()
-                        .getGroupUserInfo(
-                                conversation.getTargetId(), conversation.getSenderUserId());
+                        .getGroupUserInfo(groupId, conversation.getSenderUserId());
         UserInfo userInfo =
                 RongUserInfoManager.getInstance().getUserInfo(conversation.getSenderUserId());
         if (groupUserInfo != null) {

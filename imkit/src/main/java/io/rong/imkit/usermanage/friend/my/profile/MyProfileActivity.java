@@ -11,7 +11,12 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseActivity;
 
-/** @author rongcloud */
+/**
+ * 我的资料页面
+ *
+ * @author rongcloud
+ * @since 5.12.0
+ */
 public class MyProfileActivity extends BaseActivity {
 
     private Fragment fragment;

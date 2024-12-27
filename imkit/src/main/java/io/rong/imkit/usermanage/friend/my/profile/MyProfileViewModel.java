@@ -9,10 +9,10 @@ import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imlib.model.UserProfile;
 
 /**
- * 功能描述:
+ * 我的资料页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class MyProfileViewModel extends BaseViewModel {
 

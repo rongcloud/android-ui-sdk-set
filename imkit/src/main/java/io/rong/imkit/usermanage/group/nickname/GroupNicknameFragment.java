@@ -3,6 +3,7 @@ package io.rong.imkit.usermanage.group.nickname;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,14 +17,15 @@ import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.HeadComponent;
+import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.model.GroupMemberInfo;
 
 /**
- * 功能描述: 创建增加群联系人页面
+ * 修改群昵称页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupNicknameFragment extends BaseViewModelFragment<GroupNicknameViewModel> {
 
@@ -52,6 +54,10 @@ public class GroupNicknameFragment extends BaseViewModelFragment<GroupNicknameVi
 
     @Override
     protected void onViewReady(@NonNull GroupNicknameViewModel viewModel) {
+        String title = getArguments().getString(KitConstants.KEY_TITLE, "");
+        if (!TextUtils.isEmpty(title)) {
+            headComponent.setTitleText(title);
+        }
         headComponent.setLeftClickListener(v -> finishActivity());
         headComponent.setRightClickListener(
                 v -> {

@@ -12,9 +12,10 @@ import io.rong.imkit.R;
 import io.rong.imkit.base.BaseActivity;
 
 /**
- * 创建群组页面
+ * 添加好友列表页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class AddFriendListActivity extends BaseActivity {
 

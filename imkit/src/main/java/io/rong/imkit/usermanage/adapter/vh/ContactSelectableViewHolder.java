@@ -10,7 +10,7 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.ContactModel;
-import io.rong.imkit.usermanage.interfaces.OnContactClickListener;
+import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
@@ -27,52 +27,77 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
     private final TextView rightText;
     private final ImageView contactPortraitImageView;
     private final ImageView contactSelectImageView;
-    private final OnContactClickListener listener;
     private final ImageView rightArrow;
+    private final TextView tvRemove;
     private final boolean showSelectButton;
     private final boolean showItemRightArrow;
     private final boolean showItemRightText;
     private final boolean showItemSelectAutoUpdate;
+    private final boolean showItemRemoveButton;
     private ContactModel<FriendInfo> data;
 
     public ContactSelectableViewHolder(
             @NonNull View itemView,
-            OnContactClickListener listener,
+            OnActionClickListener<ContactModel> onItemClickListener,
+            OnActionClickListener<ContactModel> onItemRemoveClickListener,
             boolean showSelectButton,
             boolean showItemRightArrow,
             boolean showItemRightText,
-            boolean showItemSelectAutoUpdate) {
+            boolean showItemSelectAutoUpdate,
+            boolean showItemRemoveButton) {
         super(itemView);
-        this.listener = listener;
         contactPortraitImageView = itemView.findViewById(R.id.iv_contact_portrait);
         contactNameTextView = itemView.findViewById(R.id.tv_contact_name);
         rightText = itemView.findViewById(R.id.tv_right_text);
         contactSelectImageView = itemView.findViewById(R.id.iv_contact_select);
         rightArrow = itemView.findViewById(R.id.iv_right_arrow);
+        tvRemove = itemView.findViewById(R.id.tv_remove);
+
         this.showSelectButton = showSelectButton;
         this.showItemRightArrow = showItemRightArrow;
         this.showItemRightText = showItemRightText;
         this.showItemSelectAutoUpdate = showItemSelectAutoUpdate;
+        this.showItemRemoveButton = showItemRemoveButton;
 
         itemView.setOnClickListener(
                 v -> {
                     if (data != null) {
                         // 更新选中状态(选中/未选中)
                         if (showSelectButton && showItemSelectAutoUpdate) {
-                            ContactModel.CheckType checkType = data.getCheckType();
-                            if (checkType == ContactModel.CheckType.CHECKED
-                                    || checkType == ContactModel.CheckType.UNCHECKED) {
-                                checkType =
-                                        (checkType == ContactModel.CheckType.CHECKED)
-                                                ? ContactModel.CheckType.UNCHECKED
-                                                : ContactModel.CheckType.CHECKED;
-                                // 更新视图
-                                updateCheck(contactSelectImageView, checkType);
-                            }
+                            updateCheckType();
                         }
-                        listener.onContactClick(data);
+                        if (onItemClickListener != null) {
+                            onItemClickListener.onActionClickWithConfirm(
+                                    data,
+                                    (OnActionClickListener.OnConfirmClickListener<Boolean>)
+                                            isUpdate -> {
+                                                if (showSelectButton && isUpdate) {
+                                                    updateCheckType();
+                                                }
+                                            });
+                        }
                     }
                 });
+
+        tvRemove.setOnClickListener(
+                v -> {
+                    if (onItemRemoveClickListener != null) {
+                        onItemRemoveClickListener.onActionClick(data);
+                    }
+                });
+    }
+
+    private void updateCheckType() {
+        ContactModel.CheckType checkType = data.getCheckType();
+        if (checkType == ContactModel.CheckType.CHECKED
+                || checkType == ContactModel.CheckType.UNCHECKED) {
+            checkType =
+                    (checkType == ContactModel.CheckType.CHECKED)
+                            ? ContactModel.CheckType.UNCHECKED
+                            : ContactModel.CheckType.CHECKED;
+            // 更新视图
+            updateCheck(contactSelectImageView, checkType);
+        }
     }
 
     public void bind(ContactModel contactModel) {
@@ -112,7 +137,7 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
             roleText = getRoleText(groupMemberInfo.getRole(), rightText);
             RongConfigCenter.featureConfig()
                     .getKitImageEngine()
-                    .loadGroupPortrait(
+                    .loadUserPortrait(
                             contactPortraitImageView.getContext(),
                             portraitUrl,
                             contactPortraitImageView);
@@ -129,6 +154,13 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         }
 
         rightArrow.setVisibility(showItemRightArrow ? View.VISIBLE : View.GONE);
+        tvRemove.setVisibility(showItemRemoveButton ? View.VISIBLE : View.GONE);
+    }
+
+    public void setShowItemRemoveButton(boolean isShow) {
+        if (tvRemove != null) {
+            tvRemove.setVisibility(isShow ? View.VISIBLE : View.GONE);
+        }
     }
 
     private static class FriendsInfoCallback

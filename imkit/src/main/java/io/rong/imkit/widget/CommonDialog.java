@@ -239,7 +239,7 @@ public class CommonDialog extends DialogFragment {
     public interface OnDialogButtonClickListener {
         void onPositiveClick(View v, Bundle bundle);
 
-        void onNegativeClick(View v, Bundle bundle);
+        default void onNegativeClick(View v, Bundle bundle) {}
     }
 
     /** 集成 CommonDialog 的子类， 需要继承此类， 并要复写 getCurrentDialog 方法，返回子类的dialog 对象 */

@@ -10,10 +10,10 @@ import io.rong.imkit.usermanage.handler.FriendInfoHandler;
 import io.rong.imlib.model.UserProfile;
 
 /**
- * 功能描述: 创建群组ViewModel
+ * 添加好友列表页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class AddFriendListViewModel extends BaseViewModel {
     private final MutableLiveData<UserProfile> userProfileLiveData = new MutableLiveData<>();

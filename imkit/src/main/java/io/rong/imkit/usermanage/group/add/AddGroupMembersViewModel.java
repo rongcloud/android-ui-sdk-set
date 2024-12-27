@@ -24,6 +24,7 @@ import io.rong.imlib.model.QueryFriendsDirectionType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -31,14 +32,12 @@ import java.util.Set;
  * 功能描述: 创建增加群联系人 ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class AddGroupMembersViewModel extends BaseViewModel {
 
-    private final MutableLiveData<List<ContactModel>> friendInfoListLiveData =
-            new MutableLiveData<>();
     private final MutableLiveData<List<ContactModel>> filteredContactsLiveData =
-            new MutableLiveData<>();
+            new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<ContactModel>> selectedContactsLiveData =
             new MutableLiveData<>(new ArrayList<>());
     private final Set<String> existingGroupMemberIds = new HashSet<>();
@@ -48,11 +47,21 @@ public class AddGroupMembersViewModel extends BaseViewModel {
     protected final GroupOperationsHandler groupOperationsHandler;
 
     private boolean isJoining = false;
+    private final String groupId;
 
     public AddGroupMembersViewModel(@NonNull Bundle arguments) {
         super(arguments);
         ConversationIdentifier conversationIdentifier =
                 arguments.getParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER);
+        groupId = conversationIdentifier.getTargetId();
+
+        friendInfoHandler = new FriendInfoHandler();
+        groupOperationsHandler = new GroupOperationsHandler(conversationIdentifier);
+
+        friendInfoHandler.addDataChangeListener(
+                FriendInfoHandler.KEY_SEARCH_FRIENDS,
+                friendInfos ->
+                        filteredContactsLiveData.postValue(sortAndCategorizeContacts(friendInfos)));
 
         // Initialize GroupDetailHandler to fetch group members
         groupMembersFullHandler = new GroupMembersFullHandler(conversationIdentifier);
@@ -71,54 +80,6 @@ public class AddGroupMembersViewModel extends BaseViewModel {
                     }
                 });
         groupMembersFullHandler.getAllGroupMembersByRole(GroupMemberRole.Undef);
-
-        friendInfoHandler = new FriendInfoHandler();
-        groupOperationsHandler = new GroupOperationsHandler(conversationIdentifier);
-    }
-
-    /**
-     * 加入群组
-     *
-     * @param onDataChangeListener 数据变化监听器
-     */
-    public void joinUsersToGroup(@NonNull OnDataChangeListener<Boolean> onDataChangeListener) {
-        if (isJoining) {
-            return; // 如果正在执行加入操作，直接返回
-        }
-
-        List<ContactModel> selectedList = selectedContactsLiveData.getValue();
-        if (selectedList == null || selectedList.isEmpty()) {
-            return;
-        }
-        List<String> userIds = new ArrayList<>();
-        for (ContactModel contact : selectedList) {
-            if (contact.getBean() instanceof FriendInfo) {
-                FriendInfo friendInfo = (FriendInfo) contact.getBean();
-                if (friendInfo != null) {
-                    userIds.add(friendInfo.getUserId());
-                }
-            }
-        }
-
-        isJoining = true;
-        groupOperationsHandler.replaceDataChangeListener(
-                GroupOperationsHandler.KEY_INVITE_USERS_TO_GROUP,
-                new OnDataChangeListener<Boolean>() {
-                    @Override
-                    public void onDataChange(Boolean isSuccess) {
-                        isJoining = false; // 处理完成后解除锁定
-                        onDataChangeListener.onDataChange(isSuccess);
-                    }
-
-                    @Override
-                    public void onDataError(
-                            IRongCoreEnum.CoreErrorCode errorCode, String errorMsg) {
-                        isJoining = false; // 错误时也解除锁定
-                        onDataChangeListener.onDataError(errorCode, errorMsg);
-                    }
-                });
-
-        groupOperationsHandler.inviteUsersToGroup(userIds);
     }
 
     private void fetchAndFilterFriendInfo() {
@@ -128,11 +89,137 @@ public class AddGroupMembersViewModel extends BaseViewModel {
                     @Override
                     public void onDataChange(List<FriendInfo> friendInfos) {
                         List<ContactModel> contactModels = sortAndCategorizeContacts(friendInfos);
-                        friendInfoListLiveData.postValue(contactModels);
                         filteredContactsLiveData.postValue(contactModels); // 初始状态下，展示所有联系人
                     }
                 });
         friendInfoHandler.getFriends(QueryFriendsDirectionType.Both);
+    }
+
+    /**
+     * 加入群组
+     *
+     * @param onDataChangeListener 数据变化监听器
+     * @since 5.12.2
+     */
+    public void inviteUsersToGroup(
+            @NonNull OnDataChangeListener<IRongCoreEnum.CoreErrorCode> onDataChangeListener) {
+        if (isJoining) {
+            return; // 如果正在执行加入操作，直接返回
+        }
+
+        List<String> userIds = getSelectUserIds();
+        if (userIds.isEmpty()) {
+            return;
+        }
+        isJoining = true;
+        groupOperationsHandler.replaceDataChangeListener(
+                GroupOperationsHandler.KEY_INVITE_USERS_TO_GROUP,
+                new OnDataChangeListener<IRongCoreEnum.CoreErrorCode>() {
+                    @Override
+                    public void onDataChange(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                        isJoining = false; // 处理完成后解除锁定
+                        onDataChangeListener.onDataChange(coreErrorCode);
+                    }
+
+                    @Override
+                    public void onDataError(
+                            IRongCoreEnum.CoreErrorCode errorCode, String errorMsg) {
+                        isJoining = false; // 错误时也解除锁定
+                        onDataChangeListener.onDataChange(errorCode);
+                        onDataChangeListener.onDataError(errorCode, errorMsg);
+                    }
+                });
+
+        groupOperationsHandler.inviteUsersToGroup(userIds);
+    }
+
+    /** @since 5.12.2 */
+    public LiveData<List<ContactModel>> getFilteredContactsLiveData() {
+        return filteredContactsLiveData;
+    }
+
+    /** @since 5.12.2 */
+    public LiveData<List<ContactModel>> getSelectedContactsLiveData() {
+        return selectedContactsLiveData;
+    }
+
+    /**
+     * 更新联系人状态
+     *
+     * @param updatedContact 更新后的联系人
+     */
+    public void updateContact(ContactModel updatedContact) {
+        List<ContactModel> selectedList = new ArrayList<>(selectedContactsLiveData.getValue());
+
+        // 使用迭代器检查并移除或添加元素
+        Iterator<ContactModel> iterator = selectedList.iterator();
+        boolean found = false;
+
+        while (iterator.hasNext()) {
+            ContactModel contact = iterator.next();
+            if (contact.getBean() instanceof FriendInfo
+                    && updatedContact.getBean() instanceof FriendInfo) {
+                FriendInfo friendInfo = (FriendInfo) contact.getBean();
+                FriendInfo updatedFriendInfo = (FriendInfo) updatedContact.getBean();
+                if (friendInfo.getUserId().equals(updatedFriendInfo.getUserId())) {
+                    found = true;
+                    if (updatedContact.getCheckType() == ContactModel.CheckType.UNCHECKED) {
+                        iterator.remove(); // 未选中时移除
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (!found && updatedContact.getCheckType() == ContactModel.CheckType.CHECKED) {
+            // 未找到且选中时，添加
+            selectedList.add(updatedContact);
+        }
+
+        // 更新 LiveData
+        selectedContactsLiveData.postValue(selectedList);
+    }
+
+    /**
+     * 查询联系人
+     *
+     * @param query 查询关键字
+     */
+    public void queryContacts(String query) {
+        if (TextUtils.isEmpty(query)) {
+            friendInfoHandler.getFriends(QueryFriendsDirectionType.Both);
+            return;
+        }
+        friendInfoHandler.searchFriendsInfo(query);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        friendInfoHandler.stop();
+        groupMembersFullHandler.stop();
+        groupOperationsHandler.stop();
+    }
+
+    List<String> getSelectUserIds() {
+        List<String> userIds = new ArrayList<>();
+        List<ContactModel> selectedList = selectedContactsLiveData.getValue();
+        if (selectedList == null || selectedList.isEmpty()) {
+            return userIds;
+        }
+        for (ContactModel contact : selectedList) {
+            if (contact.getBean() instanceof FriendInfo) {
+                FriendInfo friendInfo = (FriendInfo) contact.getBean();
+                if (friendInfo != null) {
+                    userIds.add(friendInfo.getUserId());
+                }
+            }
+        }
+        return userIds;
+    }
+
+    String getGroupId() {
+        return groupId;
     }
 
     private List<ContactModel> sortAndCategorizeContacts(List<FriendInfo> friendInfos) {
@@ -161,7 +248,7 @@ public class AddGroupMembersViewModel extends BaseViewModel {
 
         List<ContactModel> contactModels = new ArrayList<>();
         char lastCategory = '\0';
-
+        List<String> selectUserIds = getSelectUserIds();
         for (FriendInfo friendInfo : friendInfos) {
             String name = getValidName(friendInfo);
             char firstChar = StringUtils.getFirstChar(name.charAt(0));
@@ -176,10 +263,13 @@ public class AddGroupMembersViewModel extends BaseViewModel {
                 lastCategory = firstChar;
             }
 
-            ContactModel.CheckType checkType =
-                    existingGroupMemberIds.contains(friendInfo.getUserId())
-                            ? ContactModel.CheckType.DISABLE
-                            : ContactModel.CheckType.UNCHECKED;
+            ContactModel.CheckType checkType = ContactModel.CheckType.UNCHECKED;
+            if (selectUserIds.contains(friendInfo.getUserId())) {
+                checkType = ContactModel.CheckType.CHECKED;
+            }
+            if (existingGroupMemberIds.contains(friendInfo.getUserId())) {
+                checkType = ContactModel.CheckType.DISABLE;
+            }
 
             // 添加联系人 ContactModel
             contactModels.add(
@@ -189,87 +279,6 @@ public class AddGroupMembersViewModel extends BaseViewModel {
         return contactModels;
     }
 
-    public LiveData<List<ContactModel>> getFilteredContactsLiveData() {
-        return filteredContactsLiveData;
-    }
-
-    public LiveData<List<ContactModel>> getSelectedContactsLiveData() {
-        return selectedContactsLiveData;
-    }
-
-    /**
-     * 更新联系人状态
-     *
-     * @param updatedContact 更新后的联系人
-     */
-    public void updateContact(ContactModel updatedContact) {
-        List<ContactModel> allContacts = filteredContactsLiveData.getValue();
-        List<ContactModel> selectedList = selectedContactsLiveData.getValue();
-        if (allContacts == null || selectedList == null) {
-            return;
-        }
-
-        for (int i = 0; i < allContacts.size(); i++) {
-            ContactModel contact = allContacts.get(i);
-            if (contact.getBean() instanceof FriendInfo
-                    && updatedContact.getBean() instanceof FriendInfo) {
-                FriendInfo friendInfo = (FriendInfo) contact.getBean();
-                FriendInfo updatedFriendInfo = (FriendInfo) updatedContact.getBean();
-                if (friendInfo != null
-                        && friendInfo.getUserId().equals(updatedFriendInfo.getUserId())) {
-                    contact.setCheckType(updatedContact.getCheckType());
-
-                    if (updatedContact.getCheckType() == ContactModel.CheckType.CHECKED) {
-                        selectedList.add(updatedContact);
-                    } else {
-                        selectedList.remove(updatedContact);
-                    }
-
-                    selectedContactsLiveData.postValue(selectedList);
-                    break;
-                }
-            }
-        }
-
-        filteredContactsLiveData.postValue(allContacts);
-    }
-
-    /**
-     * 查询联系人
-     *
-     * @param query 查询关键字
-     */
-    public void queryContacts(String query) {
-        if (friendInfoListLiveData.getValue() == null || query == null) {
-            return;
-        }
-
-        query = query.toLowerCase();
-
-        List<ContactModel> allContacts = friendInfoListLiveData.getValue();
-        List<ContactModel> filteredList = new ArrayList<>();
-        ContactModel lastTitle = null;
-
-        for (ContactModel contact : allContacts) {
-            if (contact.getBean() instanceof FriendInfo) {
-                FriendInfo friendInfo = (FriendInfo) contact.getBean();
-                if (friendInfo != null && friendInfo.getName().toLowerCase().contains(query)) {
-                    // 如果之前有记录的 Title 项，并且当前是 FriendInfo，保留 Title
-                    if (lastTitle != null) {
-                        filteredList.add(lastTitle);
-                        lastTitle = null;
-                    }
-                    filteredList.add(contact);
-                }
-            } else if (contact.getContactType() == ContactModel.ItemType.TITLE) {
-                // 如果是 Title 项，先记录下来，待后续判断是否保留
-                lastTitle = contact;
-            }
-        }
-
-        filteredContactsLiveData.postValue(filteredList);
-    }
-
     private String getValidName(FriendInfo friendInfo) {
         // 返回有效的名称，优先使用备注，其次是姓名，最后使用 "#" 作为占位符
         String name =
@@ -277,13 +286,5 @@ public class AddGroupMembersViewModel extends BaseViewModel {
                         ? friendInfo.getRemark()
                         : friendInfo.getName();
         return !TextUtils.isEmpty(name) ? name : "#";
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        friendInfoHandler.stop();
-        groupMembersFullHandler.stop();
-        groupOperationsHandler.stop();
     }
 }

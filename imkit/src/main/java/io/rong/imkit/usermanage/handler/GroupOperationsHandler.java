@@ -1,6 +1,7 @@
 package io.rong.imkit.usermanage.handler;
 
 import androidx.annotation.NonNull;
+import io.rong.imkit.IMCenter;
 import io.rong.imkit.base.MultiDataHandler;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -13,7 +14,10 @@ import java.util.List;
 /**
  * 群组操作
  *
+ * <p>注意：使用完毕后需要调用 {@link #stop()} 方法释放资源
+ *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class GroupOperationsHandler extends MultiDataHandler {
 
@@ -22,8 +26,8 @@ public class GroupOperationsHandler extends MultiDataHandler {
             DataKey.obtain("KEY_CREATE_GROUP", IRongCoreEnum.CoreErrorCode.class);
 
     /** 用于标识邀请用户加入群组的操作 */
-    public static final DataKey<Boolean> KEY_INVITE_USERS_TO_GROUP =
-            DataKey.obtain("KEY_INVITE_USERS_TO_GROUP", Boolean.class);
+    public static final DataKey<IRongCoreEnum.CoreErrorCode> KEY_INVITE_USERS_TO_GROUP =
+            DataKey.obtain("KEY_INVITE_USERS_TO_GROUP", IRongCoreEnum.CoreErrorCode.class);
 
     /** 用于标识踢出群成员的操作 */
     public static final DataKey<Boolean> KEY_KICK_GROUP_MEMBERS =
@@ -47,6 +51,26 @@ public class GroupOperationsHandler extends MultiDataHandler {
     /** 用于标识设置群备注的操作 */
     public static final DataKey<Boolean> KEY_SET_GROUP_REMARK =
             DataKey.obtain("KEY_SET_GROUP_REMARK", Boolean.class);
+
+    /** 用于添加特别关注群成员 */
+    public static final DataKey<Boolean> KEY_ADD_GROUP_FOLLOWS =
+            DataKey.obtain("KEY_ADD_GROUP_FOLLOWS", Boolean.class);
+
+    /** 用于移除特别关注群成员 */
+    public static final DataKey<Boolean> KEY_REMOVE_GROUP_FOLLOWS =
+            DataKey.obtain("KEY_REMOVE_GROUP_FOLLOWS", Boolean.class);
+
+    /** 用于群转让的操作 */
+    public static final DataKey<Boolean> KEY_TRANSFER_GROUP_OWNER =
+            DataKey.obtain("KEY_TRANSFER_GROUP_OWNER", Boolean.class);
+
+    /** 用于添加群管理员的操作 */
+    public static final DataKey<Boolean> KEY_ADD_GROUP_MANAGERS =
+            DataKey.obtain("KEY_ADD_GROUP_MANAGERS", Boolean.class);
+
+    /** 用于移除群管理员的操作 */
+    public static final DataKey<Boolean> KEY_REMOVE_GROUP_MANAGERS =
+            DataKey.obtain("KEY_REMOVE_GROUP_MANAGERS", Boolean.class);
 
     private final String groupId;
 
@@ -92,12 +116,11 @@ public class GroupOperationsHandler extends MultiDataHandler {
                         new IRongCoreCallback.ResultCallback<IRongCoreEnum.CoreErrorCode>() {
                             @Override
                             public void onSuccess(IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                notifyDataChange(KEY_INVITE_USERS_TO_GROUP, true);
+                                notifyDataChange(KEY_INVITE_USERS_TO_GROUP, coreErrorCode);
                             }
 
                             @Override
                             public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                notifyDataChange(KEY_INVITE_USERS_TO_GROUP, false);
                                 notifyDataError(KEY_INVITE_USERS_TO_GROUP, e);
                             }
                         });
@@ -135,7 +158,7 @@ public class GroupOperationsHandler extends MultiDataHandler {
      * @param groupInfo 群组信息
      */
     public void updateGroupInfo(@NonNull GroupInfo groupInfo) {
-        RongCoreClient.getInstance()
+        IMCenter.getInstance()
                 .updateGroupInfo(
                         groupInfo,
                         new IRongCoreCallback.OperationCallbackEx<String>() {
@@ -161,7 +184,7 @@ public class GroupOperationsHandler extends MultiDataHandler {
      * @param extra 扩展信息
      */
     public void setGroupMemberInfo(String userId, String nickname, String extra) {
-        RongCoreClient.getInstance()
+        IMCenter.getInstance()
                 .setGroupMemberInfo(
                         groupId,
                         userId,
@@ -187,7 +210,7 @@ public class GroupOperationsHandler extends MultiDataHandler {
      * @param remark 群备注
      */
     public void setGroupRemark(final String remark) {
-        RongCoreClient.getInstance()
+        IMCenter.getInstance()
                 .setGroupRemark(
                         groupId,
                         remark,
@@ -244,6 +267,136 @@ public class GroupOperationsHandler extends MultiDataHandler {
                             public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
                                 notifyDataChange(KEY_DISMISS_GROUP, false);
                                 notifyDataError(KEY_DISMISS_GROUP, coreErrorCode);
+                            }
+                        });
+    }
+
+    /**
+     * 添加群关注人员
+     *
+     * @param userIds 用户ID列表
+     * @since 5.12.2
+     */
+    public void addGroupFollows(List<String> userIds) {
+        RongCoreClient.getInstance()
+                .addGroupFollows(
+                        groupId,
+                        userIds,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                notifyDataChange(KEY_ADD_GROUP_FOLLOWS, true);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                notifyDataChange(KEY_ADD_GROUP_FOLLOWS, false);
+                                notifyDataError(KEY_ADD_GROUP_FOLLOWS, coreErrorCode);
+                            }
+                        });
+    }
+
+    /**
+     * 移除群关注人员
+     *
+     * @param userIds 用户ID列表
+     * @since 5.12.2
+     */
+    public void removeGroupFollows(List<String> userIds) {
+        RongCoreClient.getInstance()
+                .removeGroupFollows(
+                        groupId,
+                        userIds,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                notifyDataChange(KEY_REMOVE_GROUP_FOLLOWS, true);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                notifyDataChange(KEY_REMOVE_GROUP_FOLLOWS, false);
+                                notifyDataError(KEY_REMOVE_GROUP_FOLLOWS, coreErrorCode);
+                            }
+                        });
+    }
+
+    /**
+     * 转让群
+     *
+     * @param newOwnerId 新群主ID
+     * @param quitGroup 是否退出群组
+     * @param config 退出群组配置
+     * @since 5.12.2
+     */
+    public void transferGroupOwner(
+            final String newOwnerId, final boolean quitGroup, final QuitGroupConfig config) {
+        RongCoreClient.getInstance()
+                .transferGroupOwner(
+                        groupId,
+                        newOwnerId,
+                        quitGroup,
+                        config,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                notifyDataChange(KEY_TRANSFER_GROUP_OWNER, true);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                notifyDataChange(KEY_TRANSFER_GROUP_OWNER, false);
+                                notifyDataError(KEY_TRANSFER_GROUP_OWNER, coreErrorCode);
+                            }
+                        });
+    }
+
+    /**
+     * 添加群管理员
+     *
+     * @param userIds 用户ID列表
+     * @since 5.12.2
+     */
+    public void addGroupManagers(List<String> userIds) {
+        RongCoreClient.getInstance()
+                .addGroupManagers(
+                        groupId,
+                        userIds,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                notifyDataChange(KEY_ADD_GROUP_MANAGERS, true);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                notifyDataChange(KEY_ADD_GROUP_MANAGERS, false);
+                                notifyDataError(KEY_ADD_GROUP_MANAGERS, coreErrorCode);
+                            }
+                        });
+    }
+
+    /**
+     * 移除群管理员
+     *
+     * @param userIds 用户ID列表
+     * @since 5.12.2
+     */
+    public void removeGroupManagers(List<String> userIds) {
+        RongCoreClient.getInstance()
+                .removeGroupManagers(
+                        groupId,
+                        userIds,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                notifyDataChange(KEY_REMOVE_GROUP_MANAGERS, true);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                notifyDataChange(KEY_REMOVE_GROUP_MANAGERS, false);
+                                notifyDataError(KEY_REMOVE_GROUP_MANAGERS, coreErrorCode);
                             }
                         });
     }

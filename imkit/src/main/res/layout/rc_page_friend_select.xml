@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -9,7 +10,7 @@
         android:id="@+id/rc_head_component"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_title_bar_height"
-        app:head_right_text="@string/rc_dialog_ok"
+        app:head_right_text="@string/rc_confirm"
         app:head_title_text="@string/rc_choose_members" />
 
     <io.rong.imkit.usermanage.component.SearchComponent
@@ -17,25 +18,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <io.rong.imkit.usermanage.component.ContactListComponent
-        android:id="@+id/rc_contact_list_component"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:show_divider="false"
-        android:visibility="gone"
-        app:show_item_select_icon="true"
-        app:show_side_bar="true" />
+        android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/tv_empty_contacts"
-        android:layout_width="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:layout_marginTop="180dp"
-        android:visibility="gone"
-        android:text="@string/rc_no_friend_added"
-        android:textColor="@color/rc_secondary_color"
-        android:textSize="17sp" />
+        <TextView
+            android:id="@+id/tv_empty_contacts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingBottom="@dimen/rc_margin_size_127"
+            android:text="@string/rc_user_not_found"
+            android:visibility="gone"
+            tools:visiblity="visible" />
+
+        <io.rong.imkit.usermanage.component.ContactListComponent
+            android:id="@+id/rc_contact_list_component"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:show_divider="false"
+            android:visibility="gone"
+            app:show_item_select_auto_update="false"
+            app:show_item_select_icon="true"
+            app:show_side_bar="true" />
+
+
+    </FrameLayout>
 
 </LinearLayout>

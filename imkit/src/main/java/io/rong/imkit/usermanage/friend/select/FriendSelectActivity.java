@@ -13,9 +13,10 @@ import io.rong.imkit.base.BaseActivity;
 import io.rong.imkit.utils.KitConstants;
 
 /**
- * 创建群组页面
+ * 选择好友页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class FriendSelectActivity extends BaseActivity {
 

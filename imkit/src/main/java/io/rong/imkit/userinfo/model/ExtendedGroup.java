@@ -3,6 +3,7 @@ package io.rong.imkit.userinfo.model;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.GroupInfo;
@@ -61,6 +62,14 @@ public class ExtendedGroup extends Group implements Parcelable {
      */
     public GroupInfo getGroupInfo() {
         return groupInfo;
+    }
+
+    @Override
+    public String getName() {
+        if (groupInfo != null && !TextUtils.isEmpty(groupInfo.getRemark())) {
+            return groupInfo.getRemark();
+        }
+        return super.getName();
     }
 
     /**

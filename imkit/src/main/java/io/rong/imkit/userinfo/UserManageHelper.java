@@ -10,6 +10,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.userinfo.model.ExtendedGroup;
 import io.rong.imkit.userinfo.model.ExtendedGroupUserInfo;
 import io.rong.imkit.userinfo.model.ExtendedUserInfo;
+import io.rong.imkit.usermanage.interfaces.OnGroupAndUserEventListener;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -108,19 +109,7 @@ class UserManageHelper {
                     @Override
                     public void onEventChange(List<SubscribeInfoEvent> subscribeEvents) {
                         for (SubscribeInfoEvent subscribeInfoEvent : subscribeEvents) {
-                            String userId = subscribeInfoEvent.getUserId();
-                            ExtendedUserInfo originExtendedUserInfo =
-                                    extendedUserInfoCache.get(userId);
-                            if (originExtendedUserInfo != null
-                                    && userId != null
-                                    && subscribeInfoEvent.getUserProfile() != null) {
-                                ExtendedUserInfo extendedUserInfo =
-                                        ExtendedUserInfo.obtain(
-                                                subscribeInfoEvent.getUserProfile());
-                                extendedUserInfo.setAlias(originExtendedUserInfo.getAlias());
-                                extendedUserInfoCache.put(userId, extendedUserInfo);
-                                notifyUserChange(extendedUserInfo);
-                            }
+                            refreshUserInfoInner(subscribeInfoEvent.getUserId());
                         }
                     }
 
@@ -142,6 +131,7 @@ class UserManageHelper {
                             List<GroupMemberInfo> memberInfos,
                             long operationTime) {
                         // 处理群组操作
+                        refreshGroupInfoInner(groupId);
                     }
 
                     @Override
@@ -150,13 +140,8 @@ class UserManageHelper {
                             GroupInfo groupInfo,
                             List<GroupInfoKeys> updateKeys,
                             long operationTime) {
-                        GroupInfo cacheGroupInfo = groupInfoCache.get(groupInfo.getGroupId());
-                        if (cacheGroupInfo != null
-                                && Objects.equals(
-                                        cacheGroupInfo.getGroupId(), groupInfo.getGroupId())
-                                && groupInfo != null) {
-                            groupInfoCache.put(groupInfo.getGroupId(), groupInfo);
-                            notifyGroupChange(groupInfo);
+                        if (groupInfo != null) {
+                            refreshGroupInfoInner(groupInfo.getGroupId());
                         }
                     }
 
@@ -167,18 +152,7 @@ class UserManageHelper {
                             GroupMemberInfo memberInfo,
                             long operationTime) {
                         if (memberInfo != null) {
-                            GroupMemberInfo groupMemberInfo =
-                                    groupMemberInfoCache.get(
-                                            generateGroupMemberKey(
-                                                    groupId, memberInfo.getUserId()));
-                            if (groupMemberInfo != null
-                                    && Objects.equals(
-                                            groupMemberInfo.getUserId(), memberInfo.getUserId())) {
-                                groupMemberInfoCache.put(
-                                        generateGroupMemberKey(groupId, memberInfo.getUserId()),
-                                        memberInfo);
-                                notifyGroupMemberChange(groupId, memberInfo);
-                            }
+                            refreshGroupMemberInfoInner(groupId, memberInfo);
                         }
                     }
 
@@ -194,6 +168,7 @@ class UserManageHelper {
                             String groupRemark,
                             long operationTime) {
                         // 处理群组备注变更事件
+                        refreshGroupInfoInner(groupId);
                     }
 
                     @Override
@@ -218,13 +193,21 @@ class UserManageHelper {
                                     String userId,
                                     String userName,
                                     String portraitUri,
-                                    long operationTime) {}
+                                    long operationTime) {
+                                refreshUserInfoInner(userId);
+                            }
 
                             @Override
                             public void onFriendDelete(
                                     DirectionType directionType,
                                     List<String> userIds,
-                                    long operationTime) {}
+                                    long operationTime) {
+                                if (userIds != null) {
+                                    for (String userId : userIds) {
+                                        refreshUserInfoInner(userId);
+                                    }
+                                }
+                            }
 
                             @Override
                             public void onFriendApplicationStatusChanged(
@@ -245,16 +228,7 @@ class UserManageHelper {
                                     Map<String, String> extProfile,
                                     long operationTime) {
                                 // 遍历 userProfileCache ,找到 对应的 userId ,更新 remark
-                                for (Map.Entry<String, ExtendedUserInfo> entry :
-                                        extendedUserInfoCache.snapshot().entrySet()) {
-                                    ExtendedUserInfo extendedUserInfo = entry.getValue();
-                                    if (extendedUserInfo != null
-                                            && Objects.equals(
-                                                    extendedUserInfo.getUserId(), userId)) {
-                                        extendedUserInfo.setAlias(remark);
-                                        notifyUserChange(extendedUserInfo);
-                                    }
-                                }
+                                refreshUserInfoInner(userId);
                             }
                         });
 
@@ -278,6 +252,77 @@ class UserManageHelper {
                                 return false;
                             }
                         });
+        IMCenter.getInstance()
+                .addOnGroupAndUserEventListener(
+                        new OnGroupAndUserEventListener() {
+                            @Override
+                            public void updateGroupInfo(
+                                    GroupInfo groupInfo, IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS
+                                        && groupInfo != null) {
+                                    refreshGroupInfoInner(groupInfo.getGroupId());
+                                }
+                            }
+
+                            @Override
+                            public void setGroupMemberInfo(
+                                    String groupId,
+                                    String userId,
+                                    String nickname,
+                                    String extra,
+                                    IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+                                    refreshGroupMemberInfoInner(
+                                            groupId, new GroupMemberInfo(userId, nickname));
+                                }
+                            }
+
+                            @Override
+                            public void setGroupRemark(
+                                    String groupId,
+                                    String remark,
+                                    IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+                                    refreshGroupInfoInner(groupId);
+                                }
+                            }
+
+                            @Override
+                            public void updateMyUserProfile(
+                                    UserProfile userProfile,
+                                    IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS
+                                        && userProfile != null) {
+                                    refreshUserInfoInner(userProfile.getUserId());
+                                }
+                            }
+
+                            @Override
+                            public void setFriendInfo(
+                                    String userId,
+                                    String remark,
+                                    Map<String, String> extProfile,
+                                    IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+                                    refreshUserInfoInner(userId);
+                                }
+                            }
+                        });
+    }
+
+    private void refreshGroupMemberInfoInner(String groupId, GroupMemberInfo memberInfo) {
+        groupMemberInfoCache.remove(generateGroupMemberKey(groupId, memberInfo.getUserId()));
+        getGroupUserInfo(groupId, memberInfo.getUserId());
+    }
+
+    private void refreshGroupInfoInner(String groupId) {
+        groupInfoCache.remove(groupId);
+        getGroupInfo(groupId);
+    }
+
+    private void refreshUserInfoInner(String userId) {
+        extendedUserInfoCache.remove(userId);
+        getUserInfo(userId);
     }
 
     /**
@@ -574,7 +619,6 @@ class UserManageHelper {
      * @param extendedUserInfo 用户信息
      */
     void refreshUserInfoCache(@NonNull ExtendedUserInfo extendedUserInfo) {
-        extendedUserInfoCache.put(extendedUserInfo.getUserId(), extendedUserInfo);
         String currentUserId = RongCoreClient.getInstance().getCurrentUserId();
         if (Objects.equals(currentUserId, extendedUserInfo.getUserId())) {
             RongCoreClient.getInstance()
@@ -583,7 +627,7 @@ class UserManageHelper {
                             new IRongCoreCallback.UpdateUserProfileCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    notifyUserChange(extendedUserInfo);
+                                    refreshUserInfoInner(extendedUserInfo.getUserId());
                                 }
 
                                 @Override
@@ -600,7 +644,8 @@ class UserManageHelper {
                             new IRongCoreCallback.OperationCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    notifyUserChange(extendedUserInfo);
+                                    refreshUserInfoInner(
+                                            extendedUserInfo.getUserProfile().getUserId());
                                 }
 
                                 @Override
@@ -617,19 +662,24 @@ class UserManageHelper {
      * @param groupInfo 群组信息
      */
     void refreshGroupInfoCache(GroupInfo groupInfo) {
-        groupInfoCache.put(groupInfo.getGroupId(), groupInfo);
         RongCoreClient.getInstance()
                 .updateGroupInfo(
                         groupInfo,
                         new IRongCoreCallback.OperationCallbackEx<String>() {
                             @Override
                             public void onSuccess() {
-                                notifyGroupChange(groupInfo);
+                                if (groupInfo != null) {
+                                    refreshGroupInfoInner(groupInfo.getGroupId());
+                                }
                             }
 
                             @Override
                             public void onError(
-                                    IRongCoreEnum.CoreErrorCode errorCode, String errorData) {}
+                                    IRongCoreEnum.CoreErrorCode errorCode, String errorData) {
+                                if (groupInfo != null) {
+                                    refreshGroupInfoInner(groupInfo.getGroupId());
+                                }
+                            }
                         });
     }
 
@@ -640,8 +690,6 @@ class UserManageHelper {
      * @param groupMemberInfo 群组成员信息
      */
     void refreshGroupUserInfoCache(String groupId, GroupMemberInfo groupMemberInfo) {
-        String key = generateGroupMemberKey(groupId, groupMemberInfo.getUserId());
-        groupMemberInfoCache.put(key, groupMemberInfo);
         RongCoreClient.getInstance()
                 .setGroupMemberInfo(
                         groupId,
@@ -651,7 +699,7 @@ class UserManageHelper {
                         new IRongCoreCallback.OperationCallback() {
                             @Override
                             public void onSuccess() {
-                                notifyGroupMemberChange(groupId, groupMemberInfo);
+                                refreshGroupMemberInfoInner(groupId, groupMemberInfo);
                             }
 
                             @Override

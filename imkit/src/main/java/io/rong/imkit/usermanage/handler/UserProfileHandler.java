@@ -9,10 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 用户详情
+ * 用户信息处理类
+ *
+ * <p>注意：使用完毕后需要调用 {@link #stop()} 方法释放资源
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class UserProfileHandler extends MultiDataHandler {
 

@@ -8,10 +8,10 @@ import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.UserProfile;
 
 /**
- * 功能描述:
+ * 更新性别页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class UpdateGenderViewModel extends BaseViewModel {
     private final UserProfileOperationsHandler userProfileOperationsHandler;

@@ -18,6 +18,7 @@ import java.util.List;
  * 创建群组页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class GroupCreateActivity extends BaseActivity {
 

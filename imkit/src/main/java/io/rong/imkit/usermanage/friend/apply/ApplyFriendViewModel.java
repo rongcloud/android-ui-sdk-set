@@ -18,10 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 功能描述:
+ * 申请好友列表页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class ApplyFriendViewModel extends BaseViewModel {
     private final MutableLiveData<List<UiFriendApplicationInfo>> mLivedata =

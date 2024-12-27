@@ -9,20 +9,22 @@
         android:id="@+id/rc_head_component"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_title_bar_height"
-        app:head_right_text="@string/rc_dialog_ok"
-        app:head_title_text="@string/rc_group_name" />
+        app:head_right_text="@string/rc_confirm"
+        app:head_title_text="@string/rc_group_name_edit" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="@dimen/rc_margin_size_16"
         android:background="@android:color/white"
-        android:orientation="horizontal"
-        android:padding="16dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rc_nickname_label"
+            android:layout_marginStart="@dimen/rc_margin_size_12"
+            android:text="@string/rc_group_name"
             android:textSize="16sp" />
 
         <EditText
@@ -32,7 +34,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:background="@drawable/rc_ext_panel_editbox_background"
-            android:hint="@string/rc_nickname_hint"
+            android:gravity="center_vertical"
+            android:hint="@string/rc_group_name_hint"
             android:maxLength="64"
             android:textSize="16sp" />
     </LinearLayout>

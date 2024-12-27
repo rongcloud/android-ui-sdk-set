@@ -15,10 +15,9 @@ import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.widget.SettingItemView;
 
 /**
- * 功能描述:
- *
+ * @since 5.12.0
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class UpdateGenderFragment extends BaseViewModelFragment<UpdateGenderViewModel>
         implements View.OnClickListener {

@@ -7,37 +7,48 @@ import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.model.UiUserDetail;
 import io.rong.imkit.usermanage.handler.FriendInfoHandler;
+import io.rong.imkit.usermanage.handler.GroupInfoHandler;
 import io.rong.imkit.usermanage.handler.UserProfileHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.listener.FriendEventListener;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.DirectionType;
 import io.rong.imlib.model.FriendApplicationStatus;
 import io.rong.imlib.model.FriendApplicationType;
 import io.rong.imlib.model.FriendInfo;
 import io.rong.imlib.model.FriendRelationInfo;
 import io.rong.imlib.model.FriendRelationType;
+import io.rong.imlib.model.GroupInfo;
+import io.rong.imlib.model.GroupMemberInfo;
+import io.rong.imlib.model.GroupMemberInfoEditPermission;
+import io.rong.imlib.model.GroupMemberRole;
 import io.rong.imlib.model.UserProfile;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述:
+ * 用户资料页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class UserProfileViewModel extends BaseViewModel {
 
     private final MutableLiveData<UiUserDetail> mUserProfilesLiveData = new MutableLiveData<>();
     private final MutableLiveData<ContactModel> mContactModelLiveData = new MutableLiveData<>();
+    private final MutableLiveData<GroupMemberInfo> myGroupMemberInfoLiveData =
+            new MutableLiveData<>();
+    private final MutableLiveData<GroupInfo> groupInfoLiveData = new MutableLiveData<>();
+
     private final UserProfileHandler userProfileHandler;
     private final FriendInfoHandler friendInfoHandler;
-    private UiUserDetail uiUserDetail;
-    private String userId;
+    private GroupInfoHandler groupInfoHandler;
 
-    protected boolean checkFriend = true;
+    private final String userId;
+    private boolean checkFriend = true;
 
     private final FriendEventListener listener =
             new FriendEventListener() {
@@ -83,16 +94,45 @@ public class UserProfileViewModel extends BaseViewModel {
                 }
             };
 
-    public UserProfileViewModel(Bundle args) {
-        super(args);
-        this.userId = args.getString(KitConstants.KEY_USER_ID);
+    public UserProfileViewModel(Bundle arguments) {
+        super(arguments);
+        this.userId = arguments.getString(KitConstants.KEY_USER_ID);
+
+        ConversationIdentifier conversationIdentifier =
+                arguments.getParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER);
+
+        if (conversationIdentifier != null) {
+            groupInfoHandler = new GroupInfoHandler(conversationIdentifier);
+            groupInfoHandler.addDataChangeListener(
+                    GroupInfoHandler.KEY_GET_GROUP_MEMBERS,
+                    new SafeDataHandler<List<GroupMemberInfo>>() {
+                        @Override
+                        public void onDataChange(List<GroupMemberInfo> groupMemberInfos) {
+                            if (groupMemberInfos != null && !groupMemberInfos.isEmpty()) {
+                                myGroupMemberInfoLiveData.postValue(groupMemberInfos.get(0));
+                            }
+                        }
+                    });
+            groupInfoHandler.addDataChangeListener(
+                    GroupInfoHandler.KEY_GROUP_INFO,
+                    new SafeDataHandler<GroupInfo>() {
+                        @Override
+                        public void onDataChange(GroupInfo groupInfo) {
+                            groupInfoLiveData.postValue(groupInfo);
+                            if (groupInfoHandler != null) {
+                                groupInfoHandler.getGroupMembers(Arrays.asList(userId));
+                            }
+                        }
+                    });
+        }
+
         userProfileHandler = new UserProfileHandler();
         userProfileHandler.addDataChangeListener(
                 UserProfileHandler.KEY_GET_USER_PROFILE,
                 new OnDataChangeListener<UserProfile>() {
                     @Override
                     public void onDataChange(UserProfile profile) {
-                        UserProfileViewModel.this.uiUserDetail =
+                        UiUserDetail uiUserDetail =
                                 new UiUserDetail(
                                         profile.getUserId(),
                                         profile.getName(),
@@ -123,7 +163,7 @@ public class UserProfileViewModel extends BaseViewModel {
                 new OnDataChangeListener<FriendInfo>() {
                     @Override
                     public void onDataChange(FriendInfo info) {
-                        UserProfileViewModel.this.uiUserDetail =
+                        UiUserDetail uiUserDetail =
                                 new UiUserDetail(
                                         info.getUserId(),
                                         info.getName(),
@@ -146,20 +186,34 @@ public class UserProfileViewModel extends BaseViewModel {
         return mContactModelLiveData;
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        IMCenter.getInstance().removeFriendEventListener(listener);
-        userProfileHandler.stop();
+    public MutableLiveData<GroupMemberInfo> getMyGroupMemberInfoLiveData() {
+        return myGroupMemberInfoLiveData;
+    }
+
+    boolean hasEditPermission() {
+        GroupInfo groupInfo = groupInfoLiveData.getValue();
+        if (groupInfo != null) {
+            GroupMemberInfoEditPermission editPermission = groupInfo.getMemberInfoEditPermission();
+            GroupMemberRole role = groupInfo.getRole();
+            if (editPermission == GroupMemberInfoEditPermission.OwnerOrSelf
+                    && role == GroupMemberRole.Owner) {
+                return true;
+            }
+            if (editPermission == GroupMemberInfoEditPermission.OwnerOrManagerOrSelf
+                    && (role == GroupMemberRole.Owner || role == GroupMemberRole.Manager)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public UiUserDetail getUiUserDetail() {
-        return uiUserDetail;
+        return mUserProfilesLiveData.getValue();
     }
 
     public void deleteFriend(OnDataChangeListener<Boolean> callback) {
-        if (uiUserDetail != null) {
-            friendInfoHandler.deleteFriend(uiUserDetail.getUserId(), callback);
+        if (getUiUserDetail() != null) {
+            friendInfoHandler.deleteFriend(getUiUserDetail().getUserId(), callback);
         }
     }
 
@@ -169,12 +223,26 @@ public class UserProfileViewModel extends BaseViewModel {
         } else {
             userProfileHandler.getUserProfile(userId);
         }
+
+        if (groupInfoHandler != null) {
+            groupInfoHandler.getGroupsInfo();
+        }
     }
 
     public void applyFriend(
             String remark, OnDataChangeListener<IRongCoreEnum.CoreErrorCode> callback) {
-        if (uiUserDetail != null) {
-            friendInfoHandler.applyFriend(uiUserDetail.getUserId(), remark, callback);
+        if (getUiUserDetail() != null) {
+            friendInfoHandler.applyFriend(getUiUserDetail().getUserId(), remark, callback);
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        IMCenter.getInstance().removeFriendEventListener(listener);
+        userProfileHandler.stop();
+        if (groupInfoHandler != null) {
+            groupInfoHandler.stop();
         }
     }
 }

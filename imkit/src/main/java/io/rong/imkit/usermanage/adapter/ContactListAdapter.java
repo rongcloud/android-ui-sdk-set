@@ -9,33 +9,47 @@ import io.rong.imkit.R;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.usermanage.adapter.vh.ContactSelectableViewHolder;
 import io.rong.imkit.usermanage.adapter.vh.ContactTitleViewHolder;
-import io.rong.imkit.usermanage.interfaces.OnContactClickListener;
+import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * 联系人列表适配器
+ *
+ * @author rongcloud
+ * @since 5.12.0
+ */
 public class ContactListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private List<ContactModel> data = new ArrayList<>();
-    private OnContactClickListener listener;
+    private OnActionClickListener<ContactModel> onItemClickListener;
+    private OnActionClickListener<ContactModel> onItemRemoveClickListener;
     private final boolean showSelectButton;
     private final boolean showItemRightArrow;
     private final boolean showItemRightText;
     private final boolean showItemSelectAutoUpdate;
+    private boolean showItemRemoveButton;
 
     public ContactListAdapter(
             boolean showSelectButton,
             boolean showItemRightArrow,
             boolean showItemRightText,
-            boolean showItemSelectAutoUpdate) {
+            boolean showItemSelectAutoUpdate,
+            boolean showItemRemoveButton) {
         this.showSelectButton = showSelectButton;
         this.showItemRightArrow = showItemRightArrow;
         this.showItemRightText = showItemRightText;
         this.showItemSelectAutoUpdate = showItemSelectAutoUpdate;
+        this.showItemRemoveButton = showItemRemoveButton;
     }
 
-    public void setListener(OnContactClickListener listener) {
-        this.listener = listener;
+    public void setOnItemClickListener(OnActionClickListener<ContactModel> onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    public void setOnItemRemoveClickListener(OnActionClickListener<ContactModel> listener) {
+        onItemRemoveClickListener = listener;
     }
 
     public void setData(List<ContactModel> newData) {
@@ -55,11 +69,13 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (viewType == R.layout.rc_item_contact_selectable) {
             return new ContactSelectableViewHolder(
                     itemView,
-                    listener,
+                    onItemClickListener,
+                    onItemRemoveClickListener,
                     showSelectButton,
                     showItemRightArrow,
                     showItemRightText,
-                    showItemSelectAutoUpdate);
+                    showItemSelectAutoUpdate,
+                    showItemRemoveButton);
         } else if (viewType == R.layout.rc_item_contact_title) {
             return new ContactTitleViewHolder(itemView);
         } else {
@@ -71,6 +87,7 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         ContactModel contactModel = data.get(position);
         if (holder instanceof ContactSelectableViewHolder) {
+            ((ContactSelectableViewHolder) holder).setShowItemRemoveButton(showItemRemoveButton);
             ((ContactSelectableViewHolder) holder).bind(contactModel);
         } else if (holder instanceof ContactTitleViewHolder) {
             ((ContactTitleViewHolder) holder).bind(contactModel);
@@ -100,5 +117,10 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
         }
         return -1;
+    }
+
+    public void setShowItemRemoveButton(boolean showItemRemoveButton) {
+        this.showItemRemoveButton = showItemRemoveButton;
+        notifyDataSetChanged();
     }
 }

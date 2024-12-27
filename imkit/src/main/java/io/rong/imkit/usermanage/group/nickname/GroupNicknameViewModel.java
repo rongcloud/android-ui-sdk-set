@@ -4,22 +4,20 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.base.BaseViewModel;
-import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.usermanage.handler.GroupInfoHandler;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.GroupMemberInfo;
-import io.rong.imlib.model.UserInfo;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * 功能描述: 创建增加群联系人 ViewModel
+ * 修改群昵称页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupNicknameViewModel extends BaseViewModel {
 
@@ -27,15 +25,17 @@ public class GroupNicknameViewModel extends BaseViewModel {
 
     protected final GroupInfoHandler groupInfoHandler;
     protected final GroupOperationsHandler groupOperationsHandler;
+    private final String userId;
 
     public GroupNicknameViewModel(@NonNull Bundle arguments) {
         super(arguments);
         ConversationIdentifier conversationIdentifier =
                 arguments.getParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER);
+
         groupInfoHandler = new GroupInfoHandler(conversationIdentifier);
         groupOperationsHandler = new GroupOperationsHandler(conversationIdentifier);
 
-        String userId = RongUserInfoManager.getInstance().getCurrentUserInfo().getUserId();
+        userId = arguments.getString(KitConstants.KEY_USER_ID);
         groupInfoHandler.addDataChangeListener(
                 GroupInfoHandler.KEY_GET_GROUP_MEMBERS,
                 new SafeDataHandler<List<GroupMemberInfo>>() {
@@ -63,11 +63,7 @@ public class GroupNicknameViewModel extends BaseViewModel {
             String newNickName, OnDataChangeListener<Boolean> onDataChangeListener) {
         groupOperationsHandler.replaceDataChangeListener(
                 GroupOperationsHandler.KEY_SET_GROUP_MEMBER_INFO, onDataChangeListener);
-        UserInfo userInfo = RongUserInfoManager.getInstance().getCurrentUserInfo();
-        if (userInfo != null) {
-            String userId = userInfo.getUserId();
-            groupOperationsHandler.setGroupMemberInfo(userId, newNickName, null);
-        }
+        groupOperationsHandler.setGroupMemberInfo(userId, newNickName, null);
     }
 
     @Override

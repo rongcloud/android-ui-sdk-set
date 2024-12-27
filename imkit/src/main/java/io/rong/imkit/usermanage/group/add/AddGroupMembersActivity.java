@@ -17,6 +17,7 @@ import io.rong.imlib.model.ConversationIdentifier;
  * 创建增加群联系人页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class AddGroupMembersActivity extends BaseActivity {
 

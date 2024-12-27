@@ -9,7 +9,7 @@
         android:id="@+id/rc_head_component"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_title_bar_height"
-        app:head_right_text="@string/rc_dialog_ok"
+        app:head_right_text="@string/rc_confirm"
         app:head_title_text="@string/rc_group_announcement" />
 
     <!-- 分割线 -->
@@ -58,6 +58,7 @@
             android:layout_weight="1" />
 
         <TextView
+            android:id="@+id/tv_edit_permission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="31dp"

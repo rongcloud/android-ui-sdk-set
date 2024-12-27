@@ -10,14 +10,16 @@ import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.GroupInfo;
+import io.rong.imlib.model.GroupJoinPermission;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
  * 功能描述: 创建群组ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupCreateViewModel extends BaseViewModel {
 
@@ -43,6 +45,10 @@ public class GroupCreateViewModel extends BaseViewModel {
         return groupId;
     }
 
+    List<String> getInviteeUserIds() {
+        return inviteeUserIds;
+    }
+
     /**
      * 创建群组
      *
@@ -53,7 +59,9 @@ public class GroupCreateViewModel extends BaseViewModel {
             String groupName, OnDataChangeListener<IRongCoreEnum.CoreErrorCode> listener) {
         groupOperationsHandler.replaceDataChangeListener(
                 GroupOperationsHandler.KEY_CREATE_GROUP, listener);
-        groupOperationsHandler.createGroup(new GroupInfo(groupId, groupName), inviteeUserIds);
+        GroupInfo groupInfo = new GroupInfo(groupId, groupName);
+        groupInfo.setJoinPermission(GroupJoinPermission.Free);
+        groupOperationsHandler.createGroup(groupInfo, inviteeUserIds);
     }
 
     @Override

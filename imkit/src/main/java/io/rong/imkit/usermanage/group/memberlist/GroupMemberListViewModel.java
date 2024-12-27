@@ -9,6 +9,8 @@ import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.usermanage.handler.GroupInfoHandler;
 import io.rong.imkit.usermanage.handler.GroupMembersPagedHandler;
+import io.rong.imkit.usermanage.handler.GroupMembersSearchPagedHandler;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.usermanage.interfaces.OnPagedDataLoader;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -23,9 +25,9 @@ import java.util.List;
  * 功能描述: 群组联系人页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
-public class GroupMemberListViewModel extends BaseViewModel {
+public class GroupMemberListViewModel extends BaseViewModel implements OnPagedDataLoader {
 
     private final MutableLiveData<List<ContactModel>> allContactsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<ContactModel>> filteredContactsLiveData =
@@ -33,7 +35,10 @@ public class GroupMemberListViewModel extends BaseViewModel {
     private final MutableLiveData<GroupInfo> groupInfoLiveData = new MutableLiveData<>();
 
     protected final GroupMembersPagedHandler groupMembersPagedHandler;
+    protected final GroupMembersSearchPagedHandler groupMembersSearchPagedHandler;
     protected final GroupInfoHandler groupInfoHandler;
+
+    private boolean isSearchMode = false;
 
     public GroupMemberListViewModel(@NonNull Bundle arguments) {
         super(arguments);
@@ -54,6 +59,20 @@ public class GroupMemberListViewModel extends BaseViewModel {
                         filteredContactsLiveData.postValue(contactModels); // 初始状态下，展示所有联系人
                     }
                 });
+
+        groupMembersSearchPagedHandler =
+                new GroupMembersSearchPagedHandler(
+                        conversationIdentifier, validatedMaxMemberCountPaged);
+        groupMembersSearchPagedHandler.addDataChangeListener(
+                GroupMembersSearchPagedHandler.KEY_SEARCH_GROUP_MEMBERS,
+                new SafeDataHandler<List<GroupMemberInfo>>() {
+                    @Override
+                    public void onDataChange(List<GroupMemberInfo> groupMemberInfos) {
+                        filteredContactsLiveData.postValue(
+                                sortAndCategorizeContacts(groupMemberInfos));
+                    }
+                });
+
         groupInfoHandler = new GroupInfoHandler(conversationIdentifier);
         groupInfoHandler.addDataChangeListener(
                 GroupInfoHandler.KEY_GROUP_INFO, groupInfoLiveData::postValue);
@@ -81,14 +100,42 @@ public class GroupMemberListViewModel extends BaseViewModel {
      */
     public void queryContacts(@NonNull String query) {
         if (TextUtils.isEmpty(query)) {
-            filteredContactsLiveData.postValue(allContactsLiveData.getValue());
+            isSearchMode = false;
+            groupMembersPagedHandler.getGroupMembersByRole(GroupMemberRole.Undef);
             return;
         }
-        groupInfoHandler.searchGroupMembers(query);
+        isSearchMode = true;
+        groupMembersSearchPagedHandler.searchGroupMembers(query);
     }
 
-    OnPagedDataLoader getOnPageDataLoader() {
-        return groupMembersPagedHandler;
+    void refreshGroupMembers() {
+        groupInfoHandler.getGroupsInfo();
+        groupMembersPagedHandler.getGroupMembersByRole(GroupMemberRole.Undef);
+    }
+
+    @Override
+    public void loadNext(OnDataChangeListener<Boolean> listener) {
+        if (isSearchMode) {
+            groupMembersSearchPagedHandler.loadNext(listener);
+        } else {
+            groupMembersPagedHandler.loadNext(listener);
+        }
+    }
+
+    @Override
+    public boolean hasNext() {
+        if (isSearchMode) {
+            return groupMembersSearchPagedHandler.hasNext();
+        } else {
+            return groupMembersPagedHandler.hasNext();
+        }
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        groupMembersPagedHandler.stop();
+        groupInfoHandler.stop();
     }
 
     private List<ContactModel> sortAndCategorizeContacts(List<GroupMemberInfo> groupMemberInfos) {
@@ -106,17 +153,5 @@ public class GroupMemberListViewModel extends BaseViewModel {
         }
 
         return contactModels;
-    }
-
-    void refreshGroupMembers() {
-        groupInfoHandler.getGroupsInfo();
-        groupMembersPagedHandler.getGroupMembersByRole(GroupMemberRole.Undef);
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        groupMembersPagedHandler.stop();
-        groupInfoHandler.stop();
     }
 }

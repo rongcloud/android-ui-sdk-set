@@ -16,7 +16,9 @@ import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.component.SearchComponent;
 import io.rong.imkit.usermanage.friend.my.profile.MyProfileActivity;
 import io.rong.imkit.usermanage.friend.user.profile.UserProfileActivity;
+import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.RongCoreClient;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.GroupMemberInfo;
 import java.util.Objects;
 
@@ -24,7 +26,7 @@ import java.util.Objects;
  * 功能描述: 群组联系人页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupMemberListFragment extends BaseViewModelFragment<GroupMemberListViewModel> {
 
@@ -55,14 +57,17 @@ public class GroupMemberListFragment extends BaseViewModelFragment<GroupMemberLi
 
     @Override
     protected void onViewReady(@NonNull GroupMemberListViewModel viewModel) {
+        ConversationIdentifier conversationIdentifier =
+                getArguments().getParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER);
+
         headComponent.setLeftClickListener(v -> finishActivity());
 
         searchComponent.setSearchQueryListener(viewModel::queryContacts);
 
-        memberListComponent.setOnPageDataLoader(viewModel.getOnPageDataLoader());
+        memberListComponent.setOnPageDataLoader(viewModel);
         memberListComponent.setEnableLoadMore(true);
         // 设置联系人列表点击事件
-        memberListComponent.setOnContactClickListener(
+        memberListComponent.setOnItemClickListener(
                 contactModel -> {
                     if (contactModel.getBean() instanceof GroupMemberInfo) {
                         GroupMemberInfo groupMemberInfo = (GroupMemberInfo) contactModel.getBean();
@@ -72,7 +77,9 @@ public class GroupMemberListFragment extends BaseViewModelFragment<GroupMemberLi
                         } else {
                             startActivity(
                                     UserProfileActivity.newIntent(
-                                            getContext(), groupMemberInfo.getUserId()));
+                                            getContext(),
+                                            groupMemberInfo.getUserId(),
+                                            conversationIdentifier));
                         }
                     }
                 });

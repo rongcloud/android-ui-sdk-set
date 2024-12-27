@@ -9,8 +9,8 @@
         android:id="@+id/rc_head_component"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_title_bar_height"
-        app:head_right_text="@string/rc_dialog_ok"
-        app:head_title_text="@string/rc_my_nickname_in_group" />
+        app:head_right_text="@string/rc_confirm"
+        app:head_title_text="@string/rc_group_nickname" />
 
     <LinearLayout
         android:layout_width="match_parent"

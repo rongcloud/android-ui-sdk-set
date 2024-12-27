@@ -6,11 +6,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.usermanage.handler.ConversationOperationsHandler;
+import io.rong.imkit.usermanage.handler.ConversationStatusHandler;
 import io.rong.imkit.usermanage.handler.GroupInfoHandler;
 import io.rong.imkit.usermanage.handler.GroupMembersPagedHandler;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
+import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.GroupInfo;
 import io.rong.imlib.model.GroupMemberInfo;
@@ -21,10 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 功能描述: 创建群组ViewModel
+ * 群组资料页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupProfileViewModel extends BaseViewModel {
 
@@ -32,10 +35,17 @@ public class GroupProfileViewModel extends BaseViewModel {
             new MutableLiveData<>();
     private final MutableLiveData<GroupMemberInfo> myMemberInfoLiveData = new MutableLiveData<>();
     private final MutableLiveData<GroupInfo> groupInfoLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isConversationTopLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Conversation.ConversationNotificationStatus>
+            conversationNotificationStatusLiveData = new MutableLiveData<>();
 
     protected final GroupInfoHandler groupInfoHandler;
     protected final GroupOperationsHandler groupOperationsHandler;
     protected final GroupMembersPagedHandler groupMembersPagedHandler;
+    /** @since 5.12.2 */
+    protected final ConversationStatusHandler conversationStatusHandler;
+    /** @since 5.12.2 */
+    protected final ConversationOperationsHandler conversationOperationsHandler;
 
     public GroupProfileViewModel(@NonNull Bundle arguments) {
         super(arguments);
@@ -69,6 +79,29 @@ public class GroupProfileViewModel extends BaseViewModel {
                 GroupMembersPagedHandler.KEY_GET_GROUP_MEMBERS,
                 GroupMemberInfosLiveData::postValue);
 
+        conversationStatusHandler = new ConversationStatusHandler(conversationIdentifier);
+        conversationStatusHandler.addDataChangeListener(
+                ConversationStatusHandler.KEY_GET_CONVERSATION_TOP_STATUS,
+                new SafeDataHandler<Boolean>() {
+                    @Override
+                    public void onDataChange(Boolean isTop) {
+                        isConversationTopLiveData.postValue(isTop);
+                    }
+                });
+        conversationStatusHandler.addDataChangeListener(
+                ConversationStatusHandler.KEY_GET_CONVERSATION_NOTIFICATION_STATUS,
+                new SafeDataHandler<Conversation.ConversationNotificationStatus>() {
+                    @Override
+                    public void onDataChange(
+                            Conversation.ConversationNotificationStatus
+                                    conversationNotificationStatus) {
+                        conversationNotificationStatusLiveData.postValue(
+                                conversationNotificationStatus);
+                    }
+                });
+
+        conversationOperationsHandler = new ConversationOperationsHandler(conversationIdentifier);
+
         refreshGroupInfo();
     }
 
@@ -82,6 +115,17 @@ public class GroupProfileViewModel extends BaseViewModel {
 
     public MutableLiveData<GroupMemberInfo> getMyMemberInfoLiveData() {
         return myMemberInfoLiveData;
+    }
+
+    /** @since 5.12.2 */
+    public MutableLiveData<Boolean> getIsConversationTopLiveData() {
+        return isConversationTopLiveData;
+    }
+
+    /** @since 5.12.2 */
+    public MutableLiveData<Conversation.ConversationNotificationStatus>
+            getConversationNotificationStatusLiveData() {
+        return conversationNotificationStatusLiveData;
     }
 
     /**
@@ -106,8 +150,40 @@ public class GroupProfileViewModel extends BaseViewModel {
         groupOperationsHandler.quitGroup(new QuitGroupConfig(true, true, true));
     }
 
+    /**
+     * 设置会话免打扰状态
+     *
+     * @param conversationNotificationStatus 会话免打扰状态
+     * @param listener 数据变化监听器
+     * @since 5.12.2
+     */
+    public void setConversationNotificationStatus(
+            Conversation.ConversationNotificationStatus conversationNotificationStatus,
+            OnDataChangeListener<Conversation.ConversationNotificationStatus> listener) {
+        conversationOperationsHandler.replaceDataChangeListener(
+                ConversationOperationsHandler.KEY_SET_CONVERSATION_NOTIFICATION_STATUS, listener);
+        conversationOperationsHandler.setConversationNotificationStatus(
+                conversationNotificationStatus);
+    }
+
+    /**
+     * 设置会话置顶状态
+     *
+     * @param isTop 会话置顶状态
+     * @param listener 数据变化监听器
+     * @since 5.12.2
+     */
+    public void setConversationTopStatus(boolean isTop, OnDataChangeListener<Boolean> listener) {
+        conversationOperationsHandler.replaceDataChangeListener(
+                ConversationOperationsHandler.KEY_SET_CONVERSATION_TO_TOP, listener);
+        conversationOperationsHandler.setConversationToTop(isTop);
+    }
+
     void refreshGroupInfo() {
+        conversationStatusHandler.getConversationTopStatus();
+        conversationStatusHandler.getConversationNotificationStatus();
         groupMembersPagedHandler.getGroupMembersByRole(GroupMemberRole.Undef);
+
         groupInfoHandler.getGroupsInfo();
         UserInfo userInfo = RongUserInfoManager.getInstance().getCurrentUserInfo();
         if (userInfo != null) {
@@ -122,5 +198,7 @@ public class GroupProfileViewModel extends BaseViewModel {
         groupInfoHandler.stop();
         groupOperationsHandler.stop();
         groupMembersPagedHandler.stop();
+        conversationStatusHandler.stop();
+        conversationOperationsHandler.stop();
     }
 }

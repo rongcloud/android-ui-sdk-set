@@ -43,8 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/rc_margin_size_12"
-            android:layout_toEndOf="@id/iv_contact_portrait"
             android:layout_toStartOf="@id/right_container"
+            android:layout_toEndOf="@id/iv_contact_portrait"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
@@ -56,10 +56,26 @@
             android:id="@+id/right_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:gravity="center_vertical"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="2dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_marginStart="6dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:minWidth="45dp"
+                android:background="@drawable/rc_selector_item_radius_gray"
+                android:gravity="center"
+                android:text="@string/rc_remove"
+                android:textColor="@color/app_color_black"
+                android:textSize="13sp"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tv_right_text"
@@ -89,5 +105,5 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_divider_height"
         android:layout_marginStart="48dp"
-        android:background="#fff5f6f9" />
+        android:background="@color/rc_divider_color" />
 </LinearLayout>

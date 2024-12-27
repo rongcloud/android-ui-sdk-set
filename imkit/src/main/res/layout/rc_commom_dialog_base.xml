@@ -26,8 +26,8 @@
                 android:id="@+id/dialog_tv_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:background="@drawable/common_dialog_bg"
+                android:gravity="center"
                 android:paddingStart="@dimen/rc_margin_size_12"
                 android:paddingTop="@dimen/rc_margin_size_16"
                 android:paddingEnd="@dimen/rc_margin_size_12"
@@ -71,7 +71,7 @@
                 android:background="@drawable/common_dialog_negative_seletor"
                 android:text="@string/rc_cancel"
                 android:textColor="#333333"
-                android:textSize="18dp" />
+                android:textSize="18sp" />
 
             <View
                 android:id="@+id/dialog_v_btn_separate"
@@ -87,9 +87,7 @@
                 android:background="@drawable/common_dialog_positive_seletor"
                 android:text="@string/rc_confirm"
                 android:textColor="#368ae8"
-                android:textSize="18dp"
-
-                />
+                android:textSize="18sp" />
 
         </LinearLayout>
 

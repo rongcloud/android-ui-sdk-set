@@ -39,6 +39,7 @@ import io.rong.imkit.widget.refresh.api.RefreshLayout;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imkit.widget.refresh.listener.OnLoadMoreListener;
 import io.rong.imkit.widget.refresh.listener.OnRefreshListener;
+import io.rong.imkit.widget.refresh.simple.SimpleMultiListener;
 import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.RongIMClient;
 import java.util.ArrayList;
@@ -89,7 +90,6 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         }
         mList = view.findViewById(R.id.rc_conversation_list);
         mRefreshLayout = view.findViewById(R.id.rc_refresh);
-
         mAdapter.setItemClickListener(this);
         LinearLayoutManager layoutManager = new FixedLinearLayoutManager(getActivity());
         mList.setLayoutManager(layoutManager);
@@ -99,6 +99,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                     @Override
                     public void onScrollStateChanged(
                             @NonNull RecyclerView recyclerView, int newState) {
+                        RLog.d(TAG, "onScroll,recyclerviewStatus:" + newState);
                         mNewState = newState;
                         if (mNewState == RecyclerView.SCROLL_STATE_IDLE
                                 && delayRefresh
@@ -149,6 +150,22 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                     @Override
                     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
                         onConversationListLoadMore();
+                        RLog.d(TAG, "onLoadMore,recyclerviewStatus:" + mList.getScrollState());
+                    }
+                });
+        mRefreshLayout.setOnMultiListener(
+                new SimpleMultiListener() {
+                    @Override
+                    public void onStateChanged(
+                            @NonNull RefreshLayout refreshLayout,
+                            @NonNull RefreshState oldState,
+                            @NonNull RefreshState newState) {
+                        if ((oldState == RefreshState.LoadFinish
+                                        || oldState == RefreshState.RefreshFinish)
+                                && newState == RefreshState.None
+                                && mList.getScrollState() != RecyclerView.SCROLL_STATE_IDLE) {
+                            mList.stopScroll();
+                        }
                     }
                 });
     }
@@ -166,7 +183,10 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                         new Observer<List<BaseUiConversation>>() {
                             @Override
                             public void onChanged(List<BaseUiConversation> uiConversations) {
-                                RLog.d(TAG, "conversation list onChanged.");
+                                RLog.d(
+                                        TAG,
+                                        "conversation list onChanged,recyclerviewStatus:"
+                                                + mNewState);
                                 if (mNewState == RecyclerView.SCROLL_STATE_IDLE) {
                                     mAdapter.setDataCollection(uiConversations);
                                 } else {

@@ -14,9 +14,10 @@ import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.ConversationIdentifier;
 
 /**
- * 创建群组页面
+ * 群组资料页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class GroupProfileActivity extends BaseActivity {
 

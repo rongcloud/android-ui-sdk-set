@@ -21,10 +21,10 @@ import io.rong.imkit.usermanage.friend.my.nikename.UpdateNickNameActivity;
 import io.rong.imlib.model.UserProfile;
 
 /**
- * 功能描述:
+ * 我的资料页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class MyProfileFragment extends BaseViewModelFragment<MyProfileViewModel>
         implements View.OnClickListener {

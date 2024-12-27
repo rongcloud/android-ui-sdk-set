@@ -20,20 +20,24 @@ import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.ToastUtils;
+import io.rong.imkit.widget.CommonDialog;
 import io.rong.imlib.model.GroupInfo;
 import io.rong.imlib.model.GroupMemberRole;
 import io.rong.imlib.model.GroupOperationPermission;
 
 /**
- * 功能描述: 创建增加群联系人页面
+ * 群公告页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewModel> {
 
     protected HeadComponent headComponent;
     private EditText etGroupNotice;
+    /** @since 5.12.2 */
+    private TextView tvEditPermission;
+
     private LinearLayout llGroupNoticeDisplay;
     private TextView tvNoticeEmpty;
     private TextView tvNoticeContent;
@@ -55,6 +59,7 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
         View view = inflater.inflate(R.layout.rc_page_group_notice, container, false);
         headComponent = view.findViewById(R.id.rc_head_component);
         etGroupNotice = view.findViewById(R.id.group_notice_input);
+        tvEditPermission = view.findViewById(R.id.tv_edit_permission);
         llGroupNoticeDisplay = view.findViewById(R.id.ll_group_notice_display);
         tvNoticeContent = view.findViewById(R.id.tv_notice_content);
         tvNoticeEmpty = view.findViewById(R.id.tv_empty_notice);
@@ -78,22 +83,7 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
                     v -> {
                         String newNotice = etGroupNotice.getText().toString().trim();
                         groupInfo.setNotice(newNotice);
-                        viewModel.updateGroupNotice(
-                                groupInfo,
-                                isSuccess -> {
-                                    if (isSuccess) {
-                                        ToastUtils.show(
-                                                getActivity(),
-                                                getString(R.string.rc_group_notice_success),
-                                                Toast.LENGTH_SHORT);
-                                        finishActivity();
-                                    } else {
-                                        ToastUtils.show(
-                                                getActivity(),
-                                                getString(R.string.rc_group_notice_failed),
-                                                Toast.LENGTH_SHORT);
-                                    }
-                                });
+                        onConfirmGroupNoticeUpdate(viewModel, groupInfo);
                     });
             etGroupNotice.setVisibility(View.VISIBLE);
             headComponent.setRightTextViewEnable(false);
@@ -109,6 +99,14 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
             } else {
                 tvNoticeEmpty.setVisibility(View.VISIBLE);
                 tvNoticeContent.setVisibility(View.GONE);
+            }
+            if (tvEditPermission != null) {
+                tvEditPermission.setText(
+                        getString(
+                                groupInfo.getGroupInfoEditPermission()
+                                                == GroupOperationPermission.Owner
+                                        ? R.string.rc_group_edit_permission_owner_only
+                                        : R.string.rc_edit_permission));
             }
         }
 
@@ -128,5 +126,49 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
                         }
                     }
                 });
+    }
+
+    /**
+     * 确认更新群公告
+     *
+     * @param viewModel 群公告 ViewModel
+     * @param groupInfo 群组信息
+     */
+    protected void onConfirmGroupNoticeUpdate(
+            @NonNull GroupNoticeViewModel viewModel, GroupInfo groupInfo) {
+        // 弹出删除好友确认对话框
+        new CommonDialog.Builder()
+                .setContentMessage(getString(R.string.rc_publish_announcement_hint))
+                .setDialogButtonClickListener(
+                        (v, bundle) -> {
+                            viewModel.updateGroupNotice(
+                                    groupInfo,
+                                    isSuccess -> {
+                                        onGroupNoticeUpdateResult(
+                                                groupInfo.getGroupId(),
+                                                groupInfo.getNotice(),
+                                                isSuccess);
+                                    });
+                        })
+                .build()
+                .show(getParentFragmentManager(), null);
+    }
+
+    /**
+     * 更新群公告结果
+     *
+     * @param groupId 群组 ID
+     * @param notice 群公告
+     * @param isSuccess 是否成功
+     */
+    protected void onGroupNoticeUpdateResult(String groupId, String notice, boolean isSuccess) {
+        if (isSuccess) {
+            ToastUtils.show(
+                    getActivity(), getString(R.string.rc_group_notice_success), Toast.LENGTH_SHORT);
+            finishActivity();
+        } else {
+            ToastUtils.show(
+                    getActivity(), getString(R.string.rc_group_notice_failed), Toast.LENGTH_SHORT);
+        }
     }
 }

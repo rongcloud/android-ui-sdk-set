@@ -21,10 +21,10 @@ import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.model.GroupInfo;
 
 /**
- * 功能描述: 创建增加群联系人页面
+ * 功能描述: 修改群名称页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupNameFragment extends BaseViewModelFragment<GroupNameViewModel> {
 

@@ -272,6 +272,12 @@
         <attr name="show_item_right_arrow" format="boolean" />
         <attr name="show_item_right_text" format="boolean" />
         <attr name="show_item_select_auto_update" format="boolean" />
+        <attr name="show_item_remove_button" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="CommonListComponent">
+        <attr name="enable_refresh" format="boolean" />
+        <attr name="enable_load_more" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="HeadComponent">

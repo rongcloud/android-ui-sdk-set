@@ -6,7 +6,7 @@ import io.rong.imlib.IRongCoreEnum;
  * 数据监听 Listener
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public interface OnDataChangeListener<T> {
 

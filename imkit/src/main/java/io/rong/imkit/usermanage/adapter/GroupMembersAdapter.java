@@ -64,10 +64,7 @@ public class GroupMembersAdapter
     }
 
     private boolean isSpecialActionPosition(int position) {
-        int itemCount = getItemCount();
-        boolean isAdditionAction = position == itemCount - 1;
-        boolean isRemovalAction = allowGroupRemoval && position == itemCount - 2;
-        return (allowGroupRemoval || allowGroupAddition) && (isRemovalAction || isAdditionAction);
+        return groupInfoList == null || position >= groupInfoList.size();
     }
 
     private void setupSpecialActionItem(@NonNull GroupInfoViewHolder holder, int position) {
@@ -107,7 +104,7 @@ public class GroupMembersAdapter
         String portraitUri = groupMemberInfo.getPortraitUri();
         RongConfigCenter.featureConfig()
                 .getKitImageEngine()
-                .loadGroupPortrait(
+                .loadUserPortrait(
                         holder.avatarImageView.getContext(), portraitUri, holder.avatarImageView);
 
         holder.itemView.setOnClickListener(

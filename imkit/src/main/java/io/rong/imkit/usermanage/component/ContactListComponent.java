@@ -17,7 +17,7 @@ import io.rong.imkit.base.BaseComponent;
 import io.rong.imkit.base.adapter.HeaderAndFooterWrapper;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.usermanage.adapter.ContactListAdapter;
-import io.rong.imkit.usermanage.interfaces.OnContactClickListener;
+import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imkit.usermanage.interfaces.OnPagedDataLoader;
 import io.rong.imkit.widget.SideBar;
 import io.rong.imkit.widget.refresh.SmartRefreshLayout;
@@ -35,11 +35,13 @@ public class ContactListComponent extends BaseComponent {
     private boolean showItemRightText;
     private boolean showDivider;
     private boolean showItemSelectAutoUpdate;
+    private boolean showItemRemoveButton;
     private SmartRefreshLayout refreshLayout;
     private ContactListAdapter contactListAdapter;
     private HeaderAndFooterWrapper headerAndFooterWrapper;
-    private OnContactClickListener onContactClickListener;
+    private OnActionClickListener<ContactModel> onItemClickListener;
     private OnPagedDataLoader onPagedDataLoader;
+    private OnActionClickListener<ContactModel> onItemRemoveClickListener;
 
     public ContactListComponent(@NonNull Context context) {
         super(context);
@@ -81,6 +83,9 @@ public class ContactListComponent extends BaseComponent {
                         a.getBoolean(
                                 R.styleable.ContactListComponent_show_item_select_auto_update,
                                 false);
+                showItemRemoveButton =
+                        a.getBoolean(
+                                R.styleable.ContactListComponent_show_item_remove_button, false);
             } finally {
                 if (a != null) {
                     a.recycle();
@@ -146,11 +151,27 @@ public class ContactListComponent extends BaseComponent {
                         showItemSelectButton,
                         showItemRightArrow,
                         showItemRightText,
-                        showItemSelectAutoUpdate);
-        contactListAdapter.setListener(
+                        showItemSelectAutoUpdate,
+                        showItemRemoveButton);
+        contactListAdapter.setOnItemClickListener(
+                new OnActionClickListener<ContactModel>() {
+                    @Override
+                    public void onActionClick(ContactModel contactModel) {}
+
+                    @Override
+                    public <E> void onActionClickWithConfirm(
+                            ContactModel contactModel, OnConfirmClickListener<E> listener) {
+                        OnActionClickListener.super.onActionClickWithConfirm(
+                                contactModel, listener);
+                        if (onItemClickListener != null) {
+                            onItemClickListener.onActionClickWithConfirm(contactModel, listener);
+                        }
+                    }
+                });
+        contactListAdapter.setOnItemRemoveClickListener(
                 contactModel -> {
-                    if (onContactClickListener != null) {
-                        onContactClickListener.onContactClick(contactModel);
+                    if (onItemRemoveClickListener != null) {
+                        onItemRemoveClickListener.onActionClick(contactModel);
                     }
                 });
         headerAndFooterWrapper = new HeaderAndFooterWrapper(contactListAdapter);
@@ -171,6 +192,10 @@ public class ContactListComponent extends BaseComponent {
             headerAndFooterWrapper.notifyDataSetChanged();
         }
 
+        if (onPagedDataLoader != null) {
+            refreshLayout.setEnableLoadMore(onPagedDataLoader.hasNext());
+        }
+
         if (data != null && !data.isEmpty()) {
             List<String> lettersList = new ArrayList<>();
             for (ContactModel contactModel : data) {
@@ -186,10 +211,19 @@ public class ContactListComponent extends BaseComponent {
     /**
      * 设置联系人列表点击事件监听器
      *
-     * @param listener {@link OnContactClickListener}
+     * @param listener {@link OnActionClickListener}
      */
-    public void setOnContactClickListener(OnContactClickListener listener) {
-        this.onContactClickListener = listener;
+    public void setOnItemClickListener(OnActionClickListener<ContactModel> listener) {
+        this.onItemClickListener = listener;
+    }
+
+    /**
+     * 设置联系人列表移除按钮点击事件监听器
+     *
+     * @param listener {@link OnActionClickListener}
+     */
+    public void setOnItemRemoveClickListener(OnActionClickListener<ContactModel> listener) {
+        this.onItemRemoveClickListener = listener;
     }
 
     public void addHeaderView(View view) {
@@ -213,6 +247,12 @@ public class ContactListComponent extends BaseComponent {
     private void setSideBarContactLetters(String[] letters) {
         if (sideBarContact != null && showSideBar) {
             sideBarContact.setLetters(letters);
+        }
+    }
+
+    public void setShowItemRemoveButton(boolean isShow) {
+        if (contactListAdapter != null) {
+            contactListAdapter.setShowItemRemoveButton(isShow);
         }
     }
 

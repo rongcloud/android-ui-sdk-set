@@ -4,6 +4,7 @@ package io.rong.imkit.usermanage.interfaces;
  * 分页数据加载接口
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public interface OnPagedDataLoader {
 

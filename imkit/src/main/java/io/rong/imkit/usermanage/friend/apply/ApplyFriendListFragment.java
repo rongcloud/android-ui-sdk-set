@@ -29,10 +29,10 @@ import io.rong.imkit.widget.refresh.listener.OnLoadMoreListener;
 import io.rong.imkit.widget.refresh.listener.OnRefreshListener;
 
 /**
- * 功能描述:
+ * 申请好友列表页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class ApplyFriendListFragment extends BaseViewModelFragment<ApplyFriendViewModel> {
 

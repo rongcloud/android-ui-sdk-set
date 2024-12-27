@@ -367,9 +367,7 @@ public class ConversationListViewModel extends AndroidViewModel
         mHandler = new Handler(workThread.getLooper());
         mSupportedTypes =
                 RongConfigCenter.conversationListConfig().getDataProcessor().supportedTypes();
-        //        mSizePerPage =
-        // RongConfigCenter.conversationListConfig().getConversationCountPerPage();;
-        mSizePerPage = 10;
+        mSizePerPage = RongConfigCenter.conversationListConfig().getConversationCountPerPage();
         mPageLimit = 10;
         mDataFilter = RongConfigCenter.conversationListConfig().getDataProcessor();
         mDelayRefreshTime = RongConfigCenter.conversationListConfig().getDelayRefreshTime();
@@ -427,6 +425,12 @@ public class ConversationListViewModel extends AndroidViewModel
                 new ConversationListResultCallback(viewModel, loadMore, isEventManual, delayTime);
         if (loadMore) {
             mSizePerPage += mPageLimit;
+        } else {
+            // 如果不是加载更多，刷新时，需要重置 mSizePerPage (保证拉取的数量 不小于用户上次展示的数量)
+            mSizePerPage =
+                    Math.max(
+                            RongConfigCenter.conversationListConfig().getConversationCountPerPage(),
+                            mSizePerPage);
         }
         RongCoreClient.getInstance()
                 .getConversationListByPage(
@@ -448,14 +452,17 @@ public class ConversationListViewModel extends AndroidViewModel
                         mUiConversationList.clear();
                     }
                     sendRefreshEvent(isEventManual, loadMore);
-                    if (conversations == null || conversations.size() == 0) {
+                    if (conversations == null) {
+                        return;
+                    } else if (conversations.isEmpty()) {
+                        refreshConversationList();
                         return;
                     }
                     RLog.d(TAG, "getConversationListByPage. size:" + conversations.size());
                     CopyOnWriteArrayList<Conversation> copyList =
                             new CopyOnWriteArrayList<>(conversations);
                     List<Conversation> filterResult = mDataFilter.filtered(copyList);
-                    if (filterResult != null && filterResult.size() > 0) {
+                    if (filterResult != null && !filterResult.isEmpty()) {
                         for (Conversation conversation : filterResult) {
                             boolean isGathered =
                                     mDataFilter.isGathered(

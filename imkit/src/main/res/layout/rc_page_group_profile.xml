@@ -81,11 +81,11 @@
                 android:id="@+id/siv_group_avatar"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/rc_title_bar_height"
+                android:clickable="false"
                 app:item_content="@string/rc_group_avatar"
                 app:item_divider="true"
                 app:item_selected_image="@drawable/rc_default_group_portrait"
-                app:item_show_selected="false"
-                android:clickable="false"
+                app:item_show_selected="true"
                 app:item_value_text_size="15sp" />
 
             <!-- 群组名称 -->
@@ -93,7 +93,7 @@
                 android:id="@+id/siv_group_name"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/rc_title_bar_height"
-                app:item_content="@string/rc_group_name"
+                app:item_content="@string/rc_group_title"
                 app:item_divider="true"
                 app:item_right_image="@drawable/rc_right_arrow"
                 app:item_value_text_size="15sp" />
@@ -116,6 +116,65 @@
                 app:item_content="@string/rc_my_nickname_in_group"
                 app:item_divider="true"
                 app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- since 5.12.2 群聊备注 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_remark"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_remark"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- 分割线 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_margin_size_12" />
+
+            <!-- since 5.12.2 群管理 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_manage"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_management"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- 分割线 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_margin_size_12" />
+
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_message_disturb"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_notification_mute"
+                app:item_divider="true"
+                app:item_switch="true"
+                app:item_value_text_size="15sp" />
+
+            <!-- since 5.12.2 特别关注成员 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_follows"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_follows"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- since 5.12.2 会话置顶 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_conversation_set_top"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_chat_pin"
+                app:item_divider="true"
+                app:item_switch="true"
                 app:item_value_text_size="15sp" />
 
 

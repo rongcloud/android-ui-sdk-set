@@ -24,12 +24,13 @@ import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
+import java.util.List;
 
 /**
  * 功能描述: 创建群组页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewModel> {
 
@@ -91,30 +92,37 @@ public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewMo
                                 .createGroup(
                                         groupName,
                                         coreErrorCode -> {
-                                            if (coreErrorCode
-                                                            == IRongCoreEnum.CoreErrorCode
-                                                                    .RC_GROUP_NEED_INVITEE_ACCEPT
-                                                    || coreErrorCode
-                                                            == IRongCoreEnum.CoreErrorCode
-                                                                    .SUCCESS) {
-                                                ConversationIdentifier conversationIdentifier =
-                                                        ConversationIdentifier.obtain(
-                                                                Conversation.ConversationType.GROUP,
-                                                                viewModel.getGroupId(),
-                                                                "");
-                                                RouteUtils.routeToConversationActivity(
-                                                        getContext(), conversationIdentifier);
-                                                sendFinishActivityBroadcast(
-                                                        FriendSelectFragment.class);
-                                                finishActivity();
-                                            } else {
-                                                ToastUtils.show(
-                                                        getContext(),
-                                                        getString(R.string.rc_create_group_failure),
-                                                        Toast.LENGTH_SHORT);
-                                            }
+                                            onCreateGroupResult(
+                                                    viewModel.getGroupId(),
+                                                    viewModel.getInviteeUserIds(),
+                                                    coreErrorCode);
                                         });
                     }
                 });
+    }
+
+    /**
+     * 创建群组结果
+     *
+     * @param groupId 群组ID
+     * @param inviteeUserIds 邀请的用户ID列表
+     * @param coreErrorCode 错误码
+     * @since 5.12.2
+     */
+    protected void onCreateGroupResult(
+            String groupId,
+            List<String> inviteeUserIds,
+            IRongCoreEnum.CoreErrorCode coreErrorCode) {
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_NEED_INVITEE_ACCEPT
+                || coreErrorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+            ConversationIdentifier conversationIdentifier =
+                    ConversationIdentifier.obtain(Conversation.ConversationType.GROUP, groupId, "");
+            RouteUtils.routeToConversationActivity(getContext(), conversationIdentifier);
+            sendFinishActivityBroadcast(FriendSelectFragment.class);
+            finishActivity();
+        } else {
+            ToastUtils.show(
+                    getContext(), getString(R.string.rc_create_group_failure), Toast.LENGTH_SHORT);
+        }
     }
 }

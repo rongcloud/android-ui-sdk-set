@@ -17,6 +17,7 @@ import io.rong.imlib.model.ConversationIdentifier;
  * 群组联系人页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class GroupMemberListActivity extends BaseActivity {
 

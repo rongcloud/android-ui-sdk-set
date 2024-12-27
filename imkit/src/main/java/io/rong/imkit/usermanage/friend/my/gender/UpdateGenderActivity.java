@@ -13,6 +13,12 @@ import io.rong.imkit.base.BaseActivity;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.UserProfile;
 
+/**
+ * 更新性别页面
+ *
+ * @author rongcloud
+ * @since 5.12.0
+ */
 public class UpdateGenderActivity extends BaseActivity {
 
     private Fragment fragment;

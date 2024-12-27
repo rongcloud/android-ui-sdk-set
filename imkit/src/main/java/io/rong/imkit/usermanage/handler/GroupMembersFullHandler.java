@@ -2,17 +2,25 @@ package io.rong.imkit.usermanage.handler;
 
 import androidx.annotation.NonNull;
 import io.rong.common.rlog.RLog;
+import io.rong.imkit.IMCenter;
 import io.rong.imkit.base.MultiDataHandler;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
+import io.rong.imlib.listener.GroupEventListener;
 import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.GroupApplicationInfo;
+import io.rong.imlib.model.GroupInfo;
+import io.rong.imlib.model.GroupInfoKeys;
 import io.rong.imlib.model.GroupMemberInfo;
 import io.rong.imlib.model.GroupMemberRole;
+import io.rong.imlib.model.GroupOperation;
+import io.rong.imlib.model.GroupOperationType;
 import io.rong.imlib.model.PagingQueryOption;
 import io.rong.imlib.model.PagingQueryResult;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 群组成员加载
@@ -20,6 +28,7 @@ import java.util.List;
  * <p>注意：使用完毕后需要调用 {@link #stop()} 方法释放资源
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class GroupMembersFullHandler extends MultiDataHandler {
 
@@ -34,9 +43,11 @@ public class GroupMembersFullHandler extends MultiDataHandler {
     private final List<GroupMemberInfo> groupMemberInfos = new ArrayList<>();
 
     private volatile boolean isLoading = false;
+    private GroupMemberRole groupMemberRole;
 
     public GroupMembersFullHandler(@NonNull ConversationIdentifier conversationIdentifier) {
         this.groupId = conversationIdentifier.getTargetId();
+        IMCenter.getInstance().addGroupEventListener(groupEventListener);
     }
 
     /**
@@ -46,9 +57,10 @@ public class GroupMembersFullHandler extends MultiDataHandler {
      */
     public void getAllGroupMembersByRole(@NonNull GroupMemberRole groupMemberRole) {
         if (isLoading) {
-            RLog.d(TAG, "getGroupMembersByRole is loaded");
+            RLog.d(TAG, "getAllGroupMembersByRole is loaded");
             return;
         }
+        this.groupMemberRole = groupMemberRole;
         groupMemberInfos.clear();
         isLoading = true;
         // 如果是 Undef 则依次拉取所有角色
@@ -75,9 +87,7 @@ public class GroupMembersFullHandler extends MultiDataHandler {
         PagingQueryOption pagingQueryOption = new PagingQueryOption();
         pagingQueryOption.setCount(100);
         pagingQueryOption.setPageToken(pageToken);
-        if (groupMemberRole == GroupMemberRole.Normal || groupMemberRole == GroupMemberRole.Undef) {
-            pagingQueryOption.setOrder(true);
-        }
+        pagingQueryOption.setOrder(true);
         RongCoreClient.getInstance()
                 .getGroupMembersByRole(
                         groupId,
@@ -118,4 +128,61 @@ public class GroupMembersFullHandler extends MultiDataHandler {
                             }
                         });
     }
+
+    @Override
+    public void stop() {
+        super.stop();
+        IMCenter.getInstance().removeGroupEventListener(groupEventListener);
+    }
+
+    private final GroupEventListener groupEventListener =
+            new GroupEventListener() {
+                @Override
+                public void onGroupOperation(
+                        String groupId,
+                        GroupMemberInfo operatorInfo,
+                        GroupInfo groupInfo,
+                        GroupOperation operation,
+                        List<GroupMemberInfo> memberInfos,
+                        long operationTime) {
+                    if (Objects.equals(groupId, GroupMembersFullHandler.this.groupId)) {
+                        getAllGroupMembersByRole(groupMemberRole);
+                    }
+                }
+
+                @Override
+                public void onGroupInfoChanged(
+                        GroupMemberInfo operatorInfo,
+                        GroupInfo groupInfo,
+                        List<GroupInfoKeys> updateKeys,
+                        long operationTime) {}
+
+                @Override
+                public void onGroupMemberInfoChanged(
+                        String groupId,
+                        GroupMemberInfo operatorInfo,
+                        GroupMemberInfo memberInfo,
+                        long operationTime) {
+                    if (Objects.equals(groupId, GroupMembersFullHandler.this.groupId)) {
+                        getAllGroupMembersByRole(groupMemberRole);
+                    }
+                }
+
+                @Override
+                public void onGroupApplicationEvent(GroupApplicationInfo info) {}
+
+                @Override
+                public void onGroupRemarkChangedSync(
+                        String groupId,
+                        GroupOperationType operationType,
+                        String groupRemark,
+                        long operationTime) {}
+
+                @Override
+                public void onGroupFollowsChangedSync(
+                        String groupId,
+                        GroupOperationType operationType,
+                        List<String> userIds,
+                        long operationTime) {}
+            };
 }

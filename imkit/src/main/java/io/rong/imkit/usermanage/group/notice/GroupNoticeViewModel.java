@@ -10,10 +10,10 @@ import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.GroupInfo;
 
 /**
- * 功能描述: 创建增加群联系人 ViewModel
+ * 群公告页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class GroupNoticeViewModel extends BaseViewModel {
 

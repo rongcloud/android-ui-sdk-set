@@ -14,6 +14,12 @@ import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.FriendInfo;
 import io.rong.imlib.model.UserProfile;
 
+/**
+ * 更新昵称页面
+ *
+ * @author rongcloud
+ * @since 5.12.0
+ */
 public class UpdateNickNameActivity extends BaseActivity {
 
     private Fragment fragment;

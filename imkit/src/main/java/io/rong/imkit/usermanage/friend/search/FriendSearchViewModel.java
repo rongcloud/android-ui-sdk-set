@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述: 搜索联系人ViewModel
+ * 搜索好友ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class FriendSearchViewModel extends BaseViewModel {
     private final MutableLiveData<List<FriendInfo>> friendInfoLiveData = new MutableLiveData<>();

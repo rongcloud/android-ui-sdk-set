@@ -22,10 +22,10 @@ import io.rong.imlib.model.FriendInfo;
 import io.rong.imlib.model.UserProfile;
 
 /**
- * 功能描述:
+ * 更新昵称页面
  *
  * @author rongcloud
- * @since 5.10.5
+ * @since 5.12.0
  */
 public class UpdateNickNameFragment extends BaseViewModelFragment<UpdateNickNameViewModel> {
     protected EditText etContent;

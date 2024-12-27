@@ -12,7 +12,7 @@ import java.lang.reflect.Constructor;
  * 功能描述: ViewModelFactory
  *
  * @author rongcloud
- * @since 5.10.5
+ * @since 5.12.0
  */
 public class ViewModelFactory implements ViewModelProvider.Factory {
 

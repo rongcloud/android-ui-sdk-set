@@ -18,6 +18,7 @@ import io.rong.imkit.usermanage.component.ContactListComponent;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.component.SearchComponent;
 import io.rong.imkit.usermanage.group.create.GroupCreateActivity;
+import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.model.FriendInfo;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 功能描述: 选择联系人页面
+ * 好友选择页面
  *
  * @author rongcloud
  * @since 5.12.0
@@ -102,49 +103,69 @@ public class FriendSelectFragment extends BaseViewModelFragment<FriendSelectView
                 .observe(
                         getViewLifecycleOwner(),
                         contactModels -> {
-                            if (contactListComponent != null) {
-                                contactListComponent.setContactList(contactModels);
-                            }
-                        });
-
-        viewModel
-                .getAllContactsLiveData()
-                .observe(
-                        getViewLifecycleOwner(),
-                        contactModels -> {
-                            if (contactModels == null || contactModels.isEmpty()) {
-                                contactListComponent.setVisibility(View.GONE);
-                                tvEmptyContacts.setVisibility(View.VISIBLE);
-                            } else {
-                                contactListComponent.setVisibility(View.VISIBLE);
+                            if (contactModels != null && !contactModels.isEmpty()) {
                                 tvEmptyContacts.setVisibility(View.GONE);
+                                contactListComponent.setVisibility(View.VISIBLE);
+                                contactListComponent.post(
+                                        () -> contactListComponent.setContactList(contactModels));
+                            } else {
+                                tvEmptyContacts.setVisibility(View.VISIBLE);
+                                contactListComponent.setVisibility(View.GONE);
                             }
                         });
 
         // 设置联系人列表点击事件
-        contactListComponent.setOnContactClickListener(
-                contactModel -> {
-                    List<ContactModel> contactModelList =
-                            viewModel.getSelectedContactsLiveData().getValue();
-                    ContactModel.CheckType newCheckType = contactModel.getCheckType();
-                    if (newCheckType == ContactModel.CheckType.UNCHECKED
-                            && contactModelList != null
-                            && contactModelList.size() >= maxCount) {
-                        ToastUtils.show(
-                                getContext(),
-                                getString(R.string.rc_max_group_members_selection, maxCount),
-                                Toast.LENGTH_SHORT);
-                        return;
-                    }
-                    if (newCheckType == ContactModel.CheckType.CHECKED) {
-                        newCheckType = ContactModel.CheckType.UNCHECKED;
-                    } else {
-                        newCheckType = ContactModel.CheckType.CHECKED;
-                    }
+        contactListComponent.setOnItemClickListener(
+                new OnActionClickListener<ContactModel>() {
+                    @Override
+                    public void onActionClick(ContactModel contactModel) {}
 
-                    // 更新 ContactModel 并通知 ViewModel
-                    contactModel.setCheckType(newCheckType);
-                    viewModel.updateContact(contactModel);
+                    @Override
+                    public <E> void onActionClickWithConfirm(
+                            ContactModel contactModel, OnConfirmClickListener<E> listener) {
+                        OnActionClickListener.super.onActionClickWithConfirm(
+                                contactModel, listener);
+                        if (listener != null) {
+                            handleContactSelection(
+                                    viewModel,
+                                    contactModel,
+                                    (OnConfirmClickListener<Boolean>) listener);
+                        }
+                    }
                 });
+    }
+
+    /**
+     * 处理联系人选择
+     *
+     * @param viewModel 群成员选择 ViewModel
+     * @param contactModel 联系人信息
+     * @param listener 确认点击监听器
+     */
+    private void handleContactSelection(
+            @NonNull FriendSelectViewModel viewModel,
+            ContactModel contactModel,
+            OnActionClickListener.OnConfirmClickListener<Boolean> listener) {
+        List<ContactModel> contactModelList = viewModel.getSelectedContactsLiveData().getValue();
+        ContactModel.CheckType newCheckType = contactModel.getCheckType();
+        if (newCheckType == ContactModel.CheckType.UNCHECKED
+                && contactModelList != null
+                && contactModelList.size() >= maxCount) {
+            ToastUtils.show(
+                    getContext(),
+                    getString(R.string.rc_max_group_members_selection, maxCount),
+                    Toast.LENGTH_SHORT);
+            return;
+        }
+
+        if (contactModel.getCheckType() != ContactModel.CheckType.DISABLE) {
+            ContactModel.CheckType updateCheckType =
+                    (contactModel.getCheckType() == ContactModel.CheckType.CHECKED)
+                            ? ContactModel.CheckType.UNCHECKED
+                            : ContactModel.CheckType.CHECKED;
+            listener.onActionClick(true);
+            contactModel.setCheckType(updateCheckType);
+            viewModel.updateContact(contactModel);
+        }
     }
 }

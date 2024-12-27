@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <io.rong.imkit.usermanage.component.HeadComponent
+        android:id="@+id/rc_head_component"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_title_bar_height"
+        app:head_right_text_drawable="@drawable/rc_title_bar_more"
+        app:head_title_text="@string/rc_all_requests" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/rc_empty_tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingBottom="@dimen/rc_margin_size_127"
+            android:text="@string/rc_no_data"
+            android:visibility="gone"
+            tools:visiblity="visible" />
+
+        <io.rong.imkit.usermanage.component.CommonListComponent
+            android:id="@+id/rc_common_list_component"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:enable_load_more="true"
+            app:enable_refresh="false" />
+
+    </FrameLayout>
+
+</LinearLayout>

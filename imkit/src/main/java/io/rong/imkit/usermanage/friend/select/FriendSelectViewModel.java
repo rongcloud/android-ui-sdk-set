@@ -17,18 +17,19 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * 功能描述: 创建群组ViewModel
+ * 好友选择页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class FriendSelectViewModel extends BaseViewModel {
 
-    private final MutableLiveData<List<ContactModel>> allContactsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<ContactModel>> allContactsLiveData =
+            new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<ContactModel>> filteredContactsLiveData =
-            new MutableLiveData<>();
+            new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<ContactModel>> selectedContactsLiveData =
-            new MutableLiveData<>();
+            new MutableLiveData<>(new ArrayList<>());
     private final FriendInfoHandler friendInfoHandler;
 
     public FriendSelectViewModel(@NonNull Bundle arguments) {
@@ -59,6 +60,7 @@ public class FriendSelectViewModel extends BaseViewModel {
         return selectedContactsLiveData;
     }
 
+    @Deprecated
     public LiveData<List<ContactModel>> getAllContactsLiveData() {
         return allContactsLiveData;
     }
@@ -69,59 +71,35 @@ public class FriendSelectViewModel extends BaseViewModel {
      * @param updatedContact 更新后的联系人
      */
     public void updateContact(ContactModel updatedContact) {
-        List<ContactModel> allContacts = filteredContactsLiveData.getValue();
-        if (allContacts == null) {
-            return;
-        }
+        List<ContactModel> selectedList = new ArrayList<>(selectedContactsLiveData.getValue());
 
-        boolean allContactsUpdated = false;
+        // 使用迭代器检查并移除或添加元素
+        Iterator<ContactModel> iterator = selectedList.iterator();
+        boolean found = false;
 
-        // 更新选中联系人列表
-        List<ContactModel> selectedContactsValue = selectedContactsLiveData.getValue();
-        if (selectedContactsValue == null) {
-            selectedContactsValue = new ArrayList<>();
-        }
-
-        // 更新所有联系人列表中的相应联系人状态
-        for (int i = 0; i < allContacts.size(); i++) {
-            ContactModel contact = allContacts.get(i);
+        while (iterator.hasNext()) {
+            ContactModel contact = iterator.next();
             if (contact.getBean() instanceof FriendInfo
                     && updatedContact.getBean() instanceof FriendInfo) {
                 FriendInfo friendInfo = (FriendInfo) contact.getBean();
                 FriendInfo updatedFriendInfo = (FriendInfo) updatedContact.getBean();
-                if (friendInfo != null
-                        && friendInfo.getUserId().equals(updatedFriendInfo.getUserId())) {
-                    allContacts.get(i).setCheckType(updatedContact.getCheckType());
-                    allContactsUpdated = true;
-
-                    if (updatedContact.getCheckType() == ContactModel.CheckType.CHECKED) {
-                        selectedContactsValue.add(updatedContact);
-                    } else {
-                        // 使用迭代器进行移除操作，确保兼容性
-                        Iterator<ContactModel> iterator = selectedContactsValue.iterator();
-                        while (iterator.hasNext()) {
-                            ContactModel contactModel = iterator.next();
-                            if (contactModel.getBean() instanceof FriendInfo) {
-                                FriendInfo selectedFriendInfo = (FriendInfo) contactModel.getBean();
-                                if (selectedFriendInfo
-                                        .getUserId()
-                                        .equals(selectedFriendInfo.getUserId())) {
-                                    iterator.remove();
-                                    break;
-                                }
-                            }
-                        }
+                if (friendInfo.getUserId().equals(updatedFriendInfo.getUserId())) {
+                    found = true;
+                    if (updatedContact.getCheckType() == ContactModel.CheckType.UNCHECKED) {
+                        iterator.remove(); // 未选中时移除
                     }
-
                     break;
                 }
             }
         }
 
-        if (allContactsUpdated) {
-            selectedContactsLiveData.postValue(selectedContactsValue);
-            filteredContactsLiveData.postValue(allContacts);
+        if (!found && updatedContact.getCheckType() == ContactModel.CheckType.CHECKED) {
+            // 未找到且选中时，添加
+            selectedList.add(updatedContact);
         }
+
+        // 更新 LiveData
+        selectedContactsLiveData.postValue(selectedList);
     }
 
     /**
@@ -131,13 +109,16 @@ public class FriendSelectViewModel extends BaseViewModel {
      */
     public void queryContacts(String query) {
         if (TextUtils.isEmpty(query)) {
-            filteredContactsLiveData.postValue(allContactsLiveData.getValue());
-            return;
-        }
-        if (allContactsLiveData.getValue() == null || query == null) {
+            friendInfoHandler.getFriends(QueryFriendsDirectionType.Both);
             return;
         }
         friendInfoHandler.searchFriendsInfo(query);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        friendInfoHandler.stop();
     }
 
     private List<ContactModel> sortAndCategorizeContacts(List<FriendInfo> friendInfos) {
@@ -166,7 +147,7 @@ public class FriendSelectViewModel extends BaseViewModel {
 
         List<ContactModel> contactModels = new ArrayList<>();
         char lastCategory = '\0';
-
+        List<String> selectUserIds = getSelectUserIds();
         for (FriendInfo friendInfo : friendInfos) {
             String name = getValidName(friendInfo);
             char firstChar = StringUtils.getFirstChar(name.charAt(0));
@@ -180,13 +161,13 @@ public class FriendSelectViewModel extends BaseViewModel {
                                 ContactModel.CheckType.NONE));
                 lastCategory = firstChar;
             }
-
+            ContactModel.CheckType checkType = ContactModel.CheckType.UNCHECKED;
+            if (selectUserIds.contains(friendInfo.getUserId())) {
+                checkType = ContactModel.CheckType.CHECKED;
+            }
             // 添加联系人 ContactModel
             contactModels.add(
-                    ContactModel.obtain(
-                            friendInfo,
-                            ContactModel.ItemType.CONTENT,
-                            ContactModel.CheckType.UNCHECKED));
+                    ContactModel.obtain(friendInfo, ContactModel.ItemType.CONTENT, checkType));
         }
 
         return contactModels;
@@ -201,9 +182,21 @@ public class FriendSelectViewModel extends BaseViewModel {
         return !TextUtils.isEmpty(name) ? name : "#";
     }
 
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        friendInfoHandler.stop();
+    @NonNull
+    private List<String> getSelectUserIds() {
+        List<ContactModel> selectedList = selectedContactsLiveData.getValue();
+        if (selectedList == null || selectedList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<String> userIds = new ArrayList<>();
+        for (ContactModel contact : selectedList) {
+            if (contact.getBean() instanceof FriendInfo) {
+                FriendInfo friendInfo = (FriendInfo) contact.getBean();
+                if (friendInfo != null) {
+                    userIds.add(friendInfo.getUserId());
+                }
+            }
+        }
+        return userIds;
     }
 }

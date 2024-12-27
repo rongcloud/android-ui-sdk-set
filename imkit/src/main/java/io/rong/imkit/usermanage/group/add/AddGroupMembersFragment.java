@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,21 +17,24 @@ import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.ContactListComponent;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.component.SearchComponent;
+import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.ToastUtils;
+import io.rong.imlib.IRongCoreEnum;
 import java.util.List;
 
 /**
  * 功能描述: 创建增加群联系人页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembersViewModel> {
 
     protected HeadComponent headComponent;
     protected SearchComponent searchComponent;
     protected ContactListComponent contactListComponent;
+    private TextView emptyView;
 
     @NonNull
     @Override
@@ -50,6 +54,7 @@ public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembe
         headComponent = view.findViewById(R.id.rc_head_component);
         searchComponent = view.findViewById(R.id.rc_search_component);
         contactListComponent = view.findViewById(R.id.rc_contact_list_component);
+        emptyView = view.findViewById(R.id.rc_empty_tv);
         return view;
     }
 
@@ -63,24 +68,7 @@ public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembe
     protected void onBindHeadComponent(
             @NonNull HeadComponent headComponent, @NonNull AddGroupMembersViewModel viewModel) {
         headComponent.setLeftClickListener(v -> finishActivity());
-        headComponent.setRightClickListener(
-                v -> {
-                    viewModel.joinUsersToGroup(
-                            isSuccess -> {
-                                if (isSuccess) {
-                                    ToastUtils.show(
-                                            getActivity(),
-                                            getString(R.string.rc_invite_join_group_success),
-                                            Toast.LENGTH_SHORT);
-                                    finishActivity();
-                                } else {
-                                    ToastUtils.show(
-                                            getActivity(),
-                                            getString(R.string.rc_invite_join_group_failed),
-                                            Toast.LENGTH_SHORT);
-                                }
-                            });
-                });
+        headComponent.setRightClickListener(v -> handleConfirmSelection(viewModel));
 
         viewModel
                 .getSelectedContactsLiveData()
@@ -91,6 +79,42 @@ public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembe
                                 headComponent.setRightTextViewEnable(!contactModels.isEmpty());
                             }
                         });
+    }
+
+    private void handleConfirmSelection(@NonNull AddGroupMembersViewModel viewModel) {
+        viewModel.inviteUsersToGroup(
+                errorCode ->
+                        onInviteUsersToGroupResult(
+                                viewModel.getGroupId(), viewModel.getSelectUserIds(), errorCode));
+    }
+
+    protected void onInviteUsersToGroupResult(
+            String groupId, List<String> selectedIdList, IRongCoreEnum.CoreErrorCode errorCode) {
+        if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+            ToastUtils.show(
+                    getActivity(),
+                    getString(R.string.rc_invite_join_group_success),
+                    Toast.LENGTH_SHORT);
+            finishActivity();
+        } else if (errorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_NEED_INVITEE_ACCEPT) {
+            ToastUtils.show(
+                    getActivity(),
+                    getString(R.string.rc_invite_join_group_send),
+                    Toast.LENGTH_SHORT);
+            finishActivity();
+        } else if (errorCode
+                == IRongCoreEnum.CoreErrorCode.RC_GROUP_JOIN_GROUP_NEED_MANAGER_ACCEPT) {
+            ToastUtils.show(
+                    getActivity(),
+                    getString(R.string.rc_invite_join_group_send_need_manange),
+                    Toast.LENGTH_SHORT);
+            finishActivity();
+        } else {
+            ToastUtils.show(
+                    getActivity(),
+                    getString(R.string.rc_invite_join_group_failed),
+                    Toast.LENGTH_SHORT);
+        }
     }
 
     protected void onBindSearchComponent(
@@ -112,35 +136,65 @@ public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembe
                 .observe(
                         getViewLifecycleOwner(),
                         contactModels -> {
-                            if (contactModels != null) {
-                                this.contactListComponent.setContactList(contactModels);
+                            if (contactModels != null && !contactModels.isEmpty()) {
+                                emptyView.setVisibility(View.GONE);
+                                contactListComponent.setVisibility(View.VISIBLE);
+                                contactListComponent.post(
+                                        () -> contactListComponent.setContactList(contactModels));
+                            } else {
+                                emptyView.setVisibility(View.VISIBLE);
+                                contactListComponent.setVisibility(View.GONE);
                             }
                         });
 
-        contactListComponent.setOnContactClickListener(
-                contactModel -> {
-                    if (contactModel.getCheckType() != ContactModel.CheckType.DISABLE) {
-                        List<ContactModel> contactModelList =
-                                viewModel.getSelectedContactsLiveData().getValue();
-                        ContactModel.CheckType newCheckType = contactModel.getCheckType();
-                        if (newCheckType == ContactModel.CheckType.UNCHECKED
-                                && contactModelList != null
-                                && contactModelList.size() >= maxCount) {
-                            ToastUtils.show(
-                                    getContext(),
-                                    getString(R.string.rc_max_group_members_selection, maxCount),
-                                    Toast.LENGTH_SHORT);
-                            return;
-                        }
-                        if (newCheckType == ContactModel.CheckType.CHECKED) {
-                            newCheckType = ContactModel.CheckType.UNCHECKED;
-                        } else {
-                            newCheckType = ContactModel.CheckType.CHECKED;
-                        }
+        // 设置联系人列表点击事件
+        contactListComponent.setOnItemClickListener(
+                new OnActionClickListener<ContactModel>() {
+                    @Override
+                    public void onActionClick(ContactModel contactModel) {}
 
-                        contactModel.setCheckType(newCheckType);
-                        viewModel.updateContact(contactModel);
+                    @Override
+                    public <E> void onActionClickWithConfirm(
+                            ContactModel contactModel, OnConfirmClickListener<E> listener) {
+                        OnActionClickListener.super.onActionClickWithConfirm(
+                                contactModel, listener);
+                        if (listener != null) {
+                            handleContactSelection(
+                                    viewModel,
+                                    contactModel,
+                                    maxCount,
+                                    (OnConfirmClickListener<Boolean>) listener);
+                        }
                     }
                 });
+    }
+
+    private void handleContactSelection(
+            @NonNull AddGroupMembersViewModel viewModel,
+            ContactModel contactModel,
+            int maxCount,
+            OnActionClickListener.OnConfirmClickListener<Boolean> listener) {
+        if (contactModel.getCheckType() != ContactModel.CheckType.DISABLE) {
+            List<ContactModel> contactModelList =
+                    viewModel.getSelectedContactsLiveData().getValue();
+            ContactModel.CheckType newCheckType = contactModel.getCheckType();
+            if (newCheckType == ContactModel.CheckType.UNCHECKED
+                    && contactModelList != null
+                    && contactModelList.size() >= maxCount) {
+                ToastUtils.show(
+                        getContext(),
+                        getString(R.string.rc_max_group_members_selection, maxCount),
+                        Toast.LENGTH_SHORT);
+                return;
+            }
+
+            ContactModel.CheckType updateCheckType =
+                    (contactModel.getCheckType() == ContactModel.CheckType.CHECKED)
+                            ? ContactModel.CheckType.UNCHECKED
+                            : ContactModel.CheckType.CHECKED;
+            listener.onActionClick(true);
+            contactModel.setCheckType(updateCheckType);
+            viewModel.updateContact(contactModel);
+        }
     }
 }

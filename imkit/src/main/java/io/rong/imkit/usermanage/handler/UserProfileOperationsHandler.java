@@ -1,17 +1,19 @@
 package io.rong.imkit.usermanage.handler;
 
+import io.rong.imkit.IMCenter;
 import io.rong.imkit.base.MultiDataHandler;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.UserProfile;
 import java.util.Map;
 
 /**
- * 用户详情
+ * 用户信息操作处理类
+ *
+ * <p>注意：使用完毕后需要调用 {@link #stop()} 方法释放资源
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class UserProfileOperationsHandler extends MultiDataHandler {
 
@@ -27,7 +29,7 @@ public class UserProfileOperationsHandler extends MultiDataHandler {
      * @param userProfile 用户信息
      */
     public void updateMyUserProfile(UserProfile userProfile) {
-        RongCoreClient.getInstance()
+        IMCenter.getInstance()
                 .updateMyUserProfile(
                         userProfile,
                         new IRongCoreCallback.UpdateUserProfileCallback() {
@@ -56,7 +58,7 @@ public class UserProfileOperationsHandler extends MultiDataHandler {
      */
     public void setFriendInfo(
             final String userId, final String remark, final Map<String, String> extProfile) {
-        RongCoreClient.getInstance()
+        IMCenter.getInstance()
                 .setFriendInfo(
                         userId,
                         remark,
@@ -73,10 +75,5 @@ public class UserProfileOperationsHandler extends MultiDataHandler {
                                 notifyDataError(KEY_SET_FRIEND_INFO, coreErrorCode);
                             }
                         });
-    }
-
-    @Override
-    public void stop() {
-        super.stop();
     }
 }

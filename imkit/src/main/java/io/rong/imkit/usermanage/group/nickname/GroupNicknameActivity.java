@@ -14,9 +14,10 @@ import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.ConversationIdentifier;
 
 /**
- * 创建增加群联系人页面
+ * 创建修改群昵称页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class GroupNicknameActivity extends BaseActivity {
 
@@ -24,10 +25,24 @@ public class GroupNicknameActivity extends BaseActivity {
 
     @NonNull
     public static Intent newIntent(
-            @NonNull Context context, @NonNull ConversationIdentifier conversationIdentifier) {
+            @NonNull Context context,
+            @NonNull ConversationIdentifier conversationIdentifier,
+            String userId) {
+        return newIntent(context, conversationIdentifier, userId, "");
+    }
+
+    /** @since 5.12.2 */
+    @NonNull
+    public static Intent newIntent(
+            @NonNull Context context,
+            @NonNull ConversationIdentifier conversationIdentifier,
+            String userId,
+            String title) {
         Intent intent = new Intent(context, GroupNicknameActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER, conversationIdentifier);
+        bundle.putString(KitConstants.KEY_USER_ID, userId);
+        bundle.putString(KitConstants.KEY_TITLE, title);
         intent.putExtras(bundle);
         return intent;
     }

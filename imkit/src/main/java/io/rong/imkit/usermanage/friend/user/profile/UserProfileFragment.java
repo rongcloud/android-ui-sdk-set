@@ -20,19 +20,23 @@ import io.rong.imkit.model.UiUserDetail;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.friend.my.nikename.UpdateNickNameActivity;
+import io.rong.imkit.usermanage.group.nickname.GroupNicknameActivity;
+import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.CommonDialog;
+import io.rong.imkit.widget.SettingItemView;
 import io.rong.imkit.widget.SimpleInputDialog;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.FriendInfo;
 
 /**
- * 功能描述:
+ * 用户资料页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewModel> {
     protected HeadComponent headComponent;
@@ -47,6 +51,8 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
     private ImageView ivUserPortrait;
     private View llFriendActions;
     private View llNoFriendActions;
+    /** @since 5.12.2 */
+    private SettingItemView groupNicknameView;
 
     @NonNull
     @Override
@@ -75,6 +81,8 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
         ivUserPortrait = rootView.findViewById(R.id.user_portrait);
         llFriendActions = rootView.findViewById(R.id.ll_friend_actions);
         llNoFriendActions = rootView.findViewById(R.id.ll_no_friend_actions);
+
+        groupNicknameView = rootView.findViewById(R.id.siv_group_nickname);
         return rootView;
     }
 
@@ -145,8 +153,37 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
                                             ivUserPortrait);
                         });
 
-        // 获取用户信息
-        viewModel.getUserProfile();
+        if (groupNicknameView != null) {
+            viewModel
+                    .getMyGroupMemberInfoLiveData()
+                    .observe(
+                            getViewLifecycleOwner(),
+                            groupMemberInfo -> {
+                                if (groupMemberInfo != null) {
+                                    groupNicknameView.setVisibility(View.VISIBLE);
+                                    groupNicknameView.setValue(groupMemberInfo.getNickname());
+                                }
+                                groupNicknameView.setRightImageVisibility(
+                                        viewModel.hasEditPermission() ? View.VISIBLE : View.GONE);
+                            });
+        }
+
+        ConversationIdentifier conversationIdentifier =
+                getArguments().getParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER);
+        String userId = getArguments().getString(KitConstants.KEY_USER_ID);
+        if (groupNicknameView != null && conversationIdentifier != null) {
+            groupNicknameView.setOnClickListener(
+                    v -> {
+                        if (viewModel.hasEditPermission()) {
+                            startActivity(
+                                    GroupNicknameActivity.newIntent(
+                                            getContext(),
+                                            conversationIdentifier,
+                                            userId,
+                                            getString(R.string.rc_group_nickname)));
+                        }
+                    });
+        }
     }
 
     private void showAddFriendDialog() {
@@ -219,8 +256,8 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         getViewModel().getUserProfile();
     }
 }

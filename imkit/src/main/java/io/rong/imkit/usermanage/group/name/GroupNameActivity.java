@@ -15,9 +15,10 @@ import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.GroupInfo;
 
 /**
- * 创建增加群联系人页面
+ * 创建修改群名称页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class GroupNameActivity extends BaseActivity {
 

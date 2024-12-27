@@ -18,6 +18,7 @@ import io.rong.imlib.model.GroupMemberRole;
  * 创建移除群成员页面
  *
  * @author rongcloud
+ * @since 5.12.0
  */
 public class RemoveGroupMembersActivity extends BaseActivity {
 

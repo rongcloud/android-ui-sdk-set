@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 功能描述: 联系人页面 ViewModel
+ * 好友列表页面ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class FriendListViewModel extends BaseViewModel {
 

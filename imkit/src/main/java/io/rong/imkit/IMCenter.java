@@ -24,6 +24,7 @@ import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.usermanage.interfaces.OnGroupAndUserEventListener;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.ChannelClient;
@@ -64,6 +65,7 @@ import io.rong.imlib.model.UltraGroupChannelChangeTypeInfo;
 import io.rong.imlib.model.UltraGroupChannelDisbandedInfo;
 import io.rong.imlib.model.UltraGroupChannelUserKickedInfo;
 import io.rong.imlib.model.UserInfo;
+import io.rong.imlib.model.UserProfile;
 import io.rong.imlib.typingmessage.TypingStatus;
 import io.rong.message.FileMessage;
 import io.rong.message.ImageMessage;
@@ -97,7 +99,9 @@ public class IMCenter {
     private List<RongIMClient.OnRecallMessageListener> mOnRecallMessageObserverList =
             new CopyOnWriteArrayList<>();
 
-    private List<MessageEventListener> mMessageEventListeners = new CopyOnWriteArrayList<>();
+    private final List<MessageEventListener> mMessageEventListeners = new CopyOnWriteArrayList<>();
+    private final List<OnGroupAndUserEventListener> onGroupAndUserEventListeners =
+            new CopyOnWriteArrayList<>();
     private Map<String, IRongCallback.IDownloadMediaFileCallback> mMediaListeners =
             new ConcurrentHashMap<>();
     private List<ConversationEventListener> mConversationEventListener =
@@ -2944,6 +2948,227 @@ public class IMCenter {
                         });
     }
 
+    /**
+     * 设置消息接收状态
+     *
+     * @param message 消息实体
+     * @param receivedStatus 接收状态
+     * @param callback 设置消息接收状态的回调
+     * @since 5.12.2
+     */
+    public void updateGroupInfo(
+            @NonNull GroupInfo groupInfo, IRongCoreCallback.OperationCallbackEx<String> callback) {
+        RongCoreClient.getInstance()
+                .updateGroupInfo(
+                        groupInfo,
+                        new IRongCoreCallback.OperationCallbackEx<String>() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateGroupInfo(
+                                            groupInfo, IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode errorCode, String errorData) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateGroupInfo(groupInfo, errorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(errorCode, errorData);
+                                }
+                            }
+                        });
+    }
+
+    /**
+     * 设置群组信息
+     *
+     * @param groupId 群组 Id
+     * @param groupName 群组名称
+     * @param portrait 群组头像
+     * @param callback 设置群组信息回调
+     * @since 5.12.2
+     */
+    public void setGroupMemberInfo(
+            String groupId,
+            String userId,
+            String nickname,
+            String extra,
+            IRongCoreCallback.OperationCallback callback) {
+        RongCoreClient.getInstance()
+                .setGroupMemberInfo(
+                        groupId,
+                        userId,
+                        nickname,
+                        extra,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setGroupMemberInfo(
+                                            groupId,
+                                            userId,
+                                            nickname,
+                                            extra,
+                                            IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setGroupMemberInfo(
+                                            groupId, userId, nickname, extra, coreErrorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(coreErrorCode);
+                                }
+                            }
+                        });
+    }
+
+    /**
+     * 设置群组备注
+     *
+     * @param groupId 群组 Id
+     * @param remark 备注
+     * @param callback 设置群组备注回调
+     * @since 5.12.2
+     */
+    public void setGroupRemark(
+            String groupId, final String remark, IRongCoreCallback.OperationCallback callback) {
+        RongCoreClient.getInstance()
+                .setGroupRemark(
+                        groupId,
+                        remark,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setGroupRemark(
+                                            groupId, remark, IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setGroupRemark(groupId, remark, coreErrorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(coreErrorCode);
+                                }
+                            }
+                        });
+    }
+
+    /**
+     * 更新我的用户信息
+     *
+     * @param userProfile 用户信息
+     * @param callback 更新用户信息回调
+     * @since 5.12.2
+     */
+    public void updateMyUserProfile(
+            UserProfile userProfile, IRongCoreCallback.UpdateUserProfileCallback callback) {
+        RongCoreClient.getInstance()
+                .updateMyUserProfile(
+                        userProfile,
+                        new IRongCoreCallback.UpdateUserProfileCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateMyUserProfile(
+                                            userProfile, IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(int errorCode, String errorData) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateMyUserProfile(
+                                            userProfile,
+                                            IRongCoreEnum.CoreErrorCode.valueOf(errorCode));
+                                }
+                                if (callback != null) {
+                                    callback.onError(errorCode, errorData);
+                                }
+                            }
+                        });
+    }
+
+    /**
+     * 设置好友信息
+     *
+     * @param userId 用户 Id
+     * @param remark 备注
+     * @param extProfile 扩展信息
+     * @param callback 设置好友信息回调
+     * @since 5.12.2
+     */
+    public void setFriendInfo(
+            final String userId,
+            final String remark,
+            final Map<String, String> extProfile,
+            IRongCoreCallback.OperationCallback callback) {
+        RongCoreClient.getInstance()
+                .setFriendInfo(
+                        userId,
+                        remark,
+                        extProfile,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setFriendInfo(
+                                            userId,
+                                            remark,
+                                            extProfile,
+                                            IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setFriendInfo(
+                                            userId, remark, extProfile, coreErrorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(coreErrorCode);
+                                }
+                            }
+                        });
+    }
+
     public void changeMessageReceivedStatus(
             int messageId,
             Conversation.ConversationType conversationType,
@@ -3054,6 +3279,29 @@ public class IMCenter {
         mMessageEventListeners.remove(listener);
     }
 
+    /**
+     * 添加群组和用户信息事件监听
+     *
+     * @param listener 群组和用户信息事件监听
+     * @since 5.12.2
+     */
+    public void addOnGroupAndUserEventListener(OnGroupAndUserEventListener listener) {
+        if (listener == null || onGroupAndUserEventListeners.contains(listener)) {
+            return;
+        }
+        onGroupAndUserEventListeners.add(listener);
+    }
+
+    /**
+     * 移除群组和用户信息事件监听
+     *
+     * @param listener 群组和用户信息事件监听
+     * @since 5.12.2
+     */
+    public void removeOnGroupAndUserEventListener(OnGroupAndUserEventListener listener) {
+        onGroupAndUserEventListeners.remove(listener);
+    }
+
     public void addMediaListener(String uid, IRongCallback.IDownloadMediaFileCallback listener) {
         if (listener == null) {
             return;
@@ -3125,6 +3373,7 @@ public class IMCenter {
      * 添加群组事件监听器
      *
      * @param listener 群组事件监听器
+     * @since 5.12.0
      */
     public void addGroupEventListener(@NonNull GroupEventListener listener) {
         mGroupEventListeners.add(listener);
@@ -3134,6 +3383,7 @@ public class IMCenter {
      * 移除群组事件监听器
      *
      * @param listener 群组事件监听器
+     * @since 5.12.0
      */
     public void removeGroupEventListener(@NonNull GroupEventListener listener) {
         mGroupEventListeners.remove(listener);
@@ -3143,17 +3393,30 @@ public class IMCenter {
      * 添加订阅事件监听器
      *
      * @param listener 订阅事件监听器
+     * @since 5.12.0
      */
     public void addSubscribeEventListener(@NonNull OnSubscribeEventListener listener) {
         mSubscribeEventListeners.add(listener);
     }
 
+    /**
+     * 添加好友事件监听器
+     *
+     * @param listener 好友事件监听器
+     * @since 5.12.0
+     */
     public void addFriendEventListener(FriendEventListener listener) {
         if (listener != null) {
             friendEventListeners.add(listener);
         }
     }
 
+    /**
+     * 移除好友事件监听器
+     *
+     * @param listener 好友事件监听器
+     * @since 5.12.0
+     */
     public void removeFriendEventListener(FriendEventListener listener) {
         if (listener != null) {
             friendEventListeners.remove(listener);
@@ -3164,6 +3427,7 @@ public class IMCenter {
      * 移除订阅事件监听器
      *
      * @param listener 订阅事件监听器
+     * @since 5.12.0
      */
     public void removeSubscribeEventListener(@NonNull OnSubscribeEventListener listener) {
         mSubscribeEventListeners.remove(listener);

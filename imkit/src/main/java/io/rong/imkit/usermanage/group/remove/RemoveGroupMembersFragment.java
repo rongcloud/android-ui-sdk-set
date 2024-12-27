@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,16 +20,17 @@ import io.rong.imkit.usermanage.component.SearchComponent;
 import io.rong.imkit.utils.ToastUtils;
 
 /**
- * 功能描述: 创建移除群成员页面
+ * 移除群成员页面
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class RemoveGroupMembersFragment extends BaseViewModelFragment<RemoveGroupMembersViewModel> {
 
     protected HeadComponent headComponent;
     protected SearchComponent searchComponent;
     protected ContactListComponent contactListComponent;
+    private TextView emptyView;
 
     @NonNull
     @Override
@@ -48,6 +50,7 @@ public class RemoveGroupMembersFragment extends BaseViewModelFragment<RemoveGrou
         headComponent = view.findViewById(R.id.rc_head_component);
         searchComponent = view.findViewById(R.id.rc_search_component);
         contactListComponent = view.findViewById(R.id.rc_contact_list_component);
+        emptyView = view.findViewById(R.id.rc_empty_tv);
         return view;
     }
 
@@ -96,26 +99,31 @@ public class RemoveGroupMembersFragment extends BaseViewModelFragment<RemoveGrou
     protected void onBindSearchComponent(
             @NonNull SearchComponent searchComponent,
             @NonNull RemoveGroupMembersViewModel viewModel) {
-        searchComponent.setSearchQueryListener(viewModel::queryContacts);
+        searchComponent.setSearchQueryListener(viewModel::queryGroupMembers);
     }
 
     protected void onBindContactListComponent(
             @NonNull ContactListComponent contactListComponent,
             @NonNull RemoveGroupMembersViewModel viewModel) {
-        contactListComponent.setOnPageDataLoader(viewModel.getOnPageDataLoader());
+        contactListComponent.setOnPageDataLoader(viewModel);
         contactListComponent.setEnableLoadMore(true);
         viewModel
                 .getFilteredContactsLiveData()
                 .observe(
                         getViewLifecycleOwner(),
                         contactModels -> {
-                            if (contactModels != null) {
+                            if (contactModels != null && !contactModels.isEmpty()) {
+                                emptyView.setVisibility(View.GONE);
+                                contactListComponent.setVisibility(View.VISIBLE);
                                 contactListComponent.post(
                                         () -> contactListComponent.setContactList(contactModels));
+                            } else {
+                                emptyView.setVisibility(View.VISIBLE);
+                                contactListComponent.setVisibility(View.GONE);
                             }
                         });
 
-        contactListComponent.setOnContactClickListener(
+        contactListComponent.setOnItemClickListener(
                 contactModel -> {
                     if (contactModel.getCheckType() != ContactModel.CheckType.DISABLE) {
                         ContactModel.CheckType newCheckType =

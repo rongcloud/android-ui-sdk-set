@@ -1,12 +1,15 @@
 package io.rong.imkit.usermanage.group.remove;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.model.ContactModel;
+import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.usermanage.handler.GroupMembersPagedHandler;
+import io.rong.imkit.usermanage.handler.GroupMembersSearchPagedHandler;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.usermanage.interfaces.OnPagedDataLoader;
@@ -17,37 +20,34 @@ import io.rong.imlib.model.GroupMemberInfo;
 import io.rong.imlib.model.GroupMemberRole;
 import io.rong.imlib.model.QuitGroupConfig;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 /**
- * 功能描述: 创建移除群成员 ViewModel
+ * 移除群成员页面 ViewModel
  *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
-public class RemoveGroupMembersViewModel extends BaseViewModel {
+public class RemoveGroupMembersViewModel extends BaseViewModel implements OnPagedDataLoader {
 
-    private final MutableLiveData<List<ContactModel>> friendInfoListLiveData =
-            new MutableLiveData<>();
+    private final MutableLiveData<List<ContactModel>> allContactsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<ContactModel>> filteredContactsLiveData =
             new MutableLiveData<>();
     private final MutableLiveData<List<ContactModel>> selectedContactsLiveData =
             new MutableLiveData<>(new ArrayList<>());
-    private final Set<String> existingGroupMemberIds = new HashSet<>();
 
     protected final GroupMembersPagedHandler groupMembersPagedHandler;
+    protected final GroupMembersSearchPagedHandler groupMembersSearchPagedHandler;
     protected final GroupOperationsHandler groupOperationsHandler;
 
-    private String currentQuery;
+    private boolean isSearchMode = false;
 
     public RemoveGroupMembersViewModel(@NonNull Bundle arguments) {
         super(arguments);
         ConversationIdentifier conversationIdentifier =
                 arguments.getParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER);
-        GroupMemberRole groupMemberRole =
-                (GroupMemberRole) arguments.getSerializable(KitConstants.KEY_GROUP_MEMBER_ROLE);
         // 初始化 GroupDetailHandler 以获取群成员
         groupMembersPagedHandler = new GroupMembersPagedHandler(conversationIdentifier);
         groupMembersPagedHandler.addDataChangeListener(
@@ -55,33 +55,25 @@ public class RemoveGroupMembersViewModel extends BaseViewModel {
                 new SafeDataHandler<List<GroupMemberInfo>>() {
                     @Override
                     public void onDataChange(List<GroupMemberInfo> groupMemberInfos) {
-                        if (groupMemberInfos != null) {
-                            List<ContactModel> contactModels = new ArrayList<>();
-                            for (GroupMemberInfo memberInfo : groupMemberInfos) {
-                                existingGroupMemberIds.add(memberInfo.getUserId());
-                                ContactModel.CheckType checkType =
-                                        memberInfo.getRole() == groupMemberRole
-                                                ? ContactModel.CheckType.DISABLE
-                                                : ContactModel.CheckType.UNCHECKED;
-                                contactModels.add(
-                                        ContactModel.obtain(
-                                                memberInfo,
-                                                ContactModel.ItemType.CONTENT,
-                                                checkType));
-                            }
-                            friendInfoListLiveData.postValue(contactModels);
-                            filteredContactsLiveData.postValue(contactModels);
-                            queryContacts(currentQuery);
-                        }
+                        List<ContactModel> contactModels =
+                                getAllContactsContactModels(groupMemberInfos);
+                        allContactsLiveData.postValue(contactModels);
+                        filteredContactsLiveData.postValue(contactModels);
                     }
                 });
-        GroupMemberRole getGroupMemberRole = GroupMemberRole.Undef;
-        if (groupMemberRole == GroupMemberRole.Owner) {
-            getGroupMemberRole = GroupMemberRole.Undef;
-        } else if (groupMemberRole == GroupMemberRole.Manager) {
-            getGroupMemberRole = GroupMemberRole.Normal;
-        }
-        groupMembersPagedHandler.getGroupMembersByRole(getGroupMemberRole);
+
+        groupMembersSearchPagedHandler = new GroupMembersSearchPagedHandler(conversationIdentifier);
+        groupMembersSearchPagedHandler.addDataChangeListener(
+                GroupMembersSearchPagedHandler.KEY_SEARCH_GROUP_MEMBERS,
+                new SafeDataHandler<List<GroupMemberInfo>>() {
+                    @Override
+                    public void onDataChange(List<GroupMemberInfo> groupMemberInfos) {
+                        filteredContactsLiveData.postValue(
+                                getAllContactsContactModels(groupMemberInfos));
+                    }
+                });
+
+        groupMembersPagedHandler.getGroupMembersByRole(GroupMemberRole.Undef);
 
         groupOperationsHandler = new GroupOperationsHandler(conversationIdentifier);
     }
@@ -100,65 +92,50 @@ public class RemoveGroupMembersViewModel extends BaseViewModel {
      * @param updatedContact 更新后的联系人
      */
     public void updateContact(ContactModel updatedContact) {
-        List<ContactModel> allContacts = friendInfoListLiveData.getValue();
-        List<ContactModel> selectedList = selectedContactsLiveData.getValue();
-        if (allContacts == null || selectedList == null) {
-            return;
-        }
+        List<ContactModel> selectedList = new ArrayList<>(selectedContactsLiveData.getValue());
 
-        for (int i = 0; i < allContacts.size(); i++) {
-            ContactModel contact = allContacts.get(i);
+        // 使用迭代器检查并移除或添加元素
+        Iterator<ContactModel> iterator = selectedList.iterator();
+        boolean found = false;
+
+        while (iterator.hasNext()) {
+            ContactModel contact = iterator.next();
             if (contact.getBean() instanceof GroupMemberInfo
                     && updatedContact.getBean() instanceof GroupMemberInfo) {
                 GroupMemberInfo groupMemberInfo = (GroupMemberInfo) contact.getBean();
                 GroupMemberInfo updatedGroupMemberInfo = (GroupMemberInfo) updatedContact.getBean();
-                if (groupMemberInfo != null
-                        && groupMemberInfo.getUserId().equals(updatedGroupMemberInfo.getUserId())) {
-                    contact.setCheckType(updatedContact.getCheckType());
-
-                    if (updatedContact.getCheckType() == ContactModel.CheckType.CHECKED) {
-                        selectedList.add(updatedContact);
-                    } else {
-                        selectedList.remove(updatedContact);
+                if (groupMemberInfo.getUserId().equals(updatedGroupMemberInfo.getUserId())) {
+                    found = true;
+                    if (updatedContact.getCheckType() == ContactModel.CheckType.UNCHECKED) {
+                        iterator.remove(); // 未选中时移除
                     }
-
-                    selectedContactsLiveData.postValue(selectedList);
                     break;
                 }
             }
         }
 
-        friendInfoListLiveData.postValue(allContacts);
+        if (!found && updatedContact.getCheckType() == ContactModel.CheckType.CHECKED) {
+            // 未找到且选中时，添加
+            selectedList.add(updatedContact);
+        }
+
+        // 更新 LiveData
+        selectedContactsLiveData.postValue(selectedList);
     }
 
     /**
-     * 查询联系人
+     * 查询群成员
      *
      * @param query 查询关键字
      */
-    public void queryContacts(String query) {
-        if (friendInfoListLiveData.getValue() == null || query == null) {
+    public void queryGroupMembers(String query) {
+        if (TextUtils.isEmpty(query)) {
+            isSearchMode = false;
+            groupMembersPagedHandler.getGroupMembersByRole(GroupMemberRole.Undef);
             return;
         }
-        this.currentQuery = query;
-        query = query.toLowerCase();
-
-        List<ContactModel> allContacts = friendInfoListLiveData.getValue();
-        List<ContactModel> filteredList = new ArrayList<>();
-
-        for (ContactModel contact : allContacts) {
-            if (contact.getBean() instanceof GroupMemberInfo) {
-                GroupMemberInfo groupMemberInfo = (GroupMemberInfo) contact.getBean();
-                if (groupMemberInfo != null
-                        && (groupMemberInfo.getName().toLowerCase().contains(query))) {
-                    filteredList.add(contact);
-                }
-            } else {
-                filteredList.add(contact);
-            }
-        }
-
-        filteredContactsLiveData.postValue(filteredList);
+        isSearchMode = true;
+        groupMembersSearchPagedHandler.searchGroupMembers(query);
     }
 
     /**
@@ -167,19 +144,9 @@ public class RemoveGroupMembersViewModel extends BaseViewModel {
      * @param onDataChangeListener 数据变化监听器
      */
     public void kickGroupMembers(@NonNull OnDataChangeListener<Boolean> onDataChangeListener) {
-
-        List<ContactModel> selectedList = selectedContactsLiveData.getValue();
-        if (selectedList == null || selectedList.isEmpty()) {
+        List<String> userIds = getSelectUserIds();
+        if (userIds.isEmpty()) {
             return;
-        }
-        List<String> userIds = new ArrayList<>();
-        for (ContactModel contact : selectedList) {
-            if (contact.getBean() instanceof GroupMemberInfo) {
-                GroupMemberInfo groupMemberInfo = (GroupMemberInfo) contact.getBean();
-                if (groupMemberInfo != null) {
-                    userIds.add(groupMemberInfo.getUserId());
-                }
-            }
         }
 
         groupOperationsHandler.replaceDataChangeListener(
@@ -199,14 +166,68 @@ public class RemoveGroupMembersViewModel extends BaseViewModel {
         groupOperationsHandler.kickGroupMembers(userIds, new QuitGroupConfig(true, true, true));
     }
 
-    OnPagedDataLoader getOnPageDataLoader() {
-        return groupMembersPagedHandler;
-    }
-
     @Override
     protected void onCleared() {
         super.onCleared();
         groupMembersPagedHandler.stop();
         groupOperationsHandler.stop();
+        groupMembersSearchPagedHandler.stop();
+    }
+
+    @Override
+    public void loadNext(OnDataChangeListener<Boolean> listener) {
+        if (isSearchMode) {
+            groupMembersSearchPagedHandler.loadNext(listener);
+        } else {
+            groupMembersPagedHandler.loadNext(listener);
+        }
+    }
+
+    @Override
+    public boolean hasNext() {
+        if (isSearchMode) {
+            return groupMembersSearchPagedHandler.hasNext();
+        } else {
+            return groupMembersPagedHandler.hasNext();
+        }
+    }
+
+    @NonNull
+    private List<ContactModel> getAllContactsContactModels(List<GroupMemberInfo> groupMemberInfos) {
+        List<ContactModel> contactModels = new ArrayList<>();
+        List<String> selectUserIds = getSelectUserIds();
+        for (GroupMemberInfo memberInfo : groupMemberInfos) {
+            if (RongUserInfoManager.getInstance().getCurrentUserInfo() != null
+                    && Objects.equals(
+                            RongUserInfoManager.getInstance().getCurrentUserInfo().getUserId(),
+                            memberInfo.getUserId())) {
+                continue;
+            }
+            ContactModel.CheckType checkType = ContactModel.CheckType.UNCHECKED;
+            if (selectUserIds.contains(memberInfo.getUserId())) {
+                checkType = ContactModel.CheckType.CHECKED;
+            }
+            contactModels.add(
+                    ContactModel.obtain(memberInfo, ContactModel.ItemType.CONTENT, checkType));
+        }
+        return contactModels;
+    }
+
+    @NonNull
+    private List<String> getSelectUserIds() {
+        List<ContactModel> selectedList = selectedContactsLiveData.getValue();
+        if (selectedList == null || selectedList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<String> userIds = new ArrayList<>();
+        for (ContactModel contact : selectedList) {
+            if (contact.getBean() instanceof GroupMemberInfo) {
+                GroupMemberInfo groupMemberInfo = (GroupMemberInfo) contact.getBean();
+                if (groupMemberInfo != null) {
+                    userIds.add(groupMemberInfo.getUserId());
+                }
+            }
+        }
+        return userIds;
     }
 }

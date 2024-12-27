@@ -11,7 +11,12 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseActivity;
 
-/** @author rongcloud */
+/**
+ * 申请好友列表页面
+ *
+ * @author rongcloud
+ * @since 5.12.0
+ */
 public class ApplyFriendListActivity extends BaseActivity {
 
     private Fragment fragment;

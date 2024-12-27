@@ -254,7 +254,7 @@ public class RongUserInfoManager {
         if (dataSourceType == DataSourceType.INFO_PROVIDER) {
             userInfoHelper.refreshGroupInfoCache(groupInfo);
         } else {
-            userManageHelper.refreshGroupInfoCache(((ExtendedGroup) groupInfo).toGroupInfo());
+            userManageHelper.refreshGroupInfoCache(((ExtendedGroup) groupInfo).getGroupInfo());
         }
     }
 

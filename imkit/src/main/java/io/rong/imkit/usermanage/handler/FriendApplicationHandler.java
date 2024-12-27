@@ -12,8 +12,12 @@ import io.rong.imlib.model.PagingQueryOption;
 import io.rong.imlib.model.PagingQueryResult;
 
 /**
+ * 好友申请处理类
+ *
+ * <p>注意：使用完毕后需要调用 {@link #stop()} 方法释放资源
+ *
  * @author rongcloud
- * @since 5.10.4
+ * @since 5.12.0
  */
 public class FriendApplicationHandler extends MultiDataHandler {
 
