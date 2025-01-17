@@ -7,7 +7,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.media.AudioFormat;
@@ -52,36 +51,41 @@ public class PermissionCheckUtil {
         boolean result = false;
 
         for (String permission : permissions) {
-            if ((isFlyme() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-                    && permission.equals(Manifest.permission.RECORD_AUDIO)) {
-                final SharedPreferences sharedPreferences =
-                        fragment.getContext().getSharedPreferences(PROMPT, Context.MODE_PRIVATE);
-                boolean isPrompt = sharedPreferences.getBoolean(IS_PROMPT, true);
-                if (isPrompt) {
-                    showPermissionAlert(
-                            fragment.getContext(),
-                            fragment.getString(R.string.rc_permission_grant_needed)
-                                    + fragment.getString(R.string.rc_permission_microphone),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (DialogInterface.BUTTON_POSITIVE == which) {
-                                        fragment.startActivity(
-                                                new Intent(
-                                                        Settings
-                                                                .ACTION_MANAGE_APPLICATIONS_SETTINGS));
-                                    } else if (DialogInterface.BUTTON_NEUTRAL == which) {
-                                        SharedPreferences.Editor editor =
-                                                sharedPreferences
-                                                        .edit()
-                                                        .putBoolean(IS_PROMPT, false);
-                                        editor.commit();
-                                    }
-                                }
-                            });
-                }
-                return false;
-            }
+            //            if ((isFlyme() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            //                    && permission.equals(Manifest.permission.RECORD_AUDIO)) {
+            //                final SharedPreferences sharedPreferences =
+            //                        fragment.getContext().getSharedPreferences(PROMPT,
+            // Context.MODE_PRIVATE);
+            //                boolean isPrompt = sharedPreferences.getBoolean(IS_PROMPT, true);
+            //                if (isPrompt) {
+            //                    showPermissionAlert(
+            //                            fragment.getContext(),
+            //                            fragment.getString(R.string.rc_permission_grant_needed)
+            //                                    +
+            // fragment.getString(R.string.rc_permission_microphone),
+            //                            new DialogInterface.OnClickListener() {
+            //                                @Override
+            //                                public void onClick(DialogInterface dialog, int which)
+            // {
+            //                                    if (DialogInterface.BUTTON_POSITIVE == which) {
+            //                                        fragment.startActivity(
+            //                                                new Intent(
+            //                                                        Settings
+            //
+            // .ACTION_MANAGE_APPLICATIONS_SETTINGS));
+            //                                    } else if (DialogInterface.BUTTON_NEUTRAL ==
+            // which) {
+            //                                        SharedPreferences.Editor editor =
+            //                                                sharedPreferences
+            //                                                        .edit()
+            //                                                        .putBoolean(IS_PROMPT, false);
+            //                                        editor.commit();
+            //                                    }
+            //                                }
+            //                            });
+            //                }
+            //                return false;
+            //            }
             if (!hasPermission(fragment.getActivity(), permission)) {
                 permissionsNotGranted.add(permission);
             }

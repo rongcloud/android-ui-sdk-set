@@ -131,7 +131,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
         ((TextView) holder.getView(R.id.rc_conversation_content))
                 .setCompoundDrawables(null, null, null, null);
         if (uiConversation.mCore.getSentStatus() != null
-                && TextUtils.isEmpty(uiConversation.mCore.getDraft())
+                && TextUtils.isEmpty(uiConversation.getDraft())
                 && !TextUtils.isEmpty(uiConversation.mConversationContent)) {
             Drawable drawable = null;
             if (uiConversation.mCore.getSentStatus() == Message.SentStatus.FAILED) {

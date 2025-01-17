@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
@@ -28,18 +29,25 @@ import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
 import io.rong.imkit.conversation.extension.component.plugin.ImagePlugin;
+import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
+import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.Message;
+import java.lang.ref.WeakReference;
 import java.util.List;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class DestructInputPanel {
     private View mRootView;
@@ -109,29 +117,19 @@ public class DestructInputPanel {
                         mConversationIdentifier.getType(),
                         mConversationIdentifier.getTargetId(),
                         mConversationIdentifier.getChannelId(),
-                        new IRongCoreCallback.ResultCallback<String>() {
-                            @Override
-                            public void onSuccess(String s) {
-                                if (!TextUtils.isEmpty(s)) {
-                                    mEditText.setText(s);
-                                    mEditText.requestFocus();
-                                    mEditText.setSelection(s.length());
-                                }
-                            }
-
-                            @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
-                                // do nothing
-                            }
-                        });
+                        new DestructInputPanel.GetDraftCallback(new WeakReference<>(this)));
     }
 
     public void onDestroy() {
         mFragment = null;
         mExtensionViewModel = null;
-        IMCenter.getInstance()
-                .saveTextMessageDraft(
-                        mConversationIdentifier, mEditText.getText().toString(), null);
+        if (DestructManager.isActive()) {
+            IMCenter.getInstance()
+                    .saveTextMessageDraft(
+                            mConversationIdentifier,
+                            getDraft(mEditText.getText().toString()),
+                            null);
+        }
     }
 
     View getRootView() {
@@ -140,6 +138,108 @@ public class DestructInputPanel {
 
     EditText getEditText() {
         return mEditText;
+    }
+
+    private static class GetDraftCallback extends IRongCoreCallback.ResultCallback<String> {
+        private final WeakReference<DestructInputPanel> mWeakInputPanel;
+
+        GetDraftCallback(WeakReference<DestructInputPanel> weakInputPanel) {
+            mWeakInputPanel = weakInputPanel;
+        }
+
+        @Override
+        public void onSuccess(String content) {
+            DestructInputPanel inputPanel = mWeakInputPanel != null ? mWeakInputPanel.get() : null;
+            if (inputPanel == null) {
+                return;
+            }
+            String draftContent = "";
+            String referencedMessageUId = null;
+
+            // 尝试解析为 JSON 格式
+            try {
+                JSONObject draftJson = new JSONObject(content);
+                draftContent = draftJson.optString("draftContent", "");
+                referencedMessageUId = draftJson.optString("referencedMessageUId", null);
+            } catch (Exception e) {
+                // 如果不是 JSON 格式，兼容原有的字符串草稿内容
+                draftContent = content;
+            }
+
+            String finalDraftContent = draftContent;
+
+            // 使用静态内部类防止泄漏
+            RongCoreClient.getInstance()
+                    .getMessageByUid(
+                            referencedMessageUId,
+                            new IRongCoreCallback.ResultCallback<Message>() {
+                                private final WeakReference<DestructInputPanel>
+                                        callbackWeakInputPanel = new WeakReference<>(inputPanel);
+
+                                @Override
+                                public void onSuccess(Message message) {
+                                    DestructInputPanel callbackInputPanel =
+                                            callbackWeakInputPanel.get();
+                                    if (callbackInputPanel != null) {
+                                        callbackInputPanel.updateMessageDraft(
+                                                finalDraftContent, message);
+                                    }
+                                }
+
+                                @Override
+                                public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                    DestructInputPanel callbackInputPanel =
+                                            callbackWeakInputPanel.get();
+                                    if (callbackInputPanel != null) {
+                                        callbackInputPanel.updateMessageDraft(
+                                                finalDraftContent, null);
+                                    }
+                                }
+                            });
+        }
+
+        @Override
+        public void onError(IRongCoreEnum.CoreErrorCode e) {
+            // do nothing
+        }
+    }
+
+    @NonNull
+    private String getDraft(String draftContent) {
+        UiMessage uiMessage = ReferenceManager.getInstance().getUiMessage();
+        String referencedMessageUId = null;
+        if (uiMessage != null && uiMessage.getMessage() != null) {
+            referencedMessageUId = uiMessage.getMessage().getUId();
+        }
+
+        // 构造 JSON 格式的草稿数据
+        JSONObject draftJson = new JSONObject();
+        try {
+            draftJson.put("draftContent", draftContent);
+            if (referencedMessageUId != null && !referencedMessageUId.isEmpty()) {
+                draftJson.put("referencedMessageUId", referencedMessageUId);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return draftJson.toString();
+    }
+
+    private void updateMessageDraft(final String draft, Message message) {
+        if (TextUtils.isEmpty(draft) || mEditText == null || mFragment == null) {
+            return;
+        }
+        if (message != null) {
+            ReferenceManager.getInstance()
+                    .showReferenceView(mFragment.getContext(), new UiMessage(message));
+        }
+        mEditText.postDelayed(
+                () -> {
+                    mEditText.setText(draft);
+                    mEditText.setSelection(mEditText.length());
+                    mEditText.requestFocus();
+                },
+                50);
     }
 
     private void updateViewByVoiceToggle(Context context) {
@@ -201,11 +301,6 @@ public class DestructInputPanel {
                     if (s == null || s.length() == 0) {
                         mSendButton.setVisibility(GONE);
                         mCancelButton.setVisibility(VISIBLE);
-                        IMCenter.getInstance()
-                                .saveTextMessageDraft(
-                                        mConversationIdentifier,
-                                        mEditText.getText().toString(),
-                                        null);
                     } else {
                         mSendButton.setVisibility(VISIBLE);
                         mCancelButton.setVisibility(GONE);
