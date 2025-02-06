@@ -680,8 +680,6 @@ public class ConversationConfig {
                 case ULTRA_GROUP:
                 case DISCUSSION:
                 case SYSTEM: // 5.6.2需求
-                case PUBLIC_SERVICE: // 5.6.2需求
-                case APP_PUBLIC_SERVICE: // 5.6.2需求
                     return true;
             }
         }

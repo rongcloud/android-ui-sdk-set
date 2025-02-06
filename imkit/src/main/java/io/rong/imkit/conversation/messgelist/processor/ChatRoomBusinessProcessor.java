@@ -10,12 +10,9 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.chatroom.base.RongChatRoomClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.JoinChatRoomResponse;
 import io.rong.imlib.model.UserInfo;
 
 public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
@@ -29,14 +26,12 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
         rc_chatRoom_first_pull_message_count =
                 RongConfigCenter.conversationConfig().rc_chatroom_first_pull_message_count;
         boolean createIfNotExist = bundle.getBoolean(RouteUtils.CREATE_CHATROOM, true);
-        String extra = bundle.getString("extra", null);
         if (createIfNotExist) {
-            RongChatRoomClient.getInstance()
+            RongIMClient.getInstance()
                     .joinChatRoom(
                             messageViewModel.getCurTargetId(),
                             getHistoryMessageCount(),
-                            extra,
-                            new IRongCoreCallback.OperationCallback() {
+                            new RongIMClient.OperationCallback() {
                                 @Override
                                 public void onSuccess() {
                                     RLog.i(
@@ -46,7 +41,7 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 }
 
                                 @Override
-                                public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                public void onError(RongIMClient.ErrorCode coreErrorCode) {
                                     RLog.e(TAG, "joinChatRoom onError : " + coreErrorCode);
                                     if (coreErrorCode.getValue()
                                                     == IRongCoreEnum.CoreErrorCode
@@ -75,14 +70,13 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 }
                             });
         } else {
-            RongChatRoomClient.getInstance()
+            RongIMClient.getInstance()
                     .joinExistChatRoom(
                             messageViewModel.getCurTargetId(),
                             rc_chatRoom_first_pull_message_count,
-                            extra,
-                            new IRongCoreCallback.ResultCallback<JoinChatRoomResponse>() {
+                            new RongIMClient.OperationCallback() {
                                 @Override
-                                public void onSuccess(JoinChatRoomResponse response) {
+                                public void onSuccess() {
                                     RLog.i(
                                             TAG,
                                             "joinExistChatRoom onSuccess : "
@@ -90,7 +84,7 @@ public class ChatRoomBusinessProcessor extends BaseBusinessProcessor {
                                 }
 
                                 @Override
-                                public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                public void onError(RongIMClient.ErrorCode coreErrorCode) {
                                     RLog.e(TAG, "joinExistChatRoom onError : " + coreErrorCode);
                                     if (coreErrorCode.getValue()
                                                     == IRongCoreEnum.CoreErrorCode

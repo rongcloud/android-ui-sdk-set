@@ -55,7 +55,6 @@ public class RongConfigurationManager {
             filter.addAction(Intent.ACTION_LOCALE_CHANGED);
             SystemUtils.registerReceiverCompat(
                     context, new SystemConfigurationChangedReceiver(), filter);
-
             // 初始化时将应用语言重新设置为之前设置的语言
             LangUtils.RCLocale locale =
                     RongConfigurationManager.getInstance().getAppLocale(context);

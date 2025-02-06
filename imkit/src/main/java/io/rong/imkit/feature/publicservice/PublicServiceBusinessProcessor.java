@@ -2,10 +2,8 @@ package io.rong.imkit.feature.publicservice;
 
 import android.os.Bundle;
 import io.rong.imkit.IMCenter;
-import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.processor.BaseBusinessProcessor;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
-import io.rong.imkit.model.UiMessage;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -70,43 +68,5 @@ public class PublicServiceBusinessProcessor extends BaseBusinessProcessor {
                             });
         }
         super.init(messageViewModel, bundle);
-    }
-
-    @Override
-    public boolean onReceived(
-            MessageViewModel viewModel,
-            UiMessage message,
-            int left,
-            boolean hasPackage,
-            boolean offline) {
-        if (left == 0 && !hasPackage) {
-            boolean syncReadStatus =
-                    RongConfigCenter.conversationConfig()
-                            .isEnableMultiDeviceSync(viewModel.getCurConversationType());
-            if (syncReadStatus) {
-                IMCenter.getInstance()
-                        .syncConversationReadStatus(
-                                viewModel.getConversationIdentifier(), message.getSentTime(), null);
-            }
-        }
-        return super.onReceived(viewModel, message, left, hasPackage, offline);
-    }
-
-    @Override
-    public void onExistUnreadMessage(
-            MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
-        boolean syncReadStatus =
-                RongConfigCenter.conversationConfig()
-                        .isEnableMultiDeviceSync(viewModel.getCurConversationType());
-        if (syncReadStatus) {
-            IMCenter.getInstance()
-                    .syncConversationReadStatus(
-                            viewModel.getConversationIdentifier(),
-                            conversation.getSentTime(),
-                            null);
-        }
-        IMCenter.getInstance()
-                .syncConversationReadStatus(
-                        viewModel.getCurConversationType(), viewModel.getCurTargetId(), 0, null);
     }
 }

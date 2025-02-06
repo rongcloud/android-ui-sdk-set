@@ -12,7 +12,6 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.manager.AudioPlayManager;
-import io.rong.imkit.manager.SendMediaManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.ToastUtils;
@@ -172,29 +171,7 @@ public class MessageItemLongClickActionManager {
                                             if (message.getMessageDirection()
                                                     == Message.MessageDirection.SEND) {
                                                 RongIMClient.getInstance()
-                                                        .cancelSendMediaMessage(
-                                                                message,
-                                                                new RongIMClient
-                                                                        .OperationCallback() {
-
-                                                                    @Override
-                                                                    public void onSuccess() {
-                                                                        SendMediaManager
-                                                                                .getInstance()
-                                                                                .cancelSendingMedia(
-                                                                                        message
-                                                                                                .getConversationType(),
-                                                                                        message
-                                                                                                .getTargetId(),
-                                                                                        message
-                                                                                                .getMessageId());
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onError(
-                                                                            RongIMClient.ErrorCode
-                                                                                    errorCode) {}
-                                                                });
+                                                        .cancelSendMediaMessage(message, null);
                                             } else {
                                                 RongIMClient.getInstance()
                                                         .cancelDownloadMediaMessage(message, null);
@@ -408,7 +385,6 @@ public class MessageItemLongClickActionManager {
             ToastUtils.show(context, errorTxt, Toast.LENGTH_SHORT);
             return;
         }
-        // 先删远端，远端删除成功才删本地
         IMCenter.getInstance()
                 .deleteRemoteMessages(
                         ConversationIdentifier.obtain(uiMessage.getMessage()),

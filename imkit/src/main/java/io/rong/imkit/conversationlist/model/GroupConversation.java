@@ -60,7 +60,7 @@ public class GroupConversation extends BaseUiConversation {
             if (!TextUtils.isEmpty(messageSummary)) {
                 builder.append(messageSummary);
             }
-        } else if (!TextUtils.isEmpty(getDraft())) {
+        } else if (!TextUtils.isEmpty(mCore.getDraft())) {
             if (mContext != null) {
                 preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
                 mPreString = new SpannableString(preStr);
@@ -72,7 +72,7 @@ public class GroupConversation extends BaseUiConversation {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 builder.append(mPreString);
             }
-            String draft = getDraft();
+            String draft = mCore.getDraft();
             draft = draft.replace("\n", "");
             builder.append(draft);
         } else {
@@ -100,7 +100,7 @@ public class GroupConversation extends BaseUiConversation {
 
     @Override
     public void onUserInfoUpdate(UserInfo user) {
-        if (!TextUtils.isEmpty(getDraft()) || user == null) {
+        if (!TextUtils.isEmpty(mCore.getDraft()) || user == null) {
             return; // 有草稿时，会话内容里显示草稿，不需要处理用户信息
         }
         if (mCore.getSenderUserId().equals(user.getUserId())
@@ -140,24 +140,23 @@ public class GroupConversation extends BaseUiConversation {
     public void onConversationUpdate(Conversation conversation) {
         processResending(conversation);
         mCore = conversation;
-        String groupId = conversation.getTargetId();
-        if (conversation.getConversationType() == Conversation.ConversationType.ULTRA_GROUP) {
-            groupId = conversation.getTargetId() + conversation.getChannelId();
-        }
-        io.rong.imlib.model.Group group = RongUserInfoManager.getInstance().getGroupInfo(groupId);
+        io.rong.imlib.model.Group group =
+                RongUserInfoManager.getInstance()
+                        .getGroupInfo(conversation.getTargetId() + conversation.getChannelId());
         if (group != null) {
             RLog.d(TAG, "onConversationUpdate. name:" + group.getName());
         } else {
             RLog.d(TAG, "onConversationUpdate. group info is null");
         }
-        mCore.setConversationTitle(group == null ? "" : group.getName());
+        mCore.setConversationTitle(group == null ? conversation.getTargetId() : group.getName());
         mCore.setPortraitUrl(
                 group == null || group.getPortraitUri() == null
                         ? ""
                         : group.getPortraitUri().toString());
         GroupUserInfo groupUserInfo =
                 RongUserInfoManager.getInstance()
-                        .getGroupUserInfo(groupId, conversation.getSenderUserId());
+                        .getGroupUserInfo(
+                                conversation.getTargetId(), conversation.getSenderUserId());
         UserInfo userInfo =
                 RongUserInfoManager.getInstance().getUserInfo(conversation.getSenderUserId());
         if (groupUserInfo != null) {

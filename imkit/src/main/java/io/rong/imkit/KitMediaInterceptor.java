@@ -41,10 +41,6 @@ public interface KitMediaInterceptor {
      */
     boolean shouldInterceptRequest(WebView view, String url);
 
-    default String onCombinePortraitLoad(String url) {
-        return url;
-    }
-
     interface Callback<T> {
         void onComplete(T t);
     }

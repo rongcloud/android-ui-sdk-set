@@ -113,7 +113,9 @@ public class GroupNotificationMessageItemProvider
                             } else {
                                 invitedName = memberName;
                             }
-                            if (!operatorUserId.equals(RongIM.getInstance().getCurrentUserId())) {
+                            if (!groupNotificationMessage
+                                    .getOperatorUserId()
+                                    .equals(RongIM.getInstance().getCurrentUserId())) {
                                 inviteName = operatorNickname;
                                 inviteMsg =
                                         inviteName
@@ -178,6 +180,14 @@ public class GroupNotificationMessageItemProvider
                             }
                         }
                     } else if (CREATE.equals(operation)) {
+                        GroupNotificationMessageData createGroupData =
+                                new GroupNotificationMessageData();
+                        try {
+                            createGroupData = jsonToBean(groupNotificationMessage.getData());
+                        } catch (Exception e) {
+                            RLog.e(TAG, "bindView", e);
+                            return;
+                        }
                         String name;
                         String createMsg;
                         if (!operatorUserId.equals(currentUserId)) {
@@ -234,7 +244,7 @@ public class GroupNotificationMessageItemProvider
         return messageContent instanceof GroupNotificationMessage;
     }
 
-    protected GroupNotificationMessageData jsonToBean(String data) {
+    private GroupNotificationMessageData jsonToBean(String data) {
         GroupNotificationMessageData dataEntity = new GroupNotificationMessageData();
         try {
             JSONObject jsonObject = new JSONObject(data);
