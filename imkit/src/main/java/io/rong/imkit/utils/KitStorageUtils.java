@@ -98,7 +98,7 @@ public class KitStorageUtils {
      * @param outputFileName
      */
     private static boolean copyVideoToPublicDir(Context context, File file, String outputFileName) {
-        if (file == null || !file.exists()) {
+        if (context == null || file == null || !file.exists()) {
             RLog.e(TAG, "file is not exist");
             return false;
         }
@@ -165,7 +165,7 @@ public class KitStorageUtils {
 
     // 通知图库进行数据刷新
     public static void updatePhotoMedia(File file, Context context) {
-        if (file != null && file.exists()) {
+        if (file != null && file.exists() && context != null) {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             intent.setData(Uri.fromFile(file));
@@ -175,125 +175,120 @@ public class KitStorageUtils {
 
     private static boolean copyVideoToPublicDirForQ(
             Context context, File file, String outputFileName) {
+        if (context == null || file == null || !file.exists() || !file.isFile()) {
+            RLog.e(TAG, "file is not Found or context is null ");
+            return false;
+        }
         boolean result = true;
         String filePath = "";
-        if (file.exists() && file.isFile() && context != null) {
-            String name;
-            if (!TextUtils.isEmpty(outputFileName)) {
-                name = outputFileName;
-            } else {
-                name = file.getName();
-            }
-            Uri uri = insertVideoIntoMediaStore(context, name);
-            if (uri == null) {
-                return false;
-            }
-            filePath = uri.getPath();
-            try {
-                ParcelFileDescriptor w = context.getContentResolver().openFileDescriptor(uri, "w");
-                writeToPublicDir(file, w);
-            } catch (FileNotFoundException pE) {
-                RLog.e(TAG, "copyVideoToPublicDir uri is not Found, uri is" + uri.toString());
-                result = false;
-            }
-            File destFile = new File(filePath);
-            updatePhotoMedia(destFile, context);
+        String name;
+        if (!TextUtils.isEmpty(outputFileName)) {
+            name = outputFileName;
         } else {
-            RLog.e(TAG, "file is not Found or context is null ");
+            name = file.getName();
+        }
+        Uri uri = insertVideoIntoMediaStore(context, name);
+        if (uri == null) {
+            return false;
+        }
+        filePath = uri.getPath();
+        try {
+            ParcelFileDescriptor w = context.getContentResolver().openFileDescriptor(uri, "w");
+            writeToPublicDir(file, w);
+        } catch (FileNotFoundException pE) {
+            RLog.e(TAG, "copyVideoToPublicDir uri is not Found, uri is" + uri.toString());
             result = false;
         }
+        File destFile = new File(filePath);
+        updatePhotoMedia(destFile, context);
         return result;
     }
 
     private static boolean copyImageToPublicDir(
-            Context pContext, File pFile, String outputFileName) {
+            Context pContext, File file, String outputFileName) {
+        if (pContext == null || file == null || !file.exists() || !file.isFile()) {
+            RLog.e(TAG, "file is not Found or context is null ");
+            return false;
+        }
         boolean result = true;
-        File file = pFile;
-        if (file.exists() && file.isFile() && pContext != null) {
-            if (!KitStorageUtils.isBuildAndTargetForQ(pContext)) {
-                File dirFile =
-                        Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_PICTURES);
-                if (dirFile != null && !dirFile.exists()) {
-                    boolean mkdirResult = dirFile.mkdirs();
-                    if (!mkdirResult) {
-                        RLog.e(TAG, "mkdir fail,dir path is " + dirFile.getAbsolutePath());
-                        return false;
-                    }
-                }
-                if (dirFile == null) {
-                    RLog.e(TAG, "dirFile is null");
+        if (!KitStorageUtils.isBuildAndTargetForQ(pContext)) {
+            File dirFile =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            if (dirFile != null && !dirFile.exists()) {
+                boolean mkdirResult = dirFile.mkdirs();
+                if (!mkdirResult) {
+                    RLog.e(TAG, "mkdir fail,dir path is " + dirFile.getAbsolutePath());
                     return false;
                 }
+            }
+            if (dirFile == null) {
+                RLog.e(TAG, "dirFile is null");
+                return false;
+            }
 
-                FileInputStream fis = null;
-                FileOutputStream fos = null;
-                try {
-                    String name;
-                    if (!TextUtils.isEmpty(outputFileName)) {
-                        name = outputFileName;
-                    } else {
-                        String imgMimeType = getImgMimeType(file);
-                        int i = imgMimeType.lastIndexOf('/');
-                        name = "Rong_Image_" + System.currentTimeMillis();
-                        if (i != -1) {
-                            name = name + "." + imgMimeType.substring(i + 1);
-                        }
-                    }
-
-                    String filePath = dirFile.getPath() + "/" + name;
-                    fis = new FileInputStream(file);
-                    fos = new FileOutputStream(filePath);
-                    copy(fis, fos);
-                    File destFile = new File(filePath);
-                    updatePhotoMedia(destFile, pContext);
-                } catch (FileNotFoundException e) {
-                    result = false;
-                    RLog.e(TAG, "copyImageToPublicDir file not found", e);
-                } finally {
-                    try {
-                        if (fis != null) {
-                            fis.close();
-                        }
-                    } catch (IOException e) {
-                        RLog.e(TAG, "copyImageToPublicDir: ", e);
-                    }
-                    try {
-                        if (fos != null) {
-                            fos.close();
-                        }
-                    } catch (IOException e) {
-                        RLog.e(TAG, "copyImageToPublicDir: ", e);
-                    }
-                }
-            } else {
+            FileInputStream fis = null;
+            FileOutputStream fos = null;
+            try {
                 String name;
-                String imgMimeType = getImgMimeType(file);
                 if (!TextUtils.isEmpty(outputFileName)) {
                     name = outputFileName;
                 } else {
+                    String imgMimeType = getImgMimeType(file);
                     int i = imgMimeType.lastIndexOf('/');
                     name = "Rong_Image_" + System.currentTimeMillis();
                     if (i != -1) {
                         name = name + "." + imgMimeType.substring(i + 1);
                     }
                 }
-                Uri uri = insertImageIntoMediaStore(pContext, name, imgMimeType);
-                if (uri == null) {
-                    return false;
+
+                String filePath = dirFile.getPath() + "/" + name;
+                fis = new FileInputStream(file);
+                fos = new FileOutputStream(filePath);
+                copy(fis, fos);
+                File destFile = new File(filePath);
+                updatePhotoMedia(destFile, pContext);
+            } catch (FileNotFoundException e) {
+                result = false;
+                RLog.e(TAG, "copyImageToPublicDir file not found", e);
+            } finally {
+                try {
+                    if (fis != null) {
+                        fis.close();
+                    }
+                } catch (IOException e) {
+                    RLog.e(TAG, "copyImageToPublicDir: ", e);
                 }
                 try {
-                    ParcelFileDescriptor w =
-                            pContext.getContentResolver().openFileDescriptor(uri, "w");
-                    writeToPublicDir(file, w);
-                } catch (FileNotFoundException pE) {
-                    result = false;
-                    RLog.e(TAG, "copyImageToPublicDir uri is not Found, uri is" + uri.toString());
+                    if (fos != null) {
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                    RLog.e(TAG, "copyImageToPublicDir: ", e);
                 }
             }
         } else {
-            result = false;
-            RLog.e(TAG, "file is not Found or context is null ");
+            String name;
+            String imgMimeType = getImgMimeType(file);
+            if (!TextUtils.isEmpty(outputFileName)) {
+                name = outputFileName;
+            } else {
+                int i = imgMimeType.lastIndexOf('/');
+                name = "Rong_Image_" + System.currentTimeMillis();
+                if (i != -1) {
+                    name = name + "." + imgMimeType.substring(i + 1);
+                }
+            }
+            Uri uri = insertImageIntoMediaStore(pContext, name, imgMimeType);
+            if (uri == null) {
+                return false;
+            }
+            try {
+                ParcelFileDescriptor w = pContext.getContentResolver().openFileDescriptor(uri, "w");
+                writeToPublicDir(file, w);
+            } catch (FileNotFoundException pE) {
+                result = false;
+                RLog.e(TAG, "copyImageToPublicDir uri is not Found, uri is" + uri.toString());
+            }
         }
         return result;
     }
@@ -348,6 +343,10 @@ public class KitStorageUtils {
     }
 
     public static void writeToPublicDir(File pFile, ParcelFileDescriptor pParcelFileDescriptor) {
+        if (pFile == null || !pFile.exists()) {
+            RLog.e(TAG, "file is not Found or is null ");
+            return;
+        }
         FileInputStream fis = null;
         FileOutputStream fos = null;
         try {

@@ -8,7 +8,6 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +37,7 @@ import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RongViewUtils;
 import io.rong.imkit.utils.keyboard.KeyboardHeightObserver;
 import io.rong.imkit.utils.keyboard.KeyboardHeightProvider;
+import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 
@@ -283,24 +283,21 @@ public class RongExtension extends LinearLayout {
                         },
                         200);
             }
-            if ((editText.getText().length() > 0 || editText.isFocused())) {
-                editText.setOnKeyListener(
-                        new View.OnKeyListener() {
-                            @Override
-                            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                                if (keyCode == KeyEvent.KEYCODE_DEL
-                                        && event.getAction() == KeyEvent.ACTION_DOWN) {
-                                    int cursorPos = editText.getSelectionStart();
+
+            if (editText instanceof RongEditText) {
+                ((RongEditText) editText)
+                        .setOnBackspaceListener(
+                                position -> {
+                                    if (position == null) {
+                                        return;
+                                    }
                                     RongMentionManager.getInstance()
                                             .onDeleteClick(
                                                     getConversationType(),
                                                     getTargetId(),
                                                     editText,
-                                                    cursorPos);
-                                }
-                                return false;
-                            }
-                        });
+                                                    position);
+                                });
             }
         }
     }

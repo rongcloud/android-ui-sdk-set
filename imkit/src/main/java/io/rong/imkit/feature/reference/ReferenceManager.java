@@ -44,6 +44,7 @@ import io.rong.message.RichContentMessage;
 import io.rong.message.TextMessage;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Objects;
 import java.util.Stack;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -62,59 +63,11 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             new MessageItemLongClickAction.Builder()
                     .titleResId(R.string.rc_dialog_item_message_reference)
                     .actionListener(
-                            new MessageItemLongClickAction.MessageItemLongClickListener() {
-                                @Override
-                                public boolean onMessageItemLongClick(
-                                        Context context, UiMessage uiMessage) {
-                                    if (mRongExtension == null || mFragment == null) {
-                                        return false;
-                                    }
-                                    RongExtension rongExtension = mRongExtension.get();
-                                    Fragment fragment = mFragment.get();
-                                    if (rongExtension == null
-                                            || fragment == null
-                                            || fragment.isDetached()
-                                            || fragment.getContext() == null
-                                            || fragment.getFragmentManager() == null) {
-                                        return false;
-                                    }
-                                    mUiMessage = uiMessage;
-                                    ReferenceView reference =
-                                            new ReferenceView(
-                                                    context,
-                                                    rongExtension.getContainer(
-                                                            RongExtension.ContainerType.ATTACH),
-                                                    uiMessage);
-                                    rongExtension.setAttachedInfo(reference.getReferenceView());
-                                    final RongExtensionViewModel extensionViewModel =
-                                            new ViewModelProvider(fragment)
-                                                    .get(RongExtensionViewModel.class);
-                                    extensionViewModel
-                                            .getInputModeLiveData()
-                                            .postValue(InputMode.TextInput);
-                                    rongExtension.postDelayed(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    extensionViewModel.setSoftInputKeyBoard(true);
-                                                }
-                                            },
-                                            100);
-
-                                    mReferenceMessage =
-                                            ReferenceMessage.obtainMessage(
-                                                    uiMessage.getMessage().getSenderUserId(),
-                                                    uiMessage.getMessage().getContent(),
-                                                    uiMessage.getUId());
-                                    reference.setReferenceCancelListener(
-                                            new ReferenceView.ReferenceCancelListener() {
-                                                @Override
-                                                public void onCanceled() {
-                                                    hideReferenceView();
-                                                }
-                                            });
-                                    return true;
+                            (context, uiMessage) -> {
+                                if (!showReferenceView(context, uiMessage)) {
+                                    return false;
                                 }
+                                return true;
                             })
                     .showFilter(
                             new MessageItemLongClickAction.Filter() {
@@ -268,7 +221,23 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
 
                 @Override
                 public void onDeleteMessage(DeleteEvent event) {
-                    // do nothing
+                    if (mUiMessage != null
+                            && mUiMessage.getMessage() != null
+                            && event != null
+                            && event.getMessageIds() != null
+                            && mUiMessage
+                                    .getMessage()
+                                    .getConversationType()
+                                    .equals(event.getConversationType())
+                            && mUiMessage.getMessage().getTargetId().equals(event.getTargetId())) {
+                        int messageId = mUiMessage.getMessage().getMessageId();
+                        for (int id : event.getMessageIds()) {
+                            if (id == messageId) {
+                                hideReferenceView();
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 @Override
@@ -422,6 +391,55 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         }
     }
 
+    /**
+     * 显示引用消息栏
+     *
+     * @param context 上下文
+     * @param uiMessage 消息实体
+     * @return 是否显示成功
+     */
+    public boolean showReferenceView(Context context, UiMessage uiMessage) {
+        if (mRongExtension == null
+                || mFragment == null
+                || context == null
+                || uiMessage == null
+                || uiMessage.getMessage() == null) {
+            return false;
+        }
+        // 如果是提示消息，不显示引用消息
+        if (Objects.equals(uiMessage.getMessage().getObjectName(), "RC:RcNtf")) {
+            return false;
+        }
+        RongExtension rongExtension = mRongExtension.get();
+        Fragment fragment = mFragment.get();
+        if (rongExtension == null
+                || fragment == null
+                || fragment.isDetached()
+                || fragment.getContext() == null
+                || fragment.getFragmentManager() == null) {
+            return true;
+        }
+        mUiMessage = uiMessage;
+        ReferenceView reference =
+                new ReferenceView(
+                        context,
+                        rongExtension.getContainer(RongExtension.ContainerType.ATTACH),
+                        uiMessage);
+        rongExtension.setAttachedInfo(reference.getReferenceView());
+        final RongExtensionViewModel extensionViewModel =
+                new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
+        extensionViewModel.getInputModeLiveData().postValue(InputMode.TextInput);
+        rongExtension.postDelayed(() -> extensionViewModel.setSoftInputKeyBoard(true), 100);
+
+        mReferenceMessage =
+                ReferenceMessage.obtainMessage(
+                        uiMessage.getMessage().getSenderUserId(),
+                        uiMessage.getMessage().getContent(),
+                        uiMessage.getUId());
+        reference.setReferenceCancelListener(this::hideReferenceView);
+        return true;
+    }
+
     public void hideReferenceView() {
         mReferenceMessage = null;
         RongExtension rongExtension = null;
@@ -433,10 +451,10 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         if (rongExtension != null) {
             rongExtension.setAttachedInfo(null);
         }
+        mUiMessage = null;
         for (ReferenceStatusListener listener : mReferenceStatusListenerList) {
             listener.onHide();
         }
-        mUiMessage = null;
     }
 
     @Override

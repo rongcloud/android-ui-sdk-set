@@ -43,9 +43,10 @@ public class HistoryState implements IMessageState {
                     5,
                     new MessageProcessor.GetMessageCallback() {
                         @Override
-                        public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                        public void onSuccess(
+                                List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                             if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(list);
+                                weakVM.get().onGetHistoryMessage(list, isHasMoreMsg);
                                 // '5'标识定位消息的下标
                                 weakVM.get().executePageEvent(new ScrollEvent(5));
                             }
@@ -88,7 +89,8 @@ public class HistoryState implements IMessageState {
                     false,
                     new MessageProcessor.GetMessageCallback() {
                         @Override
-                        public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                        public void onSuccess(
+                                List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                             if (weakVM.get() != null) {
                                 executeHistoryLoadMore(list, weakVM.get());
                             }
@@ -177,7 +179,8 @@ public class HistoryState implements IMessageState {
                 new MessageProcessor.GetMessageCallback() {
 
                     @Override
-                    public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                    public void onSuccess(
+                            List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                         if (weakVM.get() != null) {
                             executeNewMessageBarClick(list, weakVM.get());
                         }

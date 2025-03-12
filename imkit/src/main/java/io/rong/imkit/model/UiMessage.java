@@ -51,7 +51,23 @@ public class UiMessage extends UiBaseBean {
                 return;
             }
         }
-        UserInfo user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+
+        UserInfo user;
+        boolean isInfoManagement =
+                RongUserInfoManager.getInstance().getDataSourceType()
+                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
+        if (isInfoManagement
+                && message.getContent() != null
+                && message.getContent().getUserInfo() != null
+                && message.getContent().getUserInfo().getUserId() != null
+                && message.getContent()
+                        .getUserInfo()
+                        .getUserId()
+                        .equals(message.getSenderUserId())) {
+            user = message.getContent().getUserInfo();
+        } else {
+            user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+        }
         if (user != null) {
             userInfo = user;
             if (userInfo.getName() == null) {

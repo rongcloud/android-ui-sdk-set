@@ -38,6 +38,12 @@ public class StickerPackageApiTask {
         service.submit(new Worker<>(url, callback));
     }
 
+    public static void submitTask(Runnable task) {
+        if (task != null) {
+            service.submit(task);
+        }
+    }
+
     public static void getStickerPackageDownloadUrl(
             String packageId, HttpUtil.Callback<StickerPackageDownloadUrlInfo> callback) {
         String s = String.format(PACKAGE_DOWNLOAD_URL, packageId);

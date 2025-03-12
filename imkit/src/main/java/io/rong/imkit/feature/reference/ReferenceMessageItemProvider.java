@@ -94,7 +94,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         if (referenceMessage.getUserId() != null) {
             holder.setText(
                     R.id.rc_msg_tv_reference_name,
-                    getDisplayName(uiMessage, referenceMessage.getUserId()) + " : ");
+                    getDisplayName(uiMessage, referenceMessage) + " : ");
         }
         if (referenceSendContent != null && referenceMessage.getEditSendText() != null) {
             setTextContent(
@@ -212,8 +212,12 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         }
     }
 
-    private String getDisplayName(UiMessage uiMessage, String referenceUserId) {
+    private String getDisplayName(UiMessage uiMessage, ReferenceMessage referenceMessage) {
         if (uiMessage.getMessage().getSenderUserId() != null) {
+            UserInfo userInfo =
+                    getUserInfo(
+                            referenceMessage.getUserId(), referenceMessage.getReferenceContent());
+            String groupMemberName = "";
             if (uiMessage
                     .getMessage()
                     .getConversationType()
@@ -221,17 +225,27 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                 GroupUserInfo groupUserInfo =
                         RongUserInfoManager.getInstance()
                                 .getGroupUserInfo(
-                                        uiMessage.getMessage().getTargetId(), referenceUserId);
-                if (groupUserInfo != null) {
-                    return groupUserInfo.getNickname();
-                }
+                                        uiMessage.getMessage().getTargetId(),
+                                        referenceMessage.getUserId());
+                groupMemberName = groupUserInfo != null ? groupUserInfo.getNickname() : "";
             }
-            UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(referenceUserId);
-            if (userInfo != null) {
-                return userInfo.getName();
-            }
+            return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, groupMemberName);
         }
         return "";
+    }
+
+    private UserInfo getUserInfo(String userId, MessageContent messageContent) {
+        boolean isInfoManagement =
+                RongUserInfoManager.getInstance().getDataSourceType()
+                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
+        if (isInfoManagement
+                && messageContent != null
+                && messageContent.getUserInfo() != null
+                && messageContent.getUserInfo().getUserId() != null
+                && messageContent.getUserInfo().getUserId().equals(userId)) {
+            return messageContent.getUserInfo();
+        }
+        return RongUserInfoManager.getInstance().getUserInfo(userId);
     }
 
     private SpannableStringBuilder createSpan(String content) {

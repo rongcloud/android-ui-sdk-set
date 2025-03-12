@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,6 +28,7 @@ import io.rong.imkit.picture.tools.MediaUtils;
 import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imlib.RongCoreClient;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -180,6 +182,9 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
                                                     : path;
                                     if (TextUtils.isEmpty(newPath) || !new File(newPath).exists()) {
                                         ToastUtils.s(context, PictureMimeType.s(context, mimeType));
+                                        return;
+                                    }
+                                    if (isGIFAboveMaxSize(image)) {
                                         return;
                                     }
 
@@ -470,5 +475,21 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
     public void setOnPhotoSelectChangedListener(
             OnPhotoSelectChangedListener imageSelectChangedListener) {
         this.imageSelectChangedListener = imageSelectChangedListener;
+    }
+
+    private boolean isGIFAboveMaxSize(LocalMedia media) {
+
+        if (media == null) {
+            return false;
+        }
+        String mimeType = media.getMimeType();
+        if (!mimeType.toLowerCase().contains("gif")) {
+            return false;
+        }
+        if (media.getSize() > RongCoreClient.getInstance().getGIFLimitSize() * 1024) {
+            Toast.makeText(context, R.string.rc_gif_message_too_large, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return false;
     }
 }

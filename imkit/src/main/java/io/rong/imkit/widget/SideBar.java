@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -19,16 +20,22 @@ public class SideBar extends View {
     private OnTouchingLetterChangedListener onTouchingLetterChangedListener;
 
     // 26个字母
-    public static final String[] b = {
+    public static final String[] DEFAULT_B = {
         "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R",
         "S", "T", "U", "V", "W", "X", "Y", "Z", "#"
     };
+    private String[] b = DEFAULT_B;
     // 选中
     private int choose = -1;
 
     private Paint paint = new Paint();
 
     private TextView mTextDialog;
+
+    // 单位转换工具，将 dp 转换为 px
+    private int singleHeightPx;
+    // 单个字符的高度，单位为dp
+    private static final int SINGLE_HEIGHT_DP = 25;
 
     /**
      * 为 SideBar 显示字母的 TextView
@@ -41,22 +48,45 @@ public class SideBar extends View {
 
     public SideBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context);
     }
 
     public SideBar(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init(context);
     }
 
     public SideBar(Context context) {
         super(context);
+        init(context);
     }
+
+    private void init(Context context) {
+        // 将 20dp 转换为像素
+        singleHeightPx =
+                (int)
+                        TypedValue.applyDimension(
+                                TypedValue.COMPLEX_UNIT_DIP,
+                                SINGLE_HEIGHT_DP,
+                                context.getResources().getDisplayMetrics());
+    }
+
+    /** 重写 onMeasure 方法，根据字母数量动态设置 SideBar 的高度 */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        // 动态计算高度：字母数组长度 * 单个字符的高度
+        int desiredHeight = b.length * singleHeightPx;
+
+        // 设置测量宽度和高度
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        setMeasuredDimension(width, desiredHeight);
+    }
+
     /** 重写的onDraw的方法 */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        int height = getHeight(); // 获取对应的高度
-        int width = getWidth(); // 获取对应的宽度
-        int singleHeight = height / b.length; // 获取每一个字母的高度
+        int width = getWidth();
         for (int i = 0; i < b.length; i++) {
             paint.setColor(Color.GRAY); // 所有字母的默认颜色 目前为灰色(右侧字体颜色)
             paint.setTypeface(Typeface.DEFAULT); // (右侧字体样式)
@@ -69,7 +99,7 @@ public class SideBar extends View {
             }
             // x坐标等于=中间-字符串宽度的一般
             float xPos = width / 2f - paint.measureText(b[i]) / 2;
-            float yPos = singleHeight * i * 1.0f + singleHeight;
+            float yPos = singleHeightPx * i * 1.0f + singleHeightPx;
             canvas.drawText(b[i], xPos, yPos, paint);
             paint.reset(); // 重置画笔
         }
@@ -124,5 +154,18 @@ public class SideBar extends View {
 
     public interface OnTouchingLetterChangedListener {
         void onTouchingLetterChanged(String s);
+    }
+
+    /**
+     * 允许从外部设置字母数组
+     *
+     * @param letters 字母数组
+     */
+    public void setLetters(String[] letters) {
+        if (letters != null && letters.length > 0) {
+            this.b = letters;
+            requestLayout();
+            invalidate(); // 刷新View以显示新的字母数组
+        }
     }
 }

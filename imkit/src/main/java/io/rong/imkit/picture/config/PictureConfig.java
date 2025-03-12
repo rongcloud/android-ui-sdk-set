@@ -1,9 +1,9 @@
 package io.rong.imkit.picture.config;
 
 public final class PictureConfig {
-    public static final int APPLY_STORAGE_PERMISSIONS_CODE = 1;
-    public static final int APPLY_CAMERA_PERMISSIONS_CODE = 2;
-    public static final int APPLY_AUDIO_PERMISSIONS_CODE = 3;
+    public static final int APPLY_STORAGE_PERMISSIONS_CODE = 5172;
+    public static final int APPLY_CAMERA_PERMISSIONS_CODE = 5173;
+    public static final int APPLY_AUDIO_PERMISSIONS_CODE = 5174;
 
     public static final String EXTRA_PREVIEW_DELETE_POSITION = "position";
     public static final String EXTRA_CHOOSE_MODE = "chooseMode";
