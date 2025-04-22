@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.usermanage.handler.GroupInfoHandler;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -48,10 +49,24 @@ public class GroupManagementViewModel extends BaseViewModel {
      * @param groupInfo 群组信息
      * @param listener 数据变化监听器
      */
+    @Deprecated
     public void updateGroupInfo(GroupInfo groupInfo, OnDataChangeListener<Boolean> listener) {
         groupOperationsHandler.replaceDataChangeListener(
                 GroupOperationsHandler.KEY_UPDATE_GROUP_INFO, listener);
         groupOperationsHandler.updateGroupInfo(groupInfo);
+    }
+
+    /**
+     * 更新群组信息
+     *
+     * @param groupInfo 群组信息
+     * @param listener 数据变化监听器
+     */
+    public void updateGroupInfo(
+            GroupInfo groupInfo, OnDataChangeEnhancedListener<Boolean> listener) {
+        groupOperationsHandler.replaceDataChangeListener(
+                GroupOperationsHandler.KEY_UPDATE_GROUP_INFO_EXAMINE, listener);
+        groupOperationsHandler.updateGroupInfoExamine(groupInfo);
     }
 
     void refreshGroupInfo() {

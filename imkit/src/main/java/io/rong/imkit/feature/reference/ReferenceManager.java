@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -33,6 +34,7 @@ import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.StreamMsgUtil;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -41,6 +43,7 @@ import io.rong.message.ImageMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
 import io.rong.message.RichContentMessage;
+import io.rong.message.StreamMessage;
 import io.rong.message.TextMessage;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -125,7 +128,8 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                                     || (message.getContent()
                                                             instanceof RichContentMessage)
                                                     || (message.getContent()
-                                                            instanceof ReferenceMessage);
+                                                            instanceof ReferenceMessage)
+                                                    || isEnableStreamMsg(message);
                                     return isSuccess
                                             && isEnableReferenceMsg
                                             && isInstanceOf
@@ -134,6 +138,22 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                 }
                             })
                     .build();
+
+    private boolean isEnableStreamMsg(Message message) {
+        if (message.getContent() instanceof StreamMessage) {
+            StreamMessage streamMessage = (StreamMessage) message.getContent();
+            Pair<String, Boolean> streamMessageSummary =
+                    StreamMsgUtil.getStreamMessageSummary(message);
+            boolean isSuccess = streamMessage.isSync() || streamMessageSummary.second;
+            if (!streamMessage.isSync()) {
+                streamMessage.setContent(
+                        StreamMsgUtil.getStreamMessageShowContent(
+                                streamMessage, streamMessageSummary));
+            }
+            return isSuccess;
+        }
+        return false;
+    }
 
     private static class SingletonHolder {
         static ReferenceManager instance = new ReferenceManager();

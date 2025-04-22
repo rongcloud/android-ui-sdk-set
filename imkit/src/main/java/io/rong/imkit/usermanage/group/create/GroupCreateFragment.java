@@ -19,8 +19,10 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.friend.select.FriendSelectFragment;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.utils.ToastUtils;
+import io.rong.imkit.widget.dialog.TipLoadingDialog;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -38,6 +40,8 @@ public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewMo
     protected EditText etGroupName;
     protected ImageView ivGroupIcon;
     protected Button btnCreateGroup;
+
+    protected TipLoadingDialog dialog;
 
     @NonNull
     @Override
@@ -88,14 +92,20 @@ public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewMo
                                     Toast.LENGTH_SHORT);
                             return;
                         }
+                        showLoadingDialog();
                         getViewModel()
                                 .createGroup(
                                         groupName,
-                                        coreErrorCode -> {
-                                            onCreateGroupResult(
-                                                    viewModel.getGroupId(),
-                                                    viewModel.getInviteeUserIds(),
-                                                    coreErrorCode);
+                                        new OnDataChangeEnhancedListener<
+                                                IRongCoreEnum.CoreErrorCode>() {
+                                            @Override
+                                            public void onDataChange(
+                                                    IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                                onCreateGroupResult(
+                                                        viewModel.getGroupId(),
+                                                        viewModel.getInviteeUserIds(),
+                                                        coreErrorCode);
+                                            }
                                         });
                     }
                 });
@@ -113,6 +123,7 @@ public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewMo
             String groupId,
             List<String> inviteeUserIds,
             IRongCoreEnum.CoreErrorCode coreErrorCode) {
+        dismissLoadingDialog();
         if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_NEED_INVITEE_ACCEPT
                 || coreErrorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
             ConversationIdentifier conversationIdentifier =
@@ -121,8 +132,33 @@ public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewMo
             sendFinishActivityBroadcast(FriendSelectFragment.class);
             finishActivity();
         } else {
-            ToastUtils.show(
-                    getContext(), getString(R.string.rc_create_group_failure), Toast.LENGTH_SHORT);
+            String tips = getString(R.string.rc_create_group_failure);
+            if (coreErrorCode == IRongCoreEnum.CoreErrorCode.SERVICE_INFORMATION_AUDIT_FAILED) {
+                tips = getString(R.string.rc_content_contain_sensitive);
+            }
+            ToastUtils.show(getContext(), tips, Toast.LENGTH_SHORT);
+        }
+    }
+
+    /** loading dialog */
+    private void showLoadingDialog() {
+        if (dialog != null) {
+            dismissLoadingDialog();
+        }
+        dialog = new TipLoadingDialog(getContext());
+        dialog.setTips(getString(R.string.rc_loading_saving));
+        dialog.show();
+    }
+
+    /** dismiss dialog */
+    private void dismissLoadingDialog() {
+        try {
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+                dialog = null;
+            }
+        } catch (Exception e) {
+            dialog = null;
         }
     }
 }

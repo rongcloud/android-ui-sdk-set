@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.IRongCoreEnum;
@@ -55,6 +56,7 @@ public class GroupCreateViewModel extends BaseViewModel {
      * @param groupName 群组名称
      * @param listener 数据变化监听器
      */
+    @Deprecated
     public void createGroup(
             String groupName, OnDataChangeListener<IRongCoreEnum.CoreErrorCode> listener) {
         groupOperationsHandler.replaceDataChangeListener(
@@ -62,6 +64,21 @@ public class GroupCreateViewModel extends BaseViewModel {
         GroupInfo groupInfo = new GroupInfo(groupId, groupName);
         groupInfo.setJoinPermission(GroupJoinPermission.Free);
         groupOperationsHandler.createGroup(groupInfo, inviteeUserIds);
+    }
+
+    /**
+     * 创建群组
+     *
+     * @param groupName 群组名称
+     * @param listener 数据变化监听器
+     */
+    public void createGroup(
+            String groupName, OnDataChangeEnhancedListener<IRongCoreEnum.CoreErrorCode> listener) {
+        groupOperationsHandler.replaceDataChangeListener(
+                GroupOperationsHandler.KEY_CREATE_GROUP_EXAMINE, listener);
+        GroupInfo groupInfo = new GroupInfo(groupId, groupName);
+        groupInfo.setJoinPermission(GroupJoinPermission.Free);
+        groupOperationsHandler.createGroupExamine(groupInfo, inviteeUserIds);
     }
 
     @Override

@@ -701,16 +701,18 @@ public class InputPanel {
     }
 
     private void updateMessageDraft(final String draft, Message message) {
-        String finalDraft = draft != null ? draft : "";
-        if (message != null && !TextUtils.isEmpty(finalDraft)) {
+        if (TextUtils.isEmpty(draft)) {
+            return;
+        }
+        if (message != null) {
             ReferenceManager.getInstance().showReferenceView(mContext, new UiMessage(message));
         }
         mEditText.postDelayed(
                 () -> {
                     if (mEditText instanceof RongEditText) {
-                        ((RongEditText) mEditText).setText(finalDraft, false);
+                        ((RongEditText) mEditText).setText(draft, false);
                     } else {
-                        mEditText.setText(finalDraft);
+                        mEditText.setText(draft);
                     }
                     // 某些低安卓版本+机型，会出现EditText#setText后的text小于所设置的text的情况
                     // 所以设置光标到最后一个，传EditText#length()来设置

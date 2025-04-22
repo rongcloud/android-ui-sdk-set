@@ -2537,6 +2537,7 @@ public class IMCenter {
 
                             @Override
                             public void onError(Message message, RongIMClient.ErrorCode code) {
+                                message = message == null ? new Message() : message;
                                 for (MessageEventListener item : mMessageEventListeners) {
                                     item.onDownloadMessage(
                                             new DownloadEvent(DownloadEvent.ERROR, message, code));
@@ -2956,6 +2957,7 @@ public class IMCenter {
      * @param callback 设置消息接收状态的回调
      * @since 5.12.2
      */
+    @Deprecated
     public void updateGroupInfo(
             @NonNull GroupInfo groupInfo, IRongCoreCallback.OperationCallbackEx<String> callback) {
         RongCoreClient.getInstance()
@@ -2987,6 +2989,44 @@ public class IMCenter {
                             }
                         });
     }
+    /**
+     * 设置群组资料
+     *
+     * @param groupInfo 群信息
+     * @param callback 设置消息接收状态的回调
+     * @since 5.16.0
+     */
+    public void updateGroupInfo(
+            @NonNull GroupInfo groupInfo, IRongCoreCallback.ExamineOperationCallback callback) {
+        RongCoreClient.getInstance()
+                .updateGroupInfo(
+                        groupInfo,
+                        new IRongCoreCallback.ExamineOperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateGroupInfo(
+                                            groupInfo, IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode errorCode, List<String> errorKeys) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateGroupInfo(groupInfo, errorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(errorCode, errorKeys);
+                                }
+                            }
+                        });
+    }
 
     /**
      * 设置群组信息
@@ -2997,6 +3037,7 @@ public class IMCenter {
      * @param callback 设置群组信息回调
      * @since 5.12.2
      */
+    @Deprecated
     public void setGroupMemberInfo(
             String groupId,
             String userId,
@@ -3035,6 +3076,60 @@ public class IMCenter {
                                 }
                                 if (callback != null) {
                                     callback.onError(coreErrorCode);
+                                }
+                            }
+                        });
+    }
+    /**
+     * 设置群组成员信息
+     *
+     * @param groupId 群组 Id
+     * @param userId 成员 Id
+     * @param nickname 名称
+     * @param extra 附加信息
+     * @param callback 设置群组信息回调
+     * @since 5.16.0
+     */
+    public void setGroupMemberInfo(
+            String groupId,
+            String userId,
+            String nickname,
+            String extra,
+            IRongCoreCallback.ExamineOperationCallback callback) {
+        RongCoreClient.getInstance()
+                .setGroupMemberInfo(
+                        groupId,
+                        userId,
+                        nickname,
+                        extra,
+                        new IRongCoreCallback.ExamineOperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setGroupMemberInfo(
+                                            groupId,
+                                            userId,
+                                            nickname,
+                                            extra,
+                                            IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode coreErrorCode,
+                                    List<String> errorKeys) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setGroupMemberInfo(
+                                            groupId, userId, nickname, extra, coreErrorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(coreErrorCode, errorKeys);
                                 }
                             }
                         });
@@ -3087,6 +3182,7 @@ public class IMCenter {
      * @param callback 更新用户信息回调
      * @since 5.12.2
      */
+    @Deprecated
     public void updateMyUserProfile(
             UserProfile userProfile, IRongCoreCallback.UpdateUserProfileCallback callback) {
         RongCoreClient.getInstance()
@@ -3121,6 +3217,44 @@ public class IMCenter {
     }
 
     /**
+     * 更新我的用户信息
+     *
+     * @param userProfile 用户信息
+     * @param callback 更新用户信息回调
+     * @since 5.16.0
+     */
+    public void updateMyUserProfile(
+            UserProfile userProfile, IRongCoreCallback.UpdateUserProfileEnhancedCallback callback) {
+        RongCoreClient.getInstance()
+                .updateMyUserProfile(
+                        userProfile,
+                        new IRongCoreCallback.ExamineOperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateMyUserProfile(
+                                            userProfile, IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode errorCode, List<String> errorKeys) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.updateMyUserProfile(userProfile, errorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(errorCode, errorKeys);
+                                }
+                            }
+                        });
+    }
+    /**
      * 设置好友信息
      *
      * @param userId 用户 Id
@@ -3129,6 +3263,7 @@ public class IMCenter {
      * @param callback 设置好友信息回调
      * @since 5.12.2
      */
+    @Deprecated
     public void setFriendInfo(
             final String userId,
             final String remark,
@@ -3164,6 +3299,57 @@ public class IMCenter {
                                 }
                                 if (callback != null) {
                                     callback.onError(coreErrorCode);
+                                }
+                            }
+                        });
+    }
+
+    /**
+     * 设置好友信息
+     *
+     * @param userId 用户 Id
+     * @param remark 备注
+     * @param extProfile 扩展信息
+     * @param callback 设置好友信息回调
+     * @since 5.16.0
+     */
+    public void setFriendInfo(
+            final String userId,
+            final String remark,
+            final Map<String, String> extProfile,
+            IRongCoreCallback.ExamineOperationCallback callback) {
+        RongCoreClient.getInstance()
+                .setFriendInfo(
+                        userId,
+                        remark,
+                        extProfile,
+                        new IRongCoreCallback.ExamineOperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setFriendInfo(
+                                            userId,
+                                            remark,
+                                            extProfile,
+                                            IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode coreErrorCode,
+                                    List<String> errorKeys) {
+                                for (OnGroupAndUserEventListener listener :
+                                        onGroupAndUserEventListeners) {
+                                    listener.setFriendInfo(
+                                            userId, remark, extProfile, coreErrorCode);
+                                }
+                                if (callback != null) {
+                                    callback.onError(coreErrorCode, errorKeys);
                                 }
                             }
                         });

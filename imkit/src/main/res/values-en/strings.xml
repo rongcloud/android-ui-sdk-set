@@ -327,8 +327,8 @@
     <string name="rc_combine_group_chat">Group Chat History</string>
     <string name="rc_combine_the_group_chat_of">Chat History for %s</string>
     <string name="rc_combine_and">and</string>
-    <string name="rc_combine_unsupported">Failed to send, burn, quote message cannot be forwarded</string>
-    <string name="rc_combine_unsupported_step">Failed to send, burn, audio and video message, cannot be forwarded</string>
+    <string name="rc_combine_unsupported">Failed to send, burn, quote, stream message cannot be forwarded</string>
+    <string name="rc_combine_unsupported_step">Failed to send, burn, audio, video and stream message, cannot be forwarded</string>
     <string name="rc_combine_webview_loading">Chat history loading...</string>
     <string name="rc_combine_webview_download_failed">Chat history download failed</string>
     <string name="rc_combine_history_deleted">Chat history deleted</string>
@@ -691,5 +691,7 @@
     <string name="rc_chat_pin">Sticky on Top</string>
     <string name="rc_notification_mute">Mute Notifications</string>
     <string name="rc_remove">Remove</string>
+    <string name="rc_loading_saving">Saving</string>
+    <string name="rc_content_contain_sensitive">Setup failed, Content contains sensitive information</string>
     <!--5.12.2-->
 </resources>

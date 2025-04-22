@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.usermanage.handler.GroupInfoHandler;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -59,11 +60,24 @@ public class GroupNicknameViewModel extends BaseViewModel {
      * @param newNickName 新的群昵称
      * @param onDataChangeListener 数据变化监听
      */
+    @Deprecated
     public void updateGroupNickName(
             String newNickName, OnDataChangeListener<Boolean> onDataChangeListener) {
         groupOperationsHandler.replaceDataChangeListener(
                 GroupOperationsHandler.KEY_SET_GROUP_MEMBER_INFO, onDataChangeListener);
         groupOperationsHandler.setGroupMemberInfo(userId, newNickName, null);
+    }
+    /**
+     * 更新群成员昵称
+     *
+     * @param newNickName 新的群昵称
+     * @param onDataChangeListener 数据变化监听
+     */
+    public void updateGroupNickName(
+            String newNickName, OnDataChangeEnhancedListener<Boolean> onDataChangeListener) {
+        groupOperationsHandler.replaceDataChangeListener(
+                GroupOperationsHandler.KEY_SET_GROUP_MEMBER_INFO_EXAMINE, onDataChangeListener);
+        groupOperationsHandler.setGroupMemberInfoExamine(userId, newNickName, null);
     }
 
     @Override

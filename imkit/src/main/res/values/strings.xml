@@ -391,8 +391,8 @@
     <string name="rc_combine_group_chat">群聊的聊天记录</string>
     <string name="rc_combine_the_group_chat_of">%s 的聊天记录</string>
     <string name="rc_combine_and">和</string>
-    <string name="rc_combine_unsupported">未发送成功、阅后即焚、引用消息不支持转发</string>
-    <string name="rc_combine_unsupported_step">未发送成功、阅后即焚、音视频消息不支持转发</string>
+    <string name="rc_combine_unsupported">未发送成功、阅后即焚、引用消息、流式消息不支持转发</string>
+    <string name="rc_combine_unsupported_step">未发送成功、阅后即焚、音视频消息、流式消息不支持转发</string>
     <string name="rc_combine_webview_loading">聊天记录加载中...</string>
     <string name="rc_combine_webview_download_failed">聊天记录加载失败</string>
     <string name="rc_combine_history_deleted">聊天记录已被删除</string>
@@ -697,5 +697,9 @@
     <string name="rc_remove">移除</string>
     <!--5.12.2-->
 
+    <!--5.16.0-->
+    <string name="rc_loading_saving">保存中</string>
+    <string name="rc_content_contain_sensitive">操作失败，内容包含敏感信息</string>
+    <!--5.16.0-->
 
 </resources>

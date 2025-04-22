@@ -35,6 +35,8 @@ public class UiMessage extends UiBaseBean {
     private String translatedContent;
 
     private @State.Value int translateStatus = State.NORMAL;
+    /** 业务状态 */
+    private String businessState;
 
     public UiMessage(Message message) {
         setMessage(message);
@@ -447,5 +449,13 @@ public class UiMessage extends UiBaseBean {
 
     public void setTranslateStatus(@State.Value int translateStatus) {
         this.translateStatus = translateStatus;
+    }
+
+    public String getBusinessState() {
+        return businessState;
+    }
+
+    public void setBusinessState(String businessState) {
+        this.businessState = businessState;
     }
 }

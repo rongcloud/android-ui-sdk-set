@@ -58,6 +58,7 @@ import io.rong.message.FileMessage;
 import io.rong.message.ImageMessage;
 import io.rong.message.ReferenceMessage;
 import io.rong.message.RichContentMessage;
+import io.rong.message.StreamMessage;
 import io.rong.message.TextMessage;
 import java.util.List;
 import java.util.Locale;
@@ -104,13 +105,21 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         if (referenceMessage.getReferenceContent() == null) {
             return;
         }
-        if (referenceMessage.getReferenceContent() instanceof TextMessage) {
+        if (referenceMessage.getReferenceContent() instanceof TextMessage
+                || referenceMessage.getReferenceContent() instanceof StreamMessage) {
+            String content;
+            if (referenceMessage.getReferenceContent() instanceof TextMessage) {
+                content = ((TextMessage) referenceMessage.getReferenceContent()).getContent();
+            } else {
+                content = ((StreamMessage) referenceMessage.getReferenceContent()).getContent();
+            }
             setTextType(
                     holder.getConvertView(),
                     holder,
                     parentHolder,
                     position,
                     referenceMessage,
+                    content,
                     uiMessage);
             holder.setVisible(R.id.rc_msg_tv_reference_content, true);
             holder.setVisible(R.id.rc_msg_iv_reference, false);
@@ -347,6 +356,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             ViewHolder parentHolder,
             final int position,
             final ReferenceMessage referenceMessage,
+            final String content,
             final UiMessage uiMessage) {
         if (referenceMessage == null || referenceMessage.getReferenceContent() == null) {
             return;
@@ -357,8 +367,8 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             textView.getViewTreeObserver()
                     .addOnGlobalLayoutListener(new OnGlobalLayoutListenerByEllipsize(textView, 1));
         }
-        TextMessage content = (TextMessage) referenceMessage.getReferenceContent();
-        setTextContent(textView, uiMessage, content.getContent(), false);
+
+        setTextContent(textView, uiMessage, content, false);
         setReferenceContentAction(
                 view, holder, parentHolder, position, referenceMessage, uiMessage);
         textClickAction(view, textView, uiMessage);

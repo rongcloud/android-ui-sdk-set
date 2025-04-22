@@ -50,6 +50,7 @@ import io.rong.imkit.feature.forward.ForwardManager;
 import io.rong.imkit.feature.translation.RCTranslationResultWrapper;
 import io.rong.imkit.feature.translation.TranslationProvider;
 import io.rong.imkit.feature.translation.TranslationResultListenerWrapper;
+import io.rong.imkit.handler.StreamMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.IAudioPlayListener;
 import io.rong.imkit.manager.hqvoicemessage.AutoDownloadEntry;
@@ -108,6 +109,7 @@ public class MessageViewModel extends AndroidViewModel
     private MediatorLiveData<PageEvent> mPageEventLiveData = new MediatorLiveData<>();
     private MediatorLiveData<List<UiMessage>> mUiMessageLiveData = new MediatorLiveData<>();
     private ConversationIdentifier mConversationIdentifier;
+    private final StreamMessageHandler mStreamMessageHandler;
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
             new RongIMClient.ReadReceiptListener() {
                 @Override
@@ -372,6 +374,20 @@ public class MessageViewModel extends AndroidViewModel
     public MessageViewModel(@NonNull Application application) {
         super(application);
         mainHandler = new Handler(Looper.getMainLooper());
+        mStreamMessageHandler = new StreamMessageHandler();
+        mStreamMessageHandler.addDataChangeListener(
+                StreamMessageHandler.KEY_FETCH_STREAM_MESSAGE,
+                uiMessage -> {
+                    if (uiMessage != null && uiMessage.getMessage() != null) {
+                        UiMessage findUiMessage =
+                                findUIMessage(uiMessage.getMessage().getMessageId());
+                        if (findUiMessage != null) {
+                            findUiMessage.setMessage(uiMessage.getMessage());
+                            findUiMessage.setBusinessState(uiMessage.getBusinessState());
+                            refreshSingleMessage(findUiMessage);
+                        }
+                    }
+                });
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addReadReceiptListener(mReadReceiptListener);
@@ -1523,6 +1539,7 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     protected void onCleared() {
         super.onCleared();
+        mStreamMessageHandler.stop();
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeReadReceiptListener(mReadReceiptListener);
@@ -1605,6 +1622,13 @@ public class MessageViewModel extends AndroidViewModel
                             }
                         }
                     }
+                    break;
+                case MessageClickType.STREAM_MSG_PULL:
+                    mStreamMessageHandler.fetchStreamMessage(
+                            data.getUId(),
+                            Objects.equals(
+                                    data.getBusinessState(),
+                                    StreamMessageHandler.State.RETRY_PULL));
                     break;
                 default:
                     break;

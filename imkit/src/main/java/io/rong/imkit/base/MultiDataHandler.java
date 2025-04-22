@@ -3,6 +3,7 @@ package io.rong.imkit.base;
 import android.os.Build;
 import android.util.Log;
 import androidx.annotation.NonNull;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imlib.IRongCoreEnum;
 import java.util.List;
@@ -122,6 +123,36 @@ public abstract class MultiDataHandler extends BaseHandler {
                     listener.onDataError(coreErrorCode, errorMsg);
                 } catch (ClassCastException e) {
                     Log.e("MultiDataHandler", "notifyDataError: ", e);
+                    throw e;
+                }
+            }
+        }
+    }
+
+    /**
+     * 通知指定类型的数据错误
+     *
+     * @param dataKey 包含key和对应Class类型的对象
+     * @param coreErrorCode 错误
+     * @param errorMsgs 错误信息
+     */
+    protected final <T> void notifyDataError(
+            @NonNull DataKey<T> dataKey,
+            @NonNull IRongCoreEnum.CoreErrorCode coreErrorCode,
+            @NonNull List<String> errorMsgs) {
+        if (!isAlive()) {
+            return;
+        }
+        List<OnDataChangeListener<?>> listeners = listenersMap.get(dataKey);
+        if (listeners != null) {
+            for (OnDataChangeListener<?> listener : listeners) {
+                try {
+                    if (listener instanceof OnDataChangeEnhancedListener) {
+                        ((OnDataChangeEnhancedListener) listener)
+                                .onDataError(coreErrorCode, errorMsgs);
+                    }
+                } catch (ClassCastException e) {
+                    Log.e("MultiDataHandler", "notifyDataErrors: ", e);
                     throw e;
                 }
             }

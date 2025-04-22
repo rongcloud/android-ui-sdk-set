@@ -3,6 +3,7 @@ package io.rong.imkit.usermanage.friend.my.gender;
 import android.os.Bundle;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.usermanage.handler.UserProfileOperationsHandler;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.model.UserProfile;
@@ -23,10 +24,18 @@ public class UpdateGenderViewModel extends BaseViewModel {
         userProfileOperationsHandler = new UserProfileOperationsHandler();
     }
 
+    @Deprecated
     public void updateUserProfile(UserProfile userProfile, OnDataChangeListener<Boolean> listener) {
         userProfileOperationsHandler.replaceDataChangeListener(
                 UserProfileOperationsHandler.KEY_UPDATE_MY_USER_PROFILE, listener);
         userProfileOperationsHandler.updateMyUserProfile(userProfile);
+    }
+
+    public void updateUserProfile(
+            UserProfile userProfile, OnDataChangeEnhancedListener<Boolean> listener) {
+        userProfileOperationsHandler.replaceDataChangeListener(
+                UserProfileOperationsHandler.KEY_UPDATE_MY_USER_PROFILE_EXAMINE, listener);
+        userProfileOperationsHandler.updateMyUserProfileExamine(userProfile);
     }
 
     public UserProfile getUserProfile() {

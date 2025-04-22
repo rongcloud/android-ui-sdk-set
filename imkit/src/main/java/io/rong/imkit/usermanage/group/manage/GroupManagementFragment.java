@@ -27,9 +27,12 @@ import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.group.managerlist.GroupManagerListActivity;
 import io.rong.imkit.usermanage.group.transfer.GroupTransferActivity;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.SettingItemView;
+import io.rong.imkit.widget.dialog.TipLoadingDialog;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.GroupInfo;
 import io.rong.imlib.model.GroupJoinPermission;
@@ -37,6 +40,7 @@ import io.rong.imlib.model.GroupMemberInfoEditPermission;
 import io.rong.imlib.model.GroupMemberRole;
 import io.rong.imlib.model.GroupOperationPermission;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,6 +59,7 @@ public class GroupManagementFragment extends BaseViewModelFragment<GroupManageme
     protected SettingItemView groupEditMemberInfoPermissionView;
     protected SettingItemView groupInvitationConfirmationView;
     protected SettingItemView groupTransferView;
+    private TipLoadingDialog dialog;
 
     @NonNull
     @Override
@@ -327,13 +332,28 @@ public class GroupManagementFragment extends BaseViewModelFragment<GroupManageme
             @NonNull GroupManagementViewModel viewModel, @NonNull GroupInfo groupInfo) {
         viewModel.updateGroupInfo(
                 groupInfo,
-                isSuccess -> {
-                    ToastUtils.show(
-                            getContext(),
-                            getString(isSuccess ? R.string.rc_set_success : R.string.rc_set_failed),
-                            Toast.LENGTH_SHORT);
-                    if (isSuccess) {
-                        viewModel.refreshGroupInfo();
+                new OnDataChangeEnhancedListener<Boolean>() {
+                    @Override
+                    public void onDataChange(Boolean isSuccess) {
+                        dismissLoadingDialog();
+                        if (isSuccess) {
+                            ToastUtils.show(
+                                    getContext(),
+                                    getString(R.string.rc_set_success),
+                                    Toast.LENGTH_SHORT);
+                            viewModel.refreshGroupInfo();
+                        }
+                    }
+
+                    @Override
+                    public void onDataError(
+                            IRongCoreEnum.CoreErrorCode coreErrorCode, List<String> errorMsgs) {
+                        String tips = getString(R.string.rc_set_failed);
+                        if (coreErrorCode
+                                == IRongCoreEnum.CoreErrorCode.SERVICE_INFORMATION_AUDIT_FAILED) {
+                            tips = getString(R.string.rc_content_contain_sensitive);
+                        }
+                        ToastUtils.show(getContext(), tips, Toast.LENGTH_SHORT);
                     }
                 });
     }
@@ -412,5 +432,27 @@ public class GroupManagementFragment extends BaseViewModelFragment<GroupManageme
         slideUp.setDuration(150); // 动画持续时间
         slideUp.setInterpolator(new DecelerateInterpolator()); // 减速插值器
         view.startAnimation(slideUp);
+    }
+
+    /** loading dialog */
+    private void showLoadingDialog() {
+        if (dialog != null) {
+            dismissLoadingDialog();
+        }
+        dialog = new TipLoadingDialog(getContext());
+        dialog.setTips(getString(R.string.rc_loading_saving));
+        dialog.show();
+    }
+
+    /** dismiss dialog */
+    private void dismissLoadingDialog() {
+        try {
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+                dialog = null;
+            }
+        } catch (Exception e) {
+            dialog = null;
+        }
     }
 }

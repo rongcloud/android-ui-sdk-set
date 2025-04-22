@@ -652,14 +652,16 @@ class UserManageHelper {
                         groupMemberInfo.getUserId(),
                         groupMemberInfo.getNickname(),
                         groupMemberInfo.getExtra(),
-                        new IRongCoreCallback.OperationCallback() {
+                        new IRongCoreCallback.ExamineOperationCallback() {
                             @Override
                             public void onSuccess() {
                                 refreshGroupMemberInfoInner(groupId, groupMemberInfo);
                             }
 
                             @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode coreErrorCode,
+                                    List<String> errorKeys) {
                                 // Handle error
                             }
                         });

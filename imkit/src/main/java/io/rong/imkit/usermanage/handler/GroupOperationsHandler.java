@@ -25,6 +25,10 @@ public class GroupOperationsHandler extends MultiDataHandler {
     public static final DataKey<IRongCoreEnum.CoreErrorCode> KEY_CREATE_GROUP =
             DataKey.obtain("KEY_CREATE_GROUP", IRongCoreEnum.CoreErrorCode.class);
 
+    /** 用于标识创建群组的操作 [审核] */
+    public static final DataKey<IRongCoreEnum.CoreErrorCode> KEY_CREATE_GROUP_EXAMINE =
+            DataKey.obtain("KEY_CREATE_GROUP_EXAMINE", IRongCoreEnum.CoreErrorCode.class);
+
     /** 用于标识邀请用户加入群组的操作 */
     public static final DataKey<IRongCoreEnum.CoreErrorCode> KEY_INVITE_USERS_TO_GROUP =
             DataKey.obtain("KEY_INVITE_USERS_TO_GROUP", IRongCoreEnum.CoreErrorCode.class);
@@ -37,9 +41,18 @@ public class GroupOperationsHandler extends MultiDataHandler {
     public static final DataKey<Boolean> KEY_UPDATE_GROUP_INFO =
             DataKey.obtain("KEY_UPDATE_GROUP_INFO", Boolean.class);
 
+    /** 用于标识更新群组信息的操作[审核] */
+    public static final DataKey<Boolean> KEY_UPDATE_GROUP_INFO_EXAMINE =
+            DataKey.obtain("KEY_UPDATE_GROUP_INFO_EXAMINE", Boolean.class);
+
     /** 用于标识更新群成员资料的操作 */
     public static final DataKey<Boolean> KEY_SET_GROUP_MEMBER_INFO =
             DataKey.obtain("KEY_SET_GROUP_MEMBER_INFO", Boolean.class);
+
+    /** 用于标识更新群成员资料的操作 */
+    public static final DataKey<Boolean> KEY_SET_GROUP_MEMBER_INFO_EXAMINE =
+            DataKey.obtain("KEY_SET_GROUP_MEMBER_INFO_EXAMINE", Boolean.class);
+
     /** 用于标识退出群组的操作 */
     public static final DataKey<Boolean> KEY_QUIT_GROUP =
             DataKey.obtain("KEY_QUIT_GROUP", Boolean.class);
@@ -83,6 +96,7 @@ public class GroupOperationsHandler extends MultiDataHandler {
         this.groupId = conversationIdentifier.getTargetId();
     }
 
+    @Deprecated
     public void createGroup(GroupInfo groupInfo, List<String> inviteeUserIds) {
         RongCoreClient.getInstance()
                 .createGroup(
@@ -103,6 +117,25 @@ public class GroupOperationsHandler extends MultiDataHandler {
                         });
     }
 
+    public void createGroupExamine(GroupInfo groupInfo, List<String> inviteeUserIds) {
+        RongCoreClient.getInstance()
+                .createGroup(
+                        groupInfo,
+                        inviteeUserIds,
+                        new IRongCoreCallback.ExamineCreateGroupCallback() {
+                            @Override
+                            public void onSuccess(IRongCoreEnum.CoreErrorCode processCode) {
+                                notifyDataChange(KEY_CREATE_GROUP_EXAMINE, processCode);
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode errorCode, List<String> errorData) {
+                                notifyDataChange(KEY_CREATE_GROUP_EXAMINE, errorCode);
+                                notifyDataError(KEY_CREATE_GROUP_EXAMINE, errorCode, errorData);
+                            }
+                        });
+    }
     /**
      * 邀请用户加入群组
      *
@@ -157,6 +190,7 @@ public class GroupOperationsHandler extends MultiDataHandler {
      *
      * @param groupInfo 群组信息
      */
+    @Deprecated
     public void updateGroupInfo(@NonNull GroupInfo groupInfo) {
         IMCenter.getInstance()
                 .updateGroupInfo(
@@ -175,7 +209,29 @@ public class GroupOperationsHandler extends MultiDataHandler {
                             }
                         });
     }
+    /**
+     * 更新群组信息
+     *
+     * @param groupInfo 群组信息
+     */
+    public void updateGroupInfoExamine(@NonNull GroupInfo groupInfo) {
+        IMCenter.getInstance()
+                .updateGroupInfo(
+                        groupInfo,
+                        new IRongCoreCallback.ExamineOperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                notifyDataChange(KEY_UPDATE_GROUP_INFO_EXAMINE, true);
+                            }
 
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode errorCode, List<String> errorData) {
+                                notifyDataError(
+                                        KEY_UPDATE_GROUP_INFO_EXAMINE, errorCode, errorData);
+                            }
+                        });
+    }
     /**
      * 设置群成员信息
      *
@@ -183,6 +239,7 @@ public class GroupOperationsHandler extends MultiDataHandler {
      * @param nickname 昵称
      * @param extra 扩展信息
      */
+    @Deprecated
     public void setGroupMemberInfo(String userId, String nickname, String extra) {
         IMCenter.getInstance()
                 .setGroupMemberInfo(
@@ -200,6 +257,38 @@ public class GroupOperationsHandler extends MultiDataHandler {
                             public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
                                 notifyDataChange(KEY_SET_GROUP_MEMBER_INFO, false);
                                 notifyDataError(KEY_SET_GROUP_MEMBER_INFO, coreErrorCode);
+                            }
+                        });
+    }
+
+    /**
+     * 设置群成员信息
+     *
+     * @param userId 用户ID
+     * @param nickname 昵称
+     * @param extra 扩展信息
+     */
+    public void setGroupMemberInfoExamine(String userId, String nickname, String extra) {
+        IMCenter.getInstance()
+                .setGroupMemberInfo(
+                        groupId,
+                        userId,
+                        nickname,
+                        extra,
+                        new IRongCoreCallback.ExamineOperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                notifyDataChange(KEY_SET_GROUP_MEMBER_INFO_EXAMINE, true);
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode coreErrorCode,
+                                    List<String> errorKeys) {
+                                notifyDataError(
+                                        KEY_SET_GROUP_MEMBER_INFO_EXAMINE,
+                                        coreErrorCode,
+                                        errorKeys);
                             }
                         });
     }
