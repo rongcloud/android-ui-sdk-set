@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
@@ -205,12 +204,6 @@ public class TitleBar extends Toolbar {
         } else {
             getRightView().setCompoundDrawables(null, null, null, null);
         }
-    }
-
-    public void setRightIcon(@DrawableRes int res) {
-        drawable = getResources().getDrawable(res);
-        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        getRightView().setCompoundDrawables(null, null, drawable, null);
     }
 
     public ImageView getSearchView() {

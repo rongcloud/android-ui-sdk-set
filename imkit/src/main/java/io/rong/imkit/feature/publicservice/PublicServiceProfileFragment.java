@@ -10,14 +10,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import io.rong.common.RLog;
-import io.rong.imkit.IMCenter;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.SettingItemView;
-import io.rong.imlib.IRongCoreCallback;
-import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -154,60 +150,6 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
                     mUnfollowBtn.setVisibility(View.GONE);
                 }
             }
-
-            RongCoreClient.getInstance()
-                    .getConversationNotificationStatus(
-                            info.getConversationType(),
-                            info.getTargetId(),
-                            new IRongCoreCallback.ResultCallback<
-                                    Conversation.ConversationNotificationStatus>() {
-                                @Override
-                                public void onSuccess(
-                                        Conversation.ConversationNotificationStatus
-                                                conversationNotificationStatus) {
-                                    if (mNotificationView != null) {
-                                        mNotificationView.setChecked(
-                                                conversationNotificationStatus
-                                                        == Conversation
-                                                                .ConversationNotificationStatus
-                                                                .NOTIFY);
-                                    }
-                                }
-
-                                @Override
-                                public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                    RLog.e(
-                                            TAG,
-                                            "getConversationNotificationStatus onError " + e.code);
-                                }
-                            });
-
-            mNotificationView.setSwitchCheckListener(
-                    (buttonView, isChecked) ->
-                            IMCenter.getInstance()
-                                    .setConversationNotificationStatus(
-                                            info.getConversationType(),
-                                            info.getTargetId(),
-                                            isChecked
-                                                    ? Conversation.ConversationNotificationStatus
-                                                            .NOTIFY
-                                                    : Conversation.ConversationNotificationStatus
-                                                            .DO_NOT_DISTURB,
-                                            new RongIMClient.ResultCallback<
-                                                    Conversation.ConversationNotificationStatus>() {
-                                                @Override
-                                                public void onSuccess(
-                                                        Conversation.ConversationNotificationStatus
-                                                                conversationNotificationStatus) {}
-
-                                                @Override
-                                                public void onError(RongIMClient.ErrorCode e) {
-                                                    RLog.e(
-                                                            TAG,
-                                                            "setConversationNotificationStatus onError "
-                                                                    + e.code);
-                                                }
-                                            }));
 
             mEnterBtn.setOnClickListener(
                     new View.OnClickListener() {

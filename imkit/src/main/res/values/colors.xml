@@ -104,6 +104,4 @@
     <color name="rc_ext_menu_item_text_color">#FF111F2C</color>
 
     <color name="rc_unread_message_color">#E75C53</color>
-
-    <color name="color_divider_line">#E5E5E5</color>
 </resources>

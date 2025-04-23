@@ -37,19 +37,17 @@
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="14dp"
-        android:layout_toEndOf="@id/tv_content"
-        android:gravity="center_vertical|end"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tv_value"
             style="@style/TextStyle.Alignment"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="26dp"
+            android:layout_marginStart="6dp"
             android:ellipsize="end"
-            android:gravity="end|center_vertical"
+            android:gravity="end"
             android:maxLines="1"
             android:textColor="@color/rc_text_main_color"
             android:textSize="@dimen/rc_font_secondary_size" />
@@ -62,18 +60,14 @@
             app:kswAnimationDuration="300"
             app:kswBackDrawable="@drawable/rc_switchbtn_check_selector"
             app:kswBackMeasureRatio="1.5"
-            app:kswThumbDrawable="@drawable/rc_switchbtn_thumb"
             app:kswThumbMargin="1dp"
+            app:kswThumbDrawable="@drawable/rc_switchbtn_thumb"
             app:kswThumbRadius="10dp" />
 
         <ImageView
             android:id="@+id/iv_select_image"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
-            android:scaleType="fitEnd" />
+            android:layout_height="wrap_content" />
 
         <ImageView
             android:id="@+id/iv_right_image"
@@ -90,5 +84,6 @@
         android:layout_height="0.5dp"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="14dp"
-        android:background="@color/rc_divider_color" />
+        android:layout_marginEnd="14dp"
+        android:background="@color/rc_item_background_color" />
 </RelativeLayout>

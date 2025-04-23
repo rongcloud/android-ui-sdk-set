@@ -42,7 +42,6 @@ import io.rong.imlib.model.Group;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageConfig;
-import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.MessagePushConfig;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.RecallNotificationMessage;
@@ -259,20 +258,6 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         return true;
     }
 
-    private UserInfo getUserInfo(String userId, MessageContent messageContent) {
-        boolean isInfoManagement =
-                RongUserInfoManager.getInstance().getDataSourceType()
-                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
-        if (isInfoManagement
-                && messageContent != null
-                && messageContent.getUserInfo() != null
-                && messageContent.getUserInfo().getUserId() != null
-                && messageContent.getUserInfo().getUserId().equals(userId)) {
-            return messageContent.getUserInfo();
-        }
-        return RongUserInfoManager.getInstance().getUserInfo(userId);
-    }
-
     private void prepareToSendNotification(Message message) {
         // 如果在主线程，就开启线程去发送通知
         if (ExecutorFactory.isMainThread()) {
@@ -296,7 +281,8 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         if (type.equals(Conversation.ConversationType.GROUP)) {
             Group group = RongUserInfoManager.getInstance().getGroupInfo(targetId);
             title = group == null ? targetId : group.getName();
-            UserInfo senderInfo = getUserInfo(message.getSenderUserId(), message.getContent());
+            UserInfo senderInfo =
+                    RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
             if (message.getContent() instanceof RecallNotificationMessage) {
                 content =
                         senderInfo == null
@@ -322,7 +308,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                                         message.getContent());
             }
         } else {
-            UserInfo userInfo = getUserInfo(targetId, message.getContent());
+            UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(targetId);
             title =
                     userInfo == null
                             ? targetId

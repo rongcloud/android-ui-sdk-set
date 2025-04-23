@@ -7,17 +7,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Pair;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.manager.AudioPlayManager;
-import io.rong.imkit.manager.SendMediaManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.utils.StreamMsgUtil;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongCoreClient;
@@ -37,7 +33,6 @@ import io.rong.message.MediaMessageContent;
 import io.rong.message.NotificationMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
-import io.rong.message.StreamMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
 import java.util.ArrayList;
@@ -123,46 +118,9 @@ public class MessageItemLongClickActionManager {
                                                                 e);
                                                     }
                                                 }
-                                            } else if (message.getContent()
-                                                    instanceof StreamMessage) {
-                                                StreamMessage streamMessage =
-                                                        (StreamMessage) message.getContent();
-                                                if (streamMessage == null) {
-                                                    return false;
-                                                }
-                                                if (clipboard != null) {
-                                                    try {
-                                                        clipboard.setPrimaryClip(
-                                                                ClipData.newPlainText(
-                                                                        null,
-                                                                        getStreamMessageShowContent(
-                                                                                streamMessage,
-                                                                                message)));
-                                                    } catch (Exception e) {
-                                                        RLog.e(
-                                                                TAG,
-                                                                "initCommonMessageItemLongClickActions StreamMessage",
-                                                                e);
-                                                    }
-                                                }
                                             }
                                             return true;
                                         }
-                                    }
-
-                                    @NonNull
-                                    private String getStreamMessageShowContent(
-                                            StreamMessage streamMessage, Message message) {
-                                        Pair<String, Boolean> streamMessageSummary =
-                                                StreamMsgUtil.getStreamMessageSummary(message);
-                                        boolean isShowSummary =
-                                                !streamMessage.isSync()
-                                                        && !TextUtils.isEmpty(
-                                                                streamMessageSummary.first);
-                                        return StreamMsgUtil.limitContentLength(
-                                                isShowSummary
-                                                        ? streamMessageSummary.first
-                                                        : streamMessage.getContent());
                                     }
                                 })
                         .showFilter(
@@ -172,9 +130,7 @@ public class MessageItemLongClickActionManager {
                                         Message message = uiMessage.getMessage();
                                         return (message.getContent() instanceof TextMessage
                                                         || message.getContent()
-                                                                instanceof ReferenceMessage
-                                                        || message.getContent()
-                                                                instanceof StreamMessage)
+                                                                instanceof ReferenceMessage)
                                                 && !message.getConversationType()
                                                         .equals(
                                                                 Conversation.ConversationType
@@ -215,29 +171,7 @@ public class MessageItemLongClickActionManager {
                                             if (message.getMessageDirection()
                                                     == Message.MessageDirection.SEND) {
                                                 RongIMClient.getInstance()
-                                                        .cancelSendMediaMessage(
-                                                                message,
-                                                                new RongIMClient
-                                                                        .OperationCallback() {
-
-                                                                    @Override
-                                                                    public void onSuccess() {
-                                                                        SendMediaManager
-                                                                                .getInstance()
-                                                                                .cancelSendingMedia(
-                                                                                        message
-                                                                                                .getConversationType(),
-                                                                                        message
-                                                                                                .getTargetId(),
-                                                                                        message
-                                                                                                .getMessageId());
-                                                                    }
-
-                                                                    @Override
-                                                                    public void onError(
-                                                                            RongIMClient.ErrorCode
-                                                                                    errorCode) {}
-                                                                });
+                                                        .cancelSendMediaMessage(message, null);
                                             } else {
                                                 RongIMClient.getInstance()
                                                         .cancelDownloadMediaMessage(message, null);
@@ -451,31 +385,25 @@ public class MessageItemLongClickActionManager {
             ToastUtils.show(context, errorTxt, Toast.LENGTH_SHORT);
             return;
         }
-        if (uiMessage.getConversationType() == Conversation.ConversationType.CHATROOM) {
-            // 聊天室只删除本地消息, 不删除远端消息 (删除远端消息的接口不支持聊天室)
-            deleteLocalMessage(uiMessage);
-        } else {
-            // 先删远端，远端删除成功才删本地
-            IMCenter.getInstance()
-                    .deleteRemoteMessages(
-                            ConversationIdentifier.obtain(uiMessage.getMessage()),
-                            new Message[] {uiMessage.getMessage()},
-                            new RongIMClient.OperationCallback() {
-                                @Override
-                                public void onSuccess() {
-                                    deleteLocalMessage(uiMessage);
-                                }
+        IMCenter.getInstance()
+                .deleteRemoteMessages(
+                        ConversationIdentifier.obtain(uiMessage.getMessage()),
+                        new Message[] {uiMessage.getMessage()},
+                        new RongIMClient.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                deleteLocalMessage(uiMessage);
+                            }
 
-                                @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
-                                    RLog.e(
-                                            TAG,
-                                            "deleteRemoteMessage fail, will not deleteLocalMessage ："
-                                                    + errorCode);
-                                    ToastUtils.show(context, errorTxt, Toast.LENGTH_SHORT);
-                                }
-                            });
-        }
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                RLog.e(
+                                        TAG,
+                                        "deleteRemoteMessage fail, will not deleteLocalMessage ："
+                                                + errorCode);
+                                ToastUtils.show(context, errorTxt, Toast.LENGTH_SHORT);
+                            }
+                        });
     }
 
     private void deleteLocalMessage(UiMessage uiMessage) {

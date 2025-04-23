@@ -5,13 +5,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatEditText;
-import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 
 /** @author gusd @Date 2021/10/22 */
 public class RongEditText extends AppCompatEditText {
-    private OnDataChangeListener<Integer> backspaceListener;
+
     private List<TextWatcher> mTextWatcherList;
 
     public RongEditText(Context context) {
@@ -60,10 +59,6 @@ public class RongEditText extends AppCompatEditText {
         }
     }
 
-    public void setOnBackspaceListener(OnDataChangeListener<Integer> listener) {
-        this.backspaceListener = listener;
-    }
-
     private TextWatcher mTextWatcher =
             new TextWatcher() {
                 @Override
@@ -81,10 +76,6 @@ public class RongEditText extends AppCompatEditText {
                         for (TextWatcher textWatcher : mTextWatcherList) {
                             textWatcher.onTextChanged(s, start, before, count);
                         }
-                    }
-                    // 如果 before > 0 且 count == 0，说明是删除操作
-                    if (before > 0 && count == 0 && backspaceListener != null) {
-                        backspaceListener.onDataChange(start);
                     }
                 }
 

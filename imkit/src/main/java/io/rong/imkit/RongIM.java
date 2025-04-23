@@ -1122,10 +1122,7 @@ public class RongIM {
      * @param targetId 会话 id。
      * @param historyMsgOption {@link HistoryMessageOption}
      * @param callback 获取消息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
-     * @deprecated 5.8.2 请使用 {@linkplain #getMessages(ConversationIdentifier, HistoryMessageOption,
-     *     IRongCoreCallback.IGetMessageCallbackEx)}
      */
-    @Deprecated
     public void getMessages(
             final Conversation.ConversationType conversationType,
             final String targetId,
@@ -1146,61 +1143,21 @@ public class RongIM {
      * @param conversationIdentifier 会话标识
      * @param historyMsgOption {@link HistoryMessageOption}
      * @param callback 获取消息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
-     * @deprecated 5.8.2 请使用 {@linkplain #getMessages(ConversationIdentifier, HistoryMessageOption,
-     *     IRongCoreCallback.IGetMessageCallbackEx)}
      */
-    @Deprecated
     public void getMessages(
             final ConversationIdentifier conversationIdentifier,
             final HistoryMessageOption historyMsgOption,
             final IRongCoreCallback.IGetMessageCallback callback) {
-        getMessages(
-                conversationIdentifier,
-                historyMsgOption,
-                new IRongCoreCallback.IGetMessageCallbackEx() {
-                    @Override
-                    public void onComplete(
-                            List<Message> messageList,
-                            long syncTimestamp,
-                            boolean hasMoreMsg,
-                            IRongCoreEnum.CoreErrorCode errorCode) {
-                        if (callback != null) {
-                            callback.onComplete(messageList, errorCode);
-                        }
-                    }
-
-                    @Override
-                    public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
-                });
-    }
-
-    /**
-     * 获取指定会话历史消息。
-     *
-     * <p>此方法先从本地获取历史消息，本地有缺失的情况下会从服务端同步缺失的部分；从服务端同步失败的时候会返回非 0 的 errorCode，同时把本地能取到的消息回调上去。<br>
-     * 必须开通历史消息云存储功能。
-     *
-     * @param conversationIdentifier 会话标识
-     * @param historyMsgOption {@link HistoryMessageOption}
-     * @param callback 获取消息的回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
-     * @since 5.8.2
-     */
-    public void getMessages(
-            final ConversationIdentifier conversationIdentifier,
-            final HistoryMessageOption historyMsgOption,
-            final IRongCoreCallback.IGetMessageCallbackEx callback) {
         ChannelClient.getInstance()
                 .getMessages(
                         conversationIdentifier.getType(),
                         conversationIdentifier.getTargetId(),
                         conversationIdentifier.getChannelId(),
                         historyMsgOption,
-                        new IRongCoreCallback.IGetMessageCallbackEx() {
+                        new IRongCoreCallback.IGetMessageCallback() {
                             @Override
                             public void onComplete(
                                     List<Message> messageList,
-                                    long syncTimestamp,
-                                    boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
                                 if (messageList != null && !messageList.isEmpty()) {
                                     IMCenter.getInstance()
@@ -1208,15 +1165,7 @@ public class RongIM {
                                                     messageList.get(messageList.size() - 1));
                                 }
                                 if (callback != null) {
-                                    callback.onComplete(
-                                            messageList, syncTimestamp, hasMoreMsg, errorCode);
-                                }
-                            }
-
-                            @Override
-                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {
-                                if (callback != null) {
-                                    callback.onFail(errorCode);
+                                    callback.onComplete(messageList, errorCode);
                                 }
                             }
                         });

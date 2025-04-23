@@ -12,7 +12,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.Transformation;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import io.rong.imkit.config.RongConfigCenter;
@@ -145,30 +144,6 @@ public class GlideKitImageEngine implements KitImageEngine {
         }
 
         loadPortrait(context, url, imageView, resourceId);
-    }
-
-    @Override
-    public void loadUserPortrait(
-            @NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
-        Glide.with(imageView)
-                .load(url)
-                .placeholder(R.drawable.rc_default_portrait)
-                .error(R.drawable.rc_default_portrait)
-                .apply(RequestOptions.bitmapTransform(getPortraitTransformation()))
-                .into(imageView);
-    }
-
-    @Override
-    public void loadGroupPortrait(
-            @NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
-        Glide.with(imageView)
-                .load(url)
-                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
-                .error(
-                        Glide.with(imageView)
-                                .load(R.drawable.rc_default_group_portrait)
-                                .apply(RequestOptions.bitmapTransform(new CircleCrop())))
-                .into(imageView);
     }
 
     // 加载头像

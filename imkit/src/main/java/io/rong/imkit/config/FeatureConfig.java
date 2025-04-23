@@ -74,7 +74,6 @@ public class FeatureConfig {
 
     public void initConfig(Context context) {
         if (context != null) {
-
             Resources resources = context.getResources();
             try {
                 rc_wipe_out_notification_message =

@@ -35,8 +35,6 @@ public class UiMessage extends UiBaseBean {
     private String translatedContent;
 
     private @State.Value int translateStatus = State.NORMAL;
-    /** 业务状态 */
-    private String businessState;
 
     public UiMessage(Message message) {
         setMessage(message);
@@ -53,23 +51,7 @@ public class UiMessage extends UiBaseBean {
                 return;
             }
         }
-
-        UserInfo user;
-        boolean isInfoManagement =
-                RongUserInfoManager.getInstance().getDataSourceType()
-                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
-        if (isInfoManagement
-                && message.getContent() != null
-                && message.getContent().getUserInfo() != null
-                && message.getContent().getUserInfo().getUserId() != null
-                && message.getContent()
-                        .getUserInfo()
-                        .getUserId()
-                        .equals(message.getSenderUserId())) {
-            user = message.getContent().getUserInfo();
-        } else {
-            user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
-        }
+        UserInfo user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
         if (user != null) {
             userInfo = user;
             if (userInfo.getName() == null) {
@@ -449,13 +431,5 @@ public class UiMessage extends UiBaseBean {
 
     public void setTranslateStatus(@State.Value int translateStatus) {
         this.translateStatus = translateStatus;
-    }
-
-    public String getBusinessState() {
-        return businessState;
-    }
-
-    public void setBusinessState(String businessState) {
-        this.businessState = businessState;
     }
 }

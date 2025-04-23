@@ -38,7 +38,6 @@ import io.rong.imkit.event.actionevent.RefreshEvent;
 import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.event.uievent.InputBarEvent;
-import io.rong.imkit.event.uievent.MessageEvent;
 import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
 import io.rong.imkit.event.uievent.ScrollToEndEvent;
@@ -50,7 +49,6 @@ import io.rong.imkit.feature.forward.ForwardManager;
 import io.rong.imkit.feature.translation.RCTranslationResultWrapper;
 import io.rong.imkit.feature.translation.TranslationProvider;
 import io.rong.imkit.feature.translation.TranslationResultListenerWrapper;
-import io.rong.imkit.handler.StreamMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.IAudioPlayListener;
 import io.rong.imkit.manager.hqvoicemessage.AutoDownloadEntry;
@@ -109,7 +107,6 @@ public class MessageViewModel extends AndroidViewModel
     private MediatorLiveData<PageEvent> mPageEventLiveData = new MediatorLiveData<>();
     private MediatorLiveData<List<UiMessage>> mUiMessageLiveData = new MediatorLiveData<>();
     private ConversationIdentifier mConversationIdentifier;
-    private final StreamMessageHandler mStreamMessageHandler;
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
             new RongIMClient.ReadReceiptListener() {
                 @Override
@@ -374,20 +371,6 @@ public class MessageViewModel extends AndroidViewModel
     public MessageViewModel(@NonNull Application application) {
         super(application);
         mainHandler = new Handler(Looper.getMainLooper());
-        mStreamMessageHandler = new StreamMessageHandler();
-        mStreamMessageHandler.addDataChangeListener(
-                StreamMessageHandler.KEY_FETCH_STREAM_MESSAGE,
-                uiMessage -> {
-                    if (uiMessage != null && uiMessage.getMessage() != null) {
-                        UiMessage findUiMessage =
-                                findUIMessage(uiMessage.getMessage().getMessageId());
-                        if (findUiMessage != null) {
-                            findUiMessage.setMessage(uiMessage.getMessage());
-                            findUiMessage.setBusinessState(uiMessage.getBusinessState());
-                            refreshSingleMessage(findUiMessage);
-                        }
-                    }
-                });
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addReadReceiptListener(mReadReceiptListener);
@@ -411,15 +394,6 @@ public class MessageViewModel extends AndroidViewModel
         mBundle = bundle;
         mProcessor.init(this, bundle);
         mIsEditStatus.setValue(false);
-    }
-
-    /** 初始化加载本地消息 下拉加载历史消息 */
-    public void onGetHistoryMessage(List<Message> messages, boolean isHasMoreMsg) {
-        onGetHistoryMessage(messages);
-        // 没有更多历史消息
-        if (!isHasMoreMsg) {
-            executePageEvent(new MessageEvent(false));
-        }
     }
 
     /** 初始化加载本地消息 下拉加载历史消息 */
@@ -1031,12 +1005,6 @@ public class MessageViewModel extends AndroidViewModel
                             ToastUtils.s(
                                     getApplication(),
                                     getApplication().getString(R.string.rc_gif_message_too_large));
-                        } else if (code
-                                == IRongCoreEnum.CoreErrorCode.RC_FILE_SIZE_EXCEED_LIMIT
-                                        .getValue()) {
-                            ToastUtils.s(
-                                    getApplication(),
-                                    getApplication().getString(R.string.rc_upload_file_too_large));
                         }
                     }
                     sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();
@@ -1539,7 +1507,6 @@ public class MessageViewModel extends AndroidViewModel
     @Override
     protected void onCleared() {
         super.onCleared();
-        mStreamMessageHandler.stop();
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeReadReceiptListener(mReadReceiptListener);
@@ -1622,13 +1589,6 @@ public class MessageViewModel extends AndroidViewModel
                             }
                         }
                     }
-                    break;
-                case MessageClickType.STREAM_MSG_PULL:
-                    mStreamMessageHandler.fetchStreamMessage(
-                            data.getUId(),
-                            Objects.equals(
-                                    data.getBusinessState(),
-                                    StreamMessageHandler.State.RETRY_PULL));
                     break;
                 default:
                     break;

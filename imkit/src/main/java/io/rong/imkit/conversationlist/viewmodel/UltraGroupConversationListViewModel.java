@@ -143,7 +143,7 @@ public class UltraGroupConversationListViewModel extends ConversationListViewMod
 
                 @Override
                 public void onDownloadMessage(DownloadEvent event) {
-                    if (event == null || event.getMessage() == null) {
+                    if (event == null) {
                         return;
                     }
                     Conversation.ConversationType type = event.getMessage().getConversationType();
