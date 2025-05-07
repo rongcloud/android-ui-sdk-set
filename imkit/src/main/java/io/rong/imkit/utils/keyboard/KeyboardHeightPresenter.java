@@ -1,6 +1,8 @@
 package io.rong.imkit.utils.keyboard;
 
-/** @author gusd */
+/**
+ * @author gusd
+ */
 interface KeyboardHeightPresenter {
     void start();
 

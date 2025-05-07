@@ -126,7 +126,9 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
         // default implementation ignored
     }
 
-    /** @return 初始化时，拉取的历史条数，目前只有聊天室需要复写 */
+    /**
+     * @return 初始化时，拉取的历史条数，目前只有聊天室需要复写
+     */
     public int getHistoryMessageCount() {
         return DEFAULT_COUNT + 1;
     }

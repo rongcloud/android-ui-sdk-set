@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <io.rong.imkit.usermanage.component.HeadComponent
+        android:id="@+id/rc_head_component"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_title_bar_height"
+        app:head_title_text="@string/rc_group_managers" />
+
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_margin_size_12" />
+
+    <!-- 群管理员 -->
+    <io.rong.imkit.widget.SettingItemView
+        android:id="@+id/siv_group_add_manager"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_title_bar_height"
+        app:item_content="@string/rc_group_add_manager"
+        app:item_divider="true"
+        app:item_right_image="@drawable/rc_right_arrow"
+        app:item_value_text_size="15sp" />
+
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_margin_size_12" />
+
+    <io.rong.imkit.usermanage.component.ContactListComponent
+        android:id="@+id/rc_group_list_component"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:show_divider="false"
+        app:show_item_remove_button="true"
+        app:show_item_right_arrow="false"
+        app:show_item_right_text="false"
+        app:show_item_select_icon="false"
+        app:show_side_bar="false" />
+
+</LinearLayout>

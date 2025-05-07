@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <io.rong.imkit.usermanage.component.HeadComponent
+        android:id="@+id/rc_head_component"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_title_bar_height"
+        app:head_right_text="@string/rc_confirm"
+        app:head_title_text="@string/rc_group_select_member" />
+
+    <io.rong.imkit.usermanage.component.SearchComponent
+        android:id="@+id/rc_search_component"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/rc_empty_tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingBottom="@dimen/rc_margin_size_127"
+            android:text="@string/rc_user_not_found"
+            android:visibility="gone"
+            tools:visiblity="visible" />
+
+        <io.rong.imkit.usermanage.component.ContactListComponent
+            android:id="@+id/rc_contact_list_component"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:show_divider="false"
+            app:show_item_right_text="true"
+            app:show_item_select_auto_update="false"
+            app:show_item_select_icon="true"
+            app:show_side_bar="false" />
+
+    </FrameLayout>
+
+</LinearLayout>

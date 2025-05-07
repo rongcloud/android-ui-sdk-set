@@ -64,6 +64,7 @@ public class ContactMessage extends MessageContent {
             String extra) {
         return new ContactMessage(id, title, imgUrl, senduserId, sendUserName, extra);
     }
+
     // </editor-fold>
 
     // <editor-fold desc="* 3. 二进制 Encode & decode 编解码方法">
@@ -119,6 +120,7 @@ public class ContactMessage extends MessageContent {
             RLog.e(TAG, "JSONException " + e.getMessage());
         }
     }
+
     // </editor-fold>
 
     // <editor-fold desc="* 4. Parcel 的序列化方法">

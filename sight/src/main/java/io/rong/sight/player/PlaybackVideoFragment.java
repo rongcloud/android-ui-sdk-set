@@ -23,7 +23,7 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
     private static Conversation.ConversationType conversationType;
     private static String targetId;
     private static boolean isFromSightList;
-    static boolean fromSightListImageVisible = true;
+    static boolean displayCurrentVideoOnly = false;
     private EasyVideoCallback mVideoCallback;
     private int playBtnVisible = View.VISIBLE;
     private boolean seekBarClickable = true;
@@ -49,7 +49,7 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
             String id,
             Conversation.ConversationType type,
             boolean fromSightList,
-            boolean sightListImageVisible,
+            boolean displayCurrentVideo,
             int initialPosition,
             int initialPlayerStatus,
             boolean needAutoPlay) {
@@ -65,7 +65,7 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
         targetId = id;
         conversationType = type;
         isFromSightList = fromSightList;
-        fromSightListImageVisible = sightListImageVisible;
+        displayCurrentVideoOnly = displayCurrentVideo;
         fragment.setArguments(args);
         return fragment;
     }
@@ -117,7 +117,7 @@ public class PlaybackVideoFragment extends Fragment implements EasyVideoCallback
             needAutoPlay = false;
         }
         mPlayer.setAutoPlay(needAutoPlay);
-        if (!fromSightListImageVisible) {
+        if (displayCurrentVideoOnly) {
             mPlayer.setFromSightListImageInVisible();
         }
         if (mSightMessage != null && mSightMessage.isDestruct()) {

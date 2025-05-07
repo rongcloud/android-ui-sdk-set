@@ -1,6 +1,8 @@
 package io.rong.imkit.feature.translation;
 
-/** @author gusd */
+/**
+ * @author gusd
+ */
 public interface TranslationResultListenerWrapper {
     void onTranslationResult(int code, RCTranslationResultWrapper result);
 }

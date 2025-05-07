@@ -8,7 +8,9 @@ import androidx.annotation.AttrRes;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-/** @author Aidan Follestad (afollestad) */
+/**
+ * @author Aidan Follestad (afollestad)
+ */
 class Util {
 
     public static String getDurationString(long durationMs) {

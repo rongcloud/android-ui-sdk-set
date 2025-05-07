@@ -3,13 +3,16 @@ package io.rong.imkit.widget;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import io.rong.imkit.R;
 import io.rong.imkit.widget.switchbutton.SwitchButton;
@@ -109,7 +112,7 @@ public class SettingItemView extends LinearLayout {
                 } else if (attr == R.styleable.SettingItemView_item_value_text_size) {
                     float valueSize = ta.getDimension(attr, 0);
                     if (valueSize > 0) {
-                        tvValue.setText(Math.round(valueSize));
+                        tvValue.setTextSize(TypedValue.COMPLEX_UNIT_PX, Math.round(valueSize));
                     }
                 } else if (attr == R.styleable.SettingItemView_item_value_text_color) {
                     int valueColor = ta.getColor(attr, -1);
@@ -369,5 +372,15 @@ public class SettingItemView extends LinearLayout {
         } else {
             ivSelectImage.setVisibility(View.GONE);
         }
+    }
+
+    public void setSelectImage(@NonNull Uri uri) {
+        if (ivSelectImage != null && uri != null) {
+            ivSelectImage.setImageURI(uri);
+        }
+    }
+
+    public ImageView getSelectImage() {
+        return ivSelectImage;
     }
 }

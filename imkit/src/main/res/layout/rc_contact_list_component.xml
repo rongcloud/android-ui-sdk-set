@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <io.rong.imkit.widget.refresh.SmartRefreshLayout
+        android:id="@+id/rc_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_contact_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </io.rong.imkit.widget.refresh.SmartRefreshLayout>
+
+    <TextView
+        android:id="@+id/tv_group_overlay"
+        android:layout_width="@dimen/rc_conversation_item_height"
+        android:layout_height="@dimen/rc_conversation_item_height"
+        android:layout_gravity="center"
+        android:background="@drawable/rc_bg_toast"
+        android:gravity="center"
+        android:textColor="@color/rc_white_color"
+        android:textSize="30sp"
+        android:visibility="gone" />
+
+    <io.rong.imkit.widget.SideBar
+        android:id="@+id/side_bar_contact"
+        android:layout_width="@dimen/rc_margin_size_20"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center"
+        android:visibility="gone" />
+
+</FrameLayout>

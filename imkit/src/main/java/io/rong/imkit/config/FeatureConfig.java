@@ -74,6 +74,7 @@ public class FeatureConfig {
 
     public void initConfig(Context context) {
         if (context != null) {
+
             Resources resources = context.getResources();
             try {
                 rc_wipe_out_notification_message =
@@ -209,42 +210,58 @@ public class FeatureConfig {
         isQuickReply.setValue(true);
     }
 
-    /** @return 用户信息内存最大值 */
+    /**
+     * @return 用户信息内存最大值
+     */
     public int getUserCacheMaxCount() {
         return userCacheMaxCount;
     }
 
-    /** @param userCacheMaxCount 设置用户信息最大值，sdk 初始化前有效 */
+    /**
+     * @param userCacheMaxCount 设置用户信息最大值，sdk 初始化前有效
+     */
     public void setUserCacheMaxCount(int userCacheMaxCount) {
         this.userCacheMaxCount = userCacheMaxCount;
     }
 
-    /** @return 群组信息内存最大值 */
+    /**
+     * @return 群组信息内存最大值
+     */
     public int getGroupCacheMaxCount() {
         return groupCacheMaxCount;
     }
 
-    /** @param groupCacheMaxCount 设置群组信息最大值，sdk 初始化前有效 */
+    /**
+     * @param groupCacheMaxCount 设置群组信息最大值，sdk 初始化前有效
+     */
     public void setGroupCacheMaxCount(int groupCacheMaxCount) {
         this.groupCacheMaxCount = groupCacheMaxCount;
     }
 
-    /** @return 群成员信息内存最大值 */
+    /**
+     * @return 群成员信息内存最大值
+     */
     public int getGroupMemberCacheMaxCount() {
         return groupMemberCacheMaxCount;
     }
 
-    /** @param groupMemberCacheMaxCount 设置群成员信息最大值，sdk 初始化前有效 */
+    /**
+     * @param groupMemberCacheMaxCount 设置群成员信息最大值，sdk 初始化前有效
+     */
     public void setGroupMemberCacheMaxCount(int groupMemberCacheMaxCount) {
         this.groupMemberCacheMaxCount = groupMemberCacheMaxCount;
     }
 
-    /** @return 是否预加载用户缓存 */
+    /**
+     * @return 是否预加载用户缓存
+     */
     public boolean isPreLoadUserCache() {
         return preLoadUserCache;
     }
 
-    /** @param preLoadUserCache 是否预加载用户缓存 */
+    /**
+     * @param preLoadUserCache 是否预加载用户缓存
+     */
     public void setPreLoadUserCache(boolean preLoadUserCache) {
         this.preLoadUserCache = preLoadUserCache;
     }
@@ -322,7 +339,9 @@ public class FeatureConfig {
         // do nothing
     }
 
-    /** @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器 */
+    /**
+     * @param sSSLInterceptor 设置 CombineWebViewActivity 自签证书过滤器
+     */
     public void setSSLInterceptor(SSLInterceptor sSSLInterceptor) {
         this.sSSLInterceptor = sSSLInterceptor;
     }

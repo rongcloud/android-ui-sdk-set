@@ -7,6 +7,7 @@ public class MessageItemProviderConfig {
 
     /** 是否横向居中显示。 */
     public boolean centerInHorizontal = false;
+
     /** 是否显示未发送成功警告。 */
     public boolean showWarning = true;
 

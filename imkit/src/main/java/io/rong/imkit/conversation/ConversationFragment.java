@@ -43,6 +43,7 @@ import io.rong.imkit.conversation.messgelist.status.MessageProcessor;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageItemLongClickBean;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.Event;
+import io.rong.imkit.event.uievent.MessageEvent;
 import io.rong.imkit.event.uievent.PageDestroyEvent;
 import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
@@ -84,7 +85,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-/** @author lvz */
+/**
+ * @author lvz
+ */
 public class ConversationFragment extends Fragment
         implements OnRefreshListener,
                 View.OnClickListener,
@@ -177,7 +180,9 @@ public class ConversationFragment extends Fragment
                             return;
                         }
                     }
-                    if (event instanceof Event.RefreshEvent) {
+                    if (event instanceof MessageEvent) {
+                        noMoreMessageToFetch();
+                    } else if (event instanceof Event.RefreshEvent) {
                         if (((Event.RefreshEvent) event).state.equals(RefreshState.RefreshFinish)) {
                             mRefreshLayout.finishRefresh();
                         } else if (((Event.RefreshEvent) event)
@@ -903,6 +908,13 @@ public class ConversationFragment extends Fragment
     }
 
     /**
+     * 拉取消息结束，没有更多消息可以拉取
+     *
+     * @since 5.8.2
+     */
+    protected void noMoreMessageToFetch() {}
+
+    /**
      * 获取 adapter. 可复写此方法实现自定义 adapter.
      *
      * @return 会话列表 adapter
@@ -911,22 +923,30 @@ public class ConversationFragment extends Fragment
         return new MessageListAdapter(this);
     }
 
-    /** @param view 自定义列表 header view */
+    /**
+     * @param view 自定义列表 header view
+     */
     public void addHeaderView(View view) {
         mAdapter.addHeaderView(view);
     }
 
-    /** @param view 自定义列表 footer view */
+    /**
+     * @param view 自定义列表 footer view
+     */
     public void addFooterView(View view) {
         mAdapter.addFootView(view);
     }
 
-    /** @param view 自定义列表 空数据 view */
+    /**
+     * @param view 自定义列表 空数据 view
+     */
     public void setEmptyView(View view) {
         mAdapter.setEmptyView(view);
     }
 
-    /** @param emptyId 自定义列表 空数据的 LayoutId */
+    /**
+     * @param emptyId 自定义列表 空数据的 LayoutId
+     */
     public void setEmptyView(@LayoutRes int emptyId) {
         mAdapter.setEmptyView(emptyId);
     }

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     //Font
-    <dimen name="rc_font_title_size">18dp</dimen>
-    <dimen name="rc_font_secondary_size">17dp</dimen>
-    <dimen name="rc_font_text_third_size">14dp</dimen>
+    <dimen name="rc_font_title_size">18sp</dimen>
+    <dimen name="rc_font_secondary_size">17sp</dimen>
+    <dimen name="rc_font_text_third_size">14sp</dimen>
     <dimen name="rc_font_nav_or_date_size">13sp</dimen>
-    <dimen name="rc_font_describe_size">12dp</dimen>
-    <dimen name="rc_font_auxiliary_size">10dp</dimen>
+    <dimen name="rc_font_describe_size">12sp</dimen>
+    <dimen name="rc_font_auxiliary_size">10sp</dimen>
 
 
     <dimen name="rc_title_bar_height">44dp</dimen>
@@ -52,6 +52,7 @@
     <dimen name="rc_margin_size_14">14dp</dimen>
     <dimen name="rc_margin_size_12">12dp</dimen>
     <dimen name="rc_margin_size_2">2dp</dimen>
+    <dimen name="rc_margin_size_3">3dp</dimen>
     <dimen name="rc_margin_size_4">4dp</dimen>
     <dimen name="rc_margin_size_8">8dp</dimen>
     <dimen name="rc_margin_size_10">10dp</dimen>
@@ -105,4 +106,5 @@
     <dimen name="rc_ext_more_imgage_width">30dp</dimen>
     <dimen name="rc_ext_more_imgage_height">30dp</dimen>
 
+    <dimen name="common_dialog_button_height">44dp</dimen>
 </resources>

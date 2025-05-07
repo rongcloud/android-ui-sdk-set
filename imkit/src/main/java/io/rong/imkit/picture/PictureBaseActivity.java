@@ -108,10 +108,11 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                 AttrsUtils.getTypeValueBoolean(this, R.attr.picture_style_checkNumMode);
 
         // 标题栏背景色
-        colorPrimary = AttrsUtils.getTypeValueColor(this, R.attr.colorPrimary);
+        colorPrimary = AttrsUtils.getTypeValueColor(this, androidx.appcompat.R.attr.colorPrimary);
 
         // 状态栏色值
-        colorPrimaryDark = AttrsUtils.getTypeValueColor(this, R.attr.colorPrimaryDark);
+        colorPrimaryDark =
+                AttrsUtils.getTypeValueColor(this, androidx.appcompat.R.attr.colorPrimaryDark);
     }
 
     @Override

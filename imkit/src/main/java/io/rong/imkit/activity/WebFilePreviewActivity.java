@@ -59,6 +59,49 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
     private String pausedPath;
     private long downloadedFileLength;
     private String savedPath;
+    IRongCallback.IDownloadMediaFileCallback listener =
+            new IRongCallback.IDownloadMediaFileCallback() {
+
+                @Override
+                public void onFileNameChanged(String newFileName) {
+                    mFileDownloadInfo.fileName = newFileName;
+                }
+
+                @Override
+                public void onSuccess() {
+                    mFileDownloadInfo.state = DOWNLOAD_SUCCESS;
+                    try {
+                        mAttachFile = new File(mFileDownloadInfo.path, mFileDownloadInfo.fileName);
+                    } catch (Exception e) {
+                        RLog.e(TAG, "downloadFile" + e);
+                    }
+                    refreshDownloadState();
+                }
+
+                @Override
+                public void onProgress(int progress) {
+                    if (mFileDownloadInfo.state != DOWNLOAD_CANCEL
+                            && mFileDownloadInfo.state != DOWNLOAD_PAUSE) {
+                        mFileDownloadInfo.progress = progress;
+                        mFileDownloadInfo.state = DOWNLOADING;
+                        refreshDownloadState();
+                    }
+                }
+
+                @Override
+                public void onError(RongIMClient.ErrorCode code) {
+                    if (mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
+                        mFileDownloadInfo.state = DOWNLOAD_ERROR;
+                        refreshDownloadState();
+                    }
+                }
+
+                @Override
+                public void onCanceled() {
+                    mFileDownloadInfo.state = DOWNLOAD_CANCEL;
+                    refreshDownloadState();
+                }
+            };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +146,8 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
             mFileDownloadInfo.size = 0L;
         }
 
-        mFileDownloadInfo.uid = RongUtils.md5(mFileDownloadInfo.fileName + mFileDownloadInfo.size);
+        mFileDownloadInfo.uid =
+                RongUtils.md5(getFileNameFromDownloadUrl() + mFileDownloadInfo.size);
         mFileDownloadInfo.path = FileUtils.getCachePath(this, PATH);
 
         mFileTypeImage.setImageResource(
@@ -112,12 +156,13 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
         mFileDownloadOpenView.setOnClickListener(this);
         savedPath =
-                FtUtilities.getFileName(mFileDownloadInfo.path, mFileDownloadInfo.fileName, false);
+                FtUtilities.getFileName(
+                        mFileDownloadInfo.path, getFileNameFromDownloadUrl(), false);
         mAttachFile = new File(savedPath);
         if (isAttachFileExists()) {
             mFileDownloadOpenView.setText(getOpenFileShowText());
         }
-
+        IMCenter.getInstance().addMediaListener(mFileDownloadInfo.uid, listener);
         IMCenter.getInstance()
                 .supportResumeBrokenTransfer(
                         mFileDownloadInfo.url,
@@ -137,6 +182,10 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                                 refreshDownloadState();
                             }
                         });
+    }
+
+    private String getFileNameFromDownloadUrl() {
+        return FileUtils.getUrlFileName(mFileDownloadInfo.url, mFileDownloadInfo.fileName);
     }
 
     private String getOpenFileShowText() {
@@ -263,6 +312,14 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mFileDownloadInfo != null) {
+            IMCenter.getInstance().removeMediaListener(mFileDownloadInfo.uid);
+        }
+    }
+
     private void getFileInfo(IRongCoreCallback.ResultCallback<DownloadInfo> callback) {
         RongCoreClient.getInstance().getDownloadInfo(mFileDownloadInfo.uid, callback);
     }
@@ -383,53 +440,9 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                 .downloadMediaFile(
                         mFileDownloadInfo.uid,
                         mFileDownloadInfo.url,
-                        mFileDownloadInfo.fileName,
+                        getFileNameFromDownloadUrl(),
                         mFileDownloadInfo.path,
-                        new IRongCallback.IDownloadMediaFileCallback() {
-
-                            @Override
-                            public void onFileNameChanged(String newFileName) {
-                                mFileDownloadInfo.fileName = newFileName;
-                            }
-
-                            @Override
-                            public void onSuccess() {
-                                mFileDownloadInfo.state = DOWNLOAD_SUCCESS;
-                                try {
-                                    mAttachFile =
-                                            new File(
-                                                    mFileDownloadInfo.path,
-                                                    mFileDownloadInfo.fileName);
-                                } catch (Exception e) {
-                                    RLog.e(TAG, "downloadFile" + e);
-                                }
-                                refreshDownloadState();
-                            }
-
-                            @Override
-                            public void onProgress(int progress) {
-                                if (mFileDownloadInfo.state != DOWNLOAD_CANCEL
-                                        && mFileDownloadInfo.state != DOWNLOAD_PAUSE) {
-                                    mFileDownloadInfo.progress = progress;
-                                    mFileDownloadInfo.state = DOWNLOADING;
-                                    refreshDownloadState();
-                                }
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode code) {
-                                if (mFileDownloadInfo.state != DOWNLOAD_CANCEL) {
-                                    mFileDownloadInfo.state = DOWNLOAD_ERROR;
-                                    refreshDownloadState();
-                                }
-                            }
-
-                            @Override
-                            public void onCanceled() {
-                                mFileDownloadInfo.state = DOWNLOAD_CANCEL;
-                                refreshDownloadState();
-                            }
-                        });
+                        listener);
     }
 
     public void openFile(String fileName, String fileSavePath) {

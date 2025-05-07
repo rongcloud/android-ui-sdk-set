@@ -27,14 +27,20 @@ public class UiMessage extends UiBaseBean {
     private boolean isEdit;
     private boolean isSelected;
     private String nickname;
+
     /** TextMessage 和 ReferenceMessage 的 content 字段 */
     private SpannableStringBuilder contentSpannable;
+
     /** ReferenceMessage 的 referMsg 为 TextMessage 时 的 content 字段 */
     private SpannableStringBuilder referenceContentSpannable;
+
     /** 翻译之后的文本 */
     private String translatedContent;
 
     private @State.Value int translateStatus = State.NORMAL;
+
+    /** 业务状态 */
+    private String businessState;
 
     public UiMessage(Message message) {
         setMessage(message);
@@ -51,7 +57,23 @@ public class UiMessage extends UiBaseBean {
                 return;
             }
         }
-        UserInfo user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+
+        UserInfo user;
+        boolean isInfoManagement =
+                RongUserInfoManager.getInstance().getDataSourceType()
+                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
+        if (isInfoManagement
+                && message.getContent() != null
+                && message.getContent().getUserInfo() != null
+                && message.getContent().getUserInfo().getUserId() != null
+                && message.getContent()
+                        .getUserInfo()
+                        .getUserId()
+                        .equals(message.getSenderUserId())) {
+            user = message.getContent().getUserInfo();
+        } else {
+            user = RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+        }
         if (user != null) {
             userInfo = user;
             if (userInfo.getName() == null) {
@@ -431,5 +453,13 @@ public class UiMessage extends UiBaseBean {
 
     public void setTranslateStatus(@State.Value int translateStatus) {
         this.translateStatus = translateStatus;
+    }
+
+    public String getBusinessState() {
+        return businessState;
+    }
+
+    public void setBusinessState(String businessState) {
+        this.businessState = businessState;
     }
 }

@@ -14,7 +14,6 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
@@ -384,19 +383,7 @@ public class ForwardManager {
             MessageContent content = message.getContent();
             UserInfo userInfo =
                     RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
-            String userName = "";
-            if (type.equals(Conversation.ConversationType.GROUP)) {
-                GroupUserInfo groupUserInfo =
-                        RongUserInfoManager.getInstance()
-                                .getGroupUserInfo(message.getTargetId(), message.getSenderUserId());
-                if (groupUserInfo != null) {
-                    userName = groupUserInfo.getNickname();
-                }
-            }
-
-            if (TextUtils.isEmpty(userName) && userInfo != null) {
-                userName = userInfo.getName();
-            }
+            String userName = userInfo != null ? userInfo.getName() : "";
 
             String text;
             MessageTag tag = content.getClass().getAnnotation(MessageTag.class);

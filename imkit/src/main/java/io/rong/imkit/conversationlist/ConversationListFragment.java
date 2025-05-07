@@ -415,22 +415,30 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                         });
     }
 
-    /** @param view 自定义列表 header view */
+    /**
+     * @param view 自定义列表 header view
+     */
     public void addHeaderView(View view) {
         mAdapter.addHeaderView(view);
     }
 
-    /** @param view 自定义列表 footer view */
+    /**
+     * @param view 自定义列表 footer view
+     */
     public void addFooterView(View view) {
         mAdapter.addFootView(view);
     }
 
-    /** @param view 自定义列表 空数据 view */
+    /**
+     * @param view 自定义列表 空数据 view
+     */
     public void setEmptyView(View view) {
         mAdapter.setEmptyView(view);
     }
 
-    /** @param emptyId 自定义列表 空数据的 LayoutId */
+    /**
+     * @param emptyId 自定义列表 空数据的 LayoutId
+     */
     public void setEmptyView(@LayoutRes int emptyId) {
         mAdapter.setEmptyView(emptyId);
     }
