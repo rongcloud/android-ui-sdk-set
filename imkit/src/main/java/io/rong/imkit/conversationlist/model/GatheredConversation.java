@@ -97,7 +97,7 @@ public class GatheredConversation extends BaseUiConversation {
                         .append(COLON_SPLIT)
                         .append(
                                 RongConfigCenter.conversationConfig()
-                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
+                                        .getMessageSummary(mContext, mCore));
                 mConversationContent = builder;
             }
         }
@@ -112,7 +112,7 @@ public class GatheredConversation extends BaseUiConversation {
                         .append(COLON_SPLIT)
                         .append(
                                 RongConfigCenter.conversationConfig()
-                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
+                                        .getMessageSummary(mContext, mCore));
                 mConversationContent = builder;
             }
         }

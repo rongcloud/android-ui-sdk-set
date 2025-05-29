@@ -434,7 +434,8 @@ public class ConversationConfig {
         Spannable spannable = new SpannableString("");
         Spannable defaultSpannable =
                 defaultMessageProvider.getSummarySpannable(context, conversation);
-        if (conversation.getLatestMessage() == null) {
+        // 如果最后一条消息不存在,则不展示
+        if (conversation.getLatestMessage() == null || conversation.getLatestMessageId() == -1) {
             return spannable;
         }
         for (IConversationSummaryProvider item : mConversationSummaryProviders) {

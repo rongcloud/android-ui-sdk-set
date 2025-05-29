@@ -55,8 +55,7 @@ public class GroupConversation extends BaseUiConversation {
                 builder.append(senderName).append(COLON_SPLIT);
             }
             Spannable messageSummary =
-                    RongConfigCenter.conversationConfig()
-                            .getMessageSummary(mContext, mCore.getLatestMessage());
+                    RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore);
             if (!TextUtils.isEmpty(messageSummary)) {
                 builder.append(messageSummary);
             }

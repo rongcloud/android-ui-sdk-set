@@ -50,7 +50,11 @@ public class StringUtils {
             return c;
         }
 
-        c = CharacterParser.getInstance().convert(String.valueOf(c)).charAt(0);
+        String convert = CharacterParser.getInstance().convert(String.valueOf(c));
+        if (convert == null || convert.isEmpty()) {
+            return c;
+        }
+        c = convert.charAt(0);
 
         if (c >= 'a' && c <= 'z') {
             return (char) (c - 'a' + 'A');
