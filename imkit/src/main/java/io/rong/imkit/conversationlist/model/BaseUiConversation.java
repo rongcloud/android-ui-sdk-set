@@ -22,6 +22,8 @@ public abstract class BaseUiConversation {
     Context mContext;
     public Conversation mCore;
     public Spannable mConversationContent;
+    // 已读回执人数
+    private int readReceiptCount = 0;
 
     public BaseUiConversation(Context context, Conversation conversation) {
         if (context == null || conversation == null) {
@@ -141,5 +143,23 @@ public abstract class BaseUiConversation {
             return conversation.getLatestMessage().getUserInfo();
         }
         return RongUserInfoManager.getInstance().getUserInfo(userId);
+    }
+
+    /**
+     * 获取已读回执人数
+     *
+     * @return 已读回执人数
+     */
+    public int getReadReceiptCount() {
+        return readReceiptCount;
+    }
+
+    /**
+     * 设置已读回执人数
+     *
+     * @param readReceiptCount 已读回执人数
+     */
+    public void setReadReceiptCount(int readReceiptCount) {
+        this.readReceiptCount = readReceiptCount;
     }
 }

@@ -50,6 +50,7 @@ import io.rong.imkit.feature.forward.ForwardManager;
 import io.rong.imkit.feature.translation.RCTranslationResultWrapper;
 import io.rong.imkit.feature.translation.TranslationProvider;
 import io.rong.imkit.feature.translation.TranslationResultListenerWrapper;
+import io.rong.imkit.handler.ReadReceiptV5Handler;
 import io.rong.imkit.handler.StreamMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.IAudioPlayListener;
@@ -77,6 +78,7 @@ import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfo;
+import io.rong.imlib.model.ReadReceiptResponseV5;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.HQVoiceMessage;
 import io.rong.message.HistoryDividerMessage;
@@ -86,6 +88,7 @@ import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
 import io.rong.message.VoiceMessage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -110,6 +113,7 @@ public class MessageViewModel extends AndroidViewModel
     private MediatorLiveData<List<UiMessage>> mUiMessageLiveData = new MediatorLiveData<>();
     private ConversationIdentifier mConversationIdentifier;
     private final StreamMessageHandler mStreamMessageHandler;
+    private final ReadReceiptV5Handler mReadReceiptV5Handler;
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
             new RongIMClient.ReadReceiptListener() {
                 @Override
@@ -277,6 +281,9 @@ public class MessageViewModel extends AndroidViewModel
                                                                     message.getMessageId(),
                                                                     message.getReceivedStatus(),
                                                                     null);
+
+                                                    fetchReadReceiptInfoForMessages(
+                                                            Collections.singletonList(message));
                                                 }
                                             }
                                             mProcessor.onReceived(
@@ -399,6 +406,21 @@ public class MessageViewModel extends AndroidViewModel
                         }
                     }
                 });
+        mReadReceiptV5Handler = new ReadReceiptV5Handler();
+        mReadReceiptV5Handler.addDataChangeListener(
+                ReadReceiptV5Handler.KEY_READ_RECEIPT_INFO_V5,
+                readReceiptInfoList -> {
+                    if (readReceiptInfoList != null && !readReceiptInfoList.isEmpty()) {
+                        updateReadCountForMessages(readReceiptInfoList);
+                    }
+                });
+        mReadReceiptV5Handler.addDataChangeListener(
+                ReadReceiptV5Handler.KEY_MESSAGE_READ_RECEIPT_V5_EVENT,
+                responses -> {
+                    if (responses != null && !responses.isEmpty()) {
+                        handleReadReceiptV5Responses(responses);
+                    }
+                });
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addReadReceiptListener(mReadReceiptListener);
@@ -462,6 +484,9 @@ public class MessageViewModel extends AndroidViewModel
         }
         processHistoryDividerMessage();
         refreshAllMessage();
+
+        // 批量获取历史消息的已读回执信息
+        fetchReadReceiptInfoForMessages(messages);
     }
 
     public UiMessage mapUIMessage(Message message) {
@@ -589,6 +614,9 @@ public class MessageViewModel extends AndroidViewModel
         mUiMessages.addAll(list);
         processHistoryDividerMessage();
         refreshAllMessage();
+
+        // 批量获取更多消息的已读回执信息
+        fetchReadReceiptInfoForMessages(messages);
     }
 
     /** normal状态点击历史消息bar history状态点击新消息bar */
@@ -610,6 +638,9 @@ public class MessageViewModel extends AndroidViewModel
         }
         processHistoryDividerMessage();
         refreshAllMessage();
+
+        // 批量获取重新加载消息的已读回执信息
+        fetchReadReceiptInfoForMessages(messages);
     }
 
     public MediatorLiveData<PageEvent> getPageEventLiveData() {
@@ -1239,6 +1270,9 @@ public class MessageViewModel extends AndroidViewModel
         mUiMessages.add(uiMessage);
         refreshAllMessage();
         executePageEvent(new ScrollToEndEvent());
+
+        // 获取新添加消息的已读回执信息
+        fetchReadReceiptInfoForSingleMessage(uiMessage);
     }
 
     public void refreshSingleMessage(UiMessage uiMessage) {
@@ -1551,6 +1585,7 @@ public class MessageViewModel extends AndroidViewModel
     protected void onCleared() {
         super.onCleared();
         mStreamMessageHandler.stop();
+        mReadReceiptV5Handler.stop();
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeReadReceiptListener(mReadReceiptListener);
@@ -1797,6 +1832,7 @@ public class MessageViewModel extends AndroidViewModel
         mIsForegroundActivity = true;
         if (mProcessor != null) mProcessor.onResume(this);
         cleanUnreadStatus();
+        fetchReadReceiptInfoForUiMessages(getUiMessages());
         if (RongConfigCenter.featureConfig().rc_wipe_out_notification_message) {
             clearAllNotification();
         }
@@ -1979,5 +2015,229 @@ public class MessageViewModel extends AndroidViewModel
             return true;
         }
         return false;
+    }
+
+    /**
+     * 更新消息的已读人数
+     *
+     * @param readReceiptInfoList 已读回执信息列表
+     */
+    private void updateReadCountForMessages(
+            List<io.rong.imlib.model.ReadReceiptInfoV5> readReceiptInfoList) {
+        for (io.rong.imlib.model.ReadReceiptInfoV5 receiptInfo : readReceiptInfoList) {
+            String messageUId = receiptInfo.getMessageUId();
+            int readCount = receiptInfo.getReadCount();
+
+            // 根据messageUId找到对应的UiMessage并更新readCount
+            for (UiMessage uiMessage : mUiMessages) {
+                if (messageUId.equals(uiMessage.getUId())) {
+                    uiMessage.setReadReceiptCount(readCount);
+                    refreshSingleMessage(uiMessage);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取消息的已读回执信息
+     *
+     * @param messageUIds 消息UID列表
+     */
+    private void fetchReadReceiptInfo(List<String> messageUIds) {
+        if (messageUIds == null || messageUIds.isEmpty() || mConversationIdentifier == null) {
+            return;
+        }
+
+        mReadReceiptV5Handler.getMessageReadReceiptInfoV5(mConversationIdentifier, messageUIds);
+    }
+
+    /**
+     * 发送已读回执响应
+     *
+     * @param messageUIds 消息UID列表
+     */
+    private void sendReadReceiptResponse(List<String> messageUIds) {
+        if (messageUIds == null || messageUIds.isEmpty() || mConversationIdentifier == null) {
+            return;
+        }
+
+        mReadReceiptV5Handler.sendReadReceiptResponseV5(mConversationIdentifier, messageUIds);
+    }
+
+    /**
+     * 批量获取消息列表的已读回执信息
+     *
+     * @param messages 消息列表
+     */
+    private void fetchReadReceiptInfoForMessages(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
+
+        List<String> sendMessageUIds = new ArrayList<>();
+        List<String> receiveMessageUIds = new ArrayList<>();
+
+        for (Message message : messages) {
+            if (message.getUId() != null
+                    && !message.getUId().isEmpty()
+                    && message.isNeedReceipt()) {
+                if (Message.MessageDirection.SEND.equals(message.getMessageDirection())) {
+                    sendMessageUIds.add(message.getUId());
+                } else if (Message.MessageDirection.RECEIVE.equals(message.getMessageDirection())
+                        && message.isNeedReceipt()
+                        && !message.isSentReceipt()) {
+                    receiveMessageUIds.add(message.getUId());
+                }
+            }
+        }
+
+        // 对发送的消息获取已读回执信息
+        if (!sendMessageUIds.isEmpty()) {
+            fetchReadReceiptInfo(sendMessageUIds);
+        }
+
+        // 对接收的消息发送已读回执响应
+        if (!receiveMessageUIds.isEmpty()) {
+            sendReadReceiptResponse(receiveMessageUIds);
+        }
+    }
+
+    /**
+     * 批量获取UI消息列表的已读回执信息
+     *
+     * @param uiMessages UI消息列表
+     */
+    private void fetchReadReceiptInfoForUiMessages(List<UiMessage> uiMessages) {
+        if (uiMessages == null || uiMessages.isEmpty()) {
+            return;
+        }
+
+        List<String> sendMessageUIds = new ArrayList<>();
+        List<String> receiveMessageUIds = new ArrayList<>();
+
+        for (UiMessage uiMessage : uiMessages) {
+            Message message = uiMessage.getMessage();
+            if (message != null
+                    && message.getUId() != null
+                    && !message.getUId().isEmpty()
+                    && message.isNeedReceipt()) {
+                if (Message.MessageDirection.SEND.equals(message.getMessageDirection())) {
+                    sendMessageUIds.add(message.getUId());
+                } else if (Message.MessageDirection.RECEIVE.equals(message.getMessageDirection())
+                        && message.isNeedReceipt()
+                        && !message.isSentReceipt()) {
+                    receiveMessageUIds.add(message.getUId());
+                }
+            }
+        }
+
+        // 对发送的消息获取已读回执信息
+        if (!sendMessageUIds.isEmpty()) {
+            fetchReadReceiptInfo(sendMessageUIds);
+        }
+
+        // 对接收的消息发送已读回执响应
+        if (!receiveMessageUIds.isEmpty()) {
+            sendReadReceiptResponse(receiveMessageUIds);
+        }
+    }
+
+    /**
+     * 获取单个消息的已读回执信息
+     *
+     * @param uiMessage UI消息对象
+     */
+    private void fetchReadReceiptInfoForSingleMessage(UiMessage uiMessage) {
+        if (uiMessage == null
+                || uiMessage.getUId() == null
+                || uiMessage.getUId().isEmpty()
+                || uiMessage.getMessage() == null
+                || !uiMessage.getMessage().isNeedReceipt()) {
+            return;
+        }
+
+        List<String> messageUIds = new ArrayList<>();
+        messageUIds.add(uiMessage.getUId());
+
+        if (Message.MessageDirection.SEND.equals(uiMessage.getMessage().getMessageDirection())) {
+            fetchReadReceiptInfo(messageUIds);
+        } else if (Message.MessageDirection.RECEIVE.equals(
+                        uiMessage.getMessage().getMessageDirection())
+                && !uiMessage.getMessage().isSentReceipt()) {
+            sendReadReceiptResponse(messageUIds);
+        }
+    }
+
+    /**
+     * 处理V5已读回执响应列表
+     *
+     * @param responses 已读回执响应列表
+     */
+    private void handleReadReceiptV5Responses(List<ReadReceiptResponseV5> responses) {
+        if (responses == null || responses.isEmpty() || mConversationIdentifier == null) {
+            return;
+        }
+
+        for (ReadReceiptResponseV5 response : responses) {
+            // 检查identifier是否与当前会话一致
+            if (response.getIdentifier() != null && isIdentifierMatched(response.getIdentifier())) {
+
+                String messageUId = response.getMessageUId();
+                int readCount = response.getReadCount();
+
+                // 根据messageUId查找对应的UiMessage
+                UiMessage targetMessage = findUIMessageByUId(messageUId);
+                if (targetMessage != null) {
+                    // 更新readCount
+                    targetMessage.setReadReceiptCount(readCount);
+                    // 刷新消息
+                    refreshSingleMessage(targetMessage);
+
+                    RLog.d(
+                            TAG,
+                            "Updated readCount for message: "
+                                    + messageUId
+                                    + ", readCount: "
+                                    + readCount);
+                } else {
+                    RLog.w(TAG, "Message not found for UID: " + messageUId);
+                }
+            }
+        }
+    }
+
+    /**
+     * 检查ConversationIdentifier是否与当前会话匹配
+     *
+     * @param identifier 要检查的会话标识
+     * @return true如果匹配当前会话
+     */
+    private boolean isIdentifierMatched(ConversationIdentifier identifier) {
+        if (mConversationIdentifier == null || identifier == null) {
+            return false;
+        }
+
+        return mConversationIdentifier.getType() == identifier.getType()
+                && Objects.equals(mConversationIdentifier.getTargetId(), identifier.getTargetId());
+    }
+
+    /**
+     * 根据消息UID查找UiMessage
+     *
+     * @param messageUId 消息UID
+     * @return 找到的UiMessage，如果没找到返回null
+     */
+    private UiMessage findUIMessageByUId(String messageUId) {
+        if (messageUId == null || messageUId.isEmpty()) {
+            return null;
+        }
+
+        for (UiMessage uiMessage : mUiMessages) {
+            if (messageUId.equals(uiMessage.getUId())) {
+                return uiMessage;
+            }
+        }
+        return null;
     }
 }
