@@ -408,14 +408,14 @@ public class MessageViewModel extends AndroidViewModel
                 });
         mReadReceiptV5Handler = new ReadReceiptV5Handler();
         mReadReceiptV5Handler.addDataChangeListener(
-                ReadReceiptV5Handler.KEY_READ_RECEIPT_INFO_V5,
+                ReadReceiptV5Handler.KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5,
                 readReceiptInfoList -> {
                     if (readReceiptInfoList != null && !readReceiptInfoList.isEmpty()) {
                         updateReadCountForMessages(readReceiptInfoList);
                     }
                 });
         mReadReceiptV5Handler.addDataChangeListener(
-                ReadReceiptV5Handler.KEY_MESSAGE_READ_RECEIPT_V5_EVENT,
+                ReadReceiptV5Handler.KEY_MESSAGE_READ_RECEIPT_V5_LISTENER,
                 responses -> {
                     if (responses != null && !responses.isEmpty()) {
                         handleReadReceiptV5Responses(responses);

@@ -49,6 +49,7 @@ import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageIdentifier;
 import io.rong.imlib.model.ReadReceiptResponseV5;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.ReadReceiptMessage;
@@ -394,14 +395,14 @@ public class ConversationListViewModel extends AndroidViewModel
 
         mReadReceiptV5Handler = new ReadReceiptV5Handler();
         mReadReceiptV5Handler.addDataChangeListener(
-                ReadReceiptV5Handler.KEY_MESSAGE_READ_RECEIPT_V5_EVENT,
+                ReadReceiptV5Handler.KEY_MESSAGE_READ_RECEIPT_V5_LISTENER,
                 responses -> {
                     if (responses != null && !responses.isEmpty()) {
                         handleReadReceiptV5Responses(responses);
                     }
                 });
         mReadReceiptV5Handler.addDataChangeListener(
-                ReadReceiptV5Handler.KEY_READ_RECEIPT_INFO_V5,
+                ReadReceiptV5Handler.KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER,
                 readReceiptInfoList -> {
                     if (readReceiptInfoList != null && !readReceiptInfoList.isEmpty()) {
                         handleReadReceiptInfoV5(readReceiptInfoList);
@@ -916,6 +917,8 @@ public class ConversationListViewModel extends AndroidViewModel
             return;
         }
 
+        List<MessageIdentifier> messageIdentifiers = new ArrayList<>();
+
         for (BaseUiConversation uiConversation : mUiConversationList) {
             if (uiConversation.mCore == null) {
                 continue;
@@ -932,20 +935,22 @@ public class ConversationListViewModel extends AndroidViewModel
                     && Message.MessageDirection.SEND.equals(latestMessage.getMessageDirection())
                     && !TextUtils.isEmpty(latestMessage.getUId())) {
 
-                ConversationIdentifier identifier = uiConversation.getConversationIdentifier();
-                if (identifier != null) {
-                    List<String> messageUIds = new ArrayList<>();
-                    messageUIds.add(latestMessage.getUId());
+                MessageIdentifier messageIdentifier = latestMessage.getMessageIdentifier();
+                if (messageIdentifier != null && messageIdentifier.getIdentifier() != null) {
+                    messageIdentifiers.add(messageIdentifier);
 
-                    mReadReceiptV5Handler.getMessageReadReceiptInfoV5(identifier, messageUIds);
                     RLog.d(
                             TAG,
                             "Query read receipt info for conversation: "
-                                    + identifier.getTargetId()
+                                    + messageIdentifier.getIdentifier().getTargetId()
                                     + ", messageUId: "
                                     + latestMessage.getUId());
                 }
             }
+        }
+
+        if (!messageIdentifiers.isEmpty()) {
+            mReadReceiptV5Handler.getMessageReadReceiptInfoV5ByIdentifiers(messageIdentifiers);
         }
     }
 

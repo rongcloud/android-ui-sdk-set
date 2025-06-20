@@ -10,6 +10,7 @@ import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.MessageIdentifier;
 import io.rong.imlib.model.ReadReceiptInfoV5;
 import io.rong.imlib.model.ReadReceiptResponseV5;
 import java.util.ArrayList;
@@ -29,19 +30,25 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
 
     private static final String TAG = "ReadReceiptV5Handler";
 
-    // 数据键定义
-    public static final DataKey<List<ReadReceiptInfoV5>> KEY_READ_RECEIPT_INFO_V5 =
+    // 数据键定义，与 RongCoreClient 方法名对应
+    public static final DataKey<List<ReadReceiptInfoV5>> KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5 =
             DataKey.obtain(
-                    "KEY_READ_RECEIPT_INFO_V5",
+                    "KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5",
                     (Class<List<ReadReceiptInfoV5>>) (Class<?>) List.class);
 
     public static final DataKey<Boolean> KEY_SEND_READ_RECEIPT_RESPONSE_V5 =
             DataKey.obtain("KEY_SEND_READ_RECEIPT_RESPONSE_V5", Boolean.class);
 
     // V5已读回执事件数据键
-    public static final DataKey<List<ReadReceiptResponseV5>> KEY_MESSAGE_READ_RECEIPT_V5_EVENT =
+    public static final DataKey<List<ReadReceiptInfoV5>>
+            KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER =
+                    DataKey.obtain(
+                            "KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER",
+                            (Class<List<ReadReceiptInfoV5>>) (Class<?>) List.class);
+
+    public static final DataKey<List<ReadReceiptResponseV5>> KEY_MESSAGE_READ_RECEIPT_V5_LISTENER =
             DataKey.obtain(
-                    "KEY_MESSAGE_READ_RECEIPT_V5_EVENT",
+                    "KEY_MESSAGE_READ_RECEIPT_V5_LISTENER",
                     (Class<List<ReadReceiptResponseV5>>) (Class<?>) List.class);
 
     // 记录正在处理的sendReadReceiptResponseV5请求
@@ -50,7 +57,12 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
     // 记录正在处理的getMessageReadReceiptInfoV5请求
     private final CopyOnWriteArraySet<String> processingGetRequests = new CopyOnWriteArraySet<>();
 
-    // 缓存Map，Key是identifier+messageUId，Value是ReadReceiptInfoV5
+    // 记录正在处理的getMessageReadReceiptInfoV5ByIdentifier请求
+    private final CopyOnWriteArraySet<String> processingGetByIdentifierRequests =
+            new CopyOnWriteArraySet<>();
+
+    // 缓存Map，Key是ConversationIdentifier，Value是ReadReceiptInfoV5
+    // 每个会话只缓存最后一个消息的已读回执信息
     private final ConcurrentHashMap<String, ReadReceiptInfoV5> readReceiptInfoCache =
             new ConcurrentHashMap<>();
 
@@ -94,7 +106,7 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
                 // 更新缓存
                 updateReadReceiptInfoCache(responses);
                 // 通知数据变化
-                notifyDataChange(KEY_MESSAGE_READ_RECEIPT_V5_EVENT, responses);
+                notifyDataChange(KEY_MESSAGE_READ_RECEIPT_V5_LISTENER, responses);
             };
 
     public ReadReceiptV5Handler() {
@@ -187,7 +199,7 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
     }
 
     /**
-     * 获取消息已读信息V5 - 支持限频处理和缓存
+     * 获取消息已读信息V5 - 支持限频处理
      *
      * @param identifier 会话标识
      * @param messageUIds 消息UID列表
@@ -197,21 +209,6 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
         if (messageUIds.isEmpty()) {
             RLog.w(TAG, "getMessageReadReceiptInfoV5: messageUIds is empty");
             return;
-        }
-
-        // 如果只有一个消息UID，先检查缓存
-        if (messageUIds.size() == 1) {
-            String messageUId = messageUIds.get(0);
-            String cacheKey = generateCacheKey(identifier, messageUId);
-            ReadReceiptInfoV5 cachedInfo = readReceiptInfoCache.get(cacheKey);
-
-            if (cachedInfo != null) {
-                // 直接返回缓存结果
-                List<ReadReceiptInfoV5> cachedList = new ArrayList<>();
-                cachedList.add(cachedInfo);
-                notifyDataChange(KEY_READ_RECEIPT_INFO_V5, cachedList);
-                return;
-            }
         }
 
         // 分批处理，每批最多100个
@@ -318,18 +315,9 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
                                                 + messageUIds.size());
                                 processingGetRequests.remove(requestKey);
 
-                                // 如果只有一个消息UID且没有缓存，将结果存入缓存
-                                if (messageUIds.size() == 1
-                                        && readReceiptInfoV5s != null
-                                        && !readReceiptInfoV5s.isEmpty()) {
-                                    String messageUId = messageUIds.get(0);
-                                    String cacheKey = generateCacheKey(identifier, messageUId);
-                                    ReadReceiptInfoV5 readReceiptInfo = readReceiptInfoV5s.get(0);
-                                    readReceiptInfoCache.put(cacheKey, readReceiptInfo);
-                                }
-
                                 // 通知数据变化
-                                notifyDataChange(KEY_READ_RECEIPT_INFO_V5, readReceiptInfoV5s);
+                                notifyDataChange(
+                                        KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5, readReceiptInfoV5s);
                             }
 
                             @Override
@@ -341,7 +329,8 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
                                                 + ", batch size: "
                                                 + messageUIds.size());
                                 processingGetRequests.remove(requestKey);
-                                notifyDataError(KEY_READ_RECEIPT_INFO_V5, coreErrorCode);
+                                notifyDataError(
+                                        KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5, coreErrorCode);
                             }
                         });
     }
@@ -366,26 +355,42 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
      * @param responses 已读回执响应列表
      */
     private void updateReadReceiptInfoCache(List<ReadReceiptResponseV5> responses) {
+        List<ReadReceiptInfoV5> updatedInfos = new ArrayList<>();
+
         for (ReadReceiptResponseV5 response : responses) {
-            String cacheKey = generateCacheKey(response.getIdentifier(), response.getMessageUId());
+            String cacheKey = generateCacheKey(response.getIdentifier());
 
             // 查找缓存中的现有数据
             ReadReceiptInfoV5 cachedInfo = readReceiptInfoCache.get(cacheKey);
-            if (cachedInfo != null) {
-                // 更新缓存中的readCount
+            if (cachedInfo != null
+                    && cachedInfo.getMessageUId() != null
+                    && cachedInfo.getMessageUId().equals(response.getMessageUId())) {
+                // 更新缓存中对应消息的readCount
                 cachedInfo.setReadCount(response.getReadCount());
+                updatedInfos.add(cachedInfo);
                 RLog.d(
                         TAG,
                         "Updated cache for key: "
                                 + cacheKey
+                                + ", messageUId: "
+                                + response.getMessageUId()
                                 + ", new readCount: "
                                 + response.getReadCount());
-
-                // 通知数据变化
-                List<ReadReceiptInfoV5> updatedList = new ArrayList<>();
-                updatedList.add(cachedInfo);
-                notifyDataChange(KEY_READ_RECEIPT_INFO_V5, updatedList);
+            } else {
+                // 缓存通过Listener回来的 readReceiptInfoV5
+                ReadReceiptInfoV5 readReceiptInfoV5 = new ReadReceiptInfoV5();
+                readReceiptInfoV5.setIdentifier(response.getIdentifier());
+                readReceiptInfoV5.setMessageUId(response.getMessageUId());
+                readReceiptInfoV5.setReadCount(response.getReadCount());
+                readReceiptInfoV5.setUnreadCount(response.getUnreadCount());
+                readReceiptInfoV5.setTotalCount(response.getTotalCount());
+                readReceiptInfoCache.put(cacheKey, readReceiptInfoV5);
             }
+        }
+
+        // 如果有更新的数据，通知数据变化
+        if (!updatedInfos.isEmpty()) {
+            notifyDataChange(KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER, updatedInfos);
         }
     }
 
@@ -393,11 +398,141 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
      * 生成缓存键
      *
      * @param identifier 会话标识
-     * @param messageUId 消息UID
      * @return 缓存键
      */
-    private String generateCacheKey(ConversationIdentifier identifier, String messageUId) {
-        return identifier.getType().getValue() + "_" + identifier.getTargetId() + "_" + messageUId;
+    private String generateCacheKey(ConversationIdentifier identifier) {
+        return identifier.getType().getValue()
+                + "_"
+                + identifier.getTargetId()
+                + "_"
+                + identifier.getChannelId();
+    }
+
+    public void getMessageReadReceiptInfoV5ByIdentifiers(
+            @NonNull List<MessageIdentifier> identifiers) {
+        if (identifiers == null || identifiers.isEmpty()) {
+            return;
+        }
+
+        List<ReadReceiptInfoV5> allCachedResults = new ArrayList<>();
+        List<MessageIdentifier> unCachedIdentifiers = new ArrayList<>();
+
+        // 检查缓存并收集结果，不聚合内容
+        for (MessageIdentifier identifier : identifiers) {
+            String cacheKey = generateCacheKey(identifier.getIdentifier());
+            ReadReceiptInfoV5 cachedInfo = readReceiptInfoCache.get(cacheKey);
+
+            if (cachedInfo != null) {
+                // 只有当缓存的消息UID与请求的消息UID匹配时才使用缓存
+                if (cachedInfo.getMessageUId() != null
+                        && cachedInfo.getMessageUId().equals(identifier.getMessageUId())) {
+                    allCachedResults.add(cachedInfo);
+                } else {
+                    // 缓存的是其他消息，需要重新请求
+                    unCachedIdentifiers.add(identifier);
+                }
+            } else {
+                unCachedIdentifiers.add(identifier);
+            }
+        }
+
+        // 如果有缓存结果，先通知
+        if (!allCachedResults.isEmpty()) {
+            notifyDataChange(KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER, allCachedResults);
+        }
+
+        // 如果没有未缓存的消息，直接返回
+        if (unCachedIdentifiers.isEmpty()) {
+            return;
+        }
+
+        // 分批处理未缓存的消息，参考 sendReadReceiptResponseV5 方法
+        if (unCachedIdentifiers.size() <= MAX_BATCH_SIZE) {
+            getMessageReadReceiptInfoV5ByIdentifierBatch(unCachedIdentifiers);
+        } else {
+            RLog.d(
+                    TAG,
+                    "getMessageReadReceiptInfoV5ByIdentifier: splitting "
+                            + unCachedIdentifiers.size()
+                            + " messages into batches");
+            for (int i = 0; i < unCachedIdentifiers.size(); i += MAX_BATCH_SIZE) {
+                int endIndex = Math.min(i + MAX_BATCH_SIZE, unCachedIdentifiers.size());
+                List<MessageIdentifier> batch = unCachedIdentifiers.subList(i, endIndex);
+                getMessageReadReceiptInfoV5ByIdentifierBatch(batch);
+            }
+        }
+    }
+
+    /**
+     * 分批获取消息已读信息V5ByIdentifier - 单批处理
+     *
+     * @param identifiers MessageIdentifier列表（不超过100个）
+     */
+    private void getMessageReadReceiptInfoV5ByIdentifierBatch(
+            @NonNull List<MessageIdentifier> identifiers) {
+        if (identifiers.isEmpty()) {
+            return;
+        }
+
+        // 生成请求键用于防重复
+        List<String> messageUIds = new ArrayList<>();
+        for (MessageIdentifier identifier : identifiers) {
+            messageUIds.add(identifier.getMessageUId());
+        }
+        String requestKey = generateRequestKey(messageUIds);
+
+        if (processingGetByIdentifierRequests.contains(requestKey)) {
+            RLog.d(
+                    TAG,
+                    "getMessageReadReceiptInfoV5ByIdentifierBatch: request already in progress");
+            return;
+        }
+        processingGetByIdentifierRequests.add(requestKey);
+
+        RongCoreClient.getInstance()
+                .getMessageReadReceiptInfoV5ByIdentifiers(
+                        identifiers,
+                        new IRongCoreCallback.ResultCallback<List<ReadReceiptInfoV5>>() {
+                            @Override
+                            public void onSuccess(List<ReadReceiptInfoV5> readReceiptInfoV5s) {
+                                RLog.d(
+                                        TAG,
+                                        "getMessageReadReceiptInfoV5ByIdentifierBatch onSuccess, batch size: "
+                                                + identifiers.size());
+                                processingGetByIdentifierRequests.remove(requestKey);
+
+                                if (readReceiptInfoV5s != null && !readReceiptInfoV5s.isEmpty()) {
+                                    // 更新缓存，每个会话只缓存最后一个消息的信息
+                                    for (ReadReceiptInfoV5 info : readReceiptInfoV5s) {
+                                        // 找到对应的 MessageIdentifier 并更新缓存
+                                        String cacheKey = generateCacheKey(info.getIdentifier());
+                                        // 直接覆盖缓存，每个会话只保留最后一个消息的信息
+                                        readReceiptInfoCache.put(cacheKey, info);
+                                        RLog.d(
+                                                TAG,
+                                                "Updated cache for conversation: "
+                                                        + cacheKey
+                                                        + ", messageUId: "
+                                                        + info.getMessageUId());
+                                    }
+
+                                    notifyDataChange(
+                                            KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER,
+                                            readReceiptInfoV5s);
+                                }
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                RLog.e(
+                                        TAG,
+                                        "getMessageReadReceiptInfoV5ByIdentifierBatch onError: "
+                                                + coreErrorCode
+                                                + ", batch size: "
+                                                + identifiers.size());
+                                processingGetByIdentifierRequests.remove(requestKey);
+                            }
+                        });
     }
 
     @Override
@@ -405,6 +540,7 @@ public class ReadReceiptV5Handler extends MultiDataHandler {
         super.stop();
         processingSendRequests.clear();
         processingGetRequests.clear();
+        processingGetByIdentifierRequests.clear();
 
         // 清理限频处理相关资源
         rateLimitHandler.removeCallbacks(rateLimitRunnable);
