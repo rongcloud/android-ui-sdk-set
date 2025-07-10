@@ -42,9 +42,6 @@ public class UiMessage extends UiBaseBean {
     /** 业务状态 */
     private String businessState;
 
-    /** 已读回执人数 */
-    private int readReceiptCount;
-
     public UiMessage(Message message) {
         setMessage(message);
         initUserInfo();
@@ -464,13 +461,5 @@ public class UiMessage extends UiBaseBean {
 
     public void setBusinessState(String businessState) {
         this.businessState = businessState;
-    }
-
-    public int getReadReceiptCount() {
-        return readReceiptCount;
-    }
-
-    public void setReadReceiptCount(int readReceiptCount) {
-        this.readReceiptCount = readReceiptCount;
     }
 }

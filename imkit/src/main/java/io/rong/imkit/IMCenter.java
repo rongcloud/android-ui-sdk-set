@@ -954,7 +954,6 @@ public class IMCenter {
             final String pushData,
             SendMessageOption option,
             final IRongCallback.ISendMessageCallback callback) {
-        message.setNeedReceipt(true);
         if (mMessageInterceptor != null && mMessageInterceptor.interceptOnSendMessage(message)) {
             RLog.d(TAG, "message has been intercepted.");
             return;
@@ -1184,7 +1183,6 @@ public class IMCenter {
             final String pushData,
             final SendMessageOption option,
             final IRongCallback.ISendMediaMessageCallback callback) {
-        message.setNeedReceipt(true);
         if (mMessageInterceptor != null && mMessageInterceptor.interceptOnSendMessage(message)) {
             RLog.d(TAG, "message has been intercepted.");
             return;

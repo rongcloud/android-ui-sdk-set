@@ -674,7 +674,7 @@
     <string name="rc_my_groups">مجموعتي</string>
     <string name="rc_all_requests">جميع الطلبات</string>
     <string name="rc_pending_confirmation">في انتظار الموافقة</string>
-    <string name="rc_completed">Processed</string>
+    <string name="rc_completed">مُعَالَج</string>
     <string name="rc_group_application_sent">تقدمت بطلب للانضمام</string>
     <string name="rc_group_invitation_sent">دعوت s$ للانضمام</string>
     <string name="rc_group_invitation_received_inviter">دعاك s$ للانضمام</string>
@@ -688,4 +688,13 @@
     <string name="rc_loading_saving">توفير...</string>
     <string name="rc_content_contain_sensitive">فشلت العملية، المحتوى يحتوي على معلومات حساسة</string>
     <!--5.12.2-->
+
+    <!--Speech to Text-->
+    <string name="rc_speech_to_text">تحويل إلى نص</string>
+    <string name="rc_cancel_speech_to_text">إلغاء تحويل النص</string>
+    <string name="rc_speech_to_text_failed">فشل تحويل الكلام إلى نص</string>
+    <string name="rc_speech_to_text_network_error">تعذر تحويل الصوت إلى نص. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</string>
+    <string name="rc_speech_to_text_unsupported_format">صيغة هذا التسجيل الصوتي غير مدعومة للتحويل إلى نص.</string>
+    <string name="rc_copy">نسخ</string>
+    <!--Speech to Text-->
 </resources>

@@ -663,20 +663,14 @@ public class CombineWebViewActivity extends RongBaseActivity {
                         name,
                         filePath,
                         new IRongCallback.IDownloadMediaFileCallback() {
-                            String newChangeFileName = "";
-
                             @Override
                             public void onFileNameChanged(String newFileName) {
-                                this.newChangeFileName = newFileName;
+                                // do nothing
                             }
 
                             @Override
                             public void onSuccess() {
-                                String newFileName =
-                                        !TextUtils.isEmpty(this.newChangeFileName)
-                                                ? this.newChangeFileName
-                                                : name;
-                                String retFilePath = filePath + File.separator + newFileName;
+                                String retFilePath = filePath + File.separator + name;
                                 if (callback != null) {
                                     callback.onSuccess(retFilePath);
                                 }

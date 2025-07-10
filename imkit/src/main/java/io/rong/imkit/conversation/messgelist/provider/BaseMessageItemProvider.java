@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.State;
@@ -501,8 +502,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         if (RongConfigCenter.conversationConfig().isShowReadReceipt(message.getConversationType())
                 && mConfig.showReadState
                 && isSender
-                && message.isNeedReceipt()
-                && uiMessage.getReadReceiptCount() > 0) {
+                && message.getSentStatus() == Message.SentStatus.READ) {
             holder.setVisible(R.id.rc_read_receipt, true);
         } else {
             holder.setVisible(R.id.rc_read_receipt, false);
@@ -530,7 +530,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                     && isLastSentMessage
                     && (message.getReadReceiptInfo() == null
                             || !message.getReadReceiptInfo().isReadReceiptMessage())) {
-                holder.setVisible(R.id.rc_read_receipt_request, false);
+                holder.setVisible(R.id.rc_read_receipt_request, true);
                 holder.setOnClickListener(
                         R.id.rc_read_receipt_request,
                         new View.OnClickListener() {
@@ -544,13 +544,41 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                 holder.setVisible(R.id.rc_read_receipt_request, false);
             }
 
-            if (message.isNeedReceipt()) {
-                holder.setText(
-                        R.id.rc_read_receipt_status,
-                        uiMessage.getReadReceiptCount()
-                                + " "
-                                + holder.getContext().getString(R.string.rc_read_receipt_status));
+            if (message.getReadReceiptInfo() != null
+                    && message.getReadReceiptInfo().isReadReceiptMessage()) {
+                if (message.getReadReceiptInfo().getRespondUserIdList() != null) {
+                    holder.setText(
+                            R.id.rc_read_receipt_status,
+                            message.getReadReceiptInfo().getRespondUserIdList().size()
+                                    + " "
+                                    + holder.getContext()
+                                            .getString(R.string.rc_read_receipt_status));
+                } else {
+                    holder.setText(
+                            R.id.rc_read_receipt_status,
+                            0
+                                    + " "
+                                    + holder.getContext()
+                                            .getString(R.string.rc_read_receipt_status));
+                }
                 holder.setVisible(R.id.rc_read_receipt_status, true);
+                holder.setOnClickListener(
+                        R.id.rc_read_receipt_status,
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                ConversationClickListener conversationClickListener =
+                                        RongConfigCenter.conversationConfig()
+                                                .getConversationClickListener();
+                                if (conversationClickListener != null
+                                        && conversationClickListener.onReadReceiptStateClick(
+                                                v.getContext(), uiMessage.getMessage())) {
+                                    return;
+                                }
+                                listener.onViewClick(
+                                        MessageClickType.READ_RECEIPT_STATE_CLICK, uiMessage);
+                            }
+                        });
             } else {
                 holder.setVisible(R.id.rc_read_receipt_status, false);
             }
