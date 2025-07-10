@@ -44,6 +44,7 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageConfig;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.MessagePushConfig;
+import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.push.common.PushCacheHelper;
@@ -316,10 +317,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                                 ? message.getSenderUserId()
                                 : RongUserInfoManager.getInstance().getUserDisplayName(senderInfo)
                                         + ":"
-                                        + RongConfigCenter.conversationConfig()
-                                                .getMessageSummary(
-                                                        mApplication.getApplicationContext(),
-                                                        message.getContent());
+                                        + getMessageSummary(message);
             }
         } else {
             UserInfo userInfo = getUserInfo(targetId, message.getContent());
@@ -336,11 +334,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
                 content =
                         IMCenter.getInstance().getContext().getString(R.string.rc_recalled_message);
             } else {
-                content =
-                        RongConfigCenter.conversationConfig()
-                                .getMessageSummary(
-                                        mApplication.getApplicationContext(), message.getContent())
-                                .toString();
+                content = getMessageSummary(message);
             }
         }
         if (RongConfigCenter.notificationConfig()
@@ -424,6 +418,18 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         requestCode++;
     }
 
+    @NonNull
+    private String getMessageSummary(Message message) {
+        if (isShowUnknownMessage(message)) {
+            return IMCenter.getInstance()
+                    .getContext()
+                    .getString(R.string.rc_message_unknown_notification);
+        }
+        return RongConfigCenter.conversationConfig()
+                .getMessageSummary(mApplication.getApplicationContext(), message.getContent())
+                .toString();
+    }
+
     /**
      * 是否需要弹出本地通知。 SDK 默认不弹出本地通知的场景： 1. 聊天室消息没有本地通知。 2. 离线消息和不计数消息没有本地通知 3. 接受消息时处于免打扰状态，不弹通知。
      *
@@ -434,12 +440,16 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         if (messageConfig != null && messageConfig.isDisableNotification()) {
             return false;
         }
+        if (offline) {
+            return false;
+        }
         // 离线消息和不计数消息，没有本地通知
         final MessageTag msgTag = message.getContent().getClass().getAnnotation(MessageTag.class);
-        if (offline
-                || msgTag != null
-                        && (msgTag.flag() & MessageTag.ISCOUNTED) != MessageTag.ISCOUNTED) {
-            return false;
+        if (msgTag != null && (msgTag.flag() & MessageTag.ISCOUNTED) != MessageTag.ISCOUNTED) {
+            // 未知消息类型且未开启未知消息通知时，不显示通知
+            if (!isShowUnknownMessage(message)) {
+                return false;
+            }
         }
 
         // 通知被拦截，则 SDK 不再处理。
@@ -456,6 +466,12 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         }
 
         return true;
+    }
+
+    private boolean isShowUnknownMessage(Message message) {
+        return RongConfigCenter.featureConfig().isShowUnknownMessageNotification()
+                && message != null
+                && message.getContent() instanceof UnknownMessage;
     }
 
     private boolean isRecallFiltered(Message message) {

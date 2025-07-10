@@ -79,6 +79,7 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.ReadReceiptResponseV5;
+import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.HQVoiceMessage;
 import io.rong.message.HistoryDividerMessage;
@@ -478,7 +479,7 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 }
             }
-            if (!contains) {
+            if (!contains && shouldContainUnknownMessage(message)) {
                 mUiMessages.add(0, mapUIMessage(message));
             }
         }
@@ -607,7 +608,7 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 }
             }
-            if (!contains) {
+            if (!contains && shouldContainUnknownMessage(message)) {
                 list.add(0, mapUIMessage(message));
             }
         }
@@ -632,7 +633,7 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 }
             }
-            if (!contains) {
+            if (!contains && shouldContainUnknownMessage(message)) {
                 mUiMessages.add(0, mapUIMessage(message));
             }
         }
@@ -1224,7 +1225,8 @@ public class MessageViewModel extends AndroidViewModel
         Message msg = event.getMessage();
         if (mConversationIdentifier != null
                 && mConversationIdentifier.equalsWithMessage(msg)
-                && msg.getMessageId() > 0) {
+                && msg.getMessageId() > 0
+                && shouldContainUnknownMessage(msg)) {
             long sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();
             msg.setSentTime(sentTime); // 更新成服务器时间
             int position = findPositionBySendTime(msg.getSentTime());
@@ -1267,6 +1269,9 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     private void sendMessageEvent(UiMessage uiMessage) {
+        if (!shouldContainUnknownMessage(uiMessage.getMessage())) {
+            return;
+        }
         mUiMessages.add(uiMessage);
         refreshAllMessage();
         executePageEvent(new ScrollToEndEvent());
@@ -2239,5 +2244,18 @@ public class MessageViewModel extends AndroidViewModel
             }
         }
         return null;
+    }
+
+    /**
+     * 检查是否应该跳过 UnknownMessage
+     *
+     * @param message 消息对象
+     * @return true 表示应该跳过该消息，false 表示不应该跳过
+     */
+    private boolean shouldContainUnknownMessage(Message message) {
+        if (message != null && message.getContent() instanceof UnknownMessage) {
+            return RongConfigCenter.featureConfig().isShowUnknownMessage();
+        }
+        return true;
     }
 }

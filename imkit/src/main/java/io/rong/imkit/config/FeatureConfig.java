@@ -53,6 +53,8 @@ public class FeatureConfig {
     public String rc_translation_target_language;
     public boolean hideEmojiButton = false;
     private KitMediaInterceptor kitMediaInterceptor;
+    private boolean showUnknownMessage = true;
+    private boolean showUnknownMessageNotification = false;
 
     public FeatureConfig() {
         isReferenceEnable = true;
@@ -356,5 +358,21 @@ public class FeatureConfig {
 
     public void setKitMediaInterceptor(KitMediaInterceptor kitMediaInterceptor) {
         this.kitMediaInterceptor = kitMediaInterceptor;
+    }
+
+    public boolean isShowUnknownMessage() {
+        return showUnknownMessage;
+    }
+
+    public void setShowUnknownMessage(boolean showUnknownMessage) {
+        this.showUnknownMessage = showUnknownMessage;
+    }
+
+    public boolean isShowUnknownMessageNotification() {
+        return showUnknownMessageNotification;
+    }
+
+    public void setShowUnknownMessageNotification(boolean showUnknownMessageNotification) {
+        this.showUnknownMessageNotification = showUnknownMessageNotification;
     }
 }
