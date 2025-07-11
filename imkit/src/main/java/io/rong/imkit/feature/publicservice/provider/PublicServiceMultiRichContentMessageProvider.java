@@ -1,8 +1,6 @@
 package io.rong.imkit.feature.publicservice.provider;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.view.LayoutInflater;
@@ -13,24 +11,16 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import androidx.fragment.app.FragmentActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.picture.tools.FileUtils;
-import io.rong.imkit.utils.GlideUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imlib.IRongCoreCallback;
-import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
-import io.rong.imlib.RongCoreClientImpl;
-import io.rong.imlib.filetransfer.upload.MediaUploadAuthorInfo;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.publicservice.message.PublicServiceMultiRichContentMessage;
 import io.rong.message.RichContentItem;
@@ -90,26 +80,10 @@ public class PublicServiceMultiRichContentMessageProvider
 
         if (msgList.size() > 0) {
             holder.setText(R.id.rc_txt, msgList.get(0).getTitle());
-            String imgUrl = msgList.get(0).getImageUrl();
-            if (FileUtils.isHttp(imgUrl) && RongCoreClientImpl.isPrivateSDK()) {
-                RongCoreClient.getInstance()
-                        .getMediaUploadAuthorInfo(
-                                GlideUtils.getUrlName(imgUrl),
-                                imgUrl,
-                                new IRongCoreCallback.ResultCallback<MediaUploadAuthorInfo>() {
-                                    @Override
-                                    public void onSuccess(MediaUploadAuthorInfo auth) {
-                                        loadImg(holder.getContext(), imageView, imgUrl, auth);
-                                    }
-
-                                    @Override
-                                    public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                        loadImg(holder.getContext(), imageView, imgUrl, null);
-                                    }
-                                });
-            } else {
-                loadImg(holder.getContext(), imageView, imgUrl, null);
-            }
+            Glide.with(holder.getContext())
+                    .load(msgList.get(0).getImageUrl())
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into(imageView);
         }
 
         ViewGroup.LayoutParams params = holder.getConvertView().getLayoutParams();
@@ -143,23 +117,6 @@ public class PublicServiceMultiRichContentMessageProvider
 
         holder.getConvertView().setLayoutParams(params);
         holder.getConvertView().requestLayout();
-    }
-
-    private static void loadImg(
-            Context context, ImageView img, String url, MediaUploadAuthorInfo auth) {
-        if (context instanceof FragmentActivity) {
-            if (((FragmentActivity) context).isDestroyed()) {
-                return;
-            }
-        } else if (context instanceof Activity) {
-            if (((Activity) context).isDestroyed()) {
-                return;
-            }
-        }
-        Glide.with(context)
-                .load(GlideUtils.buildAuthUrl(Uri.parse(url), auth))
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .into(img);
     }
 
     private int getListViewHeight(ListView list) {
@@ -253,26 +210,10 @@ public class PublicServiceMultiRichContentMessageProvider
 
             String title = itemList.get(position + 1).getTitle();
             if (title != null) tv.setText(title);
-            String imgUrl = itemList.get(position + 1).getImageUrl();
-            if (FileUtils.isHttp(imgUrl) && RongCoreClientImpl.isPrivateSDK()) {
-                RongCoreClient.getInstance()
-                        .getMediaUploadAuthorInfo(
-                                GlideUtils.getUrlName(imgUrl),
-                                imgUrl,
-                                new IRongCoreCallback.ResultCallback<MediaUploadAuthorInfo>() {
-                                    @Override
-                                    public void onSuccess(MediaUploadAuthorInfo auth) {
-                                        loadImg(providerConvertView.getContext(), iv, imgUrl, auth);
-                                    }
-
-                                    @Override
-                                    public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                        loadImg(providerConvertView.getContext(), iv, imgUrl, null);
-                                    }
-                                });
-            } else {
-                loadImg(providerConvertView.getContext(), iv, imgUrl, null);
-            }
+            Glide.with(providerConvertView.getContext())
+                    .load(itemList.get(position + 1).getImageUrl())
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into(iv);
             if (position == getCount() - 1) {
                 divider.setVisibility(View.GONE);
             } else {

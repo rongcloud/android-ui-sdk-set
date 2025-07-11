@@ -50,6 +50,7 @@ import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.picture.widget.FolderPopWindow;
 import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
+import io.rong.imkit.utils.RongUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -245,7 +246,15 @@ public class PictureSelectorActivity extends PictureBaseActivity
             return;
         }
 
-        String[] permissions = PermissionCheckUtil.getMediaStoragePermissions(this);
+        String[] permissions = null;
+        if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(this)) {
+            permissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+        } else {
+            permissions = new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+        }
         if (PermissionChecker.checkSelfPermission(this, permissions)) {
             mHandler.sendEmptyMessage(SHOW_DIALOG);
             readLocalMedia();
@@ -529,7 +538,15 @@ public class PictureSelectorActivity extends PictureBaseActivity
         int[] newSize = new int[2];
         final File file = new File(cameraPath);
         if (!isAndroidQ) {
-            new PictureMediaScannerConnection(getApplicationContext(), cameraPath, null);
+            new PictureMediaScannerConnection(
+                    getApplicationContext(),
+                    cameraPath,
+                    new PictureMediaScannerConnection.ScanListener() {
+                        @Override
+                        public void onScanFinish() {
+                            // do nothing
+                        }
+                    });
         }
         LocalMedia media = new LocalMedia();
         mimeType = PictureMimeType.fileToType(file);

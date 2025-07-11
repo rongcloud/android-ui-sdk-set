@@ -1,13 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    namespace 'io.rong.sticker'
-    compileSdk 35
+    compileSdkVersion 33
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 35
-        versionName "5.22.0_opensource"
+        targetSdkVersion 31
+        versionName "5.7.9_opensource"
     }
 
     sourceSets {

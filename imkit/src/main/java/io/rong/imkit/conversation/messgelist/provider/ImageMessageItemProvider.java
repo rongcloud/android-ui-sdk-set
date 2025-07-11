@@ -86,9 +86,8 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
-        final ImageView imageView = holder.getView(R.id.rc_image);
-        final View imageContainer = holder.getView(R.id.rl_content);
-        if (!checkViewsValid(imageView) || !checkViewsValid(imageContainer)) {
+        final ImageView view = holder.getView(R.id.rc_image);
+        if (!checkViewsValid(view)) {
             RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
             return;
         }
@@ -110,7 +109,7 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                                             ScreenUtils.dip2px(
                                                     IMCenter.getInstance().getContext(), 6)))
                             .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
-            Glide.with(imageView)
+            Glide.with(view)
                     .load(thumUri.getPath())
                     .error(
                             uiMessage.getMessage().getMessageDirection()
@@ -127,13 +126,10 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                                         Target<Drawable> target,
                                         boolean isFirstResource) {
                                     mConfig.showWarning = true;
-                                    ViewGroup.LayoutParams params =
-                                            imageContainer.getLayoutParams();
-                                    params.height =
-                                            ScreenUtils.dip2px(imageContainer.getContext(), 35);
-                                    params.width =
-                                            ScreenUtils.dip2px(imageContainer.getContext(), 35);
-                                    imageContainer.setLayoutParams(params);
+                                    ViewGroup.LayoutParams params = view.getLayoutParams();
+                                    params.height = ScreenUtils.dip2px(view.getContext(), 35);
+                                    params.width = ScreenUtils.dip2px(view.getContext(), 35);
+                                    view.setLayoutParams(params);
                                     return false;
                                 }
 
@@ -145,18 +141,18 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                                         DataSource dataSource,
                                         boolean isFirstResource) {
                                     mConfig.showWarning = true;
-                                    measureLayoutParams(imageContainer, resource);
+                                    measureLayoutParams(holder.getView(R.id.rl_content), resource);
                                     return false;
                                 }
                             })
-                    .into(imageView);
+                    .into(view);
         } else {
             mConfig.showWarning = true;
-            ViewGroup.LayoutParams layoutParams = imageContainer.getLayoutParams();
-            layoutParams.height = ScreenUtils.dip2px(imageContainer.getContext(), 35);
-            layoutParams.width = ScreenUtils.dip2px(imageContainer.getContext(), 35);
-            imageContainer.setLayoutParams(layoutParams);
-            imageView.setImageResource(
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            params.height = ScreenUtils.dip2px(view.getContext(), 35);
+            params.width = ScreenUtils.dip2px(view.getContext(), 35);
+            view.setLayoutParams(params);
+            view.setImageResource(
                     uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND
                             ? R.drawable.rc_send_thumb_image_broken
                             : R.drawable.rc_received_thumb_image_broken);

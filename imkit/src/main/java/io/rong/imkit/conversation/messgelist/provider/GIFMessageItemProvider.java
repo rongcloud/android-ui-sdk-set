@@ -72,13 +72,15 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
         holder.setVisible(R.id.rc_length, false);
         int progress = uiMessage.getProgress();
         if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND) {
-            if (((progress > 0 && progress < 100) || uiMessage.getState() == State.PROGRESS)
+            if ((progress > 0 && progress < 100)
                     || (uiMessage.getState() == State.ERROR)
                             && ResendManager.getInstance()
                                     .needResend(uiMessage.getMessage().getMessageId())) {
                 loadingProgress.setProgress(progress, true);
                 loadingProgress.setVisibility(View.VISIBLE);
                 holder.setVisible(R.id.rc_pre_progress, false);
+            } else if (uiMessage.getState() == State.PROGRESS) {
+                loadingProgress.setVisibility(View.GONE);
             } else if (uiMessage.getState() == State.ERROR) {
                 loadingProgress.setVisibility(View.GONE);
                 holder.setVisible(R.id.rc_pre_progress, false);
@@ -290,5 +292,20 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
     public Spannable getSummarySpannable(Context context, GIFMessage gifMessage) {
         return new SpannableString(
                 context.getString(R.string.rc_conversation_summary_content_image));
+    }
+
+    @Override
+    protected boolean onItemLongClick(
+            ViewHolder holder,
+            GIFMessage gifMessage,
+            UiMessage uiMessage,
+            int position,
+            List<UiMessage> list,
+            IViewProviderListener<UiMessage> listener) {
+        if (holder.getView(R.id.rc_download_failed).getVisibility() == View.VISIBLE
+                || holder.getView(R.id.rc_pre_progress).getVisibility() == View.VISIBLE) {
+            return true;
+        }
+        return super.onItemLongClick(holder, gifMessage, uiMessage, position, list, listener);
     }
 }

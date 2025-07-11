@@ -74,95 +74,74 @@ public class SubsamplingScaleImageView extends View {
 
     /** Attempt to use EXIF information on the image to rotate it. Works for external files only. */
     public static final int ORIENTATION_USE_EXIF = -1;
-
     /** Display the image file in its native orientation. */
     public static final int ORIENTATION_0 = 0;
-
     /** Rotate the image 90 degrees clockwise. */
     public static final int ORIENTATION_90 = 90;
-
     /** Rotate the image 180 degrees. */
     public static final int ORIENTATION_180 = 180;
-
     /** Rotate the image 270 degrees clockwise. */
     public static final int ORIENTATION_270 = 270;
-
     /**
      * During zoom animation, keep the point of the image that was tapped in the same place, and
      * scale the image around it.
      */
     public static final int ZOOM_FOCUS_FIXED = 1;
-
     /**
      * During zoom animation, move the point of the image that was tapped to the center of the
      * screen.
      */
     public static final int ZOOM_FOCUS_CENTER = 2;
-
     /** Zoom in to and center the tapped point immediately without animating. */
     public static final int ZOOM_FOCUS_CENTER_IMMEDIATE = 3;
-
     /** Quadratic ease out. Not recommended for scale animation, but good for panning. */
     public static final int EASE_OUT_QUAD = 1;
-
     /** Quadratic ease in and out. */
     public static final int EASE_IN_OUT_QUAD = 2;
-
     /**
      * Don't allow the image to be panned off screen. As much of the image as possible is always
      * displayed, centered in the view when it is smaller. This is the best option for galleries.
      */
     public static final int PAN_LIMIT_INSIDE = 1;
-
     /**
      * Allows the image to be panned until it is just off screen, but no further. The edge of the
      * image will stop when it is flush with the screen edge.
      */
     public static final int PAN_LIMIT_OUTSIDE = 2;
-
     /**
      * Allows the image to be panned until a corner reaches the center of the screen but no further.
      * Useful when you want to pan any spot on the image to the exact center of the screen.
      */
     public static final int PAN_LIMIT_CENTER = 3;
-
     /**
      * Scale the image so that both dimensions of the image will be equal to or less than the
      * corresponding dimension of the view. The image is then centered in the view. This is the
      * default behaviour and best for galleries.
      */
     public static final int SCALE_TYPE_CENTER_INSIDE = 1;
-
     /**
      * Scale the image uniformly so that both dimensions of the image will be equal to or larger
      * than the corresponding dimension of the view. The image is then centered in the view.
      */
     public static final int SCALE_TYPE_CENTER_CROP = 2;
-
     /**
      * Scale the image so that both dimensions of the image will be equal to or less than the
      * maxScale and equal to or larger than minScale. The image is then centered in the view.
      */
     public static final int SCALE_TYPE_CUSTOM = 3;
-
     /**
      * Scale the image so that both dimensions of the image will be equal to or larger than the
      * corresponding dimension of the view. The top left is shown.
      */
     public static final int SCALE_TYPE_START = 4;
-
     /** State change originated from animation. */
     public static final int ORIGIN_ANIM = 1;
-
     /** State change originated from touch gesture. */
     public static final int ORIGIN_TOUCH = 2;
-
     /** State change originated from a fling momentum anim. */
     public static final int ORIGIN_FLING = 3;
-
     /** State change originated from a double tap zoom anim. */
     public static final int ORIGIN_DOUBLE_TAP_ZOOM = 4;
-
     // overrides for the dimensions of the generated tiles
     public static final int TILE_SIZE_AUTO = Integer.MAX_VALUE;
     private static final String TAG = SubsamplingScaleImageView.class.getSimpleName();

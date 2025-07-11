@@ -40,9 +40,7 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 
-/**
- * @author gusd @Date 2023/03/21
- */
+/** @author gusd @Date 2023/03/21 */
 public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
     private static final String TAG = "SightPlayerFragment";
 
@@ -55,7 +53,7 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
     private CircleProgressView mSightDownloadProgress;
     private RelativeLayout mSightDownloadFailedReminder;
     private TextView mCountDownView;
-    private boolean mDisplayCurrentVideoOnly = false;
+    private boolean fromSightListImageVisible = true;
     private PlaybackVideoFragment mPlaybackVideoFragment;
     private SightPlayerFragment.DownloadMediaMessageCallback downloadMediaMessageCallback;
     private int currentSeek;
@@ -96,7 +94,7 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
             mSightMessage = arguments.getParcelable("SightMessage");
             mMessage = arguments.getParcelable("Message");
             mProgress = arguments.getInt("Progress", 0);
-            mDisplayCurrentVideoOnly = arguments.getBoolean("displayCurrentVideoOnly", false);
+            fromSightListImageVisible = arguments.getBoolean("fromSightListImageVisible", true);
         } catch (Exception exception) {
             RLog.i(TAG, "getIntent exception");
         }
@@ -211,7 +209,7 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
                         mMessage.getTargetId(),
                         mMessage.getConversationType(),
                         getArguments().getBoolean("fromList", false),
-                        mDisplayCurrentVideoOnly,
+                        fromSightListImageVisible,
                         currentSeek,
                         currentPlayerStatus,
                         getArguments().getBoolean("auto_play", false));
@@ -309,7 +307,7 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
         new AlertDialog.Builder(this.getActivity())
                 .setMessage(R.string.rc_video_play_error_open_system_player)
                 .setPositiveButton(
-                        io.rong.imkit.R.string.rc_confirm,
+                        R.string.rc_confirm,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -321,7 +319,7 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
                             }
                         })
                 .setNegativeButton(
-                        io.rong.imkit.R.string.rc_cancel,
+                        R.string.rc_cancel,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -350,7 +348,10 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
                                 context.getApplicationContext().getPackageName()
                                         + context.getResources()
                                                 .getString(
-                                                        io.rong.imkit.R.string
+                                                        io.rong
+                                                                .imkit
+                                                                .R
+                                                                .string
                                                                 .rc_authorities_fileprovider),
                                 new File(source.getPath()));
             }

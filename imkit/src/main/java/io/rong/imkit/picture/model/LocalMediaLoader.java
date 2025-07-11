@@ -31,7 +31,6 @@ public class LocalMediaLoader implements Handler.Callback {
     private static final Uri QUERY_URI = MediaStore.Files.getContentUri("external");
     private static final String ORDER_BY = MediaStore.Files.FileColumns._ID + " DESC";
     private static final String NOT_GIF = "!='image/gif'";
-
     /** 过滤掉小于500毫秒的录音 */
     private static final int AUDIO_DURATION = 500;
 
@@ -41,10 +40,8 @@ public class LocalMediaLoader implements Handler.Callback {
     private boolean isAndroidQ;
     private PictureSelectionConfig config;
     private Handler mHandler;
-
     /** unit */
     private static final long FILE_SIZE_UNIT = 1024 * 1024L;
-
     /** 媒体文件数据库字段 */
     private static final String[] PROJECTION = {
         MediaStore.Files.FileColumns._ID,
@@ -74,7 +71,6 @@ public class LocalMediaLoader implements Handler.Callback {
                     + " AND "
                     + MediaStore.MediaColumns.MIME_TYPE
                     + NOT_GIF;
-
     /** 查询指定后缀名的图片 */
     private static final String SELECTION_SPECIFIED_FORMAT =
             MediaStore.Files.FileColumns.MEDIA_TYPE

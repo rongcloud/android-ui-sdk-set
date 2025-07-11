@@ -35,17 +35,4 @@ public interface KitImageEngine extends ImageEngine {
             @NonNull String url,
             @NonNull ImageView imageView,
             Message message);
-
-    void loadUserPortrait(
-            @NonNull Context context, @NonNull String url, @NonNull ImageView imageView);
-
-    /**
-     * 加载群组头像
-     *
-     * @param context 上下文
-     * @param url 群组头像地址
-     * @param imageView 加载头像的 view 控件
-     */
-    void loadGroupPortrait(
-            @NonNull Context context, @NonNull String url, @NonNull ImageView imageView);
 }

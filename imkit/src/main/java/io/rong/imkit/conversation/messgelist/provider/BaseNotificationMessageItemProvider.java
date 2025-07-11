@@ -8,13 +8,11 @@ import android.widget.FrameLayout;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
-import io.rong.imlib.model.UserInfo;
 import io.rong.message.HistoryDividerMessage;
 import java.util.List;
 
@@ -126,19 +124,5 @@ public abstract class BaseNotificationMessageItemProvider<T extends MessageConte
     @Override
     public boolean showSummaryWithName() {
         return false;
-    }
-
-    UserInfo getUserInfo(String userId, MessageContent messageContent) {
-        boolean isInfoManagement =
-                RongUserInfoManager.getInstance().getDataSourceType()
-                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
-        if (isInfoManagement
-                && messageContent != null
-                && messageContent.getUserInfo() != null
-                && messageContent.getUserInfo().getUserId() != null
-                && messageContent.getUserInfo().getUserId().equals(userId)) {
-            return messageContent.getUserInfo();
-        }
-        return RongUserInfoManager.getInstance().getUserInfo(userId);
     }
 }

@@ -2,9 +2,7 @@ package io.rong.sight.player;
 
 import android.net.Uri;
 
-/**
- * @author Aidan Follestad (afollestad)
- */
+/** @author Aidan Follestad (afollestad) */
 public interface EasyVideoCallback {
 
     void onStarted(EasyVideoPlayer player);

@@ -19,9 +19,7 @@ import com.bumptech.glide.load.model.stream.QMediaStoreUriLoader;
 import com.bumptech.glide.module.LibraryGlideModule;
 import java.io.InputStream;
 
-/**
- * @author gusd @Date 2022/09/08
- */
+/** @author gusd @Date 2022/09/08 */
 @GlideModule
 public class GlideProxyModule extends LibraryGlideModule {
     private static final String TAG = "ProxyModule";

@@ -14,7 +14,6 @@ import java.util.Locale;
 public class StickerPackageStorageTask {
 
     private static final String STICKER_DIR = "sticker";
-
     /** 所有表情包配置文件 */
     private static final String STICKER_PACKAGES_CONFIG_FILE = "StickerPackagesConfig.json";
 

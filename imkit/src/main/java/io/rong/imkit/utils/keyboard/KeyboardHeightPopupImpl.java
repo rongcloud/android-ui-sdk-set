@@ -15,13 +15,9 @@ import android.view.WindowManager;
 import android.widget.PopupWindow;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.utils.AndroidConstant;
-import io.rong.imkit.utils.NavigationBarUtil;
 import java.lang.ref.WeakReference;
 
-/**
- * @author gusd
- */
+/** @author gusd */
 public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeightPresenter {
     private static final String TAG = "KeyboardHeightPopupImpl";
 
@@ -184,9 +180,6 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
         // the keyboard height. But this worked fine on a Nexus.
         int orientation = getScreenOrientation();
         int keyboardHeight = screenSize.y - rect.bottom;
-
-        // 调整键盘高度，排除导航栏的影响
-        keyboardHeight = keyboardHeight - getNavigationBarHeight();
         if (keyboardHeight == 0) {
             notifyKeyboardHeightChanged(0, orientation);
         } else if (orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -194,14 +187,6 @@ public class KeyboardHeightPopupImpl extends PopupWindow implements KeyboardHeig
         } else {
             notifyKeyboardHeightChanged(keyboardHeight, orientation);
         }
-    }
-
-    private int getNavigationBarHeight() {
-        // Android 15适配的虚拟导航栏, 添加这个判定是为了防止在Android 15以下的手机出现问题(相当于不修改Android 15以下的版本的逻辑)
-        if (Build.VERSION.SDK_INT < AndroidConstant.ANDROID_VANILLA_ICE_CREAM) {
-            return 0;
-        }
-        return NavigationBarUtil.getNavigationBarHeight(activity.getBaseContext());
     }
 
     private int getScreenOrientation() {

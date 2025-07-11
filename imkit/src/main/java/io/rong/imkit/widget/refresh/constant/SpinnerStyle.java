@@ -5,7 +5,6 @@ package io.rong.imkit.widget.refresh.constant;
 public class SpinnerStyle {
 
     public static final SpinnerStyle Translate = new SpinnerStyle(0, true, false);
-
     /**
      * Scale 下拉过程中会动态 【测量】（header）和 【布局】（layout）降低app 性能， 官方自带的 Header
      * 都已经从【Scale】转向【FixedBehind】来提高性能 自定义可以参考官方的 【飞机】【贝塞尔】【快递】等 Header

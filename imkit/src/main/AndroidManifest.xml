@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="io.rong.imkit">
     <!-- 访问相册，访问文件系统等 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -19,24 +20,6 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
 
     <application android:supportsRtl="true">
-        <activity
-            android:name=".usermanage.friend.my.profile.MyProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".usermanage.friend.add.AddFriendListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".usermanage.friend.user.profile.UserProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".usermanage.friend.apply.ApplyFriendListActivity"
-            android:exported="false" />
-        <activity
-            android:name=".usermanage.friend.my.gender.UpdateGenderActivity"
-            android:exported="false" />
-        <activity
-            android:name=".usermanage.friend.my.nikename.UpdateNickNameActivity"
-            android:exported="false" />
         <activity
             android:name="io.rong.imkit.conversationlist.RongConversationListActivity"
             android:screenOrientation="portrait" />
@@ -129,111 +112,6 @@
             android:name=".picture.PictureVideoPlayActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.friend.select.FriendSelectActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.create.GroupCreateActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.profile.GroupProfileActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.add.AddGroupMembersActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.remove.RemoveGroupMembersActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.nickname.GroupNicknameActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.notice.GroupNoticeActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.memberlist.GroupMemberListActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.friend.friendlist.FriendListActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.friend.search.FriendSearchActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.name.GroupNameActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.manage.GroupManagementActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.managerlist.GroupManagerListActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.remark.GroupRemarkActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.follows.GroupFollowsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.memberselect.impl.GroupAddFollowsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.memberselect.impl.GroupAddManagerActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.transfer.GroupTransferActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.grouplist.GroupListActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".usermanage.group.groupsearch.GroupSearchActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".usermanage.group.application.GroupApplicationsActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize"
-            android:screenOrientation="portrait" />
-
         <!--end图库配置项-->
 
         <meta-data

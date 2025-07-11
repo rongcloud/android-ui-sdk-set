@@ -8,22 +8,17 @@ import java.util.List;
 public class LocalMediaFolder implements Parcelable {
     /** Folder name */
     private String name;
-
     /** Folder first path */
     private String firstImagePath;
-
     /** Folder media num */
     private int imageNum;
-
     /** If the selected num */
     private int checkedNum;
-
     /** If the selected */
     private boolean isChecked;
 
     /** type */
     private int ofAllType = -1;
-
     /** Whether or not the camera */
     private boolean isCameraFolder;
 

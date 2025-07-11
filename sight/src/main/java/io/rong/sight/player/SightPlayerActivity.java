@@ -41,7 +41,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
     protected SightMessage mCurrentSightMessage;
     protected Message mMessage;
     protected boolean mFromList;
-    private boolean mDisplayCurrentVideoOnly;
     protected Conversation.ConversationType mConversationType;
 
     protected String mTargetId;
@@ -188,7 +187,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
         mTargetId = mMessage.getTargetId();
         mMessage.setContent(mCurrentSightMessage);
         mFromList = getIntent().getBooleanExtra("fromList", false);
-        mDisplayCurrentVideoOnly = getIntent().getBooleanExtra("displayCurrentVideoOnly", false);
         initPager();
     }
 
@@ -200,9 +198,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
         mViewPager.setAdapter(mVideoPagerAdapter);
         // 先加载当前视频消息，再加载前面和后面的视频消息
         messages.add(mMessage);
-        mVideoPagerAdapter.addMessage(messages, mFromList, mDisplayCurrentVideoOnly, true);
-        // 如果不需要显示前面和后面的视频消息，直接返回
-        if (isLoadSingleMessage() || mDisplayCurrentVideoOnly) {
+        mVideoPagerAdapter.addMessage(messages, mFromList, true);
+        if (isLoadSingleMessage()) {
             return;
         }
         // 延迟前面和后面的视频消息，加载过快会导致ViewPager当前Item不是第一个
@@ -257,16 +254,10 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
                                                             RongCommonDefine.GetMessageDirection
                                                                     .FRONT)) {
                                                         mVideoPagerAdapter.addMessage(
-                                                                lists,
-                                                                mFromList,
-                                                                mDisplayCurrentVideoOnly,
-                                                                true);
+                                                                lists, mFromList, true);
                                                     } else if (lists.size() > 0) {
                                                         mVideoPagerAdapter.addMessage(
-                                                                lists,
-                                                                mFromList,
-                                                                mDisplayCurrentVideoOnly,
-                                                                false);
+                                                                lists, mFromList, false);
                                                     }
                                                 }
                                             });
@@ -291,7 +282,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
         private final int mDefaultMessageId;
         List<Message> mMessages;
         boolean mFromList;
-        private boolean mDisplayCurrentVideoOnly;
 
         public VideoPagerAdapter(@NonNull FragmentActivity fragmentActivity, int defaultMessageId) {
             super(fragmentActivity);
@@ -299,12 +289,7 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
             mDefaultMessageId = defaultMessageId;
         }
 
-        public void addMessage(
-                List<Message> messages,
-                boolean fromList,
-                boolean displayCurrentVideoOnly,
-                boolean direction) {
-            this.mDisplayCurrentVideoOnly = displayCurrentVideoOnly;
+        public void addMessage(List<Message> messages, boolean fromList, boolean direction) {
             if (messages == null || messages.size() == 0) {
                 return;
             }
@@ -343,7 +328,6 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
             bundle.putParcelable("SightMessage", (SightMessage) message.getContent());
             bundle.putBoolean("fromList", fromList);
             bundle.putBoolean("auto_play", mDefaultMessageId == message.getMessageId());
-            bundle.putBoolean("displayCurrentVideoOnly", mDisplayCurrentVideoOnly);
             sightPlayerFragment.setArguments(bundle);
             return sightPlayerFragment;
         }

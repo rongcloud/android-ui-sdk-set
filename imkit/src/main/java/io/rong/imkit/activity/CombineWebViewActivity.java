@@ -3,7 +3,6 @@ package io.rong.imkit.activity;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -37,11 +36,9 @@ import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
 import io.rong.imkit.config.FeatureConfig;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.feature.forward.CombineMessage;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
@@ -51,7 +48,6 @@ import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
-import io.rong.message.GIFMessage;
 import io.rong.message.ImageMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.SightMessage;
@@ -181,100 +177,11 @@ public class CombineWebViewActivity extends RongBaseActivity {
 
         mPrevUrl = uri;
         mWebViewError = false;
+        mWebView.loadUrl(mPrevUrl);
         if (mTitleBar != null && !TextUtils.isEmpty(title)) {
             mTitleBar.setTitle(title);
         }
-        firstLoadUrl(uri);
         //        onCreateActionbar(new ActionBar());
-    }
-
-    /**
-     * 第一次加载url
-     *
-     * @param url 需要加载的 URL
-     * @discussion 由于私有云鉴权的问题，第一次加载的时候需要先下载好，然后加载本地合并转发文件，和文件消息的逻辑一致
-     */
-    private void firstLoadUrl(String url) {
-        // 不是远端路径，直接加载
-        if (!isRemoteUri(url)) {
-            replacePortraitUrl(url);
-            return;
-        }
-        showLoading();
-        // 下载成功后加载本地路径
-        if (mMessageId > 0) {
-            downloadFileByMessageId(
-                    mMessageId,
-                    new IRongCoreCallback.ResultCallback<String>() {
-                        @Override
-                        public void onSuccess(String s) {
-                            RLog.e(TAG, "downloadFileByMessageId onSuccess:" + s);
-                            runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            showLoadSuccess();
-                                            replacePortraitUrl(s);
-                                        }
-                                    });
-                        }
-
-                        @Override
-                        public void onError(IRongCoreEnum.CoreErrorCode e) {
-                            RLog.e(TAG, "downloadFileByMessageId error:" + e);
-                            runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            showLoadError();
-                                        }
-                                    });
-                        }
-                    });
-        } else {
-            downloadFileByUri(
-                    url,
-                    new IRongCoreCallback.ResultCallback<String>() {
-                        @Override
-                        public void onSuccess(String s) {
-                            RLog.e(TAG, "downloadFileByUri onSuccess:" + s);
-                            runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            showLoadSuccess();
-                                            replacePortraitUrl(s);
-                                        }
-                                    });
-                        }
-
-                        @Override
-                        public void onError(IRongCoreEnum.CoreErrorCode e) {
-                            RLog.e(TAG, "downloadFileByUri error:" + e);
-                            runOnUiThread(
-                                    new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            showLoadError();
-                                        }
-                                    });
-                        }
-                    });
-        }
-    }
-
-    private void replacePortraitUrl(String url) {
-        if (!TextUtils.isEmpty(url) && (!url.startsWith("file://"))) {
-            url = "file://" + url;
-        }
-        mWebView.loadUrl(url);
-    }
-
-    private boolean isRemoteUri(String uri) {
-        if (TextUtils.isEmpty(uri)) {
-            return false;
-        }
-        return uri.toLowerCase().startsWith("http") || uri.toLowerCase().startsWith("ftp");
     }
 
     private void openSight(JSONObject jsonObj) {
@@ -330,24 +237,6 @@ public class CombineWebViewActivity extends RongBaseActivity {
         message.setContent(imageMessage);
         message.setConversationType(Conversation.ConversationType.PRIVATE);
         RouteUtils.routeToCombinePicturePagerActivity(this, message);
-    }
-
-    private void openGif(JSONObject jsonObj) {
-        String mediaUrl = jsonObj.optString("fileUrl");
-        GIFMessage gifMessage = GIFMessage.obtain(null);
-        gifMessage.setRemoteUri(Uri.parse(mediaUrl));
-
-        Message message = new Message();
-        message.setConversationType(Conversation.ConversationType.PRIVATE);
-        message.setTargetId(RongIMClient.getInstance().getCurrentUserId());
-        message.setContent(gifMessage);
-
-        Context context = getApplicationContext();
-        Intent intent = new Intent(context, GIFPreviewActivity.class);
-        intent.setPackage(context.getPackageName());
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("message", message);
-        context.startActivity(intent);
     }
 
     // 根据链接地址，获取合并转发消息下载路径
@@ -474,8 +363,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
                         intent.setComponent(cn);
                         intent.putExtra("Message", message);
                         intent.putExtra("SightMessage", sightMessage);
-                        intent.putExtra("displayCurrentVideoOnly", true);
-                        intent.putExtra("fromList", false);
+                        intent.putExtra("fromSightListImageVisible", false);
                         startActivity(intent);
                     }
                 });
@@ -551,213 +439,6 @@ public class CombineWebViewActivity extends RongBaseActivity {
         }
     }
 
-    private void downloadFileByMessageId(
-            int messageId, IRongCoreCallback.ResultCallback<String> callback) {
-        if (messageId <= 0) {
-            if (callback != null) {
-                callback.onError(IRongCoreEnum.CoreErrorCode.RC_INVALID_PARAMETER_MESSAGE_ID);
-            }
-            return;
-        }
-        RongCoreClient.getInstance()
-                .getMessage(
-                        messageId,
-                        new IRongCoreCallback.ResultCallback<Message>() {
-                            @Override
-                            public void onSuccess(Message message) {
-
-                                IMCenter.getInstance()
-                                        .downloadMediaMessage(
-                                                message,
-                                                new IRongCallback.IDownloadMediaMessageCallback() {
-                                                    @Override
-                                                    public void onSuccess(Message message) {
-                                                        if (message == null) {
-                                                            if (callback != null) {
-                                                                callback.onError(
-                                                                        IRongCoreEnum.CoreErrorCode
-                                                                                .RC_INVALID_PARAMETER_MESSAGE);
-                                                            }
-                                                            return;
-                                                        }
-                                                        if (!(message.getContent()
-                                                                instanceof CombineMessage)) {
-                                                            if (callback != null) {
-                                                                callback.onError(
-                                                                        IRongCoreEnum.CoreErrorCode
-                                                                                .RC_INVALID_PARAMETER_MESSAGE_CONTENT);
-                                                            }
-                                                            return;
-                                                        }
-                                                        CombineMessage combineMessage =
-                                                                (CombineMessage)
-                                                                        message.getContent();
-                                                        String filePath =
-                                                                CombineMessageUtils.getInstance()
-                                                                        .getCombineFilePath(
-                                                                                combineMessage
-                                                                                        .getMediaUrl()
-                                                                                        .toString());
-
-                                                        saveToLocalPath(
-                                                                combineMessage
-                                                                        .getLocalPath()
-                                                                        .toString(),
-                                                                filePath);
-
-                                                        if (callback != null) {
-                                                            callback.onSuccess(filePath);
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onProgress(
-                                                            Message message, int progress) {
-                                                        // do nothing
-                                                    }
-
-                                                    @Override
-                                                    public void onError(
-                                                            Message message,
-                                                            RongIMClient.ErrorCode code) {
-                                                        if (callback != null) {
-                                                            callback.onError(
-                                                                    IRongCoreEnum.CoreErrorCode
-                                                                            .valueOf(
-                                                                                    code
-                                                                                            .getValue()));
-                                                        }
-                                                    }
-
-                                                    @Override
-                                                    public void onCanceled(Message message) {
-                                                        // do nothing
-                                                    }
-                                                });
-                            }
-
-                            @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                if (callback != null) {
-                                    callback.onError(e);
-                                }
-                            }
-                        });
-    }
-
-    private void downloadFileByUri(String uri, IRongCoreCallback.ResultCallback<String> callback) {
-        if (TextUtils.isEmpty(uri)) {
-            if (callback != null) {
-                callback.onError(IRongCoreEnum.CoreErrorCode.RC_INVALID_PARAMETER_MEDIA_URL);
-            }
-            return;
-        }
-        String key = DeviceUtils.ShortMD5(Base64.NO_WRAP, uri);
-        String name = key + ".html";
-        String filePath = CombineMessageUtils.getInstance().getCombineFileDirectory();
-
-        IMCenter.getInstance()
-                .downloadMediaFile(
-                        key,
-                        uri,
-                        name,
-                        filePath,
-                        new IRongCallback.IDownloadMediaFileCallback() {
-                            @Override
-                            public void onFileNameChanged(String newFileName) {
-                                // do nothing
-                            }
-
-                            @Override
-                            public void onSuccess() {
-                                String retFilePath = filePath + File.separator + name;
-                                if (callback != null) {
-                                    callback.onSuccess(retFilePath);
-                                }
-                            }
-
-                            @Override
-                            public void onProgress(int progress) {
-                                // do nothing
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode code) {
-                                if (callback != null) {
-                                    callback.onError(
-                                            IRongCoreEnum.CoreErrorCode.valueOf(code.getValue()));
-                                }
-                            }
-
-                            @Override
-                            public void onCanceled() {
-                                // do nothing
-                            }
-                        });
-    }
-
-    private void saveToLocalPath(String srcPath, String targetPath) {
-        if (TextUtils.isEmpty(srcPath) || TextUtils.isEmpty(targetPath)) {
-            return;
-        }
-
-        srcPath = srcPath.replace("file://", "");
-        File srcFile = new File(srcPath);
-        if (!srcFile.exists()) {
-            RLog.e(TAG, "saveToLocalPath failed! srcFile not exist. " + srcPath);
-            return;
-        }
-
-        File targetFile = new File(targetPath);
-        if (!targetFile.exists()) {
-            if (targetFile.getParent() == null) {
-                RLog.e(TAG, "createFileIfNeed failed! file.getParent is null.");
-                return;
-            }
-            File dir = new File(targetFile.getParent());
-            boolean successMkdir = dir.mkdirs();
-            boolean isCreateNewFile = false;
-            try {
-                isCreateNewFile = targetFile.createNewFile();
-                RLog.d(
-                        TAG,
-                        "createFileIfNeed successMkdir:"
-                                + successMkdir
-                                + ",isCreateNewFile:"
-                                + isCreateNewFile);
-            } catch (IOException e) {
-                RLog.e(TAG, "createFileIfNeed" + e.getMessage());
-            }
-        }
-
-        boolean isRenameSuccess = srcFile.renameTo(targetFile);
-        if (!isRenameSuccess) {
-            RLog.e(TAG, "saveToLocalPath failed! rename failed. " + srcPath + " -> " + targetPath);
-        }
-    }
-
-    private void showLoadError() {
-        mWebViewError = true;
-        mProgress.setVisibility(View.GONE);
-        mImageView.setVisibility(View.VISIBLE);
-        mTextView.setVisibility(View.VISIBLE);
-        mWebView.setVisibility(View.GONE);
-        mTextView.setText(getString(R.string.rc_combine_webview_download_failed));
-    }
-
-    private void showLoading() {
-        mTextView.setText(getString(R.string.rc_combine_webview_loading));
-        mTextView.setVisibility(View.VISIBLE);
-    }
-
-    private void showLoadSuccess() {
-
-        mProgress.setVisibility(View.GONE);
-        mImageView.setVisibility(View.GONE);
-        mTextView.setVisibility(View.GONE);
-        mWebView.setVisibility(View.VISIBLE);
-    }
-
     private class CombineWebViewClient extends WebViewClient {
 
         @Override
@@ -766,7 +447,10 @@ public class CombineWebViewActivity extends RongBaseActivity {
             if (mPrevUrl != null && mPrevUrl.equals(url)) {
                 return false;
             } else {
-                if (TYPE_MEDIA.equals(mType) && isRemoteUri(url)) {
+                if (TYPE_MEDIA.equals(mType)
+                        && url != null
+                        && (url.toLowerCase().startsWith("http")
+                                || url.toLowerCase().startsWith("ftp"))) {
                     String filePath = CombineMessageUtils.getInstance().getCombineFilePath(url);
                     if (new File(filePath).exists()) {
                         url = Uri.parse(FILE + filePath).toString();
@@ -783,13 +467,28 @@ public class CombineWebViewActivity extends RongBaseActivity {
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
             RLog.d(TAG, "onPageStarted url:" + url);
+            if (TYPE_MEDIA.equals(mType)
+                    && url != null
+                    && (url.toLowerCase().startsWith("http")
+                            || url.toLowerCase().startsWith("ftp"))) {
+                String filePath = CombineMessageUtils.getInstance().getCombineFilePath(url);
+                boolean isExist = new File(filePath).exists();
+                if (!isExist) {
+                    new DownloadTask().execute(url, filePath);
+                }
+            }
         }
 
         @Override
         public void onReceivedError(
                 WebView view, int errorCode, String description, String failingUrl) {
             RLog.d(TAG, "onReceivedError errorCode:" + errorCode);
-            showLoadError();
+            mWebViewError = true;
+            mProgress.setVisibility(View.GONE);
+            mImageView.setVisibility(View.VISIBLE);
+            mTextView.setVisibility(View.VISIBLE);
+            mWebView.setVisibility(View.GONE);
+            mTextView.setText(getString(R.string.rc_combine_webview_download_failed));
         }
 
         @Override
@@ -826,11 +525,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
             KitMediaInterceptor interceptor =
                     RongConfigCenter.featureConfig().getKitMediaInterceptor();
-            if (interceptor != null) {
-                url = interceptor.onCombinePortraitLoad(url);
-                if (interceptor.shouldInterceptRequest(view, url)) {
-                    return new WebResourceResponse(null, null, null);
-                }
+            if (interceptor != null && interceptor.shouldInterceptRequest(view, url)) {
+                return new WebResourceResponse(null, null, null);
             }
             return super.shouldInterceptRequest(view, url);
         }
@@ -844,7 +540,10 @@ public class CombineWebViewActivity extends RongBaseActivity {
                 return;
             }
             if (newProgress == PROGRESS_100) {
-                showLoadSuccess();
+                mProgress.setVisibility(View.GONE);
+                mImageView.setVisibility(View.GONE);
+                mTextView.setVisibility(View.GONE);
+                mWebView.setVisibility(View.VISIBLE);
             } else {
                 if (mProgress.getVisibility() == View.GONE) {
                     mProgress.setVisibility(View.VISIBLE);
@@ -914,9 +613,6 @@ public class CombineWebViewActivity extends RongBaseActivity {
                         break;
                     case "RC:SightMsg":
                         openSight(jsonObj);
-                        break;
-                    case "RC:GIFMsg":
-                        openGif(jsonObj);
                         break;
                     default:
                         break;

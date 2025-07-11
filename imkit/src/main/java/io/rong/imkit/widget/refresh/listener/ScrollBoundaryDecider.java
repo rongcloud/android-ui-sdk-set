@@ -11,7 +11,6 @@ public interface ScrollBoundaryDecider {
      * @return true 将会触发下拉刷新
      */
     boolean canRefresh(View content);
-
     /**
      * 根据内容视图状态判断是否可以开始上拉加载
      *

@@ -1,13 +1,12 @@
 package io.rong.imkit.feature.mention;
 
 import android.text.TextUtils;
-import android.widget.EditText;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by luoyanlong on 2018/11/23. 保存草稿时如果有@信息，把MentionBlock序列化保存起来，
@@ -15,61 +14,79 @@ import org.json.JSONArray;
  */
 public class DraftHelper {
 
-    private final EditText editText;
+    private static final String CONTENT = "content";
+    private static final String MENTION = "mention";
 
-    public DraftHelper(@NonNull EditText editText) {
-        this.editText = editText;
-    }
+    private String content;
+    private List<MentionBlock> mentionBlocks;
 
-    public String getMentionBlocks() {
-        MentionInstance mentionInstance =
-                RongMentionManager.getInstance().obtainMentionInstance(editText);
-        if (mentionInstance == null
-                || mentionInstance.mentionBlocks == null
-                || mentionInstance.mentionBlocks.isEmpty()) {
-            return "";
-        }
-        JSONArray jsonArray = new JSONArray();
-        for (MentionBlock mentionBlock : mentionInstance.mentionBlocks) {
-            jsonArray.put(mentionBlock.toJson());
-        }
-        return jsonArray.toString();
-    }
-
-    public void addMentionBlocks(String mentionInfo) {
-        MentionInstance mentionInstance =
-                RongMentionManager.getInstance().obtainMentionInstance(editText);
-        if (mentionInstance == null || mentionInstance.mentionBlocks == null) {
-            return;
-        }
-
-        List<MentionBlock> mentionBlocks = parseMentionBlocks(mentionInfo);
-        if (mentionBlocks == null || mentionBlocks.isEmpty()) {
-            return;
-        }
-        for (MentionBlock mentionBlock : mentionBlocks) {
-            if (mentionBlock != null && !TextUtils.isEmpty(mentionBlock.userId)) {
-                mentionInstance.mentionBlocks.add(mentionBlock);
+    public DraftHelper(String s) {
+        if (!TextUtils.isEmpty(s)) {
+            try {
+                JSONObject jsonObject = new JSONObject(s);
+                content = jsonObject.getString(CONTENT);
+                String mentionInfo = jsonObject.optString(MENTION);
+                mentionBlocks = getMentionBlocks(mentionInfo);
+            } catch (JSONException e) {
+                // 没有@信息是用普通文本保存的
+                content = s;
             }
+        }
+    }
+
+    /** 没有@信息用普通文本保存 有@信息用json格式保存 */
+    public static String encode(String content, String mentionBlocks) {
+        if (TextUtils.isEmpty(mentionBlocks)) {
+            // 没有@信息用普通文本保存
+            return content;
+        } else {
+            // 有@信息用json格式保存
+            JSONObject jsonObject = new JSONObject();
+            try {
+                return jsonObject
+                        .putOpt(CONTENT, content)
+                        .putOpt(MENTION, mentionBlocks)
+                        .toString();
+            } catch (JSONException e) {
+                return content;
+            }
+        }
+    }
+
+    public String decode() {
+        return content;
+    }
+
+    public void restoreMentionInfo() {
+        if (mentionBlocks != null) {
+            for (MentionBlock mentionBlock : mentionBlocks) {
+                //                RongMentionManager.getInstance().addMentionBlock(mentionBlock);
+            }
+        }
+    }
+
+    public static String getDraftContent(String json) {
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            return jsonObject.getString(CONTENT);
+        } catch (Exception e) {
+            return json;
         }
     }
 
     @Nullable
-    private List<MentionBlock> parseMentionBlocks(String mentionInfo) {
-        if (TextUtils.isEmpty(mentionInfo)) {
-            return Collections.emptyList();
-        }
-
+    private List<MentionBlock> getMentionBlocks(String mentionInfo) {
         try {
             JSONArray jsonArray = new JSONArray(mentionInfo);
-            List<MentionBlock> list = new ArrayList<>(jsonArray.length());
+            List<MentionBlock> list = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {
-                list.add(new MentionBlock(jsonArray.getString(i)));
+                String s = jsonArray.getString(i);
+                MentionBlock mentionBlock = new MentionBlock(s);
+                list.add(mentionBlock);
             }
             return list;
         } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
+            return null;
         }
     }
 }

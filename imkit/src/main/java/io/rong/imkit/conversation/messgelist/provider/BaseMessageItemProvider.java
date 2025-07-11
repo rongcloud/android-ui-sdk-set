@@ -589,9 +589,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         }
     }
 
-    /**
-     * @return 群组或讨论组是否展示消息已读回执, 默认只有文本消息展示 子类可以重写此方法
-     */
+    /** @return 群组或讨论组是否展示消息已读回执, 默认只有文本消息展示 子类可以重写此方法 */
     protected boolean showReadReceiptRequest(Message message) {
         return message != null
                 && message.getContent() != null
