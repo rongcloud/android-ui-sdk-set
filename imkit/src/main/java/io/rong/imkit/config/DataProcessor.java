@@ -11,6 +11,7 @@ public interface DataProcessor<T> {
      * @return 所支持的会话类型
      */
     Conversation.ConversationType[] supportedTypes();
+
     /**
      * 对会话数据进行过滤。
      *

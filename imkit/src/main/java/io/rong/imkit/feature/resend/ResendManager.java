@@ -203,7 +203,9 @@ public class ResendManager {
                                         RLog.i(
                                                 TAG,
                                                 "resendMessage success messageId = "
-                                                        + message.getMessageId());
+                                                        + (message != null
+                                                                ? message.getMessageId()
+                                                                : null));
                                         if (!isResendErrorCode(coreErrorCode)) {
                                             removeResendMessage(idInteger);
                                         }

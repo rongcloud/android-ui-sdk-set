@@ -46,6 +46,7 @@ public interface RefreshComponent extends OnStateChangedListener {
      */
     @RestrictTo({LIBRARY, LIBRARY_GROUP, SUBCLASSES})
     void onInitialized(@NonNull RefreshKernel kernel, int height, int maxDragHeight);
+
     /**
      * 【仅限框架内调用】手指拖动下拉（会连续多次调用，添加isDragging并取代之前的onPulling、onReleasing）
      *

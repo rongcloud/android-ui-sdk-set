@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 语音转文字弹窗布局 - 带半透明背景遮罩 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 半透明背景遮罩 -->
+    <View
+        android:id="@+id/rc_speech_to_text_popup_background_mask"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- 弹窗内容容器 -->
+    <LinearLayout
+        android:id="@+id/rc_speech_to_text_popup_content_container"
+        android:layout_width="182dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/rc_white_color"
+        android:elevation="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:translationZ="8dp">
+
+        <TextView
+            android:id="@+id/rc_speech_to_text_popup_copy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="start"
+            android:paddingStart="12dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp"
+            android:text="@string/rc_copy"
+            android:textColor="@color/rc_text_main_color"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/rc_divider_color" />
+
+        <TextView
+            android:id="@+id/rc_speech_to_text_popup_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="start"
+            android:paddingStart="12dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="16dp"
+            android:text="@string/rc_cancel_speech_to_text"
+            android:textColor="@color/rc_text_main_color"
+            android:textSize="16sp"
+            android:textStyle="normal" />
+
+    </LinearLayout>
+
+</FrameLayout> 

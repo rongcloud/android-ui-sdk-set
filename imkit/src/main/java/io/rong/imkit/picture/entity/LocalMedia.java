@@ -7,14 +7,19 @@ import android.text.TextUtils;
 public class LocalMedia implements Parcelable {
     /** original path */
     private String path;
+
     /** video duration */
     private long duration;
+
     /** If the selected */
     private boolean isChecked;
+
     /** media position of list */
     public int position;
+
     /** The media number of qq choose styles */
     private int num;
+
     /** The media resource type */
     private String mimeType;
 
@@ -23,6 +28,7 @@ public class LocalMedia implements Parcelable {
 
     /** image or video width */
     private int width;
+
     /** image or video height */
     private int height;
 

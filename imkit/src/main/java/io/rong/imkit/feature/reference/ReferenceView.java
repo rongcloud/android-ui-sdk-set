@@ -89,6 +89,7 @@ public class ReferenceView extends FrameLayout {
     }
 
     private String getDisplayName(UiMessage uiMessage) {
+        String groupMemberName = "";
         if (uiMessage
                 .getMessage()
                 .getConversationType()
@@ -98,18 +99,27 @@ public class ReferenceView extends FrameLayout {
                             .getGroupUserInfo(
                                     uiMessage.getMessage().getTargetId(),
                                     uiMessage.getMessage().getSenderUserId());
-            if (groupUserInfo != null) {
-                return groupUserInfo.getNickname() + "：";
-            }
+            groupMemberName = groupUserInfo != null ? groupUserInfo.getNickname() : "";
         }
 
         UserInfo userInfo =
-                RongUserInfoManager.getInstance()
-                        .getUserInfo(uiMessage.getMessage().getSenderUserId());
-        if (userInfo != null) {
-            return RongUserInfoManager.getInstance().getUserDisplayName(userInfo) + "：";
+                getUserInfo(uiMessage.getMessage().getSenderUserId(), uiMessage.getContent());
+        return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, groupMemberName)
+                + "：";
+    }
+
+    private UserInfo getUserInfo(String userId, MessageContent messageContent) {
+        boolean isInfoManagement =
+                RongUserInfoManager.getInstance().getDataSourceType()
+                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
+        if (isInfoManagement
+                && messageContent != null
+                && messageContent.getUserInfo() != null
+                && messageContent.getUserInfo().getUserId() != null
+                && messageContent.getUserInfo().getUserId().equals(userId)) {
+            return messageContent.getUserInfo();
         }
-        return uiMessage.getMessage().getSenderUserId() + "：";
+        return RongUserInfoManager.getInstance().getUserInfo(userId);
     }
 
     public interface ReferenceCancelListener {

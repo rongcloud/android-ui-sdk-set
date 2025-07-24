@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,9 +29,11 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
+import io.rong.imkit.feature.mention.DraftHelper;
 import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
+import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.utils.ToastUtils;
@@ -38,10 +41,14 @@ import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.Message;
 import java.lang.ref.WeakReference;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class InputPanel {
     private final String TAG = this.getClass().getSimpleName();
@@ -60,6 +67,7 @@ public class InputPanel {
     private ViewGroup mAddOrSendBtn;
     private RongExtensionViewModel mExtensionViewModel;
     private String mInitialDraft = "";
+    private final DraftHelper draftHelper;
 
     public InputPanel(
             Fragment fragment,
@@ -70,6 +78,7 @@ public class InputPanel {
         mInputStyle = inputStyle;
         mConversationIdentifier = conversationIdentifier;
         initView(fragment.getContext(), parent);
+        draftHelper = new DraftHelper(mEditText);
 
         mExtensionViewModel = new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
         mExtensionViewModel
@@ -94,6 +103,7 @@ public class InputPanel {
         } else {
             mExtensionViewModel.getInputModeLiveData().setValue(InputMode.TextInput);
         }
+        ReferenceManager.getInstance().setReferenceStatusListener(ReferenceStatusListener);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -357,44 +367,67 @@ public class InputPanel {
                         new GetDraftCallback(weakThis));
     }
 
-    private static class SaveDraftCallback extends RongIMClient.ResultCallback<Boolean> {
-        private WeakReference<InputPanel> mReference;
-        private String mDraft;
-
-        private SaveDraftCallback(WeakReference<InputPanel> reference, String draft) {
-            mReference = reference;
-            mDraft = draft;
-        }
-
-        @Override
-        public void onSuccess(Boolean aBoolean) {
-            if (mReference == null) {
-                return;
-            }
-            if (mReference.get() != null) {
-                mReference.get().mInitialDraft = mDraft;
-            }
-        }
-
-        @Override
-        public void onError(RongIMClient.ErrorCode e) {}
-    }
-
     private static class GetDraftCallback extends IRongCoreCallback.ResultCallback<String> {
-        private WeakReference<InputPanel> mWeakInputPanel;
+        private final WeakReference<InputPanel> mWeakInputPanel;
 
         GetDraftCallback(WeakReference<InputPanel> weakInputPanel) {
             mWeakInputPanel = weakInputPanel;
         }
 
         @Override
-        public void onSuccess(String s) {
-            if (mWeakInputPanel == null) {
+        public void onSuccess(String content) {
+            InputPanel inputPanel = mWeakInputPanel != null ? mWeakInputPanel.get() : null;
+            if (inputPanel == null) {
                 return;
             }
-            if (mWeakInputPanel.get() != null) {
-                mWeakInputPanel.get().updateMessageDraft(s);
+            if (content != null) {
+                inputPanel.mInitialDraft = content;
             }
+
+            String draftContent = "";
+            String referencedMessageUId = null;
+            String mentionedRangeInfoList = null;
+
+            // 尝试解析为 JSON 格式
+            try {
+                JSONObject draftJson = new JSONObject(content);
+                draftContent = draftJson.optString("draftContent", "");
+                referencedMessageUId = draftJson.optString("referencedMessageUId", null);
+                mentionedRangeInfoList = draftJson.optString("mentionedRangeInfoList", null);
+            } catch (Exception e) {
+                // 如果不是 JSON 格式，兼容原有的字符串草稿内容
+                draftContent = content;
+            }
+
+            String finalDraftContent = draftContent;
+            inputPanel.draftHelper.addMentionBlocks(mentionedRangeInfoList);
+
+            // 使用静态内部类防止泄漏
+            RongCoreClient.getInstance()
+                    .getMessageByUid(
+                            referencedMessageUId,
+                            new IRongCoreCallback.ResultCallback<Message>() {
+                                private final WeakReference<InputPanel> callbackWeakInputPanel =
+                                        new WeakReference<>(inputPanel);
+
+                                @Override
+                                public void onSuccess(Message message) {
+                                    InputPanel callbackInputPanel = callbackWeakInputPanel.get();
+                                    if (callbackInputPanel != null) {
+                                        callbackInputPanel.updateMessageDraft(
+                                                finalDraftContent, message);
+                                    }
+                                }
+
+                                @Override
+                                public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                    InputPanel callbackInputPanel = callbackWeakInputPanel.get();
+                                    if (callbackInputPanel != null) {
+                                        callbackInputPanel.updateMessageDraft(
+                                                finalDraftContent, null);
+                                    }
+                                }
+                            });
         }
 
         @Override
@@ -538,7 +571,7 @@ public class InputPanel {
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (s == null || s.length() == 0) {
-                        saveTextMessageDraft(mEditText.getText().toString());
+                        saveTextMessageDraft();
                         if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
                                 || mInputStyle.equals(
                                         InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {
@@ -581,14 +614,11 @@ public class InputPanel {
 
     public void onPause() {
         // 在onPause 中保存草稿，解决按Home按杀进程后没有保存草稿的问题，也统一逻辑
-        if (mEditText != null
-                && mEditText.getText() != null
-                && !mInitialDraft.equals(mEditText.getText().toString())) {
-            saveTextMessageDraft(mEditText.getText().toString());
-        }
+        saveTextMessageDraft();
     }
 
     public void onDestroy() {
+        ReferenceManager.getInstance().removeReferenceStatusListener(ReferenceStatusListener);
         // 退出页面时，需要保存当前的输入模式
         RongExtensionCacheHelper.saveVoiceInputMode(
                 mContext,
@@ -598,41 +628,97 @@ public class InputPanel {
         mFragment = null;
         mContext = null;
         mExtensionViewModel = null;
-        if (mEditText != null
-                && mEditText.getText() != null
-                && !mInitialDraft.equals(mEditText.getText().toString())) {
-            saveTextMessageDraft(mEditText.getText().toString());
+        saveTextMessageDraft();
+    }
+
+    private static class SaveDraftCallback extends RongIMClient.ResultCallback<Boolean> {
+        private final WeakReference<InputPanel> panelRef;
+        private final String draft;
+
+        public SaveDraftCallback(InputPanel panel, final String draft) {
+            this.panelRef = new WeakReference<>(panel);
+            this.draft = draft;
+        }
+
+        @Override
+        public void onSuccess(Boolean success) {
+            InputPanel panel = panelRef.get();
+            if (panel != null && success) {
+                panel.mInitialDraft = draft;
+            }
+        }
+
+        @Override
+        public void onError(RongIMClient.ErrorCode e) {}
+    }
+
+    private final ReferenceManager.ReferenceStatusListener ReferenceStatusListener =
+            new ReferenceManager.ReferenceStatusListener() {
+                @Override
+                public void onHide() {
+                    saveTextMessageDraft();
+                }
+            };
+
+    private void saveTextMessageDraft() {
+        if (mEditText != null && mEditText.getText() != null) {
+            String draftText = mEditText.getText().toString();
+            String draft = getDraft(draftText);
+            // 如果草稿内容没有变化，则不保存
+            if ((TextUtils.isEmpty(mInitialDraft) && TextUtils.isEmpty(draftText))
+                    || (mInitialDraft != null && mInitialDraft.equals(draft))) {
+                return;
+            }
+            IMCenter.getInstance()
+                    .saveTextMessageDraft(
+                            mConversationIdentifier, draft, new SaveDraftCallback(this, draft));
         }
     }
 
-    private void saveTextMessageDraft(final String draft) {
-        IMCenter.getInstance()
-                .saveTextMessageDraft(
-                        mConversationIdentifier,
-                        draft,
-                        new SaveDraftCallback(new WeakReference<>(this), draft));
+    @NonNull
+    private String getDraft(String draftContent) {
+        UiMessage uiMessage = ReferenceManager.getInstance().getUiMessage();
+        String referencedMessageUId = null;
+        if (uiMessage != null && uiMessage.getMessage() != null) {
+            referencedMessageUId = uiMessage.getMessage().getUId();
+        }
+
+        // 构造 JSON 格式的草稿数据
+        JSONObject draftJson = new JSONObject();
+        try {
+            draftJson.put("draftContent", draftContent);
+            if (referencedMessageUId != null && !referencedMessageUId.isEmpty()) {
+                draftJson.put("referencedMessageUId", referencedMessageUId);
+            }
+            String mentionBlocks = draftHelper.getMentionBlocks();
+            if (mentionBlocks != null && !mentionBlocks.isEmpty()) {
+                draftJson.put("mentionedRangeInfoList", mentionBlocks);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return draftJson.toString();
     }
 
-    private void updateMessageDraft(final String draft) {
+    private void updateMessageDraft(final String draft, Message message) {
         if (TextUtils.isEmpty(draft)) {
             return;
         }
+        if (message != null) {
+            ReferenceManager.getInstance().showReferenceView(mContext, new UiMessage(message));
+        }
         mEditText.postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        mInitialDraft = draft;
-                        if (mEditText instanceof RongEditText) {
-                            ((RongEditText) mEditText).setText(draft, false);
-                        } else {
-                            mEditText.setText(draft);
-                        }
-                        // 某些低安卓版本+机型，会出现EditText#setText后的text小于所设置的text的情况
-                        // 所以设置光标到最后一个，传EditText#length()来设置
-                        mEditText.setSelection(mEditText.length());
-                        mEditText.requestFocus();
-                        resetInputView();
+                () -> {
+                    if (mEditText instanceof RongEditText) {
+                        ((RongEditText) mEditText).setText(draft, false);
+                    } else {
+                        mEditText.setText(draft);
                     }
+                    // 某些低安卓版本+机型，会出现EditText#setText后的text小于所设置的text的情况
+                    // 所以设置光标到最后一个，传EditText#length()来设置
+                    mEditText.setSelection(mEditText.length());
+                    mEditText.requestFocus();
+                    resetInputView();
                 },
                 50);
     }

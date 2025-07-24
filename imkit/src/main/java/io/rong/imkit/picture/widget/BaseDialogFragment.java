@@ -56,7 +56,9 @@ public abstract class BaseDialogFragment extends DialogFragment {
         return Gravity.CENTER;
     }
 
-    /** @return 占屏幕高度的多少 */
+    /**
+     * @return 占屏幕高度的多少
+     */
     protected int getScreenHeightProportion() {
         return ViewGroup.LayoutParams.WRAP_CONTENT;
     }

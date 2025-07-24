@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 import androidx.annotation.NonNull;
 import io.rong.common.rlog.RLog;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;
 import io.rong.sight.util.ValueAnimatorUtil;
@@ -379,7 +380,13 @@ public class CameraView extends RelativeLayout
         mImageViewClose = new ImageView(mContext);
         LayoutParams imageViewCloseParam = new LayoutParams(iconWidth, iconWidth);
         imageViewCloseParam.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-        imageViewCloseParam.setMargins(iconMargin, iconMargin, 0, 0);
+        // 增加额外边距适配 Android 15
+        int topMargin = iconMargin;
+        if (Build.VERSION.SDK_INT
+                >= AndroidConstant.ANDROID_VANILLA_ICE_CREAM) { // Android 15 是 API 34
+            topMargin = (int) (iconMargin * 2.5);
+        }
+        imageViewCloseParam.setMargins(iconMargin, topMargin, 0, 0);
         mImageViewClose.setLayoutParams(imageViewCloseParam);
         mImageViewClose.setImageResource(R.drawable.rc_ic_sight_close);
         mImageViewClose.setOnClickListener(
@@ -398,7 +405,13 @@ public class CameraView extends RelativeLayout
         mImageViewSwitch = new ImageView(mContext);
         LayoutParams imageViewSwitchParam = new LayoutParams(iconWidth, iconWidth);
         imageViewSwitchParam.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-        imageViewSwitchParam.setMargins(0, iconMargin, iconMargin, 0);
+        // 增加额外边距适配 Android 15
+        int topMargin = iconMargin;
+        if (Build.VERSION.SDK_INT
+                >= AndroidConstant.ANDROID_VANILLA_ICE_CREAM) { // Android 15 是 API 35
+            topMargin = (int) (iconMargin * 2.5);
+        }
+        imageViewSwitchParam.setMargins(0, topMargin, iconMargin, 0);
         mImageViewSwitch.setLayoutParams(imageViewSwitchParam);
         mImageViewSwitch.setImageResource(R.drawable.rc_ic_sight_switch);
         mImageViewSwitch.setOnClickListener(

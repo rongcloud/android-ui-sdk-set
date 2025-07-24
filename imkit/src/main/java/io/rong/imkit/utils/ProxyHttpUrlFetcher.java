@@ -22,7 +22,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
-/** @author gusd @Date 2022/09/08 */
+/**
+ * @author gusd @Date 2022/09/08
+ */
 public class ProxyHttpUrlFetcher implements DataFetcher<InputStream> {
 
     private static final String TAG = "ProxyHttpUrlFetcher";

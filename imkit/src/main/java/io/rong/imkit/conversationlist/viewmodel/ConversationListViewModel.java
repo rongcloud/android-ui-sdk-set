@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.SystemClock;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -73,8 +74,8 @@ public class ConversationListViewModel extends AndroidViewModel
             new CopyOnWriteArrayList<>();
     protected MediatorLiveData<List<BaseUiConversation>> mConversationListLiveData;
     protected DataProcessor<Conversation> mDataFilter;
-    protected HandlerThread workThread;
-    protected Handler mHandler;
+    protected final HandlerThread workThread;
+    protected final Handler mHandler;
     private MutableLiveData<ConnectionStatus> mConnectionStatusLiveData = new MutableLiveData<>();
     private MutableLiveData<NoticeContent> mNoticeContentLiveData = new MutableLiveData<>();
     private MutableLiveData<Event.RefreshEvent> mRefreshEventLiveData = new MutableLiveData<>();
@@ -150,7 +151,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
                 @Override
                 public void onDownloadMessage(DownloadEvent event) {
-                    if (event == null) {
+                    if (event == null || event.getMessage() == null) {
                         return;
                     }
                     Conversation.ConversationType type = event.getMessage().getConversationType();
@@ -754,6 +755,7 @@ public class ConversationListViewModel extends AndroidViewModel
 
     @Override
     protected void onCleared() {
+        mHandler.removeCallbacksAndMessages(null);
         if (workThread != null) {
             workThread.quit();
         }
@@ -851,12 +853,33 @@ public class ConversationListViewModel extends AndroidViewModel
         }
     }
 
+    private static final long DELAY_MS = 500;
+    private long lastRefreshTime = 0;
+
+    private final Runnable updateRunnable =
+            () -> {
+                synchronized (mUiConversationList) {
+                    RLog.d(
+                            TAG,
+                            "refreshConversationList mUiConversationList.size() = "
+                                    + mUiConversationList.size());
+                    lastRefreshTime = SystemClock.elapsedRealtime();
+                    removeDupData();
+                    if (Looper.getMainLooper() == Looper.myLooper()) {
+                        mConversationListLiveData.setValue(mUiConversationList);
+                    } else {
+                        mConversationListLiveData.postValue(mUiConversationList);
+                    }
+                }
+            };
+
     protected void refreshConversationList() {
-        removeDupData();
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            mConversationListLiveData.setValue(mUiConversationList);
+        mHandler.removeCallbacks(updateRunnable);
+        // 如果是距上次刷新时间小于500ms，则延迟500ms再刷新; 超过500ms,则立即刷新
+        if (SystemClock.elapsedRealtime() - lastRefreshTime > DELAY_MS) {
+            updateRunnable.run();
         } else {
-            mConversationListLiveData.postValue(mUiConversationList);
+            mHandler.postDelayed(updateRunnable, DELAY_MS);
         }
     }
 

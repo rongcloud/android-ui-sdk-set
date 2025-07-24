@@ -47,7 +47,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
         // 判断正在视频通话和语音通话中不能进行语音消息发送
         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-            String text = currentFragment.getString(R.string.rc_voip_occupying);
+            String text = currentFragment.getString(io.rong.imkit.R.string.rc_voip_occupying);
             ToastUtils.show(currentFragment.getActivity(), text, Toast.LENGTH_SHORT);
             return;
         }

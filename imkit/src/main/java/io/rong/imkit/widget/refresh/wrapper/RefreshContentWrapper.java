@@ -120,6 +120,7 @@ public class RefreshContentWrapper
         }
         return orgScrollableView;
     }
+
     // </editor-fold>
 
     // <editor-fold desc="implements">

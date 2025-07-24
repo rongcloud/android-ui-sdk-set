@@ -17,7 +17,6 @@ import io.rong.imkit.picture.tools.PictureFileUtils;
 import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
-import io.rong.imkit.utils.RongUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,19 +26,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String[] permissions = null;
-        if (RongUtils.checkSDKVersionAndTargetIsTIRAMISU(this)) {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
-                    };
-        } else {
-            permissions =
-                    new String[] {
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    };
-        }
+        String[] permissions = PermissionCheckUtil.getMediaStoragePermissions(this);
         if (PermissionChecker.checkSelfPermission(this, permissions)) {
             onTakePhoto();
         } else {

@@ -12,6 +12,7 @@ import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.typingmessage.TypingStatus;
+import io.rong.message.HQVoiceMessage;
 import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
 import java.util.ArrayList;
@@ -67,11 +68,13 @@ public class ConversationViewModel extends AndroidViewModel {
                             MessageTag textTag = TextMessage.class.getAnnotation(MessageTag.class);
                             MessageTag voiceTag =
                                     VoiceMessage.class.getAnnotation(MessageTag.class);
-
+                            MessageTag hqVoiceTag =
+                                    HQVoiceMessage.class.getAnnotation(MessageTag.class);
                             // 匹配对方正在输入的是文本消息还是语音消息
                             if (objectName.equals(textTag.value())) {
                                 typing.type = TypingInfo.TypingUserInfo.Type.text;
-                            } else if (objectName.equals(voiceTag.value())) {
+                            } else if (objectName.equals(voiceTag.value())
+                                    || objectName.equals(hqVoiceTag.value())) {
                                 typing.type = TypingInfo.TypingUserInfo.Type.voice;
                             }
 

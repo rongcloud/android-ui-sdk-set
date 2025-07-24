@@ -51,6 +51,7 @@ public interface RefreshKernel {
      * @return ValueAnimator 如果没有执行动画 null
      */
     ValueAnimator animSpinner(int endSpinner);
+
     // </editor-fold>
 
     // <editor-fold desc="请求事件">
@@ -63,6 +64,7 @@ public interface RefreshKernel {
      * @return RefreshKernel
      */
     RefreshKernel requestDrawBackgroundFor(@NonNull RefreshComponent internal, int backgroundColor);
+
     /**
      * 请求事件
      *
@@ -71,6 +73,7 @@ public interface RefreshKernel {
      * @return RefreshKernel
      */
     RefreshKernel requestNeedTouchEventFor(@NonNull RefreshComponent internal, boolean request);
+
     /**
      * 请求设置默认内容滚动设置
      *
@@ -80,6 +83,7 @@ public interface RefreshKernel {
      */
     RefreshKernel requestDefaultTranslationContentFor(
             @NonNull RefreshComponent internal, boolean translation);
+
     /**
      * 请求重新测量 headerHeight 或 footerHeight , 要求 height 高度为 WRAP_CONTENT
      *
@@ -87,6 +91,7 @@ public interface RefreshKernel {
      * @return RefreshKernel
      */
     RefreshKernel requestRemeasureHeightFor(@NonNull RefreshComponent internal);
+
     /**
      * 设置二楼回弹时长
      *
@@ -94,6 +99,7 @@ public interface RefreshKernel {
      * @return RefreshKernel
      */
     RefreshKernel requestFloorDuration(int duration);
+
     /**
      * 设置二楼底部上划关闭所占高度的比率
      *

@@ -67,7 +67,8 @@ public class GroupNotificationMessageItemProvider
                 String operation = groupNotificationMessage.getOperation();
                 String operatorUserId = groupNotificationMessage.getOperatorUserId();
                 String currentUserId = RongIM.getInstance().getCurrentUserId();
-                UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
+                UserInfo userInfo =
+                        getUserInfo(operatorUserId, uiMessage.getMessage().getContent());
                 String operatorNickname =
                         RongUserInfoManager.getInstance()
                                 .getUserDisplayName(userInfo, data.getOperatorNickname());
@@ -113,9 +114,7 @@ public class GroupNotificationMessageItemProvider
                             } else {
                                 invitedName = memberName;
                             }
-                            if (!groupNotificationMessage
-                                    .getOperatorUserId()
-                                    .equals(RongIM.getInstance().getCurrentUserId())) {
+                            if (!operatorUserId.equals(RongIM.getInstance().getCurrentUserId())) {
                                 inviteName = operatorNickname;
                                 inviteMsg =
                                         inviteName
@@ -180,14 +179,6 @@ public class GroupNotificationMessageItemProvider
                             }
                         }
                     } else if (CREATE.equals(operation)) {
-                        GroupNotificationMessageData createGroupData =
-                                new GroupNotificationMessageData();
-                        try {
-                            createGroupData = jsonToBean(groupNotificationMessage.getData());
-                        } catch (Exception e) {
-                            RLog.e(TAG, "bindView", e);
-                            return;
-                        }
                         String name;
                         String createMsg;
                         if (!operatorUserId.equals(currentUserId)) {
@@ -244,7 +235,7 @@ public class GroupNotificationMessageItemProvider
         return messageContent instanceof GroupNotificationMessage;
     }
 
-    private GroupNotificationMessageData jsonToBean(String data) {
+    protected GroupNotificationMessageData jsonToBean(String data) {
         GroupNotificationMessageData dataEntity = new GroupNotificationMessageData();
         try {
             JSONObject jsonObject = new JSONObject(data);
@@ -306,7 +297,7 @@ public class GroupNotificationMessageItemProvider
             String operatorUserId = groupNotificationMessage.getOperatorUserId();
             String currentUserId = RongIM.getInstance().getCurrentUserId();
 
-            UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorUserId);
+            UserInfo userInfo = getUserInfo(operatorUserId, groupNotificationMessage);
             String operatorNickname =
                     RongUserInfoManager.getInstance()
                             .getUserDisplayName(userInfo, data.getOperatorNickname());

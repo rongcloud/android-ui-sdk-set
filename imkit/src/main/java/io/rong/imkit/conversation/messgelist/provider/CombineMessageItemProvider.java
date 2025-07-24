@@ -70,19 +70,11 @@ public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineM
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
+        String uri = getUriString(combineMessage);
+
         String type = CombineWebViewActivity.TYPE_LOCAL;
-        Uri uri = combineMessage.getLocalPath();
-        if ((uri == null || !new File(uri.toString().substring(7)).exists())
-                && combineMessage.getMediaUrl() != null) {
-            String filePath =
-                    CombineMessageUtils.getInstance()
-                            .getCombineFilePath(combineMessage.getMediaUrl().toString());
-            if (new File(filePath).exists()) {
-                uri = Uri.parse("file://" + filePath);
-            } else {
-                uri = combineMessage.getMediaUrl();
-                type = CombineWebViewActivity.TYPE_MEDIA;
-            }
+        if (uri != null && uri.startsWith("http")) {
+            type = CombineWebViewActivity.TYPE_MEDIA;
         }
 
         if (uri == null) {
@@ -96,10 +88,40 @@ public class CombineMessageItemProvider extends BaseMessageItemProvider<CombineM
         RouteUtils.routeToCombineWebViewActivity(
                 holder.getContext(),
                 uiMessage.getMessage().getMessageId(),
-                uri.toString(),
+                uri,
                 type,
                 combineMessage.getTitle());
         return false;
+    }
+
+    private String getUriString(CombineMessage combineMessage) {
+        if (combineMessage == null) {
+            return null;
+        }
+
+        // 如果远端地址映射的本地路径存在，则直接 return
+        Uri mediaUri = combineMessage.getMediaUrl();
+        if (mediaUri != null) {
+            String filePath =
+                    CombineMessageUtils.getInstance().getCombineFilePath(mediaUri.toString());
+            if (new File(filePath).exists()) {
+                return "file://" + filePath;
+            }
+        }
+
+        // 如果本地路径存在 return
+        Uri localPathUri = combineMessage.getLocalPath();
+        if (localPathUri != null) {
+            String localPath = localPathUri.toString().replace("file://", "");
+            if (new File(localPath).exists()) {
+                return localPath;
+            }
+        }
+
+        if (mediaUri == null) {
+            return null;
+        }
+        return mediaUri.toString();
     }
 
     @Override

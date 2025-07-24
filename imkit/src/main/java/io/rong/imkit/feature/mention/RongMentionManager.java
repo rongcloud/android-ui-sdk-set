@@ -143,6 +143,18 @@ public class RongMentionManager {
         }
     }
 
+    MentionInstance obtainMentionInstance(EditText editText) {
+        if (!stack.isEmpty()) {
+            for (int i = 0; i < stack.size(); i++) {
+                MentionInstance item = stack.get(i);
+                if (item.inputEditText.equals(editText)) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * @param userInfo 用户信息
      * @param from 0 代表来自会话界面，1 来着群成员选择界面。
@@ -221,6 +233,8 @@ public class RongMentionManager {
 
     private MentionBlock getDeleteMentionedBlock(int cursorPos, List<MentionBlock> blocks) {
         MentionBlock deleteBlock = null;
+        // 退格时，光标位置前移一位, 找到删除时光标的位置; 因为 @xxx 后面有一个空格，所以光标位置要加1
+        cursorPos = cursorPos + 1;
         for (MentionBlock block : blocks) {
             if (cursorPos == block.end) {
                 deleteBlock = block;

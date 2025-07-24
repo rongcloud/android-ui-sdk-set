@@ -123,10 +123,12 @@ public class MessageProcessor {
                 .getMessages(
                         messageViewModel.getConversationIdentifier(),
                         historyMessageOption,
-                        new IRongCoreCallback.IGetMessageCallback() {
+                        new IRongCoreCallback.IGetMessageCallbackEx() {
                             @Override
                             public void onComplete(
                                     List<Message> messageList,
+                                    long syncTimestamp,
+                                    boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
                                 IRongCoreEnum.ConversationLoadMessageType type =
                                         RongConfigCenter.conversationConfig()
@@ -137,7 +139,7 @@ public class MessageProcessor {
 
                                 if (IRongCoreEnum.CoreErrorCode.SUCCESS.equals(errorCode)) {
                                     if (callback != null) {
-                                        callback.onSuccess(messageList, false);
+                                        callback.onSuccess(messageList, false, hasMoreMsg);
                                     }
                                     return;
                                 }
@@ -170,6 +172,9 @@ public class MessageProcessor {
                                     }
                                 }
                             }
+
+                            @Override
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
                         });
     }
 
@@ -199,11 +204,12 @@ public class MessageProcessor {
                         messageViewModel.getCurTargetId(),
                         messageViewModel.getConversationIdentifier().getChannelId(),
                         historyMessageOption,
-                        new IRongCoreCallback.IGetMessageCallback() {
-
+                        new IRongCoreCallback.IGetMessageCallbackEx() {
                             @Override
                             public void onComplete(
                                     List<Message> messageList,
+                                    long syncTimestamp,
+                                    boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
                                 IRongCoreEnum.ConversationLoadMessageType type =
                                         RongConfigCenter.conversationConfig()
@@ -251,6 +257,9 @@ public class MessageProcessor {
                                             callback);
                                 }
                             }
+
+                            @Override
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
                         });
     }
 
@@ -277,23 +286,28 @@ public class MessageProcessor {
                         viewModel.getCurTargetId(),
                         viewModel.getConversationIdentifier().getChannelId(),
                         historyMessageOption,
-                        new IRongCoreCallback.IGetMessageCallback() {
-
+                        new IRongCoreCallback.IGetMessageCallbackEx() {
                             @Override
                             public void onComplete(
                                     List<Message> messageList,
+                                    long syncTimestamp,
+                                    boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
+
                                 if (!(messageList == null || messageList.isEmpty())) {
                                     allData.addAll(messageList);
                                 }
                                 if (callback != null) {
                                     if (code == IRongCoreEnum.CoreErrorCode.SUCCESS) {
-                                        callback.onSuccess(allData, false);
+                                        callback.onSuccess(allData, false, hasMoreMsg);
                                     } else {
                                         callback.onErrorAlways(allData);
                                     }
                                 }
                             }
+
+                            @Override
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
                         });
     }
 
@@ -514,7 +528,12 @@ public class MessageProcessor {
     }
 
     public interface GetMessageCallback {
-        void onSuccess(List<Message> list, boolean loadOnlyOnce);
+
+        default void onSuccess(List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {}
+
+        default void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+            onSuccess(list, loadOnlyOnce, true);
+        }
 
         void onErrorAsk(List<Message> list);
 

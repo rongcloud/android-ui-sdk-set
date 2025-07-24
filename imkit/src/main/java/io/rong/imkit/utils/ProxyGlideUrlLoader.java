@@ -10,7 +10,9 @@ import com.bumptech.glide.load.model.ModelLoaderFactory;
 import com.bumptech.glide.load.model.MultiModelLoaderFactory;
 import java.io.InputStream;
 
-/** @author gusd @Date 2022/09/08 */
+/**
+ * @author gusd @Date 2022/09/08
+ */
 public class ProxyGlideUrlLoader implements ModelLoader<GlideUrl, InputStream> {
     private static final String TAG = "ProxyGlideUrlLoader";
     public static final Option<Integer> TIMEOUT =

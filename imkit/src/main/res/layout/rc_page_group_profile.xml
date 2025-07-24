@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- 头部标题 -->
+    <io.rong.imkit.usermanage.component.HeadComponent
+        android:id="@+id/rc_head_component"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_title_bar_height"
+        app:head_title_text="@string/rc_group_info" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="30dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- 分割线 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_margin_size_12" />
+
+            <!-- 群成员部分 -->
+            <LinearLayout
+                android:id="@+id/ll_group_members"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingLeft="@dimen/rc_margin_size_16"
+                android:paddingTop="6dp"
+                android:paddingRight="@dimen/rc_margin_size_16"
+                android:paddingBottom="6dp">
+
+                <TextView
+                    android:id="@+id/tv_group_members_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/rc_group_members_label"
+                    android:textColor="#000000"
+                    android:textSize="17sp" />
+
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:src="@drawable/rc_right_arrow" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_group_members"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:paddingStart="1dp"
+                android:paddingEnd="1dp"
+                android:paddingBottom="@dimen/rc_margin_size_10" />
+
+            <!-- 分割线 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_margin_size_12" />
+
+            <!-- 群组头像 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_avatar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                android:clickable="false"
+                app:item_content="@string/rc_group_avatar"
+                app:item_divider="true"
+                app:item_selected_image="@drawable/rc_default_group_portrait"
+                app:item_show_selected="true"
+                app:item_value_text_size="15sp" />
+
+            <!-- 群组名称 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_name"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_title"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- 群公告 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_announcement"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_announcement"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- 我在本群的昵称 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_my_nickname"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_my_nickname_in_group"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- since 5.12.2 群聊备注 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_remark"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_remark"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- 分割线 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_margin_size_12" />
+
+            <!-- since 5.12.2 群管理 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_manage"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_management"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- 分割线 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_margin_size_12" />
+
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_message_disturb"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_notification_mute"
+                app:item_divider="true"
+                app:item_switch="true"
+                app:item_value_text_size="15sp" />
+
+            <!-- since 5.12.2 特别关注成员 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_group_follows"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_group_follows"
+                app:item_divider="true"
+                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_value_text_size="15sp" />
+
+            <!-- since 5.12.2 会话置顶 -->
+            <io.rong.imkit.widget.SettingItemView
+                android:id="@+id/siv_conversation_set_top"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_title_bar_height"
+                app:item_content="@string/rc_chat_pin"
+                app:item_divider="true"
+                app:item_switch="true"
+                app:item_value_text_size="15sp" />
+
+
+            <!-- 解散群组按钮 -->
+            <Button
+                android:id="@+id/btn_dissolve_group"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="41dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginBottom="31dp"
+                android:background="@drawable/rc_selector_item_radius"
+                android:text="@string/rc_dissolve_group"
+                android:textColor="#FF0000"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

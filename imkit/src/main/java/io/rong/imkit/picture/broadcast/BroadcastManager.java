@@ -209,7 +209,9 @@ public class BroadcastManager {
         registerReceiver(br, Arrays.asList(actions));
     }
 
-    /** @param br */
+    /**
+     * @param br
+     */
     public void unregisterReceiver(BroadcastReceiver br) {
         if (null == br) {
             return;

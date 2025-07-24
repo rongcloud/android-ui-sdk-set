@@ -62,6 +62,7 @@ import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
+import io.rong.message.StreamMessage;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -218,6 +219,12 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         if (currentMessage.getContent() instanceof ReferenceMessage) {
             ReferenceMessage referenceMessage = (ReferenceMessage) currentMessage.getContent();
             mCurrentImageMessage = (ImageMessage) referenceMessage.getReferenceContent();
+        } else if (currentMessage.getContent() instanceof StreamMessage) {
+            StreamMessage streamMessage = (StreamMessage) currentMessage.getContent();
+            if (streamMessage.getReferMsg() != null
+                    && streamMessage.getReferMsg().getContent() instanceof ImageMessage) {
+                mCurrentImageMessage = (ImageMessage) streamMessage.getReferMsg().getContent();
+            }
         } else {
             mCurrentImageMessage = (ImageMessage) currentMessage.getContent();
         }

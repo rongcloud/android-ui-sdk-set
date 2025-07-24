@@ -1144,7 +1144,7 @@ public class EasyVideoPlayer extends FrameLayout
         final int labelColor = Util.isColorDark(mThemeColor) ? Color.WHITE : Color.BLACK;
         mTime.setTextColor(labelColor);
         mTime.setTextColor(labelColor);
-        setTint(mSeeker, labelColor, getResources().getColor(R.color.rc_main_theme));
+        setTint(mSeeker, labelColor, getResources().getColor(io.rong.imkit.R.color.rc_main_theme));
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
