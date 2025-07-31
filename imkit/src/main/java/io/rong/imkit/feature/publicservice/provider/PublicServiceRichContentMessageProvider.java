@@ -1,10 +1,8 @@
 package io.rong.imkit.feature.publicservice.provider;
 
 import android.content.Context;
-import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +13,10 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.picture.tools.FileUtils;
-import io.rong.imkit.utils.GlideUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imlib.IRongCoreCallback;
-import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
-import io.rong.imlib.RongCoreClientImpl;
-import io.rong.imlib.filetransfer.upload.MediaUploadAuthorInfo;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.publicservice.message.PublicServiceRichContentMessage;
 import io.rong.message.RichContentItem;
@@ -75,29 +66,10 @@ public class PublicServiceRichContentMessageProvider
             holder.setText(R.id.rc_title, publicServiceRichContentMessage.getMessage().getTitle());
             holder.setText(
                     R.id.rc_content, publicServiceRichContentMessage.getMessage().getDigest());
-
-            if (!TextUtils.isEmpty(publicServiceRichContentMessage.getMessage().getImageUrl())) {
-                String imgUrl = publicServiceRichContentMessage.getMessage().getImageUrl();
-                if (FileUtils.isHttp(imgUrl) && RongCoreClientImpl.isPrivateSDK()) {
-                    RongCoreClient.getInstance()
-                            .getMediaUploadAuthorInfo(
-                                    GlideUtils.getUrlName(imgUrl),
-                                    imgUrl,
-                                    new IRongCoreCallback.ResultCallback<MediaUploadAuthorInfo>() {
-                                        @Override
-                                        public void onSuccess(MediaUploadAuthorInfo auth) {
-                                            loadImg(holder.getContext(), imageView, imgUrl, auth);
-                                        }
-
-                                        @Override
-                                        public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                            loadImg(holder.getContext(), imageView, imgUrl, null);
-                                        }
-                                    });
-                } else {
-                    loadImg(holder.getContext(), imageView, imgUrl, null);
-                }
-            }
+            Glide.with(holder.getContext())
+                    .load(publicServiceRichContentMessage.getMessage().getImageUrl())
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into(imageView);
         }
         String time =
                 formatDate(
@@ -150,12 +122,5 @@ public class PublicServiceRichContentMessageProvider
     private String formatDate(long timeMillis, String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(new Date(timeMillis));
-    }
-
-    private void loadImg(Context context, ImageView img, String url, MediaUploadAuthorInfo auth) {
-        Glide.with(context)
-                .load(GlideUtils.buildAuthUrl(Uri.parse(url), auth))
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .into(img);
     }
 }

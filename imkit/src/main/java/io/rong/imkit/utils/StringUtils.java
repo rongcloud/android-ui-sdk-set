@@ -35,35 +35,4 @@ public class StringUtils {
             return str;
         }
     }
-
-    /**
-     * 获取字符的拼音首字母，如果是汉字则返回拼音首字母，大写形式；否则直接返回字符本身的大写形式。
-     *
-     * @param c 字符
-     * @return 拼音首字母或字符本身的大写形式
-     */
-    public static char getFirstChar(char c) {
-        if (c >= 'a' && c <= 'z') {
-            return (char) (c - 'a' + 'A');
-        }
-        if (c >= 'A' && c <= 'Z') {
-            return c;
-        }
-
-        String convert = CharacterParser.getInstance().convert(String.valueOf(c));
-        if (convert == null || convert.isEmpty()) {
-            return c;
-        }
-        c = convert.charAt(0);
-
-        if (c >= 'a' && c <= 'z') {
-            return (char) (c - 'a' + 'A');
-        }
-        if (c >= 'A' && c <= 'Z') {
-            return c;
-        }
-
-        // 非汉字字符，直接返回大写形式
-        return Character.toUpperCase('#');
-    }
 }

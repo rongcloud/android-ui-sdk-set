@@ -183,7 +183,6 @@ public class SmartRefreshLayout extends ViewGroup
 
     /** 【主要状态】 面对 SmartRefresh 外部的滚动状态 */
     protected RefreshState mState = RefreshState.None; // 主状态
-
     /**
      * 【附加状态】 用于主状态 mState 为 Refreshing 或 Loading 时的滚动状态 1.mState=Refreshing|Loading 时 mViceState
      * 有可能与 mState 不同 2.mState=None,开启越界拖动 时 mViceState 有可能与 mState 不同 3.其他状态时与主状态相等
@@ -207,7 +206,6 @@ public class SmartRefreshLayout extends ViewGroup
     protected static DefaultRefreshHeaderCreator sHeaderCreator = null;
     protected static DefaultRefreshInitializer sRefreshInitializer = null;
     protected static MarginLayoutParams sDefaultMarginLP = new MarginLayoutParams(-1, -1);
-
     // </editor-fold>
 
     // <editor-fold desc="构造方法 construction methods">
@@ -396,7 +394,6 @@ public class SmartRefreshLayout extends ViewGroup
 
         ta.recycle();
     }
-
     // </editor-fold>
 
     // <editor-fold desc="生命周期 life cycle">
@@ -1058,7 +1055,6 @@ public class SmartRefreshLayout extends ViewGroup
             }
         }
     }
-
     // </editor-fold>
     // </editor-fold>
 
@@ -1428,7 +1424,6 @@ public class SmartRefreshLayout extends ViewGroup
         }
         return reboundAnimator != null;
     }
-
     // </editor-fold>
 
     // <editor-fold desc="状态更改 state changes">
@@ -1671,7 +1666,6 @@ public class SmartRefreshLayout extends ViewGroup
     protected boolean isEnableRefreshOrLoadMore(boolean enable) {
         return enable && !mEnablePureScrollMode;
     }
-
     // </editor-fold>
 
     // <editor-fold desc="视图位移 displacement">
@@ -1828,7 +1822,6 @@ public class SmartRefreshLayout extends ViewGroup
             }
         }
     }
-
     // </editor-fold>
 
     /**
@@ -2105,7 +2098,6 @@ public class SmartRefreshLayout extends ViewGroup
                     mReboundDuration);
         }
     }
-
     // </editor-fold>
 
     // <editor-fold desc="布局参数 LayoutParams">
@@ -2165,7 +2157,6 @@ public class SmartRefreshLayout extends ViewGroup
         public int backgroundColor = 0;
         public SpinnerStyle spinnerStyle = null;
     }
-
     // </editor-fold>
 
     // <editor-fold desc="嵌套滚动 NestedScrolling">
@@ -2306,7 +2297,6 @@ public class SmartRefreshLayout extends ViewGroup
         // Dispatch up our nested parent
         mNestedChild.stopNestedScroll();
     }
-
     // </editor-fold>
 
     // <editor-fold desc="NestedScrollingChild">
@@ -4144,7 +4134,6 @@ public class SmartRefreshLayout extends ViewGroup
     public boolean isLoading() {
         return mState == RefreshState.Loading;
     }
-
     // </editor-fold>
     // </editor-fold>
 
@@ -4339,7 +4328,6 @@ public class SmartRefreshLayout extends ViewGroup
             }
             return this;
         }
-
         // </editor-fold>
 
         // <editor-fold desc="视图位移 Spinner">
@@ -4586,7 +4574,6 @@ public class SmartRefreshLayout extends ViewGroup
             return SmartRefreshLayout.this.animSpinner(
                     endSpinner, 0, mReboundInterpolator, mReboundDuration);
         }
-
         // </editor-fold>
 
         // <editor-fold desc="请求事件">
@@ -4660,7 +4647,6 @@ public class SmartRefreshLayout extends ViewGroup
         }
         // </editor-fold>
     }
-
     // </editor-fold>
 
     @Override

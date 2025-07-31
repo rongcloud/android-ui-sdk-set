@@ -47,7 +47,6 @@ import io.rong.imkit.widget.adapter.ProviderManager;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
-import io.rong.imlib.model.UnknownMessage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -63,7 +62,6 @@ public class ConversationConfig {
     private static final int conversationHistoryMessageMaxCount = 100;
     // 离线补偿已读回执，sp 文件名称
     public static String SP_NAME_READ_RECEIPT_CONFIG = "readReceiptConfig";
-
     /** 多端消息未读数同步，仅支持单群聊 */
     public static boolean enableMultiDeviceSync = true;
 
@@ -96,28 +94,21 @@ public class ConversationConfig {
     public boolean rc_enable_send_combine_message = false;
     private long rc_custom_service_evaluation_interval = 60 * 1000L;
     private boolean mStopCSWhenQuit = true;
-
     /** 已读回执，仅支持，单，群聊 */
     private boolean mEnableReadReceipt = true;
 
     private Set<Conversation.ConversationType> mSupportReadReceiptConversationTypes =
             new HashSet<>(4);
-
     /** 单聊是否显示头像 */
     private boolean showReceiverUserTitle = false;
-
     /** 新消息是否显示未读，目前支持 单，群聊 */
     private boolean showNewMessageBar = true;
-
     /** 历史消息是否显示，目前仅支持，单，群聊 */
     private boolean showHistoryMessageBar = true;
-
     /** 长按是否显示更多 */
     private boolean showMoreClickAction = true;
-
     /** 是否显示，历史消息模板 */
     private boolean showHistoryDividerMessage = true;
-
     /**
      * true:长按删除消息，会把本地消息、远端消息都删除
      *
@@ -126,7 +117,6 @@ public class ConversationConfig {
      * <p>5.6.3 版本将默认值改为 true
      */
     private boolean needDeleteRemoteMessage = true;
-
     /** 默认为 true 当会话页面删除消息后列表消息为空时，是否重新刷新列表 */
     private boolean needRefreshWhenListIsEmptyAfterDelete = true;
 
@@ -350,16 +340,12 @@ public class ConversationConfig {
         mConversationViewProcessors.add(processor);
     }
 
-    /**
-     * @return ConversationFragment 处理器
-     */
+    /** @return ConversationFragment 处理器 */
     public List<IConversationUIRenderer> getViewProcessors() {
         return mConversationViewProcessors;
     }
 
-    /**
-     * @param provider 消息列表 item 提供者
-     */
+    /** @param provider 消息列表 item 提供者 */
     public void addMessageProvider(IMessageProvider provider) {
         if (provider != null) {
             mMessageListProvider.addProvider(provider);
@@ -388,9 +374,7 @@ public class ConversationConfig {
         }
     }
 
-    /**
-     * @return 获得消息模板列表
-     */
+    /** @return 获得消息模板列表 */
     public ProviderManager<UiMessage> getMessageListProvider() {
         return mMessageListProvider;
     }
@@ -423,13 +407,6 @@ public class ConversationConfig {
         return spannable == null ? defaultSpannable : spannable;
     }
 
-    private boolean shouldShowUnknownMessage(MessageContent messageContent) {
-        if (messageContent instanceof UnknownMessage) {
-            return !RongConfigCenter.featureConfig().isShowUnknownMessage();
-        }
-        return false;
-    }
-
     /**
      * 获得消息展示信息
      *
@@ -442,10 +419,7 @@ public class ConversationConfig {
         Spannable spannable = new SpannableString("");
         Spannable defaultSpannable =
                 defaultMessageProvider.getSummarySpannable(context, conversation);
-        // 如果最后一条消息不存在,则不展示
-        if (conversation.getLatestMessage() == null
-                || conversation.getLatestMessageId() == -1
-                || shouldShowUnknownMessage(conversation.getLatestMessage())) {
+        if (conversation.getLatestMessage() == null) {
             return spannable;
         }
         for (IConversationSummaryProvider item : mConversationSummaryProviders) {
@@ -480,9 +454,7 @@ public class ConversationConfig {
         return false;
     }
 
-    /**
-     * @param showReceiverUserTitle 单聊是否显示用户昵称
-     */
+    /** @param showReceiverUserTitle 单聊是否显示用户昵称 */
     public void setShowReceiverUserTitle(boolean showReceiverUserTitle) {
         this.showReceiverUserTitle = showReceiverUserTitle;
     }
@@ -504,37 +476,27 @@ public class ConversationConfig {
         return true;
     }
 
-    /**
-     * @return 长按是否显示更多选项
-     */
+    /** @return 长按是否显示更多选项 */
     public boolean isShowMoreClickAction() {
         return showMoreClickAction;
     }
 
-    /**
-     * @param showMoreClickAction 长按是否显示更多选项
-     */
+    /** @param showMoreClickAction 长按是否显示更多选项 */
     public void setShowMoreClickAction(boolean showMoreClickAction) {
         this.showMoreClickAction = showMoreClickAction;
     }
 
-    /**
-     * @return 是否显示历史消息模板
-     */
+    /** @return 是否显示历史消息模板 */
     public boolean isShowHistoryDividerMessage() {
         return showHistoryDividerMessage;
     }
 
-    /**
-     * @param showHistoryDividerMessage 是否显示历史消息模板
-     */
+    /** @param showHistoryDividerMessage 是否显示历史消息模板 */
     public void setShowHistoryDividerMessage(boolean showHistoryDividerMessage) {
         this.showHistoryDividerMessage = showHistoryDividerMessage;
     }
 
-    /**
-     * @param showNewMessageBar 新消息是否显示未读气泡，目前仅支持单群聊（聊天室等，设置无效）
-     */
+    /** @param showNewMessageBar 新消息是否显示未读气泡，目前仅支持单群聊（聊天室等，设置无效） */
     public void setShowNewMessageBar(boolean showNewMessageBar) {
         this.showNewMessageBar = showNewMessageBar;
     }
@@ -575,9 +537,7 @@ public class ConversationConfig {
         return false;
     }
 
-    /**
-     * @param showNewMentionMessageBar 是否显示会话页面右上角的未读 @ 消息数提示，仅支持设置群组
-     */
+    /** @param showNewMentionMessageBar 是否显示会话页面右上角的未读 @ 消息数提示，仅支持设置群组 */
     public void setShowNewMentionMessageBar(boolean showNewMentionMessageBar) {
         this.showNewMentionMessageBar = showNewMentionMessageBar;
     }
@@ -606,9 +566,7 @@ public class ConversationConfig {
         this.conversationShowUnreadMessageCount = conversationShowUnreadMessageCount;
     }
 
-    /**
-     * @param showHistoryMessageBar 是否显示历史未读消息气泡，仅支持设置私聊，群组
-     */
+    /** @param showHistoryMessageBar 是否显示历史未读消息气泡，仅支持设置私聊，群组 */
     public void setShowHistoryMessageBar(boolean showHistoryMessageBar) {
         this.showHistoryMessageBar = showHistoryMessageBar;
     }
@@ -722,8 +680,6 @@ public class ConversationConfig {
                 case ULTRA_GROUP:
                 case DISCUSSION:
                 case SYSTEM: // 5.6.2需求
-                case PUBLIC_SERVICE: // 5.6.2需求
-                case APP_PUBLIC_SERVICE: // 5.6.2需求
                     return true;
             }
         }

@@ -66,13 +66,10 @@ public class LangUtils {
     public static class RCLocale {
         /** 中文 */
         public static final RCLocale LOCALE_CHINA = new RCLocale("zh");
-
         /** 英文 */
         public static final RCLocale LOCALE_US = new RCLocale("en");
-
         /** 阿拉伯 */
         public static final RCLocale LOCALE_ARAB = new RCLocale("ar");
-
         /** 跟随系统 */
         public static final RCLocale LOCALE_AUTO = new RCLocale("auto");
 

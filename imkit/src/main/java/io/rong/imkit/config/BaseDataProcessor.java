@@ -3,9 +3,7 @@ package io.rong.imkit.config;
 import io.rong.imlib.model.Conversation;
 import java.util.List;
 
-/**
- * @author jenny_zhou
- */
+/** @author jenny_zhou */
 public abstract class BaseDataProcessor<T> implements DataProcessor<T> {
     @Override
     public Conversation.ConversationType[] supportedTypes() {

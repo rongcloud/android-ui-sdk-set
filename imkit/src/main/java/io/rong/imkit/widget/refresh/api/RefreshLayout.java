@@ -339,7 +339,6 @@ public interface RefreshLayout {
      * @return RefreshLayout
      */
     RefreshLayout setEnableNestedScroll(boolean enabled);
-
     /**
      * 设置固定在 Header 下方的视图Id，可以在 Footer 上下滚动的时候保持不跟谁滚动
      *
@@ -347,7 +346,6 @@ public interface RefreshLayout {
      * @return RefreshLayout
      */
     RefreshLayout setFixedHeaderViewId(@IdRes int id);
-
     /**
      * 设置固定在 Footer 上方的视图Id，可以在 Header 上下滚动的时候保持不跟谁滚动
      *
@@ -355,7 +353,6 @@ public interface RefreshLayout {
      * @return RefreshLayout
      */
     RefreshLayout setFixedFooterViewId(@IdRes int id);
-
     /**
      * 设置在 Header 上下滚动时，需要跟随滚动的视图Id，默认整个内容视图
      *
@@ -363,7 +360,6 @@ public interface RefreshLayout {
      * @return RefreshLayout
      */
     RefreshLayout setHeaderTranslationViewId(@IdRes int id);
-
     /**
      * 设置在 Footer 上下滚动时，需要跟随滚动的视图Id，默认整个内容视图
      *
@@ -371,7 +367,6 @@ public interface RefreshLayout {
      * @return RefreshLayout
      */
     RefreshLayout setFooterTranslationViewId(@IdRes int id);
-
     /**
      * Set whether to enable the action content view when refreshing. 设置是否开启在刷新时候禁止操作内容视图
      *

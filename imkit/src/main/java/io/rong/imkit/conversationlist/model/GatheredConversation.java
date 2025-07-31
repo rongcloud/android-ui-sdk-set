@@ -57,7 +57,7 @@ public class GatheredConversation extends BaseUiConversation {
                     0,
                     preStr.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else if (!TextUtils.isEmpty(getDraft())) {
+        } else if (!TextUtils.isEmpty(mCore.getDraft())) {
             preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
             mPreString = new SpannableString(preStr);
             mPreString.setSpan(
@@ -81,10 +81,10 @@ public class GatheredConversation extends BaseUiConversation {
                 .append(targetName)
                 .append(COLON_SPLIT)
                 .append(
-                        TextUtils.isEmpty(getDraft())
+                        TextUtils.isEmpty(mCore.getDraft())
                                 ? RongConfigCenter.conversationConfig()
                                         .getMessageSummary(mContext, mCore)
-                                : getDraft());
+                                : mCore.getDraft());
         mConversationContent = builder;
     }
 
@@ -97,7 +97,7 @@ public class GatheredConversation extends BaseUiConversation {
                         .append(COLON_SPLIT)
                         .append(
                                 RongConfigCenter.conversationConfig()
-                                        .getMessageSummary(mContext, mCore));
+                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
                 mConversationContent = builder;
             }
         }
@@ -112,7 +112,7 @@ public class GatheredConversation extends BaseUiConversation {
                         .append(COLON_SPLIT)
                         .append(
                                 RongConfigCenter.conversationConfig()
-                                        .getMessageSummary(mContext, mCore));
+                                        .getMessageSummary(mContext, mCore.getLatestMessage()));
                 mConversationContent = builder;
             }
         }

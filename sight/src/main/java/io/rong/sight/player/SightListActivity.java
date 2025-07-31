@@ -2,6 +2,7 @@ package io.rong.sight.player;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -94,7 +95,19 @@ public class SightListActivity extends RongBaseNoActionbarActivity
             }
             ItemData data = new ItemData();
             data.message = message;
-            data.senderName = getSenderName(message.getSenderUserId());
+            if (conversationType.equals(Conversation.ConversationType.GROUP)) {
+                GroupUserInfo groupUserInfo =
+                        RongUserInfoManager.getInstance()
+                                .getGroupUserInfo(targetId, message.getSenderUserId());
+                if (groupUserInfo != null && !TextUtils.isEmpty(groupUserInfo.getNickname())) {
+                    data.senderName = groupUserInfo.getNickname();
+                }
+            }
+            if (TextUtils.isEmpty(data.senderName)) {
+                UserInfo userInfo =
+                        RongUserInfoManager.getInstance().getUserInfo(message.getSenderUserId());
+                data.senderName = userInfo != null ? userInfo.getName() : message.getSenderUserId();
+            }
             itemDataList.add(data);
         }
         sightListAdapter.setFileData(itemDataList);
@@ -105,7 +118,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity
         boolean needUpdate = false;
         for (ItemData itemData : sightListAdapter.getData()) {
             if (itemData.message.getSenderUserId().equals(userInfo.getUserId())) {
-                itemData.senderName = getSenderName(itemData.message.getSenderUserId());
+                itemData.senderName = userInfo.getName();
                 needUpdate = true;
             }
         }
@@ -121,7 +134,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity
                 && targetId.equals(groupMember.getGroupId())) {
             for (ItemData itemData : sightListAdapter.getData()) {
                 if (itemData.message.getSenderUserId().equals(groupMember.getUserId())) {
-                    itemData.senderName = getSenderName(itemData.message.getSenderUserId());
+                    itemData.senderName = groupMember.getNickname();
                     needUpdate = true;
                 }
             }
@@ -129,17 +142,6 @@ public class SightListActivity extends RongBaseNoActionbarActivity
                 sightListAdapter.notifyDataSetChanged();
             }
         }
-    }
-
-    private String getSenderName(String senderUserId) {
-        UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(senderUserId);
-        String groupMemberName = "";
-        if (conversationType.equals(Conversation.ConversationType.GROUP)) {
-            GroupUserInfo groupUserInfo =
-                    RongUserInfoManager.getInstance().getGroupUserInfo(targetId, senderUserId);
-            groupMemberName = groupUserInfo != null ? groupUserInfo.getNickname() : "";
-        }
-        return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, groupMemberName);
     }
 
     @Override

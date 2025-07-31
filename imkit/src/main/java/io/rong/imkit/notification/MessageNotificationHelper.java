@@ -10,11 +10,9 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
-import io.rong.imlib.model.NotificationQuietHoursSetting;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Calendar;
-import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageNotificationHelper {
@@ -23,7 +21,6 @@ public class MessageNotificationHelper {
     private static Integer quietLevel = null;
     private static String mStartTime;
     private static int mSpanTime;
-    private static String mTimeZone;
     private static NotifyListener mNotifyListener;
 
     public static void updateLevelMap(Conversation conversation) {
@@ -74,18 +71,17 @@ public class MessageNotificationHelper {
         } else {
             ChannelClient.getInstance()
                     .getNotificationQuietHoursLevel(
-                            new IRongCoreCallback.ResultCallback<NotificationQuietHoursSetting>() {
+                            new IRongCoreCallback.GetNotificationQuietHoursCallbackEx() {
                                 @Override
                                 public void onSuccess(
-                                        NotificationQuietHoursSetting
-                                                notificationQuietHoursSetting) {
-                                    mStartTime = notificationQuietHoursSetting.getStartTime();
-                                    mSpanTime = notificationQuietHoursSetting.getSpanMinutes();
-                                    quietLevel =
-                                            notificationQuietHoursSetting.getLevel().getValue();
-                                    mTimeZone = notificationQuietHoursSetting.getTimeZone();
+                                        String startTime,
+                                        int spanMinutes,
+                                        IRongCoreEnum.PushNotificationQuietHoursLevel level) {
+                                    mStartTime = startTime;
+                                    mSpanTime = spanMinutes;
+                                    quietLevel = level.getValue();
                                     if (callback != null) {
-                                        callback.onSuccess(mStartTime, mSpanTime);
+                                        callback.onSuccess(startTime, spanMinutes);
                                     }
                                 }
 
@@ -105,7 +101,7 @@ public class MessageNotificationHelper {
             return;
         }
 
-        if (isInQuietTime(mStartTime, mSpanTime, mTimeZone)) {
+        if (isInQuietTime(mStartTime, mSpanTime)) {
             if (quietLevel
                     == IRongCoreEnum.PushNotificationQuietHoursLevel
                             .PUSH_NOTIFICATION_QUIET_HOURS_LEVEL_BLOCKED
@@ -329,7 +325,7 @@ public class MessageNotificationHelper {
         return false;
     }
 
-    private static boolean isInQuietTime(String startTime, int spanMinutes, String timeZoneId) {
+    private static boolean isInQuietTime(String startTime, int spanMinutes) {
         int hour = -1;
         int minute = -1;
         int second = -1;
@@ -352,15 +348,14 @@ public class MessageNotificationHelper {
             return false;
         }
 
-        TimeZone timeZone = TimeZone.getTimeZone(timeZoneId != null ? timeZoneId : "");
-        Calendar startCalendar = Calendar.getInstance(timeZone);
+        Calendar startCalendar = Calendar.getInstance();
         startCalendar.set(Calendar.HOUR_OF_DAY, hour);
         startCalendar.set(Calendar.MINUTE, minute);
         startCalendar.set(Calendar.SECOND, second);
 
         long start = startCalendar.getTimeInMillis();
 
-        Calendar endCalendar = Calendar.getInstance(timeZone);
+        Calendar endCalendar = Calendar.getInstance();
         endCalendar.setTimeInMillis(start + (long) spanMinutes * 60 * 1000);
 
         Calendar currentCalendar = Calendar.getInstance();

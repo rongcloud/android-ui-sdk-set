@@ -26,6 +26,7 @@ public class StickerPackagesConfigTask {
     }
 
     public void saveConfig(Context context) {
+        saveStickerPackagesInfo();
         refreshInfo();
         if (mInfo != null) {
             PreloadPackageDownloadTask task =
@@ -35,7 +36,6 @@ public class StickerPackagesConfigTask {
     }
 
     private void refreshInfo() {
-        StickerPackageApiTask.submitTask(this::saveStickerPackagesInfo);
         StickerPackageApiTask.getAllConfig(
                 new HttpUtil.Callback<StickerPackagesConfigInfo>() {
                     @Override

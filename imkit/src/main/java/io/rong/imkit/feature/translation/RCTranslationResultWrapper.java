@@ -3,14 +3,11 @@ package io.rong.imkit.feature.translation;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * @author gusd
- */
+/** @author gusd */
 public class RCTranslationResultWrapper implements Parcelable {
 
     /** 消息 ID */
     private int messageId;
-
     /** 原文本 */
     private String srcText;
 

@@ -1,90 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rc_layout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
 
-    <!-- 原有的语音消息布局 -->
     <LinearLayout
-        android:id="@+id/rc_layout"
+        android:id="@+id/rc_voice_bg"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
+        android:adjustViewBounds="true"
         android:gravity="center_vertical"
+        android:maxWidth="230dp"
+        android:minWidth="52dp"
         android:orientation="horizontal">
 
-        <LinearLayout
-            android:id="@+id/rc_voice_bg"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:adjustViewBounds="true"
-            android:gravity="center_vertical"
-            android:maxWidth="230dp"
-            android:minWidth="52dp"
-            android:orientation="horizontal">
-
-            <ImageView
-                android:id="@+id/rc_voice"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/rc_voice_receive_play3"
-                android:visibility="gone"/>
-
-            <TextView
-                android:id="@+id/rc_duration"
-                style="@style/TextStyle.Alignment"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|start"
-                android:textColor="@color/rc_voice_color"
-                android:textSize="14dp"
-                android:textStyle="bold" />
-            <ImageView
-                android:id="@+id/rc_voice_send"
-                android:layout_width="16dp"
-                android:layout_height="16dp"
-                android:src="@drawable/rc_voice_send_play3"
-                android:visibility="gone"/>
-        </LinearLayout>
-
         <ImageView
-            android:id="@+id/rc_voice_unread"
-            android:layout_width="8dp"
-            android:layout_height="8dp"
-            android:layout_marginStart="8dp"
-            android:src="@drawable/rc_voice_unread" />
-    </LinearLayout>
-
-    <!-- 转文字结果容器 -->
-    <LinearLayout
-        android:id="@+id/rc_stt_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:layout_marginStart="2dp"
-        android:gravity="center_vertical"
-        android:minHeight="40dp"
-        android:background="@drawable/rc_stt_text_bg"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:visibility="gone">
-
-        <!-- 加载动画 -->
-        <io.rong.imkit.widget.LoadingDotsView
-            android:id="@+id/rc_loading_dots"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
+            android:id="@+id/rc_voice"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/rc_voice_receive_play3"
+            android:visibility="gone"/>
 
         <TextView
-            android:id="@+id/rc_stt_text"
-            android:layout_width="wrap_content"
+            android:id="@+id/rc_duration"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:maxWidth="250dp"
-            android:textColor="@color/rc_text_main_color"
-            android:textSize="16sp" />
-
+            android:layout_gravity="center_vertical|start"
+            android:textColor="@color/rc_voice_color"
+            android:textSize="14dp"
+            android:textStyle="bold" />
+        <ImageView
+            android:id="@+id/rc_voice_send"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/rc_voice_send_play3"
+            android:visibility="gone"/>
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/rc_voice_unread"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/rc_voice_unread" />
 </LinearLayout>

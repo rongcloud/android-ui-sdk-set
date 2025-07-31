@@ -180,6 +180,9 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
 
     // 如果是引用消息，则优先查找本地缓存，找到则设置到mFileMessage中
     private void processReferenceMessageFileCache() {
+        if (!(mMessage.getContent() instanceof ReferenceMessage)) {
+            return;
+        }
         if (mFileMessage.getFileUrl() == null) {
             return;
         }
@@ -326,10 +329,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + FileTypeUtils.formatFileSize(mFileSize)
                                 + ")");
                 mFileDownloadOpenView.setText(
-                        getString(
-                                mFileDownloadInfo.progress == 0
-                                        ? R.string.rc_ac_file_preview_begin_download
-                                        : R.string.rc_ac_file_preview_download_resume));
+                        getString(R.string.rc_ac_file_preview_download_resume));
                 Toast toast =
                         makeText(
                                 FilePreviewActivity.this,

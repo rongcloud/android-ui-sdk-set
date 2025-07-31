@@ -13,7 +13,6 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -30,7 +29,6 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.observable.ImagesObservable;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
-import io.rong.imlib.RongCoreClient;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -133,12 +131,6 @@ public class PicturePreviewActivity extends PictureBaseActivity
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (isChecked) {
-                            if (isGIFAboveMaxSize(media)) {
-                                mCbOriginal.setChecked(false);
-                                return;
-                            }
-                        }
                         config.isCheckOriginalImage = isChecked;
                     }
                 });
@@ -343,9 +335,6 @@ public class PicturePreviewActivity extends PictureBaseActivity
                 return;
             }
             LocalMedia currentMedia = images.get(position);
-            if (isGIFAboveMaxSize(currentMedia)) {
-                return;
-            }
             if (PictureMimeType.eqVideo(currentMedia.getMimeType())) {
                 int maxDuration = config.videoDurationLimit;
                 if (maxDuration < 1) maxDuration = PictureConfig.DEFAULT_VIDEO_DURATION_LIMIT;
@@ -492,21 +481,5 @@ public class PicturePreviewActivity extends PictureBaseActivity
     @Override
     public void onActivityBackPressed() {
         onBackPressed();
-    }
-
-    private boolean isGIFAboveMaxSize(LocalMedia media) {
-
-        if (media == null) {
-            return false;
-        }
-        String mimeType = media.getMimeType();
-        if (!mimeType.toLowerCase().contains("gif")) {
-            return false;
-        }
-        if (media.getSize() > RongCoreClient.getInstance().getGIFLimitSize() * 1024) {
-            Toast.makeText(this, R.string.rc_gif_message_too_large, Toast.LENGTH_SHORT).show();
-            return true;
-        }
-        return false;
     }
 }

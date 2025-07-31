@@ -61,7 +61,7 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
         }
         // 判断正在视频通话和语音通话中不能进行语音消息发送
         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-            String text = context.getString(io.rong.imkit.R.string.rc_voip_occupying);
+            String text = context.getString(R.string.rc_voip_occupying);
             ToastUtils.show(currentFragment.getActivity(), text, Toast.LENGTH_SHORT);
             return;
         }
@@ -105,7 +105,10 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
                                 DestructManager.isActive()
                                         ? context.getResources()
                                                 .getString(
-                                                        io.rong.imkit.R.string
+                                                        io.rong
+                                                                .imkit
+                                                                .R
+                                                                .string
                                                                 .rc_conversation_summary_content_burn)
                                         : null,
                                 null,

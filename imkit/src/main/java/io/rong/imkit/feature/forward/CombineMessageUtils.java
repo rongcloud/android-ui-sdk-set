@@ -17,7 +17,6 @@ import io.rong.imkit.utils.FileTypeUtils;
 import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.MessageTag;
-import io.rong.imlib.RongCoreClientImpl;
 import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -91,9 +90,6 @@ public class CombineMessageUtils {
     private static final String MSG_SIZE = "{%size%}"; // 文件大小(xxxk/m/g)
     private static final String MSG_FILE_SIZE = "{%fileSize%}"; // 文件大小(具体数值)
     private static final String MSG_FILE_URL = "{%fileUrl%}"; // 文件链接
-    private static final String MSG_GIF_CONTENT = "{%gifContent%}"; // gif 消息内容
-    private static final String MSG_GIF_DISPLAY = "{%gifDisplay%}"; // gif 消息内容
-    private static final String MSG_GIF_CONTENT_DISPLAY = "{%gifContentDisplay%}"; // gif 消息内容
     private static final String MSG_FILE_TYPE = "{%fileType%}"; // 文件类型
     private static final String MSG_FILE_ICON = "{%fileIcon%}"; // 文件图标
     private static final String MSG_TITLE = "{%title%}"; // 标题
@@ -269,19 +265,6 @@ public class CombineMessageUtils {
                 html =
                         html.replace(MSG_FILE_URL, optString(gif.getRemoteUri()))
                                 .replace(MSG_IMAG_URL, optString(gifBase64));
-                if (RongCoreClientImpl.isPrivateSDK()) {
-                    html =
-                            html.replace(
-                                    MSG_GIF_CONTENT,
-                                    IMCenter.getInstance()
-                                            .getContext()
-                                            .getString(R.string.rc_message_content_image));
-                    html = html.replace(MSG_GIF_DISPLAY, "none");
-                    html = html.replace(MSG_GIF_CONTENT_DISPLAY, "inline");
-                } else {
-                    html = html.replace(MSG_GIF_DISPLAY, "inline");
-                    html = html.replace(MSG_GIF_CONTENT_DISPLAY, "none");
-                }
                 break;
             case TAG_FILE: // 文件
                 FileMessage file = (FileMessage) content;
@@ -558,19 +541,14 @@ public class CombineMessageUtils {
         this.style = STYLE;
     }
 
-    // 根据链接地址，获取合并转发消息下载文件地址
+    // 根据链接地址，获取合并转发消息下载路径
     public String getCombineFilePath(String uri) {
-        return getCombineFileDirectory()
+        return FileUtils.getCachePath(IMCenter.getInstance().getContext())
+                + File.separator
+                + COMBINE_FILE_PATH
                 + File.separator
                 + RongUtils.md5(uri)
                 + COMBINE_FILE_SUFFIX;
-    }
-
-    // 获取合并转发消息下载文件目录，不含最后的 /
-    public String getCombineFileDirectory() {
-        return FileUtils.getCachePath(IMCenter.getInstance().getContext())
-                + File.separator
-                + COMBINE_FILE_PATH;
     }
 
     public String optString(String str) {

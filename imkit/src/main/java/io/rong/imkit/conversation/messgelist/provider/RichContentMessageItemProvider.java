@@ -1,7 +1,6 @@
 package io.rong.imkit.conversation.messgelist.provider;
 
 import android.content.Context;
-import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -14,16 +13,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.picture.tools.FileUtils;
-import io.rong.imkit.utils.GlideUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imlib.IRongCoreCallback;
-import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongCoreClient;
-import io.rong.imlib.RongCoreClientImpl;
-import io.rong.imlib.filetransfer.upload.MediaUploadAuthorInfo;
 import io.rong.imlib.model.MessageContent;
 import io.rong.message.RichContentMessage;
 import java.util.List;
@@ -58,34 +50,11 @@ public class RichContentMessageItemProvider extends BaseMessageItemProvider<Rich
         holder.setText(R.id.rc_title, richContentMessage.getTitle());
         holder.setText(R.id.rc_content, richContentMessage.getContent());
         if (!TextUtils.isEmpty(richContentMessage.getImgUrl())) {
-            String imgUrl = richContentMessage.getImgUrl();
-            if (FileUtils.isHttp(imgUrl) && RongCoreClientImpl.isPrivateSDK()) {
-                RongCoreClient.getInstance()
-                        .getMediaUploadAuthorInfo(
-                                GlideUtils.getUrlName(imgUrl),
-                                imgUrl,
-                                new IRongCoreCallback.ResultCallback<MediaUploadAuthorInfo>() {
-                                    @Override
-                                    public void onSuccess(MediaUploadAuthorInfo auth) {
-                                        loadImg(holder.getContext(), img, imgUrl, auth);
-                                    }
-
-                                    @Override
-                                    public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                        loadImg(holder.getContext(), img, imgUrl, null);
-                                    }
-                                });
-            } else {
-                loadImg(holder.getContext(), img, imgUrl, null);
-            }
+            Glide.with(holder.getContext())
+                    .load(richContentMessage.getImgUrl())
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into(img);
         }
-    }
-
-    private void loadImg(Context context, ImageView img, String url, MediaUploadAuthorInfo auth) {
-        Glide.with(context)
-                .load(GlideUtils.buildAuthUrl(Uri.parse(url), auth))
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
-                .into(img);
     }
 
     @Override

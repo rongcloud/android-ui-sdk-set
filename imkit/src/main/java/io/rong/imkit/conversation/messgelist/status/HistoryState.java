@@ -43,10 +43,9 @@ public class HistoryState implements IMessageState {
                     5,
                     new MessageProcessor.GetMessageCallback() {
                         @Override
-                        public void onSuccess(
-                                List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
+                        public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
                             if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(list, isHasMoreMsg);
+                                weakVM.get().onGetHistoryMessage(list);
                                 // '5'标识定位消息的下标
                                 weakVM.get().executePageEvent(new ScrollEvent(5));
                             }
@@ -89,8 +88,7 @@ public class HistoryState implements IMessageState {
                     false,
                     new MessageProcessor.GetMessageCallback() {
                         @Override
-                        public void onSuccess(
-                                List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
+                        public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
                             if (weakVM.get() != null) {
                                 executeHistoryLoadMore(list, weakVM.get());
                             }
@@ -179,8 +177,7 @@ public class HistoryState implements IMessageState {
                 new MessageProcessor.GetMessageCallback() {
 
                     @Override
-                    public void onSuccess(
-                            List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
+                    public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
                         if (weakVM.get() != null) {
                             executeNewMessageBarClick(list, weakVM.get());
                         }
@@ -227,17 +224,13 @@ public class HistoryState implements IMessageState {
         context.normalState.onNewMentionMessageBarClick(viewModel);
     }
 
-    /**
-     * @param viewModel 历史消息滑动到底部不做任何处理，继续加载更多
-     */
+    /** @param viewModel 历史消息滑动到底部不做任何处理，继续加载更多 */
     @Override
     public void onScrollToBottom(MessageViewModel viewModel) {
         onLoadMore(viewModel);
     }
 
-    /**
-     * @param viewModel 历史状态不做任何处理
-     */
+    /** @param viewModel 历史状态不做任何处理 */
     @Override
     public void onHistoryBarClick(MessageViewModel viewModel) {
         context.normalState.onHistoryBarClick(viewModel);

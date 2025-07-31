@@ -13,9 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * @author gusd @Date 2022/09/08
- */
+/** @author gusd @Date 2022/09/08 */
 public class ProxyHttpLoader implements ModelLoader<Uri, InputStream> {
 
     private static final String TAG = "ProxyHttpLoader";
