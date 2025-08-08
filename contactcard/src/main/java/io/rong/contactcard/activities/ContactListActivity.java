@@ -54,12 +54,12 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.rc_ac_contact_members);
 
-        EditText searchBar = (EditText) findViewById(R.id.rc_edit_text);
-        mListView = (ListView) findViewById(R.id.rc_list);
+        EditText searchBar = (EditText) findViewById(io.rong.imkit.R.id.rc_edit_text);
+        mListView = (ListView) findViewById(io.rong.imkit.R.id.rc_list);
         SideBar mSideBar = (SideBar) findViewById(R.id.rc_sidebar);
         TextView letterPopup = (TextView) findViewById(R.id.rc_popup_bg);
         mSideBar.setTextView(letterPopup);
-        findViewById(R.id.rc_btn_cancel)
+        findViewById(io.rong.imkit.R.id.rc_btn_cancel)
                 .setOnClickListener(
                         new View.OnClickListener() {
                             @Override
@@ -243,6 +243,8 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
                         RongUserInfoManager.getInstance().getUserDisplayName(userInfo));
                 Glide.with(convertView)
                         .load(userInfo.getPortraitUri())
+                        .placeholder(io.rong.imkit.R.drawable.rc_default_portrait)
+                        .error(io.rong.imkit.R.drawable.rc_default_portrait)
                         .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                         .into(viewHolder.portrait);
             }

@@ -8,6 +8,7 @@ public class RecallEvent {
     private String targetId;
     private int messageId;
     private RecallNotificationMessage message;
+    private String messageUid;
 
     public RecallEvent(
             Conversation.ConversationType conversationType,
@@ -18,6 +19,19 @@ public class RecallEvent {
         this.targetId = targetId;
         this.messageId = messageId;
         this.message = message;
+    }
+
+    public RecallEvent(
+            Conversation.ConversationType conversationType,
+            String targetId,
+            int messageId,
+            RecallNotificationMessage message,
+            String messageUid) {
+        this.conversationType = conversationType;
+        this.targetId = targetId;
+        this.messageId = messageId;
+        this.message = message;
+        this.messageUid = messageUid;
     }
 
     public Conversation.ConversationType getConversationType() {
@@ -34,5 +48,9 @@ public class RecallEvent {
 
     public RecallNotificationMessage getRecallNotificationMessage() {
         return message;
+    }
+
+    public String getMessageUid() {
+        return messageUid;
     }
 }

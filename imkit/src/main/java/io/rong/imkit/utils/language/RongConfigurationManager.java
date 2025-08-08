@@ -11,7 +11,6 @@ import android.os.Build;
 import android.view.ContextThemeWrapper;
 import io.rong.common.SystemUtils;
 import io.rong.common.rlog.RLog;
-import io.rong.imkit.R;
 import io.rong.imlib.RongIMClient;
 import java.util.Locale;
 
@@ -55,6 +54,7 @@ public class RongConfigurationManager {
             filter.addAction(Intent.ACTION_LOCALE_CHANGED);
             SystemUtils.registerReceiverCompat(
                     context, new SystemConfigurationChangedReceiver(), filter);
+
             // 初始化时将应用语言重新设置为之前设置的语言
             LangUtils.RCLocale locale =
                     RongConfigurationManager.getInstance().getAppLocale(context);
@@ -116,7 +116,8 @@ public class RongConfigurationManager {
         Context context = LangUtils.getConfigurationContext(newBase);
         final Configuration configuration = context.getResources().getConfiguration();
         try {
-            return new ContextThemeWrapper(context, R.style.Theme_AppCompat_Empty) {
+            return new ContextThemeWrapper(
+                    context, androidx.appcompat.R.style.Theme_AppCompat_Empty) {
                 @Override
                 public void applyOverrideConfiguration(Configuration overrideConfiguration) {
                     if (overrideConfiguration != null) {

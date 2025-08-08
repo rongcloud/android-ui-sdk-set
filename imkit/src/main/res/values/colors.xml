@@ -22,6 +22,10 @@
     <color name="rc_notice_error_bg">#FFDFDF</color>
     <color name="rc_item_space_color">#fff7f7f7</color>
     <color name="rc_destruct_base_color">#FFFA9D3B</color>
+    <color name="rc_edit_failed">#FF5A50</color>
+    <color name="rc_edit_progress">#007AFF</color>
+    <color name="rc_edit_success_status">#7C838E</color>
+    <color name="rc_edit_reference">#7C838E</color>
 
     <color name="rc_EmoticonTab_bg_select_color">#d7d7d7</color>
     <color name="rc_emoji_grid_item_bg">#ebebeb</color>
@@ -104,4 +108,6 @@
     <color name="rc_ext_menu_item_text_color">#FF111F2C</color>
 
     <color name="rc_unread_message_color">#E75C53</color>
+
+    <color name="color_divider_line">#E5E5E5</color>
 </resources>

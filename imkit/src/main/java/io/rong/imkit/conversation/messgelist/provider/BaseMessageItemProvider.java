@@ -1,7 +1,10 @@
 package io.rong.imkit.conversation.messgelist.provider;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,21 +12,24 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
+import io.rong.imlib.MessageModifyInfo;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.HistoryDividerMessage;
+import io.rong.message.ReferenceMessage;
 import io.rong.message.TextMessage;
 import java.util.List;
 
@@ -441,6 +447,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         }
 
         initReadStatus(holder, uiMessage, position, listener, message, isSender, list);
+        initEditStatus(holder, message);
     }
 
     /**
@@ -502,7 +509,8 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         if (RongConfigCenter.conversationConfig().isShowReadReceipt(message.getConversationType())
                 && mConfig.showReadState
                 && isSender
-                && message.getSentStatus() == Message.SentStatus.READ) {
+                && message.isNeedReceipt()
+                && uiMessage.getReadReceiptCount() > 0) {
             holder.setVisible(R.id.rc_read_receipt, true);
         } else {
             holder.setVisible(R.id.rc_read_receipt, false);
@@ -530,7 +538,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                     && isLastSentMessage
                     && (message.getReadReceiptInfo() == null
                             || !message.getReadReceiptInfo().isReadReceiptMessage())) {
-                holder.setVisible(R.id.rc_read_receipt_request, true);
+                holder.setVisible(R.id.rc_read_receipt_request, false);
                 holder.setOnClickListener(
                         R.id.rc_read_receipt_request,
                         new View.OnClickListener() {
@@ -544,41 +552,13 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                 holder.setVisible(R.id.rc_read_receipt_request, false);
             }
 
-            if (message.getReadReceiptInfo() != null
-                    && message.getReadReceiptInfo().isReadReceiptMessage()) {
-                if (message.getReadReceiptInfo().getRespondUserIdList() != null) {
-                    holder.setText(
-                            R.id.rc_read_receipt_status,
-                            message.getReadReceiptInfo().getRespondUserIdList().size()
-                                    + " "
-                                    + holder.getContext()
-                                            .getString(R.string.rc_read_receipt_status));
-                } else {
-                    holder.setText(
-                            R.id.rc_read_receipt_status,
-                            0
-                                    + " "
-                                    + holder.getContext()
-                                            .getString(R.string.rc_read_receipt_status));
-                }
-                holder.setVisible(R.id.rc_read_receipt_status, true);
-                holder.setOnClickListener(
+            if (message.isNeedReceipt()) {
+                holder.setText(
                         R.id.rc_read_receipt_status,
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                ConversationClickListener conversationClickListener =
-                                        RongConfigCenter.conversationConfig()
-                                                .getConversationClickListener();
-                                if (conversationClickListener != null
-                                        && conversationClickListener.onReadReceiptStateClick(
-                                                v.getContext(), uiMessage.getMessage())) {
-                                    return;
-                                }
-                                listener.onViewClick(
-                                        MessageClickType.READ_RECEIPT_STATE_CLICK, uiMessage);
-                            }
-                        });
+                        uiMessage.getReadReceiptCount()
+                                + " "
+                                + holder.getContext().getString(R.string.rc_read_receipt_status));
+                holder.setVisible(R.id.rc_read_receipt_status, true);
             } else {
                 holder.setVisible(R.id.rc_read_receipt_status, false);
             }
@@ -589,7 +569,101 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         }
     }
 
-    /** @return 群组或讨论组是否展示消息已读回执, 默认只有文本消息展示 子类可以重写此方法 */
+    // 编辑状态
+    private void initEditStatus(final ViewHolder holder, final Message message) {
+        // 未开启消息编辑功能、消息配置不支持编辑、消息编辑状态非法或者为成功状态，隐藏编辑状态View
+        if (!RongConfigCenter.featureConfig().isEditMessageEnable()
+                || !mConfig.showEditState
+                || message.getModifyInfo() == null) {
+            holder.setVisible(R.id.rc_edit_status_layout, false);
+            return;
+        }
+        MessageModifyInfo.MessageModifyStatus status = message.getModifyInfo().getStatus();
+        TextView content = holder.getView(R.id.rc_edit_status_content);
+        if (MessageModifyInfo.MessageModifyStatus.FAILED == status) {
+            holder.setVisible(R.id.rc_edit_status_layout, true);
+            holder.setVisible(R.id.rc_edit_status_failed, true);
+            holder.setVisible(R.id.rc_edit_status_progress, false);
+            content.setText(R.string.rc_edit_status_failed);
+            content.setTextColor(content.getResources().getColor(R.color.rc_edit_failed));
+            holder.setOnClickListener(
+                    R.id.rc_edit_status_layout,
+                    view -> EditMessageManager.getInstance().editMessage(message, ""));
+        } else if (MessageModifyInfo.MessageModifyStatus.UPDATING == status) {
+            holder.setVisible(R.id.rc_edit_status_layout, true);
+            holder.setVisible(R.id.rc_edit_status_failed, false);
+            holder.setVisible(R.id.rc_edit_status_progress, true);
+            content.setText(R.string.rc_edit_status_progress);
+            content.setTextColor(content.getResources().getColor(R.color.rc_edit_progress));
+            holder.setOnClickListener(R.id.rc_edit_status_layout, null);
+        } else if (MessageModifyInfo.MessageModifyStatus.SUCCESS == status) {
+            holder.setVisible(R.id.rc_edit_status_layout, false);
+            holder.setOnClickListener(R.id.rc_edit_status_layout, null);
+        }
+    }
+
+    protected void setTextMessageContent(
+            TextView textView, UiMessage uiMessage, SpannableStringBuilder span) {
+        if (uiMessage.getMessage().isHasChanged()) {
+            SpannableStringBuilder contentSpannable = new SpannableStringBuilder(span);
+            String edited = textView.getContext().getString(R.string.rc_edit_status_success);
+            SpannableStringBuilder spannable = new SpannableStringBuilder("（" + edited + "）");
+            ForegroundColorSpan foregroundColorSpan =
+                    new ForegroundColorSpan(
+                            textView.getResources().getColor(R.color.rc_edit_success_status));
+            spannable.setSpan(
+                    foregroundColorSpan, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            contentSpannable.append(spannable);
+            textView.setText(contentSpannable);
+        } else {
+            textView.setText(span);
+        }
+    }
+
+    protected void setReferenceMessageContent(
+            TextView textView, UiMessage uiMessage, SpannableStringBuilder span) {
+        ReferenceMessage content = (ReferenceMessage) uiMessage.getMessage().getContent();
+        ReferenceMessage.ReferenceMessageStatus referMsgStatus = content.getReferMsgStatus();
+        if (referMsgStatus == ReferenceMessage.ReferenceMessageStatus.MODIFIED) {
+            SpannableStringBuilder contentSpannable = new SpannableStringBuilder(span);
+            String text = textView.getContext().getString(R.string.rc_edit_status_success);
+            SpannableStringBuilder spannable = new SpannableStringBuilder("（" + text + "）");
+            ForegroundColorSpan colorSpan =
+                    new ForegroundColorSpan(
+                            textView.getResources().getColor(R.color.rc_edit_success_status));
+            spannable.setSpan(colorSpan, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            contentSpannable.append(spannable);
+            textView.setText(contentSpannable);
+        } else if (referMsgStatus == ReferenceMessage.ReferenceMessageStatus.DELETE) {
+            SpannableStringBuilder contentSpannable = new SpannableStringBuilder();
+            String text = textView.getContext().getString(R.string.rc_reference_status_delete);
+            SpannableStringBuilder spannableString = new SpannableStringBuilder(text);
+            ForegroundColorSpan colorSpan =
+                    new ForegroundColorSpan(
+                            textView.getResources().getColor(R.color.rc_edit_success_status));
+            spannableString.setSpan(
+                    colorSpan, 0, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            contentSpannable.append(spannableString);
+            textView.setText(contentSpannable);
+        } else if (referMsgStatus == ReferenceMessage.ReferenceMessageStatus.RECALLED) {
+            SpannableStringBuilder contentSpannable = new SpannableStringBuilder();
+            String text = textView.getContext().getString(R.string.rc_reference_status_recall);
+            SpannableStringBuilder spannableString = new SpannableStringBuilder(text);
+            ForegroundColorSpan colorSpan =
+                    new ForegroundColorSpan(
+                            textView.getResources().getColor(R.color.rc_edit_success_status));
+            spannableString.setSpan(
+                    colorSpan, 0, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            contentSpannable.append(spannableString);
+            textView.setText(contentSpannable);
+        } else {
+            textView.setText(span);
+        }
+    }
+
+    /**
+     * @return 群组或讨论组是否展示消息已读回执, 默认只有文本消息展示 子类可以重写此方法
+     */
     protected boolean showReadReceiptRequest(Message message) {
         return message != null
                 && message.getContent() != null

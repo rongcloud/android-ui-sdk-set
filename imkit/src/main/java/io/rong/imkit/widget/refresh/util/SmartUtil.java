@@ -105,6 +105,7 @@ public class SmartUtil implements Interpolator {
             ((RecyclerView) scrollableView).fling(0, velocity);
         }
     }
+
     // </editor-fold>
 
     // <editor-fold desc="滚动判断">
@@ -177,6 +178,7 @@ public class SmartUtil implements Interpolator {
         }
         return (contentFull || targetView.canScrollVertically(-1));
     }
+
     // </editor-fold>
 
     // <editor-fold desc="transform Point">
@@ -203,6 +205,7 @@ public class SmartUtil implements Interpolator {
         }
         return isInView;
     }
+
     // </editor-fold>
 
     // <editor-fold desc="像素密度">
@@ -227,6 +230,7 @@ public class SmartUtil implements Interpolator {
     public static float px2dp(int pxValue) {
         return (pxValue / density);
     }
+
     // </editor-fold>
 
     // <editor-fold desc="ViscousFluidInterpolator">

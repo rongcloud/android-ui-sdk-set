@@ -7,6 +7,7 @@ public class MessageItemProviderConfig {
 
     /** 是否横向居中显示。 */
     public boolean centerInHorizontal = false;
+
     /** 是否显示未发送成功警告。 */
     public boolean showWarning = true;
 
@@ -21,4 +22,7 @@ public class MessageItemProviderConfig {
 
     /** 是否需要展示气泡 */
     public boolean showContentBubble = true;
+
+    /** 是否需要展示编辑状态。默认不显示 */
+    public boolean showEditState = false;
 }

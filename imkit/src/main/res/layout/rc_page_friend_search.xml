@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <io.rong.imkit.usermanage.component.HeadComponent
+        android:id="@+id/rc_head_component"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_title_bar_height"
+        app:head_title_text="@string/rc_search_friends" />
+
+    <io.rong.imkit.usermanage.component.SearchComponent
+        android:id="@+id/rc_search_component"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <io.rong.imkit.usermanage.component.ListComponent
+        android:id="@+id/rc_list_component"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>

@@ -5,7 +5,9 @@ import io.rong.imlib.model.Conversation;
 import java.util.LinkedList;
 import java.util.List;
 
-/** @author jenny_zhou */
+/**
+ * @author jenny_zhou
+ */
 public class DefaultConversationListProcessor extends BaseDataProcessor<Conversation> {
     @Override
     public List<Conversation> filtered(List<Conversation> data) {

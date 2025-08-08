@@ -6,7 +6,9 @@ import io.rong.imlib.translation.TranslationResultListener;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-/** @author gusd */
+/**
+ * @author gusd
+ */
 public class TranslationProvider implements TranslationResultListener {
     private static final String TAG = "TranslationProvider";
 

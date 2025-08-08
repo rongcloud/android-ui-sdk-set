@@ -69,6 +69,11 @@ public class DeleteClickActions implements IClickActions {
             deleteLocalMessage(conversationType, targetId, messageIds);
             return;
         }
+        // 聊天室不支持删除远端消息，只能删除本地消息
+        if (conversationType == Conversation.ConversationType.CHATROOM) {
+            deleteLocalMessage(conversationType, targetId, messageIds);
+            return;
+        }
         // 无网络则删除失败，本地消息也不会删除
         String errorTxt = context.getString(R.string.rc_dialog_item_message_delete_failed_msg);
         if (!NetUtils.isNetWorkAvailable(context)) {

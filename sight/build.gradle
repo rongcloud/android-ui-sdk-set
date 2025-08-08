@@ -1,12 +1,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 33
+    namespace 'io.rong.sight'
+    compileSdk 35
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 31
-        versionName "5.7.10_opensource"
+        targetSdkVersion 35
+        versionName "5.20.0.104_opensource"
     }
     sourceSets {
         main {

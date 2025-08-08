@@ -112,7 +112,12 @@ public class RongConversationActivity extends RongBaseActivity {
             mTitleBar.setTitle(group == null ? mTargetId : group.getName());
         } else {
             UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(mTargetId);
-            mTitleBar.setTitle(userInfo == null ? mTargetId : userInfo.getName());
+            mTitleBar.setTitle(
+                    userInfo == null
+                            ? mTargetId
+                            : TextUtils.isEmpty(userInfo.getAlias())
+                                    ? userInfo.getName()
+                                    : userInfo.getAlias());
         }
         if (mConversationType.equals(Conversation.ConversationType.CUSTOMER_SERVICE)
                 || mConversationType.equals(Conversation.ConversationType.CHATROOM)) {

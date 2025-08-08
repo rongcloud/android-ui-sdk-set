@@ -35,6 +35,7 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
 
     public TextMessageItemProvider() {
         mConfig.showReadState = true;
+        mConfig.showEditState = true;
     }
 
     @Override
@@ -69,6 +70,18 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
         }
         textView.setTag(uiMessage.getMessageId());
         if (uiMessage.getContentSpannable() == null) {
+            Runnable textViewRunnable =
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            String tag =
+                                    textView.getTag() == null ? "" : textView.getTag().toString();
+                            if (TextUtils.equals(tag, String.valueOf(uiMessage.getMessageId()))) {
+                                setTextMessageContent(
+                                        textView, uiMessage, uiMessage.getContentSpannable());
+                            }
+                        }
+                    };
             SpannableStringBuilder spannable =
                     TextViewUtils.getSpannable(
                             message.getContent(),
@@ -76,25 +89,12 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
                                 @Override
                                 public void finish(SpannableStringBuilder spannable) {
                                     uiMessage.setContentSpannable(spannable);
-                                    textView.post(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (TextUtils.equals(
-                                                            textView.getTag() == null
-                                                                    ? ""
-                                                                    : textView.getTag().toString(),
-                                                            String.valueOf(
-                                                                    uiMessage.getMessageId())))
-                                                        textView.setText(
-                                                                uiMessage.getContentSpannable());
-                                                }
-                                            });
+                                    textView.post(textViewRunnable);
                                 }
                             });
             uiMessage.setContentSpannable(spannable);
         }
-        textView.setText(uiMessage.getContentSpannable());
+        setTextMessageContent(textView, uiMessage, uiMessage.getContentSpannable());
         textView.setMovementMethod(
                 new LinkTextViewMovementMethod(
                         new ILinkClickListener() {

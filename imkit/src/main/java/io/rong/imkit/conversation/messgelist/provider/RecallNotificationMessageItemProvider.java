@@ -14,7 +14,6 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.recallEdit.RecallEditCountDownCallBack;
 import io.rong.imkit.feature.recallEdit.RecallEditManager;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.RongIMClient;
@@ -58,16 +57,11 @@ public class RecallNotificationMessageItemProvider
         if (uiMessage.getMessageDirection() == Message.MessageDirection.SEND
                 && content.getRecallActionTime() > 0
                 && countDownTime < validTime * 1000) {
+            TextView tvEdit = holder.getView(R.id.rc_edit);
+            tvEdit.setTextColor(holder.getContext().getResources().getColor(R.color.rc_blue));
             if (uiMessage.isEdit()) {
-                TextView tvEdit = holder.getView(R.id.rc_edit);
-                tvEdit.setTextColor(
-                        holder.getContext()
-                                .getResources()
-                                .getColor(R.color.rc_text_color_primary_inverse));
                 tvEdit.setEnabled(false);
             } else {
-                TextView tvEdit = holder.getView(R.id.rc_edit);
-                tvEdit.setTextColor(holder.getContext().getResources().getColor(R.color.rc_blue));
                 tvEdit.setEnabled(true);
             }
             holder.setVisible(R.id.rc_edit, true);
@@ -116,7 +110,7 @@ public class RecallNotificationMessageItemProvider
         } else if (operatorId.equals(RongIMClient.getInstance().getCurrentUserId())) {
             information = context.getString(R.string.rc_you_recalled_a_message);
         } else {
-            UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(operatorId);
+            UserInfo userInfo = getUserInfo(operatorId, content);
             if (userInfo != null && userInfo.getName() != null) {
                 information =
                         userInfo.getName() + context.getString(R.string.rc_recalled_a_message);

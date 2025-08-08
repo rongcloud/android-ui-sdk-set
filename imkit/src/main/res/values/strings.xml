@@ -31,7 +31,7 @@
     <string name="rc_conversation_summary_content_vst">[音视频通话]</string>
     <string name="rc_conversation_summary_content_combine">[聊天记录]</string>
     <string name="rc_conversation_summary_content_draft">[草稿]</string>
-    <string name="rc_conversation_summary_content_mentioned">[有人 @ 我]</string>
+    <string name="rc_conversation_summary_content_mentioned">[有人@我]</string>
     <string name="rc_conversation_summary_content_burn">[阅后即焚]</string>
 
     //聚合会话名称
@@ -79,6 +79,16 @@
     <string name="rc_recall_failed">撤回失败</string>
     <string name="rc_load_image_failed">图片加载失败</string>
     <string name="rc_send_large_gif_failed">该 GIF 图尺寸过大，无法发送</string>
+    <string name="rc_edit_status_progress">更新中</string>
+    <string name="rc_edit_status_success">已编辑</string>
+    <string name="rc_edit_status_failed">更新失败，点击重试</string>
+    <string name="rc_edit_status_retry_failed">重试失败，请稍后再试！</string>
+    <string name="rc_edit_status_expired">编辑已过期</string>
+    <string name="rc_reference_status_delete">此消息已删除</string>
+    <string name="rc_reference_status_recall">此消息已撤回</string>
+    <string name="rc_edit_failed_by_remote_msg_not_exist">云端消息不存在，无法编辑</string>
+    <string name="rc_edit_failed_by_sensitive">编辑内容含有敏感信息，更新失败</string>
+    <string name="rc_edit_failed_by_expire">超过有效编辑时间，无法编辑</string>
 
     <string name="rc_voice_rec">手指上滑，取消发送</string>
     <string name="rc_voice_cancel">手指上滑，取消发送</string>
@@ -174,6 +184,8 @@
     <string name="rc_dialog_ok">确定</string>
     <string name="rc_confirm">确认</string>
     <string name="rc_cancel">取消</string>
+    <string name="rc_back">返回</string>
+    <string name="rc_prompt">提示</string>
     <string name="rc_not_prompt">不再提示</string>
     <string name="rc_send">发送</string>
     <string name="rc_clear">清空</string>
@@ -185,11 +197,15 @@
     <string name="rc_dialog_item_message_delete_failed_msg">连接已断开，请稍后再试</string>
     <string name="rc_dialog_item_message_recall">撤回消息</string>
     <string name="rc_dialog_item_message_reference">引用消息</string>
+    <string name="rc_dialog_item_message_edit">消息编辑</string>
     <string name="rc_dialog_got_it">知道了</string>
     <string name="rc_dialog_destruct_hint">消息查看后自动销毁，消息禁止复制或转发，服务器不保留消息记录</string>
     <string name="rc_dialog_item_sight">小视频</string>
     <string name="rc_dialog_item_select_from_album">从相册选择</string>
     <string name="rc_dialog_no_plugin_warning">无可用插件</string>
+    <string name="rc_dialog_edit_message_content">正在编辑另一条消息，确定编辑当前消息后，则之前编辑的消息内容将丢失。</string>
+    <string name="rc_dialog_edit_message_is_delete">消息已删除，无法保存</string>
+    <string name="rc_dialog_edit_message_is_recall">消息已撤回，无法保存</string>
 
     //输入框区域
     <string name="rc_ext_voice_btn_press_to_speak">按住 说话</string>
@@ -202,7 +218,7 @@
     <string name="rc_ext_common_phrase">常用语</string>
 
     //@ 功能
-    <string name="rc_mention_title_choose_members">选择联系人</string>
+    <string name="rc_mention_title_choose_members">选择好友</string>
 
     //通知
     <string name="rc_notification_channel_name">新消息</string>
@@ -348,7 +364,8 @@
     <string name="rc_reference_file">[文件]</string>
     <string name="rc_search_file_prefix">[文件]&#160;</string>
     <string name="rc_message_unknown">当前版本暂不支持查看此消息</string>
-    <string name="rc_choose_members">选择联系人</string>
+    <string name="rc_message_unknown_notification">收到一条不支持的消息</string>
+    <string name="rc_choose_members">选择好友</string>
 
 
     <string name="rc_ac_file_download_preview">文件预览</string>
@@ -391,8 +408,8 @@
     <string name="rc_combine_group_chat">群聊的聊天记录</string>
     <string name="rc_combine_the_group_chat_of">%s 的聊天记录</string>
     <string name="rc_combine_and">和</string>
-    <string name="rc_combine_unsupported">未发送成功、阅后即焚、引用消息不支持转发</string>
-    <string name="rc_combine_unsupported_step">未发送成功、阅后即焚、音视频消息不支持转发</string>
+    <string name="rc_combine_unsupported">未发送成功、阅后即焚、引用消息、流式消息不支持转发</string>
+    <string name="rc_combine_unsupported_step">未发送成功、阅后即焚、音视频消息、流式消息不支持转发</string>
     <string name="rc_combine_webview_loading">聊天记录加载中...</string>
     <string name="rc_combine_webview_download_failed">聊天记录加载失败</string>
     <string name="rc_combine_history_deleted">聊天记录已被删除</string>
@@ -520,7 +537,186 @@
 
     <string name="rc_message_too_long">你输入的文本过长，无法发送</string>
     <string name="rc_gif_message_too_large">该 GIF 图尺寸过大，无法发送</string>
+    <string name="rc_upload_file_too_large">上传文件超过最大限制</string>
 
     <string name="rc_translate_failed_try_again">翻译失败，请重试</string>
     <string name="rc_translate_message">翻译消息</string>
+
+    <string name="rc_user_info">个人信息</string>
+    <string name="rc_new_friends">新的好友</string>
+    <string name="rc_head">头像</string>
+    <string name="rc_app">应用号</string>
+    <string name="rc_email">Email</string>
+    <string name="rc_gender">性别</string>
+    <string name="rc_gender_man">男</string>
+    <string name="rc_gender_female">女</string>
+
+    // 群组功能
+    <string name="rc_create_group">创建群组</string>
+    <string name="rc_group_name_hint">请输入群名称</string>
+    <string name="rc_input_length_invalid">长度为 1-64 个字符</string>
+    <string name="rc_create_group_failure">创建群组失败</string>
+
+    <string name="rc_group_info">群组信息(%d)</string>
+    <string name="rc_group_members_label">群成员(%d)</string>
+    <string name="rc_group_avatar">群组头像</string>
+    <string name="rc_group_name">群名称</string>
+    <string name="rc_group_announcement">群公告</string>
+    <string name="rc_my_nickname_in_group">我在本群的昵称</string>
+    <string name="rc_dissolve_group">解散群组</string>
+
+    <string name="rc_remove_member">移除成员</string>
+
+    <string name="rc_nickname_label">昵称</string>
+    <string name="rc_nickname_hint">请输入昵称</string>
+    <string name="rc_nickname_description">设置在当前群组中的用户名，其他群成员都可以看见</string>
+
+    <string name="rc_group_notice_hint">请输入群公告</string>
+
+    <string name="rc_friends">好友</string>
+    <string name="rc_search_friends">搜索好友</string>
+    <string name="rc_leave_group">退出群组</string>
+
+    <string name="rc_admin">管理员</string>
+    <string name="rc_group_owner">群主</string>
+
+    <string name="rc_profile_add_friend_hint">加好友信息...</string>
+
+    <string name="rc_empty_notice">该群还未添加公告信息</string>
+    <string name="rc_edit_permission">只有群主及管理员可以编辑</string>
+
+    <string name="rc_user_profile">用户详情</string>
+    <string name="rc_gender_edit">性别修改</string>
+    <string name="rc_set_remark_name">设置备注名</string>
+    <string name="rc_set_nick_name">昵称更改</string>
+
+    <string name="rc_delete_friend_success">删除好友成功</string>
+    <string name="rc_delete_friend_failed">删除好友失败</string>
+    <string name="rc_group_dismiss_success">解散群组成功</string>
+    <string name="rc_group_dismiss_failed">解散群组失败</string>
+    <string name="rc_group_quit_success">退出群组成功</string>
+    <string name="rc_group_quit_failed">退出群组失败</string>
+    <string name="rc_set_success">设置成功</string>
+    <string name="rc_set_failed">设置失败</string>
+    <string name="rc_group_members_kick_success">移除群成员成功</string>
+    <string name="rc_group_members_kick_failed">移除群成员失败</string>
+    <string name="rc_invite_join_group_success">邀请加入群组成功</string>
+    <string name="rc_invite_join_group_failed">邀请加入群组失败</string>
+
+    <string name="rc_group_notice_success">群公告发布成功</string>
+    <string name="rc_group_notice_failed">群公告发布失败</string>
+
+    <string name="rc_no_friend_added">还未添加好友</string>
+    <string name="rc_group_name_cannot_be_empty">群组名称不能为空</string>
+    <string name="rc_no_permission_to_modify_group_info">没有修改群信息权限</string>
+    <string name="rc_max_group_members_selection">最多可选择%d个群成员</string>
+
+    <string name="rc_add_friend">添加好友</string>
+    <string name="rc_add_as_friend">加为好友</string>
+    <string name="rc_user_does_not_exist">该用户不存在</string>
+    <string name="rc_reject_request">拒绝请求</string>
+    <string name="rc_reject_success">拒绝成功</string>
+    <string name="rc_passed">已通过</string>
+    <string name="rc_reject">拒绝</string>
+    <string name="rc_accept">接受</string>
+    <string name="rc_friend_nickname_hint">请添加备注名</string>
+    <string name="rc_remark">备注</string>
+    <string name="rc_unknow_type">未知</string>
+    <string name="rc_start_chat">发起聊天</string>
+    <string name="rc_start_audio">语音通话</string>
+    <string name="rc_start_video">视频聊天</string>
+    <string name="rc_delete_friend">删除好友</string>
+    <string name="rc_add_friend_hint">请输入添加理由（可选）</string>
+    <string name="rc_send_apply_success">好友请求已发送</string>
+    <string name="rc_send_apply_fail">好友请求发送失败</string>
+    <string name="rc_delete_friend_title">确认删除此好友</string>
+    <string name="rc_just_now">刚刚</string>
+    <string name="rc_within_three_days">三天内</string>
+    <string name="rc_three_days_ago">三天前</string>
+
+    <string name="rc_rejected">已拒绝</string>
+    <string name="rc_expired">已过期</string>
+    <string name="rc_added">已添加</string>
+    <string name="rc_waiting">等待验证</string>
+    <string name="rc_app_id">用户应用号</string>
+    <string name="rc_expand">展开</string>
+    <string name="rc_all_friend_request">全部好友请求</string>
+    <string name="rc_my_received_request">我接收的好友请求</string>
+    <string name="rc_my_sent_request">我发送的好友请求</string>
+    <string name="rc_request_add_friend">请求添加好友</string>
+
+    <!--5.12.2-->
+    <string name="rc_add_success">添加完成</string>
+    <string name="rc_add_failed">添加失败</string>
+    <string name="rc_remove_success">移除完成</string>
+    <string name="rc_remove_failed">移除失败</string>
+    <string name="rc_group_transfer_success">转让成功</string>
+    <string name="rc_group_transfer_failed">转让失败</string>
+    <string name="rc_invite_confirm_failed">确认邀请失败</string>
+    <string name="rc_invite_reject_failed">拒绝邀请失败</string>
+
+    <string name="rc_group_permission_owner_only">仅群主可操作</string>
+    <string name="rc_group_permission_owner_and_admins">群主或管理员可操作</string>
+    <string name="rc_group_permission_all">全员可操作</string>
+    <string name="rc_group_edit_permission_owner_only">只有群主可以编辑</string>
+    <string name="rc_invite_join_group_send">已发送邀请，被邀请用户同意后加入群组</string>
+    <string name="rc_invite_join_group_send_need_manange">已发送邀请，需要管理员同意后加入群组</string>
+
+    <string name="rc_group_transfer_hint">确定选择 %1$s 为新群主，你将放弃群主身份</string>
+    <string name="rc_remove_manager_hint">确定将 %1$s 从管理员列表中移除吗？</string>
+    <string name="rc_add_manager_hint">确定将 %1$s 设置为管理员吗？</string>
+    <string name="rc_remove_follow_hint">移除后, “%1$s” 在群内发消息不会给你发提醒</string>
+    <string name="rc_publish_announcement_hint">该公告会通知全部群成员，是否发布？</string>
+
+    <string name="rc_group_title">群组名称</string>
+    <string name="rc_group_remark">群聊备注</string>
+    <string name="rc_group_member_remark">群备注</string>
+    <string name="rc_group_note_hint">请输入群备注</string>
+    <string name="rc_group_nickname">群内昵称</string>
+    <string name="rc_group_notification">群通知</string>
+    <string name="rc_group_name_edit">修改群名称</string>
+    <string name="rc_group_no_special_attention">暂无特别关注</string>
+    <string name="rc_no_data">暂无数据</string>
+
+    <string name="rc_group_management">群管理</string>
+    <string name="rc_group_follows">特别关注成员</string>
+    <string name="rc_group_managers">群管理员</string>
+    <string name="rc_group_add_manager">添加管理员</string>
+    <string name="rc_group_add_member">添加成员</string>
+    <string name="rc_group_select_member">选择群成员</string>
+    <string name="rc_group_edit_info_permission">谁可以编辑群信息</string>
+    <string name="rc_group_add_member_permission">谁可以添加群成员</string>
+    <string name="rc_group_remove_member_permission">谁可以移除群成员</string>
+    <string name="rc_group_edit_member_info_permission">谁可以修改群成员资料</string>
+    <string name="rc_group_invitation_confirmation">群聊邀请确认</string>
+    <string name="rc_group_transfer">转让群</string>
+    <string name="rc_group_transfer_title">转让该群</string>
+
+    <string name="rc_joined">已加入</string>
+    <string name="rc_invitee_pending">被邀请人待处理</string>
+    <string name="rc_manager_pending">管理员待处理</string>
+    <string name="rc_manager_rejected">管理员已拒绝</string>
+    <string name="rc_invitee_rejected">被邀请人已拒绝</string>
+
+    <string name="rc_my_groups">我的群组</string>
+    <string name="rc_all_requests">全部请求</string>
+    <string name="rc_pending_confirmation">待确认</string>
+    <string name="rc_completed">已完成</string>
+    <string name="rc_group_application_sent">您申请加入</string>
+    <string name="rc_group_invitation_sent">您邀请 %1$s 加入</string>
+    <string name="rc_group_invitation_received_inviter">%1$s 邀请 您 加入</string>
+    <string name="rc_group_application_received_invitation">%1$s 邀请 %2$s 加入</string>
+    <string name="rc_group_application_received_request">%1$s 申请加入</string>
+    <string name="rc_user_not_found">未搜索到用户</string>
+
+    <string name="rc_chat_pin">会话置顶</string>
+    <string name="rc_notification_mute">消息免打扰</string>
+    <string name="rc_remove">移除</string>
+    <!--5.12.2-->
+
+    <!--5.16.0-->
+    <string name="rc_loading_saving">保存中</string>
+    <string name="rc_content_contain_sensitive">操作失败，内容包含敏感信息</string>
+    <!--5.16.0-->
+
 </resources>

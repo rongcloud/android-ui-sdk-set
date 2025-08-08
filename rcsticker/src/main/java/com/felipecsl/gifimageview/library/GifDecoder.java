@@ -53,21 +53,28 @@ class GifDecoder {
 
     /** File read status: No errors. */
     static final int STATUS_OK = 0;
+
     /** File read status: Error decoding file (may be partially decoded). */
     static final int STATUS_FORMAT_ERROR = 1;
+
     /** File read status: Unable to open source. */
     static final int STATUS_OPEN_ERROR = 2;
+
     /** Unable to fully decode the current frame. */
     static final int STATUS_PARTIAL_DECODE = 3;
+
     /** max decoder pixel stack size. */
     private static final int MAX_STACK_SIZE = 4096;
 
     /** GIF Disposal Method meaning take no action. */
     private static final int DISPOSAL_UNSPECIFIED = 0;
+
     /** GIF Disposal Method meaning leave canvas from previous frame. */
     private static final int DISPOSAL_NONE = 1;
+
     /** GIF Disposal Method meaning clear canvas to background color. */
     private static final int DISPOSAL_BACKGROUND = 2;
+
     /** GIF Disposal Method meaning clear canvas to frame before last. */
     private static final int DISPOSAL_PREVIOUS = 3;
 

@@ -8,20 +8,27 @@ import io.rong.imkit.RongIM;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.Event;
+import io.rong.imkit.event.actionevent.RefreshEvent;
 import io.rong.imkit.event.uievent.ScrollMentionEvent;
 import io.rong.imkit.event.uievent.ShowLoadMessageDialogEvent;
 import io.rong.imkit.widget.refresh.constant.RefreshState;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.HistoryMessageOption;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageResult;
+import io.rong.imlib.params.RefreshReferenceMessageParams;
+import io.rong.message.ReferenceMessage;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class MessageProcessor {
@@ -50,19 +57,27 @@ public class MessageProcessor {
                             new RongIMClient.ResultCallback<List<Message>>() {
                                 @Override
                                 public void onSuccess(List<Message> messages) {
-                                    if (!isForward) {
-                                        Collections.reverse(messages);
-                                    }
-                                    // 如果本地查询的消息有断档，则不抛给上层数据，使用断档接口查询最新消息
-                                    //                                    if
-                                    // (!isMayHasMoreMessagesBefore(messages)) {
-                                    //
-                                    //                                    }
-                                    if (callback != null) {
-                                        callback.onSuccess(messages, false);
-                                    }
-                                    // 无论成功或者失败，均需要再调用一次断档接口
-                                    getMessages(weakVM.get(), sentTime, count, isForward, callback);
+                                    refreshReferenceMessage(
+                                            messageViewModel.getConversationIdentifier(),
+                                            messages,
+                                            new RefreshCallback<List<Message>>() {
+                                                @Override
+                                                public void onSuccess(List<Message> refreshList) {
+                                                    if (!isForward) {
+                                                        Collections.reverse(refreshList);
+                                                    }
+                                                    if (callback != null) {
+                                                        callback.onSuccess(refreshList, false);
+                                                    }
+                                                    // 无论成功或者失败，均需要再调用一次断档接口
+                                                    getMessages(
+                                                            weakVM.get(),
+                                                            sentTime,
+                                                            count,
+                                                            isForward,
+                                                            callback);
+                                                }
+                                            });
                                 }
 
                                 @Override
@@ -123,53 +138,76 @@ public class MessageProcessor {
                 .getMessages(
                         messageViewModel.getConversationIdentifier(),
                         historyMessageOption,
-                        new IRongCoreCallback.IGetMessageCallback() {
+                        new IRongCoreCallback.IGetMessageCallbackEx() {
                             @Override
                             public void onComplete(
                                     List<Message> messageList,
+                                    long syncTimestamp,
+                                    boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                IRongCoreEnum.ConversationLoadMessageType type =
-                                        RongConfigCenter.conversationConfig()
-                                                .getConversationLoadMessageType();
-                                if (!isForward) {
-                                    Collections.reverse(messageList);
-                                }
+                                RefreshCallback refreshCallback =
+                                        new RefreshCallback<List<Message>>() {
+                                            @Override
+                                            public void onSuccess(List<Message> refreshList) {
+                                                IRongCoreEnum.ConversationLoadMessageType type =
+                                                        RongConfigCenter.conversationConfig()
+                                                                .getConversationLoadMessageType();
+                                                if (!isForward) {
+                                                    Collections.reverse(refreshList);
+                                                }
 
-                                if (IRongCoreEnum.CoreErrorCode.SUCCESS.equals(errorCode)) {
-                                    if (callback != null) {
-                                        callback.onSuccess(messageList, false);
-                                    }
-                                    return;
-                                }
-                                if (IRongCoreEnum.ConversationLoadMessageType.ASK.equals(type)) {
-                                    if (callback != null) {
-                                        if (weakVM.get() != null) {
-                                            weakVM.get()
-                                                    .executePageEvent(
-                                                            new ShowLoadMessageDialogEvent(
-                                                                    callback, messageList));
-                                        }
-                                        callback.onErrorAsk(messageList);
-                                    }
-                                } else if (IRongCoreEnum.ConversationLoadMessageType.ONLY_SUCCESS
-                                        .equals(type)) {
-                                    if (weakVM.get() != null) {
-                                        weakVM.get()
-                                                .onGetHistoryMessage(
-                                                        Collections.<Message>emptyList());
-                                    }
-                                    if (callback != null) {
-                                        callback.onErrorOnlySuccess();
-                                    }
-                                } else {
-                                    if (weakVM.get() != null) {
-                                        weakVM.get().onGetHistoryMessage(messageList);
-                                    }
-                                    if (callback != null) {
-                                        callback.onErrorAlways(messageList);
-                                    }
-                                }
+                                                if (IRongCoreEnum.CoreErrorCode.SUCCESS.equals(
+                                                        errorCode)) {
+                                                    if (callback != null) {
+                                                        callback.onSuccess(
+                                                                refreshList, false, hasMoreMsg);
+                                                    }
+                                                    return;
+                                                }
+                                                if (IRongCoreEnum.ConversationLoadMessageType.ASK
+                                                        .equals(type)) {
+                                                    if (callback != null) {
+                                                        if (weakVM.get() != null) {
+                                                            weakVM.get()
+                                                                    .executePageEvent(
+                                                                            new ShowLoadMessageDialogEvent(
+                                                                                    callback,
+                                                                                    refreshList));
+                                                        }
+                                                        callback.onErrorAsk(refreshList);
+                                                    }
+                                                } else if (IRongCoreEnum.ConversationLoadMessageType
+                                                        .ONLY_SUCCESS
+                                                        .equals(type)) {
+                                                    if (weakVM.get() != null) {
+                                                        weakVM.get()
+                                                                .onGetHistoryMessage(
+                                                                        Collections
+                                                                                .<Message>
+                                                                                        emptyList());
+                                                    }
+                                                    if (callback != null) {
+                                                        callback.onErrorOnlySuccess();
+                                                    }
+                                                } else {
+                                                    if (weakVM.get() != null) {
+                                                        weakVM.get()
+                                                                .onGetHistoryMessage(refreshList);
+                                                    }
+                                                    if (callback != null) {
+                                                        callback.onErrorAlways(refreshList);
+                                                    }
+                                                }
+                                            }
+                                        };
+                                refreshReferenceMessage(
+                                        messageViewModel.getConversationIdentifier(),
+                                        messageList,
+                                        refreshCallback);
                             }
+
+                            @Override
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
                         });
     }
 
@@ -199,58 +237,77 @@ public class MessageProcessor {
                         messageViewModel.getCurTargetId(),
                         messageViewModel.getConversationIdentifier().getChannelId(),
                         historyMessageOption,
-                        new IRongCoreCallback.IGetMessageCallback() {
-
+                        new IRongCoreCallback.IGetMessageCallbackEx() {
                             @Override
                             public void onComplete(
                                     List<Message> messageList,
+                                    long syncTimestamp,
+                                    boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                IRongCoreEnum.ConversationLoadMessageType type =
-                                        RongConfigCenter.conversationConfig()
-                                                .getConversationLoadMessageType();
-                                Collections.reverse(messageList);
-                                allData.addAll(messageList);
-                                if (errorCode == IRongCoreEnum.CoreErrorCode.SUCCESS) {
-                                    getMessagesDescend(
-                                            finalDescendSentTime,
-                                            after,
-                                            weakVM.get(),
-                                            allData,
-                                            errorCode,
-                                            callback);
-                                    return;
-                                }
+                                RefreshCallback refreshCallback =
+                                        new RefreshCallback<List<Message>>() {
+                                            @Override
+                                            public void onSuccess(List<Message> refreshList) {
+                                                IRongCoreEnum.ConversationLoadMessageType type =
+                                                        RongConfigCenter.conversationConfig()
+                                                                .getConversationLoadMessageType();
+                                                Collections.reverse(refreshList);
+                                                allData.addAll(refreshList);
+                                                if (errorCode
+                                                        == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+                                                    getMessagesDescend(
+                                                            finalDescendSentTime,
+                                                            after,
+                                                            weakVM.get(),
+                                                            allData,
+                                                            errorCode,
+                                                            callback);
+                                                    return;
+                                                }
 
-                                if (IRongCoreEnum.ConversationLoadMessageType.ASK.equals(type)) {
-                                    if (weakVM.get() != null) {
-                                        weakVM.get()
-                                                .executePageEvent(
-                                                        new ShowLoadMessageDialogEvent(
-                                                                callback, allData));
-                                    }
-                                    if (callback != null) {
-                                        callback.onErrorAsk(allData);
-                                    }
-                                } else if (IRongCoreEnum.ConversationLoadMessageType.ONLY_SUCCESS
-                                        .equals(type)) {
-                                    if (weakVM.get() != null) {
-                                        weakVM.get()
-                                                .onGetHistoryMessage(
-                                                        Collections.<Message>emptyList());
-                                    }
-                                    if (callback != null) {
-                                        callback.onErrorOnlySuccess();
-                                    }
-                                } else {
-                                    getMessagesDescend(
-                                            finalDescendSentTime,
-                                            after,
-                                            weakVM.get(),
-                                            allData,
-                                            errorCode,
-                                            callback);
-                                }
+                                                if (IRongCoreEnum.ConversationLoadMessageType.ASK
+                                                        .equals(type)) {
+                                                    if (weakVM.get() != null) {
+                                                        weakVM.get()
+                                                                .executePageEvent(
+                                                                        new ShowLoadMessageDialogEvent(
+                                                                                callback, allData));
+                                                    }
+                                                    if (callback != null) {
+                                                        callback.onErrorAsk(allData);
+                                                    }
+                                                } else if (IRongCoreEnum.ConversationLoadMessageType
+                                                        .ONLY_SUCCESS
+                                                        .equals(type)) {
+                                                    if (weakVM.get() != null) {
+                                                        weakVM.get()
+                                                                .onGetHistoryMessage(
+                                                                        Collections
+                                                                                .<Message>
+                                                                                        emptyList());
+                                                    }
+                                                    if (callback != null) {
+                                                        callback.onErrorOnlySuccess();
+                                                    }
+                                                } else {
+                                                    getMessagesDescend(
+                                                            finalDescendSentTime,
+                                                            after,
+                                                            weakVM.get(),
+                                                            allData,
+                                                            errorCode,
+                                                            callback);
+                                                }
+                                            }
+                                        };
+                                refreshReferenceMessage(
+                                        messageViewModel.getConversationIdentifier(),
+                                        messageList,
+                                        refreshCallback);
                             }
+
+                            @Override
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
                         });
     }
 
@@ -277,23 +334,41 @@ public class MessageProcessor {
                         viewModel.getCurTargetId(),
                         viewModel.getConversationIdentifier().getChannelId(),
                         historyMessageOption,
-                        new IRongCoreCallback.IGetMessageCallback() {
-
+                        new IRongCoreCallback.IGetMessageCallbackEx() {
                             @Override
                             public void onComplete(
                                     List<Message> messageList,
+                                    long syncTimestamp,
+                                    boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                if (!(messageList == null || messageList.isEmpty())) {
-                                    allData.addAll(messageList);
-                                }
-                                if (callback != null) {
-                                    if (code == IRongCoreEnum.CoreErrorCode.SUCCESS) {
-                                        callback.onSuccess(allData, false);
-                                    } else {
-                                        callback.onErrorAlways(allData);
-                                    }
-                                }
+                                RefreshCallback refreshCallback =
+                                        new RefreshCallback<List<Message>>() {
+                                            @Override
+                                            public void onSuccess(List<Message> refreshList) {
+                                                if (!(refreshList == null
+                                                        || refreshList.isEmpty())) {
+                                                    allData.addAll(refreshList);
+                                                }
+                                                if (callback != null) {
+                                                    if (code
+                                                            == IRongCoreEnum.CoreErrorCode
+                                                                    .SUCCESS) {
+                                                        callback.onSuccess(
+                                                                allData, false, hasMoreMsg);
+                                                    } else {
+                                                        callback.onErrorAlways(allData);
+                                                    }
+                                                }
+                                            }
+                                        };
+                                refreshReferenceMessage(
+                                        viewModel.getConversationIdentifier(),
+                                        messageList,
+                                        refreshCallback);
                             }
+
+                            @Override
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
                         });
     }
 
@@ -437,32 +512,46 @@ public class MessageProcessor {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
-                                // 不为空且大于0证明还有本地数据
-                                if (messages != null && messages.size() > 0) {
-                                    List<Message> result;
-                                    // 如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
-                                    if (messages.size() < DEFAULT_COUNT + 1) {
-                                        result = messages;
-                                    } else {
-                                        result = messages.subList(0, DEFAULT_COUNT);
-                                    }
-                                    weakVM.get().onGetHistoryMessage(result);
-                                    weakVM.get()
-                                            .executePageEvent(
-                                                    new Event.RefreshEvent(
-                                                            RefreshState.RefreshFinish));
-                                } else {
-                                    // 如果远端消息已经全部拉取完，则直接关闭
-                                    if (!weakVM.get().isRemoteMessageLoadFinish()) {
-                                        // 拉取不到本地消息，表示拉取完,调用拉取远端离线消息
-                                        getRemoteMessage(weakVM.get());
-                                    } else {
-                                        weakVM.get()
-                                                .executePageEvent(
-                                                        new Event.RefreshEvent(
-                                                                RefreshState.RefreshFinish));
-                                    }
-                                }
+                                RefreshCallback refreshCallback =
+                                        new RefreshCallback<List<Message>>() {
+                                            @Override
+                                            public void onSuccess(List<Message> refreshList) {
+                                                // 不为空且大于0证明还有本地数据
+                                                if (refreshList != null && refreshList.size() > 0) {
+                                                    List<Message> result;
+                                                    // 如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
+                                                    if (refreshList.size() < DEFAULT_COUNT + 1) {
+                                                        result = refreshList;
+                                                    } else {
+                                                        result =
+                                                                refreshList.subList(
+                                                                        0, DEFAULT_COUNT);
+                                                    }
+                                                    weakVM.get().onGetHistoryMessage(result);
+                                                    weakVM.get()
+                                                            .executePageEvent(
+                                                                    new Event.RefreshEvent(
+                                                                            RefreshState
+                                                                                    .RefreshFinish));
+                                                } else {
+                                                    // 如果远端消息已经全部拉取完，则直接关闭
+                                                    if (!weakVM.get().isRemoteMessageLoadFinish()) {
+                                                        // 拉取不到本地消息，表示拉取完,调用拉取远端离线消息
+                                                        getRemoteMessage(weakVM.get());
+                                                    } else {
+                                                        weakVM.get()
+                                                                .executePageEvent(
+                                                                        new Event.RefreshEvent(
+                                                                                RefreshState
+                                                                                        .RefreshFinish));
+                                                    }
+                                                }
+                                            }
+                                        };
+                                refreshReferenceMessage(
+                                        messageViewModel.getConversationIdentifier(),
+                                        messages,
+                                        refreshCallback);
                             }
 
                             @Override
@@ -489,16 +578,28 @@ public class MessageProcessor {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
-                                // 不为空且大于0证明还有本地数据
-                                if (messages != null && messages.size() > 0) {
-                                    // 如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
-                                    List<Message> result;
-                                    result = messages;
-                                    weakVM.get().onGetHistoryMessage(result);
-                                }
-                                weakVM.get()
-                                        .executePageEvent(
-                                                new Event.RefreshEvent(RefreshState.RefreshFinish));
+                                RefreshCallback refreshCallback =
+                                        new RefreshCallback<List<Message>>() {
+                                            @Override
+                                            public void onSuccess(List<Message> refreshList) {
+                                                // 不为空且大于0证明还有本地数据
+                                                if (refreshList != null && refreshList.size() > 0) {
+                                                    // 如果不等于默认拉取条数，则证明本地拉取完毕记录标记位
+                                                    List<Message> result;
+                                                    result = refreshList;
+                                                    weakVM.get().onGetHistoryMessage(result);
+                                                }
+                                                weakVM.get()
+                                                        .executePageEvent(
+                                                                new Event.RefreshEvent(
+                                                                        RefreshState
+                                                                                .RefreshFinish));
+                                            }
+                                        };
+                                refreshReferenceMessage(
+                                        messageViewModel.getConversationIdentifier(),
+                                        messages,
+                                        refreshCallback);
                             }
 
                             @Override
@@ -513,8 +614,120 @@ public class MessageProcessor {
                         });
     }
 
+    public static void refreshReferenceMessage(Message message, RefreshCallback<Message> callback) {
+        if (message.getContent() instanceof ReferenceMessage
+                && RongConfigCenter.featureConfig().isEditMessageEnable()) {
+            ReferenceMessage referenceMessage = (ReferenceMessage) message.getContent();
+            RongCoreClient.getInstance()
+                    .getMessageByUid(
+                            referenceMessage.getReferMsgUid(),
+                            new IRongCoreCallback.ResultCallback<Message>() {
+                                @Override
+                                public void onSuccess(Message newMessage) {
+                                    if (newMessage.isHasChanged()) {
+                                        referenceMessage.setReferMsgStatus(
+                                                ReferenceMessage.ReferenceMessageStatus.MODIFIED);
+                                    }
+                                    callback.onSuccess(message);
+                                }
+
+                                @Override
+                                public void onError(IRongCoreEnum.CoreErrorCode e) {
+                                    callback.onSuccess(message);
+                                }
+                            });
+        } else {
+            callback.onSuccess(message);
+        }
+    }
+
+    private static void refreshReferenceMessage(
+            ConversationIdentifier id,
+            List<Message> messagesList,
+            RefreshCallback<List<Message>> callback) {
+        if (messagesList == null || messagesList.isEmpty()) {
+            callback.onSuccess(messagesList);
+            return;
+        }
+        List<String> uIds = new ArrayList<>();
+        for (Message message : messagesList) {
+            if (message.getContent() instanceof ReferenceMessage) {
+                ReferenceMessage.ReferenceMessageStatus status =
+                        ((ReferenceMessage) message.getContent()).getReferMsgStatus();
+                if (status == ReferenceMessage.ReferenceMessageStatus.MODIFIED
+                        || status == ReferenceMessage.ReferenceMessageStatus.DEFAULT) {
+                    uIds.add(message.getUId());
+                }
+            }
+        }
+        if (uIds.isEmpty()) {
+            callback.onSuccess(messagesList);
+            return;
+        }
+        List<Message> resultList = new ArrayList<>(messagesList);
+
+        RefreshReferenceMessageParams params = new RefreshReferenceMessageParams(id, uIds);
+        RongCoreClient.getInstance()
+                .refreshReferenceMessageWithParams(
+                        params,
+                        new IRongCoreCallback.RefreshReferenceMessageCallback() {
+                            @Override
+                            public void onLocalMessageBlock(List<MessageResult> msgList) {
+                                if (msgList == null || msgList.isEmpty()) {
+                                    callback.onSuccess(resultList);
+                                    return;
+                                }
+                                HashMap<String, MessageResult> map = new HashMap<>();
+                                for (MessageResult messageResult : msgList) {
+                                    if (messageResult.getMessage() != null) {
+                                        map.put(messageResult.getMessageUId(), messageResult);
+                                    }
+                                }
+                                for (int i = 0; i < resultList.size(); i++) {
+                                    Message msg = resultList.get(i);
+                                    if (msg.getContent() instanceof ReferenceMessage) {
+                                        MessageResult msgResult = map.get(msg.getUId());
+                                        if (msgResult != null && msgResult.getMessage() != null) {
+                                            resultList.set(i, msgResult.getMessage());
+                                        }
+                                    }
+                                }
+                                callback.onSuccess(resultList);
+                            }
+
+                            @Override
+                            public void onRemoteMessageBlock(List<MessageResult> msgList) {
+                                if (msgList == null || msgList.isEmpty()) {
+                                    return;
+                                }
+                                List<Message> messages = new ArrayList<>();
+                                for (MessageResult messageResult : msgList) {
+                                    if (messageResult.getMessage() != null) {
+                                        messages.add(messageResult.getMessage());
+                                    }
+                                }
+                                RefreshEvent event = new RefreshEvent(messages, true);
+                                IMCenter.getInstance().refreshMessage(event);
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
+                                callback.onSuccess(resultList);
+                            }
+                        });
+    }
+
+    public interface RefreshCallback<T> {
+        void onSuccess(T result);
+    }
+
     public interface GetMessageCallback {
-        void onSuccess(List<Message> list, boolean loadOnlyOnce);
+
+        default void onSuccess(List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {}
+
+        default void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+            onSuccess(list, loadOnlyOnce, true);
+        }
 
         void onErrorAsk(List<Message> list);
 

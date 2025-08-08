@@ -19,6 +19,7 @@ public class StickerMessage extends MessageContent {
     private String digest;
     private int width;
     private int height;
+
     // </editor-fold>
 
     // <editor-fold desc="* 2. 对外构造方法">
@@ -75,6 +76,7 @@ public class StickerMessage extends MessageContent {
             RLog.e(TAG, e.getMessage());
         }
     }
+
     // </editor-fold>
 
     // <editor-fold desc="* 4. Parcel 的序列化方法">
@@ -114,6 +116,7 @@ public class StickerMessage extends MessageContent {
     public int describeContents() {
         return 0;
     }
+
     // </editor-fold>
 
     // <editor-fold desc="* 5. get & set 方法">

@@ -133,13 +133,17 @@ public final class PictureSelector {
         }
     }
 
-    /** @return Activity. */
+    /**
+     * @return Activity.
+     */
     @Nullable
     Activity getActivity() {
         return mActivity.get();
     }
 
-    /** @return Fragment. */
+    /**
+     * @return Fragment.
+     */
     @Nullable
     Fragment getFragment() {
         return mFragment != null ? mFragment.get() : null;

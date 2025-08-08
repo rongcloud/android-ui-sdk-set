@@ -73,7 +73,7 @@ public class ContactMessageItemProvider extends BaseMessageItemProvider<ContactM
         Glide.with(imageView)
                 .load(contactMessage.getImgUrl())
                 .apply(options)
-                .placeholder(R.drawable.rc_default_portrait)
+                .placeholder(io.rong.imkit.R.drawable.rc_default_portrait)
                 .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .into(imageView);
 
@@ -124,9 +124,9 @@ public class ContactMessageItemProvider extends BaseMessageItemProvider<ContactM
         }
 
         if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.RECEIVE) {
-            holder.setBackgroundRes(R.id.rc_layout, R.drawable.rc_contact_bg_receive);
+            holder.setBackgroundRes(io.rong.imkit.R.id.rc_layout, R.drawable.rc_contact_bg_receive);
         } else {
-            holder.setBackgroundRes(R.id.rc_layout, R.drawable.rc_contact_bg_send);
+            holder.setBackgroundRes(io.rong.imkit.R.id.rc_layout, R.drawable.rc_contact_bg_send);
         }
     }
 

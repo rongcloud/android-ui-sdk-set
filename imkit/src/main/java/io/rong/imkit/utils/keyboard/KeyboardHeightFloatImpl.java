@@ -11,7 +11,9 @@ import android.view.ViewParent;
 import android.view.WindowManager;
 import io.rong.common.rlog.RLog;
 
-/** @author gusd */
+/**
+ * @author gusd
+ */
 public class KeyboardHeightFloatImpl
         implements KeyboardHeightPresenter, View.OnLayoutChangeListener {
 

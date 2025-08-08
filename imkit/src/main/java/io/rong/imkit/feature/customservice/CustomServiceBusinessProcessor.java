@@ -37,6 +37,7 @@ public class CustomServiceBusinessProcessor extends BaseBusinessProcessor
     private final String TAG = CustomServiceBusinessProcessor.class.getSimpleName();
     private final int CS_HUMAN_MODE_CUSTOMER_EXPIRE = 0;
     private final int CS_HUMAN_MODE_SEAT_EXPIRE = 1;
+
     /** 进入客服会话，弹出评价菜单超时时间(单位：秒) 设置为 0 时，任何时候离开客服会话时，都会弹出评价菜单. */
     private long rc_custom_service_evaluation_interval = 60 * 1000L;
 

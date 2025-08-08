@@ -20,6 +20,7 @@ import androidx.viewpager.widget.ViewPager;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
+import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imlib.model.Conversation;
 import java.util.ArrayList;
@@ -167,9 +168,19 @@ public class EmoticonBoard {
                 RongExtensionManager.getInstance()
                         .getExtensionConfig()
                         .getEmoticonTabs(mConversationType, mTargetId);
+        String DEFAULT_TAG = "DefaultExtensionModule";
+        boolean isEditMessageState = EditMessageManager.getInstance().isEditMessageState();
+        // 编辑状态，只保留默认的表情
+        if (isEditMessageState) {
+            List<IEmoticonTab> emoticonTabs = mEmotionTabs.get(DEFAULT_TAG);
+            mEmotionTabs.clear();
+            if (emoticonTabs != null && !emoticonTabs.isEmpty()) {
+                mEmotionTabs.put(DEFAULT_TAG, emoticonTabs);
+            }
+        }
         for (IEmoticonTab tab : getAllTabs()) {
             if (mDisableSystemEmoji && tab instanceof EmojiTab) {
-                mEmotionTabs.remove("DefaultExtensionModule");
+                mEmotionTabs.remove(DEFAULT_TAG);
                 continue;
             }
             if (mFragment.getContext() != null) {

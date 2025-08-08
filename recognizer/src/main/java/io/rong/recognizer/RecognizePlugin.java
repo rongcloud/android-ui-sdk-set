@@ -47,7 +47,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
         // 判断正在视频通话和语音通话中不能进行语音消息发送
         if (RongOperationPermissionUtils.isOnRequestHardwareResource()) {
-            String text = currentFragment.getString(R.string.rc_voip_occupying);
+            String text = currentFragment.getString(io.rong.imkit.R.string.rc_voip_occupying);
             ToastUtils.show(currentFragment.getActivity(), text, Toast.LENGTH_SHORT);
             return;
         }
@@ -85,7 +85,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
                 new IRecognizedResult() {
                     @Override
                     public void onResult(String data) {
-                        EditText inputEditText = extension.getInputEditText();
+                        EditText inputEditText = mExtensionViewModel.getEditTextWidget();
                         if (inputEditText != null && inputEditText.getText() != null) {
                             String str = inputEditText.getText().toString() + data;
                             inputEditText.setText(str);
@@ -95,7 +95,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
                     @Override
                     public void onClearClick() {
-                        EditText inputEditText = extension.getInputEditText();
+                        EditText inputEditText = mExtensionViewModel.getEditTextWidget();
                         if (inputEditText != null) {
                             inputEditText.setText("");
                         }

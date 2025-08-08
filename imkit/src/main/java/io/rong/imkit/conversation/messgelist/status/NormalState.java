@@ -43,9 +43,10 @@ public class NormalState implements IMessageState {
                 true,
                 new MessageProcessor.GetMessageCallback() {
                     @Override
-                    public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                    public void onSuccess(
+                            List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                         if (weakVM.get() != null) {
-                            weakVM.get().onGetHistoryMessage(list);
+                            weakVM.get().onGetHistoryMessage(list, isHasMoreMsg);
                             // 处理未读消息
                             MessageProcessor.processUnread(weakVM.get());
                         }
@@ -88,7 +89,8 @@ public class NormalState implements IMessageState {
                 false,
                 new MessageProcessor.GetMessageCallback() {
                     @Override
-                    public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                    public void onSuccess(
+                            List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                         if (weakVM.get() != null) {
                             weakVM.get().onLoadMoreMessage(list);
                             weakVM.get()
@@ -141,10 +143,11 @@ public class NormalState implements IMessageState {
                     new MessageProcessor.GetMessageCallback() {
 
                         @Override
-                        public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                        public void onSuccess(
+                                List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                             isRefreshLoading = loadOnlyOnce;
                             if (weakVM.get() != null) {
-                                weakVM.get().onGetHistoryMessage(list);
+                                weakVM.get().onGetHistoryMessage(list, isHasMoreMsg);
                                 weakVM.get()
                                         .executePageEvent(
                                                 new Event.RefreshEvent(RefreshState.RefreshFinish));
@@ -278,7 +281,10 @@ public class NormalState implements IMessageState {
                         DEFAULT_COUNT,
                         new MessageProcessor.GetMessageCallback() {
                             @Override
-                            public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                            public void onSuccess(
+                                    List<Message> list,
+                                    boolean loadOnlyOnce,
+                                    boolean isHasMoreMsg) {
                                 isLoading = loadOnlyOnce;
                                 if (list.size() < DEFAULT_COUNT * 2) {
                                     context.setCurrentState(context.normalState);
@@ -344,7 +350,8 @@ public class NormalState implements IMessageState {
                     false,
                     new MessageProcessor.GetMessageCallback() {
                         @Override
-                        public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                        public void onSuccess(
+                                List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                             if (weakVM.get() != null) {
                                 executeMentionHistoryMsg(list, weakVM.get());
                             }
@@ -403,7 +410,8 @@ public class NormalState implements IMessageState {
                     false,
                     new MessageProcessor.GetMessageCallback() {
                         @Override
-                        public void onSuccess(List<Message> list, boolean loadOnlyOnce) {
+                        public void onSuccess(
+                                List<Message> list, boolean loadOnlyOnce, boolean isHasMoreMsg) {
                             if (weakVM.get() != null) {
                                 executeHistoryBarClick(list, weakVM.get());
                             }

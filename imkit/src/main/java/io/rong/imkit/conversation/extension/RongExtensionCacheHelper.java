@@ -2,14 +2,24 @@ package io.rong.imkit.conversation.extension;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+import io.rong.common.rlog.RLog;
+import io.rong.imkit.feature.editmessage.EditMessageConfig;
+import io.rong.imkit.feature.mention.MentionBlock;
 import io.rong.imkit.utils.StringUtils;
 import io.rong.imlib.model.Conversation;
+import java.util.ArrayList;
+import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class RongExtensionCacheHelper {
     private static final String EXTENSION_PREFERENCE = "RongExtension";
     private static final String VOICE_INPUT_MODE = "voiceInputMode";
     private static final String DESTRUCT_MODE = "destructInputMode";
     private static final String DESTRUCT_FIRST_USING = "destructFirstUsing";
+    private static final String EDIT_MESSAGE = "editMessage_";
 
     public static void saveVoiceInputMode(
             Context context,
@@ -84,5 +94,84 @@ public class RongExtensionCacheHelper {
                 context.getSharedPreferences(EXTENSION_PREFERENCE, Context.MODE_PRIVATE);
         return sharedPreferences.getBoolean(
                 StringUtils.getKey(conversationType.getName(), targetId), false);
+    }
+
+    public static void setEditMessageConfig(
+            Context context,
+            Conversation.ConversationType conversationType,
+            String targetId,
+            EditMessageConfig config) {
+        if (config == null || TextUtils.isEmpty(config.uid)) {
+            return;
+        }
+        SharedPreferences sp =
+                context.getSharedPreferences(EXTENSION_PREFERENCE, Context.MODE_PRIVATE);
+        String key = EDIT_MESSAGE + StringUtils.getKey(conversationType.getName(), targetId);
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uid", config.uid);
+            jsonObject.put("content", config.content);
+            jsonObject.put(
+                    "referContent",
+                    !TextUtils.isEmpty(config.referContent) ? config.referContent : "");
+            jsonObject.put("sentTime", config.sentTime);
+            if (config.mentionBlocks != null && !config.mentionBlocks.isEmpty()) {
+                JSONArray jsonArray = new JSONArray();
+                for (MentionBlock mentionBlock : config.mentionBlocks) {
+                    jsonArray.put(mentionBlock.toJson());
+                }
+                jsonObject.put("mentionBlocks", jsonArray);
+            }
+        } catch (JSONException e) {
+            RLog.e("RongExtensionCacheHelper", "setEditMessageConfig: " + e);
+        }
+        sp.edit().putString(key, jsonObject.toString()).apply();
+    }
+
+    public static void clearEditMessageConfig(
+            Context context, Conversation.ConversationType conversationType, String targetId) {
+        SharedPreferences sp =
+                context.getSharedPreferences(EXTENSION_PREFERENCE, Context.MODE_PRIVATE);
+        String key = EDIT_MESSAGE + StringUtils.getKey(conversationType.getName(), targetId);
+        sp.edit().remove(key).apply();
+    }
+
+    public static EditMessageConfig getEditMessageConfig(
+            Context context, Conversation.ConversationType conversationType, String targetId) {
+        SharedPreferences sp =
+                context.getSharedPreferences(EXTENSION_PREFERENCE, Context.MODE_PRIVATE);
+        String key = EDIT_MESSAGE + StringUtils.getKey(conversationType.getName(), targetId);
+        String configJson = sp.getString(key, "");
+        if (TextUtils.isEmpty(configJson)) {
+            return null;
+        }
+        EditMessageConfig config = new EditMessageConfig();
+        // 尝试解析为 JSON 格式
+        try {
+            JSONObject editMessageConfig = new JSONObject(configJson);
+            config.uid = editMessageConfig.optString("uid", "");
+            config.content = editMessageConfig.optString("content", "");
+            if (TextUtils.isEmpty(config.uid) || TextUtils.isEmpty(config.content)) {
+                // 数据异常，移除sp
+                sp.edit().remove(key).apply();
+                return null;
+            }
+            config.sentTime = editMessageConfig.optLong("sentTime", 0);
+            config.referContent = editMessageConfig.optString("referContent", "");
+            JSONArray mentionBlocks = editMessageConfig.optJSONArray("mentionBlocks");
+            if (mentionBlocks != null) {
+                List<MentionBlock> mentionBlocksList = new ArrayList<>();
+                for (int i = 0; i < mentionBlocks.length(); i++) {
+                    String json = mentionBlocks.optString(i);
+                    MentionBlock block = new MentionBlock(json);
+                    mentionBlocksList.add(block);
+                }
+                config.mentionBlocks = mentionBlocksList;
+            }
+            return config;
+        } catch (Exception e) {
+            RLog.e("RongExtensionCacheHelper", "getEditMessageConfig: " + e);
+        }
+        return null;
     }
 }

@@ -7,6 +7,8 @@ public interface RecallEditCountDownTimerListener {
      */
     void onTick(long untilFinished, String messageId);
 
-    /** @param messageId 消息Uid */
+    /**
+     * @param messageId 消息Uid
+     */
     void onFinish(String messageId);
 }
