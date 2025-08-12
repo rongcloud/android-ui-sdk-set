@@ -119,8 +119,6 @@ public class IMCenter {
     private final List<OnSubscribeEventListener> mSubscribeEventListeners =
             new CopyOnWriteArrayList<>();
     private final List<FriendEventListener> friendEventListeners = new CopyOnWriteArrayList<>();
-    private final List<IRongCoreListener.MessageModifiedListener> mMessageModifiedListeners =
-            new CopyOnWriteArrayList<>();
     private static KitFragmentFactory kitFragmentFactory = new KitFragmentFactory();
 
     private static final String EMOJI_TTF_FILE_NAME = "NotoColorEmojiCompat.ttf";
@@ -582,25 +580,6 @@ public class IMCenter {
                 }
             };
 
-    private IRongCoreListener.MessageModifiedListener modifiedListener =
-            new IRongCoreListener.MessageModifiedListener() {
-                @Override
-                public void onMessageModified(List<Message> messages) {
-                    for (IRongCoreListener.MessageModifiedListener listener :
-                            mMessageModifiedListeners) {
-                        listener.onMessageModified(messages);
-                    }
-                }
-
-                @Override
-                public void onModifiedMessageSyncCompleted() {
-                    for (IRongCoreListener.MessageModifiedListener listener :
-                            mMessageModifiedListeners) {
-                        listener.onModifiedMessageSyncCompleted();
-                    }
-                }
-            };
-
     private IMCenter() {
         // default implementation ignored
     }
@@ -686,8 +665,6 @@ public class IMCenter {
                 .addSubscribeEventListener(SingletonHolder.sInstance.mOnSubscribeEventListener);
         RongCoreClient.getInstance()
                 .setFriendEventListener(SingletonHolder.sInstance.mFriendEventListener);
-        RongCoreClient.getInstance()
-                .addMessageModifiedListener(SingletonHolder.sInstance.modifiedListener);
         MessageNotificationHelper.setPushNotifyLevelListener();
         RongIMClient.registerMessageType(CombineMessage.class);
     }
@@ -3663,31 +3640,6 @@ public class IMCenter {
      */
     public void removeSubscribeEventListener(@NonNull OnSubscribeEventListener listener) {
         mSubscribeEventListeners.remove(listener);
-    }
-
-    /**
-     * 添加消息编辑事件监听器
-     *
-     * @param listener 事件监听器
-     * @since 5.20.0
-     */
-    public void addMessageModifiedListener(IRongCoreListener.MessageModifiedListener listener) {
-        if (listener == null || mMessageModifiedListeners.contains(listener)) {
-            return;
-        }
-        mMessageModifiedListeners.add(listener);
-    }
-
-    /**
-     * 移除消息编辑事件监听器
-     *
-     * @param listener 事件监听器
-     * @since 5.20.0
-     */
-    public void removeMessageModifiedListener(IRongCoreListener.MessageModifiedListener listener) {
-        if (listener != null) {
-            mMessageModifiedListeners.remove(listener);
-        }
     }
 
     /** 语音消息类型 */

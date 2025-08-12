@@ -36,6 +36,8 @@ import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.StreamMsgUtil;
+import io.rong.imlib.IRongCoreListener;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -220,6 +222,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         RongExtensionManager.getInstance().addExtensionEventWatcher(this);
         IMCenter.getInstance().addOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
+        RongCoreClient.getInstance().addMessageModifiedListener(mMessageModifiedListener);
     }
 
     private MessageEventListener mMessageEventListener =
@@ -339,6 +342,32 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                 }
             };
 
+    private IRongCoreListener.MessageModifiedListener mMessageModifiedListener =
+            new IRongCoreListener.MessageModifiedListener() {
+                @Override
+                public void onMessageModified(List<Message> messages) {
+                    if (messages == null || messages.isEmpty()) {
+                        return;
+                    }
+                    if (mRongExtension == null || mFragment == null) {
+                        return;
+                    }
+                    RongExtension rongExtension = mRongExtension.get();
+                    Fragment fragment = mFragment.get();
+                    if (rongExtension == null
+                            || fragment == null
+                            || fragment.isDetached()
+                            || fragment.getContext() == null
+                            || fragment.getFragmentManager() == null) {
+                        return;
+                    }
+                    RLog.d(TAG, "onMessageModified");
+                }
+
+                @Override
+                public void onModifiedMessageSyncCompleted() {}
+            };
+
     @Override
     public void onDetachedFromExtension() {
         // do nothing
@@ -406,6 +435,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             MessageItemLongClickActionManager.getInstance()
                     .removeMessageItemLongClickAction(mClickActionReference);
             IMCenter.getInstance().removeMessageEventListener(mMessageEventListener);
+            RongCoreClient.getInstance().removeMessageModifiedListener(mMessageModifiedListener);
             RongExtensionManager.getInstance().removeExtensionEventWatcher(this);
             mRongExtension = null;
             mFragment = null;

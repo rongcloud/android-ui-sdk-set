@@ -44,14 +44,11 @@ import io.rong.imlib.MessageModifyInfo;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.AppSettings;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
-import io.rong.imlib.model.MessageResult;
 import io.rong.imlib.model.UserInfo;
 import io.rong.imlib.params.ModifyMessageParams;
-import io.rong.imlib.params.RefreshReferenceMessageParams;
 import io.rong.message.FileMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
@@ -247,7 +244,9 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         if (TextUtils.isEmpty(uid) || TextUtils.isEmpty(content)) {
             return;
         }
-
+        if (stack.isEmpty()) {
+            return;
+        }
         EditMessageState lastState = stack.peek();
         String lastUid = lastState.config != null ? lastState.config.uid : "";
         // 如果正在编辑消息中，判断新编辑的消息UID和正在编辑的消息UID是否相同
@@ -313,6 +312,9 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
             return;
         }
         if (TextUtils.isEmpty(uid) || TextUtils.isEmpty(content)) {
+            return;
+        }
+        if (stack.isEmpty()) {
             return;
         }
         // 调用InputPanel的onPause保存草稿。
@@ -386,8 +388,10 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
             return;
         }
         // 清空内存状态
-        EditMessageState lastState = stack.peek();
-        lastState.config = null;
+        if (!stack.isEmpty()) {
+            EditMessageState lastState = stack.peek();
+            lastState.config = null;
+        }
         // 清空激活状态
         RongExtensionCacheHelper.clearEditMessageConfig(
                 extension.getContext(), extension.getConversationType(), extension.getTargetId());
@@ -442,6 +446,10 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
                     editText.getContext().getString(R.string.rc_message_too_long),
                     Toast.LENGTH_SHORT);
             RLog.d(TAG, "The text you entered is too long to send.");
+            return;
+        }
+        if (stack.isEmpty()) {
+            RLog.d(TAG, "The stack is empty.");
             return;
         }
         EditMessageState lastState = stack.peek();
@@ -545,46 +553,7 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
                             refreshUIMessage(message);
                             return;
                         }
-                        // 编辑失败，直接刷新
-                        if (IRongCoreEnum.CoreErrorCode.SUCCESS != code) {
-                            refreshUIMessage(result);
-                            return;
-                        }
-                        // 不是引用消息，直接刷新
-                        if (!(result.getContent() instanceof ReferenceMessage)) {
-                            refreshUIMessage(result);
-                            return;
-                        }
-                        // 引用消息，需要再次查询refreshReferenceMessageWithParams
-                        ConversationIdentifier id = ConversationIdentifier.obtain(result);
-                        List<String> uIds = new ArrayList<>();
-                        uIds.add(result.getUId());
-                        RefreshReferenceMessageParams params =
-                                new RefreshReferenceMessageParams(id, uIds);
-                        // refreshCallback
-                        IRongCoreCallback.RefreshReferenceMessageCallback refreshCallback =
-                                new IRongCoreCallback.RefreshReferenceMessageCallback() {
-                                    @Override
-                                    public void onLocalMessageBlock(List<MessageResult> msgList) {
-                                        if (msgList != null && !msgList.isEmpty()) {
-                                            refreshUIMessage(msgList.get(0).getMessage());
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onRemoteMessageBlock(List<MessageResult> msgList) {
-                                        if (msgList != null && !msgList.isEmpty()) {
-                                            refreshUIMessage(msgList.get(0).getMessage());
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
-                                        refreshUIMessage(result);
-                                    }
-                                };
-                        RongCoreClient.getInstance()
-                                .refreshReferenceMessageWithParams(params, refreshCallback);
+                        refreshUIMessage(result);
                     }
                 };
         RongCoreClient.getInstance().modifyMessageWithParams(params, modifyMessageCallback);
@@ -640,6 +609,9 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
             int count,
             String text) {
         // 只要触发了内容变更，就重新同步配置
+        if (stack.isEmpty()) {
+            return;
+        }
         EditMessageState lastState = stack.peek();
         if (lastState == null || lastState.mFragment == null || lastState.config == null) {
             return;
@@ -686,8 +658,10 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
 
     @Override
     public void onDestroy(Conversation.ConversationType type, String targetId) {
-        stack.pop();
-        if (stack.size() > 0) {
+        if (!stack.isEmpty()) {
+            stack.pop();
+        }
+        if (!stack.isEmpty()) {
             EditMessageState nextState = stack.peek();
             mRongExtension = nextState.mRongExtension;
             mFragment = nextState.mFragment;
@@ -701,11 +675,15 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
     }
 
     public void onPause() {
-        updateCurrentEditConfig(stack.peek());
+        if (!stack.isEmpty()) {
+            updateCurrentEditConfig(stack.peek());
+        }
     }
 
     public void onResume() {
-        updateCurrentEditConfig(stack.peek());
+        if (!stack.isEmpty()) {
+            updateCurrentEditConfig(stack.peek());
+        }
     }
 
     // 更新内存中的编辑配置到SP
@@ -885,7 +863,7 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
             Conversation.ConversationType type, String targetId, String uid) {
         if (type == Conversation.ConversationType.GROUP) {
             if (TextUtils.equals(uid, "-1")) {
-                return "所有人";
+                return "";
             }
             GroupUserInfo groupUserInfo =
                     RongUserInfoManager.getInstance().getGroupUserInfo(targetId, uid);

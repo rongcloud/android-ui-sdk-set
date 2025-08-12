@@ -404,7 +404,7 @@ public class ConversationListViewModel extends AndroidViewModel
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
         IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
         IMCenter.getInstance().addCancelSendMediaMessageListener(mCancelSendMediaMessageListener);
-        IMCenter.getInstance().addMessageModifiedListener(mMessageModifiedListener);
+        RongCoreClient.getInstance().addMessageModifiedListener(mMessageModifiedListener);
         updateNoticeContent(RongIM.getInstance().getCurrentConnectionStatus());
 
         mReadReceiptV5Handler = new ReadReceiptV5Handler();
@@ -809,7 +809,7 @@ public class ConversationListViewModel extends AndroidViewModel
                 .removeSyncConversationReadStatusListeners(mSyncConversationReadStatusListener);
         IMCenter.getInstance()
                 .removeCancelSendMediaMessageListener(mCancelSendMediaMessageListener);
-        IMCenter.getInstance().removeMessageModifiedListener(mMessageModifiedListener);
+        RongCoreClient.getInstance().removeMessageModifiedListener(mMessageModifiedListener);
         if (mReadReceiptV5Handler != null) {
             mReadReceiptV5Handler.stop();
         }

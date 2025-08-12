@@ -452,7 +452,7 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().addOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().addMessageEventListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
-        IMCenter.getInstance().addMessageModifiedListener(mMessageModifiedListener);
+        RongCoreClient.getInstance().addMessageModifiedListener(mMessageModifiedListener);
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         initTranslationListener();
     }
@@ -1353,8 +1353,11 @@ public class MessageViewModel extends AndroidViewModel
                     && message.getContent() instanceof ReferenceMessage) {
                 ReferenceMessage.ReferenceMessageStatus uiStatus =
                         ((ReferenceMessage) uiMessage.getContent()).getReferMsgStatus();
-                if (uiStatus == ReferenceMessage.ReferenceMessageStatus.DELETE
-                        || uiStatus == ReferenceMessage.ReferenceMessageStatus.RECALLED) {
+                ReferenceMessage.ReferenceMessageStatus messageStatus =
+                        ((ReferenceMessage) message.getContent()).getReferMsgStatus();
+                // 如果内存中的referMsgStatus值大于待刷新的referMsgStatus值，则使用内存中的referMsgStatus。
+                // 原因：ReferenceMessageStatus代表着向前状态，较大的值不会退回到较小的值。
+                if (uiStatus.getValue() > messageStatus.getValue()) {
                     ((ReferenceMessage) message.getContent()).setReferMsgStatus(uiStatus);
                 }
             }
@@ -1734,7 +1737,7 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().removeMessageEventListener(this);
         IMCenter.getInstance().removeConversationEventListener(mConversationEventListener);
-        IMCenter.getInstance().removeMessageModifiedListener(mMessageModifiedListener);
+        RongCoreClient.getInstance().removeMessageModifiedListener(mMessageModifiedListener);
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         unInitTranslationListener();
     }
