@@ -96,6 +96,7 @@ public class GlideKitImageEngine implements KitImageEngine {
     public void loadGridImage(
             @NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
         Glide.with(context)
+                .asBitmap()
                 .load(url)
                 .override(200, 200)
                 .centerCrop()

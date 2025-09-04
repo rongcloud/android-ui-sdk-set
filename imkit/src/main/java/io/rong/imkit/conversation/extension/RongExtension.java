@@ -82,9 +82,7 @@ public class RongExtension extends LinearLayout {
                             mExtensionViewModel.getExtensionBoardState().setValue(true);
                         } else {
                             if (mExtensionViewModel != null) {
-                                if (mExtensionViewModel.isSoftInputShow()) {
-                                    mExtensionViewModel.setSoftInputKeyBoard(false, false);
-                                }
+                                mExtensionViewModel.setSoftInputKeyBoard(false, true);
                                 if (mPreInputMode != null
                                         && (mPreInputMode == InputMode.TextInput
                                                 || mPreInputMode == InputMode.VoiceInput)) {

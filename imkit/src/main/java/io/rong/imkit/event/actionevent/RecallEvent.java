@@ -1,6 +1,7 @@
 package io.rong.imkit.event.actionevent;
 
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
 import io.rong.message.RecallNotificationMessage;
 
 public class RecallEvent {
@@ -8,7 +9,7 @@ public class RecallEvent {
     private String targetId;
     private int messageId;
     private RecallNotificationMessage message;
-    private String messageUid;
+    private Message recallMessage;
 
     public RecallEvent(
             Conversation.ConversationType conversationType,
@@ -26,12 +27,12 @@ public class RecallEvent {
             String targetId,
             int messageId,
             RecallNotificationMessage message,
-            String messageUid) {
+            Message recallMessage) {
         this.conversationType = conversationType;
         this.targetId = targetId;
         this.messageId = messageId;
         this.message = message;
-        this.messageUid = messageUid;
+        this.recallMessage = recallMessage;
     }
 
     public Conversation.ConversationType getConversationType() {
@@ -50,7 +51,7 @@ public class RecallEvent {
         return message;
     }
 
-    public String getMessageUid() {
-        return messageUid;
+    public Message getRecallMessage() {
+        return recallMessage;
     }
 }

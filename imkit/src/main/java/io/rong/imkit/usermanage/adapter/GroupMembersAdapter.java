@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
@@ -68,6 +69,9 @@ public class GroupMembersAdapter
     }
 
     private void setupSpecialActionItem(@NonNull GroupInfoViewHolder holder, int position) {
+        // 清除 ImageView 上可能正在进行的 Glide 加载请求，防止异步加载覆盖特殊操作图标
+        Glide.with(context).clear(holder.avatarImageView);
+
         if (position == getItemCount() - 1 && allowGroupRemoval) {
             holder.groupNameTextView.setText("");
             holder.avatarImageView.setImageResource(R.drawable.rc_remove_member);

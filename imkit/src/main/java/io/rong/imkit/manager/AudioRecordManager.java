@@ -340,6 +340,7 @@ public class AudioRecordManager implements Handler.Callback {
             int bpsWb = RongConfigCenter.featureConfig().getAudioWBEncodingBitRate();
             if (RongConfigCenter.featureConfig().getVoiceMessageType()
                     == IMCenter.VoiceMessageType.HighQuality) {
+                mMediaRecorder.setAudioSamplingRate(SamplingRate.RC_SAMPLE_RATE_16000.getValue());
                 mMediaRecorder.setAudioEncodingBitRate(AUDIO_AA_ENCODING_BIT_RATE);
             } else {
                 mMediaRecorder.setAudioSamplingRate(mSampleRate.value);

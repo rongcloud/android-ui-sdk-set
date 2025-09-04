@@ -400,8 +400,7 @@ public class ConversationFragment extends Fragment
                                                     if (mMessageViewModel.isNormalState()) {
                                                         mList.scrollToPosition(
                                                                 mAdapter.getItemCount() - 1);
-                                                    } else if (!mMessageViewModel
-                                                            .isHistoryState()) {
+                                                    } else {
                                                         mMessageViewModel.newMessageBarClick();
                                                     }
                                                 }

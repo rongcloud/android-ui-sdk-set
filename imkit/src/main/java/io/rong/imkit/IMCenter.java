@@ -874,7 +874,7 @@ public class IMCenter {
                                                     message.getTargetId(),
                                                     message.getMessageId(),
                                                     recallNotificationMessage,
-                                                    message.getUId()));
+                                                    message));
                                 }
                             }
 
@@ -955,7 +955,6 @@ public class IMCenter {
             final String pushData,
             SendMessageOption option,
             final IRongCallback.ISendMessageCallback callback) {
-        message.setNeedReceipt(true);
         if (mMessageInterceptor != null && mMessageInterceptor.interceptOnSendMessage(message)) {
             RLog.d(TAG, "message has been intercepted.");
             return;
@@ -1185,7 +1184,6 @@ public class IMCenter {
             final String pushData,
             final SendMessageOption option,
             final IRongCallback.ISendMediaMessageCallback callback) {
-        message.setNeedReceipt(true);
         if (mMessageInterceptor != null && mMessageInterceptor.interceptOnSendMessage(message)) {
             RLog.d(TAG, "message has been intercepted.");
             return;
@@ -2324,18 +2322,15 @@ public class IMCenter {
                             @Override
                             public void onSuccess() {
                                 int[] messageIds = new int[messages.length];
-                                String[] messageUIds = new String[messages.length];
                                 for (int i = 0; i < messages.length; i++) {
                                     messageIds[i] = messages[i].getMessageId();
-                                    messageUIds[i] = messages[i].getUId();
                                 }
                                 for (MessageEventListener item : mMessageEventListeners) {
                                     item.onDeleteMessage(
                                             new DeleteEvent(
                                                     identifier.getType(),
                                                     identifier.getTargetId(),
-                                                    messageIds,
-                                                    messageUIds));
+                                                    messageIds));
                                 }
                                 if (callback != null) {
                                     callback.onSuccess();

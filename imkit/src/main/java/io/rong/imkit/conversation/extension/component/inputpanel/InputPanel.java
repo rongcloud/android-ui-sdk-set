@@ -657,14 +657,15 @@ public class InputPanel {
             new ReferenceManager.ReferenceStatusListener() {
                 @Override
                 public void onHide() {
-                    if (EditMessageManager.getInstance().isEditMessageState()) {
-                        return;
-                    }
                     saveTextMessageDraft();
                 }
             };
 
     private void saveTextMessageDraft() {
+        // 如果当前是编辑模式，无需保存草稿
+        if (EditMessageManager.getInstance().isEditMessageState()) {
+            return;
+        }
         if (mEditText != null && mEditText.getText() != null) {
             String draftText = mEditText.getText().toString();
             String draft = getDraft(draftText);

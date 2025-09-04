@@ -113,7 +113,7 @@ public class RongMentionManager {
         if (conversationType == Conversation.ConversationType.GROUP) {
             GroupUserInfo groupUserInfo =
                     RongUserInfoManager.getInstance().getGroupUserInfo(targetId, userId);
-            if (groupUserInfo != null) {
+            if (groupUserInfo != null && !TextUtils.isEmpty(groupUserInfo.getNickname())) {
                 userInfo.setName(groupUserInfo.getNickname());
             }
         }
@@ -209,7 +209,8 @@ public class RongMentionManager {
                 mentionInstance.mentionBlocks.add(mentionBlock);
 
                 editText.getEditableText().insert(cursorPos, mentionContent);
-                editText.setSelection(cursorPos + len);
+                // 使用 postDelayed 执行，避免被TextWatcher回调干扰
+                editText.postDelayed(() -> editText.setSelection(cursorPos + len), 500);
                 // @某人的时候弹出软键盘
                 if (mAddMentionedMemberListener != null) {
                     mAddMentionedMemberListener.onAddMentionedMember(userInfo, from);

@@ -13,18 +13,12 @@ public class EditMessageConfig {
     public String content;
     // 编辑的消息的引用内容
     public String referContent;
+    // 编辑的消息的Uid
+    public String referUid;
     // @内容
     public List<MentionBlock> mentionBlocks;
 
     public EditMessageConfig() {}
-
-    public EditMessageConfig(
-            String uid, String content, String referContent, List<MentionBlock> mentionBlocks) {
-        this.uid = uid;
-        this.content = content;
-        this.referContent = referContent;
-        this.mentionBlocks = mentionBlocks;
-    }
 
     public static boolean isInvalid(EditMessageConfig config) {
         return config == null || TextUtils.isEmpty(config.uid) || TextUtils.isEmpty(config.content);

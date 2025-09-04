@@ -719,4 +719,13 @@
     <string name="rc_content_contain_sensitive">操作失败，内容包含敏感信息</string>
     <!--5.16.0-->
 
+    <!--语音转文字-->
+    <string name="rc_speech_to_text">转文字</string>
+    <string name="rc_cancel_speech_to_text">取消转文字</string>
+    <string name="rc_speech_to_text_failed">语音转换失败</string>
+    <string name="rc_speech_to_text_network_error">当前网络不可用，无法转文字，请检查网络设置后再试</string>
+    <string name="rc_speech_to_text_unsupported_format">此语音消息格式不支持转文字功能。</string>
+    <string name="rc_copy">复制</string>
+    <!--语音转文字-->
+
 </resources>

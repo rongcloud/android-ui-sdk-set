@@ -19,7 +19,6 @@ import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.HistoryMessageOption;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageResult;
@@ -58,7 +57,7 @@ public class MessageProcessor {
                                 @Override
                                 public void onSuccess(List<Message> messages) {
                                     refreshReferenceMessage(
-                                            messageViewModel.getConversationIdentifier(),
+                                            weakVM.get(),
                                             messages,
                                             new RefreshCallback<List<Message>>() {
                                                 @Override
@@ -145,7 +144,7 @@ public class MessageProcessor {
                                     long syncTimestamp,
                                     boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -200,10 +199,7 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messageList,
-                                        refreshCallback);
+                                refreshReferenceMessage(weakVM.get(), messageList, refreshCallback);
                             }
 
                             @Override
@@ -244,7 +240,7 @@ public class MessageProcessor {
                                     long syncTimestamp,
                                     boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -300,10 +296,7 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messageList,
-                                        refreshCallback);
+                                refreshReferenceMessage(weakVM.get(), messageList, refreshCallback);
                             }
 
                             @Override
@@ -324,6 +317,7 @@ public class MessageProcessor {
             }
             return;
         }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(viewModel);
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(after);
@@ -341,7 +335,7 @@ public class MessageProcessor {
                                     long syncTimestamp,
                                     boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -361,10 +355,7 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        viewModel.getConversationIdentifier(),
-                                        messageList,
-                                        refreshCallback);
+                                refreshReferenceMessage(weakVM.get(), messageList, refreshCallback);
                             }
 
                             @Override
@@ -512,7 +503,7 @@ public class MessageProcessor {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -548,10 +539,7 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messages,
-                                        refreshCallback);
+                                refreshReferenceMessage(weakVM.get(), messages, refreshCallback);
                             }
 
                             @Override
@@ -578,7 +566,7 @@ public class MessageProcessor {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -596,10 +584,7 @@ public class MessageProcessor {
                                                                                 .RefreshFinish));
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messages,
-                                        refreshCallback);
+                                refreshReferenceMessage(weakVM.get(), messages, refreshCallback);
                             }
 
                             @Override
@@ -614,38 +599,11 @@ public class MessageProcessor {
                         });
     }
 
-    public static void refreshReferenceMessage(Message message, RefreshCallback<Message> callback) {
-        if (message.getContent() instanceof ReferenceMessage
-                && RongConfigCenter.featureConfig().isEditMessageEnable()) {
-            ReferenceMessage referenceMessage = (ReferenceMessage) message.getContent();
-            RongCoreClient.getInstance()
-                    .getMessageByUid(
-                            referenceMessage.getReferMsgUid(),
-                            new IRongCoreCallback.ResultCallback<Message>() {
-                                @Override
-                                public void onSuccess(Message newMessage) {
-                                    if (newMessage.isHasChanged()) {
-                                        referenceMessage.setReferMsgStatus(
-                                                ReferenceMessage.ReferenceMessageStatus.MODIFIED);
-                                    }
-                                    callback.onSuccess(message);
-                                }
-
-                                @Override
-                                public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                    callback.onSuccess(message);
-                                }
-                            });
-        } else {
-            callback.onSuccess(message);
-        }
-    }
-
     private static void refreshReferenceMessage(
-            ConversationIdentifier id,
+            MessageViewModel messageViewModel,
             List<Message> messagesList,
             RefreshCallback<List<Message>> callback) {
-        if (messagesList == null || messagesList.isEmpty()) {
+        if (messageViewModel == null || messagesList == null || messagesList.isEmpty()) {
             callback.onSuccess(messagesList);
             return;
         }
@@ -666,7 +624,9 @@ public class MessageProcessor {
         }
         List<Message> resultList = new ArrayList<>(messagesList);
 
-        RefreshReferenceMessageParams params = new RefreshReferenceMessageParams(id, uIds);
+        RefreshReferenceMessageParams params =
+                new RefreshReferenceMessageParams(
+                        messageViewModel.getConversationIdentifier(), uIds);
         RongCoreClient.getInstance()
                 .refreshReferenceMessageWithParams(
                         params,

@@ -155,9 +155,9 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileNameView.setText(mFileDownloadInfo.fileName);
         mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
         mFileDownloadOpenView.setOnClickListener(this);
-        savedPath =
-                FtUtilities.getFileName(
-                        mFileDownloadInfo.path, getFileNameFromDownloadUrl(), false);
+        String fileNameWithUrl =
+                FileUtils.getFileNameWithUrl(mFileDownloadInfo.url, mFileDownloadInfo.uid, "");
+        savedPath = FtUtilities.getFileName(mFileDownloadInfo.path, fileNameWithUrl, false);
         mAttachFile = new File(savedPath);
         if (isAttachFileExists()) {
             mFileDownloadOpenView.setText(getOpenFileShowText());

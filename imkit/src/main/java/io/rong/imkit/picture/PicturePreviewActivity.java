@@ -134,6 +134,7 @@ public class PicturePreviewActivity extends PictureBaseActivity
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
+                            LocalMedia media = images.get(position);
                             if (isGIFAboveMaxSize(media)) {
                                 mCbOriginal.setChecked(false);
                                 return;

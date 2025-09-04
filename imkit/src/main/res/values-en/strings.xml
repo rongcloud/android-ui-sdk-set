@@ -711,4 +711,14 @@
     <string name="rc_loading_saving">Saving</string>
     <string name="rc_content_contain_sensitive">Setup failed, Content contains sensitive information</string>
     <!--5.12.2-->
+
+    <!--Speech to Text-->
+    <string name="rc_speech_to_text">Convert to Text</string>
+    <string name="rc_cancel_speech_to_text">Cancel Transcription</string>
+    <string name="rc_speech_to_text_failed">Voice to Text Conversion Failed</string>
+    <string name="rc_speech_to_text_network_error">Unable to transcribe. Please check your network connection and try again.</string>
+    <string name="rc_speech_to_text_unsupported_format">We can\'t transcribe this voice message because of its format.</string>
+    <string name="rc_copy">Copy</string>
+    <!--Speech to Text-->
+
 </resources>

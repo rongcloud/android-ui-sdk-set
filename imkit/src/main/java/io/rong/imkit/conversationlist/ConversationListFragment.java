@@ -62,6 +62,8 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
     protected Handler mHandler = new Handler(Looper.getMainLooper());
     protected int mNewState = RecyclerView.SCROLL_STATE_IDLE;
     protected boolean delayRefresh = false;
+    private LinearLayoutManager layoutManager;
+    private int mLastValidPosition = 0; // 保存上次有效的滚动位置
 
     {
         mAdapter = onResolveAdapter();
@@ -91,7 +93,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         mList = view.findViewById(R.id.rc_conversation_list);
         mRefreshLayout = view.findViewById(R.id.rc_refresh);
         mAdapter.setItemClickListener(this);
-        LinearLayoutManager layoutManager = new FixedLinearLayoutManager(getActivity());
+        layoutManager = new FixedLinearLayoutManager(getActivity());
         mList.setLayoutManager(layoutManager);
         mList.setAdapter(mAdapter);
         mList.addOnScrollListener(
@@ -110,6 +112,14 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                                     mConversationListViewModel
                                             .getConversationListLiveData()
                                             .getValue());
+                        }
+
+                        // 保存有效的滚动位置
+                        if (mNewState == RecyclerView.SCROLL_STATE_IDLE && layoutManager != null) {
+                            int currentPosition = layoutManager.findFirstVisibleItemPosition();
+                            if (currentPosition >= 0) {
+                                mLastValidPosition = currentPosition;
+                            }
                         }
                     }
                 });
@@ -187,8 +197,39 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                                         TAG,
                                         "conversation list onChanged,recyclerviewStatus:"
                                                 + mNewState);
-                                if (mNewState == RecyclerView.SCROLL_STATE_IDLE) {
+                                if (mNewState == RecyclerView.SCROLL_STATE_IDLE
+                                        && layoutManager != null) {
+                                    // 1. 获取当前滚动位置
+                                    int firstVisiblePosition =
+                                            layoutManager.findFirstVisibleItemPosition();
+                                    if (firstVisiblePosition == 0 && mLastValidPosition > 0) {
+                                        firstVisiblePosition = mLastValidPosition;
+                                        RLog.d(
+                                                TAG,
+                                                "Using saved position instead of 0:"
+                                                        + mLastValidPosition);
+                                    }
+                                    int topOffset;
+                                    if (firstVisiblePosition != RecyclerView.NO_POSITION) {
+                                        View firstVisibleView =
+                                                layoutManager.findViewByPosition(
+                                                        firstVisiblePosition);
+                                        topOffset =
+                                                (firstVisibleView != null)
+                                                        ? firstVisibleView.getTop()
+                                                        : 0;
+                                    } else {
+                                        topOffset = 0;
+                                    }
+                                    // 2. 刷新数据
                                     mAdapter.setDataCollection(uiConversations);
+
+                                    // 3. 恢复刷新数据之前的位置
+                                    final int finalFirstVisiblePosition = firstVisiblePosition;
+                                    mList.post(
+                                            () ->
+                                                    layoutManager.scrollToPositionWithOffset(
+                                                            finalFirstVisiblePosition, topOffset));
                                 } else {
                                     delayRefresh = true;
                                 }
