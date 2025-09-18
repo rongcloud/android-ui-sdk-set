@@ -33,16 +33,6 @@
     <string name="rc_ext_plugin_file">ملف</string>
     <string name="rc_load_image_failed">تعذر عرض الصورة</string>
     <string name="rc_send_large_gif_failed">فشل في الإرسال، حجم ملف ال GIF كبير جداً</string>
-    <string name="rc_edit_status_progress">جارٍ التحديث...</string>
-    <string name="rc_edit_status_success">تم تحريره</string>
-    <string name="rc_edit_status_failed">فشل التحديث. انقر لإعادة المحاولة</string>
-    <string name="rc_edit_status_retry_failed">فشلت المحاولة مرة أخرى. يُرجى المحاولة لاحقًا.</string>
-    <string name="rc_edit_status_expired">تحرير انتهت صلاحيته</string>
-    <string name="rc_reference_status_delete">تم حذف هذه الرسالة</string>
-    <string name="rc_reference_status_recall">تم سحب هذه الرسالة</string>
-    <string name="rc_edit_failed_by_remote_msg_not_exist">الرسالة السحابية غير موجودة ولا يمكن تحريرها.</string>
-    <string name="rc_edit_failed_by_sensitive">يحتوي المحتوى المحرر على معلومات حساسة، وفشل التحديث.</string>
-    <string name="rc_edit_failed_by_expire">تجاوز وقت التحرير الفعلي ولا يمكن تحريره</string>
     <string name="rc_dialog_destruct_hint">يتم إتلاف الرسائل تلقائيًا بعد عرضها ، ويُحظر نسخ الرسائل أو إعادة توجيهها. لا يحتفظ الخادم بسجلات الرسائل</string>
     <string name="rc_voice_press_to_input">إستمر بالضغط للتحدث</string>
     <string name="rc_voice_release_to_send">إترك للإرسال</string>
@@ -97,7 +87,6 @@
     <string name="rc_notice_network_unavailable">الشبكة غير متاحه, يرجى التأكد من الشبكة</string>
 
     <string name="rc_message_unknown">" الإصدار الحالي لا يدعم عرض هذه الرسالة "</string>
-    <string name="rc_message_unknown_notification">تلقيت رسالة مجهولة</string>
     <string name="rc_new_messages">&#160;رسالة جديدة</string>
     <string name="rc_info_not_in_discussion">لست مضافا في المحادثة الحالية</string>
     <string name="rc_info_not_in_group">لست مضافا في المجموعة الحالية</string>
@@ -379,7 +368,6 @@
     <string name="rc_read_receipt">أقرا</string>
 
     <string name="rc_dialog_item_message_reference">اقتبس</string>
-    <string name="rc_dialog_item_message_edit">تحرير الرسالة</string>
     <string name="rc_location_warning">طلب</string>
     <string name="rc_plugin_location_message">إرسال موقع</string>
     <string name="rc_plugin_location_sharing">موقع لايف</string>
@@ -401,9 +389,6 @@
     <string name="rc_dialog_item_sight">مقطع فيديو</string>
     <string name="rc_dialog_item_select_from_album">إختيار من معرض الصور</string>
     <string name="rc_dialog_no_plugin_warning">لا توجد مكونات إضافية متاحة</string>
-    <string name="rc_dialog_edit_message_content">رسالة أخرى قيد التعديل. إذا أكدت تعديل الرسالة الحالية، فسيتم فقدان الرسالة التي تم تعديلها سابقًا.</string>
-    <string name="rc_dialog_edit_message_is_delete">لقد تم حذف الرسالة ولا يمكن حفظها.</string>
-    <string name="rc_dialog_edit_message_is_recall">لقد تم سحب الرسالة ولا يمكن حفظها.</string>
     <string name="rc_ext_voice_btn_press_to_speak">إستمر بالضغط للتحدث</string>
     <string name="rc_ext_plugin_location_message">إرسال موقع</string>
     <string name="rc_ext_plugin_location_sharing">موقع لايف</string>
@@ -411,8 +396,6 @@
     <string name="rc_clear">مسح</string>
     <string name="rc_cancel">إلغاء</string>
     <string name="rc_confirm">تم</string>
-    <string name="rc_back">عودة</string>
-    <string name="rc_prompt">جديلة</string>
     <string name="rc_not_prompt">لا تذكر مرة أخرى</string>
     <string name="rc_send">إرسال</string>
 
@@ -690,7 +673,7 @@
     <string name="rc_my_groups">مجموعتي</string>
     <string name="rc_all_requests">جميع الطلبات</string>
     <string name="rc_pending_confirmation">في انتظار الموافقة</string>
-    <string name="rc_completed">مُعَالَج</string>
+    <string name="rc_completed">Processed</string>
     <string name="rc_group_application_sent">تقدمت بطلب للانضمام</string>
     <string name="rc_group_invitation_sent">دعوت s$ للانضمام</string>
     <string name="rc_group_invitation_received_inviter">دعاك s$ للانضمام</string>
@@ -704,13 +687,4 @@
     <string name="rc_loading_saving">توفير...</string>
     <string name="rc_content_contain_sensitive">فشلت العملية، المحتوى يحتوي على معلومات حساسة</string>
     <!--5.12.2-->
-
-    <!--Speech to Text-->
-    <string name="rc_speech_to_text">تحويل إلى نص</string>
-    <string name="rc_cancel_speech_to_text">إلغاء تحويل النص</string>
-    <string name="rc_speech_to_text_failed">فشل تحويل الكلام إلى نص</string>
-    <string name="rc_speech_to_text_network_error">تعذر تحويل الصوت إلى نص. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</string>
-    <string name="rc_speech_to_text_unsupported_format">صيغة هذا التسجيل الصوتي غير مدعومة للتحويل إلى نص.</string>
-    <string name="rc_copy">نسخ</string>
-    <!--Speech to Text-->
 </resources>

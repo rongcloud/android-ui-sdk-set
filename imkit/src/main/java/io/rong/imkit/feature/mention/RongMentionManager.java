@@ -12,7 +12,6 @@ import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -76,14 +75,6 @@ public class RongMentionManager {
                 stack.remove(i);
                 return;
             }
-        }
-    }
-
-    public void setInputEditText(ConversationIdentifier id, EditText editText) {
-        if (Conversation.ConversationType.GROUP == id.getType()
-                || Conversation.ConversationType.ULTRA_GROUP == id.getType()) {
-            MentionInstance mentionInstance = stack.get(0);
-            mentionInstance.inputEditText = editText;
         }
     }
 
@@ -152,7 +143,7 @@ public class RongMentionManager {
         }
     }
 
-    public MentionInstance obtainMentionInstance(EditText editText) {
+    MentionInstance obtainMentionInstance(EditText editText) {
         if (!stack.isEmpty()) {
             for (int i = 0; i < stack.size(); i++) {
                 MentionInstance item = stack.get(i);
@@ -209,8 +200,7 @@ public class RongMentionManager {
                 mentionInstance.mentionBlocks.add(mentionBlock);
 
                 editText.getEditableText().insert(cursorPos, mentionContent);
-                // 使用 postDelayed 执行，避免被TextWatcher回调干扰
-                editText.postDelayed(() -> editText.setSelection(cursorPos + len), 500);
+                editText.setSelection(cursorPos + len);
                 // @某人的时候弹出软键盘
                 if (mAddMentionedMemberListener != null) {
                     mAddMentionedMemberListener.onAddMentionedMember(userInfo, from);
@@ -354,39 +344,6 @@ public class RongMentionManager {
                 messageContent.setMentionedInfo(mentionedInfo);
                 message.setContent(messageContent);
             }
-        }
-    }
-
-    public void onClickEditMessageConfirm(Message message, EditText editText) {
-        MessageContent messageContent = message.getContent();
-        if (!stack.isEmpty()) {
-            List<String> userIds = new ArrayList<>();
-            MentionInstance curInstance = null;
-            for (int i = 0; i < stack.size(); i++) {
-                MentionInstance item = stack.get(i);
-                if (item.inputEditText.equals(editText)) {
-                    curInstance = item;
-                    break;
-                }
-            }
-            if (curInstance == null) {
-                RLog.w(TAG, "not found editText");
-                return;
-            }
-            for (MentionBlock block : curInstance.mentionBlocks) {
-                if (!userIds.contains(block.userId)) {
-                    userIds.add(block.userId);
-                }
-            }
-            if (!userIds.isEmpty()) {
-                curInstance.mentionBlocks.clear();
-                MentionedInfo mentionedInfo =
-                        new MentionedInfo(MentionedInfo.MentionedType.PART, userIds, null);
-                messageContent.setMentionedInfo(mentionedInfo);
-            } else {
-                messageContent.setMentionedInfo(null);
-            }
-            message.setContent(messageContent);
         }
     }
 

@@ -25,7 +25,6 @@ public class FeatureConfig {
     private boolean isReferenceEnable; // 引用
     private boolean isDestructEnable; // 阅后即焚
     private boolean isQuickReplyEnable; // 快捷回复
-    private boolean isEditMessageEnable; // 消息编辑
     private IQuickReplyProvider quickReplyProvider;
     private IMCenter.VoiceMessageType voiceMessageType;
     private List<Conversation.ConversationType> readReceiptSupportTypes;
@@ -54,8 +53,6 @@ public class FeatureConfig {
     public String rc_translation_target_language;
     public boolean hideEmojiButton = false;
     private KitMediaInterceptor kitMediaInterceptor;
-    private boolean showUnknownMessage = true;
-    private boolean showUnknownMessageNotification = false;
 
     public FeatureConfig() {
         isReferenceEnable = true;
@@ -73,7 +70,6 @@ public class FeatureConfig {
         groupMemberCacheMaxCount = 500;
         rc_translation_src_language = "zh_CN";
         rc_translation_target_language = "en";
-        isEditMessageEnable = false;
     }
 
     public void initConfig(Context context) {
@@ -360,31 +356,5 @@ public class FeatureConfig {
 
     public void setKitMediaInterceptor(KitMediaInterceptor kitMediaInterceptor) {
         this.kitMediaInterceptor = kitMediaInterceptor;
-    }
-
-    public boolean isShowUnknownMessage() {
-        return showUnknownMessage;
-    }
-
-    public void setShowUnknownMessage(boolean showUnknownMessage) {
-        this.showUnknownMessage = showUnknownMessage;
-    }
-
-    public boolean isShowUnknownMessageNotification() {
-        return showUnknownMessageNotification;
-    }
-
-    public void setShowUnknownMessageNotification(boolean showUnknownMessageNotification) {
-        this.showUnknownMessageNotification = showUnknownMessageNotification;
-    }
-
-    /** 设置消息长按后是否支持编辑消息 */
-    public void enableEditMessage(boolean value) {
-        isEditMessageEnable = value;
-    }
-
-    /** 获取消息长按后是否支持编辑消息 */
-    public boolean isEditMessageEnable() {
-        return isEditMessageEnable;
     }
 }

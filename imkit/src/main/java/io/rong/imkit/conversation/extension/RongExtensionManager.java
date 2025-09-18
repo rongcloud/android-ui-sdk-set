@@ -6,7 +6,6 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.emoticon.AndroidEmoji;
 import io.rong.imkit.feature.destruct.DestructExtensionModule;
-import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.forward.ForwardExtensionModule;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.publicservice.PublicServiceManager;
@@ -61,9 +60,6 @@ public class RongExtensionManager {
 
         if (RongConfigCenter.featureConfig().isReferenceEnable()) {
             mExtModules.add(ReferenceManager.getInstance());
-        }
-        if (RongConfigCenter.featureConfig().isEditMessageEnable()) {
-            mExtModules.add(EditMessageManager.getInstance());
         }
         if (RongConfigCenter.featureConfig().isQuickReplyEnable()) {
             mExtModules.add(new QuickReplyExtensionModule());

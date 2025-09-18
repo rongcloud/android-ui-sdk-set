@@ -29,7 +29,6 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
-import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.DraftHelper;
 import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.AudioPlayManager;
@@ -662,10 +661,6 @@ public class InputPanel {
             };
 
     private void saveTextMessageDraft() {
-        // 如果当前是编辑模式，无需保存草稿
-        if (EditMessageManager.getInstance().isEditMessageState()) {
-            return;
-        }
         if (mEditText != null && mEditText.getText() != null) {
             String draftText = mEditText.getText().toString();
             String draft = getDraft(draftText);

@@ -873,8 +873,7 @@ public class IMCenter {
                                                     message.getConversationType(),
                                                     message.getTargetId(),
                                                     message.getMessageId(),
-                                                    recallNotificationMessage,
-                                                    message));
+                                                    recallNotificationMessage));
                                 }
                             }
 
@@ -2647,17 +2646,8 @@ public class IMCenter {
      * @param message
      */
     public void refreshMessage(Message message) {
-        refreshMessage(new RefreshEvent(message));
-    }
-
-    /**
-     * 通知会话页面刷新某条消息
-     *
-     * @param event
-     */
-    public void refreshMessage(RefreshEvent event) {
         for (MessageEventListener item : mMessageEventListeners) {
-            item.onRefreshEvent(event);
+            item.onRefreshEvent(new RefreshEvent(message));
         }
     }
 

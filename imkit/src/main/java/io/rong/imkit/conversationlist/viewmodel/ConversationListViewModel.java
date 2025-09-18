@@ -33,7 +33,6 @@ import io.rong.imkit.event.actionevent.RefreshEvent;
 import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.resend.ResendManager;
-import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -83,7 +82,6 @@ public class ConversationListViewModel extends AndroidViewModel
     private boolean isTaskScheduled;
     private int mTime = 500;
     private int mDelayRefreshTime = 5000;
-    private EditMessageHandler mEditMessageHandler;
     private ConversationEventListener mConversationEventListener =
             new ConversationEventListener() {
                 @Override
@@ -377,14 +375,6 @@ public class ConversationListViewModel extends AndroidViewModel
         mTopPriority = RongConfigCenter.conversationListConfig().isTopPriority();
 
         mConversationListLiveData = new MediatorLiveData<>();
-        mEditMessageHandler = new EditMessageHandler();
-        mEditMessageHandler.addDataChangeListener(
-                EditMessageHandler.KEY_ON_MESSAGE_MODIFIED,
-                messages -> {
-                    if (messages != null && !messages.isEmpty()) {
-                        getConversationList(false, false, 0);
-                    }
-                });
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
@@ -769,7 +759,6 @@ public class ConversationListViewModel extends AndroidViewModel
         if (workThread != null) {
             workThread.quit();
         }
-        mEditMessageHandler.stop();
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);

@@ -97,4 +97,5 @@
     <string name="rc_translation_src_language">zh_CN</string>
     <!-- 翻译功能的默认目标语言类型-->
     <string name="rc_translation_target_language">en</string>
+
 </resources>
