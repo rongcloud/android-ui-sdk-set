@@ -12,4 +12,7 @@ public class AndroidConstant {
 
     /** Android 35 版本号 */
     public static final int ANDROID_VANILLA_ICE_CREAM = 35;
+
+    /** Android 36 版本号 */
+    public static final int ANDROID_BAKLAVA = 36;
 }

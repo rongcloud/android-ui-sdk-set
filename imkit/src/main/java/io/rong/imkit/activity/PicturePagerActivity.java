@@ -160,8 +160,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                         for (int messageId : event.getMessageIds()) {
                             mImageAdapter.removeRecallItem(messageId);
                         }
-                        mImageAdapter.notifyDataSetChanged();
                         if (mImageAdapter.getItemCount() == 0) {
+                            RLog.d(TAG, "onDeleteMessage finish ");
                             finish();
                         }
                     }
@@ -317,6 +317,11 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
 
     // 延迟拉取前面或后面的图片消息，加载过快会导致ViewPager当前Item不是第一个，造成预览错乱
     private void fetchImageMessage(final int msgId, boolean fetchBehind, boolean fetchFront) {
+        // 如果传进来个阅后即焚消息，那么不触发左滑右滑拉消息逻辑
+        if (mMessage.getContent().isDestruct()) {
+            RLog.d(TAG, "fetchImageMessage return, message is destruct");
+            return;
+        }
         mainHandler.postDelayed(
                 new Runnable() {
                     @Override

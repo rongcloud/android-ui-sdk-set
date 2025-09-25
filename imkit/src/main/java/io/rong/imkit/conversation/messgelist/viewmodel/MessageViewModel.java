@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -23,6 +24,7 @@ import io.rong.imkit.MessageItemLongClickAction;
 import io.rong.imkit.MessageItemLongClickActionManager;
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
+import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;
 import io.rong.imkit.conversation.messgelist.processor.ConversationProcessorFactory;
@@ -45,14 +47,19 @@ import io.rong.imkit.event.uievent.ScrollToEndEvent;
 import io.rong.imkit.event.uievent.ShowLongClickDialogEvent;
 import io.rong.imkit.event.uievent.ToastEvent;
 import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.forward.ForwardClickActions;
 import io.rong.imkit.feature.forward.ForwardManager;
 import io.rong.imkit.feature.translation.RCTranslationResultWrapper;
 import io.rong.imkit.feature.translation.TranslationProvider;
 import io.rong.imkit.feature.translation.TranslationResultListenerWrapper;
+import io.rong.imkit.handler.AppSettingsHandler;
+import io.rong.imkit.handler.EditMessageHandler;
+import io.rong.imkit.handler.SpeechToTextHandler;
 import io.rong.imkit.handler.StreamMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.IAudioPlayListener;
+import io.rong.imkit.manager.UnReadMessageManager;
 import io.rong.imkit.manager.hqvoicemessage.AutoDownloadEntry;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.model.State;
@@ -61,8 +68,10 @@ import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.widget.TextAnimationHelper;
 import io.rong.imkit.widget.cache.MessageList;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -77,6 +86,8 @@ import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfo;
+import io.rong.imlib.model.SpeechToTextInfo;
+import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.HQVoiceMessage;
 import io.rong.message.HistoryDividerMessage;
@@ -110,6 +121,8 @@ public class MessageViewModel extends AndroidViewModel
     private MediatorLiveData<List<UiMessage>> mUiMessageLiveData = new MediatorLiveData<>();
     private ConversationIdentifier mConversationIdentifier;
     private final StreamMessageHandler mStreamMessageHandler;
+    private final SpeechToTextHandler mSpeechToTextHandler;
+    private final EditMessageHandler mEditMessageHandler;
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
             new RongIMClient.ReadReceiptListener() {
                 @Override
@@ -208,6 +221,7 @@ public class MessageViewModel extends AndroidViewModel
     private boolean mInitMentionedMessageFinish;
     private MediatorLiveData<Boolean> mIsEditStatus = new MediatorLiveData<>();
     private MessageItemLongClickAction mMoreAction;
+    private MessageItemLongClickAction mSpeechToTextAction;
     // 应用是否在前台
     private boolean mIsForegroundActivity;
     // 是否滑动到页面最底部
@@ -348,6 +362,13 @@ public class MessageViewModel extends AndroidViewModel
                         uiMessage.setContent(recallNotificationMessage);
                         refreshSingleMessage(uiMessage);
                     }
+                    // 监听撤回，刷新引用消息
+                    List<UiMessage> uiMessages =
+                            mEditMessageHandler.processMessageReferMsgStatus(
+                                    message,
+                                    ReferenceMessage.ReferenceMessageStatus.RECALLED,
+                                    getUiMessages());
+                    mUiMessageLiveData.postValue(uiMessages);
                     return false;
                 }
             };
@@ -387,16 +408,78 @@ public class MessageViewModel extends AndroidViewModel
         mainHandler = new Handler(Looper.getMainLooper());
         mStreamMessageHandler = new StreamMessageHandler();
         mStreamMessageHandler.addDataChangeListener(
-                StreamMessageHandler.KEY_FETCH_STREAM_MESSAGE,
-                uiMessage -> {
-                    if (uiMessage != null && uiMessage.getMessage() != null) {
-                        UiMessage findUiMessage =
-                                findUIMessage(uiMessage.getMessage().getMessageId());
-                        if (findUiMessage != null) {
-                            findUiMessage.setMessage(uiMessage.getMessage());
-                            findUiMessage.setBusinessState(uiMessage.getBusinessState());
-                            refreshSingleMessage(findUiMessage);
+                StreamMessageHandler.KEY_FETCH_STREAM_MESSAGE, this::refreshModifyMessage);
+        mSpeechToTextHandler = new SpeechToTextHandler();
+        mSpeechToTextHandler.addDataChangeListener(
+                SpeechToTextHandler.KEY_SPEECH_TO_TEXT_LISTENER, this::refreshModifyMessage);
+        mSpeechToTextHandler.addDataChangeListener(
+                SpeechToTextHandler.KEY_REQUEST_SPEECH_TO_TEXT,
+                new OnDataChangeListener<UiMessage>() {
+                    @Override
+                    public void onDataChange(UiMessage uiMessage) {
+                        MessageViewModel.this.refreshModifyMessage(uiMessage);
+                    }
+
+                    @Override
+                    public void onDataError(
+                            IRongCoreEnum.CoreErrorCode coreErrorCode, String errorMsg) {
+                        String message;
+                        if (coreErrorCode
+                                == IRongCoreEnum.CoreErrorCode
+                                        .SPEECH_TO_TEXT_MESSAGE_CONTENT_UNSUPPORTED) {
+                            message =
+                                    getApplication()
+                                            .getString(
+                                                    R.string.rc_speech_to_text_unsupported_format);
+                        } else {
+                            message =
+                                    getApplication()
+                                            .getString(R.string.rc_speech_to_text_network_error);
                         }
+                        io.rong.imkit.utils.ToastUtils.show(
+                                IMCenter.getInstance().getContext(), message, Toast.LENGTH_SHORT);
+                    }
+                });
+        mSpeechToTextHandler.addDataChangeListener(
+                SpeechToTextHandler.KEY_SET_SPEECH_TO_TEXT_VISIBLE,
+                new OnDataChangeListener<UiMessage>() {
+                    @Override
+                    public void onDataChange(UiMessage uiMessage) {
+                        MessageViewModel.this.refreshModifyMessage(uiMessage);
+                    }
+
+                    @Override
+                    public void onDataError(
+                            IRongCoreEnum.CoreErrorCode coreErrorCode, String errorMsg) {
+                        String message;
+                        if (coreErrorCode
+                                == IRongCoreEnum.CoreErrorCode
+                                        .SPEECH_TO_TEXT_MESSAGE_CONTENT_UNSUPPORTED) {
+                            message =
+                                    getApplication()
+                                            .getString(
+                                                    R.string.rc_speech_to_text_unsupported_format);
+                        } else {
+                            message =
+                                    getApplication()
+                                            .getString(R.string.rc_speech_to_text_network_error);
+                        }
+                        io.rong.imkit.utils.ToastUtils.show(
+                                IMCenter.getInstance().getContext(), message, Toast.LENGTH_SHORT);
+                    }
+                });
+        mEditMessageHandler = new EditMessageHandler();
+        mEditMessageHandler.addDataChangeListener(
+                EditMessageHandler.KEY_ON_MESSAGE_MODIFIED,
+                new OnDataChangeListener<List<Message>>() {
+                    @Override
+                    public void onDataChange(List<Message> editMessageList) {
+                        List<UiMessage> uiMessages =
+                                mEditMessageHandler.processMessageEditStatusAndReferMsgStatus(
+                                        editMessageList, getUiMessages());
+                        mUiMessageLiveData.postValue(uiMessages);
+                        // 更新引用消息
+                        mEditMessageHandler.updateReferenceView(editMessageList, getUiMessages());
                     }
                 });
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
@@ -407,6 +490,17 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         initTranslationListener();
+    }
+
+    private void refreshModifyMessage(UiMessage uiMessage) {
+        if (uiMessage != null && uiMessage.getMessage() != null) {
+            UiMessage findUiMessage = findUIMessage(uiMessage.getMessage().getMessageId());
+            if (findUiMessage != null) {
+                findUiMessage.setMessage(uiMessage.getMessage());
+                findUiMessage.setBusinessState(uiMessage.getBusinessState());
+                refreshSingleMessage(findUiMessage);
+            }
+        }
     }
 
     private void stopDestructTime(UiMessage uiMessage) {
@@ -456,7 +550,7 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 }
             }
-            if (!contains) {
+            if (!contains && shouldContainUnknownMessage(message)) {
                 mUiMessages.add(0, mapUIMessage(message));
             }
         }
@@ -549,6 +643,10 @@ public class MessageViewModel extends AndroidViewModel
         return mConversationIdentifier.getType();
     }
 
+    public String getCurChannelId() {
+        return mConversationIdentifier == null ? "" : mConversationIdentifier.optChannelId();
+    }
+
     public ConversationIdentifier getConversationIdentifier() {
         return mConversationIdentifier;
     }
@@ -582,7 +680,7 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 }
             }
-            if (!contains) {
+            if (!contains && shouldContainUnknownMessage(message)) {
                 list.add(0, mapUIMessage(message));
             }
         }
@@ -604,7 +702,7 @@ public class MessageViewModel extends AndroidViewModel
                     break;
                 }
             }
-            if (!contains) {
+            if (!contains && shouldContainUnknownMessage(message)) {
                 mUiMessages.add(0, mapUIMessage(message));
             }
         }
@@ -680,10 +778,13 @@ public class MessageViewModel extends AndroidViewModel
                                             }
                                         })
                                 .build();
-                MessageItemLongClickActionManager.getInstance()
-                        .addMessageItemLongClickAction(mMoreAction);
             }
+            MessageItemLongClickActionManager.getInstance()
+                    .addMessageItemLongClickAction(mMoreAction);
         }
+
+        // 动态创建语音转文字功能 - 每次都重新创建以确保title是最新的
+        createSpeechToTextAction(uiMessage);
 
         final List<MessageItemLongClickAction> messageItemLongClickActions =
                 MessageItemLongClickActionManager.getInstance()
@@ -691,6 +792,106 @@ public class MessageViewModel extends AndroidViewModel
         executePageEvent(
                 new ShowLongClickDialogEvent(
                         new MessageItemLongClickBean(messageItemLongClickActions, uiMessage)));
+        return true;
+    }
+
+    /** 动态创建语音转文字Action 根据消息的语音转文字状态动态显示对应的操作选项 */
+    private void createSpeechToTextAction(UiMessage uiMessage) {
+        // 清理之前的Action
+        if (mSpeechToTextAction != null) {
+            MessageItemLongClickActionManager.getInstance()
+                    .removeMessageItemLongClickAction(mSpeechToTextAction);
+        }
+
+        // 检查是否需要显示语音转文字功能
+        io.rong.imlib.model.SpeechToTextInfo sttInfo = getSpeechToTextInfo(uiMessage);
+        if (sttInfo == null) {
+            return;
+        }
+
+        // 根据语音转文字状态确定按钮文本
+        int titleResId = getSpeechToTextTitleByStatus(sttInfo);
+
+        mSpeechToTextAction =
+                new MessageItemLongClickAction.Builder()
+                        .titleResId(titleResId)
+                        .actionListener(this::handleSpeechToTextAction)
+                        .showFilter(message -> getSpeechToTextInfo(message) != null)
+                        .build();
+
+        MessageItemLongClickActionManager.getInstance()
+                .addMessageItemLongClickAction(mSpeechToTextAction, 0);
+    }
+
+    /**
+     * 获取消息的语音转文字信息
+     *
+     * @param uiMessage 消息对象
+     * @return 语音转文字信息，如果不支持则返回null
+     */
+    private io.rong.imlib.model.SpeechToTextInfo getSpeechToTextInfo(UiMessage uiMessage) {
+        if (!AppSettingsHandler.getInstance().getAppSettings().isSpeechToTextEnable()) {
+            return null;
+        }
+        // 如果消息发送状态是正在发送、发送失败或取消，则不显示语音转文字UI
+        Message.SentStatus sentStatus = uiMessage.getMessage().getSentStatus();
+        if (sentStatus == Message.SentStatus.SENDING
+                || sentStatus == Message.SentStatus.FAILED
+                || sentStatus == Message.SentStatus.CANCELED) {
+            return null;
+        }
+
+        if (SpeechToTextHandler.SPEECH_TO_TEXT_LOADING_STATE.equals(uiMessage.getBusinessState())) {
+            return null;
+        }
+
+        MessageContent content = uiMessage.getContent();
+        if (content instanceof VoiceMessage) {
+            return ((VoiceMessage) content).getSttInfo();
+        } else if (content instanceof HQVoiceMessage) {
+            return ((HQVoiceMessage) content).getSttInfo();
+        }
+        return null;
+    }
+
+    /**
+     * 根据语音转文字状态获取按钮标题资源ID
+     *
+     * @param sttInfo 语音转文字信息
+     * @return 对应的字符串资源ID
+     */
+    private int getSpeechToTextTitleByStatus(SpeechToTextInfo sttInfo) {
+        return sttInfo.isVisible() ? R.string.rc_cancel_speech_to_text : R.string.rc_speech_to_text;
+    }
+
+    /** 处理语音转文字操作 根据当前状态执行相应的转换或显示/隐藏操作 */
+    private boolean handleSpeechToTextAction(Context context, UiMessage uiMessage) {
+        io.rong.imlib.model.SpeechToTextInfo sttInfo = getSpeechToTextInfo(uiMessage);
+        if (sttInfo == null) {
+            return false;
+        }
+
+        io.rong.imlib.model.SpeechToTextInfo.SpeechToTextStatus status = sttInfo.getStatus();
+        String messageUId = uiMessage.getUId();
+        int messageId = uiMessage.getMessageId();
+
+        // 根据状态执行相应操作
+        if (sttInfo.isVisible()) {
+            // 当 isVisible = false 时，立即设置 businessState 为隐藏状态并更新UI
+            uiMessage.setBusinessState(SpeechToTextHandler.SPEECH_TO_TEXT_HIDDEN_STATE);
+            refreshSingleMessage(uiMessage);
+            mSpeechToTextHandler.setMessageSpeechToTextVisible(messageId, false);
+        } else {
+            TextAnimationHelper.addPendingAnimation(messageUId);
+            if (status == io.rong.imlib.model.SpeechToTextInfo.SpeechToTextStatus.NOT_CONVERTED
+                    || status == io.rong.imlib.model.SpeechToTextInfo.SpeechToTextStatus.FAILED) {
+                // 开始语音转文字
+                mSpeechToTextHandler.requestSpeechToTextForMessage(messageUId);
+            } else {
+                // 切换显示/隐藏状态
+                mSpeechToTextHandler.setMessageSpeechToTextVisible(messageId, true);
+            }
+        }
         return true;
     }
 
@@ -959,6 +1160,10 @@ public class MessageViewModel extends AndroidViewModel
         mPageEventLiveData.setValue(
                 new InputBarEvent(
                         InputBarEvent.Type.HideMoreMenu, getCurConversationType().getName()));
+
+        // 如果多选前是编辑消息模式，则恢复编辑消息输入UI。
+        mEditMessageHandler.resumeEditMode(
+                mConversationIdentifier, EditMessageManager.ActiveType.OnCancelMultiSelectStatus);
     }
 
     public UiMessage findUIMessage(String messageUId) {
@@ -1106,10 +1311,12 @@ public class MessageViewModel extends AndroidViewModel
 
     @Override
     public void onDeleteMessage(DeleteEvent event) {
+        List<Message> deleteMessages = new ArrayList<>();
         for (int messageId : event.getMessageIds()) {
             int position = findPositionByMessageId(messageId);
             if (position >= 0) {
                 UiMessage uiMessage = mUiMessages.get(position);
+                deleteMessages.add(uiMessage.getMessage());
                 MessageContent content = uiMessage.getMessage().getContent();
                 if (AudioPlayManager.getInstance().isPlaying()) {
                     if (content instanceof VoiceMessage) {
@@ -1141,6 +1348,14 @@ public class MessageViewModel extends AndroidViewModel
                 && mUiMessages.isEmpty()
                 && mProcessor != null) {
             onRefresh();
+        }
+        if (!deleteMessages.isEmpty()) {
+            List<UiMessage> uiMessages =
+                    mEditMessageHandler.processMessageReferMsgStatus(
+                            deleteMessages.toArray(new Message[0]),
+                            ReferenceMessage.ReferenceMessageStatus.DELETE,
+                            getUiMessages());
+            mUiMessageLiveData.postValue(uiMessages);
         }
     }
 
@@ -1176,13 +1391,33 @@ public class MessageViewModel extends AndroidViewModel
                 processNewMessageUnread(true);
             }
         }
+        List<UiMessage> uiMessages =
+                mEditMessageHandler.processMessageReferMsgStatus(
+                        event.getRecallMessage(),
+                        ReferenceMessage.ReferenceMessageStatus.RECALLED,
+                        getUiMessages());
+        mUiMessageLiveData.postValue(uiMessages);
     }
 
     @Override
     public void onRefreshEvent(RefreshEvent event) {
+        if (event.getMessages() != null && !event.getMessages().isEmpty()) {
+            List<UiMessage> uiMessages =
+                    mEditMessageHandler.processMessageEditStatusAndReferMsgStatus(
+                            event.getMessages(), getUiMessages());
+            mUiMessageLiveData.postValue(uiMessages);
+            // 更新引用消息
+            mEditMessageHandler.updateReferenceView(event.getMessages(), getUiMessages());
+            return;
+        }
         Message message = event.getMessage();
         UiMessage uiMessage = findUIMessage(message.getMessageId());
         if (uiMessage != null) {
+            // 如果修改过消息体，则需要把UiMessage的ContentSpannable情况，重新渲染内容。
+            if (event.isModifyMessageContent()) {
+                uiMessage.setContentSpannable(null);
+                uiMessage.setReferenceContentSpannable(null);
+            }
             uiMessage.setMessage(message);
             refreshSingleMessage(uiMessage);
         }
@@ -1193,7 +1428,8 @@ public class MessageViewModel extends AndroidViewModel
         Message msg = event.getMessage();
         if (mConversationIdentifier != null
                 && mConversationIdentifier.equalsWithMessage(msg)
-                && msg.getMessageId() > 0) {
+                && msg.getMessageId() > 0
+                && shouldContainUnknownMessage(msg)) {
             long sentTime = msg.getSentTime() - RongIMClient.getInstance().getDeltaTime();
             msg.setSentTime(sentTime); // 更新成服务器时间
             int position = findPositionBySendTime(msg.getSentTime());
@@ -1236,6 +1472,14 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     private void sendMessageEvent(UiMessage uiMessage) {
+        if (!shouldContainUnknownMessage(uiMessage.getMessage())) {
+            return;
+        }
+        if (mProcessor.isHistoryState(this)
+                && uiMessage.getContent() instanceof MediaMessageContent
+                && uiMessage.getState() == State.PROGRESS) {
+            return;
+        }
         mUiMessages.add(uiMessage);
         refreshAllMessage();
         executePageEvent(new ScrollToEndEvent());
@@ -1551,6 +1795,8 @@ public class MessageViewModel extends AndroidViewModel
     protected void onCleared() {
         super.onCleared();
         mStreamMessageHandler.stop();
+        mSpeechToTextHandler.stop();
+        mEditMessageHandler.stop();
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeReadReceiptListener(mReadReceiptListener);
@@ -1559,6 +1805,7 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().removeConversationEventListener(mConversationEventListener);
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         unInitTranslationListener();
+        TextAnimationHelper.clearAllCache();
     }
 
     public boolean isForegroundActivity() {
@@ -1640,6 +1887,9 @@ public class MessageViewModel extends AndroidViewModel
                             Objects.equals(
                                     data.getBusinessState(),
                                     StreamMessageHandler.State.RETRY_PULL));
+                    break;
+                case MessageClickType.SPEECH_TO_TEXT:
+                    mSpeechToTextHandler.setMessageSpeechToTextVisible(data.getMessageId(), false);
                     break;
                 default:
                     break;
@@ -1842,10 +2092,18 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void onDestroy() {
+        syncConversationUnReadStatus(getCurConversationType(), getCurTargetId());
         stopPlay();
         MessageItemLongClickActionManager.getInstance()
                 .removeMessageItemLongClickAction(mMoreAction);
         mMoreAction = null;
+
+        if (mSpeechToTextAction != null) {
+            MessageItemLongClickActionManager.getInstance()
+                    .removeMessageItemLongClickAction(mSpeechToTextAction);
+            mSpeechToTextAction = null;
+        }
+
         if (mProcessor != null) mProcessor.onDestroy(this);
     }
 
@@ -1979,5 +2237,41 @@ public class MessageViewModel extends AndroidViewModel
             return true;
         }
         return false;
+    }
+
+    /**
+     * 检查是否应该跳过 UnknownMessage
+     *
+     * @param message 消息对象
+     * @return true 表示应该跳过该消息，false 表示不应该跳过
+     */
+    private boolean shouldContainUnknownMessage(Message message) {
+        if (message != null && message.getContent() instanceof UnknownMessage) {
+            return RongConfigCenter.featureConfig().isShowUnknownMessage();
+        }
+        return true;
+    }
+
+    /**
+     * 同步 UnReadMessageManager 未读数变更 注意：如果 rc_read_receipt 和 rc_enable_sync_read_status 同时设置为false，
+     * 则 UnReadMessageManager 不会触发变更，需要手动触发
+     */
+    private void syncConversationUnReadStatus(Conversation.ConversationType type, String targetId) {
+        ConversationConfig config = RongConfigCenter.conversationConfig();
+        // 打开多端阅读状态同步功能
+        if (config.isEnableMultiDeviceSync(type)) {
+            return;
+        }
+        // ConversationConfig的 isShowReadReceipt 与 isShowReadReceiptRequest 支持的类型
+        if (Conversation.ConversationType.PRIVATE != type
+                && Conversation.ConversationType.ENCRYPTED != type
+                && Conversation.ConversationType.GROUP != type
+                && Conversation.ConversationType.DISCUSSION != type) {
+            return;
+        }
+        if (!config.isShowReadReceipt(type) && !config.isShowReadReceiptRequest(type)) {
+            RLog.d(TAG, "syncConversationUnReadStatus");
+            UnReadMessageManager.getInstance().onSyncConversationReadStatus(type, targetId);
+        }
     }
 }

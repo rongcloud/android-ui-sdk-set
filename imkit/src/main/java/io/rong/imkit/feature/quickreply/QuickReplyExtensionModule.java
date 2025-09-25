@@ -17,6 +17,7 @@ import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
 import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -133,6 +134,7 @@ public class QuickReplyExtensionModule implements IExtensionModule {
                                 }
                             });
             ReferenceManager.getInstance().setReferenceStatusListener(ReferenceStatusListener);
+            EditMessageManager.getInstance().addStatusListener(editStatusListener);
         }
     }
 
@@ -177,6 +179,7 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     @Override
     public void onDetachedFromExtension() {
         ReferenceManager.getInstance().removeReferenceStatusListener(ReferenceStatusListener);
+        EditMessageManager.getInstance().removeStatusListener(editStatusListener);
         // The following code is used to resolve memory leaks.
 
         if (mExtension != null) {
@@ -220,6 +223,16 @@ public class QuickReplyExtensionModule implements IExtensionModule {
                     RongExtension extension = mExtension.get();
                     if (extension != null) {
                         extension.setAttachedInfo(mQuickReplyIcon);
+                    }
+                }
+            };
+    private final EditMessageManager.StatusListener editStatusListener =
+            new EditMessageManager.StatusListener() {
+                @Override
+                public void onVisibilityChanged(boolean isVisible) {
+                    RongExtension extension = mExtension.get();
+                    if (extension != null) {
+                        extension.setAttachedInfo(isVisible ? null : mQuickReplyIcon);
                     }
                 }
             };

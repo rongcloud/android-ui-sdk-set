@@ -3,6 +3,7 @@ package io.rong.imkit.conversationlist.provider;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -130,30 +131,18 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
         // 会话内容
         ((TextView) holder.getView(R.id.rc_conversation_content))
                 .setCompoundDrawables(null, null, null, null);
-        if (uiConversation.mCore.getSentStatus() != null
-                && TextUtils.isEmpty(uiConversation.getDraft())
-                && !TextUtils.isEmpty(uiConversation.mConversationContent)) {
-            Drawable drawable = null;
-            if (uiConversation.mCore.getSentStatus() == Message.SentStatus.FAILED) {
-                drawable = holder.getContext().getResources().getDrawable(R.drawable.rc_ic_warning);
-            } else if (uiConversation.mCore.getSentStatus() == Message.SentStatus.SENDING) {
-                drawable =
-                        holder.getContext()
-                                .getResources()
-                                .getDrawable(R.drawable.rc_conversation_list_msg_sending);
-            }
-            if (drawable != null) {
-                Bitmap bitmap =
-                        BitmapFactory.decodeResource(
-                                holder.getContext().getResources(), R.drawable.rc_ic_warning);
-                int width = bitmap.getWidth();
-                int bottom = width;
-                drawable.setBounds(0, 0, width, bottom);
-                ((TextView) holder.getView(R.id.rc_conversation_content))
-                        .setCompoundDrawablePadding(10);
-                ((TextView) holder.getView(R.id.rc_conversation_content))
-                        .setCompoundDrawables(drawable, null, null, null);
-            }
+        Drawable drawable = getContentStatusDrawable(holder, uiConversation);
+        if (drawable != null) {
+            Bitmap bitmap =
+                    BitmapFactory.decodeResource(
+                            holder.getContext().getResources(), R.drawable.rc_ic_warning);
+            int width = bitmap.getWidth();
+            int bottom = width;
+            drawable.setBounds(0, 0, width, bottom);
+            ((TextView) holder.getView(R.id.rc_conversation_content))
+                    .setCompoundDrawablePadding(10);
+            ((TextView) holder.getView(R.id.rc_conversation_content))
+                    .setCompoundDrawables(drawable, null, null, null);
         }
         holder.setText(
                 R.id.rc_conversation_content,
@@ -229,6 +218,22 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                                 + ")");
             }
         }
+    }
+
+    /** 设置内容的状态图标。 优先级：编辑状态（打开编辑开关+编辑状态+无有人@我消息）=>草稿=>发送状态 */
+    protected Drawable getContentStatusDrawable(
+            ViewHolder holder, BaseUiConversation uiConversation) {
+        Resources resources = holder.getContext().getResources();
+        if (uiConversation.isShowDraftContent()
+                || TextUtils.isEmpty(uiConversation.mConversationContent)) {
+            return null;
+        }
+        if (Message.SentStatus.FAILED == uiConversation.mCore.getSentStatus()) {
+            return resources.getDrawable(R.drawable.rc_ic_warning);
+        } else if (Message.SentStatus.SENDING == uiConversation.mCore.getSentStatus()) {
+            return resources.getDrawable(R.drawable.rc_conversation_list_msg_sending);
+        }
+        return null;
     }
 
     private boolean isDebugMode(Context context) {

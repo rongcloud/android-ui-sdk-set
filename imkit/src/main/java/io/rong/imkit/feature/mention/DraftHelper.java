@@ -17,11 +17,19 @@ public class DraftHelper {
 
     private final EditText editText;
 
+    public DraftHelper() {
+        this.editText = null;
+    }
+
     public DraftHelper(@NonNull EditText editText) {
         this.editText = editText;
     }
 
     public String getMentionBlocks() {
+        return getMentionBlocks(editText);
+    }
+
+    public String getMentionBlocks(EditText editText) {
         MentionInstance mentionInstance =
                 RongMentionManager.getInstance().obtainMentionInstance(editText);
         if (mentionInstance == null
@@ -37,6 +45,10 @@ public class DraftHelper {
     }
 
     public void addMentionBlocks(String mentionInfo) {
+        addMentionBlocks(editText, mentionInfo);
+    }
+
+    public void addMentionBlocks(EditText editText, String mentionInfo) {
         MentionInstance mentionInstance =
                 RongMentionManager.getInstance().obtainMentionInstance(editText);
         if (mentionInstance == null || mentionInstance.mentionBlocks == null) {
@@ -44,9 +56,20 @@ public class DraftHelper {
         }
 
         List<MentionBlock> mentionBlocks = parseMentionBlocks(mentionInfo);
+        addMentionBlocks(editText, mentionBlocks);
+    }
+
+    public void addMentionBlocks(EditText editText, List<MentionBlock> mentionBlocks) {
+        MentionInstance mentionInstance =
+                RongMentionManager.getInstance().obtainMentionInstance(editText);
+        if (mentionInstance == null || mentionInstance.mentionBlocks == null) {
+            return;
+        }
+
         if (mentionBlocks == null || mentionBlocks.isEmpty()) {
             return;
         }
+        mentionInstance.mentionBlocks.clear();
         for (MentionBlock mentionBlock : mentionBlocks) {
             if (mentionBlock != null && !TextUtils.isEmpty(mentionBlock.userId)) {
                 mentionInstance.mentionBlocks.add(mentionBlock);

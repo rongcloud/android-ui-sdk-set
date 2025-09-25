@@ -8,7 +8,7 @@
 
         <activity
             android:name=".activities.ContactDetailActivity"
-            android:theme="@android:style/Theme.Dialog" />
+            android:theme="@style/Theme.AppCompat.Light.Dialog" />
     </application>
 
 </manifest>

@@ -51,6 +51,7 @@ class UserManageHelper {
     public static final String TAG = "UserManageHelper";
     private static final int MAX_SIZE = 1000;
     private static final int MAX_RETRY_COUNT = 3;
+    private static final int DEFAULT_SUBSCRIBE_USER_PROFILE_TIME = 259200; // 3天：3 * 24 * 60 * 60
 
     private final LruCache<String, ExtendedUserInfo> extendedUserInfoCache =
             new LruCache<>(MAX_SIZE);
@@ -671,6 +672,7 @@ class UserManageHelper {
         SubscribeEventRequest subscribeEventRequest =
                 new SubscribeEventRequest(
                         SubscribeEvent.SubscribeType.USER_PROFILE,
+                        DEFAULT_SUBSCRIBE_USER_PROFILE_TIME,
                         Collections.singletonList(userId));
         RongCoreClient.getInstance()
                 .subscribeEvent(

@@ -29,11 +29,15 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
+import io.rong.imkit.feature.editmessage.EditMessageConfig;
+import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.DraftHelper;
 import io.rong.imkit.feature.reference.ReferenceManager;
+import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.utils.ToastUtils;
@@ -68,6 +72,7 @@ public class InputPanel {
     private RongExtensionViewModel mExtensionViewModel;
     private String mInitialDraft = "";
     private final DraftHelper draftHelper;
+    private EditMessageHandler editMessageHandler;
 
     public InputPanel(
             Fragment fragment,
@@ -77,6 +82,10 @@ public class InputPanel {
         mFragment = fragment;
         mInputStyle = inputStyle;
         mConversationIdentifier = conversationIdentifier;
+        editMessageHandler = new EditMessageHandler();
+        editMessageHandler.addDataChangeListener(
+                EditMessageHandler.KEY_INPUT_PANEL_GET_DRAFT,
+                (OnDataChangeEnhancedListener<EditMessageConfig>) this::getDraftReally);
         initView(fragment.getContext(), parent);
         draftHelper = new DraftHelper(mEditText);
 
@@ -357,14 +366,23 @@ public class InputPanel {
         return !RongConfigCenter.featureConfig().isHideEmojiButton();
     }
 
+    /** 获取草稿 逻辑：编辑草稿 => 普通草稿 */
     public void getDraft() {
-        WeakReference<InputPanel> weakThis = new WeakReference<>(this);
-        ChannelClient.getInstance()
-                .getTextMessageDraft(
-                        mConversationIdentifier.getType(),
-                        mConversationIdentifier.getTargetId(),
-                        mConversationIdentifier.getChannelId(),
-                        new GetDraftCallback(weakThis));
+        editMessageHandler.checkEditedMessageDraftStatus(mConversationIdentifier);
+    }
+
+    /** 获取普通草稿 */
+    private void getDraftReally(EditMessageConfig config) {
+        if (config == null) {
+            // 编辑草稿为空，才获取普通草稿
+            WeakReference<InputPanel> weakThis = new WeakReference<>(InputPanel.this);
+            ChannelClient.getInstance()
+                    .getTextMessageDraft(
+                            mConversationIdentifier.getType(),
+                            mConversationIdentifier.getTargetId(),
+                            mConversationIdentifier.getChannelId(),
+                            new GetDraftCallback(weakThis));
+        }
     }
 
     private static class GetDraftCallback extends IRongCoreCallback.ResultCallback<String> {
@@ -629,6 +647,7 @@ public class InputPanel {
         mContext = null;
         mExtensionViewModel = null;
         saveTextMessageDraft();
+        editMessageHandler.stop();
     }
 
     private static class SaveDraftCallback extends RongIMClient.ResultCallback<Boolean> {
@@ -661,6 +680,10 @@ public class InputPanel {
             };
 
     private void saveTextMessageDraft() {
+        // 如果当前是编辑模式，无需保存草稿
+        if (EditMessageManager.getInstance().isEditMessageState()) {
+            return;
+        }
         if (mEditText != null && mEditText.getText() != null) {
             String draftText = mEditText.getText().toString();
             String draft = getDraft(draftText);

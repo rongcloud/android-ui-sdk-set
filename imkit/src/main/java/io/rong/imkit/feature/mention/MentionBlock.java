@@ -42,11 +42,11 @@ public class MentionBlock {
         }
     }
 
-    MentionBlock() {
+    public MentionBlock() {
         // default implementation ignored
     }
 
-    MentionBlock(String json) {
+    public MentionBlock(String json) {
         try {
             JSONObject jsonObject = new JSONObject(json);
             userId = jsonObject.optString("userId");

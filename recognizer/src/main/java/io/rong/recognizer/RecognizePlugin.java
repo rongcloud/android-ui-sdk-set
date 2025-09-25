@@ -85,7 +85,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
                 new IRecognizedResult() {
                     @Override
                     public void onResult(String data) {
-                        EditText inputEditText = extension.getInputEditText();
+                        EditText inputEditText = mExtensionViewModel.getEditTextWidget();
                         if (inputEditText != null && inputEditText.getText() != null) {
                             String str = inputEditText.getText().toString() + data;
                             inputEditText.setText(str);
@@ -95,7 +95,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
                     @Override
                     public void onClearClick() {
-                        EditText inputEditText = extension.getInputEditText();
+                        EditText inputEditText = mExtensionViewModel.getEditTextWidget();
                         if (inputEditText != null) {
                             inputEditText.setText("");
                         }

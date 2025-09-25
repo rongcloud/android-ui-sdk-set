@@ -26,8 +26,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String[] permissions = PermissionCheckUtil.getMediaStoragePermissions(this);
-        if (PermissionChecker.checkSelfPermission(this, permissions)) {
+        if (PermissionCheckUtil.checkMediaStoragePermissions(this)) {
             onTakePhoto();
         } else {
             ToastUtils.s(getContext(), getString(R.string.rc_picture_camera));
