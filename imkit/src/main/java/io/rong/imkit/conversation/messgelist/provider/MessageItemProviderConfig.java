@@ -22,7 +22,4 @@ public class MessageItemProviderConfig {
 
     /** 是否需要展示气泡 */
     public boolean showContentBubble = true;
-
-    /** 是否需要展示编辑状态。默认不显示 */
-    public boolean showEditState = false;
 }

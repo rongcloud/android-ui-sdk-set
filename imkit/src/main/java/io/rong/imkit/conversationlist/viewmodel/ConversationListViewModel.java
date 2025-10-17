@@ -32,7 +32,7 @@ import io.rong.imkit.event.actionevent.RecallEvent;
 import io.rong.imkit.event.actionevent.RefreshEvent;
 import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
-import io.rong.imkit.handler.EditMessageHandler;
+import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -57,7 +57,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ConversationListViewModel extends AndroidViewModel
@@ -83,7 +82,6 @@ public class ConversationListViewModel extends AndroidViewModel
     private boolean isTaskScheduled;
     private int mTime = 500;
     private int mDelayRefreshTime = 5000;
-    private EditMessageHandler mEditMessageHandler;
     private ConversationEventListener mConversationEventListener =
             new ConversationEventListener() {
                 @Override
@@ -377,14 +375,6 @@ public class ConversationListViewModel extends AndroidViewModel
         mTopPriority = RongConfigCenter.conversationListConfig().isTopPriority();
 
         mConversationListLiveData = new MediatorLiveData<>();
-        mEditMessageHandler = new EditMessageHandler();
-        mEditMessageHandler.addDataChangeListener(
-                EditMessageHandler.KEY_ON_MESSAGE_MODIFIED,
-                messages -> {
-                    if (messages != null && !messages.isEmpty()) {
-                        getConversationList(false, false, 0);
-                    }
-                });
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
@@ -647,20 +637,55 @@ public class ConversationListViewModel extends AndroidViewModel
 
     private void getDeletedMsgConversation(
             Conversation.ConversationType type, String targetId, int[] deleteMsgId) {
-        Set<Integer> deleteSet = new HashSet<>();
-        for (int id : deleteMsgId) {
-            deleteSet.add(id);
-        }
-        boolean contains = false;
-        for (BaseUiConversation uiConversation : mUiConversationList) {
-            if (uiConversation.mCore != null
-                    && deleteSet.contains(uiConversation.mCore.getLatestMessageId())) {
-                contains = true;
-                break;
-            }
-        }
-        // 如果没有删除Conversation的lastMsg，则不用延迟刷新
-        mHandler.postDelayed(() -> getConversation(type, targetId), contains ? 300 : 0);
+        RongIMClient.getInstance()
+                .getConversation(
+                        type,
+                        targetId,
+                        new RongIMClient.ResultCallback<Conversation>() {
+                            @Override
+                            public void onSuccess(Conversation conversation) {
+                                if (conversation == null) {
+                                    return;
+                                }
+
+                                // 如果查询到的会话对应LatestMessageId在待删除消息ID数组中，则再延时查询一次
+                                for (int id : deleteMsgId) {
+                                    if (conversation.getLatestMessageId() == id) {
+                                        mHandler.postDelayed(
+                                                new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        getConversation(type, targetId);
+                                                    }
+                                                },
+                                                200);
+                                        return;
+                                    }
+                                }
+                                mHandler.post(
+                                        new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                if (Objects.equals(
+                                                                conversation.getSentStatus(),
+                                                                Message.SentStatus.FAILED)
+                                                        && ResendManager.getInstance()
+                                                                .needResend(
+                                                                        conversation
+                                                                                .getLatestMessageId())) {
+                                                    conversation.setSentStatus(
+                                                            Message.SentStatus.SENDING);
+                                                }
+                                                updateByConversation(conversation);
+                                            }
+                                        });
+                            }
+
+                            @Override
+                            public void onError(RongIMClient.ErrorCode errorCode) {
+                                // do nothing
+                            }
+                        });
     }
 
     protected void updateByConversation(Conversation conversation) {
@@ -734,7 +759,6 @@ public class ConversationListViewModel extends AndroidViewModel
         if (workThread != null) {
             workThread.quit();
         }
-        mEditMessageHandler.stop();
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);

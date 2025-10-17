@@ -57,7 +57,7 @@ public class GatheredConversation extends BaseUiConversation {
                     0,
                     preStr.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else if (isShowDraftContent()) {
+        } else if (!TextUtils.isEmpty(getDraft())) {
             preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
             mPreString = new SpannableString(preStr);
             mPreString.setSpan(
@@ -77,15 +77,14 @@ public class GatheredConversation extends BaseUiConversation {
             targetName = userInfo == null ? mLastTargetId : userInfo.getName();
         }
 
-        String draft = getDraftContent();
         builder.append(mPreString)
                 .append(targetName)
                 .append(COLON_SPLIT)
                 .append(
-                        TextUtils.isEmpty(draft)
+                        TextUtils.isEmpty(getDraft())
                                 ? RongConfigCenter.conversationConfig()
                                         .getMessageSummary(mContext, mCore)
-                                : draft);
+                                : getDraft());
         mConversationContent = builder;
     }
 

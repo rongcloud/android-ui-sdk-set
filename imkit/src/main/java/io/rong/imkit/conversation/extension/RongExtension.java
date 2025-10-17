@@ -30,7 +30,6 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.uievent.InputBarEvent;
 import io.rong.imkit.event.uievent.PageEvent;
 import io.rong.imkit.feature.destruct.DestructManager;
-import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.utils.PermissionCheckUtil;
@@ -91,8 +90,6 @@ public class RongExtension extends LinearLayout {
                                 }
                             }
                         }
-                        EditMessageManager.getInstance()
-                                .onKeyboardHeightChange(orientation, isOpen, keyboardHeight);
                     }
                 }
             };
@@ -172,24 +169,12 @@ public class RongExtension extends LinearLayout {
                                 if (pageEvent instanceof InputBarEvent) {
                                     if (((InputBarEvent) pageEvent)
                                             .mType.equals(InputBarEvent.Type.ReEdit)) {
-                                        Runnable reEditTask =
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        insertToEditText(
-                                                                ((InputBarEvent) pageEvent).mExtra);
-                                                        // 点击撤回时可能处于语音识别模式，需要切换为文本模式
-                                                        mExtensionViewModel
-                                                                .getInputModeLiveData()
-                                                                .postValue(InputMode.TextInput);
-                                                    }
-                                                };
-                                        if (EditMessageManager.getInstance().isEditMessageState()) {
-                                            EditMessageManager.getInstance().exitEditMode();
-                                            postDelayed(reEditTask, 300);
-                                        } else {
-                                            post(reEditTask);
-                                        }
+                                        insertToEditText(((InputBarEvent) pageEvent).mExtra);
+
+                                        // 点击撤回时可能处于语音识别模式，需要切换为文本模式
+                                        mExtensionViewModel
+                                                .getInputModeLiveData()
+                                                .postValue(InputMode.TextInput);
                                     } else if (((InputBarEvent) pageEvent)
                                             .mType.equals(InputBarEvent.Type.ShowMoreMenu)) {
                                         mExtensionViewModel
@@ -289,6 +274,8 @@ public class RongExtension extends LinearLayout {
                         new Runnable() {
                             @Override
                             public void run() {
+                                editText.setSelection(editText.getText().toString().length());
+                                editText.requestFocus();
                                 mExtensionViewModel.forceSetSoftInputKeyBoard(true);
                             }
                         },
@@ -311,7 +298,6 @@ public class RongExtension extends LinearLayout {
                                 });
             }
         }
-        EditMessageManager.getInstance().onResume();
     }
 
     public void onPause() {
@@ -333,7 +319,6 @@ public class RongExtension extends LinearLayout {
         if (mInputPanel != null) {
             mInputPanel.onPause();
         }
-        EditMessageManager.getInstance().onPause();
     }
 
     public void setAttachedInfo(View view) {
@@ -381,11 +366,6 @@ public class RongExtension extends LinearLayout {
     }
 
     public void resetToDefaultView(String conversationType) {
-        resetToDefaultView(conversationType, InputMode.NormalMode, false);
-    }
-
-    public void resetToDefaultView(
-            String conversationType, InputMode mode, boolean forceShowKeyBoard) {
         if (TextUtils.equals(
                         conversationType, Conversation.ConversationType.PUBLIC_SERVICE.getName())
                 || TextUtils.equals(
@@ -412,15 +392,11 @@ public class RongExtension extends LinearLayout {
             mAttachedInfoContainer.removeAllViews();
             mAttachedInfoContainer.setVisibility(GONE);
             // 在退出更多模式或阅后即焚模式后，重置为普通模式即非输入状态
-            updateInputMode(mode, forceShowKeyBoard);
+            updateInputMode(InputMode.NormalMode);
         }
     }
 
     public void updateInputMode(InputMode inputMode) {
-        updateInputMode(inputMode, false);
-    }
-
-    public void updateInputMode(InputMode inputMode, boolean forceShowKeyBoard) {
         if (inputMode == null) {
             return;
         }
@@ -432,7 +408,7 @@ public class RongExtension extends LinearLayout {
             if (editText == null || editText.getText() == null) {
                 return;
             }
-            if (isEditTextSameProperty(editText) && !forceShowKeyBoard) {
+            if (isEditTextSameProperty(editText)) {
                 return;
             }
             RLog.d(TAG, "update for TextInput mode");
@@ -448,7 +424,7 @@ public class RongExtension extends LinearLayout {
                 mExtensionViewModel.getExtensionBoardState().setValue(true);
             }
 
-            if (forceShowKeyBoard || (editText.isFocused() || editText.getText().length() > 0)) {
+            if ((editText.isFocused() || editText.getText().length() > 0)) {
                 this.postDelayed(
                         new Runnable() {
                             @Override
@@ -660,10 +636,7 @@ public class RongExtension extends LinearLayout {
         if (mInputPanel != null) {
             mInputPanel.onDestroy();
             RongMentionManager.getInstance()
-                    .destroyInstance(
-                            getConversationType(),
-                            getTargetId(),
-                            mExtensionViewModel.getEditTextWidget());
+                    .destroyInstance(getConversationType(), getTargetId(), getInputEditText());
         }
         for (IExtensionEventWatcher watcher :
                 RongExtensionManager.getInstance().getExtensionEventWatcher()) {

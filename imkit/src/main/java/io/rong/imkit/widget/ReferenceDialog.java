@@ -6,8 +6,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,7 +20,6 @@ import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
 import io.rong.message.RecallNotificationMessage;
-import io.rong.message.ReferenceMessage;
 
 public class ReferenceDialog extends BaseDialogFragment
         implements RongIMClient.OnRecallMessageListener {
@@ -84,53 +81,14 @@ public class ReferenceDialog extends BaseDialogFragment
     public void bindData() {
         SpannableStringBuilder spannable =
                 TextViewUtils.getSpannable(
-                        mUiMessage.getReferenceContentSpannable().toString(), this::setText);
-        setText(spannable);
-    }
-
-    protected void setText(SpannableStringBuilder span) {
-        ReferenceMessage content = (ReferenceMessage) mUiMessage.getMessage().getContent();
-        ReferenceMessage.ReferenceMessageStatus referMsgStatus = content.getReferMsgStatus();
-        if (referMsgStatus == ReferenceMessage.ReferenceMessageStatus.MODIFIED) {
-            SpannableStringBuilder contentSpannable = new SpannableStringBuilder(span);
-            String text = getString(R.string.rc_edit_status_success);
-            SpannableStringBuilder spannable = new SpannableStringBuilder("（" + text + "）");
-            ForegroundColorSpan colorSpan =
-                    new ForegroundColorSpan(
-                            getResources().getColor(R.color.rc_edit_success_status));
-            spannable.setSpan(colorSpan, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-            contentSpannable.append(spannable);
-            referenceShowText.setText(contentSpannable);
-        }
-        // 目前delete、recall不处理
-        //        else if (referMsgStatus == ReferenceMessage.ReferenceMessageStatus.DELETE) {
-        //            SpannableStringBuilder contentSpannable = new SpannableStringBuilder();
-        //            String text = getString(R.string.rc_reference_status_delete);
-        //            SpannableStringBuilder spannableString = new SpannableStringBuilder(text);
-        //            ForegroundColorSpan colorSpan =
-        //                    new
-        // ForegroundColorSpan(getResources().getColor(R.color.rc_edit_success_status));
-        //            spannableString.setSpan(
-        //                    colorSpan, 0, spannableString.length(),
-        // Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        //            contentSpannable.append(spannableString);
-        //            referenceShowText.setText(contentSpannable);
-        //        } else if (referMsgStatus == ReferenceMessage.ReferenceMessageStatus.RECALLED) {
-        //            SpannableStringBuilder contentSpannable = new SpannableStringBuilder();
-        //            String text = getString(R.string.rc_reference_status_recall);
-        //            SpannableStringBuilder spannableString = new SpannableStringBuilder(text);
-        //            ForegroundColorSpan colorSpan =
-        //                    new
-        // ForegroundColorSpan(getResources().getColor(R.color.rc_edit_success_status));
-        //            spannableString.setSpan(
-        //                    colorSpan, 0, spannableString.length(),
-        // Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        //            contentSpannable.append(spannableString);
-        //            referenceShowText.setText(contentSpannable);
-        //        }
-        else {
-            referenceShowText.setText(span);
-        }
+                        mUiMessage.getReferenceContentSpannable().toString(),
+                        new TextViewUtils.RegularCallBack() {
+                            @Override
+                            public void finish(SpannableStringBuilder s) {
+                                referenceShowText.setText(s);
+                            }
+                        });
+        referenceShowText.setText(spannable);
     }
 
     @Override

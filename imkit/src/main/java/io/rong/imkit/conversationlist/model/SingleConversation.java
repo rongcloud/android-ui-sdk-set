@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import androidx.annotation.NonNull;
 import io.rong.common.rlog.RLog;
@@ -26,7 +27,7 @@ public class SingleConversation extends BaseUiConversation {
     @Override
     void buildConversationContent() {
         SpannableStringBuilder builder = new SpannableStringBuilder();
-        if (isShowDraftContent()) {
+        if (!TextUtils.isEmpty(getDraft())) {
             if (mContext != null) {
                 String draft = mContext.getString(R.string.rc_conversation_summary_content_draft);
                 SpannableString preStr = new SpannableString(draft);
@@ -38,7 +39,7 @@ public class SingleConversation extends BaseUiConversation {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 builder.append(preStr);
             }
-            builder.append(getDraftContent());
+            builder.append(getDraft());
         } else {
             Spannable summary =
                     RongConfigCenter.conversationConfig().getMessageSummary(mContext, mCore);

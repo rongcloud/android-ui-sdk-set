@@ -7,7 +7,7 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 35
-        versionName "5.28.0_opensource"
+        versionName "5.21.1_opensource"
     }
 
     buildTypes {
@@ -28,5 +28,5 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'cn.rongcloud.sdk:im_kit:5.28.0'
+    api 'cn.rongcloud.sdk:im_kit:5.21.1'
 }
