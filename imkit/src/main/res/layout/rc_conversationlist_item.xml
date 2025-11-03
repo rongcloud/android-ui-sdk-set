@@ -25,7 +25,6 @@
                 android:layout_height="@dimen/rc_conversation_portrait_size"
                 android:scaleType="centerCrop" />
 
-
             <RelativeLayout
                 android:id="@+id/rc_conversation_unread"
                 android:layout_width="wrap_content"
@@ -63,7 +62,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="张三"
-            android:textColor="@color/rc_text_main_color"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="@dimen/rc_font_secondary_size"
             app:layout_constraintEnd_toStartOf="@+id/rc_conversation_date"
             app:layout_constraintStart_toEndOf="@+id/rc_conversation_portrait_rl"
@@ -80,7 +79,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="你好，朋友！"
-            android:textColor="@color/rc_secondary_color"
+            android:textColor="?attr/rc_text_secondary_color"
             android:textSize="@dimen/rc_font_text_third_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -95,21 +94,37 @@
             android:layout_marginTop="@dimen/rc_margin_size_16"
             android:layout_marginEnd="@dimen/rc_margin_size_12"
             android:text="3 月 22 日"
-            android:textColor="@color/rc_auxiliary_color"
+            android:textColor="?attr/rc_text_secondary_color"
             android:textSize="@dimen/rc_font_nav_or_date_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- 置顶图标 -->
+        <ImageView
+            android:id="@+id/rc_conversation_pin_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/rc_margin_size_12"
+            android:src="?attr/rc_conversation_list_cell_pin_img"
+            android:visibility="gone"
+            android:layout_marginBottom="@dimen/rc_margin_size_12"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_goneMarginEnd="@dimen/rc_margin_size_12" />
+
+        <!-- 免打扰图标 -->
         <ImageView
             android:id="@+id/rc_conversation_no_disturb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/rc_margin_size_12"
+            android:layout_marginEnd="@dimen/rc_margin_size_4"
             android:layout_marginBottom="@dimen/rc_margin_size_12"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:src="@drawable/rc_no_disturb" />
+            app:layout_constraintEnd_toStartOf="@+id/rc_conversation_pin_top"
+            app:layout_goneMarginEnd="@dimen/rc_margin_size_12"
+            android:src="?attr/rc_conversation_list_cell_block_notification_img" />
 
+        <!-- 已读回执图标 -->
         <ImageView
             android:id="@+id/rc_conversation_read_receipt"
             android:layout_width="wrap_content"
@@ -119,15 +134,15 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/rc_conversation_no_disturb"
-            app:layout_goneMarginEnd="@dimen/rc_margin_size_12"
-            android:src="@drawable/rc_read_receipt" />
+            app:layout_goneMarginEnd="@dimen/rc_margin_size_4"
+            android:src="?attr/rc_conversation_list_cell_msg_read_img" />
 
         <View
             android:id="@+id/divider"
             android:layout_width="wrap_content"
             android:layout_height="0.5dp"
             android:layout_marginTop="71.5dp"
-            android:background="@color/rc_divider_color"
+            android:background="?attr/rc_line_background_color"
             app:layout_constraintStart_toStartOf="@id/rc_conversation_title"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>

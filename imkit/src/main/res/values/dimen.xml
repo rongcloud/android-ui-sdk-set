@@ -47,6 +47,7 @@
     <dimen name="rc_margin_size_30">30dp</dimen>
     <dimen name="rc_margin_size_28">28dp</dimen>
     <dimen name="rc_margin_size_20">20dp</dimen>
+    <dimen name="rc_margin_size_18">18dp</dimen>
     <dimen name="rc_margin_size_15">15dp</dimen>
     <dimen name="rc_margin_size_16">16dp</dimen>
     <dimen name="rc_margin_size_14">14dp</dimen>
@@ -54,6 +55,7 @@
     <dimen name="rc_margin_size_2">2dp</dimen>
     <dimen name="rc_margin_size_3">3dp</dimen>
     <dimen name="rc_margin_size_4">4dp</dimen>
+    <dimen name="rc_margin_size_6">6dp</dimen>
     <dimen name="rc_margin_size_8">8dp</dimen>
     <dimen name="rc_margin_size_10">10dp</dimen>
     <dimen name="rc_margin_size_51">51dp</dimen>

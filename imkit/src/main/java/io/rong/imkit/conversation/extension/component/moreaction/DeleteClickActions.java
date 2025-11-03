@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.feature.resend.ResendManager;
@@ -26,7 +27,10 @@ public class DeleteClickActions implements IClickActions {
 
     @Override
     public Drawable obtainDrawable(Context context) {
-        return context.getResources().getDrawable(R.drawable.rc_more_action_multi_delete);
+        return context.getResources()
+                .getDrawable(
+                        IMKitThemeManager.getAttrResId(
+                                context, R.attr.rc_conversation_menu_item_combine_delete_img));
     }
 
     @Override

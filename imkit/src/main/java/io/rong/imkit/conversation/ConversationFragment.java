@@ -34,6 +34,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.MessageItemLongClickAction;
 import io.rong.imkit.MessageItemLongClickActionManager;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtension;
@@ -42,10 +43,12 @@ import io.rong.imkit.conversation.messgelist.processor.IConversationUIRenderer;
 import io.rong.imkit.conversation.messgelist.status.MessageProcessor;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageItemLongClickBean;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
+import io.rong.imkit.conversation.readreceipt.MessageReadDetailActivity;
 import io.rong.imkit.event.Event;
 import io.rong.imkit.event.uievent.MessageEvent;
 import io.rong.imkit.event.uievent.PageDestroyEvent;
 import io.rong.imkit.event.uievent.PageEvent;
+import io.rong.imkit.event.uievent.ReadReceiptStateClickEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
 import io.rong.imkit.event.uievent.ScrollMentionEvent;
 import io.rong.imkit.event.uievent.ScrollToEndEvent;
@@ -54,6 +57,8 @@ import io.rong.imkit.event.uievent.ShowLongClickDialogEvent;
 import io.rong.imkit.event.uievent.ShowWarningDialogEvent;
 import io.rong.imkit.event.uievent.SmoothScrollEvent;
 import io.rong.imkit.event.uievent.ToastEvent;
+import io.rong.imkit.feature.expose.ItemExposeManager;
+import io.rong.imkit.feature.expose.OnItemExposeListener;
 import io.rong.imkit.feature.location.LocationUiRender;
 import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.manager.MessageProviderPermissionHandler;
@@ -67,6 +72,7 @@ import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
+import io.rong.imkit.widget.dialog.MessageLongClickPopup;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imkit.widget.refresh.SmartRefreshLayout;
 import io.rong.imkit.widget.refresh.api.RefreshLayout;
@@ -102,6 +108,7 @@ public class ConversationFragment extends Fragment
     protected RecyclerView mList;
     protected RecyclerView.LayoutManager mLinearLayoutManager;
     protected MessageListAdapter mAdapter;
+    protected ItemExposeManager<UiMessage> mExposeManager;
     protected MessageViewModel mMessageViewModel;
     protected RongExtensionViewModel mRongExtensionViewModel;
     protected RongExtension mRongExtension;
@@ -146,6 +153,13 @@ public class ConversationFragment extends Fragment
                                     MessageFormat.format(
                                             getString(R.string.rc_unread_message),
                                             count > 99 ? "99+" : count));
+                            mUnreadHistoryMessageNum.setTextColor(
+                                    getResources()
+                                            .getColor(
+                                                    IMKitThemeManager.dynamicResource(
+                                                            mUnreadHistoryMessageNum.getContext(),
+                                                            R.attr.rc_primary_color,
+                                                            R.color.rc_text_main_color)));
                         } else {
                             mUnreadHistoryMessageNum.setVisibility(View.GONE);
                         }
@@ -161,6 +175,13 @@ public class ConversationFragment extends Fragment
                                     mMessageViewModel.getCurConversationType())) {
                         if (count != null && count > 0) {
                             mUnreadMentionMessageNum.setVisibility(View.VISIBLE);
+                            mUnreadMentionMessageNum.setTextColor(
+                                    getResources()
+                                            .getColor(
+                                                    IMKitThemeManager.dynamicResource(
+                                                            mUnreadMentionMessageNum.getContext(),
+                                                            R.attr.rc_hint_color,
+                                                            R.color.rc_text_main_color)));
                             mUnreadMentionMessageNum.setText(
                                     getString(R.string.rc_mention_messages, "(" + count + ")"));
                         } else {
@@ -180,7 +201,18 @@ public class ConversationFragment extends Fragment
                             return;
                         }
                     }
-                    if (event instanceof MessageEvent) {
+                    if (event instanceof ReadReceiptStateClickEvent) {
+                        // 启动回执详情页面
+                        if (getActivity() != null) {
+                            UiMessage message = ((ReadReceiptStateClickEvent) event).getMessage();
+                            getActivity()
+                                    .startActivity(
+                                            MessageReadDetailActivity.newIntent(
+                                                    getActivity(),
+                                                    message.getMessage(),
+                                                    message.getReadReceiptInfoV5()));
+                        }
+                    } else if (event instanceof MessageEvent) {
                         noMoreMessageToFetch();
                     } else if (event instanceof Event.RefreshEvent) {
                         if (((Event.RefreshEvent) event).state.equals(RefreshState.RefreshFinish)) {
@@ -244,6 +276,51 @@ public class ConversationFragment extends Fragment
                                         return rhs.priority - lhs.priority;
                                     }
                                 });
+
+                        // Use V2 dialog when ThemeManager is V2
+                        if (!IMKitThemeManager.isTraditionTheme()) {
+                            List<MessageLongClickPopup.OptionItem> optionItems = new ArrayList<>();
+                            for (MessageItemLongClickAction action : messageItemLongClickActions) {
+                                optionItems.add(
+                                        new MessageLongClickPopup.OptionItem(
+                                                action.getTitle(getContext()),
+                                                action.getIconResId()));
+                            }
+
+                            MessageLongClickPopup dialogV2 =
+                                    MessageLongClickPopup.newInstance(getContext(), optionItems)
+                                            .setOptionsPopupDialogListener(
+                                                    new OptionsPopupDialog
+                                                            .OnOptionsItemClickedListener() {
+                                                        @Override
+                                                        public void onOptionsItemClicked(
+                                                                int which) {
+                                                            messageItemLongClickActions
+                                                                    .get(which)
+                                                                    .listener
+                                                                    .onMessageItemLongClick(
+                                                                            getContext(),
+                                                                            bean.getUiMessage());
+                                                        }
+                                                    });
+                            if (longClickItemView != null) {
+                                dialogV2.setAnchorView(longClickItemView);
+                            }
+                            dialogV2.setOnDismissListener(
+                                    new DialogInterface.OnDismissListener() {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialog) {
+                                            MessageItemLongClickActionManager.getInstance()
+                                                    .setLongClickDialog(null);
+                                            MessageItemLongClickActionManager.getInstance()
+                                                    .setLongClickMessage(null);
+                                        }
+                                    });
+                            dialogV2.show();
+                            return;
+                        }
+
+                        // Use V1 dialog (original)
                         List<String> titles = new ArrayList<>();
                         for (MessageItemLongClickAction action : messageItemLongClickActions) {
                             titles.add(action.getTitle(getContext()));
@@ -266,6 +343,7 @@ public class ConversationFragment extends Fragment
                                                                         bean.getUiMessage());
                                                     }
                                                 });
+
                         MessageItemLongClickActionManager.getInstance().setLongClickDialog(dialog);
                         MessageItemLongClickActionManager.getInstance()
                                 .setLongClickMessage(bean.getUiMessage().getMessage());
@@ -325,6 +403,8 @@ public class ConversationFragment extends Fragment
                     }
                 }
             };
+    private final OnItemExposeListener<UiMessage> mOnItemExposeListener =
+            (visible, position, data) -> mMessageViewModel.onItemViewVisible(visible, data);
 
     {
         mAdapter = onResolveAdapter();
@@ -400,8 +480,7 @@ public class ConversationFragment extends Fragment
                                                     if (mMessageViewModel.isNormalState()) {
                                                         mList.scrollToPosition(
                                                                 mAdapter.getItemCount() - 1);
-                                                    } else if (!mMessageViewModel
-                                                            .isHistoryState()) {
+                                                    } else {
                                                         mMessageViewModel.newMessageBarClick();
                                                     }
                                                 }
@@ -420,6 +499,15 @@ public class ConversationFragment extends Fragment
         }
 
         mMessageViewModel.onViewClick(clickType, data);
+    }
+
+    // todo: 临时变量,后期将 MessageViewModel 中 onViewLongClick 逻辑重构后 移除
+    private View longClickItemView;
+
+    @Override
+    public boolean onViewLongClick(View view, int clickType, UiMessage data) {
+        longClickItemView = view;
+        return onViewLongClick(clickType, data);
     }
 
     @Override
@@ -667,6 +755,8 @@ public class ConversationFragment extends Fragment
         mRefreshLayout.setEnableRefresh(true);
         mRefreshLayout.setOnRefreshListener(this);
         mRefreshLayout.setOnLoadMoreListener(this);
+        mExposeManager = new ItemExposeManager<>();
+        mExposeManager.attach(mList, mAdapter, mOnItemExposeListener);
         return rootView;
     }
 
@@ -789,6 +879,10 @@ public class ConversationFragment extends Fragment
             processor.onDestroy();
         }
         mList.removeOnScrollListener(mScrollListener);
+        if (mExposeManager != null) {
+            mExposeManager.release();
+            mExposeManager = null;
+        }
 
         if (mMessageViewModel != null) {
             mMessageViewModel.getPageEventLiveData().removeObserver(mPageObserver);

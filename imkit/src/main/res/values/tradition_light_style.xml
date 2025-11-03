@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 融云 Tradition 主题 - 原始 UI 风格（使用 drawable-xhdpi 资源）-->
+    <style name="RCTraditionLightTheme">
+
+        <!-- 融云自定义属性 - 与 color 名称保持一致 -->
+        <!-- 主色 -->
+        <item name="rc_primary_color">@color/rc_main_theme</item>
+
+        <!-- 文字色 -->
+        <item name="rc_text_primary_color">@color/rc_text_main_color</item>
+        <item name="rc_text_secondary_color">@color/rc_secondary_color</item>
+
+        <!-- 功能色 -->
+        <item name="rc_success_color">@color/rc_success_color_light</item>
+        <item name="rc_hint_color">@color/rc_warning_color</item>
+        <item name="rc_disabled_color">@color/rc_disabled_color_light</item>
+
+        <!-- 背景及线条色 -->
+        <item name="rc_common_background_color">@color/rc_background_main_color</item>
+        <item name="rc_auxiliary_background_1_color">@color/rc_background_main_color</item>
+        <item name="rc_auxiliary_background_2_color">@color/rc_background_main_color</item>
+        <item name="rc_conversation_list_background_color">@color/rc_conversation_list_background_color_light</item>
+        <item name="rc_line_background_color">@color/rc_divider_color</item>
+        <item name="rc_selected_background_color">@color/rc_selected_background_color_light</item>
+        <item name="rc_view_background_color">@color/rc_white_color</item>
+        <item name="rc_mask_color">@color/rc_mask_color_light</item>
+        <item name="rc_link_color">@color/rc_reference_text_link_color</item>
+
+        <item name="rc_network_Indicator_view_bg_color">@color/rc_notice_error_bg</item>
+        <item name="rc_clear_color">@color/rc_clear_color_light</item>
+
+        <item name="rc_pop_layer_background_color">@color/rc_pop_layer_background_color_light</item>
+        <item name="rc_control_title_white_color">@color/rc_control_title_white_color_light</item>
+
+        <item name="rc_destruct_color">@color/rc_destruct_base_color</item>
+        <item name="rc_corner_style">@drawable/rc_corner_style</item>
+        <item name="rc_bottom_dialog_background_color">@color/rc_white_color</item>
+        <item name="rc_unread_msg_bg_style_color">@color/rc_white_color</item>
+
+
+        <!-- 图标 Drawable (使用 drawable-xhdpi 原始资源) -->
+        <item name="rc_conversation_list_cell_block_notification_img">@drawable/rc_no_disturb</item>
+        <item name="rc_conversation_list_cell_pin_img">@drawable/rc_lively_pin_top</item>
+        <item name="rc_conversation_list_cell_msg_read_img">@drawable/rc_read_receipt</item>
+        <item name="rc_conversation_list_cell_msg_unread_img">@drawable/rc_lively_unread_receipt_light</item>
+        <item name="rc_conversation_list_cell_msg_sending_img">@drawable/rc_conversation_list_msg_sending</item>
+        <item name="rc_navigation_bar_btn_back_img">@drawable/rc_title_bar_back</item>
+        <item name="rc_navigation_bar_btn_more_img">@drawable/rc_title_bar_more</item>
+
+        <!-- 消息长按菜单图标 -->
+        <item name="rc_conversation_menu_item_copy_img">@drawable/rc_lively_copy</item>
+        <item name="rc_conversation_menu_item_delete_img">@drawable/rc_lively_delete_white</item>
+        <item name="rc_conversation_menu_item_recall_img">@drawable/rc_lively_recall</item>
+        <item name="rc_conversation_menu_item_reference_img">@drawable/rc_lively_reference</item>
+        <item name="rc_conversation_menu_item_edit_img">@drawable/rc_lively_edit</item>
+        <item name="rc_conversation_menu_item_multiple_img">@drawable/rc_lively_multi_select</item>
+        <item name="rc_conversation_menu_item_translation_img">@drawable/rc_lively_translate</item>
+        <item name="rc_conversation_menu_item_sound_transform_img">@drawable/rc_lively_speech_to_text</item>
+        <item name="rc_conversation_menu_item_forward_img">@drawable/rc_selector_multi_forward</item>
+        <item name="rc_conversation_menu_item_combine_forward_img">@drawable/rc_lively_combine_forward_light</item>
+        <item name="rc_conversation_menu_item_combine_delete_img">@drawable/rc_more_action_multi_delete</item>
+
+
+        <!-- 插件图标 Drawable -->
+        <item name="rc_conversation_plugin_item_image_img">@drawable/rc_ext_plugin_image_selector</item>
+        <item name="rc_conversation_plugin_item_destruct_img">@drawable/rc_ext_plugin_fire_selector</item>
+        <item name="rc_conversation_plugin_item_file_img">@drawable/rc_ic_files_selector</item>
+
+        <!-- 默认头像 Drawable (V1版本) -->
+        <item name="rc_conversation_list_cell_portrait_msg_img">@drawable/rc_default_portrait</item>
+        <item name="rc_conversation_list_cell_group_portrait_img">@drawable/rc_default_group_portrait</item>
+        <item name="rc_conversation_list_cell_discussion_portrait_img">@drawable/rc_default_chatroom_portrait</item>
+        <item name="rc_conversation_list_cell_portrait_kefu_img">@drawable/rc_cs_default_portrait</item>
+
+        <item name="rc_conversation_input_bar_voice_img">@drawable/rc_ext_toggle_voice</item>
+        <item name="rc_conversation_input_bar_keyboard_img">@drawable/rc_ext_toggle_keyboard_btn</item>
+        <item name="rc_conversation_input_bar_emoji_img">@drawable/rc_ext_input_panel_emoji</item>
+        <item name="rc_conversation_input_bar_add_img">@drawable/rc_ext_input_panel_add</item>
+        <item name="rc_icon_add_simple">@drawable/rc_ext_tab_add</item>
+        <item name="rc_conversation_setting_img">@drawable/rc_ext_tab_setting</item>
+
+        <item name="rc_conversation_msg_cell_send_voice_1_img">@drawable/rc_voice_send_play1</item>
+        <item name="rc_conversation_msg_cell_send_voice_2_img">@drawable/rc_voice_send_play2</item>
+        <item name="rc_conversation_msg_cell_send_voice_3_img">@drawable/rc_voice_send_play3</item>
+        <item name="rc_conversation_msg_cell_receive_voice_1_img">@drawable/rc_voice_receive_play1</item>
+        <item name="rc_conversation_msg_cell_receive_voice_2_img">@drawable/rc_voice_receive_play2</item>
+        <item name="rc_conversation_msg_cell_receive_voice_3_img">@drawable/rc_voice_receive_play3</item>
+        <item name="rc_icon_voice_send_animator">@drawable/rc_an_voice_send</item>
+        <item name="rc_icon_voice_receive_animator">@drawable/rc_an_voice_receive</item>
+
+        <item name="rc_conversation_mic_volume_0_img">@drawable/rc_voice_volume_1</item>
+        <item name="rc_conversation_mic_volume_1_img">@drawable/rc_voice_volume_2</item>
+        <item name="rc_conversation_mic_volume_2_img">@drawable/rc_voice_volume_3</item>
+        <item name="rc_conversation_mic_volume_3_img">@drawable/rc_voice_volume_4</item>
+        <item name="rc_conversation_mic_volume_4_img">@drawable/rc_voice_volume_5</item>
+        <item name="rc_conversation_mic_volume_5_img">@drawable/rc_voice_volume_6</item>
+        <item name="rc_conversation_mic_volume_6_img">@drawable/rc_voice_volume_6</item>
+
+        <item name="rc_conversation_input_bar_voice_destruct_img">@drawable/rc_destruct_ext_panel_voice_icon</item>
+        <item name="rc_conversation_input_bar_keyboard_destruct_img">@drawable/rc_destruct_ext_panel_key_icon</item>
+        <item name="rc_conversation_input_bar_image_destruct_img">@drawable/rc_destruct_ext_panel_img_icon</item>
+        <item name="rc_conversation_input_bar_close_destruct_img">@drawable/rc_destruct_ext_panel_cancel_icon</item>
+        <item name="rc_conversation_msg_cell_fire_identify_img">@drawable/rc_fire</item>
+        <item name="rc_conversation_msg_status_text_destruct_img">@drawable/rc_item_fire_t</item>
+        <item name="rc_conversation_msg_image_destruct_img">@drawable/rc_fire_sender_album_selector</item>
+        <item name="rc_conversation_msg_sight_destruct_img">@drawable/rc_ic_destruct_video_play_selector</item>
+
+        <item name="rc_conversation_msg_cell_select_img">@drawable/rc_selected</item>
+        <item name="rc_conversation_msg_cell_unselect_img">@drawable/rc_unselected</item>
+        <item name="rc_conversation_msg_cell_selector">@drawable/rc_selector_selected</item>
+
+        <item name="rc_conversation_msg_edit_cancel_img">@drawable/rc_edit_message_cancel</item>
+        <item name="rc_conversation_msg_edit_collapse_img">@drawable/rc_edit_message_collapse</item>
+        <item name="rc_conversation_msg_edit_expand_img">@drawable/rc_edit_message_expand</item>
+        <item name="rc_conversation_msg_edit_confirm_enable_img">@drawable/rc_edit_message_confirm_enable</item>
+        <item name="rc_conversation_msg_edit_confirm_unable_img">@drawable/rc_edit_message_confirm_unable</item>
+
+        <item name="rc_conversation_list_no_message_img">@drawable/rc_conversation_list_empty</item>
+        <item name="rc_combine_msg_preview_failed_img">@drawable/rc_web_load_fail</item>
+        <item name="rc_media_file_state_check_img">@drawable/rc_picture_original_checkbox</item>
+        <item name="rc_media_file_state_checkbox">@drawable/rc_picture_check_selector</item>
+
+        <item name="rc_conversation_msg_send_background">@drawable/rc_ic_bubble_right</item>
+        <item name="rc_conversation_msg_receiver_background">@drawable/rc_ic_bubble_left</item>
+        <item name="rc_conversation_msg_special_background">@drawable/rc_lively_background_message_special_light</item>
+        <item name="rc_conversation_msg_cell_receipt_img">@drawable/rc_read_receipt_request_button</item>
+        <item name="rc_selected_background_color_selected">@drawable/rc_picture_item_select_bg</item>
+
+        <item name="rc_conversation_msg_v5_read_list_empty_img">@drawable/rc_lively_read_receipt_none_light</item>
+
+        <item name="rc_conversation_unread_button_arrow_img">@drawable/rc_unread_msg_arrow</item>
+        <item name="rc_conversation_mention_button_arrow_img">@drawable/rc_unread_msg_arrow</item>
+
+        <item name="rc_conversation_list_cell_msg_fail_msg">@drawable/rc_ic_warning</item>
+        <item name="rc_network_unreachable_img">@drawable/rc_ic_error_notice</item>
+        <item name="rc_conversation_msg_cell_gif_loadfailed_img">@drawable/rc_image_download_failed</item>
+        <item name="rc_conversation_msg_cell_gif_needload_img">@drawable/rc_image_download</item>
+
+    </style>
+
+</resources>

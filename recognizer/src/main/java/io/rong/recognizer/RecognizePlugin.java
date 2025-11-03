@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.common.rlog.RLog;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
@@ -26,7 +27,12 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
     @Override
     public Drawable obtainDrawable(Context context) {
-        return context.getResources().getDrawable(R.drawable.rc_recognizer_voice_selector);
+        int drawableResId =
+                IMKitThemeManager.dynamicResource(
+                        context,
+                        io.rong.imkit.R.attr.rc_conversation_plugin_item_voice_input_img,
+                        R.drawable.rc_recognizer_voice_selector);
+        return context.getResources().getDrawable(drawableResId);
     }
 
     @Override
@@ -85,7 +91,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
                 new IRecognizedResult() {
                     @Override
                     public void onResult(String data) {
-                        EditText inputEditText = extension.getInputEditText();
+                        EditText inputEditText = mExtensionViewModel.getEditTextWidget();
                         if (inputEditText != null && inputEditText.getText() != null) {
                             String str = inputEditText.getText().toString() + data;
                             inputEditText.setText(str);
@@ -95,7 +101,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
                     @Override
                     public void onClearClick() {
-                        EditText inputEditText = extension.getInputEditText();
+                        EditText inputEditText = mExtensionViewModel.getEditTextWidget();
                         if (inputEditText != null) {
                             inputEditText.setText("");
                         }

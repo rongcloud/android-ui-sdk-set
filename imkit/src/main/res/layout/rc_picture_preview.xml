@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|center"
             android:layout_marginEnd="12dp"
-            android:background="?attr/picture.checked.style"
+            android:background="?attr/rc_media_file_state_checkbox"
             android:gravity="center"
             android:textColor="@color/picture_color_white"
             android:textSize="12sp" />
@@ -74,7 +74,7 @@
             android:layout_gravity="start|center"
             android:layout_marginStart="12dp"
             android:background="@color/picture_color_transparent"
-            android:button="@color/picture_color_white"
+            android:button="?attr/rc_media_file_state_check_img"
             android:gravity="center"
             android:paddingStart="5dp"
             android:text="@string/rc_picture_original_image"
@@ -85,15 +85,14 @@
         <TextView
             android:id="@+id/tv_ok"
             style="@style/TextStyle.Alignment"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="76dp"
+            android:layout_height="36dp"
             android:layout_gravity="end|center"
             android:enabled="false"
             android:gravity="center"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
+            android:layout_marginEnd="16dp"
             android:text="@string/rc_picture_send"
-            android:textColor="@color/rc_main_theme"
+            android:textColor="?attr/rc_common_background_color"
             android:textSize="@dimen/rc_font_secondary_size" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

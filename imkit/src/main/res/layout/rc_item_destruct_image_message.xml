@@ -24,12 +24,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:drawableTop="@drawable/rc_fire_sender_album_selector"
             android:drawablePadding="4dp"
             android:gravity="center"
             android:text="@string/rc_click_to_view"
-            android:textColor="@color/rc_text_main_color"
-            android:textSize="12sp" />
+            android:textColor="?attr/rc_text_primary_color"
+            android:textSize="12sp"
+            app:drawableTopCompat="?attr/rc_conversation_msg_image_destruct_img" />
     </FrameLayout>
 
     <FrameLayout
@@ -44,7 +44,7 @@
             android:layout_width="@dimen/rc_margin_size_15"
             android:layout_height="@dimen/rc_margin_size_15"
             android:layout_gravity="center"
-            android:src="@drawable/rc_fire" />
+            android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
     </FrameLayout>
 
     <FrameLayout
@@ -61,7 +61,7 @@
             android:layout_width="@dimen/rc_margin_size_15"
             android:layout_height="@dimen/rc_margin_size_15"
             android:layout_gravity="center"
-            android:src="@drawable/rc_fire" />
+            android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
 
         <TextView
             android:id="@+id/tv_receiver_fire"
@@ -72,7 +72,7 @@
             android:background="@drawable/rc_image_msg_count_down"
             android:gravity="center"
             android:maxLines="1"
-            android:textColor="@color/rc_white_color"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="11dp"
             android:visibility="gone" />
     </FrameLayout>

@@ -1,5 +1,6 @@
 package io.rong.imkit.picture.tools;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
@@ -113,13 +114,17 @@ public class PictureFileUtils {
         }
     }
 
-    // Android Q 以下使用公共目录，以上使用公共DCIM目录而非应用私有目录
     private static File getDir(Context context, String dir) {
+        // 大于等于Q使用内部路径
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return context.getExternalFilesDir(dir);
-        } else {
-            return Environment.getExternalStoragePublicDirectory(dir);
         }
+        // 小于Q如果有写存储权限，直接使用相册路径，便能拍摄的同时保存到相册
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (!PermissionCheckUtil.checkPermissions(context, permissions)) {
+            return context.getExternalFilesDir(dir);
+        }
+        return Environment.getExternalStoragePublicDirectory(dir);
     }
 
     /** TAG for log messages. */

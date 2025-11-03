@@ -13,7 +13,7 @@
         android:layout_height="1dp"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:background="@color/rc_notification_bg"
+        android:background="?attr/rc_line_background_color"
         android:gravity="center_vertical" />
 
     <TextView
@@ -24,7 +24,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="9dp"
         android:layout_marginEnd="9dp"
-        android:textColor="@color/rc_new_message_divider_text_color"
+        android:textColor="?attr/rc_text_secondary_color"
         android:textSize="12sp" />
 
     <View
@@ -32,7 +32,7 @@
         android:layout_height="1dp"
         android:layout_gravity="center_vertical"
         android:layout_weight="1"
-        android:background="@color/rc_notification_bg"
+        android:background="?attr/rc_line_background_color"
         android:gravity="center_vertical" />
 
 </LinearLayout>

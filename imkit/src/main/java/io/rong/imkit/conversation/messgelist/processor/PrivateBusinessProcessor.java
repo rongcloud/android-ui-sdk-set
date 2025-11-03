@@ -11,6 +11,7 @@ import io.rong.imkit.RongIM;
 import io.rong.imkit.config.ConversationConfig;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.RongIMClient;
@@ -36,35 +37,38 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
             boolean hasPackage,
             boolean offline) {
         if (left == 0 && !hasPackage) {
-            if (RongConfigCenter.conversationConfig()
-                            .isShowReadReceipt(viewModel.getCurConversationType())
-                    && !TextUtils.isEmpty(message.getUId())) {
+            Conversation.ConversationType type = viewModel.getCurConversationType();
+            boolean readV5Enabled = AppSettingsHandler.getInstance().isReadReceiptV5Enabled(type);
+            boolean isShowReadReceipt =
+                    RongConfigCenter.conversationConfig().isShowReadReceipt(type);
+            // 如果开启已读回执配置，且没开启V5，则发送V1回执
+            if (isShowReadReceipt && !readV5Enabled && !TextUtils.isEmpty(message.getUId())) {
                 // 是否是前台
                 if ((viewModel.isForegroundActivity())) {
                     sendReadReceiptMessage(
                             viewModel.getApplication(),
                             viewModel.getCurTargetId(),
-                            viewModel.getCurConversationType(),
+                            type,
                             message.getSentTime(),
                             true);
                 } else {
                     addSendReadReceiptStatusToSp(
                             viewModel.getApplication(),
                             viewModel.getCurTargetId(),
-                            viewModel.getCurConversationType(),
+                            type,
                             true,
                             message.getSentTime());
                 }
             }
-            if (RongConfigCenter.conversationConfig()
-                            .isEnableMultiDeviceSync(viewModel.getCurConversationType())
-                    && !RongConfigCenter.conversationConfig()
-                            .isShowReadReceipt(viewModel.getCurConversationType())) {
-                IMCenter.getInstance()
-                        .syncConversationReadStatus(
-                                ConversationIdentifier.obtain(message.getMessage()),
-                                message.getSentTime(),
-                                null);
+            if (RongConfigCenter.conversationConfig().isEnableMultiDeviceSync(type)) {
+                // 如果未开启已读回执配置，或者开启了V5，则发送V1回执
+                if (!isShowReadReceipt || readV5Enabled) {
+                    IMCenter.getInstance()
+                            .syncConversationReadStatus(
+                                    ConversationIdentifier.obtain(message.getMessage()),
+                                    message.getSentTime(),
+                                    null);
+                }
             }
         }
         // 本地插入的消息(Uid 为空)不需要发送已读回执
@@ -74,22 +78,21 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
     @Override
     public void onExistUnreadMessage(
             MessageViewModel viewModel, Conversation conversation, int unreadMessageCount) {
-        boolean isShowReadReceipt =
-                RongConfigCenter.conversationConfig()
-                        .isShowReadReceipt(viewModel.getCurConversationType());
-        // 如果是开启已读回执，则不再发送会话状态同步
-        if (isShowReadReceipt) {
+        Conversation.ConversationType type = viewModel.getCurConversationType();
+        boolean readV5Enabled = AppSettingsHandler.getInstance().isReadReceiptV5Enabled(type);
+        boolean isShowReadReceipt = RongConfigCenter.conversationConfig().isShowReadReceipt(type);
+        // 如果开启已读回执配置，且没开启V5，则发送V1回执
+        if (isShowReadReceipt && !readV5Enabled) {
             sendReadReceiptMessage(
                     viewModel.getApplication(),
                     viewModel.getCurTargetId(),
-                    viewModel.getCurConversationType(),
+                    type,
                     conversation.getSentTime(),
                     true);
-        } else {
-            boolean syncReadStatus =
-                    RongConfigCenter.conversationConfig()
-                            .isEnableMultiDeviceSync(viewModel.getCurConversationType());
-            if (syncReadStatus) {
+        }
+        if (RongConfigCenter.conversationConfig().isEnableMultiDeviceSync(type)) {
+            // 如果未开启已读回执配置，或者开启了V5，则发送V1回执
+            if (!isShowReadReceipt || readV5Enabled) {
                 IMCenter.getInstance()
                         .syncConversationReadStatus(
                                 viewModel.getConversationIdentifier(),
@@ -149,6 +152,9 @@ public class PrivateBusinessProcessor extends BaseBusinessProcessor {
             final long sendReadReceiptTime,
             final boolean processError) {
         if (type == null || TextUtils.isEmpty(targetId)) {
+            return;
+        }
+        if (AppSettingsHandler.getInstance().isReadReceiptV5Enabled(type)) {
             return;
         }
         IMCenter.getInstance()

@@ -40,7 +40,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
             android:maxLength="32"
-            android:background="@drawable/rc_ext_panel_editbox_background"
+            android:background="@drawable/rc_lively_panel_input_background"
             android:gravity="center_vertical"
             android:hint="@string/rc_nickname_hint"
             android:textSize="17dp" />

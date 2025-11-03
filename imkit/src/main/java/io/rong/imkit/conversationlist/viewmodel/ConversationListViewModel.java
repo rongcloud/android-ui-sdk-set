@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -16,6 +17,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.config.DataProcessor;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.conversationlist.model.GatheredConversation;
@@ -32,7 +34,8 @@ import io.rong.imkit.event.actionevent.RecallEvent;
 import io.rong.imkit.event.actionevent.RefreshEvent;
 import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
-import io.rong.imkit.feature.resend.ResendManager;
+import io.rong.imkit.handler.EditMessageHandler;
+import io.rong.imkit.handler.ReadReceiptV5Handler;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -48,6 +51,8 @@ import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.ConversationStatus;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageIdentifier;
+import io.rong.imlib.model.ReadReceiptInfoV5;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
@@ -57,6 +62,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ConversationListViewModel extends AndroidViewModel
@@ -82,6 +88,8 @@ public class ConversationListViewModel extends AndroidViewModel
     private boolean isTaskScheduled;
     private int mTime = 500;
     private int mDelayRefreshTime = 5000;
+    private EditMessageHandler mEditMessageHandler;
+    private ReadReceiptV5Handler mReadReceiptV5Handler;
     private ConversationEventListener mConversationEventListener =
             new ConversationEventListener() {
                 @Override
@@ -375,6 +383,21 @@ public class ConversationListViewModel extends AndroidViewModel
         mTopPriority = RongConfigCenter.conversationListConfig().isTopPriority();
 
         mConversationListLiveData = new MediatorLiveData<>();
+        mEditMessageHandler = new EditMessageHandler();
+        mEditMessageHandler.addDataChangeListener(
+                EditMessageHandler.KEY_ON_MESSAGE_MODIFIED,
+                messages -> {
+                    if (messages != null && !messages.isEmpty()) {
+                        getConversationList(false, false, 0);
+                    }
+                });
+        mReadReceiptV5Handler = new ReadReceiptV5Handler();
+        mReadReceiptV5Handler.addDataChangeListener(
+                ReadReceiptV5Handler.KEY_MESSAGE_READ_RECEIPT_V5_LISTENER,
+                this::updateConversationReadReceiptInfoV5);
+        mReadReceiptV5Handler.addDataChangeListener(
+                ReadReceiptV5Handler.KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER,
+                this::updateConversationReadReceiptInfoV5);
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
@@ -457,6 +480,7 @@ public class ConversationListViewModel extends AndroidViewModel
                         return;
                     } else if (conversations.isEmpty()) {
                         refreshConversationList();
+                        collectAndQueryReadReceiptInfo();
                         return;
                     }
                     RLog.d(TAG, "getConversationListByPage. size:" + conversations.size());
@@ -513,6 +537,7 @@ public class ConversationListViewModel extends AndroidViewModel
                         }
                         sort();
                         refreshConversationList();
+                        collectAndQueryReadReceiptInfo();
                     }
                 });
     }
@@ -637,55 +662,20 @@ public class ConversationListViewModel extends AndroidViewModel
 
     private void getDeletedMsgConversation(
             Conversation.ConversationType type, String targetId, int[] deleteMsgId) {
-        RongIMClient.getInstance()
-                .getConversation(
-                        type,
-                        targetId,
-                        new RongIMClient.ResultCallback<Conversation>() {
-                            @Override
-                            public void onSuccess(Conversation conversation) {
-                                if (conversation == null) {
-                                    return;
-                                }
-
-                                // 如果查询到的会话对应LatestMessageId在待删除消息ID数组中，则再延时查询一次
-                                for (int id : deleteMsgId) {
-                                    if (conversation.getLatestMessageId() == id) {
-                                        mHandler.postDelayed(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        getConversation(type, targetId);
-                                                    }
-                                                },
-                                                200);
-                                        return;
-                                    }
-                                }
-                                mHandler.post(
-                                        new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if (Objects.equals(
-                                                                conversation.getSentStatus(),
-                                                                Message.SentStatus.FAILED)
-                                                        && ResendManager.getInstance()
-                                                                .needResend(
-                                                                        conversation
-                                                                                .getLatestMessageId())) {
-                                                    conversation.setSentStatus(
-                                                            Message.SentStatus.SENDING);
-                                                }
-                                                updateByConversation(conversation);
-                                            }
-                                        });
-                            }
-
-                            @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
-                                // do nothing
-                            }
-                        });
+        Set<Integer> deleteSet = new HashSet<>();
+        for (int id : deleteMsgId) {
+            deleteSet.add(id);
+        }
+        boolean contains = false;
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            if (uiConversation.mCore != null
+                    && deleteSet.contains(uiConversation.mCore.getLatestMessageId())) {
+                contains = true;
+                break;
+            }
+        }
+        // 如果没有删除Conversation的lastMsg，则不用延迟刷新
+        mHandler.postDelayed(() -> getConversation(type, targetId), contains ? 300 : 0);
     }
 
     protected void updateByConversation(Conversation conversation) {
@@ -733,6 +723,7 @@ public class ConversationListViewModel extends AndroidViewModel
             }
             sort();
             refreshConversationList();
+            collectAndQueryReadReceiptInfo();
         }
     }
 
@@ -759,6 +750,7 @@ public class ConversationListViewModel extends AndroidViewModel
         if (workThread != null) {
             workThread.quit();
         }
+        mEditMessageHandler.stop();
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
@@ -807,7 +799,7 @@ public class ConversationListViewModel extends AndroidViewModel
         NoticeContent noticeContent = new NoticeContent();
         String content = null;
         boolean isShowContent = true;
-        int resId = 0;
+        int resId = IMKitThemeManager.getAttrResId(mApplication, R.attr.rc_network_unreachable_img);
 
         Resources resources = mApplication.getResources();
         if (!RongConfigCenter.conversationListConfig().isEnableConnectStateNotice()) {
@@ -816,28 +808,23 @@ public class ConversationListViewModel extends AndroidViewModel
         }
         if (status.equals(ConnectionStatus.NETWORK_UNAVAILABLE)) {
             content = resources.getString(R.string.rc_conversation_list_notice_network_unavailable);
-            resId = R.drawable.rc_ic_error_notice;
         } else if (status.equals(ConnectionStatus.KICKED_OFFLINE_BY_OTHER_CLIENT)) {
             content = resources.getString(R.string.rc_conversation_list_notice_kicked);
-            resId = R.drawable.rc_ic_error_notice;
         } else if (status.equals(ConnectionStatus.CONNECTED)) {
             isShowContent = false;
         } else if (status.equals(ConnectionStatus.UNCONNECTED)) {
             content = resources.getString(R.string.rc_conversation_list_notice_disconnect);
-            resId = R.drawable.rc_ic_error_notice;
         } else if (status.equals(ConnectionStatus.CONNECTING)
                 || status.equals(ConnectionStatus.SUSPEND)) {
             content = resources.getString(R.string.rc_conversation_list_notice_connecting);
             resId = R.drawable.rc_conversationlist_notice_connecting_animated;
         } else if (status.equals(ConnectionStatus.CONNECTION_STATUS_PROXY_UNAVAILABLE)) {
             content = resources.getString(R.string.rc_conversation_list_notice_proxy_unavailable);
-            resId = R.drawable.rc_ic_error_notice;
         } else {
             if (preConnectionStatus == ConnectionStatus.CONNECTION_STATUS_PROXY_UNAVAILABLE) {
                 return;
             }
             content = resources.getString(R.string.rc_conversation_list_notice_network_unavailable);
-            resId = R.drawable.rc_ic_error_notice;
         }
 
         noticeContent.setContent(content);
@@ -1021,5 +1008,93 @@ public class ConversationListViewModel extends AndroidViewModel
             }
             return sb.toString();
         }
+    }
+
+    /** 收集需要查询已读回执的消息并调用查询接口 */
+    private void collectAndQueryReadReceiptInfo() {
+        String currentUserId = RongIMClient.getInstance().getCurrentUserId();
+        if (TextUtils.isEmpty(currentUserId)) {
+            return;
+        }
+        List<MessageIdentifier> messageIdentifiers = new ArrayList<>();
+
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            if (uiConversation.mCore == null
+                    || Conversation.ConversationType.PRIVATE
+                            != uiConversation.mCore.getConversationType()) {
+                continue;
+            }
+
+            Message latestMessage = uiConversation.mCore.getMessage();
+            if (latestMessage == null) {
+                continue;
+            }
+
+            // 检查是否是自己发出的消息，且需要已读回执，且是发送方向
+            if (currentUserId.equals(latestMessage.getSenderUserId())
+                    && latestMessage.isNeedReceipt()
+                    && Message.MessageDirection.SEND.equals(latestMessage.getMessageDirection())
+                    && !TextUtils.isEmpty(latestMessage.getUId())) {
+
+                MessageIdentifier messageIdentifier = latestMessage.getMessageIdentifier();
+                if (messageIdentifier != null && messageIdentifier.getIdentifier() != null) {
+                    messageIdentifiers.add(messageIdentifier);
+                }
+            }
+        }
+        if (!messageIdentifiers.isEmpty()) {
+            RLog.d(TAG, "Query read receipt info for conversation: " + messageIdentifiers);
+            mReadReceiptV5Handler.getMessageReadReceiptInfoV5ByIdentifiers(messageIdentifiers);
+        }
+    }
+
+    /**
+     * 处理V5已读回执信息查询结果
+     *
+     * @param data 已读回执信息列表
+     */
+    private void updateConversationReadReceiptInfoV5(HashMap<String, ReadReceiptInfoV5> data) {
+        Runnable task =
+                () -> {
+                    boolean needRefresh = false;
+                    // 在会话列表中查找对应的会话
+                    for (BaseUiConversation uiConversation : mUiConversationList) {
+                        if (uiConversation.mCore == null
+                                || TextUtils.isEmpty(uiConversation.mCore.getLatestMessageUId())) {
+                            continue;
+                        }
+                        // 检查ConversationIdentifier是否匹配
+                        ConversationIdentifier id = uiConversation.getConversationIdentifier();
+                        ReadReceiptInfoV5 current =
+                                data.get(uiConversation.mCore.getLatestMessageUId());
+                        if (current != null && isIdentifierMatched(id, current.getIdentifier())) {
+                            uiConversation.setReadReceiptInfoV5(current);
+                            needRefresh = true;
+                        }
+                    }
+                    // 如果有更新，刷新列表
+                    if (needRefresh) {
+                        refreshConversationList();
+                    }
+                };
+        mHandler.post(task);
+    }
+
+    /**
+     * 检查两个ConversationIdentifier是否匹配
+     *
+     * @param identifier1 会话标识1
+     * @param identifier2 会话标识2
+     * @return true如果匹配
+     */
+    private boolean isIdentifierMatched(
+            ConversationIdentifier identifier1, ConversationIdentifier identifier2) {
+        if (identifier1 == null || identifier2 == null) {
+            return false;
+        }
+
+        return identifier1.getType() == identifier2.getType()
+                && Objects.equals(identifier1.getTargetId(), identifier2.getTargetId())
+                && Objects.equals(identifier1.getChannelId(), identifier2.getChannelId());
     }
 }

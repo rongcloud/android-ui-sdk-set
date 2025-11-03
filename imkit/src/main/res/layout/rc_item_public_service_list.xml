@@ -16,7 +16,7 @@
         android:layout_height="45dp"
         android:layout_gravity="center_vertical"
         android:scaleType="fitXY"
-        android:src="@drawable/rc_default_portrait" />
+        android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
 
     <LinearLayout
         android:layout_width="match_parent"

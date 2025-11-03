@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
@@ -17,7 +18,10 @@ public class DestructPlugin implements IPluginModule {
 
     @Override
     public Drawable obtainDrawable(Context context) {
-        return ContextCompat.getDrawable(context, R.drawable.rc_ext_plugin_fire_selector);
+        return ContextCompat.getDrawable(
+                context,
+                IMKitThemeManager.getAttrResId(
+                        context, R.attr.rc_conversation_plugin_item_destruct_img));
     }
 
     @Override

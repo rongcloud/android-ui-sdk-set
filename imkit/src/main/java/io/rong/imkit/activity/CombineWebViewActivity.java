@@ -36,6 +36,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
 import io.rong.imkit.config.FeatureConfig;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.forward.CombineMessage;
 import io.rong.imkit.feature.forward.CombineMessageUtils;
@@ -748,7 +749,11 @@ public class CombineWebViewActivity extends RongBaseActivity {
         mImageView.setVisibility(View.VISIBLE);
         mTextView.setVisibility(View.VISIBLE);
         mWebView.setVisibility(View.GONE);
-        mTextView.setText(getString(R.string.rc_combine_webview_download_failed));
+        mTextView.setText(
+                getString(
+                        IMKitThemeManager.dynamicResource(
+                                R.string.rc_combine_webview_load_failed,
+                                R.string.rc_combine_webview_download_failed)));
     }
 
     private void showLoading() {

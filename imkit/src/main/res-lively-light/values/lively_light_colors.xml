@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主色 (Primary Color) -->
+    <color name="rc_primary_color_light">#0047FF</color>
+    
+    <!-- 文字色 (Text Colors) -->
+    <color name="rc_text_primary_color_light">#020814</color>
+    <color name="rc_text_secondary_color_light">#7C838E</color>
+    
+    <!-- 功能色 (Functional Colors) -->
+    <color name="rc_success_color_light">#16D258</color>
+    <color name="rc_hint_color_light">#F74D43</color>
+    <color name="rc_disabled_color_light">#D9D9D9</color>
+
+    <!-- 背景及线条色 (Background and Line Colors) -->
+    <color name="rc_common_background_color_light">#FFFFFF</color>
+    <color name="rc_auxiliary_background_1_color_light">#F3F6F9</color>
+    <color name="rc_auxiliary_background_2_color_light">#D2E1FE</color>
+    <color name="rc_view_background_color_light">#E1F0FF</color>
+    <color name="rc_line_background_color_light">#1A141414</color> <!-- 141414(10%) -->
+    <color name="rc_selected_background_color_light">#1A000000</color> <!-- 000000(10%) -->
+    <color name="rc_conversation_list_background_color_light">#80FFFFFF</color>
+    <color name="rc_mask_color_light">#80141414</color> <!-- 141414(50%) -->
+    <color name="rc_link_color_light">#0047FF</color>
+
+    <color name="rc_pop_layer_background_color_light">#323232</color>
+    <color name="rc_network_Indicator_view_bg_color_light">#4DF74D43</color>
+
+    <color name="rc_control_title_white_color_light">#FFFFFF</color>
+    <color name="rc_clear_color_light">#00FFFFFF</color>
+
+    <color name="rc_auxiliary_red_light">#FF5F59</color>
+</resources>

@@ -23,6 +23,7 @@
             android:gravity="center_vertical"
             android:maxWidth="230dp"
             android:minWidth="52dp"
+            android:padding="10dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -35,7 +36,7 @@
                 android:id="@+id/rc_voice"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:src="@drawable/rc_voice_receive_play3" />
+                android:src="?attr/rc_conversation_msg_cell_receive_voice_3_img" />
 
             <TextView
                 android:id="@+id/rc_duration"
@@ -44,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|start"
                 android:layout_marginStart="6dp"
-                android:textColor="@color/rc_voice_color"
+                android:textColor="?attr/rc_text_primary_color"
                 android:textSize="14sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -65,7 +66,7 @@
                 android:layout_width="@dimen/rc_margin_size_15"
                 android:layout_height="@dimen/rc_margin_size_15"
                 android:layout_gravity="center"
-                android:src="@drawable/rc_fire" />
+                android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
         </FrameLayout>
 
         <FrameLayout
@@ -84,7 +85,7 @@
                 android:layout_width="@dimen/rc_margin_size_15"
                 android:layout_height="@dimen/rc_margin_size_15"
                 android:layout_gravity="center"
-                android:src="@drawable/rc_fire" />
+                android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
 
             <TextView
                 android:id="@+id/tv_receiver_fire"
@@ -95,7 +96,7 @@
                 android:background="@drawable/rc_image_msg_count_down"
                 android:gravity="center"
                 android:maxLines="1"
-                android:textColor="#333333"
+                android:textColor="?attr/rc_text_primary_color"
                 android:textSize="11dp"
                 android:visibility="gone" />
         </FrameLayout>

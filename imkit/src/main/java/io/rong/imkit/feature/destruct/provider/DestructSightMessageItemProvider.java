@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.model.UiMessage;
@@ -62,9 +63,22 @@ public class DestructSightMessageItemProvider extends BaseMessageItemProvider<Si
         holder.getConvertView().setTag(uiMessage.getMessage().getUId());
         holder.setBackgroundRes(
                 R.id.rc_destruct_click,
-                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+                IMKitThemeManager.getAttrResId(
+                        holder.getContext(),
+                        isSender
+                                ? R.attr.rc_conversation_msg_send_background
+                                : R.attr.rc_conversation_msg_receiver_background));
         holder.setVisible(R.id.fl_send_fire, isSender);
         holder.setVisible(R.id.fl_receiver_fire, !isSender);
+        holder.setBackgroundRes(
+                R.id.tv_receiver_fire,
+                IMKitThemeManager.dynamicResource(
+                        R.drawable.rc_lively_common_background,
+                        R.drawable.rc_image_msg_count_down));
+        holder.setTextColorRes(
+                R.id.tv_receiver_fire,
+                IMKitThemeManager.dynamicResource(
+                        holder.getContext(), R.attr.rc_hint_color, R.color.rc_white_color));
         TextView clickHint = holder.getView(R.id.rc_destruct_click_hint);
         if (!isSender) {
             DestructManager.getInstance()

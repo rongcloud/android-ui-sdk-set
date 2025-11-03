@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/rc_margin_size_2"
             android:text="0%"
-            android:textColor="@color/rc_white_color"
+            android:textColor="?attr/rc_common_background_color"
             android:textSize="@dimen/rc_font_describe_size" />
     </LinearLayout>
 </RelativeLayout>

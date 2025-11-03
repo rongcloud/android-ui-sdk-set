@@ -4,6 +4,6 @@
     <style name="rc_sight_horizontal_light_thin_divider">
         <item name="android:layout_height">0.5dp</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:background">#E5E5E5</item>
+        <item name="android:background">?attr/rc_line_background_color</item>
     </style>
 </resources>

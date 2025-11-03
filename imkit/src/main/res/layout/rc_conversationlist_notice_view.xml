@@ -4,14 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/rc_notice_item_height"
-    android:background="@color/rc_notice_error_bg">
+    android:background="?attr/rc_common_background_color"
+    android:backgroundTint="?attr/rc_common_background_color">
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="?attr/rc_network_Indicator_view_bg_color"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/rc_conversationlist_notice_icon_iv"
         android:layout_width="@dimen/rc_notice_item_icon_size"
         android:layout_height="@dimen/rc_notice_item_icon_size"
         android:layout_marginStart="@dimen/rc_notice_item_padding"
-        android:src="@drawable/rc_ic_error_notice"
+        android:src="?attr/rc_network_unreachable_img"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,10 +31,10 @@
         style="@style/TextStyle.Alignment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/rc_font_text_third_size"
-        android:textColor="@color/rc_text_main_color"
         android:layout_marginStart="@dimen/rc_notice_icon_text_spacing"
         android:layout_marginEnd="@dimen/rc_notice_icon_text_spacing"
+        android:textColor="?attr/rc_text_primary_color"
+        android:textSize="@dimen/rc_font_text_third_size"
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

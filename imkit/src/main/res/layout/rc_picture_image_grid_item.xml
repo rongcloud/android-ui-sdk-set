@@ -16,9 +16,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_margin="8dp"
-        android:background="?attr/picture.checked.style"
+        android:background="?attr/rc_media_file_state_checkbox"
         android:gravity="center"
-        android:textColor="@color/picture_color_white"
+        android:textColor="?attr/rc_text_primary_color"
         android:textSize="12dp" />
 
     <View

@@ -59,7 +59,7 @@ public class GroupConversation extends BaseUiConversation {
             if (!TextUtils.isEmpty(messageSummary)) {
                 builder.append(messageSummary);
             }
-        } else if (!TextUtils.isEmpty(getDraft())) {
+        } else if (isShowDraftContent()) {
             if (mContext != null) {
                 preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
                 mPreString = new SpannableString(preStr);
@@ -71,9 +71,7 @@ public class GroupConversation extends BaseUiConversation {
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 builder.append(mPreString);
             }
-            String draft = getDraft();
-            draft = draft.replace("\n", "");
-            builder.append(draft);
+            builder.append(getDraftContent());
         } else {
             mPreString = new SpannableString("");
             Spannable messageSummary =
@@ -99,7 +97,7 @@ public class GroupConversation extends BaseUiConversation {
 
     @Override
     public void onUserInfoUpdate(UserInfo user) {
-        if (!TextUtils.isEmpty(getDraft()) || user == null) {
+        if (!TextUtils.isEmpty(getDraftContent()) || user == null) {
             return; // 有草稿时，会话内容里显示草稿，不需要处理用户信息
         }
         if (mCore.getSenderUserId().equals(user.getUserId())

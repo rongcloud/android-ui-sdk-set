@@ -25,15 +25,20 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
+import io.rong.imkit.feature.editmessage.EditMessageConfig;
+import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.DraftHelper;
 import io.rong.imkit.feature.reference.ReferenceManager;
+import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongOperationPermissionUtils;
 import io.rong.imkit.utils.ToastUtils;
@@ -68,6 +73,7 @@ public class InputPanel {
     private RongExtensionViewModel mExtensionViewModel;
     private String mInitialDraft = "";
     private final DraftHelper draftHelper;
+    private EditMessageHandler editMessageHandler;
 
     public InputPanel(
             Fragment fragment,
@@ -77,6 +83,10 @@ public class InputPanel {
         mFragment = fragment;
         mInputStyle = inputStyle;
         mConversationIdentifier = conversationIdentifier;
+        editMessageHandler = new EditMessageHandler();
+        editMessageHandler.addDataChangeListener(
+                EditMessageHandler.KEY_INPUT_PANEL_GET_DRAFT,
+                (OnDataChangeEnhancedListener<EditMessageConfig>) this::getDraftReally);
         initView(fragment.getContext(), parent);
         draftHelper = new DraftHelper(mEditText);
 
@@ -119,7 +129,16 @@ public class InputPanel {
         mAddOrSendBtn = mInputPanel.findViewById(R.id.input_panel_add_or_send);
         mSendBtn = mInputPanel.findViewById(R.id.input_panel_send_btn);
         mAddBtn = mInputPanel.findViewById(R.id.input_panel_add_btn);
-
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            mInputPanel.setBackgroundColor(
+                    IMKitThemeManager.getColorFromAttrId(
+                            context, R.attr.rc_common_background_color));
+            mEditText.setBackgroundResource(R.drawable.rc_lively_panel_input_background);
+            mVoiceInputBtn.setBackgroundResource(
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_auxiliary_background_1_radius_8,
+                            R.drawable.rc_ext_voice_idle_button));
+        }
         mSendBtn.setOnClickListener(mOnSendBtnClick);
         mEditText.setOnFocusChangeListener(mOnEditTextFocusChangeListener);
         mEditText.addTextChangedListener(mEditTextWatcher);
@@ -211,19 +230,32 @@ public class InputPanel {
                 mIsVoiceInputMode = false;
             }
             mVoiceToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_voice_btn));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_voice_img)));
             mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_emoji_img)));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
             resetInputView();
         } else if (inputMode.equals(InputMode.VoiceInput)) {
             mVoiceToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_keyboard_btn));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext,
+                                            R.attr.rc_conversation_input_bar_keyboard_img)));
             mVoiceInputBtn.setVisibility(VISIBLE);
             mEditText.setVisibility(GONE);
             mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_emoji_img)));
             if (mInputStyle.equals(InputStyle.STYLE_CONTAINER_EXTENSION)
                     || mInputStyle.equals(InputStyle.STYLE_SWITCH_CONTAINER_EXTENSION)) {
                 mAddOrSendBtn.setVisibility(VISIBLE);
@@ -234,28 +266,50 @@ public class InputPanel {
             }
         } else if (inputMode.equals(InputMode.EmoticonMode)) {
             mVoiceToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_voice_btn));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_voice_img)));
             mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_keyboard_btn));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext,
+                                            R.attr.rc_conversation_input_bar_keyboard_img)));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
             resetInputView();
         } else if (inputMode.equals(InputMode.QuickReplyMode)) {
             mIsVoiceInputMode = false;
             mVoiceToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_voice_btn));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_voice_img)));
             mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_emoji_img)));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
             mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_emoji_img)));
         } else if (inputMode.equals(InputMode.NormalMode)) {
             mIsVoiceInputMode = false;
             mVoiceToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_toggle_voice_btn));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_voice_img)));
             mEmojiToggleBtn.setImageDrawable(
-                    mContext.getResources().getDrawable(R.drawable.rc_ext_input_panel_emoji));
+                    mContext.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            mContext, R.attr.rc_conversation_input_bar_emoji_img)));
             mEditText.setVisibility(VISIBLE);
             mVoiceInputBtn.setVisibility(GONE);
             resetInputView();
@@ -357,14 +411,23 @@ public class InputPanel {
         return !RongConfigCenter.featureConfig().isHideEmojiButton();
     }
 
+    /** 获取草稿 逻辑：编辑草稿 => 普通草稿 */
     public void getDraft() {
-        WeakReference<InputPanel> weakThis = new WeakReference<>(this);
-        ChannelClient.getInstance()
-                .getTextMessageDraft(
-                        mConversationIdentifier.getType(),
-                        mConversationIdentifier.getTargetId(),
-                        mConversationIdentifier.getChannelId(),
-                        new GetDraftCallback(weakThis));
+        editMessageHandler.checkEditedMessageDraftStatus(mConversationIdentifier);
+    }
+
+    /** 获取普通草稿 */
+    public void getDraftReally(EditMessageConfig config) {
+        if (config == null) {
+            // 编辑草稿为空，才获取普通草稿
+            WeakReference<InputPanel> weakThis = new WeakReference<>(InputPanel.this);
+            ChannelClient.getInstance()
+                    .getTextMessageDraft(
+                            mConversationIdentifier.getType(),
+                            mConversationIdentifier.getTargetId(),
+                            mConversationIdentifier.getChannelId(),
+                            new GetDraftCallback(weakThis));
+        }
     }
 
     private static class GetDraftCallback extends IRongCoreCallback.ResultCallback<String> {
@@ -471,44 +534,36 @@ public class InputPanel {
                         mLastTouchY = event.getY();
                         mUpDirection = false;
                         ((TextView) v).setText(R.string.rc_voice_release_to_send);
-                        ((TextView) v)
-                                .setBackground(
-                                        v.getContext()
-                                                .getResources()
-                                                .getDrawable(
-                                                        R.drawable.rc_ext_voice_touched_button));
+                        v.setBackgroundResource(
+                                IMKitThemeManager.dynamicResource(
+                                        R.drawable.rc_lively_auxiliary_background_2_radius_8,
+                                        R.drawable.rc_ext_voice_touched_button));
                     } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                         if (mLastTouchY - event.getY() > mOffsetLimit && !mUpDirection) {
                             AudioRecordManager.getInstance().willCancelRecord();
                             mUpDirection = true;
                             ((TextView) v).setText(R.string.rc_voice_press_to_input);
-                            ((TextView) v)
-                                    .setBackground(
-                                            v.getContext()
-                                                    .getResources()
-                                                    .getDrawable(
-                                                            R.drawable.rc_ext_voice_idle_button));
+                            v.setBackgroundResource(
+                                    IMKitThemeManager.dynamicResource(
+                                            R.drawable.rc_lively_auxiliary_background_1_radius_8,
+                                            R.drawable.rc_ext_voice_idle_button));
                         } else if (event.getY() - mLastTouchY > -mOffsetLimit && mUpDirection) {
                             AudioRecordManager.getInstance().continueRecord();
                             mUpDirection = false;
-                            ((TextView) v)
-                                    .setBackground(
-                                            v.getContext()
-                                                    .getResources()
-                                                    .getDrawable(
-                                                            R.drawable
-                                                                    .rc_ext_voice_touched_button));
                             ((TextView) v).setText(R.string.rc_voice_release_to_send);
+                            v.setBackgroundResource(
+                                    IMKitThemeManager.dynamicResource(
+                                            R.drawable.rc_lively_auxiliary_background_2_radius_8,
+                                            R.drawable.rc_ext_voice_touched_button));
                         }
                     } else if (event.getAction() == MotionEvent.ACTION_UP
                             || event.getAction() == MotionEvent.ACTION_CANCEL) {
                         AudioRecordManager.getInstance().stopRecord();
                         ((TextView) v).setText(R.string.rc_voice_press_to_input);
-                        ((TextView) v)
-                                .setBackground(
-                                        v.getContext()
-                                                .getResources()
-                                                .getDrawable(R.drawable.rc_ext_voice_idle_button));
+                        v.setBackgroundResource(
+                                IMKitThemeManager.dynamicResource(
+                                        R.drawable.rc_lively_auxiliary_background_1_radius_8,
+                                        R.drawable.rc_ext_voice_idle_button));
                     }
                     if (mConversationIdentifier
                             .getType()
@@ -629,6 +684,7 @@ public class InputPanel {
         mContext = null;
         mExtensionViewModel = null;
         saveTextMessageDraft();
+        editMessageHandler.stop();
     }
 
     private static class SaveDraftCallback extends RongIMClient.ResultCallback<Boolean> {
@@ -661,6 +717,10 @@ public class InputPanel {
             };
 
     private void saveTextMessageDraft() {
+        // 如果当前是编辑模式，无需保存草稿
+        if (EditMessageManager.getInstance().isEditMessageState()) {
+            return;
+        }
         if (mEditText != null && mEditText.getText() != null) {
             String draftText = mEditText.getText().toString();
             String draft = getDraft(draftText);

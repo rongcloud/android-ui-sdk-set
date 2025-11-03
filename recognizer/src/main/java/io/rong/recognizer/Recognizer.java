@@ -19,6 +19,7 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import io.rong.common.rlog.RLog;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.utils.ToastUtils;
 import java.util.Locale;
 import java.util.Random;
@@ -61,7 +62,9 @@ public class Recognizer extends RelativeLayout implements RecognizerListener {
 
     private void initViews() {
         setClickable(true);
-        setBackgroundColor(getResources().getColor(R.color.rc_recognizerview_bg_normal));
+        setBackgroundColor(
+                IMKitThemeManager.getColorFromAttrId(
+                        getContext(), io.rong.imkit.R.attr.rc_common_background_color));
         RelativeLayout recognizerContainer =
                 (RelativeLayout)
                         LayoutInflater.from(getContext())

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="66dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- 图标 -->
+    <ImageView
+        android:id="@+id/rc_popup_item_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="6dp"
+        android:scaleType="fitXY" />
+
+    <!-- 文字 -->
+    <TextView
+        android:id="@+id/rc_popup_item_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/rc_text_primary_color"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textStyle="normal" />
+</LinearLayout>
+

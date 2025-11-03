@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:textColor="#000000"
+                android:textColor="?attr/rc_text_primary_color"
                 android:textSize="18sp" />
 
         </FrameLayout>
@@ -38,6 +38,7 @@
             android:layout_height="27dp"
             android:background="@drawable/remove_btn_bg"
             android:gravity="center"
+            android:textColor="?attr/rc_text_secondary_color"
             android:text="@string/remove_sticker" />
 
     </LinearLayout>
@@ -46,7 +47,7 @@
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_marginLeft="10dp"
-        android:background="#4cb2b2b2" />
+        android:layout_marginStart="10dp"
+        android:background="?attr/rc_line_background_color" />
 
 </LinearLayout>

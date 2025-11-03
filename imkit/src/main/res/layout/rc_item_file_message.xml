@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
 
     <ImageView
@@ -49,7 +49,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
-                    tools:src="@drawable/rc_file_icon_word" />
+                    tools:src="@drawable/rc_lively_file_word" />
 
                 <io.rong.imkit.widget.FileRectangleProgress
                     android:id="@+id/rc_msg_pb_file_upload_progress"
@@ -76,7 +76,7 @@
                     android:layout_marginTop="-3dp"
                     android:gravity="top"
                     android:maxLines="2"
-                    android:textColor="@color/rc_text_main_color"
+                    android:textColor="?attr/rc_text_primary_color"
                     android:textSize="@dimen/rc_file_item_name_size"
                     app:RCEllipsizeIndex="8" />
 
@@ -90,7 +90,7 @@
                     android:layout_marginBottom="-2dp"
                     android:gravity="bottom"
                     android:text="149kb"
-                    android:textColor="#C7CBCE"
+                    android:textColor="?attr/rc_text_secondary_color"
                     android:textSize="@dimen/rc_file_item_size" />
 
                 <TextView
@@ -103,7 +103,7 @@
                     android:layout_marginEnd="10dp"
                     android:layout_marginBottom="-2dp"
                     android:text="@string/rc_ac_file_download_progress_pause"
-                    android:textColor="#a8a8a8"
+                    android:textColor="?attr/rc_text_secondary_color"
                     android:textSize="12sp"
                     android:visibility="gone" />
             </RelativeLayout>

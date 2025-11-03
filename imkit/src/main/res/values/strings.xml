@@ -79,6 +79,16 @@
     <string name="rc_recall_failed">撤回失败</string>
     <string name="rc_load_image_failed">图片加载失败</string>
     <string name="rc_send_large_gif_failed">该 GIF 图尺寸过大，无法发送</string>
+    <string name="rc_edit_status_progress">更新中</string>
+    <string name="rc_edit_status_success">已编辑</string>
+    <string name="rc_edit_status_failed">更新失败，点击重试</string>
+    <string name="rc_edit_status_retry_failed">重试失败，请稍后再试！</string>
+    <string name="rc_edit_status_expired">编辑已过期</string>
+    <string name="rc_reference_status_delete">此消息已删除</string>
+    <string name="rc_reference_status_recall">此消息已撤回</string>
+    <string name="rc_edit_failed_by_remote_msg_not_exist">云端消息不存在，无法编辑</string>
+    <string name="rc_edit_failed_by_sensitive">编辑内容含有敏感信息，更新失败</string>
+    <string name="rc_edit_failed_by_expire">超过有效编辑时间，无法编辑</string>
 
     <string name="rc_voice_rec">手指上滑，取消发送</string>
     <string name="rc_voice_cancel">手指上滑，取消发送</string>
@@ -174,6 +184,8 @@
     <string name="rc_dialog_ok">确定</string>
     <string name="rc_confirm">确认</string>
     <string name="rc_cancel">取消</string>
+    <string name="rc_back">返回</string>
+    <string name="rc_prompt">提示</string>
     <string name="rc_not_prompt">不再提示</string>
     <string name="rc_send">发送</string>
     <string name="rc_clear">清空</string>
@@ -185,11 +197,15 @@
     <string name="rc_dialog_item_message_delete_failed_msg">连接已断开，请稍后再试</string>
     <string name="rc_dialog_item_message_recall">撤回消息</string>
     <string name="rc_dialog_item_message_reference">引用消息</string>
+    <string name="rc_dialog_item_message_edit">消息编辑</string>
     <string name="rc_dialog_got_it">知道了</string>
     <string name="rc_dialog_destruct_hint">消息查看后自动销毁，消息禁止复制或转发，服务器不保留消息记录</string>
     <string name="rc_dialog_item_sight">小视频</string>
     <string name="rc_dialog_item_select_from_album">从相册选择</string>
     <string name="rc_dialog_no_plugin_warning">无可用插件</string>
+    <string name="rc_dialog_edit_message_content">正在编辑另一条消息，确定编辑当前消息后，则之前编辑的消息内容将丢失。</string>
+    <string name="rc_dialog_edit_message_is_delete">消息已删除，无法保存</string>
+    <string name="rc_dialog_edit_message_is_recall">消息已撤回，无法保存</string>
 
     //输入框区域
     <string name="rc_ext_voice_btn_press_to_speak">按住 说话</string>
@@ -343,11 +359,12 @@
     <string name="rc_emoji_love_heart">爱心</string><!--130-->
 
     <!--引用部分-->
-    <string name="rc_reference">引用消息</string>
+    <string name="rc_reference_message">引用消息</string>
     <string name="rc_reference_link">[图文]</string>
     <string name="rc_reference_file">[文件]</string>
     <string name="rc_search_file_prefix">[文件]&#160;</string>
     <string name="rc_message_unknown">当前版本暂不支持查看此消息</string>
+    <string name="rc_message_unknown_notification">收到一条不支持的消息</string>
     <string name="rc_choose_members">选择好友</string>
 
 
@@ -376,6 +393,7 @@
     <string name="rc_picsel_selected_max_second_span_with_param">不能分享超过%s秒的视频</string>
 
     <string name="rc_dialog_item_message_more">更多&#8230;</string>
+    
     <!--图片浏览-->
     <string name="rc_save_picture">保存图片</string>
     <string name="rc_save_picture_at">图片保存成功</string>
@@ -431,6 +449,10 @@
     <string name="rc_kicked_from_chatroom">你已被踢出聊天室</string>
     <string name="rc_join_chatroom_failure">加入聊天室失败</string>
     <string name="rc_read_receipt">已读</string>
+    <string name="rc_unread_receipt">未读</string>
+    <string name="rc_message_read_receipt_status">消息阅读状态</string>
+    <string name="rc_message_none_user_read">无人已读</string>
+    <string name="rc_message_all_user_read">无人未读</string>
 
     <!-- groupnotificationmessage -->
     <string name="rc_item_divided_string">、</string>
@@ -701,5 +723,25 @@
     <string name="rc_loading_saving">保存中</string>
     <string name="rc_content_contain_sensitive">操作失败，内容包含敏感信息</string>
     <!--5.16.0-->
+
+    <!--语音转文字-->
+    <string name="rc_speech_to_text">转文字</string>
+    <string name="rc_cancel_speech_to_text">取消转文字</string>
+    <string name="rc_speech_to_text_failed">语音转换失败</string>
+    <string name="rc_speech_to_text_network_error">当前网络不可用，无法转文字，请检查网络设置后再试</string>
+    <string name="rc_speech_to_text_unsupported_format">此语音消息格式不支持转文字功能。</string>
+    <string name="rc_copy">复制</string>
+    <!--语音转文字-->
+
+    <!--  NewUIDesign  -->
+    <string name="rc_set_top">置顶</string>
+    <string name="rc_delete">删除</string>
+    <string name="rc_recall">撤回</string>
+    <string name="rc_reference">引用</string>
+    <string name="rc_edit">编辑</string>
+    <string name="rc_multi_select">多选</string>
+    <string name="rc_translate">翻译</string>
+    <string name="rc_combine_webview_load_failed">合并转发消息加载失败</string>
+    <!--  NewUIDesign  -->
 
 </resources>

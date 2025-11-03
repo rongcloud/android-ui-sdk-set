@@ -15,7 +15,7 @@
         android:drawableTop="@drawable/rc_picture_icon_camera"
         android:gravity="center"
         android:text="@string/rc_picture_take_picture"
-        android:textColor="@color/picture_color_white"
+        android:textColor="?attr/rc_text_primary_color"
         android:textSize="14dp" />
 
 </io.rong.imkit.picture.widget.SquareRelativeLayout>

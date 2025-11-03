@@ -18,7 +18,8 @@
         android:text="@string/rc_click_to_view"
         android:textColor="#A0A5AB"
         android:visibility="gone"
-        android:drawableEnd="@drawable/rc_item_fire_t"
+        android:gravity="center_vertical"
+        app:drawableEndCompat="?attr/rc_conversation_msg_status_text_destruct_img"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -36,9 +37,9 @@
         android:layout_marginEnd="4.5dp"
         android:gravity="center_vertical|start"
         android:maxWidth="223dp"
-        android:padding="16dp"
-        android:textColor="@color/rc_text_main_color"
-        android:textColorLink="@color/rc_main_theme"
+        android:padding="10dp"
+        android:textColor="?attr/rc_text_primary_color"
+        android:textColorLink="?attr/rc_primary_color"
         android:textSize="@dimen/rc_font_secondary_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -60,7 +61,7 @@
             android:layout_width="@dimen/rc_margin_size_15"
             android:layout_height="@dimen/rc_margin_size_15"
             android:layout_gravity="center"
-            android:src="@drawable/rc_fire" />
+            android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
     </FrameLayout>
 
     <FrameLayout
@@ -77,7 +78,7 @@
             android:layout_width="@dimen/rc_margin_size_15"
             android:layout_height="@dimen/rc_margin_size_15"
             android:layout_gravity="center"
-            android:src="@drawable/rc_fire" />
+            android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
 
         <TextView
             android:id="@+id/tv_receiver_fire"
@@ -88,7 +89,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/rc_white_color"
-            android:textSize="11dp"
+            android:textSize="11sp"
             android:visibility="gone" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -23,7 +23,7 @@
             android:layout_width="88dp"
             android:layout_height="88dp"
             android:layout_gravity="center"
-            android:src="@drawable/rc_default_portrait" />
+            android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
 
     </FrameLayout>
 
@@ -53,7 +53,7 @@
             style="@style/EditTextStyle.Alignment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/rc_ext_panel_editbox_background"
+            android:background="@drawable/rc_lively_panel_input_background"
             android:hint="@string/rc_group_name_hint"
             android:inputType="textPersonName"
             android:maxLength="64"

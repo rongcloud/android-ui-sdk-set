@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:layout_marginTop="@dimen/rc_margin_size_127"
+    android:layout_height="match_parent"
+    android:background="?attr/rc_conversation_list_background_color"
+    android:gravity="center_horizontal"
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/rc_conversation_list_empty"/>
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="198dp"
+        android:src="?attr/rc_conversation_list_no_message_img" />
 
     <TextView
         android:id="@+id/rc_empty_tv"
         style="@style/TextStyle.Alignment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/rc_margin_size_10"
         android:text="@string/rc_conversation_list_empty_prompt"
-        android:textColor="@color/rc_secondary_color"
+        android:textColor="?attr/rc_text_primary_color"
         android:textSize="@dimen/rc_font_text_third_size" />
 </LinearLayout>

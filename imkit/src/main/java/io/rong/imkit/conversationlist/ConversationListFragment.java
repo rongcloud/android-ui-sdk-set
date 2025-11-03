@@ -22,6 +22,7 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.ConversationListBehaviorListener;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.conversationlist.model.GatheredConversation;
@@ -33,6 +34,7 @@ import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.ViewHolder;
+import io.rong.imkit.widget.dialog.ConversationLongClickPopup;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imkit.widget.refresh.SmartRefreshLayout;
 import io.rong.imkit.widget.refresh.api.RefreshLayout;
@@ -391,11 +393,17 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         final String removeItem =
                 view.getContext()
                         .getResources()
-                        .getString(R.string.rc_conversation_list_dialog_remove);
+                        .getString(
+                                IMKitThemeManager.dynamicResource(
+                                        R.string.rc_delete,
+                                        R.string.rc_conversation_list_dialog_remove));
         final String setTopItem =
                 view.getContext()
                         .getResources()
-                        .getString(R.string.rc_conversation_list_dialog_set_top);
+                        .getString(
+                                IMKitThemeManager.dynamicResource(
+                                        R.string.rc_set_top,
+                                        R.string.rc_conversation_list_dialog_set_top));
         final String cancelTopItem =
                 view.getContext()
                         .getResources()
@@ -410,24 +418,70 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         }
         items.add(removeItem);
         int size = items.size();
-        OptionsPopupDialog.newInstance(view.getContext(), items.toArray(new String[size]))
-                .setOptionsPopupDialogListener(
-                        new OptionsPopupDialog.OnOptionsItemClickedListener() {
-                            @Override
-                            public void onOptionsItemClicked(final int which) {
-                                if (items.get(which).equals(setTopItem)
-                                        || items.get(which).equals(cancelTopItem)) {
-                                    setConversationToTop(baseUiConversation, items.get(which));
-                                } else if (items.get(which).equals(removeItem)) {
+
+        // 使用 V2 主题时使用新的弹窗
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            // 创建选项列表
+            java.util.ArrayList<ConversationLongClickPopup.OptionItem> optionItems =
+                    new java.util.ArrayList<>();
+
+            // 添加置顶/取消置顶选项
+            if (!(baseUiConversation instanceof GatheredConversation)) {
+                optionItems.add(
+                        new ConversationLongClickPopup.OptionItem(
+                                baseUiConversation.mCore.isTop() ? cancelTopItem : setTopItem,
+                                R.drawable.rc_lively_pin_up));
+            }
+
+            // 添加删除选项
+            optionItems.add(
+                    new ConversationLongClickPopup.OptionItem(
+                            removeItem, R.drawable.rc_lively_delete_read));
+
+            ConversationLongClickPopup.newInstance(view.getContext(), optionItems)
+                    .setAnchorView(view)
+                    .setOnOptionItemClickListener(
+                            (item, position1) -> {
+                                // 根据 tag 判断是哪个选项，而不是比较字符串
+                                if (item.title.equals(setTopItem)
+                                        || item.title.equals(cancelTopItem)) {
+                                    // 置顶/取消置顶操作
+                                    String toastText =
+                                            baseUiConversation.mCore.isTop()
+                                                    ? cancelTopItem
+                                                    : setTopItem;
+                                    setConversationToTop(baseUiConversation, toastText);
+                                } else if (item.title.equals(removeItem)) {
                                     IMCenter.getInstance()
                                             .removeConversation(
                                                     baseUiConversation.mCore.getConversationType(),
                                                     baseUiConversation.mCore.getTargetId(),
                                                     null);
                                 }
-                            }
-                        })
-                .show();
+                            })
+                    .show();
+        } else {
+            // 使用旧的弹窗
+            OptionsPopupDialog.newInstance(view.getContext(), items.toArray(new String[size]))
+                    .setOptionsPopupDialogListener(
+                            new OptionsPopupDialog.OnOptionsItemClickedListener() {
+                                @Override
+                                public void onOptionsItemClicked(final int which) {
+                                    if (items.get(which).equals(setTopItem)
+                                            || items.get(which).equals(cancelTopItem)) {
+                                        setConversationToTop(baseUiConversation, items.get(which));
+                                    } else if (items.get(which).equals(removeItem)) {
+                                        IMCenter.getInstance()
+                                                .removeConversation(
+                                                        baseUiConversation.mCore
+                                                                .getConversationType(),
+                                                        baseUiConversation.mCore.getTargetId(),
+                                                        null);
+                                    }
+                                }
+                            })
+                    .show();
+        }
         return true;
     }
 

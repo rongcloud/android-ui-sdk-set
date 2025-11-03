@@ -34,7 +34,7 @@
             android:layout_marginStart="8dp"
             android:layout_toEndOf="@id/iv_contact_select"
             android:scaleType="centerCrop"
-            android:src="@drawable/rc_default_portrait" />
+            android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
 
         <TextView
             android:id="@+id/tv_contact_name"

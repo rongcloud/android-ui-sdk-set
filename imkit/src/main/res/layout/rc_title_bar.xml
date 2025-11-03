@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/rc_title_bar_height"
+    android:background="?attr/rc_common_background_color"
+    android:layout_height="56dp"
     android:orientation="horizontal">
 
     <TextView
@@ -17,12 +18,12 @@
         android:paddingEnd="10dp"
         android:paddingRight="10dp"
         android:scaleType="center"
-        android:textColor="@android:color/black"
+        android:textColor="?attr/rc_text_primary_color"
         android:textSize="17sp"
         android:textStyle="bold"
         tools:ignore="RtlHardcoded"
         android:layout_gravity="start"
-        app:drawableStartCompat="@drawable/rc_title_bar_back" />
+        app:drawableStartCompat="?attr/rc_navigation_bar_btn_back_img" />
 
     <FrameLayout
         android:layout_gravity="center"
@@ -43,7 +44,7 @@
             android:lines="1"
             android:maxEms="12"
             android:scaleType="center"
-            android:textColor="@android:color/black"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="17sp"
             android:textStyle="bold" />
 
@@ -57,7 +58,7 @@
             android:lines="1"
             android:maxEms="12"
             android:scaleType="center"
-            android:textColor="@android:color/black"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="17sp"
             android:textStyle="bold"
             android:visibility="gone" />
@@ -91,7 +92,7 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:scaleType="center"
-            android:textColor="@android:color/black"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="14sp"
             android:visibility="gone" />
     </LinearLayout>

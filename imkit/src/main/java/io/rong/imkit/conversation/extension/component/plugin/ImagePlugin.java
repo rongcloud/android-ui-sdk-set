@@ -9,11 +9,13 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.manager.SendImageManager;
@@ -35,7 +37,10 @@ public class ImagePlugin implements IPluginModule, IPluginRequestPermissionResul
 
     @Override
     public Drawable obtainDrawable(Context context) {
-        return context.getResources().getDrawable(R.drawable.rc_ext_plugin_image_selector);
+        return ContextCompat.getDrawable(
+                context,
+                IMKitThemeManager.getAttrResId(
+                        context, R.attr.rc_conversation_plugin_item_image_img));
     }
 
     @Override

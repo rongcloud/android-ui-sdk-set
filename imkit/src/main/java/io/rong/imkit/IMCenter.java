@@ -9,6 +9,7 @@ import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.ConversationListBehaviorListener;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
+import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.actionevent.ClearEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
@@ -20,6 +21,7 @@ import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.forward.CombineMessage;
 import io.rong.imkit.feature.resend.ResendManager;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
@@ -806,6 +808,23 @@ public class IMCenter {
                             callback.onDatabaseOpened(databaseOpenStatus);
                         }
                     }
+
+                    @Override
+                    public void onDatabaseOpened(
+                            RongIMClient.DatabaseOpenStatus databaseOpenStatus, boolean recreate) {
+                        if (connectCallback != null) {
+                            connectCallback.onDatabaseOpened(databaseOpenStatus, recreate);
+                        }
+                        if (databaseOpenStatus
+                                        == RongIMClient.DatabaseOpenStatus.DATABASE_OPEN_SUCCESS
+                                && RongUserInfoManager.getInstance().isCacheUserOrGroupInfo()) {
+                            RongUserInfoManager.getInstance()
+                                    .initAndUpdateUserDataBase(SingletonHolder.sInstance.mContext);
+                        }
+                        for (RongIMClient.ConnectCallback callback : mConnectStatusListener) {
+                            callback.onDatabaseOpened(databaseOpenStatus, recreate);
+                        }
+                    }
                 });
     }
 
@@ -873,7 +892,8 @@ public class IMCenter {
                                                     message.getConversationType(),
                                                     message.getTargetId(),
                                                     message.getMessageId(),
-                                                    recallNotificationMessage));
+                                                    recallNotificationMessage,
+                                                    message));
                                 }
                             }
 
@@ -1775,10 +1795,7 @@ public class IMCenter {
                                     callback.onSuccess(value);
                                 }
                                 if (value) {
-                                    for (ConversationEventListener listener :
-                                            mConversationEventListener) {
-                                        listener.onSaveDraft(conversationIdentifier, content);
-                                    }
+                                    onSaveDraft(conversationIdentifier, content);
                                 }
                             }
 
@@ -2113,14 +2130,23 @@ public class IMCenter {
             RLog.d(TAG, "message insertOut has been intercepted.");
             return;
         }
+        // 为什么这里不使用Lib insertOutgoingMessage 接口？
+        // Lib insertOutgoingMessage 不支持设置 needReceipt
+        // ，因控制接口数量所以不建议Lib扩展insertOutgoingMessage接口，Kit改为使用 insertMessage。
+        Message message = Message.obtain(conversationIdentifier, content);
+        message.setSentTime(time);
+        message.setSentStatus(sentStatus);
+        message.setSenderUserId(RongCoreClient.getInstance().getCurrentUserId());
+        message.setMessageDirection(Message.MessageDirection.SEND);
+        message.setCanIncludeExpansion(false);
+        // 如果支持已读V5，则标识这条消息需要回执
+        if (AppSettingsHandler.getInstance()
+                .isReadReceiptV5Enabled(conversationIdentifier.getType())) {
+            message.setNeedReceipt(true);
+        }
         ChannelClient.getInstance()
-                .insertOutgoingMessage(
-                        conversationIdentifier.getType(),
-                        conversationIdentifier.getTargetId(),
-                        conversationIdentifier.getChannelId(),
-                        sentStatus,
-                        content,
-                        time,
+                .insertMessage(
+                        message,
                         new IRongCoreCallback.ResultCallback<Message>() {
                             @Override
                             public void onSuccess(Message message) {
@@ -2646,8 +2672,39 @@ public class IMCenter {
      * @param message
      */
     public void refreshMessage(Message message) {
+        refreshMessage(new RefreshEvent(message));
+    }
+
+    /**
+     * 通知会话页面刷新某条消息
+     *
+     * @param event
+     */
+    public void refreshMessage(RefreshEvent event) {
         for (MessageEventListener item : mMessageEventListeners) {
-            item.onRefreshEvent(new RefreshEvent(message));
+            item.onRefreshEvent(event);
+        }
+    }
+
+    /**
+     * 将指定消息添加到当前会话并立即刷新界面显示。
+     *
+     * @param message Message 要添加并显示的消息对象，不可为null
+     * @since 5.28.0
+     */
+    public void appendAndDisplayMessage(@NonNull Message message) {
+        for (MessageEventListener item : mMessageEventListeners) {
+            // 只应用在会话页面
+            if (item instanceof MessageViewModel) {
+                item.onInsertMessage(new InsertEvent(message));
+            }
+        }
+    }
+
+    /** 通知会话列表页面刷新某条会话草稿 */
+    public void onSaveDraft(ConversationIdentifier identifier, String content) {
+        for (ConversationEventListener listener : mConversationEventListener) {
+            listener.onSaveDraft(identifier, content);
         }
     }
 
@@ -2781,6 +2838,11 @@ public class IMCenter {
             if (userInfo != null) {
                 message.getContent().setUserInfo(userInfo);
             }
+        }
+        // 如果支持已读V5，则标识这条消息需要回执
+        if (AppSettingsHandler.getInstance()
+                .isReadReceiptV5Enabled(message.getConversationType())) {
+            message.setNeedReceipt(true);
         }
     }
 

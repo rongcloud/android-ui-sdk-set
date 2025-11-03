@@ -27,7 +27,7 @@
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/rc_default_portrait"
+                    android:src="?attr/rc_conversation_list_cell_portrait_msg_img"
                     android:layout_centerVertical="true"
                     />
 

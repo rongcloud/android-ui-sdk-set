@@ -43,6 +43,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 import io.rong.common.rlog.RLog;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
@@ -469,7 +470,8 @@ public class EasyVideoPlayer extends FrameLayout
         imageViewSightListParam.gravity = Gravity.TOP | Gravity.RIGHT;
         int iconMargin = (int) getResources().getDimension(R.dimen.sight_record_top_icon_margin);
         imageViewSightListParam.setMargins(0, iconMargin, iconMargin, 0);
-        mImageViewSightList.setImageResource(R.drawable.rc_ic_sight_list);
+        mImageViewSightList.setImageResource(
+                IMKitThemeManager.getAttrResId(getContext(), R.attr.rc_ic_sight_list));
         addView(mImageViewSightList, imageViewSightListParam);
         mImageViewSightList.setOnClickListener(
                 new OnClickListener() {

@@ -70,7 +70,7 @@
                     android:maxLines="1"
                     android:singleLine="true"
                     android:textColor="@color/rc_reference_title_color"
-                    android:textColorLink="@color/rc_reference_text_link_color"
+                    android:textColorLink="?attr/rc_link_color"
                     android:textSize="@dimen/rc_reference_name_size" />
             </io.rong.imkit.widget.RCMessageFrameLayout>
         </LinearLayout>
@@ -83,6 +83,15 @@
         android:layout_marginStart="@dimen/rc_margin_size_14"
         android:layout_marginTop="@dimen/rc_margin_size_4"
         android:scaleType="centerCrop" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:background="?attr/rc_line_background_color" />
 
     <io.rong.imkit.widget.RCMessageFrameLayout
         android:layout_width="match_parent"
@@ -97,8 +106,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/rc_reference_content_send_margin_bottom"
-            android:textColor="@color/rc_reference_content_send_color"
-            android:textColorLink="@color/rc_reference_text_link_color"
+            android:textColor="?attr/rc_text_primary_color"
+            android:textColorLink="?attr/rc_link_color"
             android:textSize="@dimen/rc_reference_content_send_size" />
 
     </io.rong.imkit.widget.RCMessageFrameLayout>

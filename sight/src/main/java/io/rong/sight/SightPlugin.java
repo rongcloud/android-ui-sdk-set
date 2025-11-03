@@ -17,6 +17,7 @@ import io.rong.common.FileUtils;
 import io.rong.common.LibStorageUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginRequestPermissionResultCallback;
@@ -40,7 +41,12 @@ public class SightPlugin implements IPluginModule, IPluginRequestPermissionResul
     @Override
     public Drawable obtainDrawable(Context context) {
         this.context = context;
-        return ContextCompat.getDrawable(context, R.drawable.rc_ext_plugin_sight_selector);
+        int drawableResId =
+                IMKitThemeManager.dynamicResource(
+                        context,
+                        io.rong.imkit.R.attr.rc_conversation_plugin_item_sight_img,
+                        R.drawable.rc_ext_plugin_sight_selector);
+        return ContextCompat.getDrawable(context, drawableResId);
     }
 
     @Override

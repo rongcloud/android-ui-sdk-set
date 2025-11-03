@@ -28,7 +28,7 @@
             android:layout_marginTop="@dimen/rc_file_preview_name_margin_top"
             android:ellipsize="middle"
             android:singleLine="true"
-            android:textColor="@color/rc_file_preview_name"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="@dimen/rc_file_preview_name_size" />
     </LinearLayout>
 
@@ -40,7 +40,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/rc_file_preview_margin_bottom"
         android:layout_marginTop="@dimen/rc_file_preview_margin_top"
-        android:textColor="#a8a8a8"
+        android:textColor="?attr/rc_text_secondary_color"
         android:textSize="@dimen/rc_file_preview_size" />
 
 <!--    <LinearLayout-->

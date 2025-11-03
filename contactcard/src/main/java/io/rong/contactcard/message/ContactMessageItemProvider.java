@@ -20,12 +20,12 @@ import io.rong.contactcard.IContactCardInfoProvider;
 import io.rong.contactcard.R;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.RongIM;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UserInfo;
 import java.util.List;
@@ -70,10 +70,14 @@ public class ContactMessageItemProvider extends BaseMessageItemProvider<ContactM
                                 new RoundedCorners(
                                         ScreenUtils.dip2px(IMCenter.getInstance().getContext(), 6)))
                         .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
+        int defaultPortrait =
+                IMKitThemeManager.getAttrResId(
+                        holder.getContext(),
+                        io.rong.imkit.R.attr.rc_conversation_list_cell_portrait_msg_img);
         Glide.with(imageView)
                 .load(contactMessage.getImgUrl())
                 .apply(options)
-                .placeholder(io.rong.imkit.R.drawable.rc_default_portrait)
+                .placeholder(defaultPortrait)
                 .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .into(imageView);
 
@@ -123,11 +127,11 @@ public class ContactMessageItemProvider extends BaseMessageItemProvider<ContactM
                     });
         }
 
-        if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.RECEIVE) {
-            holder.setBackgroundRes(io.rong.imkit.R.id.rc_layout, R.drawable.rc_contact_bg_receive);
-        } else {
-            holder.setBackgroundRes(io.rong.imkit.R.id.rc_layout, R.drawable.rc_contact_bg_send);
-        }
+        holder.setBackgroundRes(
+                io.rong.imkit.R.id.rc_layout,
+                IMKitThemeManager.getAttrResId(
+                        holder.getContext(),
+                        io.rong.imkit.R.attr.rc_conversation_msg_special_background));
     }
 
     @Override

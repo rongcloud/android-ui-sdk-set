@@ -3,7 +3,6 @@ package io.rong.imkit.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -16,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 
 /** 头部Toolbar封装 Created by lhz on 18/3/22. */
 public class TitleBar extends Toolbar {
@@ -61,8 +61,16 @@ public class TitleBar extends Toolbar {
         TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.TitleBar);
         String title = typedArray.getString(R.styleable.TitleBar_title);
         String rightText = typedArray.getString(R.styleable.TitleBar_right_text);
-        int rightColor = typedArray.getColor(R.styleable.TitleBar_right_text_color, Color.BLACK);
-        int leftColor = typedArray.getColor(R.styleable.TitleBar_left_text_color, Color.BLACK);
+        int rightColor =
+                typedArray.getColor(
+                        R.styleable.TitleBar_right_text_color,
+                        IMKitThemeManager.getColorFromAttrId(
+                                getContext(), R.attr.rc_text_primary_color));
+        int leftColor =
+                typedArray.getColor(
+                        R.styleable.TitleBar_left_text_color,
+                        IMKitThemeManager.getColorFromAttrId(
+                                getContext(), R.attr.rc_text_primary_color));
         String leftText = typedArray.getString(R.styleable.TitleBar_left_text);
         boolean isBackIconShow = typedArray.getBoolean(R.styleable.TitleBar_show_back_icon, true);
         boolean isShowMiddle = typedArray.getBoolean(R.styleable.TitleBar_show_middle, true);

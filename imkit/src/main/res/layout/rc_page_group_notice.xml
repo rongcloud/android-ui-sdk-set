@@ -22,7 +22,7 @@
         style="@style/EditTextStyle.Alignment"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:background="@drawable/rc_ext_panel_editbox_background"
+        android:background="@drawable/rc_lively_panel_input_background"
         android:hint="@string/rc_group_notice_hint"
         android:maxLength="1024"
         android:textSize="17sp"

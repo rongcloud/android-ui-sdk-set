@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import io.rong.common.CursorUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureSelectionConfig;
 import io.rong.imkit.picture.dialog.PictureLoadingDialog;
@@ -108,11 +109,18 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                 AttrsUtils.getTypeValueBoolean(this, R.attr.picture_style_checkNumMode);
 
         // 标题栏背景色
-        colorPrimary = AttrsUtils.getTypeValueColor(this, androidx.appcompat.R.attr.colorPrimary);
+        colorPrimary =
+                AttrsUtils.getTypeValueColor(
+                        this,
+                        IMKitThemeManager.getAttrResId(
+                                getContext(), R.attr.rc_common_background_color));
 
         // 状态栏色值
         colorPrimaryDark =
-                AttrsUtils.getTypeValueColor(this, androidx.appcompat.R.attr.colorPrimaryDark);
+                AttrsUtils.getTypeValueColor(
+                        this,
+                        IMKitThemeManager.getAttrResId(
+                                getContext(), R.attr.rc_common_background_color));
     }
 
     @Override

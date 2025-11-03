@@ -18,8 +18,8 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_gravity="center"
-        android:layout_marginTop="160dp"
-        android:src="@drawable/rc_web_load_fail"
+        android:layout_marginTop="198dp"
+        android:src="?attr/rc_combine_msg_preview_failed_img"
         android:visibility="gone" />
 
     <TextView
@@ -27,10 +27,11 @@
         style="@style/TextStyle.Alignment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/rc_margin_size_10"
         android:gravity="center"
         android:text="@string/rc_combine_webview_loading"
-        android:textColor="#FF666666"
-        android:textSize="30px"
+        android:textColor="?attr/rc_text_primary_color"
+        android:textSize="14sp"
         android:visibility="gone" />
 
     <io.rong.common.RongWebView

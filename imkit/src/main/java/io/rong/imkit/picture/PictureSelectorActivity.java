@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
 import io.rong.imkit.picture.adapter.PictureImageGridAdapter;
 import io.rong.imkit.picture.broadcast.BroadcastAction;
@@ -139,6 +140,10 @@ public class PictureSelectorActivity extends PictureBaseActivity
         mTvEmpty = findViewById(R.id.tv_empty);
         llAlbum = findViewById(R.id.ll_Album);
         isNumComplete(numComplete);
+        mTvPicturePreview.setTextColor(
+                IMKitThemeManager.dynamicResource(
+                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_primary_color),
+                        getResources().getColor(R.color.rc_text_main_color)));
         mTvPicturePreview.setOnClickListener(this);
         mBottomLayout.setVisibility(
                 config.selectionMode == PictureConfig.SINGLE && config.isSingleDirectReturn
@@ -146,6 +151,12 @@ public class PictureSelectorActivity extends PictureBaseActivity
                         : View.VISIBLE);
         mTvCancel.setOnClickListener(this);
         mTvPictureOk.setOnClickListener(this);
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            mTvPictureOk.setBackgroundResource(R.drawable.rc_lively_send_primary_color_background);
+            mTvPictureOk.setTextColor(
+                    IMKitThemeManager.getAttrResId(
+                            mTvPictureOk.getContext(), R.attr.rc_control_title_white_color));
+        }
         llAlbum.setOnClickListener(this);
         String title = getString(R.string.rc_picture_camera_roll);
         mTvPictureTitle.setText(title);
@@ -181,10 +192,25 @@ public class PictureSelectorActivity extends PictureBaseActivity
         boolean eqVideo = config.chooseMode == PictureConfig.TYPE_VIDEO;
         config.isCheckOriginalImage = !isVideo && !eqVideo && config.isCheckOriginalImage;
         boolean enable = selectImages.size() != 0;
-        mTvPictureOk.setTextColor(
-                selectImages.size() > 0
-                        ? getResources().getColor(R.color.rc_main_theme)
-                        : getResources().getColor(R.color.rc_main_theme_lucency));
+        int textColor =
+                enable
+                        ? IMKitThemeManager.getColorFromAttrId(
+                                getContext(), R.attr.rc_primary_color)
+                        : getResources().getColor(R.color.rc_main_theme_lucency);
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            textColor =
+                    IMKitThemeManager.getColorFromAttrId(
+                            getContext(), R.attr.rc_control_title_white_color);
+
+            mTvPicturePreview.setTextColor(
+                    IMKitThemeManager.getColorFromAttrId(
+                            this, enable ? R.attr.rc_primary_color : R.attr.rc_disabled_color));
+            mTvPictureOk.setBackgroundResource(
+                    enable
+                            ? R.drawable.rc_lively_send_primary_color_background
+                            : R.drawable.rc_lively_send_disable_color_background);
+        }
+        mTvPictureOk.setTextColor(textColor);
         mTvPictureOk.setText(
                 config.selectionMode == PictureConfig.SINGLE || !enable
                         ? getString(R.string.rc_picture_send)

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 融云 欢快-Dark 主题 - 主要对外输出主题 -->
+    <style name="RCLivelyDarkTheme">
+        
+        <!-- 融云自定义属性 - 与 color 名称保持一致 -->
+        <!-- 主色 -->
+        <item name="rc_primary_color">@color/rc_primary_color_dark</item>
+        
+        <!-- 文字色 -->
+        <item name="rc_text_primary_color">@color/rc_text_primary_color_dark</item>
+        <item name="rc_text_secondary_color">@color/rc_text_secondary_color_dark</item>
+
+        <!-- 功能色 -->
+        <item name="rc_success_color">@color/rc_success_color_dark</item>
+        <item name="rc_hint_color">@color/rc_hint_color_dark</item>
+        <item name="rc_disabled_color">@color/rc_disabled_color_dark</item>
+
+        <!-- 背景及线条色 -->
+        <item name="rc_common_background_color">@color/rc_common_background_color_dark</item>
+        <item name="rc_auxiliary_background_1_color">@color/rc_auxiliary_background_1_color_dark</item>
+        <item name="rc_auxiliary_background_2_color">@color/rc_auxiliary_background_2_color_dark</item>
+        <item name="rc_view_background_color">@color/rc_view_background_color_dark</item>
+        <item name="rc_line_background_color">@color/rc_line_background_color_dark</item>
+        <item name="rc_selected_background_color">@color/rc_selected_background_color_dark</item>
+        <item name="rc_conversation_list_background_color">@color/rc_conversation_list_background_color_dark</item>
+        <item name="rc_mask_color">@color/rc_mask_color_dark</item>
+        <item name="rc_link_color">@color/rc_link_color_dark</item>
+
+        <item name="rc_network_Indicator_view_bg_color">@color/rc_network_Indicator_view_bg_color_dark</item>
+        <item name="rc_clear_color">@color/rc_clear_color_dark</item>
+
+        <item name="rc_pop_layer_background_color">@color/rc_pop_layer_background_color_dark</item>
+        <item name="rc_control_title_white_color">@color/rc_control_title_white_color_dark</item>
+
+        <item name="rc_destruct_color">@color/rc_destruct_color_dark</item>
+        <item name="rc_corner_style">@drawable/rc_lively_corner_style</item>
+        <item name="rc_bottom_dialog_background_color">@color/rc_common_background_color_dark</item>
+        <item name="rc_unread_msg_bg_style_color">@color/rc_common_background_color_dark</item>
+
+        <!-- 图标 Drawable -->
+        <item name="rc_conversation_list_cell_block_notification_img">@drawable/rc_lively_no_disturb</item>
+        <item name="rc_conversation_list_cell_pin_img">@drawable/rc_lively_pin_top</item>
+        <item name="rc_conversation_list_cell_msg_read_img">@drawable/rc_lively_read_receipt</item>
+        <item name="rc_conversation_list_cell_msg_unread_img">@drawable/rc_lively_unread_receipt_dark</item>
+        <item name="rc_conversation_list_cell_msg_sending_img">@drawable/rc_lively_sending</item>
+
+        <item name="rc_navigation_bar_btn_back_img">@drawable/rc_lively_back_dark</item>
+        <item name="rc_navigation_bar_btn_more_img">@drawable/rc_lively_more_dark</item>
+
+        <!-- 消息长按菜单图标 -->
+        <item name="rc_conversation_menu_item_copy_img">@drawable/rc_lively_copy</item>
+        <item name="rc_conversation_menu_item_delete_img">@drawable/rc_lively_delete_dark</item>
+        <item name="rc_conversation_menu_item_recall_img">@drawable/rc_lively_recall</item>
+        <item name="rc_conversation_menu_item_reference_img">@drawable/rc_lively_reference</item>
+        <item name="rc_conversation_menu_item_edit_img">@drawable/rc_lively_edit</item>
+        <item name="rc_conversation_menu_item_multiple_img">@drawable/rc_lively_multi_select</item>
+        <item name="rc_conversation_menu_item_translation_img">@drawable/rc_lively_translate</item>
+        <item name="rc_conversation_menu_item_sound_transform_img">@drawable/rc_lively_speech_to_text</item>
+        <item name="rc_conversation_menu_item_forward_img">@drawable/rc_lively_forward_dark</item>
+        <item name="rc_conversation_menu_item_combine_forward_img">@drawable/rc_lively_combine_forward_dark</item>
+        <item name="rc_conversation_menu_item_combine_delete_img">@drawable/rc_lively_delete_dark</item>
+
+        <!-- 插件图标 Drawable -->
+        <item name="rc_conversation_plugin_item_image_img">@drawable/rc_lively_plugin_image_selector_dark</item>
+        <item name="rc_conversation_plugin_item_sight_img">@drawable/rc_lively_plugin_sight_selector_dark</item>
+        <item name="rc_conversation_plugin_item_destruct_img">@drawable/rc_lively_plugin_destruct_selector_dark</item>
+        <item name="rc_conversation_plugin_item_file_img">@drawable/rc_lively_plugin_file_selector_dark</item>
+        <item name="rc_conversation_plugin_item_location_img">@drawable/rc_lively_plugin_location_selector_dark</item>
+        <item name="rc_conversation_plugin_item_voice_input_img">@drawable/rc_lively_plugin_voice_input_selector_dark</item>
+        <item name="rc_conversation_plugin_item_contact_img">@drawable/rc_lively_plugin_contact_selector_dark</item>
+
+        <!-- 默认头像 Drawable (V1版本) -->
+        <item name="rc_conversation_list_cell_portrait_msg_img">@drawable/rc_lively_default_portrait</item>
+        <item name="rc_conversation_list_cell_group_portrait_img">@drawable/rc_lively_default_group_portrait</item>
+        <item name="rc_conversation_list_cell_discussion_portrait_img">@drawable/rc_lively_default_chatroom_portrait</item>
+        <item name="rc_conversation_list_cell_portrait_kefu_img">@drawable/rc_lively_default_cs_portrait</item>
+
+        <item name="rc_conversation_input_bar_voice_img">@drawable/rc_lively_voice_dark</item>
+        <item name="rc_conversation_input_bar_keyboard_img">@drawable/rc_lively_keyboard_dark</item>
+        <item name="rc_conversation_input_bar_emoji_img">@drawable/rc_lively_emoji_dark</item>
+        <item name="rc_conversation_input_bar_add_img">@drawable/rc_lively_add_circle_dark</item>
+        <item name="rc_icon_add_simple">@drawable/rc_lively_add_simple_dark</item>
+        <item name="rc_conversation_setting_img">@drawable/rc_lively_settings_dark</item>
+
+        <item name="rc_conversation_msg_cell_send_voice_1_img">@drawable/rc_lively_voice_send1_dark</item>
+        <item name="rc_conversation_msg_cell_send_voice_2_img">@drawable/rc_lively_voice_send2_dark</item>
+        <item name="rc_conversation_msg_cell_send_voice_3_img">@drawable/rc_lively_voice_send3_dark</item>
+        <item name="rc_conversation_msg_cell_receive_voice_1_img">@drawable/rc_lively_voice_receive1_dark</item>
+        <item name="rc_conversation_msg_cell_receive_voice_2_img">@drawable/rc_lively_voice_receive2_dark</item>
+        <item name="rc_conversation_msg_cell_receive_voice_3_img">@drawable/rc_lively_voice_receive3_dark</item>
+        <item name="rc_icon_voice_send_animator">@drawable/rc_lively_voice_send_animator_dark</item>
+        <item name="rc_icon_voice_receive_animator">@drawable/rc_lively_voice_receive_animator_dark</item>
+
+        <item name="rc_conversation_mic_volume_0_img">@drawable/rc_lively_voice_0</item>
+        <item name="rc_conversation_mic_volume_1_img">@drawable/rc_lively_voice_1</item>
+        <item name="rc_conversation_mic_volume_2_img">@drawable/rc_lively_voice_2</item>
+        <item name="rc_conversation_mic_volume_3_img">@drawable/rc_lively_voice_3</item>
+        <item name="rc_conversation_mic_volume_4_img">@drawable/rc_lively_voice_4</item>
+        <item name="rc_conversation_mic_volume_5_img">@drawable/rc_lively_voice_5</item>
+        <item name="rc_conversation_mic_volume_6_img">@drawable/rc_lively_voice_6</item>
+
+        <item name="rc_conversation_input_bar_voice_destruct_img">@drawable/rc_lively_destruct_voice</item>
+        <item name="rc_conversation_input_bar_keyboard_destruct_img">@drawable/rc_lively_destruct_keyboard</item>
+        <item name="rc_conversation_input_bar_image_destruct_img">@drawable/rc_lively_destruct_image</item>
+        <item name="rc_conversation_input_bar_close_destruct_img">@drawable/rc_lively_destruct_close</item>
+        <item name="rc_conversation_msg_cell_fire_identify_img">@drawable/rc_lively_destruct_fire_dark</item>
+        <item name="rc_conversation_msg_status_text_destruct_img">@drawable/rc_lively_destruct_text</item>
+        <item name="rc_conversation_msg_image_destruct_img">@drawable/rc_lively_image_destruct_img_dark</item>
+        <item name="rc_conversation_msg_sight_destruct_img">@drawable/rc_lively_sight_destruct_img_dark</item>
+
+        <item name="rc_conversation_msg_cell_select_img">@drawable/rc_lively_selected_dark</item>
+        <item name="rc_conversation_msg_cell_unselect_img">@drawable/rc_lively_unselected_dark</item>
+        <item name="rc_conversation_msg_cell_selector">@drawable/rc_lively_checkbox_selector_dark</item>
+
+        <item name="rc_conversation_msg_edit_cancel_img">@drawable/rc_lively_edit_cancel_dark</item>
+        <item name="rc_conversation_msg_edit_collapse_img">@drawable/rc_lively_edit_collapse_dark</item>
+        <item name="rc_conversation_msg_edit_expand_img">@drawable/rc_lively_edit_expand_dark</item>
+        <item name="rc_conversation_msg_edit_confirm_enable_img">@drawable/rc_edit_message_confirm_enable</item>
+        <item name="rc_conversation_msg_edit_confirm_unable_img">@drawable/rc_lively_confirm_unable</item>
+
+        <item name="rc_conversation_list_no_message_img">@drawable/rc_lively_empty_hint_dark</item>
+        <item name="rc_combine_msg_preview_failed_img">@drawable/rc_lively_combine_failed_dark</item>
+        <item name="rc_media_file_state_check_img">@drawable/rc_lively_checkbox_original</item>
+        <item name="rc_media_file_state_checkbox">@drawable/rc_lively_checkbox_selector_background</item>
+
+        <item name="rc_conversation_msg_send_background">@drawable/rc_lively_background_message_send_dark</item>
+        <item name="rc_conversation_msg_receiver_background">@drawable/rc_lively_background_message_receiver_dark</item>
+        <item name="rc_conversation_msg_special_background">@drawable/rc_lively_background_message_special_dark</item>
+        <item name="rc_conversation_msg_cell_receipt_img">@drawable/rc_lively_read_receipt_request_dark</item>
+        <item name="rc_selected_background_color_selected">@drawable/rc_lively_selected_background_color_selected_dark</item>
+
+        <item name="rc_conversation_msg_v5_read_list_empty_img">@drawable/rc_lively_read_receipt_none_dark</item>
+
+        <item name="rc_conversation_unread_button_arrow_img">@drawable/rc_lively_double_arrow_blue</item>
+        <item name="rc_conversation_mention_button_arrow_img">@drawable/rc_lively_double_arrow_red</item>
+
+        <item name="rc_network_unreachable_img">@drawable/rc_lively_error_notice_dark</item>
+        <item name="rc_conversation_list_cell_msg_fail_msg">@drawable/rc_lively_warning_dark</item>
+        <item name="rc_conversation_msg_cell_gif_loadfailed_img">@drawable/rc_lively_image_download_failed</item>
+        <item name="rc_conversation_msg_cell_gif_needload_img">@drawable/rc_lively_image_download</item>
+
+
+    </style>
+
+
+</resources>

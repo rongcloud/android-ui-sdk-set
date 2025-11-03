@@ -10,6 +10,7 @@ public class MessageItemLongClickAction {
     public static class Builder {
         private String title;
         private int titleResId;
+        private int iconResId;
         private MessageItemLongClickListener listener;
         private Filter filter;
         private int priority;
@@ -25,6 +26,11 @@ public class MessageItemLongClickAction {
 
         public Builder titleResId(int resId) {
             this.titleResId = resId;
+            return this;
+        }
+
+        public Builder iconResId(int resId) {
+            this.iconResId = resId;
             return this;
         }
 
@@ -58,22 +64,32 @@ public class MessageItemLongClickAction {
         public MessageItemLongClickAction build() {
             MessageItemLongClickAction action =
                     new MessageItemLongClickAction(
-                            this.titleResId, this.title, this.listener, this.filter);
+                            this.titleResId,
+                            this.title,
+                            this.iconResId,
+                            this.listener,
+                            this.filter);
             action.priority = priority;
             return action;
         }
     }
 
     private MessageItemLongClickAction(
-            int titleResId, String title, MessageItemLongClickListener listener, Filter filter) {
+            int titleResId,
+            String title,
+            int iconResId,
+            MessageItemLongClickListener listener,
+            Filter filter) {
         this.titleResId = titleResId;
         this.title = title;
+        this.iconResId = iconResId;
         this.listener = listener;
         this.filter = filter;
     }
 
     private String title;
     private int titleResId;
+    private int iconResId;
     public int priority;
     public MessageItemLongClickListener listener;
     public Filter filter;
@@ -83,6 +99,10 @@ public class MessageItemLongClickAction {
             return context.getResources().getString(titleResId);
         }
         return title;
+    }
+
+    public int getIconResId() {
+        return iconResId;
     }
 
     public boolean filter(UiMessage message) {

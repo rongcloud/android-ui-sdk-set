@@ -17,7 +17,7 @@
         android:text="title"
         android:ellipsize="end"
         android:lines="1"
-        android:textColor="@color/rc_text_main_color"
+        android:textColor="?attr/rc_text_primary_color"
         android:textSize="17dp" />
 
     <TextView
@@ -31,7 +31,7 @@
         android:maxLines="4"
         android:text="summary"
         android:breakStrategy="simple"
-        android:textColor="@color/rc_secondary_color"
+        android:textColor="?attr/rc_text_secondary_color"
         android:textSize="12dp" />
 
     <View
@@ -41,7 +41,7 @@
         android:layout_marginTop="6dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="2dp"
-        android:background="@color/rc_dialog_bottom_selection_separate_color" />
+        android:background="?attr/rc_line_background_color" />
 
     <TextView
         style="@style/TextStyle.Alignment"
@@ -52,7 +52,7 @@
         android:layout_marginTop="3dp"
         android:layout_marginBottom="3dp"
         android:text="@string/rc_combine_chat_history"
-        android:textColor="@color/rc_secondary_color"
+        android:textColor="?attr/rc_text_secondary_color"
         android:textSize="12dp" />
 
 </LinearLayout>

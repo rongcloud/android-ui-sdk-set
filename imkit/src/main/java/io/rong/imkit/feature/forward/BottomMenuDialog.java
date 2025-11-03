@@ -5,6 +5,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.picture.widget.BaseDialogFragment;
 
@@ -52,6 +53,11 @@ public class BottomMenuDialog extends BaseDialogFragment implements View.OnClick
         combine.setOnClickListener(this);
         if (!RongConfigCenter.conversationConfig().rc_enable_send_combine_message) {
             combine.setVisibility(View.GONE);
+        }
+        if (IMKitThemeManager.isTraditionTheme()) {
+            mRootView
+                    .findViewById(R.id.rc_dialog_bottom_divider)
+                    .setBackgroundResource(R.color.rc_item_space_color);
         }
     }
 

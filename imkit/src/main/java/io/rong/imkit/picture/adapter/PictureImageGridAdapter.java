@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.picture.anim.OptAnimationLoader;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
@@ -305,8 +306,14 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             super(itemView);
             headerView = itemView;
             tvCamera = itemView.findViewById(R.id.tvCamera);
-            String title = context.getString(R.string.rc_picture_take_picture);
-            tvCamera.setText(title);
+            tvCamera.setText(R.string.rc_picture_take_picture);
+            tvCamera.setTextColor(
+                    IMKitThemeManager.dynamicResource(
+                            IMKitThemeManager.getColorFromAttrId(
+                                    itemView.getContext(), R.attr.rc_text_primary_color),
+                            itemView.getContext()
+                                    .getResources()
+                                    .getColor(R.color.picture_color_white)));
         }
     }
 
@@ -326,6 +333,13 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             tvDuration = itemView.findViewById(R.id.tv_duration);
             tvIsGif = itemView.findViewById(R.id.tv_isGif);
             tvLongChart = itemView.findViewById(R.id.tv_long_chart);
+            tvCheck.setTextColor(
+                    IMKitThemeManager.dynamicResource(
+                            IMKitThemeManager.getColorFromAttrId(
+                                    itemView.getContext(), R.attr.rc_text_primary_color),
+                            itemView.getContext()
+                                    .getResources()
+                                    .getColor(R.color.picture_color_white)));
         }
     }
 

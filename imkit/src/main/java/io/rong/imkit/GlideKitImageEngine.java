@@ -15,6 +15,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.utils.GlideUtils;
 import io.rong.imlib.model.Conversation;
@@ -111,16 +112,25 @@ public class GlideKitImageEngine implements KitImageEngine {
             @NonNull String url,
             @NonNull ImageView imageView,
             Conversation conversation) {
-        @DrawableRes int resourceId = R.drawable.rc_default_portrait;
+        @DrawableRes
+        int resourceId =
+                IMKitThemeManager.getAttrResId(
+                        context, R.attr.rc_conversation_list_cell_portrait_msg_img);
         switch (conversation.getConversationType()) {
             case GROUP:
-                resourceId = R.drawable.rc_default_group_portrait;
+                resourceId =
+                        IMKitThemeManager.getAttrResId(
+                                context, R.attr.rc_conversation_list_cell_group_portrait_img);
                 break;
             case CUSTOMER_SERVICE:
-                resourceId = R.drawable.rc_cs_default_portrait;
+                resourceId =
+                        IMKitThemeManager.getAttrResId(
+                                context, R.attr.rc_conversation_list_cell_portrait_kefu_img);
                 break;
             case CHATROOM:
-                resourceId = R.drawable.rc_default_chatroom_portrait;
+                resourceId =
+                        IMKitThemeManager.getAttrResId(
+                                context, R.attr.rc_conversation_list_cell_discussion_portrait_img);
                 break;
             default:
                 break;
@@ -134,11 +144,16 @@ public class GlideKitImageEngine implements KitImageEngine {
             @NonNull String url,
             @NonNull ImageView imageView,
             Message message) {
-        @DrawableRes int resourceId = R.drawable.rc_default_portrait;
+        @DrawableRes
+        int resourceId =
+                IMKitThemeManager.getAttrResId(
+                        context, R.attr.rc_conversation_list_cell_portrait_msg_img);
         switch (message.getConversationType()) {
             case CUSTOMER_SERVICE:
                 if (Message.MessageDirection.RECEIVE == message.getMessageDirection()) {
-                    resourceId = R.drawable.rc_cs_default_portrait;
+                    resourceId =
+                            IMKitThemeManager.getAttrResId(
+                                    context, R.attr.rc_conversation_list_cell_portrait_kefu_img);
                 }
                 break;
             default:
@@ -151,10 +166,13 @@ public class GlideKitImageEngine implements KitImageEngine {
     @Override
     public void loadUserPortrait(
             @NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
+        int defaultPortrait =
+                IMKitThemeManager.getAttrResId(
+                        context, R.attr.rc_conversation_list_cell_portrait_msg_img);
         Glide.with(imageView)
                 .load(url)
-                .placeholder(R.drawable.rc_default_portrait)
-                .error(R.drawable.rc_default_portrait)
+                .placeholder(defaultPortrait)
+                .error(defaultPortrait)
                 .apply(RequestOptions.bitmapTransform(getPortraitTransformation()))
                 .into(imageView);
     }
@@ -162,12 +180,15 @@ public class GlideKitImageEngine implements KitImageEngine {
     @Override
     public void loadGroupPortrait(
             @NonNull Context context, @NonNull String url, @NonNull ImageView imageView) {
+        int defaultGroupPortrait =
+                IMKitThemeManager.getAttrResId(
+                        context, R.attr.rc_conversation_list_cell_group_portrait_img);
         Glide.with(imageView)
                 .load(url)
                 .apply(RequestOptions.bitmapTransform(new CircleCrop()))
                 .error(
                         Glide.with(imageView)
-                                .load(R.drawable.rc_default_group_portrait)
+                                .load(defaultGroupPortrait)
                                 .apply(RequestOptions.bitmapTransform(new CircleCrop())))
                 .into(imageView);
     }

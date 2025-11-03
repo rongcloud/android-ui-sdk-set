@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主色 (Primary Color) -->
+    <color name="rc_primary_color_dark">#4177FF</color>
+    
+    <!-- 文字色 (Text Colors) -->
+    <color name="rc_text_primary_color_dark">#FFFFFF</color>
+    <color name="rc_text_secondary_color_dark">#7C838E</color>
+    
+    <!-- 功能色 (Functional Colors) -->
+    <color name="rc_success_color_dark">#17EA61</color>
+    <color name="rc_hint_color_dark">#FF5047</color>
+    <color name="rc_disabled_color_dark">#D1D1D1</color>
+
+    <!-- 背景及线条色 (Background and Line Colors) -->
+    <color name="rc_common_background_color_dark">#141414</color>
+    <color name="rc_auxiliary_background_1_color_dark">#1E1E1E</color>
+    <color name="rc_auxiliary_background_2_color_dark">#7CA9FF</color>
+    <color name="rc_view_background_color_dark">#232323</color>
+    <color name="rc_line_background_color_dark">#1AFFFFFF</color> <!-- 141414(10%) -->
+    <color name="rc_selected_background_color_dark">#1AFFFFFF</color> <!-- 000000(10%) -->
+    <color name="rc_conversation_list_background_color_dark">#80141414</color>
+    <color name="rc_mask_color_dark">#80141414</color> <!-- 141414(50%) -->
+    <color name="rc_link_color_dark">#0047FF</color>
+
+    <color name="rc_pop_layer_background_color_dark">#323232</color>
+    <color name="rc_network_Indicator_view_bg_color_dark">#4DF74D43</color>
+
+    <color name="rc_control_title_white_color_dark">#FFFFFF</color>
+    <color name="rc_clear_color_dark">#00FFFFFF</color>
+
+    <color name="rc_destruct_color_dark">#FF5F59</color>
+</resources>

@@ -9,6 +9,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.feature.mention.RongMentionManager;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.ToastUtils;
@@ -42,9 +43,7 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
             boolean offline) {
         if (left == 0 && !hasPackage) {
             if (RongConfigCenter.conversationConfig()
-                            .isEnableMultiDeviceSync(viewModel.getCurConversationType())
-                    && !RongConfigCenter.conversationConfig()
-                            .isShowReadReceipt(viewModel.getCurConversationType())) {
+                    .isEnableMultiDeviceSync(viewModel.getCurConversationType())) {
                 IMCenter.getInstance()
                         .syncConversationReadStatus(
                                 ConversationIdentifier.obtain(message.getMessage()),
@@ -156,6 +155,10 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
                 .isShowReadReceiptRequest(viewModel.getCurConversationType())) {
             return;
         }
+        if (AppSettingsHandler.getInstance()
+                .isReadReceiptV5Enabled(viewModel.getCurConversationType())) {
+            return;
+        }
         ExecutorHelper.getInstance()
                 .networkIO()
                 .execute(
@@ -203,6 +206,10 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
     public void onResume(MessageViewModel viewModel) {
         if (!RongConfigCenter.conversationConfig()
                 .isShowReadReceiptRequest(viewModel.getCurConversationType())) {
+            return;
+        }
+        if (AppSettingsHandler.getInstance()
+                .isReadReceiptV5Enabled(viewModel.getCurConversationType())) {
             return;
         }
         ExecutorHelper.getInstance()
@@ -259,6 +266,9 @@ public class GroupBusinessProcessor extends BaseBusinessProcessor {
             String messageUId) {
         if (!RongConfigCenter.conversationConfig()
                 .isShowReadReceiptRequest(viewModel.getCurConversationType())) {
+            return;
+        }
+        if (AppSettingsHandler.getInstance().isReadReceiptV5Enabled(conversationType)) {
             return;
         }
         final List<UiMessage> uiMessages = new ArrayList<>(viewModel.getUiMessages());

@@ -2,6 +2,7 @@ package io.rong.imkit;
 
 import android.os.Bundle;
 import androidx.annotation.NonNull;
+import io.rong.imkit.conversation.readreceipt.MessageReadDetailFragment;
 import io.rong.imkit.usermanage.friend.add.AddFriendListFragment;
 import io.rong.imkit.usermanage.friend.apply.ApplyFriendListFragment;
 import io.rong.imkit.usermanage.friend.friendlist.FriendListFragment;
@@ -418,5 +419,19 @@ public class KitFragmentFactory {
         GroupApplicationsFragment groupApplicationsFragment = new GroupApplicationsFragment();
         groupApplicationsFragment.setArguments(args);
         return groupApplicationsFragment;
+    }
+
+    /**
+     * 返回 MessageReadDetailFragment.
+     *
+     * @param args 创建 MessageReadDetailFragment 提供的参数
+     * @return {@link MessageReadDetailFragment}
+     * @since 5.30.0
+     */
+    @NonNull
+    public MessageReadDetailFragment newMessageReadDetailFragment(@NonNull Bundle args) {
+        MessageReadDetailFragment fragment = new MessageReadDetailFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 }

@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.TimeUtils;
@@ -205,7 +206,9 @@ public class SightListActivity extends RongBaseNoActionbarActivity
             String size = convertFileSize(sightMessage.getSize());
             String detail = String.format("%s %s %s", itemData.senderName, time, size);
             viewHolder.itemDetail.setText(detail);
-            viewHolder.itemIcon.setImageResource(R.drawable.rc_ic_sight_video);
+            viewHolder.itemIcon.setImageResource(
+                    IMKitThemeManager.getAttrResId(
+                            SightListActivity.this, R.attr.rc_ic_sight_video));
             convertView.setOnClickListener(
                     new View.OnClickListener() {
                         @Override

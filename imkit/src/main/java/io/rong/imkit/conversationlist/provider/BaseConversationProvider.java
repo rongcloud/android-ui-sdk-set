@@ -3,6 +3,7 @@ package io.rong.imkit.conversationlist.provider;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -14,8 +15,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.TimeUtils;
@@ -23,8 +26,12 @@ import io.rong.imkit.widget.adapter.IViewProvider;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.ReadReceiptInfoV5;
+import io.rong.message.InformationNotificationMessage;
+import io.rong.message.RecallNotificationMessage;
 import java.util.List;
 
 public class BaseConversationProvider implements IViewProvider<BaseUiConversation> {
@@ -50,6 +57,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
             int position,
             List<BaseUiConversation> list,
             IViewProviderListener<BaseUiConversation> listener) {
+
         holder.setText(R.id.rc_conversation_title, uiConversation.mCore.getConversationTitle());
 
         // 会话头像
@@ -66,22 +74,33 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
             }
 
         } else {
-            int drawableId = R.drawable.rc_default_portrait;
+            int drawableId =
+                    IMKitThemeManager.getAttrResId(
+                            holder.getContext(), R.attr.rc_conversation_list_cell_portrait_msg_img);
             if (uiConversation
                     .mCore
                     .getConversationType()
                     .equals(Conversation.ConversationType.GROUP)) {
-                drawableId = R.drawable.rc_default_group_portrait;
+                drawableId =
+                        IMKitThemeManager.getAttrResId(
+                                holder.getContext(),
+                                R.attr.rc_conversation_list_cell_group_portrait_img);
             } else if (uiConversation
                     .mCore
                     .getConversationType()
                     .equals(Conversation.ConversationType.CHATROOM)) {
-                drawableId = R.drawable.rc_default_chatroom_portrait;
+                drawableId =
+                        IMKitThemeManager.getAttrResId(
+                                holder.getContext(),
+                                R.attr.rc_conversation_list_cell_discussion_portrait_img);
             } else if (uiConversation
                     .mCore
                     .getConversationType()
                     .equals(Conversation.ConversationType.CUSTOMER_SERVICE)) {
-                drawableId = R.drawable.rc_default_chatroom_portrait;
+                drawableId =
+                        IMKitThemeManager.getAttrResId(
+                                holder.getContext(),
+                                R.attr.rc_conversation_list_cell_discussion_portrait_img);
             }
             if (holder.getView(R.id.rc_conversation_portrait) instanceof ImageView) {
                 Uri uri = RongUtils.getUriFromDrawableRes(holder.getContext(), drawableId);
@@ -130,36 +149,28 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
         // 会话内容
         ((TextView) holder.getView(R.id.rc_conversation_content))
                 .setCompoundDrawables(null, null, null, null);
-        if (uiConversation.mCore.getSentStatus() != null
-                && TextUtils.isEmpty(uiConversation.getDraft())
-                && !TextUtils.isEmpty(uiConversation.mConversationContent)) {
-            Drawable drawable = null;
-            if (uiConversation.mCore.getSentStatus() == Message.SentStatus.FAILED) {
-                drawable = holder.getContext().getResources().getDrawable(R.drawable.rc_ic_warning);
-            } else if (uiConversation.mCore.getSentStatus() == Message.SentStatus.SENDING) {
-                drawable =
-                        holder.getContext()
-                                .getResources()
-                                .getDrawable(R.drawable.rc_conversation_list_msg_sending);
-            }
-            if (drawable != null) {
-                Bitmap bitmap =
-                        BitmapFactory.decodeResource(
-                                holder.getContext().getResources(), R.drawable.rc_ic_warning);
-                int width = bitmap.getWidth();
-                int bottom = width;
-                drawable.setBounds(0, 0, width, bottom);
-                ((TextView) holder.getView(R.id.rc_conversation_content))
-                        .setCompoundDrawablePadding(10);
-                ((TextView) holder.getView(R.id.rc_conversation_content))
-                        .setCompoundDrawables(drawable, null, null, null);
-            }
+        Drawable drawable = getContentStatusDrawable(holder, uiConversation);
+        if (drawable != null) {
+            Bitmap bitmap =
+                    BitmapFactory.decodeResource(
+                            holder.getContext().getResources(),
+                            IMKitThemeManager.getAttrResId(
+                                    holder.getContext(),
+                                    R.attr.rc_conversation_list_cell_msg_fail_msg));
+            int width = bitmap.getWidth();
+            int bottom = width;
+            drawable.setBounds(0, 0, width, bottom);
+            ((TextView) holder.getView(R.id.rc_conversation_content))
+                    .setCompoundDrawablePadding(10);
+            ((TextView) holder.getView(R.id.rc_conversation_content))
+                    .setCompoundDrawables(drawable, null, null, null);
         }
         holder.setText(
                 R.id.rc_conversation_content,
                 uiConversation.mConversationContent,
                 TextView.BufferType.SPANNABLE);
-        // 未读数
+
+        // 未读数（V2 使用形状 + 主题色着色，V1 维持旧实现）
         int unreadCount = uiConversation.getUnreadMessageCount();
         if (unreadCount > 0) {
             holder.setVisible(R.id.rc_conversation_unread, true);
@@ -175,6 +186,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                 String count = Integer.toString(unreadCount);
                 holder.setText(R.id.rc_conversation_unread_count, count);
             }
+            holder.setVisible(R.id.rc_conversation_unread, true);
         } else {
             holder.setVisible(R.id.rc_conversation_unread, false);
         }
@@ -184,15 +196,32 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                         TimeUtils.getLatestTime(uiConversation.mCore), holder.getContext());
         holder.setText(R.id.rc_conversation_date, time);
 
-        if (uiConversation.mCore.isTop()) {
+        // 根据版本设置置顶背景与置顶图标 (V2 显示图标)
+        boolean isTop = uiConversation.mCore.isTop();
+        if (isTop) {
+            int topColorResId =
+                    IMKitThemeManager.dynamicResource(
+                            holder.getContext(),
+                            R.attr.rc_common_background_color, // V2: 置顶背景属性
+                            R.color.rc_item_top_color); // V1: 固定颜色
             holder.getConvertView()
-                    .setBackgroundColor(
-                            holder.getContext().getResources().getColor(R.color.rc_item_top_color));
+                    .setBackgroundColor(holder.getContext().getResources().getColor(topColorResId));
         } else {
+            int whiteColorResId =
+                    IMKitThemeManager.dynamicResource(
+                            holder.getContext(),
+                            R.attr.rc_conversation_list_background_color, // V2: 主题属性
+                            R.color.rc_white_color); // V1: 固定颜色
             holder.getConvertView()
                     .setBackgroundColor(
-                            holder.getContext().getResources().getColor(R.color.rc_white_color));
+                            holder.getContext().getResources().getColor(whiteColorResId));
         }
+
+        // 置顶图标可见性（仅 V2 有图标）
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            holder.setVisible(R.id.rc_conversation_pin_top, isTop);
+        }
+
         boolean noDisturb =
                 uiConversation
                         .mCore
@@ -228,6 +257,68 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                                 + uiConversation.mCore.getPushNotificationLevel()
                                 + ")");
             }
+        }
+    }
+
+    /** 设置内容的状态图标。 优先级：编辑状态（打开编辑开关+编辑状态+无有人@我消息）=>草稿=>发送状态 */
+    protected Drawable getContentStatusDrawable(
+            ViewHolder holder, BaseUiConversation uiConversation) {
+        Resources resources = holder.getContext().getResources();
+        if (uiConversation.isShowDraftContent()
+                || TextUtils.isEmpty(uiConversation.mConversationContent)) {
+            return null;
+        }
+        Conversation.ConversationType type = uiConversation.mCore.getConversationType();
+        if (Message.SentStatus.FAILED == uiConversation.mCore.getSentStatus()) {
+            return resources.getDrawable(
+                    IMKitThemeManager.getAttrResId(
+                            holder.getContext(), R.attr.rc_conversation_list_cell_msg_fail_msg));
+        } else if (Message.SentStatus.SENDING == uiConversation.mCore.getSentStatus()) {
+            return resources.getDrawable(
+                    IMKitThemeManager.getAttrResId(
+                            holder.getContext(), R.attr.rc_conversation_list_cell_msg_sending_img));
+        } else if (!IMKitThemeManager.isTraditionTheme()
+                && RongConfigCenter.featureConfig().isReadReceiptConversationType(type)
+                && RongConfigCenter.conversationConfig().isShowReadReceipt(type)
+                && uiConversation
+                        .mCore
+                        .getSenderUserId()
+                        .equals(RongIMClient.getInstance().getCurrentUserId())
+                && !(uiConversation.mCore.getLatestMessage() instanceof RecallNotificationMessage)
+                && !(uiConversation.mCore.getLatestMessage()
+                        instanceof InformationNotificationMessage)
+                && !TextUtils.isEmpty(uiConversation.mCore.getLatestMessageUId())) {
+            return resources.getDrawable(getReadReceiptStatusResId(holder, uiConversation));
+        }
+        return null;
+    }
+
+    protected int getReadReceiptStatusResId(ViewHolder holder, BaseUiConversation uiConversation) {
+        Conversation.ConversationType type = uiConversation.mCore.getConversationType();
+        boolean v5Enabled = AppSettingsHandler.getInstance().isReadReceiptV5Enabled(type);
+        boolean read;
+        // V5无论新老主题，都用新Icon；非V5，老主题用旧Icon，新主题用新Icon。
+        if (v5Enabled) {
+            ReadReceiptInfoV5 receiptInfoV5 = uiConversation.getReadReceiptInfoV5();
+            read = receiptInfoV5 != null && receiptInfoV5.getReadCount() >= 1;
+            if (read) {
+                return IMKitThemeManager.dynamicResource(
+                        holder.getContext(),
+                        R.attr.rc_conversation_list_cell_msg_read_img,
+                        R.drawable.rc_lively_read_receipt);
+            } else {
+                return IMKitThemeManager.getAttrResId(
+                        holder.getContext(), R.attr.rc_conversation_list_cell_msg_unread_img);
+            }
+        } else {
+            read =
+                    uiConversation.mCore.getSentStatus().getValue()
+                            == Message.SentStatus.READ.getValue();
+            return IMKitThemeManager.getAttrResId(
+                    holder.getContext(),
+                    read
+                            ? R.attr.rc_conversation_list_cell_msg_read_img
+                            : R.attr.rc_conversation_list_cell_msg_unread_img);
         }
     }
 

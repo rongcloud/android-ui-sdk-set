@@ -84,7 +84,7 @@
                 android:clickable="false"
                 app:item_content="@string/rc_group_avatar"
                 app:item_divider="true"
-                app:item_selected_image="@drawable/rc_default_group_portrait"
+                app:item_selected_image="?attr/rc_conversation_list_cell_group_portrait_img"
                 app:item_show_selected="true"
                 app:item_value_text_size="15sp" />
 

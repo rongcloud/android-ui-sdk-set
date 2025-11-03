@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:background="@drawable/rc_ext_panel_editbox_background"
+            android:background="@drawable/rc_lively_panel_input_background"
             android:hint="@string/rc_nickname_hint"
             android:maxLength="64"
             android:textSize="16sp" />

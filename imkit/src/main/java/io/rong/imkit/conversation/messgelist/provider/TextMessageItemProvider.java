@@ -16,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.text.TextUtilsCompat;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
@@ -35,6 +36,7 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
 
     public TextMessageItemProvider() {
         mConfig.showReadState = true;
+        mConfig.showEditState = true;
     }
 
     @Override
@@ -69,6 +71,18 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
         }
         textView.setTag(uiMessage.getMessageId());
         if (uiMessage.getContentSpannable() == null) {
+            Runnable textViewRunnable =
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            String tag =
+                                    textView.getTag() == null ? "" : textView.getTag().toString();
+                            if (TextUtils.equals(tag, String.valueOf(uiMessage.getMessageId()))) {
+                                setTextMessageContent(
+                                        textView, uiMessage, uiMessage.getContentSpannable());
+                            }
+                        }
+                    };
             SpannableStringBuilder spannable =
                     TextViewUtils.getSpannable(
                             message.getContent(),
@@ -76,25 +90,12 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
                                 @Override
                                 public void finish(SpannableStringBuilder spannable) {
                                     uiMessage.setContentSpannable(spannable);
-                                    textView.post(
-                                            new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (TextUtils.equals(
-                                                            textView.getTag() == null
-                                                                    ? ""
-                                                                    : textView.getTag().toString(),
-                                                            String.valueOf(
-                                                                    uiMessage.getMessageId())))
-                                                        textView.setText(
-                                                                uiMessage.getContentSpannable());
-                                                }
-                                            });
+                                    textView.post(textViewRunnable);
                                 }
                             });
             uiMessage.setContentSpannable(spannable);
         }
-        textView.setText(uiMessage.getContentSpannable());
+        setTextMessageContent(textView, uiMessage, uiMessage.getContentSpannable());
         textView.setMovementMethod(
                 new LinkTextViewMovementMethod(
                         new ILinkClickListener() {
@@ -153,7 +154,11 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
         if (mConfig.showContentBubble) {
             holder.setBackgroundRes(
                     R.id.rc_text,
-                    isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+                    IMKitThemeManager.getAttrResId(
+                            holder.getContext(),
+                            isSender
+                                    ? R.attr.rc_conversation_msg_send_background
+                                    : R.attr.rc_conversation_msg_receiver_background));
         }
         if (uiMessage.getTranslateStatus() == State.SUCCESS
                 && !TextUtils.isEmpty(uiMessage.getTranslatedContent())) {

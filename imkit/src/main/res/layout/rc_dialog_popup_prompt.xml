@@ -20,7 +20,7 @@
             android:includeFontPadding="false"
             android:paddingStart="19dp"
             android:singleLine="true"
-            android:textColor="@color/rc_popup_dialog_text_color"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="20sp"
             android:visibility="gone" />
     </RelativeLayout>
@@ -39,7 +39,7 @@
             android:includeFontPadding="false"
             android:paddingStart="19dp"
             android:paddingEnd="19dp"
-            android:textColor="@color/rc_popup_dialog_text_color"
+            android:textColor="?attr/rc_text_primary_color"
             android:textSize="17sp" />
     </RelativeLayout>
 

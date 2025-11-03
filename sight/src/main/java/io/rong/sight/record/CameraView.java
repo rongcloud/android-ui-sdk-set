@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 import androidx.annotation.NonNull;
 import io.rong.common.rlog.RLog;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.KitStorageUtils;
 import io.rong.sight.R;
@@ -452,7 +453,8 @@ public class CameraView extends RelativeLayout
         imageViewRetryParam.setMargins(0, 0, 0, controlIconMarginBottom);
         imageViewRetryParam.setMarginStart(controlIconMargin);
         mImageViewRetry.setLayoutParams(imageViewRetryParam);
-        mImageViewRetry.setImageResource(R.drawable.rc_ic_sight_record_retry);
+        mImageViewRetry.setImageResource(
+                IMKitThemeManager.getAttrResId(mContext, R.attr.rc_ic_sight_record_retry));
         mImageViewRetry.setVisibility(View.GONE);
         mImageViewRetry.setOnClickListener(
                 new OnClickListener() {
@@ -473,7 +475,8 @@ public class CameraView extends RelativeLayout
         imageViewSubmitParam.setMargins(0, 0, 0, controlIconMarginBottom);
         imageViewSubmitParam.setMarginEnd(controlIconMargin);
         mImageViewSubmit.setLayoutParams(imageViewSubmitParam);
-        mImageViewSubmit.setImageResource(R.drawable.rc_ic_sight_record_submit);
+        mImageViewSubmit.setImageResource(
+                IMKitThemeManager.getAttrResId(mContext, R.attr.rc_ic_sight_record_submit));
         mImageViewSubmit.setVisibility(View.GONE);
         mImageViewSubmit.setOnClickListener(
                 new OnClickListener() {
@@ -493,7 +496,8 @@ public class CameraView extends RelativeLayout
         imageViewPlayControlParam.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         imageViewPlayControlParam.setMargins(0, 0, 0, controlIconMarginBottom);
         mImageViewPlayControl.setLayoutParams(imageViewPlayControlParam);
-        mImageViewPlayControl.setImageResource(R.drawable.rc_ic_sight_record_play);
+        mImageViewPlayControl.setImageResource(
+                IMKitThemeManager.getAttrResId(mContext, R.attr.rc_ic_sight_record_play));
         mImageViewPlayControl.setVisibility(View.GONE);
         mImageViewPlayControl.setOnClickListener(
                 new OnClickListener() {
@@ -932,9 +936,11 @@ public class CameraView extends RelativeLayout
             audioManager.abandonAudioFocus(audioFocusChangeListener);
         }
         mImageViewPlayControl.setImageResource(
-                needPause
-                        ? R.drawable.rc_ic_sight_record_play
-                        : R.drawable.rc_ic_sight_record_pause);
+                IMKitThemeManager.getAttrResId(
+                        mContext,
+                        needPause
+                                ? R.attr.rc_ic_sight_record_play
+                                : R.attr.rc_ic_sight_record_pause));
         try {
             mVideoView.start();
             mVideoView.setOnPreparedListener(
@@ -956,7 +962,8 @@ public class CameraView extends RelativeLayout
                                 needPause = false;
                                 paused = false;
                                 mImageViewPlayControl.setImageResource(
-                                        R.drawable.rc_ic_sight_record_pause);
+                                        IMKitThemeManager.getAttrResId(
+                                                mContext, R.attr.rc_ic_sight_record_pause));
                             }
                             try {
                                 if (playbackPosition > 0 || needPause) {
@@ -1038,7 +1045,8 @@ public class CameraView extends RelativeLayout
     private void pauseRecord() {
         RLog.i(TAG, "pauseRecord");
         audioManager.abandonAudioFocus(audioFocusChangeListener);
-        mImageViewPlayControl.setImageResource(R.drawable.rc_ic_sight_record_play);
+        mImageViewPlayControl.setImageResource(
+                IMKitThemeManager.getAttrResId(mContext, R.attr.rc_ic_sight_record_play));
         mVideoView.pause();
         isPlay = false;
     }

@@ -47,6 +47,7 @@ import io.rong.imkit.widget.adapter.ProviderManager;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UnknownMessage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -422,6 +423,13 @@ public class ConversationConfig {
         return spannable == null ? defaultSpannable : spannable;
     }
 
+    private boolean shouldShowUnknownMessage(MessageContent messageContent) {
+        if (messageContent instanceof UnknownMessage) {
+            return !RongConfigCenter.featureConfig().isShowUnknownMessage();
+        }
+        return false;
+    }
+
     /**
      * 获得消息展示信息
      *
@@ -435,7 +443,9 @@ public class ConversationConfig {
         Spannable defaultSpannable =
                 defaultMessageProvider.getSummarySpannable(context, conversation);
         // 如果最后一条消息不存在,则不展示
-        if (conversation.getLatestMessage() == null || conversation.getLatestMessageId() == -1) {
+        if (conversation.getLatestMessage() == null
+                || conversation.getLatestMessageId() == -1
+                || shouldShowUnknownMessage(conversation.getLatestMessage())) {
             return spannable;
         }
         for (IConversationSummaryProvider item : mConversationSummaryProviders) {
@@ -656,9 +666,22 @@ public class ConversationConfig {
         mEnableReadReceipt = enable;
     }
 
+    /**
+     * 已读回执是否生效，仅支持单聊，群聊，讨论组，密聊，其余不生效
+     *
+     * @return 回执开关
+     */
+    public boolean isEnableReadReceipt() {
+        return mEnableReadReceipt;
+    }
+
     public void setSupportReadReceiptConversationType(Conversation.ConversationType... types) {
         mSupportReadReceiptConversationTypes.clear();
         mSupportReadReceiptConversationTypes.addAll(Arrays.asList(types));
+    }
+
+    public Set<Conversation.ConversationType> getSupportReadReceiptConversationType() {
+        return mSupportReadReceiptConversationTypes;
     }
 
     /**

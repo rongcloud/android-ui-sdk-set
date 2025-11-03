@@ -4,7 +4,7 @@
     android:id="@id/rc_layout"
     android:layout_width="231dp"
     android:layout_height="wrap_content"
-    android:background="@android:color/white">
+    android:background="?attr/rc_common_background_color">
 
     <TextView
         android:id="@+id/rc_title"
@@ -15,6 +15,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="6dp"
+        android:textColor="?attr/rc_text_primary_color"
         android:background="@android:color/transparent"
         android:ellipsize="end"
         android:gravity="center_vertical|start"
@@ -34,6 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/rc_title"
             android:layout_marginStart="12dp"
+            android:textColor="?attr/rc_text_primary_color"
             android:background="@android:color/transparent"
             android:ellipsize="end"
             android:gravity="start"
@@ -50,8 +52,7 @@
             android:layout_marginEnd="5dp"
             android:layout_toEndOf="@id/rc_content"
             android:background="@android:color/transparent"
-            android:scaleType="center"
-            android:src="@drawable/rc_ic_def_rich_content" />
+            android:scaleType="center"/>
 
     </LinearLayout>
 

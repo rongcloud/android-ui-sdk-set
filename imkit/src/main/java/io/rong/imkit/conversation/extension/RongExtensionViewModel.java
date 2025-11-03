@@ -14,6 +14,7 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.picture.tools.ToastUtils;
@@ -74,7 +75,8 @@ public class RongExtensionViewModel extends AndroidViewModel {
                                 s.toString());
                     }
 
-                    if (mInputModeLiveData.getValue() != InputMode.EmoticonMode
+                    if (!EditMessageManager.getInstance().isEmoticonMode()
+                            && mInputModeLiveData.getValue() != InputMode.EmoticonMode
                             && mInputModeLiveData.getValue() != InputMode.RecognizeMode) {
                         mInputModeLiveData.postValue(InputMode.TextInput);
                         if (mEditText.getText() != null && mEditText.getText().length() > 0) {
@@ -259,11 +261,17 @@ public class RongExtensionViewModel extends AndroidViewModel {
         if (!Objects.equals(mEditText, editText)) {
             mEditText = editText;
             mEditText.addTextChangedListener(mTextWatcher);
+            // 更新@管理类的Edittext
+            RongMentionManager.getInstance().setInputEditText(mConversationIdentifier, editText);
         }
     }
 
     MutableLiveData<Boolean> getAttachedInfoState() {
         return mAttachedInfoState;
+    }
+
+    public ConversationIdentifier getConversationIdentifier() {
+        return mConversationIdentifier;
     }
 
     /**
