@@ -2,19 +2,24 @@ package io.rong.imkit.conversation;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.TypingInfo;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imkit.widget.TitleBar;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.model.UserInfo;
 import java.util.Locale;
 
@@ -160,6 +165,38 @@ public class RongConversationActivity extends RongBaseActivity {
                                 }
                             }
                         });
+
+        if (Conversation.ConversationType.PRIVATE == mConversationType
+                && !TextUtils.isEmpty(mTargetId)
+                && !TextUtils.equals(mTargetId, RongCoreClient.getInstance().getCurrentUserId())) {
+            setTitleOnlineStatus(false);
+            conversationViewModel
+                    .getOnlineStatus()
+                    .observe(
+                            this,
+                            new Observer<SubscribeUserOnlineStatus>() {
+                                @Override
+                                public void onChanged(SubscribeUserOnlineStatus status) {
+                                    setTitleOnlineStatus(status != null && status.isOnline());
+                                }
+                            });
+            conversationViewModel.getUserOnlineStatus(mTargetId);
+        }
+    }
+
+    /** 设置在线状态 */
+    private void setTitleOnlineStatus(boolean isOnline) {
+        if (!AppSettingsHandler.getInstance().isOnlineStatusEnable()) {
+            return;
+        }
+        if (mTitleBar.getMiddleView() == null) {
+            return;
+        }
+        int resId =
+                isOnline
+                        ? io.rong.imkit.R.drawable.rc_lively_conner_online
+                        : io.rong.imkit.R.drawable.rc_lively_conner_offline;
+        TextViewUtils.setCompoundDrawables(mTitleBar.getMiddleView(), Gravity.START, resId);
     }
 
     @Override

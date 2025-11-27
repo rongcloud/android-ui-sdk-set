@@ -1,6 +1,7 @@
 package io.rong.imkit.usermanage.adapter.vh;
 
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,8 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.ContactModel;
+import io.rong.imkit.model.OnlineStatusFriendInfo;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
+import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
@@ -108,8 +112,12 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         String portraitUrl = null;
         String roleText = "";
 
-        if (contactModelBean instanceof FriendInfo) {
-            FriendInfo friendInfo = (FriendInfo) contactModelBean;
+        if (contactModelBean instanceof OnlineStatusFriendInfo
+                || contactModelBean instanceof FriendInfo) {
+            FriendInfo friendInfo =
+                    contactModelBean instanceof OnlineStatusFriendInfo
+                            ? ((OnlineStatusFriendInfo) contactModelBean).getFriendInfo()
+                            : (FriendInfo) contactModelBean;
             name =
                     !TextUtils.isEmpty(friendInfo.getRemark())
                             ? friendInfo.getRemark()
@@ -144,7 +152,15 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         }
 
         contactNameTextView.setText(name);
-
+        // 如果是OnlineStatusFriendInfo，则设置在线状态
+        if (AppSettingsHandler.getInstance().isOnlineStatusEnable()
+                && contactModelBean instanceof OnlineStatusFriendInfo) {
+            int statusResID =
+                    ((OnlineStatusFriendInfo) contactModelBean).isOnline()
+                            ? R.drawable.rc_lively_conner_online
+                            : R.drawable.rc_lively_conner_offline;
+            TextViewUtils.setCompoundDrawables(contactNameTextView, Gravity.START, statusResID);
+        }
         rightText.setText(roleText);
         rightText.setVisibility(showItemRightText ? View.VISIBLE : View.GONE);
         contactSelectImageView.setVisibility(showSelectButton ? View.VISIBLE : View.GONE);

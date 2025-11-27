@@ -36,6 +36,9 @@ import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.handler.ReadReceiptV5Handler;
+import io.rong.imkit.manager.OnLineStatusListener;
+import io.rong.imkit.manager.OnLineStatusManager;
+import io.rong.imkit.manager.OnlineStatusDataSource;
 import io.rong.imkit.model.NoticeContent;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -53,6 +56,7 @@ import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageIdentifier;
 import io.rong.imlib.model.ReadReceiptInfoV5;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
@@ -61,6 +65,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -367,6 +372,24 @@ public class ConversationListViewModel extends AndroidViewModel
                     // do nothing
                 }
             };
+    private final OnLineStatusListener mOnLineStatusListener =
+            statuses -> {
+                // 根据list设置会话列表BaseUiConversation的SubscribeUserOnlineStatus
+                List<BaseUiConversation> uiConversations = new ArrayList<>(mUiConversationList);
+                for (int i = uiConversations.size() - 1; i >= 0; i--) {
+                    BaseUiConversation uiConversation = uiConversations.get(i);
+                    Conversation conversation = uiConversation.mCore;
+                    if (Conversation.ConversationType.PRIVATE
+                            == conversation.getConversationType()) {
+                        SubscribeUserOnlineStatus status = statuses.get(conversation.getTargetId());
+                        if (status != null) {
+                            uiConversation.setOnlineStatus(status);
+                        }
+                    }
+                }
+                refreshConversationList();
+            };
+    private final OnlineStatusDataSource mOnlineStatusDataSource = this::getOnlineStatusUserIds;
 
     public ConversationListViewModel(Application application) {
         super(application);
@@ -399,6 +422,8 @@ public class ConversationListViewModel extends AndroidViewModel
                 ReadReceiptV5Handler.KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5_BY_IDENTIFIER,
                 this::updateConversationReadReceiptInfoV5);
         RongUserInfoManager.getInstance().addUserDataObserver(this);
+        OnLineStatusManager.getInstance().addOnLineStatusListener(mOnLineStatusListener);
+        OnLineStatusManager.getInstance().setOnlineStatusDataSource(mOnlineStatusDataSource);
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addConversationStatusListener(mConversationStatusListener);
@@ -480,7 +505,7 @@ public class ConversationListViewModel extends AndroidViewModel
                         return;
                     } else if (conversations.isEmpty()) {
                         refreshConversationList();
-                        collectAndQueryReadReceiptInfo();
+                        collectAndQueryConversationInfo();
                         return;
                     }
                     RLog.d(TAG, "getConversationListByPage. size:" + conversations.size());
@@ -535,10 +560,10 @@ public class ConversationListViewModel extends AndroidViewModel
                                 }
                             }
                         }
-                        sort();
-                        refreshConversationList();
-                        collectAndQueryReadReceiptInfo();
                     }
+                    sort();
+                    refreshConversationList();
+                    collectAndQueryConversationInfo();
                 });
     }
 
@@ -723,7 +748,7 @@ public class ConversationListViewModel extends AndroidViewModel
             }
             sort();
             refreshConversationList();
-            collectAndQueryReadReceiptInfo();
+            collectAndQueryConversationInfo();
         }
     }
 
@@ -744,6 +769,11 @@ public class ConversationListViewModel extends AndroidViewModel
         return mTopPriority;
     }
 
+    public void onResume() {
+        OnLineStatusManager.getInstance().setOnlineStatusDataSource(mOnlineStatusDataSource);
+        clearAllNotification();
+    }
+
     @Override
     protected void onCleared() {
         mHandler.removeCallbacksAndMessages(null);
@@ -752,6 +782,8 @@ public class ConversationListViewModel extends AndroidViewModel
         }
         mEditMessageHandler.stop();
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
+        OnLineStatusManager.getInstance().removeOnLineStatusListener(mOnLineStatusListener);
+        OnLineStatusManager.getInstance().removeOnlineStatusDataSource(mOnlineStatusDataSource);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConversationStatusListener(mConversationStatusListener);
@@ -851,6 +883,9 @@ public class ConversationListViewModel extends AndroidViewModel
                             "refreshConversationList mUiConversationList.size() = "
                                     + mUiConversationList.size());
                     lastRefreshTime = SystemClock.elapsedRealtime();
+                    // 在刷新会话列表数据前先查询缓存的在线状态并附加到BaseUiConversation上，该过程不会阻塞UI
+                    attachCacheUserOnlineStatus();
+                    // 刷新列表前先做去重操作
                     removeDupData();
                     if (Looper.getMainLooper() == Looper.myLooper()) {
                         mConversationListLiveData.setValue(mUiConversationList);
@@ -1010,10 +1045,64 @@ public class ConversationListViewModel extends AndroidViewModel
         }
     }
 
+    /** 收集需要查询会话相关信息的会话并调用查询接口 */
+    private void collectAndQueryConversationInfo() {
+        collectAndQueryOnlineStatusInfo();
+        collectAndQueryReadReceiptInfo();
+    }
+
+    /** 收集需要查询在线状态的会话并调用查询接口 */
+    private void collectAndQueryOnlineStatusInfo() {
+        List<String> uidList = getOnlineStatusUserIds();
+        if (!uidList.isEmpty()) {
+            RLog.d(TAG, "fetchUsersOnlineStatus Query online status info for conversation");
+            OnLineStatusManager.getInstance().fetchUsersOnlineStatus(uidList);
+        }
+    }
+
+    /** 在刷新会话列表数据前先查询缓存的在线状态并附加到BaseUiConversation上，该过程不会阻塞UI */
+    private void attachCacheUserOnlineStatus() {
+        Map<String, SubscribeUserOnlineStatus> statuses =
+                OnLineStatusManager.getInstance().getUsersOnlineStatusCache();
+        if (statuses.isEmpty()) {
+            return;
+        }
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            if (uiConversation.mCore != null
+                    && Conversation.ConversationType.PRIVATE
+                            == uiConversation.mCore.getConversationType()
+                    && !TextUtils.isEmpty(uiConversation.mCore.getTargetId())) {
+                SubscribeUserOnlineStatus status = statuses.get(uiConversation.mCore.getTargetId());
+                if (status != null) {
+                    uiConversation.setOnlineStatus(status);
+                }
+            }
+        }
+    }
+
+    protected List<String> getOnlineStatusUserIds() {
+        List<String> uidList = new ArrayList<>();
+        if (mUiConversationList.isEmpty()) {
+            return uidList;
+        }
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            if (uiConversation.mCore != null
+                    && Conversation.ConversationType.PRIVATE
+                            == uiConversation.mCore.getConversationType()
+                    && !TextUtils.isEmpty(uiConversation.mCore.getTargetId())) {
+                uidList.add(uiConversation.mCore.getTargetId());
+            }
+        }
+        return uidList;
+    }
+
     /** 收集需要查询已读回执的消息并调用查询接口 */
     private void collectAndQueryReadReceiptInfo() {
         String currentUserId = RongIMClient.getInstance().getCurrentUserId();
         if (TextUtils.isEmpty(currentUserId)) {
+            return;
+        }
+        if (mUiConversationList.isEmpty()) {
             return;
         }
         List<MessageIdentifier> messageIdentifiers = new ArrayList<>();

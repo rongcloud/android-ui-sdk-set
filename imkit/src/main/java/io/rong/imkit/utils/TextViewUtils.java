@@ -1,11 +1,14 @@
 package io.rong.imkit.utils;
 
+import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
 import android.text.util.Linkify;
+import android.view.Gravity;
+import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
@@ -195,5 +198,31 @@ public class TextViewUtils {
             super.updateDrawState(ds);
             ds.setUnderlineText(false);
         }
+    }
+
+    /**
+     * 设置 TextView 的setCompoundDrawablesRelative
+     *
+     * @param textView TextView
+     * @param gravity 仅支持设置：Gravity.START，Gravity.TOP，Gravity.END，Gravity.BOTTOM。
+     * @param resId 资源ID
+     */
+    public static void setCompoundDrawables(TextView textView, int gravity, int resId) {
+        Drawable drawable = textView.getResources().getDrawable(resId);
+        int w = drawable.getIntrinsicWidth();
+        drawable.setBounds(0, 0, w, w);
+        Drawable[] drawables = textView.getCompoundDrawablesRelative();
+        if (Gravity.START == gravity) {
+            drawables[0] = drawable;
+        } else if (Gravity.TOP == gravity) {
+            drawables[1] = drawable;
+        } else if (Gravity.END == gravity) {
+            drawables[2] = drawable;
+        } else if (Gravity.BOTTOM == gravity) {
+            drawables[3] = drawable;
+        }
+        textView.setCompoundDrawablesRelative(
+                drawables[0], drawables[1], drawables[2], drawables[3]);
+        textView.setCompoundDrawablePadding(w / 2);
     }
 }

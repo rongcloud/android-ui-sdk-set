@@ -1,6 +1,9 @@
 package io.rong.imkit.usermanage.handler;
 
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.base.MultiDataHandler;
+import io.rong.imkit.manager.OnLineStatusListener;
+import io.rong.imkit.manager.OnLineStatusManager;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -9,9 +12,11 @@ import io.rong.imlib.model.DirectionType;
 import io.rong.imlib.model.FriendInfo;
 import io.rong.imlib.model.FriendRelationInfo;
 import io.rong.imlib.model.QueryFriendsDirectionType;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.model.UserProfile;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 好友信息处理类
@@ -22,6 +27,7 @@ import java.util.List;
  * @since 5.12.0
  */
 public class FriendInfoHandler extends MultiDataHandler {
+    private static final String TAG = "FriendInfoHandler";
     public static final MultiDataHandler.DataKey<FriendRelationInfo> KEY_CHECK_FRIEND =
             MultiDataHandler.DataKey.obtain("KEY_CHECK_FRIEND", FriendRelationInfo.class);
     public static final MultiDataHandler.DataKey<List<FriendInfo>> KEY_GET_FRIENDS =
@@ -39,8 +45,25 @@ public class FriendInfoHandler extends MultiDataHandler {
     public static final MultiDataHandler.DataKey<List<FriendInfo>> KEY_SEARCH_FRIENDS =
             MultiDataHandler.DataKey.obtain(
                     "KEY_SEARCH_FRIENDS", (Class<List<FriendInfo>>) (Class<?>) List.class);
+    // 获取好友在线状态
+    public static final DataKey<Map<String, SubscribeUserOnlineStatus>>
+            KEY_GET_FRIENDS_ONLINE_STATUS =
+                    DataKey.obtain(
+                            "KEY_GET_FRIENDS_ONLINE_STATUS",
+                            (Class<Map<String, SubscribeUserOnlineStatus>>) (Class<?>) Map.class);
+    private final OnLineStatusListener mOnLineStatusListener =
+            statuses -> notifyDataChange(KEY_GET_FRIENDS_ONLINE_STATUS, statuses);
+    private String mUserId = "";
 
-    public FriendInfoHandler() {}
+    public FriendInfoHandler() {
+        OnLineStatusManager.getInstance().addOnLineStatusListener(mOnLineStatusListener);
+    }
+
+    @Override
+    public void stop() {
+        super.stop();
+        OnLineStatusManager.getInstance().removeOnLineStatusListener(mOnLineStatusListener);
+    }
 
     public void getFriends(QueryFriendsDirectionType directionType) {
         RongCoreClient.getInstance()
@@ -57,6 +80,23 @@ public class FriendInfoHandler extends MultiDataHandler {
                                 notifyDataError(KEY_GET_FRIENDS, e);
                             }
                         });
+    }
+
+    public void getUserOnlineStatus(String uid) {
+        RLog.d(TAG, "fetchUsersOnlineStatus uid: " + uid);
+        this.mUserId = uid;
+        OnLineStatusManager.getInstance().fetchUsersOnlineStatus(uid, false);
+    }
+
+    public void getUserOnlineStatus(List<FriendInfo> friendInfos) {
+        List<String> uidList = new ArrayList<>();
+        if (!friendInfos.isEmpty()) {
+            for (FriendInfo friendInfo : friendInfos) {
+                uidList.add(friendInfo.getUserId());
+            }
+        }
+        RLog.d(TAG, "fetchUsersOnlineStatus uidList: " + uidList);
+        OnLineStatusManager.getInstance().fetchUsersOnlineStatus(uidList);
     }
 
     public void checkFriend(String userId) {

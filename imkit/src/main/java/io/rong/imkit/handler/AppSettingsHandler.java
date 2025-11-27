@@ -43,6 +43,9 @@ public class AppSettingsHandler {
                 }
             };
 
+    /** 是否初始化完成，从Lib获取成功过AppSettings */
+    private volatile boolean hasInit = false;
+
     // 私有构造函数，防止外部直接实例化
     private AppSettingsHandler() {
         RongCoreClient.addConnectionStatusListener(connectionStatusListener);
@@ -65,6 +68,11 @@ public class AppSettingsHandler {
      */
     public AppSettings getAppSettings() {
         return appSettings;
+    }
+
+    /** 是否初始化完成，从Lib获取成功过AppSettings */
+    public boolean hasInit() {
+        return hasInit;
     }
 
     /**
@@ -102,11 +110,50 @@ public class AppSettingsHandler {
         return MessageReadReceiptVersion.V5 == appSettings.getReadReceiptVersion();
     }
 
+    /**
+     * 是否开启在线状态功能，影响UI是否展示。
+     *
+     * <p>Kit 配置打开，且“好友在线状态订阅”与“非好友在线状态订阅”有一项打开，则代表开启在线状态功能
+     */
+    public boolean isOnlineStatusEnable() {
+        if (!RongConfigCenter.featureConfig().isUserOnlineStatusEnable()) {
+            return false;
+        }
+        return appSettings.isFriendOnlineStatusSubscribeEnable()
+                || appSettings.isOnlineStatusSubscribeEnable();
+    }
+
+    /** 是否开启好友在线状态订阅功能 */
+    public boolean isFriendOnlineStatusSubscribeEnable() {
+        // Kit配置和Lib配置同时开启。
+        return RongConfigCenter.featureConfig().isUserOnlineStatusEnable()
+                && appSettings.isFriendOnlineStatusSubscribeEnable();
+    }
+
+    /** 是否开启在线状态订阅功能 */
+    public boolean isOnlineStatusSubscribeEnable() {
+        // Kit配置和Lib配置同时开启。
+        return RongConfigCenter.featureConfig().isUserOnlineStatusEnable()
+                && appSettings.isOnlineStatusSubscribeEnable();
+    }
+
+    /** 是否开启用户信息托管 */
+    public boolean isUserProfileEnabled() {
+        return appSettings.isUserProfileEnabled();
+    }
+
     /** 内部方法：异步获取并更新应用设置 */
     private void getInnerAppSettings() {
         ExecutorHelper.getInstance()
                 .compressExecutor()
-                .execute(() -> appSettings = RongCoreClient.getInstance().getAppSettings());
+                .execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                appSettings = RongCoreClient.getInstance().getAppSettings();
+                                hasInit = true;
+                            }
+                        });
     }
 
     /** 停止应用设置处理器并清理资源 */

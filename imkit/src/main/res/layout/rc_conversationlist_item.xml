@@ -50,13 +50,27 @@
                     android:textSize="@dimen/rc_font_auxiliary_size" />
             </RelativeLayout>
         </RelativeLayout>
+        <!-- 在线状态图标 -->
+        <ImageView
+            android:id="@+id/rc_conversation_online_status"
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="@dimen/rc_margin_size_12"
+            android:layout_marginTop="@dimen/rc_margin_size_16"
+            android:visibility="gone"
+            android:src="@drawable/rc_lively_conner_online"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/rc_conversation_title"
+            app:layout_constraintEnd_toStartOf="@+id/rc_conversation_title"
+            app:layout_constraintStart_toEndOf="@+id/rc_conversation_portrait_rl" />
 
         <TextView
             android:id="@+id/rc_conversation_title"
             style="@style/TextStyle.Alignment"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/rc_margin_size_12"
+            android:layout_marginStart="2dp"
+            app:layout_goneMarginStart="@dimen/rc_margin_size_12"
             android:layout_marginTop="@dimen/rc_margin_size_16"
             android:layout_marginEnd="@dimen/rc_margin_size_12"
             android:ellipsize="end"
@@ -65,7 +79,7 @@
             android:textColor="?attr/rc_text_primary_color"
             android:textSize="@dimen/rc_font_secondary_size"
             app:layout_constraintEnd_toStartOf="@+id/rc_conversation_date"
-            app:layout_constraintStart_toEndOf="@+id/rc_conversation_portrait_rl"
+            app:layout_constraintStart_toEndOf="@+id/rc_conversation_online_status"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView

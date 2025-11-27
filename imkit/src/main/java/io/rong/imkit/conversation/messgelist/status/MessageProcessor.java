@@ -205,7 +205,11 @@ public class MessageProcessor {
                             }
 
                             @Override
-                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (callback != null) {
+                                    callback.onErrorOnlySuccess();
+                                }
+                            }
                         });
     }
 

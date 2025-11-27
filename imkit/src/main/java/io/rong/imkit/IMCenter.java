@@ -22,12 +22,14 @@ import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.forward.CombineMessage;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.handler.AppSettingsHandler;
+import io.rong.imkit.manager.OnLineStatusManager;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.usermanage.interfaces.OnGroupAndUserEventListener;
 import io.rong.imkit.utils.ExecutorHelper;
+import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCallback;
@@ -643,6 +645,8 @@ public class IMCenter {
         HQVoiceMsgDownloadManager.getInstance().init(application);
         RongNotificationManager.getInstance().init(application);
         RongConfigurationManager.init(application);
+        RongDateUtils.preloadDateFormats(application);
+        OnLineStatusManager.getInstance().init();
         RongCoreClient.addOnReceiveMessageListener(
                 SingletonHolder.sInstance.mOnReceiveMessageListener);
         RongCoreClient.addConnectionStatusListener(

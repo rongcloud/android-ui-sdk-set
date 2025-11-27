@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -155,9 +156,9 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
         mFileNameView.setText(mFileDownloadInfo.fileName);
         mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileDownloadInfo.size));
         mFileDownloadOpenView.setOnClickListener(this);
-        String fileNameWithUrl =
-                FileUtils.getFileNameWithUrl(mFileDownloadInfo.url, mFileDownloadInfo.uid, "");
-        savedPath = FtUtilities.getFileName(mFileDownloadInfo.path, fileNameWithUrl, false);
+        savedPath =
+                FtUtilities.getFileName(
+                        mFileDownloadInfo.path, getFileNameFromDownloadUrl(), false);
         mAttachFile = new File(savedPath);
         if (isAttachFileExists()) {
             mFileDownloadOpenView.setText(getOpenFileShowText());
@@ -203,7 +204,9 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                     @Override
                     public void onSuccess(DownloadInfo downloadInfo) {
                         mDownloadInfo = downloadInfo;
-                        if (!isAttachFileExists() && !isPartAttachFileExists()) {
+                        if (!isPauseFileExists()
+                                && !isAttachFileExists()
+                                && !isPartAttachFileExists()) {
                             if (mDownloadInfo != null) {
                                 FileUtils.removeFile(pausedPath);
                             }
@@ -502,6 +505,10 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
 
     private boolean isAttachFileExists() {
         return mAttachFile.exists();
+    }
+
+    private boolean isPauseFileExists() {
+        return !TextUtils.isEmpty(pausedPath) && new File(pausedPath).exists();
     }
 
     @Override

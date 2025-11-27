@@ -37,10 +37,11 @@
         <TextView
             android:id="@+id/tool_bar_middle"
             style="@style/TextStyle.Alignment"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:ellipsize="end"
             android:gravity="center"
+            android:layout_gravity="center"
             android:lines="1"
             android:maxEms="12"
             android:scaleType="center"

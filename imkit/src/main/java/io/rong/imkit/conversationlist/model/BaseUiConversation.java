@@ -16,6 +16,7 @@ import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.ReadReceiptInfoV5;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.model.UserInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,8 +27,20 @@ public abstract class BaseUiConversation {
     Context mContext;
     public Conversation mCore;
     public Spannable mConversationContent;
-    // 已读回执V5信息
+
+    /**
+     * 已读回执V5信息
+     *
+     * @since 5.30.0
+     */
     private ReadReceiptInfoV5 readReceiptInfoV5;
+
+    /**
+     * 在线状态
+     *
+     * @since 5.32.0
+     */
+    private SubscribeUserOnlineStatus onlineStatus;
 
     public BaseUiConversation(Context context, Conversation conversation) {
         if (context == null || conversation == null) {
@@ -189,5 +202,13 @@ public abstract class BaseUiConversation {
 
     public void setReadReceiptInfoV5(ReadReceiptInfoV5 readReceiptInfoV5) {
         this.readReceiptInfoV5 = readReceiptInfoV5;
+    }
+
+    public void setOnlineStatus(SubscribeUserOnlineStatus onlineStatus) {
+        this.onlineStatus = onlineStatus;
+    }
+
+    public SubscribeUserOnlineStatus getOnlineStatus() {
+        return onlineStatus;
     }
 }

@@ -1,14 +1,17 @@
 package io.rong.imkit.usermanage.friend.user.profile;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.base.BaseViewModel;
+import io.rong.imkit.manager.OnLineStatusManager;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.model.UiUserDetail;
 import io.rong.imkit.usermanage.handler.FriendInfoHandler;
 import io.rong.imkit.usermanage.handler.GroupInfoHandler;
 import io.rong.imkit.usermanage.handler.UserProfileHandler;
+import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.IRongCoreEnum;
@@ -24,6 +27,7 @@ import io.rong.imlib.model.GroupInfo;
 import io.rong.imlib.model.GroupMemberInfo;
 import io.rong.imlib.model.GroupMemberInfoEditPermission;
 import io.rong.imlib.model.GroupMemberRole;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.model.UserProfile;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +46,8 @@ public class UserProfileViewModel extends BaseViewModel {
     private final MutableLiveData<GroupMemberInfo> myGroupMemberInfoLiveData =
             new MutableLiveData<>();
     private final MutableLiveData<GroupInfo> groupInfoLiveData = new MutableLiveData<>();
+    private final MutableLiveData<SubscribeUserOnlineStatus> onlineStatusLiveData =
+            new MutableLiveData<>();
 
     private final UserProfileHandler userProfileHandler;
     private final FriendInfoHandler friendInfoHandler;
@@ -142,6 +148,7 @@ public class UserProfileViewModel extends BaseViewModel {
                         mUserProfilesLiveData.postValue(uiUserDetail);
                         mContactModelLiveData.postValue(
                                 ContactModel.obtain(profile, ContactModel.ItemType.CONTENT));
+                        friendInfoHandler.getUserOnlineStatus(profile.getUserId());
                     }
                 });
         friendInfoHandler = new FriendInfoHandler();
@@ -173,6 +180,21 @@ public class UserProfileViewModel extends BaseViewModel {
                         mUserProfilesLiveData.postValue(uiUserDetail);
                         mContactModelLiveData.postValue(
                                 ContactModel.obtain(info, ContactModel.ItemType.CONTENT));
+                        friendInfoHandler.getUserOnlineStatus(info.getUserId());
+                    }
+                });
+        friendInfoHandler.addDataChangeListener(
+                FriendInfoHandler.KEY_GET_FRIENDS_ONLINE_STATUS,
+                new OnDataChangeEnhancedListener<Map<String, SubscribeUserOnlineStatus>>() {
+                    @Override
+                    public void onDataChange(Map<String, SubscribeUserOnlineStatus> value) {
+                        for (Map.Entry<String, SubscribeUserOnlineStatus> entry :
+                                value.entrySet()) {
+                            if (TextUtils.equals(entry.getKey(), userId)) {
+                                onlineStatusLiveData.postValue(entry.getValue());
+                                return;
+                            }
+                        }
                     }
                 });
         IMCenter.getInstance().addFriendEventListener(listener);
@@ -188,6 +210,10 @@ public class UserProfileViewModel extends BaseViewModel {
 
     public MutableLiveData<GroupMemberInfo> getMyGroupMemberInfoLiveData() {
         return myGroupMemberInfoLiveData;
+    }
+
+    public MutableLiveData<SubscribeUserOnlineStatus> getOnlineStatusLiveData() {
+        return onlineStatusLiveData;
     }
 
     boolean hasEditPermission() {
@@ -218,6 +244,9 @@ public class UserProfileViewModel extends BaseViewModel {
     }
 
     public void getUserProfile() {
+        Map<String, SubscribeUserOnlineStatus> cache =
+                OnLineStatusManager.getInstance().getUsersOnlineStatusCache();
+        onlineStatusLiveData.postValue(cache.get(userId));
         if (checkFriend) {
             friendInfoHandler.checkFriend(userId);
         } else {
@@ -241,6 +270,7 @@ public class UserProfileViewModel extends BaseViewModel {
         super.onCleared();
         IMCenter.getInstance().removeFriendEventListener(listener);
         userProfileHandler.stop();
+        friendInfoHandler.stop();
         if (groupInfoHandler != null) {
             groupInfoHandler.stop();
         }

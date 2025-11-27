@@ -137,7 +137,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
     public void onResume() {
         super.onResume();
         if (mConversationListViewModel != null) {
-            mConversationListViewModel.clearAllNotification();
+            mConversationListViewModel.onResume();
         }
     }
 

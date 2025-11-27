@@ -3,6 +3,7 @@ package io.rong.imkit.usermanage.friend.user.profile;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,10 +12,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.model.UiUserDetail;
 import io.rong.imkit.usermanage.ViewModelFactory;
@@ -23,14 +26,17 @@ import io.rong.imkit.usermanage.friend.my.nikename.UpdateNickNameActivity;
 import io.rong.imkit.usermanage.group.nickname.GroupNicknameActivity;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.CommonDialog;
 import io.rong.imkit.widget.SettingItemView;
 import io.rong.imkit.widget.SimpleInputDialog;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.FriendInfo;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 
 /**
  * 用户资料页面
@@ -174,6 +180,7 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
         ConversationIdentifier conversationIdentifier =
                 getArguments().getParcelable(KitConstants.KEY_CONVERSATION_IDENTIFIER);
         String userId = getArguments().getString(KitConstants.KEY_USER_ID);
+        String currentUserId = RongCoreClient.getInstance().getCurrentUserId();
         if (groupNicknameView != null && conversationIdentifier != null) {
             groupNicknameView.setOnClickListener(
                     v -> {
@@ -187,6 +194,27 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
                         }
                     });
         }
+        viewModel
+                .getOnlineStatusLiveData()
+                .observe(
+                        getViewLifecycleOwner(),
+                        new Observer<SubscribeUserOnlineStatus>() {
+                            @Override
+                            public void onChanged(SubscribeUserOnlineStatus status) {
+                                if (!TextUtils.equals(userId, currentUserId)) {
+                                    setTitleOnlineStatus(status != null && status.isOnline());
+                                }
+                            }
+                        });
+    }
+
+    private void setTitleOnlineStatus(boolean isOnline) {
+        if (!AppSettingsHandler.getInstance().isOnlineStatusEnable()) {
+            return;
+        }
+        int resId =
+                isOnline ? R.drawable.rc_lively_conner_online : R.drawable.rc_lively_conner_offline;
+        TextViewUtils.setCompoundDrawables(tvDisplayName, Gravity.START, resId);
     }
 
     private void showAddFriendDialog() {

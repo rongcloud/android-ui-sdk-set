@@ -258,6 +258,24 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                                 + ")");
             }
         }
+
+        // 单聊会话类型展示在线状态
+        if (AppSettingsHandler.getInstance().isOnlineStatusEnable()
+                && uiConversation.mCore.getConversationType()
+                        == Conversation.ConversationType.PRIVATE) {
+            holder.setVisible(R.id.rc_conversation_online_status, true);
+            // 判断 onlineStatus 不为空，且onlineStatus.isOnline()为true，则在线状态显示为绿色，否则为灰色
+            boolean isOnline =
+                    uiConversation.getOnlineStatus() != null
+                            && uiConversation.getOnlineStatus().isOnline();
+            holder.setImageResource(
+                    R.id.rc_conversation_online_status,
+                    isOnline
+                            ? R.drawable.rc_lively_conner_online
+                            : R.drawable.rc_lively_conner_offline);
+        } else {
+            holder.setVisible(R.id.rc_conversation_online_status, false);
+        }
     }
 
     /** 设置内容的状态图标。 优先级：编辑状态（打开编辑开关+编辑状态+无有人@我消息）=>草稿=>发送状态 */
