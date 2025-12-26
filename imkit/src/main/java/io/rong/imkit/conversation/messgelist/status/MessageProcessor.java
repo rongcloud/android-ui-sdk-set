@@ -415,6 +415,9 @@ public class MessageProcessor {
         if (messageViewModel == null) {
             return;
         }
+        if (messageViewModel.isInitUnreadMessageFinish()) {
+            return;
+        }
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         ChannelClient.getInstance()
                 .getTheFirstUnreadMessage(
@@ -453,10 +456,10 @@ public class MessageProcessor {
 
     private static void initMentionedMessage(
             Conversation conversation, final MessageViewModel messageViewModel) {
-        if (conversation == null) {
+        if (conversation == null || messageViewModel == null) {
             return;
         }
-        if (messageViewModel == null) {
+        if (messageViewModel.isInitMentionedMessageFinish()) {
             return;
         }
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);

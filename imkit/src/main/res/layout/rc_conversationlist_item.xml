@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rc_conversation_item"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/rc_conversation_item_height">
+    android:layout_height="@dimen/rc_conversation_item_height"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -58,7 +60,7 @@
             android:layout_marginStart="@dimen/rc_margin_size_12"
             android:layout_marginTop="@dimen/rc_margin_size_16"
             android:visibility="gone"
-            android:src="@drawable/rc_lively_conner_online"
+            android:src="?attr/rc_user_online_status_img"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@+id/rc_conversation_title"
             app:layout_constraintEnd_toStartOf="@+id/rc_conversation_title"

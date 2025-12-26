@@ -210,6 +210,11 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".usermanage.group.mention.GroupMentionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".usermanage.group.remark.GroupRemarkActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:screenOrientation="portrait" />

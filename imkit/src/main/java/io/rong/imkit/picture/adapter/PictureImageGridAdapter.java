@@ -333,13 +333,6 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<RecyclerView.V
             tvDuration = itemView.findViewById(R.id.tv_duration);
             tvIsGif = itemView.findViewById(R.id.tv_isGif);
             tvLongChart = itemView.findViewById(R.id.tv_long_chart);
-            tvCheck.setTextColor(
-                    IMKitThemeManager.dynamicResource(
-                            IMKitThemeManager.getColorFromAttrId(
-                                    itemView.getContext(), R.attr.rc_text_primary_color),
-                            itemView.getContext()
-                                    .getResources()
-                                    .getColor(R.color.picture_color_white)));
         }
     }
 

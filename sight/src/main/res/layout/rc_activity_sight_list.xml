@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    tools:theme="@style/RCLivelyLightTheme"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -17,7 +18,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:background="@android:color/transparent"
             android:paddingStart="14dp"
@@ -28,13 +28,10 @@
 
         <LinearLayout
             android:id="@+id/ll_nav_title"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toStartOf="@+id/imgbtn_nav_option"
-            android:layout_toLeftOf="@+id/imgbtn_nav_option"
-            android:layout_toEndOf="@+id/imgbtn_nav_back"
-            android:layout_toRightOf="@+id/imgbtn_nav_back"
+            android:layout_centerHorizontal="true"
             android:orientation="vertical">
 
             <TextView
@@ -73,7 +70,10 @@
             android:visibility="gone" />
     </RelativeLayout>
 
-    <View style="@style/rc_sight_horizontal_light_thin_divider" />
+    <View
+        android:id="@+id/rc_sightList_divider"
+        style="@style/rc_sight_horizontal_light_thin_divider"
+        android:visibility="gone" />
 
     <ListView
         android:id="@+id/sightList"

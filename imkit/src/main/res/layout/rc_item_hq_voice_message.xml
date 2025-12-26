@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <!-- 原有的高清语音消息布局 -->
     <LinearLayout

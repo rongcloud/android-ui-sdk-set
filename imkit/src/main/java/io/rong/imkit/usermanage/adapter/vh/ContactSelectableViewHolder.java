@@ -9,10 +9,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.model.OnlineStatusFriendInfo;
+import io.rong.imkit.usermanage.group.mention.GroupMentionFragment;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imlib.IRongCoreCallback;
@@ -32,7 +34,8 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
     private final ImageView contactPortraitImageView;
     private final ImageView contactSelectImageView;
     private final ImageView rightArrow;
-    private final TextView tvRemove;
+    private final ImageView tvRemove;
+    private final View divider;
     private final boolean showSelectButton;
     private final boolean showItemRightArrow;
     private final boolean showItemRightText;
@@ -56,6 +59,7 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         contactSelectImageView = itemView.findViewById(R.id.iv_contact_select);
         rightArrow = itemView.findViewById(R.id.iv_right_arrow);
         tvRemove = itemView.findViewById(R.id.tv_remove);
+        divider = itemView.findViewById(R.id.divider);
 
         this.showSelectButton = showSelectButton;
         this.showItemRightArrow = showItemRightArrow;
@@ -136,10 +140,12 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
                             ? groupMemberInfo.getNickname()
                             : groupMemberInfo.getName();
             // 使用静态内部类回调来获取朋友信息，避免内存泄露
-            RongCoreClient.getInstance()
-                    .getFriendsInfo(
-                            Collections.singletonList(groupMemberInfo.getUserId()),
-                            new FriendsInfoCallback(this));
+            if (!GroupMentionFragment.class.getSimpleName().equals(contactModel.getExtra())) {
+                RongCoreClient.getInstance()
+                        .getFriendsInfo(
+                                Collections.singletonList(groupMemberInfo.getUserId()),
+                                new FriendsInfoCallback(this));
+            }
 
             portraitUrl = groupMemberInfo.getPortraitUri();
             roleText = getRoleText(groupMemberInfo.getRole(), rightText);
@@ -156,9 +162,11 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         if (AppSettingsHandler.getInstance().isOnlineStatusEnable()
                 && contactModelBean instanceof OnlineStatusFriendInfo) {
             int statusResID =
-                    ((OnlineStatusFriendInfo) contactModelBean).isOnline()
-                            ? R.drawable.rc_lively_conner_online
-                            : R.drawable.rc_lively_conner_offline;
+                    IMKitThemeManager.getAttrResId(
+                            contactNameTextView.getContext(),
+                            ((OnlineStatusFriendInfo) contactModelBean).isOnline()
+                                    ? R.attr.rc_user_online_status_img
+                                    : R.attr.rc_user_offline_status_img);
             TextViewUtils.setCompoundDrawables(contactNameTextView, Gravity.START, statusResID);
         }
         rightText.setText(roleText);
@@ -176,6 +184,12 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
     public void setShowItemRemoveButton(boolean isShow) {
         if (tvRemove != null) {
             tvRemove.setVisibility(isShow ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    public void setDividerVisibility(boolean isVisible) {
+        if (divider != null) {
+            divider.setVisibility(isVisible ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -227,15 +241,21 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
                 break;
             case UNCHECKED:
                 checkBox.setVisibility(View.VISIBLE);
-                checkBox.setImageResource(R.drawable.rc_checkbox_none);
+                checkBox.setImageResource(
+                        IMKitThemeManager.getAttrResId(
+                                checkBox.getContext(), R.attr.rc_group_member_unselect_img));
                 break;
             case CHECKED:
                 checkBox.setVisibility(View.VISIBLE);
-                checkBox.setImageResource(R.drawable.rc_checkbox_select);
+                checkBox.setImageResource(
+                        IMKitThemeManager.getAttrResId(
+                                checkBox.getContext(), R.attr.rc_group_member_select_img));
                 break;
             case DISABLE:
                 checkBox.setVisibility(View.VISIBLE);
-                checkBox.setImageResource(R.drawable.rc_checkbox_disable);
+                checkBox.setImageResource(
+                        IMKitThemeManager.getAttrResId(
+                                checkBox.getContext(), R.attr.rc_group_member_disable_select_img));
                 break;
             default:
                 break;

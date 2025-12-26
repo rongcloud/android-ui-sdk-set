@@ -36,6 +36,7 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
@@ -549,6 +550,19 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             updatePhotoView(position, holder);
+            holder.mCountDownView.setBackgroundResource(
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_common_background,
+                            R.drawable.rc_image_msg_count_down));
+            holder.mCountDownView.setTextColor(
+                    holder.mCountDownView
+                            .getContext()
+                            .getResources()
+                            .getColor(
+                                    IMKitThemeManager.dynamicResource(
+                                            holder.mCountDownView.getContext(),
+                                            R.attr.rc_hint_color,
+                                            R.color.rc_white_color)));
             holder.photoView.setOnLongClickListener(PicturePagerActivity.this);
             holder.photoView.setOnClickListener(
                     new View.OnClickListener() {

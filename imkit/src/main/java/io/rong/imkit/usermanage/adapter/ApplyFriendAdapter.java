@@ -1,16 +1,10 @@
 package io.rong.imkit.usermanage.adapter;
 
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
 import io.rong.imkit.R;
 import io.rong.imkit.base.adapter.CommonAdapter;
 import io.rong.imkit.base.adapter.ViewHolder;
@@ -59,79 +53,52 @@ public class ApplyFriendAdapter extends CommonAdapter<UiFriendApplicationInfo> {
                             public void onGlobalLayout() {
                                 String desc =
                                         TextUtils.isEmpty(item.getInfo().getExtra())
-                                                ? holder.itemView
-                                                        .getContext()
-                                                        .getString(R.string.rc_request_add_friend)
+                                                ? holder.getString(R.string.rc_request_add_friend)
                                                 : item.getInfo().getExtra();
-                                TextPaint paint = tv.getPaint();
-                                float moreText =
-                                        tv.getTextSize()
-                                                * tv.getContext()
-                                                        .getString(R.string.rc_expand)
-                                                        .length();
-                                float availableTextWidth = tv.getWidth() - moreText;
                                 CharSequence ellipsizeStr =
                                         TextUtils.ellipsize(
                                                 desc,
-                                                paint,
-                                                availableTextWidth,
+                                                tv.getPaint(),
+                                                tv.getWidth(),
                                                 TextUtils.TruncateAt.END);
-                                // TextView 实际显示的文本长度  < 应该显示文本的长度(收缩状态)
+                                // 文本需要截断（收缩状态）
                                 if (ellipsizeStr.length() < desc.length()) {
-                                    openFun(tv, ellipsizeStr, desc); // 显示收缩状态的文本和图标
+                                    showCollapsedState(
+                                            tv, holder.getView(R.id.tv_expand), ellipsizeStr, desc);
                                 }
-                                // TextView 实际显示的文本长度  == 应该显示文本的长度(正常状态)
-                                else if (ellipsizeStr.length() == desc.length()) {
-                                    tv.setText(desc); // 正常显示Textview
-                                }
-                                // TextView 实际显示的文本长度  > 应该显示文本的长度(展开状态)
+                                // 文本无需截断（正常状态）
                                 else {
-                                    closeFun(tv, ellipsizeStr, desc); // 显示展开状态的文本和图标
+                                    tv.setText(desc);
+                                    holder.setVisible(R.id.tv_expand, false);
                                 }
                                 tv.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                             }
 
-                            // 显示收缩状态的文本，设置点击图标，并添加点击事件
-                            private void openFun(
+                            // 显示收缩状态
+                            private void showCollapsedState(
                                     final TextView tv,
+                                    final TextView tvExpand,
                                     final CharSequence ellipsizeStr,
                                     final String desc) {
-                                CharSequence temp =
-                                        ellipsizeStr
-                                                + tv.getContext().getString(R.string.rc_expand);
-                                SpannableString ss = new SpannableString(temp);
-                                ClickableSpan cs =
-                                        new ClickableSpan() {
-                                            @Override
-                                            public void onClick(@NonNull View widget) {
-                                                closeFun(tv, ellipsizeStr, desc);
-                                            }
-
-                                            @Override
-                                            public void updateDrawState(@NonNull TextPaint ds) {
-                                                super.updateDrawState(ds);
-                                                ds.setUnderlineText(false);
-                                            }
-                                        };
-
-                                ss.setSpan(
-                                        cs,
-                                        ss.length()
-                                                - tv.getContext()
-                                                        .getString(R.string.rc_expand)
-                                                        .length(),
-                                        ss.length(),
-                                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                tv.setText(ss);
-                                tv.setMovementMethod(LinkMovementMethod.getInstance());
+                                tv.setMaxLines(2);
+                                tv.setEllipsize(TextUtils.TruncateAt.END);
+                                tv.setText(ellipsizeStr);
+                                if (tvExpand != null) {
+                                    tvExpand.setVisibility(View.VISIBLE);
+                                    tvExpand.setOnClickListener(
+                                            v -> showExpandedState(tv, tvExpand, desc));
+                                }
                             }
 
-                            // 显示展开状态的文本，设置点击图标，并添加点击事件
-                            private void closeFun(
-                                    final TextView tv,
-                                    final CharSequence ellipsizeStr,
-                                    final String desc) {
+                            // 显示展开状态
+                            private void showExpandedState(
+                                    final TextView tv, final TextView tvExpand, final String desc) {
+                                tv.setMaxLines(Integer.MAX_VALUE);
+                                tv.setEllipsize(null);
                                 tv.setText(desc);
+                                if (tvExpand != null) {
+                                    tvExpand.setVisibility(View.GONE);
+                                }
                             }
                         });
 

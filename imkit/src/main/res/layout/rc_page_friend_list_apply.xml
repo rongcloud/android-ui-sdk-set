@@ -4,19 +4,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#f5f6f9"
+    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
         android:id="@+id/tb_bar"
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        app:head_title_text="@string/rc_new_friends"
-        />
+        app:head_right_text_drawable="?attr/rc_navigation_bar_btn_more_img"
+        app:head_title_text="@string/rc_new_friends" />
 
-    <io.rong.imkit.usermanage.component.ListComponent
-        android:id="@+id/rc_list_component"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/rc_empty_tv"
+            android:textDirection="locale"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingBottom="@dimen/rc_margin_size_127"
+            android:text="@string/rc_no_data"
+            android:textColor="?attr/rc_text_primary_color"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <io.rong.imkit.usermanage.component.ListComponent
+            android:id="@+id/rc_list_component"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
 </LinearLayout>

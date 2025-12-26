@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".picture.PictureSelectorActivity">
+    android:background="@color/picture_color_white"
+    tools:context=".picture.PictureSelectorActivity"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <FrameLayout
         android:id="@+id/fl_top"

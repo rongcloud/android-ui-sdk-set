@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/rc_common_background_color"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <TextView
         android:id="@+id/tv_sight"

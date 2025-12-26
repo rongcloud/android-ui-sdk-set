@@ -7,7 +7,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import io.rong.common.rlog.RLog;
@@ -766,15 +765,10 @@ public class IMKitThemeManager {
         if (context.getTheme().resolveAttribute(attrId, typedValue, true)) {
             return typedValue.resourceId;
         }
-        if (context instanceof ContextThemeWrapper) {
-            Context baseContext = ((ContextThemeWrapper) context).getBaseContext();
-            if (baseContext != null) {
-                if (!baseContext.getTheme().resolveAttribute(attrId, typedValue, true)) {
-                    RLog.e(
-                            TAG,
-                            "getAttrResId error, context type "
-                                    + context.getClass().getSimpleName());
-                }
+        Context applicationContext = context.getApplicationContext();
+        if (applicationContext != null) {
+            if (applicationContext.getTheme().resolveAttribute(attrId, typedValue, true)) {
+                return typedValue.resourceId;
             }
         }
         return typedValue.resourceId;
@@ -851,7 +845,7 @@ public class IMKitThemeManager {
     }
 
     /** 判断系统是否处于深色模式 */
-    private static boolean isSystemInDarkMode(Context context) {
+    public static boolean isSystemInDarkMode(Context context) {
         if (context == null) {
             return false;
         }

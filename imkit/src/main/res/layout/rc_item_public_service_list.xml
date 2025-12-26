@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="64dp"
@@ -7,7 +8,8 @@
     android:gravity="center_vertical"
     android:minHeight="45dp"
     android:orientation="horizontal"
-    android:padding="10dp">
+    android:padding="10dp"
+    tools:theme="@style/RCTraditionLightTheme">
 
 
     <ImageView

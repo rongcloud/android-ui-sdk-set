@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/rc_auxiliary_background_1_color"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <!-- 头部标题 -->
     <io.rong.imkit.usermanage.component.HeadComponent

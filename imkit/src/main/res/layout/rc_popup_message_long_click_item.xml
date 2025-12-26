@@ -11,7 +11,7 @@
     android:paddingEnd="4dp"
     android:clickable="true"
     android:focusable="true"
-    android:background="@android:color/transparent">
+    android:background="@drawable/rc_popup_message_long_click_item_bg">
     
     <ImageView
         android:id="@+id/rc_popup_item_icon"
@@ -34,4 +34,3 @@
         tools:text="转文字" />
         
 </LinearLayout>
-

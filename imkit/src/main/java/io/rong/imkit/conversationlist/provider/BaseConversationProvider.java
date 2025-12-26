@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import androidx.core.widget.TextViewCompat;
 import io.rong.imkit.R;
 import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
@@ -147,8 +148,8 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
                             }
                         });
         // 会话内容
-        ((TextView) holder.getView(R.id.rc_conversation_content))
-                .setCompoundDrawables(null, null, null, null);
+        TextView contentView = (TextView) holder.getView(R.id.rc_conversation_content);
+        TextViewCompat.setCompoundDrawablesRelative(contentView, null, null, null, null);
         Drawable drawable = getContentStatusDrawable(holder, uiConversation);
         if (drawable != null) {
             Bitmap bitmap =
@@ -160,10 +161,8 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
             int width = bitmap.getWidth();
             int bottom = width;
             drawable.setBounds(0, 0, width, bottom);
-            ((TextView) holder.getView(R.id.rc_conversation_content))
-                    .setCompoundDrawablePadding(10);
-            ((TextView) holder.getView(R.id.rc_conversation_content))
-                    .setCompoundDrawables(drawable, null, null, null);
+            contentView.setCompoundDrawablePadding(10);
+            TextViewCompat.setCompoundDrawablesRelative(contentView, drawable, null, null, null);
         }
         holder.setText(
                 R.id.rc_conversation_content,
@@ -202,7 +201,7 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
             int topColorResId =
                     IMKitThemeManager.dynamicResource(
                             holder.getContext(),
-                            R.attr.rc_common_background_color, // V2: 置顶背景属性
+                            R.attr.rc_conversation_stick_color, // V2: 置顶背景属性
                             R.color.rc_item_top_color); // V1: 固定颜色
             holder.getConvertView()
                     .setBackgroundColor(holder.getContext().getResources().getColor(topColorResId));
@@ -268,11 +267,13 @@ public class BaseConversationProvider implements IViewProvider<BaseUiConversatio
             boolean isOnline =
                     uiConversation.getOnlineStatus() != null
                             && uiConversation.getOnlineStatus().isOnline();
-            holder.setImageResource(
-                    R.id.rc_conversation_online_status,
-                    isOnline
-                            ? R.drawable.rc_lively_conner_online
-                            : R.drawable.rc_lively_conner_offline);
+            int resId =
+                    IMKitThemeManager.getAttrResId(
+                            holder.getContext(),
+                            isOnline
+                                    ? R.attr.rc_user_online_status_img
+                                    : R.attr.rc_user_offline_status_img);
+            holder.setImageResource(R.id.rc_conversation_online_status, resId);
         } else {
             holder.setVisible(R.id.rc_conversation_online_status, false);
         }

@@ -14,6 +14,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.widget.TextViewCompat;
 import io.rong.imkit.R;
 import io.rong.imkit.config.IMKitThemeManager;
 
@@ -29,6 +30,8 @@ public class TitleBar extends Toolbar {
     private Context mContext;
     private Drawable drawable;
     private ImageView search;
+    private ImageView mMiddleLeftIcon;
+    private ImageView mMiddleRightIcon;
 
     public TitleBar(Context context) {
         super(context);
@@ -82,7 +85,7 @@ public class TitleBar extends Toolbar {
             drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
             TextView rightView = getRightView();
             rightView.setVisibility(VISIBLE);
-            rightView.setCompoundDrawables(null, null, drawable, null);
+            TextViewCompat.setCompoundDrawablesRelative(rightView, null, null, drawable, null);
         }
         if (null != title) {
             setTitle(title);
@@ -158,6 +161,20 @@ public class TitleBar extends Toolbar {
         return mMiddle;
     }
 
+    public ImageView getMiddleLeftIcon() {
+        if (mMiddleLeftIcon == null) {
+            mMiddleLeftIcon = findViewById(R.id.tool_bar_middle_left_icon);
+        }
+        return mMiddleLeftIcon;
+    }
+
+    public ImageView getMiddleRightIcon() {
+        if (mMiddleRightIcon == null) {
+            mMiddleRightIcon = findViewById(R.id.tool_bar_middle_right_icon);
+        }
+        return mMiddleRightIcon;
+    }
+
     public TextView getTypingView() {
         if (mTying == null) {
             mTying = findViewById(R.id.tool_bar_middle_typing);
@@ -209,16 +226,16 @@ public class TitleBar extends Toolbar {
             if (drawable == null) {
                 return;
             }
-            getRightView().setCompoundDrawables(null, null, drawable, null);
+            TextViewCompat.setCompoundDrawablesRelative(getRightView(), null, null, drawable, null);
         } else {
-            getRightView().setCompoundDrawables(null, null, null, null);
+            TextViewCompat.setCompoundDrawablesRelative(getRightView(), null, null, null, null);
         }
     }
 
     public void setRightIcon(@DrawableRes int res) {
         drawable = getResources().getDrawable(res);
         drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        getRightView().setCompoundDrawables(null, null, drawable, null);
+        TextViewCompat.setCompoundDrawablesRelative(getRightView(), null, null, drawable, null);
     }
 
     public ImageView getSearchView() {

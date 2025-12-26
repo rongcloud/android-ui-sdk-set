@@ -17,13 +17,15 @@
     <color name="rc_auxiliary_background_1_color_light">#F3F6F9</color>
     <color name="rc_auxiliary_background_2_color_light">#D2E1FE</color>
     <color name="rc_view_background_color_light">#E1F0FF</color>
-    <color name="rc_line_background_color_light">#1A141414</color> <!-- 141414(10%) -->
+    <color name="rc_line_background_color_light">#1A000000</color> <!-- 1A000000(10%) -->
     <color name="rc_selected_background_color_light">#1A000000</color> <!-- 000000(10%) -->
-    <color name="rc_conversation_list_background_color_light">#80FFFFFF</color>
-    <color name="rc_mask_color_light">#80141414</color> <!-- 141414(50%) -->
-    <color name="rc_link_color_light">#0047FF</color>
+    <color name="rc_conversation_list_background_color_light">#4DFFFFFF</color> <!-- FFFFFF(30%) -->
+    <color name="rc_mask_color_light">#80000000</color> <!-- 141414(50%) -->
+    <color name="rc_link_color_light">#020814</color>
+    <color name="rc_auxiliary_view_color_light">#E5E5E5</color>
+    <color name="rc_conversation_stick_color_light">#CCFFFFFF</color>
 
-    <color name="rc_pop_layer_background_color_light">#323232</color>
+    <color name="rc_pop_layer_background_color_light">#2D2D32</color>
     <color name="rc_network_Indicator_view_bg_color_light">#4DF74D43</color>
 
     <color name="rc_control_title_white_color_light">#FFFFFF</color>

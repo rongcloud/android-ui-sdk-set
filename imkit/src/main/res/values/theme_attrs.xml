@@ -16,14 +16,17 @@
 
     <!-- 背景及线条色 -->
     <attr name="rc_common_background_color" format="color" />
-    <attr name="rc_auxiliary_background_2_color" format="color" />
     <attr name="rc_auxiliary_background_1_color" format="color" />
+    <attr name="rc_auxiliary_background_2_color" format="color" />
     <attr name="rc_line_background_color" format="color" />
     <attr name="rc_selected_background_color" format="color" />
     <attr name="rc_conversation_list_background_color" format="color" />
     <attr name="rc_view_background_color" format="color" />
     <attr name="rc_mask_color" format="color" />
     <attr name="rc_link_color" format="color" />
+
+    <attr name="rc_auxiliary_view_color" format="color" />
+    <attr name="rc_conversation_stick_color" format="color" />
 
     <attr name="rc_network_Indicator_view_bg_color" format="color" />
     <attr name="rc_clear_color" format="color" />
@@ -35,6 +38,8 @@
     <attr name="rc_bottom_dialog_background_color" format="color" />
     <attr name="rc_unread_msg_bg_style_color" format="color" />
 
+    <attr name="rc_user_manager_background_color" format="color" />
+
     <!-- 图标 Drawable -->
     <attr name="rc_conversation_list_cell_block_notification_img" format="reference" />
     <attr name="rc_conversation_list_cell_pin_img" format="reference" />
@@ -42,6 +47,9 @@
     <attr name="rc_conversation_list_cell_msg_sending_img" format="reference" />
     <attr name="rc_navigation_bar_btn_back_img" format="reference" />
     <attr name="rc_navigation_bar_btn_more_img" format="reference" />
+    <attr name="rc_conversation_block_notification_img" format="reference" />
+    <attr name="rc_user_online_status_img" format="reference" />
+    <attr name="rc_user_offline_status_img" format="reference" />
 
     <!-- 消息长按菜单图标属性 -->
     <attr name="rc_conversation_menu_item_copy_img" format="reference" />
@@ -135,5 +143,27 @@
     <attr name="rc_network_unreachable_img" format="reference" />
     <attr name="rc_conversation_msg_cell_gif_loadfailed_img" format="reference" />
     <attr name="rc_conversation_msg_cell_gif_needload_img" format="reference" />
+
+
+    <attr name="rc_group_member_select_img" format="reference" />
+    <attr name="rc_group_member_unselect_img" format="reference" />
+    <attr name="rc_group_member_disable_select_img" format="reference" />
+    <attr name="rc_group_member_checkbox_selector" format="reference" />
+
+    <attr name="rc_group_manage_add_member_img" format="reference" />
+    <attr name="rc_group_follow_remove_btn_img" format="reference" />
+    <attr name="rc_search_icon_img" format="reference" />
+    <attr name="rc_search_close_icon_img" format="reference" />
+
+    <!-- 添加好友空状态图标 -->
+    <attr name="rc_friend_search_not_exist_img" format="reference" />
+    <attr name="rc_group_manage_gender_cell_check_img" format="reference" />
+    <attr name="rc_user_profile_start_chat_img" format="reference" />
+    <attr name="rc_user_profile_start_audio_img" format="reference" />
+    <attr name="rc_user_profile_start_video_img" format="reference" />
+    <attr name="rc_right_arrow_icon_img" format="reference" />
+    <attr name="rc_friend_list_add_new_img" format="reference" />
+    <attr name="rc_group_member_add_img" format="reference" />
+    <attr name="rc_group_member_remove_img" format="reference" />
 
 </resources>

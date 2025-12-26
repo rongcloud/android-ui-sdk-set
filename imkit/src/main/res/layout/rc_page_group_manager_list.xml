@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
@@ -16,20 +17,18 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_margin_size_12" />
 
-    <!-- 群管理员 -->
+    <!-- 添加管理员 -->
     <io.rong.imkit.widget.SettingItemView
         android:id="@+id/siv_group_add_manager"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_title_bar_height"
+        android:layout_marginStart="@dimen/rc_margin_size_16"
+        android:layout_marginEnd="@dimen/rc_margin_size_16"
         app:item_content="@string/rc_group_add_manager"
         app:item_divider="true"
-        app:item_right_image="@drawable/rc_right_arrow"
-        app:item_value_text_size="15sp" />
+        app:item_image="?attr/rc_group_manage_add_member_img"
+        app:item_value_text_size="14sp" />
 
-    <!-- 分割线 -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/rc_margin_size_12" />
 
     <io.rong.imkit.usermanage.component.ContactListComponent
         android:id="@+id/rc_group_list_component"

@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -98,6 +99,7 @@ public class PictureSelectorActivity extends PictureBaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        saveAndApplyStatusBar(Color.WHITE, true);
         BroadcastManager.getInstance(this)
                 .registerReceiver(
                         commonBroadcastReceiver,

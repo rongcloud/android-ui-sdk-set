@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rc_reference_root_view"
     android:layout_width="@dimen/rc_reference_width"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <LinearLayout
         android:layout_width="match_parent"

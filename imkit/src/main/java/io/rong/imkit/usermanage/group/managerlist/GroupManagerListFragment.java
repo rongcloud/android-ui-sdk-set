@@ -166,6 +166,7 @@ public class GroupManagerListFragment extends BaseViewModelFragment<GroupManager
         String name = concatenateUserDisplayNames(friendInfos, groupMemberInfo);
         new CommonDialog.Builder()
                 .setContentMessage(getString(R.string.rc_remove_manager_hint, name))
+                .setButtonText(R.string.rc_remove, R.string.rc_cancel)
                 .setDialogButtonClickListener(
                         (v, bundle) -> {
                             getViewModel()

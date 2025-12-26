@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/rc_auxiliary_background_1_color">
 
     <io.rong.imkit.widget.refresh.SmartRefreshLayout
         android:id="@+id/rc_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:paddingStart="@dimen/rc_margin_size_16"
+        android:paddingEnd="@dimen/rc_margin_size_16">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_contact_list"
@@ -22,7 +25,7 @@
         android:layout_gravity="center"
         android:background="@drawable/rc_bg_toast"
         android:gravity="center"
-        android:textColor="@color/rc_white_color"
+        android:textColor="?attr/rc_text_primary_color"
         android:textSize="30sp"
         android:visibility="gone" />
 

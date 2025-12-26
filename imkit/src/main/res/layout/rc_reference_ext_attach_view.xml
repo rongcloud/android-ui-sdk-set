@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/rc_reference_ext_view_height"
-    android:background="?attr/rc_common_background_color">
+    android:background="?attr/rc_common_background_color"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <LinearLayout
         android:layout_width="match_parent"

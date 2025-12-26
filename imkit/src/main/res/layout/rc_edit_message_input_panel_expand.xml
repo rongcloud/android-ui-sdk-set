@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="?attr/rc_common_background_color">
+    android:background="?attr/rc_common_background_color"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <View
         android:id="@+id/rc_edit_top_bar"

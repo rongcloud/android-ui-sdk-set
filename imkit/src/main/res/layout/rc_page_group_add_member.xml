@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
         android:id="@+id/rc_head_component"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_title_bar_height"
-        app:head_title_text="@string/rc_choose_members"
-        app:head_right_text="@string/rc_confirm" />
+        app:head_right_text="@string/rc_confirm"
+        app:head_title_text="@string/rc_choose_members" />
 
     <io.rong.imkit.usermanage.component.SearchComponent
         android:id="@+id/rc_search_component"
@@ -24,12 +25,14 @@
 
         <TextView
             android:id="@+id/rc_empty_tv"
+            android:textDirection="locale"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:paddingBottom="@dimen/rc_margin_size_127"
             android:text="@string/rc_user_not_found"
             android:visibility="gone"
+            android:textColor="?attr/rc_text_primary_color"
             tools:visiblity="visible" />
 
         <io.rong.imkit.usermanage.component.ContactListComponent

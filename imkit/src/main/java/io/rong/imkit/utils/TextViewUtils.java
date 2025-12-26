@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.core.widget.TextViewCompat;
 
 /** 处理 textMessage 和 ReferenceMessage 的文本内容 */
 public class TextViewUtils {
@@ -111,7 +112,7 @@ public class TextViewUtils {
             int start = spannable.getSpanStart(span);
             int end = spannable.getSpanEnd(span);
             spannable.removeSpan(span);
-            span = new URLSpanNoUnderline(span.getURL());
+            span = new URLSpanUnderlineSameColor(span.getURL());
             if (end < start) {
                 continue;
             }
@@ -149,7 +150,7 @@ public class TextViewUtils {
             }
 
             // 添加新的URLSpan
-            URLSpanNoUnderline urlSpan = new URLSpanNoUnderline(url);
+            URLSpanUnderlineSameColor urlSpan = new URLSpanUnderlineSameColor(url);
             spannable.setSpan(urlSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
@@ -177,7 +178,7 @@ public class TextViewUtils {
             URLSpan[] existingSpans = spannable.getSpans(start, end, URLSpan.class);
             if (existingSpans.length == 0) {
                 // 添加手机号码链接
-                URLSpanNoUnderline phoneSpan = new URLSpanNoUnderline("tel:" + phone);
+                URLSpanUnderlineSameColor phoneSpan = new URLSpanUnderlineSameColor("tel:" + phone);
                 spannable.setSpan(phoneSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
@@ -187,16 +188,18 @@ public class TextViewUtils {
         void finish(SpannableStringBuilder spannable);
     }
 
-    /** 取消超链接下划线的UrlSpan */
-    public static class URLSpanNoUnderline extends URLSpan {
-        public URLSpanNoUnderline(String url) {
+    /** 自定义链接样式：保留下划线，同时保持与普通文字一致的颜色。 通过先记录调用前的颜色，再覆盖为默认文字色，避免主题默认的链接色。 */
+    public static class URLSpanUnderlineSameColor extends URLSpan {
+        public URLSpanUnderlineSameColor(String url) {
             super(url);
         }
 
         @Override
         public void updateDrawState(@NonNull TextPaint ds) {
+            int originalColor = ds.getColor();
             super.updateDrawState(ds);
-            ds.setUnderlineText(false);
+            ds.setUnderlineText(true);
+            ds.setColor(originalColor);
         }
     }
 
@@ -224,5 +227,24 @@ public class TextViewUtils {
         textView.setCompoundDrawablesRelative(
                 drawables[0], drawables[1], drawables[2], drawables[3]);
         textView.setCompoundDrawablePadding(w / 2);
+    }
+
+    /**
+     * 设置 TextView 的 Drawable 自动翻转，适用于带有方向性的 Drawable
+     *
+     * @param textView TextView
+     */
+    public static void enableDrawableAutoMirror(TextView textView) {
+        if (textView == null) {
+            return;
+        }
+        Drawable[] drawables = TextViewCompat.getCompoundDrawablesRelative(textView);
+        if (drawables != null) {
+            for (Drawable drawable : drawables) {
+                if (drawable != null) {
+                    drawable.setAutoMirrored(true);
+                }
+            }
+        }
     }
 }

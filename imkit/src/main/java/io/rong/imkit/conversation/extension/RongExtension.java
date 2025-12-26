@@ -131,8 +131,10 @@ public class RongExtension extends LinearLayout {
         mAttachedInfoContainer = mRoot.findViewById(R.id.rc_ext_attached_info_container);
         mInputPanelContainer = mRoot.findViewById(R.id.rc_ext_input_container);
         mBoardContainer = mRoot.findViewById(R.id.rc_ext_board_container);
-        mRoot.findViewById(R.id.rc_ext_input_divider)
-                .setVisibility(IMKitThemeManager.isTraditionTheme() ? VISIBLE : GONE);
+        View extInputDivider = mRoot.findViewById(R.id.rc_ext_input_divider);
+        if (extInputDivider != null) {
+            extInputDivider.setVisibility(IMKitThemeManager.isTraditionTheme() ? VISIBLE : GONE);
+        }
     }
 
     public void bindToConversation(

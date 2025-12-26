@@ -3,6 +3,7 @@ package io.rong.imkit.picture;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -31,6 +32,7 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.observable.ImagesObservable;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imkit.utils.ImageViewUtils;
 import io.rong.imlib.RongCoreClient;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -92,6 +94,7 @@ public class PicturePreviewActivity extends PictureBaseActivity
         screenWidth = ScreenUtils.getScreenWidth(this);
         animation = OptAnimationLoader.loadAnimation(this, R.anim.rc_picture_anim_modal_in);
         picture_left_back = findViewById(R.id.picture_left_back);
+        ImageViewUtils.enableDrawableAutoMirror(picture_left_back);
         topLayout = findViewById(R.id.fl_top);
         viewPager = findViewById(R.id.preview_pager);
         btnCheck = findViewById(R.id.btnCheck);
@@ -174,6 +177,7 @@ public class PicturePreviewActivity extends PictureBaseActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        saveAndApplyStatusBar(Color.BLACK, false);
         BroadcastManager.getInstance(this)
                 .registerReceiver(commonBroadcastReceiver, BroadcastAction.ACTION_CLOSE_PREVIEW);
     }

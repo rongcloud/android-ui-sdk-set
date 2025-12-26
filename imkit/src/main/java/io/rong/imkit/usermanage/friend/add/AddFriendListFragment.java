@@ -6,7 +6,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
@@ -30,7 +30,7 @@ import io.rong.imlib.model.UserProfile;
 public class AddFriendListFragment extends BaseViewModelFragment<AddFriendListViewModel> {
     protected SearchComponent searchComponent;
     protected HeadComponent headComponent;
-    protected TextView hintView;
+    protected LinearLayout llEmptyHint;
     String mQuery;
 
     @NonNull
@@ -50,7 +50,7 @@ public class AddFriendListFragment extends BaseViewModelFragment<AddFriendListVi
         View view = inflater.inflate(R.layout.rc_page_friend_list_add, container, false);
         headComponent = view.findViewById(R.id.rc_head_component);
         searchComponent = view.findViewById(R.id.rc_search_component);
-        hintView = view.findViewById(R.id.tv_hint);
+        llEmptyHint = view.findViewById(R.id.ll_empty_hint);
         searchComponent.setSearchHint(R.string.rc_app_id);
         return view;
     }
@@ -96,7 +96,7 @@ public class AddFriendListFragment extends BaseViewModelFragment<AddFriendListVi
             }
 
         } else {
-            hintView.setVisibility(TextUtils.isEmpty(mQuery) ? View.GONE : View.VISIBLE);
+            llEmptyHint.setVisibility(TextUtils.isEmpty(mQuery) ? View.GONE : View.VISIBLE);
         }
     }
 }

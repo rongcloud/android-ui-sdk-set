@@ -29,6 +29,7 @@ public class CommonDialog extends DialogFragment {
         public OnDialogButtonClickListener listener;
         public int positiveText;
         public int negativeText;
+        public int positiveTextColor;
         public int titleText;
         private boolean isOnlyConfirm;
     }
@@ -40,6 +41,7 @@ public class CommonDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        // 使用 Activity 的 Context，确保能够访问应用的主题属性
         return new NoLeakDialog(requireContext());
     }
 
@@ -71,7 +73,8 @@ public class CommonDialog extends DialogFragment {
 
         View view = getDialogView();
         if (view == null) {
-            view = View.inflate(getContext(), R.layout.rc_commom_dialog_base, null);
+            // 使用传入的 inflater 以确保正确应用主题
+            view = inflater.inflate(R.layout.rc_commom_dialog_base, container, false);
         }
 
         if (params == null) {
@@ -121,6 +124,9 @@ public class CommonDialog extends DialogFragment {
 
         if (params.positiveText > 0) {
             positive.setText(params.positiveText);
+        }
+        if (params.positiveTextColor != 0) {
+            positive.setTextColor(params.positiveTextColor);
         }
 
         if (params.negativeText > 0) {
@@ -263,6 +269,11 @@ public class CommonDialog extends DialogFragment {
         public Builder setButtonText(int positiveText, int negativeText) {
             params.positiveText = positiveText;
             params.negativeText = negativeText;
+            return this;
+        }
+
+        public Builder setPositiveTextColor(int positiveTextColor) {
+            params.positiveTextColor = positiveTextColor;
             return this;
         }
 

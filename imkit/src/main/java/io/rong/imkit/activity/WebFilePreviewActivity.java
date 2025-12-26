@@ -108,6 +108,7 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.rc_ac_file_download);
+        initStatusBar(R.color.app_color_white);
         initView();
         initData();
     }

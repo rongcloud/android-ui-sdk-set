@@ -22,6 +22,8 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
+import io.rong.imkit.config.IMKitThemeManager;
+import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.group.managerlist.GroupManagerListActivity;
@@ -362,38 +364,72 @@ public class GroupManagementFragment extends BaseViewModelFragment<GroupManageme
     private <T extends Enum<T>> void showPermissionSelectionDialog(
             Map<T, String> permissionLabels, OnActionClickListener<T> listener) {
         Dialog dialog = new Dialog(requireContext());
-        LinearLayout container = new LinearLayout(requireContext());
-        container.setOrientation(LinearLayout.VERTICAL);
-        container.setGravity(Gravity.CENTER_HORIZONTAL);
-        container.setPadding(0, 32, 0, 0);
-        container.setBackgroundResource(R.drawable.rc_bottom_menu_dialog_style);
+
+        // 主容器
+        LinearLayout mainContainer = new LinearLayout(requireContext());
+        mainContainer.setOrientation(LinearLayout.VERTICAL);
+        mainContainer.setGravity(Gravity.CENTER_HORIZONTAL);
+        int horizontalMargin = ScreenUtils.dip2px(requireContext(), 18);
+        mainContainer.setPadding(
+                horizontalMargin,
+                0,
+                horizontalMargin,
+                (int) (34 * requireContext().getResources().getDisplayMetrics().density));
+
+        // 选项容器
+        LinearLayout optionsContainer = new LinearLayout(requireContext());
+        optionsContainer.setOrientation(LinearLayout.VERTICAL);
+        optionsContainer.setBackgroundResource(
+                R.drawable.rc_bottom_dialog_background_color_radius_10);
 
         // 添加选项
+        int index = 0;
         for (Map.Entry<T, String> entry : permissionLabels.entrySet()) {
             T permission = entry.getKey();
             String label = entry.getValue();
-            container.addView(
-                    createDialogOptionView(
+
+            // 如果不是第一个选项，添加分割线
+            if (index > 0) {
+                View divider = new View(requireContext());
+                LinearLayout.LayoutParams dividerParams =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                (int)
+                                        (1
+                                                * requireContext()
+                                                        .getResources()
+                                                        .getDisplayMetrics()
+                                                        .density));
+                int dividerMargin =
+                        (int) (10 * requireContext().getResources().getDisplayMetrics().density);
+                dividerParams.setMargins(dividerMargin, 0, dividerMargin, 0);
+                divider.setLayoutParams(dividerParams);
+                divider.setBackgroundColor(
+                        IMKitThemeManager.getColorFromAttrId(
+                                divider.getContext(),
+                                R.attr.rc_line_background_color)); // rgba(255, 255, 255, 0.1)
+                optionsContainer.addView(divider);
+            }
+
+            optionsContainer.addView(
+                    createPermissionOptionView(
                             label,
                             v -> {
                                 listener.onActionClick(permission);
                                 dialog.dismiss();
                             }));
+            index++;
         }
+
+        mainContainer.addView(optionsContainer);
 
         // 添加取消按钮
         TextView cancelView =
-                createDialogOptionView(
+                createCancelButtonView(
                         requireContext().getString(R.string.rc_cancel), v -> dialog.dismiss());
-        LinearLayout.LayoutParams cancelLayoutParams =
-                new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT);
-        cancelLayoutParams.setMargins(0, 12, 0, 0);
-        cancelView.setLayoutParams(cancelLayoutParams);
-        container.addView(cancelView);
+        mainContainer.addView(cancelView);
 
-        dialog.setContentView(container);
+        dialog.setContentView(mainContainer);
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(
@@ -402,22 +438,56 @@ public class GroupManagementFragment extends BaseViewModelFragment<GroupManageme
             window.setGravity(Gravity.BOTTOM);
             // 设置背景模糊效果（遮罩）
             window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            window.setDimAmount(0.3f); // 调整遮罩透明度，0.0为全透明，1.0为全黑
+            window.setDimAmount(0.5f); // 根据 Figma 设计，遮罩透明度为 0.5
             window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         // 在 Dialog 显示之后添加动画
-        container.post(() -> playBottomToTopAnimation(container));
+        mainContainer.post(() -> playBottomToTopAnimation(mainContainer));
         dialog.show();
     }
 
-    private TextView createDialogOptionView(String text, View.OnClickListener clickListener) {
+    /** 创建权限选项视图 */
+    private TextView createPermissionOptionView(String text, View.OnClickListener clickListener) {
         TextView textView = new TextView(requireContext());
         textView.setText(text);
-        textView.setTextSize(16);
+        textView.setTextSize(14); // 根据 Figma 设计使用 14sp
         textView.setGravity(Gravity.CENTER);
-        textView.setPadding(32, 48, 32, 48);
-        textView.setBackgroundResource(R.drawable.rc_selector_item_hover);
+
+        // 设置高度为 49dp
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        ScreenUtils.dip2px(requireContext(), 49));
+        textView.setLayoutParams(params);
+
+        textView.setBackgroundResource(R.drawable.rc_bottom_dialog_background_color_radius_10);
         textView.setOnClickListener(clickListener);
+        textView.setTextColor(
+                IMKitThemeManager.getColorFromAttrId(
+                        textView.getContext(), R.attr.rc_text_primary_color));
+        return textView;
+    }
+
+    /** 创建取消按钮视图 */
+    private TextView createCancelButtonView(String text, View.OnClickListener clickListener) {
+        TextView textView = new TextView(requireContext());
+        textView.setText(text);
+        textView.setTextSize(14); // 根据 Figma 设计使用 14sp
+        textView.setGravity(Gravity.CENTER);
+
+        // 设置高度为 49dp
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        ScreenUtils.dip2px(requireContext(), 49));
+        params.setMargins(0, ScreenUtils.dip2px(requireContext(), 12), 0, 0);
+        textView.setLayoutParams(params);
+
+        textView.setBackgroundResource(R.drawable.rc_bottom_dialog_background_color_radius_10);
+        textView.setOnClickListener(clickListener);
+        textView.setTextColor(
+                IMKitThemeManager.getColorFromAttrId(
+                        textView.getContext(), R.attr.rc_text_primary_color));
         return textView;
     }
 

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <!-- 头部标题 -->
@@ -20,6 +21,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingStart="@dimen/rc_margin_size_16"
+            android:paddingEnd="@dimen/rc_margin_size_16"
             android:orientation="vertical">
 
             <!-- 分割线 -->
@@ -34,7 +37,8 @@
                 android:layout_height="@dimen/rc_title_bar_height"
                 app:item_content="@string/rc_group_managers"
                 app:item_divider="false"
-                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_right_image="?attr/rc_right_arrow_icon_img"
+                app:item_right_image_auto_mirrored="true"
                 app:item_value_text_size="15sp" />
 
             <!-- 分割线 -->
@@ -49,7 +53,8 @@
                 android:layout_height="@dimen/rc_title_bar_height"
                 app:item_content="@string/rc_group_edit_info_permission"
                 app:item_divider="true"
-                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_right_image="?attr/rc_right_arrow_icon_img"
+                app:item_right_image_auto_mirrored="true"
                 app:item_value_text_size="15sp" />
 
             <!-- 谁可以添加群成员 -->
@@ -59,7 +64,8 @@
                 android:layout_height="@dimen/rc_title_bar_height"
                 app:item_content="@string/rc_group_add_member_permission"
                 app:item_divider="true"
-                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_right_image="?attr/rc_right_arrow_icon_img"
+                app:item_right_image_auto_mirrored="true"
                 app:item_value_text_size="15sp" />
 
             <!-- 谁可以移除群成员 -->
@@ -69,7 +75,8 @@
                 android:layout_height="@dimen/rc_title_bar_height"
                 app:item_content="@string/rc_group_remove_member_permission"
                 app:item_divider="true"
-                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_right_image="?attr/rc_right_arrow_icon_img"
+                app:item_right_image_auto_mirrored="true"
                 app:item_value_text_size="15sp" />
 
             <!-- 谁可以修改群成员资料 -->
@@ -79,7 +86,8 @@
                 android:layout_height="@dimen/rc_title_bar_height"
                 app:item_content="@string/rc_group_edit_member_info_permission"
                 app:item_divider="false"
-                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_right_image="?attr/rc_right_arrow_icon_img"
+                app:item_right_image_auto_mirrored="true"
                 app:item_value_text_size="15sp" />
 
             <!-- 分割线 -->
@@ -108,7 +116,8 @@
                 android:layout_height="@dimen/rc_title_bar_height"
                 app:item_content="@string/rc_group_transfer"
                 app:item_divider="false"
-                app:item_right_image="@drawable/rc_right_arrow"
+                app:item_right_image="?attr/rc_right_arrow_icon_img"
+                app:item_right_image_auto_mirrored="true"
                 app:item_value_text_size="15sp" />
         </LinearLayout>
 

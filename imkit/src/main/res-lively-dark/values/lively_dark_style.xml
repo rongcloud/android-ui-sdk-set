@@ -3,7 +3,6 @@
 
     <!-- 融云 欢快-Dark 主题 - 主要对外输出主题 -->
     <style name="RCLivelyDarkTheme">
-        
         <!-- 融云自定义属性 - 与 color 名称保持一致 -->
         <!-- 主色 -->
         <item name="rc_primary_color">@color/rc_primary_color_dark</item>
@@ -28,6 +27,9 @@
         <item name="rc_mask_color">@color/rc_mask_color_dark</item>
         <item name="rc_link_color">@color/rc_link_color_dark</item>
 
+        <item name="rc_auxiliary_view_color">@color/rc_auxiliary_view_color_dark</item>
+        <item name="rc_conversation_stick_color">@color/rc_conversation_stick_color_dark</item>
+
         <item name="rc_network_Indicator_view_bg_color">@color/rc_network_Indicator_view_bg_color_dark</item>
         <item name="rc_clear_color">@color/rc_clear_color_dark</item>
 
@@ -39,12 +41,17 @@
         <item name="rc_bottom_dialog_background_color">@color/rc_common_background_color_dark</item>
         <item name="rc_unread_msg_bg_style_color">@color/rc_common_background_color_dark</item>
 
+        <item name="rc_user_manager_background_color">@color/rc_auxiliary_background_1_color_dark</item>
+
         <!-- 图标 Drawable -->
         <item name="rc_conversation_list_cell_block_notification_img">@drawable/rc_lively_no_disturb</item>
         <item name="rc_conversation_list_cell_pin_img">@drawable/rc_lively_pin_top</item>
         <item name="rc_conversation_list_cell_msg_read_img">@drawable/rc_lively_read_receipt</item>
         <item name="rc_conversation_list_cell_msg_unread_img">@drawable/rc_lively_unread_receipt_dark</item>
-        <item name="rc_conversation_list_cell_msg_sending_img">@drawable/rc_lively_sending</item>
+        <item name="rc_conversation_list_cell_msg_sending_img">@drawable/rc_lively_sending_dark</item>
+        <item name="rc_conversation_block_notification_img">@drawable/rc_lively_conversation_no_disturb</item>
+        <item name="rc_user_online_status_img">@drawable/rc_lively_conner_online</item>
+        <item name="rc_user_offline_status_img">@drawable/rc_lively_conner_offline</item>
 
         <item name="rc_navigation_bar_btn_back_img">@drawable/rc_lively_back_dark</item>
         <item name="rc_navigation_bar_btn_more_img">@drawable/rc_lively_more_dark</item>
@@ -141,7 +148,27 @@
         <item name="rc_conversation_msg_cell_gif_loadfailed_img">@drawable/rc_lively_image_download_failed</item>
         <item name="rc_conversation_msg_cell_gif_needload_img">@drawable/rc_lively_image_download</item>
 
+        <item name="rc_group_member_select_img">@drawable/rc_lively_selected_dark</item>
+        <item name="rc_group_member_unselect_img">@drawable/rc_lively_unselected_dark</item>
+        <item name="rc_group_member_disable_select_img">@drawable/rc_lively_checkbox_disable_dark</item>
+        <item name="rc_group_member_checkbox_selector">@drawable/rc_lively_checkbox_selector_dark</item>
 
+        <item name="rc_group_manage_add_member_img">@drawable/rc_user_manager_add_icon_dark</item>
+        <item name="rc_group_follow_remove_btn_img">@drawable/rc_group_follow_remove_btn</item>
+        <item name="rc_search_icon_img">@drawable/rc_lively_search_dark</item>
+        <item name="rc_search_close_icon_img">@drawable/rc_lively_search_close_dark</item>
+
+        <item name="rc_friend_search_not_exist_img">@drawable/rc_add_friend_empty_dark</item>
+        <item name="rc_group_manage_gender_cell_check_img">@drawable/rc_lively_select_dark</item>
+
+        <item name="rc_user_profile_start_chat_img">@drawable/rc_lively_start_chat_dark</item>
+        <item name="rc_user_profile_start_audio_img">@drawable/rc_lively_start_audio_dark</item>
+        <item name="rc_user_profile_start_video_img">@drawable/rc_lively_start_video_dark</item>
+        <item name="rc_right_arrow_icon_img">@drawable/rc_lively_right_arrow_dark</item>
+
+        <item name="rc_friend_list_add_new_img">@drawable/rc_lively_add_friend_dark</item>
+        <item name="rc_group_member_add_img">@drawable/rc_lively_add_group_member_dark</item>
+        <item name="rc_group_member_remove_img">@drawable/rc_lively_remove_group_member_dark</item>
     </style>
 
 

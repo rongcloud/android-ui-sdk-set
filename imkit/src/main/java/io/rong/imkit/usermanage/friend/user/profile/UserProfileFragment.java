@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.ContactModel;
@@ -45,18 +47,20 @@ import io.rong.imlib.model.SubscribeUserOnlineStatus;
  * @since 5.12.0
  */
 public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewModel> {
+    private static final String TAG = "UserProfileFragment";
     protected HeadComponent headComponent;
     private View nicknameContainer;
-    protected Button btnStartChat;
-    protected Button btnStartAudio;
-    protected Button btnStartVideo;
-    protected Button btnDeleteUser;
+    protected View btnStartChat;
+    protected View btnStartAudio;
+    protected View btnStartVideo;
+    protected View btnDeleteUser;
     protected Button btnAddFriend;
     private TextView tvDisplayName;
     private TextView tvNickname;
     private ImageView ivUserPortrait;
     private View llFriendActions;
     private View llNoFriendActions;
+    private LinearLayout textContainer;
 
     /**
      * @since 5.12.2
@@ -87,6 +91,7 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
         btnAddFriend = rootView.findViewById(R.id.btn_add_friend);
         tvDisplayName = rootView.findViewById(R.id.tv_display_name);
         tvNickname = rootView.findViewById(R.id.tv_nickname);
+        textContainer = rootView.findViewById(R.id.text_container);
         ivUserPortrait = rootView.findViewById(R.id.user_portrait);
         llFriendActions = rootView.findViewById(R.id.ll_friend_actions);
         llNoFriendActions = rootView.findViewById(R.id.ll_no_friend_actions);
@@ -142,6 +147,7 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
                                                 ? userProfile.getName()
                                                 : getString(R.string.rc_unknow_type));
                                 tvNickname.setVisibility(View.GONE);
+                                updateTextContainerGravity(false);
 
                             } else {
                                 tvNickname.setVisibility(View.VISIBLE);
@@ -151,6 +157,7 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
                                                 "%s: %s",
                                                 getString(R.string.rc_nickname_label),
                                                 userProfile.getName()));
+                                updateTextContainerGravity(true);
                             }
 
                             // 更新用户头像
@@ -213,8 +220,22 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
             return;
         }
         int resId =
-                isOnline ? R.drawable.rc_lively_conner_online : R.drawable.rc_lively_conner_offline;
+                IMKitThemeManager.getAttrResId(
+                        tvDisplayName.getContext(),
+                        isOnline
+                                ? R.attr.rc_user_online_status_img
+                                : R.attr.rc_user_offline_status_img);
         TextViewUtils.setCompoundDrawables(tvDisplayName, Gravity.START, resId);
+    }
+
+    private void updateTextContainerGravity(boolean nicknameVisible) {
+        if (textContainer == null) {
+            return;
+        }
+        textContainer.setGravity(
+                nicknameVisible
+                        ? (Gravity.START | Gravity.TOP)
+                        : (Gravity.START | Gravity.CENTER_VERTICAL));
     }
 
     private void showAddFriendDialog() {
@@ -252,7 +273,8 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
     private void deleteFromContact() {
         CommonDialog dialog =
                 new CommonDialog.Builder()
-                        .setContentMessage(getString(R.string.rc_delete_friend_title))
+                        .setContentMessage(
+                                getString(R.string.rc_delete_friend_title, getDeleteFriendName()))
                         .setDialogButtonClickListener(
                                 new CommonDialog.OnDialogButtonClickListener() {
                                     @Override
@@ -261,13 +283,14 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
                                                 .deleteFriend(
                                                         result -> {
                                                             if (result) {
+                                                                clearFriendConversationAndMessages();
                                                                 ToastUtils.show(
                                                                         getContext(),
                                                                         getString(
                                                                                 R.string
                                                                                         .rc_delete_friend_success),
                                                                         Toast.LENGTH_SHORT);
-                                                                getViewModel().getUserProfile();
+                                                                finishActivity();
                                                             } else {
                                                                 ToastUtils.show(
                                                                         getContext(),
@@ -290,5 +313,32 @@ public class UserProfileFragment extends BaseViewModelFragment<UserProfileViewMo
     public void onStart() {
         super.onStart();
         getViewModel().getUserProfile();
+    }
+
+    private String getDeleteFriendName() {
+        UiUserDetail detail = getViewModel().getUiUserDetail();
+        if (detail == null) {
+            return "";
+        }
+        if (!TextUtils.isEmpty(detail.getNickName())) {
+            return detail.getNickName();
+        }
+        if (!TextUtils.isEmpty(detail.getName())) {
+            return detail.getName();
+        }
+        return "";
+    }
+
+    private void clearFriendConversationAndMessages() {
+        UiUserDetail detail = getViewModel().getUiUserDetail();
+        if (detail == null || TextUtils.isEmpty(detail.getUserId())) {
+            return;
+        }
+        String targetId = detail.getUserId();
+        RongCoreClient.getInstance()
+                .removeConversation(Conversation.ConversationType.PRIVATE, targetId, true, null);
+        RongCoreClient.getInstance()
+                .cleanHistoryMessages(
+                        Conversation.ConversationType.PRIVATE, targetId, 0, true, null);
     }
 }

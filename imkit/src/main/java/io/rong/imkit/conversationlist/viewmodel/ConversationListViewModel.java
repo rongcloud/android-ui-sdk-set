@@ -781,6 +781,7 @@ public class ConversationListViewModel extends AndroidViewModel
             workThread.quit();
         }
         mEditMessageHandler.stop();
+        mReadReceiptV5Handler.stop();
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         OnLineStatusManager.getInstance().removeOnLineStatusListener(mOnLineStatusListener);
         OnLineStatusManager.getInstance().removeOnlineStatusDataSource(mOnlineStatusDataSource);
@@ -1049,6 +1050,7 @@ public class ConversationListViewModel extends AndroidViewModel
     private void collectAndQueryConversationInfo() {
         collectAndQueryOnlineStatusInfo();
         collectAndQueryReadReceiptInfo();
+        collectAndQueryUserInfo();
     }
 
     /** 收集需要查询在线状态的会话并调用查询接口 */
@@ -1167,6 +1169,35 @@ public class ConversationListViewModel extends AndroidViewModel
                     }
                 };
         mHandler.post(task);
+    }
+
+    /** 收集需要查询的用户信息、群信息、群成员信息 */
+    private void collectAndQueryUserInfo() {
+        String currentUserId = RongIMClient.getInstance().getCurrentUserId();
+        if (TextUtils.isEmpty(currentUserId)) {
+            return;
+        }
+        if (mUiConversationList.isEmpty()) {
+            return;
+        }
+        List<String> privateList = new ArrayList<>();
+        List<String> groupList = new ArrayList<>();
+        Map<String, String> groupUserInfos = new HashMap<>();
+        for (BaseUiConversation uiConversation : mUiConversationList) {
+            Conversation.ConversationType type = uiConversation.mCore.getConversationType();
+            if (Conversation.ConversationType.PRIVATE == type) {
+                privateList.add(uiConversation.mCore.getTargetId());
+            } else if (Conversation.ConversationType.GROUP == type) {
+                groupList.add(uiConversation.mCore.getTargetId());
+                String latestSenderUserId = uiConversation.mCore.getSenderUserId();
+                if (!TextUtils.isEmpty(latestSenderUserId)) {
+                    groupUserInfos.put(uiConversation.mCore.getTargetId(), latestSenderUserId);
+                }
+            }
+        }
+        RongUserInfoManager.getInstance().preloadUserInfos(privateList);
+        RongUserInfoManager.getInstance().preloadGroupInfos(groupList);
+        RongUserInfoManager.getInstance().preloadGroupUserInfos(groupUserInfos);
     }
 
     /**

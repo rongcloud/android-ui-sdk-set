@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="56dp">
+    android:layout_height="56dp"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <ImageView
         android:id="@+id/rc_member_portrait"
@@ -23,7 +24,6 @@
         android:lines="1"
         android:maxLength="32"
         android:textColor="?attr/rc_text_primary_color"
-        android:textDirection="locale"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="@id/rc_member_portrait"
         app:layout_constraintEnd_toStartOf="@+id/rc_member_time"
@@ -38,7 +38,6 @@
         android:ellipsize="end"
         android:lines="1"
         android:textColor="?attr/rc_text_secondary_color"
-        android:textDirection="locale"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="@id/rc_member_portrait"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,7 +46,7 @@
     <View
         android:layout_width="0dp"
         android:layout_height="1px"
-        android:textColor="?attr/rc_line_background_color"
+        android:background="?attr/rc_line_background_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/rc_member_name" />

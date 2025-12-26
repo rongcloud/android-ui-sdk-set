@@ -13,6 +13,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
@@ -166,11 +169,18 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
     private void loadGif(final GIFMessage gifMessage, final ImageView imageView) {
         Uri thumbUri = gifMessage.getLocalUri();
         if (thumbUri != null && thumbUri.getPath() != null) {
+            RequestOptions options =
+                    RequestOptions.bitmapTransform(
+                                    new RoundedCorners(
+                                            ScreenUtils.dip2px(
+                                                    IMCenter.getInstance().getContext(), 6)))
+                            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
             Glide.with(imageView.getContext())
                     .asGif()
                     .error(R.drawable.rc_received_thumb_image_broken)
                     .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
                     .load(thumbUri.getPath())
+                    .apply(options)
                     .into(imageView);
         }
     }

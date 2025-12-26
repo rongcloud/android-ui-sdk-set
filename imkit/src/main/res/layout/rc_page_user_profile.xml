@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/rc_auxiliary_background_1_color"
+    tools:theme="@style/RCLivelyLightTheme"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
@@ -12,76 +14,95 @@
         android:layout_height="@dimen/rc_title_bar_height"
         app:head_title_text="@string/rc_user_profile" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/user_info_container"
         android:layout_width="match_parent"
-        android:layout_height="82dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:background="#ffffff">
+        android:layout_marginStart="@dimen/rc_margin_size_16"
+        android:layout_marginEnd="@dimen/rc_margin_size_16"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/rc_auxiliary_background_1_color">
 
-        <ImageView
-            android:id="@+id/user_portrait"
+        <FrameLayout
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginStart="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@color/app_color_black" />
+            android:layout_marginStart="@dimen/rc_margin_size_15"
+            android:padding="2dp"
+            android:background="@drawable/rc_user_portrait_border">
 
-        <TextView
-            android:id="@+id/tv_display_name"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/user_portrait"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:src="@color/app_color_black" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/text_container"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="17dp"
-            android:ellipsize="end"
-            android:maxLength="16"
-            android:maxLines="1"
-            android:textColor="#111f2c"
-            android:textSize="17dp"
-            app:layout_constraintBottom_toTopOf="@id/tv_nickname"
-            app:layout_constraintStart_toEndOf="@id/user_portrait"
-            app:layout_constraintTop_toTopOf="@id/user_portrait"
-            tools:text="ABC" />
+            android:layout_marginEnd="0dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_nickname"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="#a0a5ab"
-            android:textSize="11dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/user_portrait"
-            app:layout_constraintStart_toStartOf="@id/tv_display_name"
-            app:layout_constraintTop_toBottomOf="@id/tv_display_name"
-            tools:text="aaaaaaaaaaaaaaaaa" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_display_name"
+                android:textDirection="locale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="3"
+                android:gravity="start|top"
+                android:textColor="?attr/rc_text_primary_color"
+                android:textSize="20sp"
+                tools:text="ABC" />
+
+            <TextView
+                android:id="@+id/tv_nickname"
+                android:textDirection="locale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?attr/rc_text_primary_color"
+                android:textSize="14sp"
+                android:visibility="gone"
+                android:layout_marginTop="5dp"
+                tools:text="aaaaaaaaaaaaaaaaa" />
+        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_friend_actions"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:layout_marginStart="@dimen/rc_margin_size_16"
+        android:layout_marginEnd="@dimen/rc_margin_size_16"
         android:visibility="gone"
         tools:visibility="visible">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/nickname_container"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="@dimen/rc_title_bar_height"
             android:layout_marginTop="10dp"
-            android:background="#ffffff"
-            android:paddingStart="@dimen/rc_margin_size_15">
+            android:background="?attr/rc_bottom_dialog_background_color"
+            android:paddingStart="@dimen/rc_margin_size_16"
+            android:paddingEnd="@dimen/rc_margin_size_16">
 
             <TextView
                 android:id="@+id/remark_label"
+                android:textDirection="locale"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/rc_remark"
-                android:textColor="#111f2c"
-                android:textSize="16dp"
+                android:textColor="?attr/rc_text_primary_color"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -90,19 +111,11 @@
                 android:id="@+id/icon_arrow"
                 android:layout_width="16dp"
                 android:layout_height="16dp"
-                android:layout_marginEnd="15dp"
-                android:src="@drawable/rc_right_arrow"
+                android:src="?attr/rc_right_arrow_icon_img"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:background="#e3e5e6"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/remark_label" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- 分割线 -->
@@ -118,40 +131,94 @@
             android:visibility="gone"
             app:item_content="@string/rc_group_nickname"
             app:item_divider="false"
-            app:item_right_image="@drawable/rc_right_arrow"
-            app:item_value_text_size="15sp"
+            app:item_right_image="?attr/rc_right_arrow_icon_img"
+            app:item_right_image_auto_mirrored="true"
+            app:item_value_text_size="14sp"
             tools:visibility="visible" />
 
-        <Button
+        <FrameLayout
             android:id="@+id/btn_start_chat"
-            style="@style/rc_profile_user_detail_btn"
-            android:layout_marginTop="80dp"
-            android:background="@drawable/rc_profile_btn_contact_blue_selector"
-            android:text="@string/rc_start_chat"
-            android:textColor="#ffffff" />
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/rc_selector_item_radius_gray"
+            android:clickable="true"
+            android:focusable="true">
 
-        <Button
+            <TextView
+                android:textDirection="locale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/rc_start_chat"
+                android:textColor="?attr/rc_primary_color"
+                android:textSize="17sp"
+                android:drawablePadding="6dp"
+                app:drawableStartCompat="?attr/rc_user_profile_start_chat_img" />
+        </FrameLayout>
+
+        <FrameLayout
             android:id="@+id/btn_start_audio"
-            style="@style/rc_profile_user_detail_btn"
-            android:background="@drawable/rc_profile_btn_contact_white_selector"
-            android:text="@string/rc_start_audio"
-            android:textColor="#111f2c"
-            android:visibility="gone" />
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rc_selector_item_radius_gray"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
 
-        <Button
+            <TextView
+                android:textDirection="locale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/rc_start_audio"
+                android:textColor="?attr/rc_primary_color"
+                android:textSize="17sp"
+                android:drawablePadding="6dp"
+                app:drawableStartCompat="?attr/rc_user_profile_start_audio_img" />
+        </FrameLayout>
+
+        <FrameLayout
             android:id="@+id/btn_start_video"
-            style="@style/rc_profile_user_detail_btn"
-            android:background="@drawable/rc_profile_btn_contact_white_selector"
-            android:text="@string/rc_start_video"
-            android:textColor="#111f2c"
-            android:visibility="gone" />
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rc_selector_item_radius_gray"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone">
 
-        <Button
+            <TextView
+                android:textDirection="locale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/rc_start_video"
+                android:textColor="?attr/rc_primary_color"
+                android:textSize="17sp"
+                android:drawablePadding="6dp"
+                app:drawableStartCompat="?attr/rc_user_profile_start_video_img" />
+        </FrameLayout>
+
+        <FrameLayout
             android:id="@+id/btn_delete_user"
-            style="@style/rc_profile_user_detail_btn"
-            android:background="@drawable/rc_profile_btn_contact_white_selector"
-            android:text="@string/rc_delete_friend"
-            android:textColor="#ff0000" />
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/rc_selector_item_radius_gray"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:textDirection="locale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/rc_delete_friend"
+                android:textColor="#F74D43"
+                android:textSize="17sp" />
+        </FrameLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -167,6 +234,6 @@
             android:layout_marginTop="80dp"
             android:background="@drawable/rc_profile_btn_contact_blue_selector"
             android:text="@string/rc_add_as_friend"
-            android:textColor="#ffffff" />
+            android:textColor="@color/rc_white_color" />
     </LinearLayout>
 </LinearLayout>

@@ -23,6 +23,7 @@ import io.rong.imkit.usermanage.group.managerlist.GroupManagerListFragment;
 import io.rong.imkit.usermanage.group.memberlist.GroupMemberListFragment;
 import io.rong.imkit.usermanage.group.memberselect.impl.GroupAddFollowsFragment;
 import io.rong.imkit.usermanage.group.memberselect.impl.GroupAddManagerFragment;
+import io.rong.imkit.usermanage.group.mention.GroupMentionFragment;
 import io.rong.imkit.usermanage.group.name.GroupNameFragment;
 import io.rong.imkit.usermanage.group.nickname.GroupNicknameFragment;
 import io.rong.imkit.usermanage.group.notice.GroupNoticeFragment;
@@ -431,6 +432,20 @@ public class KitFragmentFactory {
     @NonNull
     public MessageReadDetailFragment newMessageReadDetailFragment(@NonNull Bundle args) {
         MessageReadDetailFragment fragment = new MessageReadDetailFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    /**
+     * 返回 GroupMentionFragment.
+     *
+     * @param args 创建 GroupMentionFragment 提供的参数
+     * @return {@link GroupMentionFragment}
+     * @since 5.34.0
+     */
+    @NonNull
+    public GroupMentionFragment newGroupMentionFragment(@NonNull Bundle args) {
+        GroupMentionFragment fragment = new GroupMentionFragment();
         fragment.setArguments(args);
         return fragment;
     }

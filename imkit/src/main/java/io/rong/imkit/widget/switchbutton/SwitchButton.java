@@ -27,6 +27,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.CompoundButton;
 import androidx.core.content.ContextCompat;
 import io.rong.imkit.R;
+import io.rong.imkit.utils.RTLUtils;
 
 /**
  * SwitchButton
@@ -522,7 +523,12 @@ public class SwitchButton extends CompoundButton {
 
         // thumb
         mPresentThumbRectF.set(mThumbRectF);
-        mPresentThumbRectF.offset(mProcess * mSafeRectF.width(), 0);
+        // RTL 布局下反向计算 thumb 位置
+        float thumbOffset =
+                RTLUtils.isRtl(getContext())
+                        ? (1 - mProcess) * mSafeRectF.width()
+                        : mProcess * mSafeRectF.width();
+        mPresentThumbRectF.offset(thumbOffset, 0);
         if (mIsThumbUseDrawable) {
             mThumbDrawable.setBounds(
                     (int) mPresentThumbRectF.left,
@@ -605,7 +611,9 @@ public class SwitchButton extends CompoundButton {
 
             case MotionEvent.ACTION_MOVE:
                 float x = event.getX();
-                setProcess(getProcess() + (x - mLastX) / mSafeRectF.width());
+                // RTL 布局下反向响应拖动
+                float delta = (x - mLastX) / mSafeRectF.width();
+                setProcess(getProcess() + (RTLUtils.isRtl(getContext()) ? -delta : delta));
                 mLastX = x;
                 break;
 

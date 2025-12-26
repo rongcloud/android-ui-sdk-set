@@ -1,55 +1,56 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/rc_title_bar_height"
-    android:background="@color/rc_white_color"
-    android:paddingLeft="@dimen/rc_margin_size_12"
-    android:paddingRight="@dimen/rc_margin_size_12">
+    android:paddingStart="@dimen/rc_margin_size_16"
+    android:paddingEnd="@dimen/rc_margin_size_16">
 
     <FrameLayout
         android:id="@+id/fl_search"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="40dp"
         android:layout_gravity="center_vertical"
         android:background="@drawable/rc_search_bg"
         android:gravity="center_vertical"
-        android:paddingLeft="@dimen/rc_margin_size_8"
-        android:paddingRight="@dimen/rc_margin_size_8">
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
 
         <LinearLayout
             android:id="@+id/layout_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="center_vertical|start"
             android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/iv_search_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/rc_search_gray" />
+                android:src="?attr/rc_search_icon_img" />
 
             <EditText
                 android:id="@+id/et_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
                 android:background="@null"
                 android:hint="@string/rc_search"
+                android:textColor="?attr/rc_text_primary_color"
+                android:textColorHint="?attr/rc_text_secondary_color"
                 android:imeOptions="actionSearch"
+                android:gravity="center_vertical"
                 android:inputType="text"
                 android:singleLine="true"
-                android:textSize="16sp" />
+                android:textSize="17sp" />
         </LinearLayout>
 
         <ImageView
             android:id="@+id/iv_clear"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="right|center_vertical"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="end|center_vertical"
             android:padding="4dp"
-            android:src="@drawable/rc_close"
+            android:src="?attr/rc_search_close_icon_img"
             android:visibility="gone" />
 
     </FrameLayout>

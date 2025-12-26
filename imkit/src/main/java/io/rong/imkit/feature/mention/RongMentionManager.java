@@ -1,6 +1,7 @@
 package io.rong.imkit.feature.mention;
 
 import android.content.Context;
+import android.content.Intent;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.view.View;
@@ -9,10 +10,12 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
+import io.rong.imkit.usermanage.group.mention.GroupMentionActivity;
 import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.GroupMemberRole;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
@@ -24,6 +27,7 @@ import java.util.Stack;
 import org.json.JSONArray;
 
 public class RongMentionManager {
+    public static final String MENTION_ALL_USER_ID = "ALL";
     private static String TAG = "RongMentionManager";
     private Stack<MentionInstance> stack = new Stack<>();
     private IGroupMembersProvider mGroupMembersProvider;
@@ -308,8 +312,20 @@ public class RongMentionManager {
                         && (mMentionedInputListener == null
                                 || !mMentionedInputListener.onMentionedInput(
                                         conversationType, targetId))) {
-                    RouteUtils.routeToMentionMemberSelectActivity(
-                            context, targetId, conversationType);
+                    if (RongUserInfoManager.getInstance().getDataSourceType()
+                            == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT) {
+                        Intent intent =
+                                GroupMentionActivity.newIntent(
+                                        context,
+                                        ConversationIdentifier.obtain(
+                                                conversationType, targetId, ""),
+                                        GroupMemberRole.Normal);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else {
+                        RouteUtils.routeToMentionMemberSelectActivity(
+                                context, targetId, conversationType);
+                    }
                 }
             }
         }
@@ -327,7 +343,6 @@ public class RongMentionManager {
     public void onSendToggleClick(Message message, EditText editText) {
         MessageContent messageContent = message.getContent();
         if (!stack.isEmpty()) {
-            List<String> userIds = new ArrayList<>();
             MentionInstance curInstance = null;
             for (int i = 0; i < stack.size(); i++) {
                 MentionInstance item = stack.get(i);
@@ -340,15 +355,9 @@ public class RongMentionManager {
                 RLog.w(TAG, "not found editText");
                 return;
             }
-            for (MentionBlock block : curInstance.mentionBlocks) {
-                if (!userIds.contains(block.userId)) {
-                    userIds.add(block.userId);
-                }
-            }
-            if (!userIds.isEmpty()) {
+            MentionedInfo mentionedInfo = buildMentionedInfo(curInstance);
+            if (mentionedInfo != null) {
                 curInstance.mentionBlocks.clear();
-                MentionedInfo mentionedInfo =
-                        new MentionedInfo(MentionedInfo.MentionedType.PART, userIds, null);
                 messageContent.setMentionedInfo(mentionedInfo);
                 message.setContent(messageContent);
             }
@@ -358,7 +367,6 @@ public class RongMentionManager {
     public void onClickEditMessageConfirm(Message message, EditText editText) {
         MessageContent messageContent = message.getContent();
         if (!stack.isEmpty()) {
-            List<String> userIds = new ArrayList<>();
             MentionInstance curInstance = null;
             for (int i = 0; i < stack.size(); i++) {
                 MentionInstance item = stack.get(i);
@@ -371,20 +379,45 @@ public class RongMentionManager {
                 RLog.w(TAG, "not found editText");
                 return;
             }
-            for (MentionBlock block : curInstance.mentionBlocks) {
-                if (!userIds.contains(block.userId)) {
-                    userIds.add(block.userId);
-                }
-            }
-            if (!userIds.isEmpty()) {
+            MentionedInfo mentionedInfo = buildMentionedInfo(curInstance);
+            if (mentionedInfo != null) {
                 curInstance.mentionBlocks.clear();
-                MentionedInfo mentionedInfo =
-                        new MentionedInfo(MentionedInfo.MentionedType.PART, userIds, null);
                 messageContent.setMentionedInfo(mentionedInfo);
             } else {
                 messageContent.setMentionedInfo(null);
             }
             message.setContent(messageContent);
+        }
+    }
+
+    private MentionedInfo buildMentionedInfo(MentionInstance mentionInstance) {
+        if (mentionInstance == null || mentionInstance.mentionBlocks == null) {
+            return null;
+        }
+        List<String> userIds = new ArrayList<>();
+        boolean mentionAll = false;
+        boolean allowMentionAll =
+                RongUserInfoManager.getInstance().getDataSourceType()
+                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
+        for (MentionBlock block : mentionInstance.mentionBlocks) {
+            if (allowMentionAll && MENTION_ALL_USER_ID.equals(block.userId)) {
+                mentionAll = true;
+            } else if (!userIds.contains(block.userId)) {
+                userIds.add(block.userId);
+            }
+        }
+        if (mentionAll) {
+            MentionedInfo mentionedInfo = new MentionedInfo();
+            mentionedInfo.setType(MentionedInfo.MentionedType.ALL);
+            mentionedInfo.setMentionedUserIdList(null);
+            return mentionedInfo;
+        } else if (!userIds.isEmpty()) {
+            MentionedInfo mentionedInfo = new MentionedInfo();
+            mentionedInfo.setType(MentionedInfo.MentionedType.PART);
+            mentionedInfo.setMentionedUserIdList(userIds);
+            return mentionedInfo;
+        } else {
+            return null;
         }
     }
 

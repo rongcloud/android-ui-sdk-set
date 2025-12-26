@@ -9,7 +9,7 @@
     <dimen name="rc_font_auxiliary_size">10sp</dimen>
 
 
-    <dimen name="rc_title_bar_height">44dp</dimen>
+    <dimen name="rc_title_bar_height">54dp</dimen>
     <dimen name="rc_conversation_item_height">72dp</dimen>
     <dimen name="rc_conversation_item_content_height">71.5dp</dimen>
     <dimen name="rc_conversation_portrait_size">48dp</dimen>
@@ -99,7 +99,7 @@
     <dimen name="rc_file_preview_download_button_left_margin">40dp</dimen>
     <dimen name="rc_file_preview_download_button_text_size">17dp</dimen>
     <!--会话页面未读数-->
-    <dimen name="rc_unread_height">40dp</dimen>
+    <dimen name="rc_unread_height">36dp</dimen>
 
     <!--SightProvider-->
     <dimen name="rc_sight_play_size">36dp</dimen>

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="52dp"
+    tools:theme="@style/RCLivelyDarkTheme"
     android:background="?attr/rc_selected_background_color_selected">
 
     <ImageView
@@ -11,7 +12,6 @@
         android:layout_height="36dp"
         android:layout_centerVertical="true"
         android:layout_gravity="center"
-        android:layout_marginLeft="14dp"
         android:layout_marginStart="14dp"
         android:scaleType="centerCrop"
         android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
@@ -23,7 +23,6 @@
         android:layout_marginStart="14dp"
         android:layout_marginEnd="14dp"
         android:layout_toEndOf="@id/rc_portrait"
-        android:layout_toRightOf="@id/rc_portrait"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
@@ -34,6 +33,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="1"
+            tools:text="标题"
             android:textColor="?attr/rc_text_primary_color"
             android:textSize="16sp" />
 
@@ -47,6 +47,7 @@
             android:textColor="?attr/rc_text_secondary_color"
             android:ellipsize="middle"
             android:singleLine="true"
+            tools:text="详情内容"
             android:textSize="13dp" />
     </LinearLayout>
 

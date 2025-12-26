@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import io.rong.common.CursorUtils;
@@ -42,6 +45,9 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
     protected List<LocalMedia> selectionMedias;
     protected Handler mHandler;
     protected View container;
+    private Integer previousStatusBarColor;
+    private int previousSystemUiVisibility = -1;
+    private boolean statusBarStateSaved = false;
 
     /**
      * 获取布局文件
@@ -239,8 +245,76 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        restoreStatusBarAppearance();
         super.onDestroy();
         dismissDialog();
+    }
+
+    protected void saveAndApplyStatusBar(int color, boolean isDarkText) {
+        saveStatusBarAppearance();
+        applyStatusBarAppearance(color, isDarkText);
+    }
+
+    private void saveStatusBarAppearance() {
+        if (statusBarStateSaved) {
+            return;
+        }
+        Window window = getWindow();
+        if (window == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            previousStatusBarColor = window.getStatusBarColor();
+        }
+        View decorView = window.getDecorView();
+        previousSystemUiVisibility =
+                decorView != null ? decorView.getSystemUiVisibility() : previousSystemUiVisibility;
+        statusBarStateSaved = true;
+    }
+
+    private void applyStatusBarAppearance(int color, boolean isDarkText) {
+        Window window = getWindow();
+        if (window == null) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(color);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            View decorView = window.getDecorView();
+            if (decorView != null) {
+                int visibility = decorView.getSystemUiVisibility();
+                if (isDarkText) {
+                    visibility |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                } else {
+                    visibility &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                }
+                decorView.setSystemUiVisibility(visibility);
+            }
+        }
+    }
+
+    protected void restoreStatusBarAppearance() {
+        if (!statusBarStateSaved) {
+            return;
+        }
+        Window window = getWindow();
+        if (window != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                    && previousStatusBarColor != null) {
+                window.setStatusBarColor(previousStatusBarColor);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                    && previousSystemUiVisibility != -1) {
+                View decorView = window.getDecorView();
+                if (decorView != null) {
+                    decorView.setSystemUiVisibility(previousSystemUiVisibility);
+                }
+            }
+        }
+        statusBarStateSaved = false;
     }
 
     /**

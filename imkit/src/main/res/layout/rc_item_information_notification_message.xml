@@ -9,7 +9,8 @@
     android:paddingTop="4dp"
     android:paddingEnd="2dp"
     android:paddingBottom="4dp"
-    android:background="?attr/rc_corner_style">
+    android:background="?attr/rc_corner_style"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <TextView
         android:id="@+id/rc_msg"

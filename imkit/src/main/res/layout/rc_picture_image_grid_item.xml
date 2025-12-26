@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.rong.imkit.picture.widget.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <ImageView
         android:id="@+id/ivPicture"
@@ -18,8 +20,8 @@
         android:layout_margin="8dp"
         android:background="?attr/rc_media_file_state_checkbox"
         android:gravity="center"
-        android:textColor="?attr/rc_text_primary_color"
-        android:textSize="12dp" />
+        android:textColor="@color/rc_white_color"
+        android:textSize="12sp" />
 
     <View
         android:id="@+id/btnCheck"

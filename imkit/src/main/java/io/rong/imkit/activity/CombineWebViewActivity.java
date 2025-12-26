@@ -85,6 +85,7 @@ public class CombineWebViewActivity extends RongBaseActivity {
     private int mMessageId;
     private String mPrevUrl;
     private boolean mWebViewError = false;
+    private boolean mNeedInjectDarkCSS = false;
     private RongIMClient.OnRecallMessageListener mRecallMessageListener =
             new RongIMClient.OnRecallMessageListener() {
                 @Override
@@ -166,6 +167,50 @@ public class CombineWebViewActivity extends RongBaseActivity {
         // 允许混合内容 解决部分手机https请求里面加载不出http的图片
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
+
+        // 设置 WebView 暗黑模式
+        setupWebViewDarkMode();
+    }
+
+    /** 设置 WebView 暗黑模式 */
+    private void setupWebViewDarkMode() {
+        // 非传统主题 且 系统处于暗黑模式时，需要注入暗色 CSS
+        if (!IMKitThemeManager.isTraditionTheme() && IMKitThemeManager.isSystemInDarkMode(this)) {
+            mNeedInjectDarkCSS = true;
+            RLog.d(TAG, "setupWebViewDarkMode: will inject dark CSS");
+        }
+    }
+
+    /** 注入自定义 CSS 样式，解决 Icon 背景及暗黑模式适配 */
+    private void injectCustomCSS() {
+        if (mWebView == null) {
+            return;
+        }
+        String fileIconStyle = CombineMessageUtils.getInstance().getFileIconStyle();
+        String darkStyle = CombineMessageUtils.getInstance().getDarkStyle();
+
+        StringBuilder cssBuilder = new StringBuilder();
+        // 1. 基础修复：无论是否暗黑模式，都将文件消息区域内的 Icon 背景设为透明
+        if (!TextUtils.isEmpty(fileIconStyle)) {
+            cssBuilder.append(fileIconStyle);
+        }
+
+        // 2. 暗黑模式适配：如果系统处于暗黑模式，追加暗色样式
+        if (mNeedInjectDarkCSS && !TextUtils.isEmpty(darkStyle)) {
+            cssBuilder.append(darkStyle);
+        }
+
+        if (cssBuilder.length() > 0) {
+            String js =
+                    "var style = document.createElement('style');"
+                            + "style.type = 'text/css';"
+                            + "style.innerHTML = '"
+                            + cssBuilder
+                            + "';"
+                            + "document.head.appendChild(style);";
+
+            mWebView.evaluateJavascript(js, null);
         }
     }
 
@@ -856,6 +901,8 @@ public class CombineWebViewActivity extends RongBaseActivity {
             }
             if (newProgress == PROGRESS_100) {
                 showLoadSuccess();
+                // 页面加载完成后注入自定义 CSS
+                injectCustomCSS();
             } else {
                 if (mProgress.getVisibility() == View.GONE) {
                     mProgress.setVisibility(View.VISIBLE);

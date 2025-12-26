@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/rc_notice_item_height"
-    android:background="?attr/rc_auxiliary_background_1_color">
+    android:background="?attr/rc_auxiliary_background_1_color"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <TextView
         android:id="@+id/ext_common_phrases"

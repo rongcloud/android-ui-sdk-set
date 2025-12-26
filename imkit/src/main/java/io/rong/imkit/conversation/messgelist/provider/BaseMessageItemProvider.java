@@ -249,10 +249,11 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                                                         uiMessage.getUserInfo(),
                                                         uiMessage.getMessage().getTargetId());
                                 if (!result) {
-                                    listener.onViewLongClick(
-                                            holder.getView(R.id.rc_content),
-                                            MessageClickType.USER_PORTRAIT_LONG_CLICK,
-                                            uiMessage);
+                                    result =
+                                            listener.onViewLongClick(
+                                                    holder.getView(R.id.rc_content),
+                                                    MessageClickType.USER_PORTRAIT_LONG_CLICK,
+                                                    uiMessage);
                                 }
                                 return result;
                             }
@@ -739,8 +740,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             String edited = textView.getContext().getString(R.string.rc_edit_status_success);
             SpannableStringBuilder spannable = new SpannableStringBuilder("（" + edited + "）");
             ForegroundColorSpan foregroundColorSpan =
-                    new ForegroundColorSpan(
-                            textView.getResources().getColor(R.color.rc_edit_success_status));
+                    new ForegroundColorSpan(getEditStatusColor(textView));
             spannable.setSpan(
                     foregroundColorSpan, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             contentSpannable.append(spannable);
@@ -758,9 +758,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             SpannableStringBuilder contentSpannable = new SpannableStringBuilder(span);
             String text = textView.getContext().getString(R.string.rc_edit_status_success);
             SpannableStringBuilder spannable = new SpannableStringBuilder("（" + text + "）");
-            ForegroundColorSpan colorSpan =
-                    new ForegroundColorSpan(
-                            textView.getResources().getColor(R.color.rc_edit_success_status));
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(getEditStatusColor(textView));
             spannable.setSpan(colorSpan, 0, spannable.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             contentSpannable.append(spannable);
             textView.setText(contentSpannable);
@@ -768,9 +766,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             SpannableStringBuilder contentSpannable = new SpannableStringBuilder();
             String text = textView.getContext().getString(R.string.rc_reference_status_delete);
             SpannableStringBuilder spannableString = new SpannableStringBuilder(text);
-            ForegroundColorSpan colorSpan =
-                    new ForegroundColorSpan(
-                            textView.getResources().getColor(R.color.rc_edit_success_status));
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(getEditStatusColor(textView));
             spannableString.setSpan(
                     colorSpan, 0, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             contentSpannable.append(spannableString);
@@ -779,9 +775,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             SpannableStringBuilder contentSpannable = new SpannableStringBuilder();
             String text = textView.getContext().getString(R.string.rc_reference_status_recall);
             SpannableStringBuilder spannableString = new SpannableStringBuilder(text);
-            ForegroundColorSpan colorSpan =
-                    new ForegroundColorSpan(
-                            textView.getResources().getColor(R.color.rc_edit_success_status));
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(getEditStatusColor(textView));
             spannableString.setSpan(
                     colorSpan, 0, spannableString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             contentSpannable.append(spannableString);
@@ -924,5 +918,10 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         }
         // 设置到ImageView
         imageView.setImageDrawable(new BitmapDrawable(context.getResources(), bitmap));
+    }
+
+    private int getEditStatusColor(TextView textView) {
+        return IMKitThemeManager.getColorFromAttrId(
+                textView.getContext(), R.attr.rc_text_primary_color);
     }
 }

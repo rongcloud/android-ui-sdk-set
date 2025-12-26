@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
@@ -7,7 +8,8 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:paddingBottom="8dp"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <ImageView
         android:id="@+id/rc_checkbox"

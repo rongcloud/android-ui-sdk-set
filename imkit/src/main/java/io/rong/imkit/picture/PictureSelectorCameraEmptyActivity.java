@@ -3,6 +3,7 @@ package io.rong.imkit.picture;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ public class PictureSelectorCameraEmptyActivity extends PictureBaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        saveAndApplyStatusBar(Color.WHITE, true);
         if (PermissionCheckUtil.checkMediaStoragePermissions(this)) {
             onTakePhoto();
         } else {

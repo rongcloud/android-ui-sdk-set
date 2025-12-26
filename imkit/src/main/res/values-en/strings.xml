@@ -623,12 +623,12 @@
     <string name="rc_unknow_type">Unknown</string>
     <string name="rc_start_chat">Chat</string>
     <string name="rc_start_audio">Audio Call</string>
-    <string name="rc_start_video">Video Chat</string>
+    <string name="rc_start_video">Video Call</string>
     <string name="rc_delete_friend">Delete Friend</string>
     <string name="rc_add_friend_hint">Please enter a reason for adding (optional)</string>
     <string name="rc_send_apply_success">Friend request sent successfully</string>
     <string name="rc_send_apply_fail">Friend request failed to send</string>
-    <string name="rc_delete_friend_title">Confirm to delete this friend</string>
+    <string name="rc_delete_friend_title">Delete contact \"%1$s\" and delete chat history</string>
 
     <string name="rc_just_now">Just Now</string>
     <string name="rc_within_three_days">Within Three Days</string>
@@ -681,6 +681,8 @@
     <string name="rc_group_management">Group Management</string>
     <string name="rc_group_follows">Special Attention</string>
     <string name="rc_group_managers">Group Admins</string>
+    <string name="rc_group_mention_title">Select who to notify</string>
+    <string name="rc_group_mention_all_members">Everyone</string>
     <string name="rc_group_add_manager">Add Admins</string>
     <string name="rc_group_add_member">Add Members</string>
     <string name="rc_group_select_member">Select Group Members</string>

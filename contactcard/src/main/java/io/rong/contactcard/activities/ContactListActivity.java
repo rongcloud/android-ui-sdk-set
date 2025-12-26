@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,16 +20,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.request.RequestOptions;
 import io.rong.contactcard.ContactCardContext;
 import io.rong.contactcard.IContactCardInfoProvider;
 import io.rong.contactcard.R;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
 import io.rong.imkit.config.IMKitThemeManager;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.CharacterParser;
+import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imkit.widget.SideBar;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
@@ -48,6 +48,7 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
 
     private Conversation.ConversationType mConversationType;
     private String mTargetId;
+    private SideBar mSideBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,17 +58,22 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
 
         EditText searchBar = (EditText) findViewById(io.rong.imkit.R.id.rc_edit_text);
         mListView = (ListView) findViewById(io.rong.imkit.R.id.rc_list);
-        SideBar mSideBar = (SideBar) findViewById(R.id.rc_sidebar);
+        mSideBar = (SideBar) findViewById(R.id.rc_sidebar);
         TextView letterPopup = (TextView) findViewById(R.id.rc_popup_bg);
         mSideBar.setTextView(letterPopup);
-        findViewById(io.rong.imkit.R.id.rc_btn_cancel)
-                .setOnClickListener(
-                        new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                finish();
-                            }
-                        });
+        TextView btnCancel = findViewById(R.id.rc_btn_cancel);
+        TextViewUtils.setCompoundDrawables(
+                btnCancel,
+                Gravity.START,
+                IMKitThemeManager.getAttrResId(
+                        this, io.rong.imkit.R.attr.rc_navigation_bar_btn_back_img));
+        btnCancel.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                });
 
         mAdapter = new MembersAdapter();
         mListView.setAdapter(mAdapter);
@@ -112,7 +118,11 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
                                                 // 汉字转换成拼音
                                                 String pinyin =
                                                         CharacterParser.getInstance()
-                                                                .getSelling(userInfo.getName());
+                                                                .getSelling(
+                                                                        RongUserInfoManager
+                                                                                .getInstance()
+                                                                                .getUserDisplayName(
+                                                                                        userInfo));
 
                                                 if (pinyin != null && pinyin.length() > 0) {
                                                     sortString =
@@ -129,6 +139,24 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
                                         }
                                         Collections.sort(
                                                 mAllMemberList, PinyinComparator.getInstance());
+                                        if (mAllMemberList != null && !mAllMemberList.isEmpty()) {
+                                            List<String> lettersList = new ArrayList<>();
+                                            boolean foundSpecialChar = false;
+
+                                            for (MemberInfo memberInfo : mAllMemberList) {
+                                                String letter = memberInfo.getLetter();
+
+                                                if (!foundSpecialChar) {
+                                                    lettersList.add(letter);
+                                                }
+
+                                                if ("#".equals(letter)) {
+                                                    foundSpecialChar = true;
+                                                }
+                                            }
+
+                                            mSideBar.setLetters(lettersList.toArray(new String[0]));
+                                        }
                                         mAdapter.setData(mAllMemberList);
                                         mAdapter.notifyDataSetChanged();
                                     });
@@ -178,7 +206,9 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
                         } else {
                             filterDataList.clear();
                             for (MemberInfo member : mAllMemberList) {
-                                String name = member.userInfo.getName();
+                                String name =
+                                        RongUserInfoManager.getInstance()
+                                                .getUserDisplayName(member.userInfo);
                                 if (name != null
                                         && (name.contains(s)
                                                 || CharacterParser.getInstance()
@@ -242,16 +272,14 @@ public class ContactListActivity extends RongBaseNoActionbarActivity {
             if (userInfo != null) {
                 viewHolder.name.setText(
                         RongUserInfoManager.getInstance().getUserDisplayName(userInfo));
-                int defaultPortrait =
-                        IMKitThemeManager.getAttrResId(
+                RongConfigCenter.featureConfig()
+                        .getKitImageEngine()
+                        .loadUserPortrait(
                                 convertView.getContext(),
-                                io.rong.imkit.R.attr.rc_conversation_list_cell_portrait_msg_img);
-                Glide.with(convertView)
-                        .load(userInfo.getPortraitUri())
-                        .placeholder(defaultPortrait)
-                        .error(defaultPortrait)
-                        .apply(RequestOptions.bitmapTransform(new CircleCrop()))
-                        .into(viewHolder.portrait);
+                                userInfo.getPortraitUri() != null
+                                        ? userInfo.getPortraitUri().toString()
+                                        : "",
+                                viewHolder.portrait);
             }
 
             // 根据position获取分类的首字母的Char ascii值

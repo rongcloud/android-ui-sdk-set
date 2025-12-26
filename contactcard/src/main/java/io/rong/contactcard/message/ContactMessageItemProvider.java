@@ -8,22 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import io.rong.common.rlog.RLog;
 import io.rong.contactcard.ContactCardContext;
 import io.rong.contactcard.IContactCardClickListener;
 import io.rong.contactcard.IContactCardInfoProvider;
 import io.rong.contactcard.R;
-import io.rong.imkit.IMCenter;
 import io.rong.imkit.RongIM;
 import io.rong.imkit.config.IMKitThemeManager;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
 import io.rong.imlib.model.MessageContent;
@@ -65,21 +59,10 @@ public class ContactMessageItemProvider extends BaseMessageItemProvider<ContactM
             RLog.e(TAG, "checkViewsValid error," + uiMessage.getObjectName());
             return;
         }
-        final RequestOptions options =
-                RequestOptions.bitmapTransform(
-                                new RoundedCorners(
-                                        ScreenUtils.dip2px(IMCenter.getInstance().getContext(), 6)))
-                        .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
-        int defaultPortrait =
-                IMKitThemeManager.getAttrResId(
-                        holder.getContext(),
-                        io.rong.imkit.R.attr.rc_conversation_list_cell_portrait_msg_img);
-        Glide.with(imageView)
-                .load(contactMessage.getImgUrl())
-                .apply(options)
-                .placeholder(defaultPortrait)
-                .apply(RequestOptions.bitmapTransform(new CircleCrop()))
-                .into(imageView);
+
+        RongConfigCenter.featureConfig()
+                .getKitImageEngine()
+                .loadUserPortrait(imageView.getContext(), contactMessage.getImgUrl(), imageView);
 
         if (!TextUtils.isEmpty(contactMessage.getName())) {
             holder.setText(R.id.rc_name, contactMessage.getName());
@@ -104,13 +87,15 @@ public class ContactMessageItemProvider extends BaseMessageItemProvider<ContactM
                                             || !contactMessage
                                                     .getImgUrl()
                                                     .equals(userInfo.getPortraitUri().toString())) {
-                                        Glide.with(imageView)
-                                                .load(userInfo.getPortraitUri())
-                                                .apply(options)
-                                                .apply(
-                                                        RequestOptions.bitmapTransform(
-                                                                new CircleCrop()))
-                                                .into(imageView);
+                                        RongConfigCenter.featureConfig()
+                                                .getKitImageEngine()
+                                                .loadUserPortrait(
+                                                        imageView.getContext(),
+                                                        userInfo.getPortraitUri() != null
+                                                                ? userInfo.getPortraitUri()
+                                                                        .toString()
+                                                                : "",
+                                                        imageView);
                                         ((ContactMessage) (uiMessage.getMessage().getContent()))
                                                 .setImgUrl(userInfo.getPortraitUri().toString());
                                     }

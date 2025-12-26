@@ -212,6 +212,7 @@
         <attr name="item_show_selected" format="boolean" />
         <attr name="item_selected_image" format="reference" />
         <attr name="item_right_image" format="reference" />
+        <attr name="item_right_image_auto_mirrored" format="boolean" />
 
     </declare-styleable>
 

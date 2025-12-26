@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <io.rong.imkit.widget.RCMessageFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:clipChildren="false">
+    android:clipChildren="false"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <ImageView
         android:id="@+id/rc_img"
@@ -54,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center_horizontal"
-            android:textColor="?attr/rc_text_secondary_color" />
+            android:textColor="@color/rc_white_color" />
     </LinearLayout>
 
 </io.rong.imkit.widget.RCMessageFrameLayout>

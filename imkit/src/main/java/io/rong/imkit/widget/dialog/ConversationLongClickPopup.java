@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -28,7 +29,7 @@ public class ConversationLongClickPopup {
     private DialogInterface.OnDismissListener mOnDismissListener;
     private ImageView mTriangleIndicator; // 三角形指示器
     private View mContentContainer; // 主内容容器
-    private float mOriginalAlpha = 1.0f; // 保存原始的窗口透明度
+    private HighlightMaskView mMaskView; // 遮罩视图，用于高亮 AnchorView
 
     /** 选项数据类 */
     public static class OptionItem {
@@ -109,8 +110,8 @@ public class ConversationLongClickPopup {
                 new PopupWindow.OnDismissListener() {
                     @Override
                     public void onDismiss() {
-                        // 恢复窗口背景透明度
-                        restoreWindowAlpha();
+                        // 移除遮罩视图
+                        removeMaskView();
                         if (mOnDismissListener != null) {
                             mOnDismissListener.onDismiss(null);
                         }
@@ -202,8 +203,9 @@ public class ConversationLongClickPopup {
             int statusBarHeight = getStatusBarHeight();
             int topMargin = statusBarHeight + dpToPx(40); // 状态栏 + 40dp 边距
 
-            // 与锚点视图的间距设为0，让箭头紧贴锚点
-            int verticalSpacing = 0;
+            // 与锚点视图的间距，确保三角形不与 anchorView 重叠
+            // 使用负值让 Popup 和 anchorView 之间留出间距
+            int verticalSpacing = -dpToPx(7); // 留出 2dp 的间距
 
             // 获取屏幕宽度和边距
             int screenWidth = mContext.getResources().getDisplayMetrics().widthPixels;
@@ -229,7 +231,7 @@ public class ConversationLongClickPopup {
             // 检查上方是否有足够空间（需要留出顶部安全距离）
             if (yPos < topMargin) {
                 // 上方空间不够，显示在下方
-                yPos = location[1] + mAnchorView.getHeight() - verticalSpacing;
+                yPos = location[1] + mAnchorView.getHeight();
                 isShowOnTop = false;
             }
 
@@ -237,22 +239,22 @@ public class ConversationLongClickPopup {
             adjustTriangleIndicator(
                     location[0], mAnchorView.getWidth(), xPos, popupWidth, isShowOnTop);
 
+            // 添加高亮遮罩视图
+            addMaskView();
+
             // 使用 showAtLocation 在指定位置显示
             mPopupWindow.showAtLocation(mAnchorView, Gravity.NO_GRAVITY, xPos, yPos);
-
-            // 设置全屏背景遮罩
-            setWindowBackgroundAlpha(0.6f);
         } else {
             // 如果没有锚点视图，隐藏三角形指示器，在屏幕中心显示
             if (mTriangleIndicator != null) {
                 mTriangleIndicator.setVisibility(View.GONE);
             }
             if (mContext instanceof Activity) {
+                // 添加遮罩视图（没有高亮区域）
+                addMaskView();
+
                 View decorView = ((Activity) mContext).getWindow().getDecorView();
                 mPopupWindow.showAtLocation(decorView, Gravity.CENTER, 0, 0);
-
-                // 设置全屏背景遮罩
-                setWindowBackgroundAlpha(0.6f);
             }
         }
     }
@@ -264,31 +266,61 @@ public class ConversationLongClickPopup {
         }
     }
 
-    /**
-     * 设置窗口背景透明度（用于显示遮罩效果）
-     *
-     * @param alpha 透明度值，0.0-1.0，值越小越暗
-     */
-    private void setWindowBackgroundAlpha(float alpha) {
-        if (mContext instanceof Activity) {
-            Activity activity = (Activity) mContext;
-            android.view.WindowManager.LayoutParams layoutParams =
-                    activity.getWindow().getAttributes();
-            // 保存原始透明度
-            mOriginalAlpha = layoutParams.alpha;
-            layoutParams.alpha = alpha;
-            activity.getWindow().setAttributes(layoutParams);
+    /** 添加遮罩视图，并设置高亮区域为 AnchorView */
+    private void addMaskView() {
+        if (!(mContext instanceof Activity)) {
+            return;
         }
+
+        Activity activity = (Activity) mContext;
+        ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
+
+        // 创建遮罩视图
+        mMaskView = new HighlightMaskView(mContext);
+        mMaskView.setMaskColor(0x99000000); // 半透明黑色遮罩
+
+        // 如果有锚点视图，设置高亮区域
+        if (mAnchorView != null) {
+            // 获取 AnchorView 在屏幕中的位置
+            int[] location = new int[2];
+            mAnchorView.getLocationOnScreen(location);
+
+            Rect highlightRect =
+                    new Rect(
+                            location[0],
+                            location[1],
+                            location[0] + mAnchorView.getWidth(),
+                            location[1] + mAnchorView.getHeight());
+
+            mMaskView.setHighlightRect(highlightRect);
+
+            // 设置圆角（假设会话列表项有圆角，这里设置为8dp）
+            mMaskView.setCornerRadius(dpToPx(0));
+        }
+
+        // 添加遮罩视图到 DecorView
+        FrameLayout.LayoutParams params =
+                new FrameLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        decorView.addView(mMaskView, params);
+
+        // 设置点击遮罩关闭弹窗
+        mMaskView.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dismiss();
+                    }
+                });
     }
 
-    /** 恢复窗口背景透明度 */
-    private void restoreWindowAlpha() {
-        if (mContext instanceof Activity) {
+    /** 移除遮罩视图 */
+    private void removeMaskView() {
+        if (mMaskView != null && mContext instanceof Activity) {
             Activity activity = (Activity) mContext;
-            android.view.WindowManager.LayoutParams layoutParams =
-                    activity.getWindow().getAttributes();
-            layoutParams.alpha = mOriginalAlpha;
-            activity.getWindow().setAttributes(layoutParams);
+            ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
+            decorView.removeView(mMaskView);
+            mMaskView = null;
         }
     }
 

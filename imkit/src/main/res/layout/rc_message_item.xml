@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/rc_margin_size_10"
-    android:paddingBottom="@dimen/rc_margin_size_10">
+    android:paddingBottom="@dimen/rc_margin_size_10"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <TextView
         android:id="@+id/rc_time"
@@ -107,7 +108,7 @@
                 android:src="?attr/rc_conversation_list_cell_msg_read_img"
                 android:visibility="gone" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/rc_read_receipt_request"
                 style="@style/TextStyle.Alignment"
                 android:layout_width="wrap_content"

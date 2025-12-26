@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <FrameLayout
         android:id="@+id/rc_destruct_click"
@@ -18,7 +20,7 @@
         app:layout_goneMarginEnd="0dp"
         app:layout_goneMarginStart="0dp">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/rc_destruct_click_hint"
             style="@style/TextStyle.Alignment"
             android:layout_width="wrap_content"

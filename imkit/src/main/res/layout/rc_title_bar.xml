@@ -5,9 +5,10 @@
     android:layout_width="match_parent"
     android:background="?attr/rc_common_background_color"
     android:layout_height="56dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:theme="@style/RCLivelyLightTheme">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tool_bar_left"
         style="@style/TextStyle.Alignment"
         android:layout_width="110dp"
@@ -16,7 +17,6 @@
         android:gravity="center_vertical"
         android:paddingStart="11dp"
         android:paddingEnd="10dp"
-        android:paddingRight="10dp"
         android:scaleType="center"
         android:textColor="?attr/rc_text_primary_color"
         android:textSize="17sp"
@@ -30,24 +30,64 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="115dp"
-        android:layout_marginEnd="115dp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp">
+        android:layout_marginEnd="115dp">
 
-        <TextView
-            android:id="@+id/tool_bar_middle"
-            style="@style/TextStyle.Alignment"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:ellipsize="end"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:lines="1"
-            android:maxEms="12"
-            android:scaleType="center"
-            android:textColor="?attr/rc_text_primary_color"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- 左侧 ImageView -->
+            <ImageView
+                android:id="@+id/tool_bar_middle_left_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="3dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tool_bar_middle"
+                app:layout_constraintHorizontal_chainStyle="packed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="?attr/rc_user_online_status_img"
+                tools:visibility="visible" />
+
+            <!-- 中间标题（保持原有属性） -->
+            <TextView
+                android:id="@+id/tool_bar_middle"
+                style="@style/TextStyle.Alignment"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:ellipsize="end"
+                android:gravity="start|center_vertical"
+                android:lines="1"
+                android:maxEms="12"
+                android:scaleType="center"
+                android:textColor="?attr/rc_text_primary_color"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:includeFontPadding="false"
+                app:layout_constrainedWidth="true"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tool_bar_middle_right_icon"
+                app:layout_constraintStart_toEndOf="@id/tool_bar_middle_left_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="QQQQQQQQKKKKKKKKKK"
+                tools:visibility="visible" />
+
+            <!-- 右侧 ImageView -->
+            <ImageView
+                android:id="@+id/tool_bar_middle_right_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/tool_bar_middle"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="?attr/rc_conversation_block_notification_img"
+                tools:visibility="visible" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/tool_bar_middle_typing"
@@ -79,7 +119,7 @@
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:scaleType="centerCrop"
             android:visibility="gone"
             android:src="@drawable/rc_search_icon" />

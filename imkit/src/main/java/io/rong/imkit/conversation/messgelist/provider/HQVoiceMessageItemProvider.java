@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.text.TextUtilsCompat;
+import androidx.core.widget.TextViewCompat;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.IMKitThemeManager;
@@ -24,6 +25,7 @@ import io.rong.imkit.handler.SpeechToTextHandler;
 import io.rong.imkit.manager.AudioRecordManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.widget.LoadingDotsView;
 import io.rong.imkit.widget.SpeechToTextPopup;
 import io.rong.imkit.widget.TextAnimationHelper;
@@ -93,6 +95,9 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
             holder.setText(R.id.rc_duration, String.format("%s\"", message.getDuration()));
         }
 
+        // 检测RTL模式，用于语音图标翻转
+        float voiceIconScaleX = RTLUtils.isRtl(holder.getContext()) ? -1f : 1f;
+
         if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND) {
             AnimationDrawable animationDrawable =
                     (AnimationDrawable)
@@ -108,6 +113,11 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rcDuration.getLayoutParams();
             lp.setMarginEnd(12);
             rcDuration.setLayoutParams(lp);
+            // RTL模式下翻转语音图标
+            View voiceSendView = holder.getView(R.id.rc_voice_send);
+            if (voiceSendView != null) {
+                voiceSendView.setScaleX(voiceIconScaleX);
+            }
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice_send, animationDrawable);
                 if (animationDrawable != null) {
@@ -138,6 +148,11 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rcDuration.getLayoutParams();
             lp.setMarginStart(12);
             rcDuration.setLayoutParams(lp);
+            // RTL模式下翻转语音图标
+            View voiceView = holder.getView(R.id.rc_voice);
+            if (voiceView != null) {
+                voiceView.setScaleX(voiceIconScaleX);
+            }
             if (uiMessage.isPlaying()) {
                 holder.setImageDrawable(R.id.rc_voice, animationDrawable);
                 if (animationDrawable != null) {
@@ -270,15 +285,6 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
         // 统一设置点击事件拦截，防止传递给外层View
         views.sttContainer.setOnClickListener(v -> {});
         views.sttContainer.setOnLongClickListener(v -> false);
-        boolean isSender =
-                uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND);
-        int backgroundAttrId =
-                isSender
-                        ? R.attr.rc_conversation_msg_send_background
-                        : R.attr.rc_conversation_msg_receiver_background;
-        views.sttContainer.setBackgroundResource(
-                IMKitThemeManager.dynamicResource(
-                        holder.getContext(), backgroundAttrId, R.drawable.rc_stt_text_bg));
 
         // 如果处于隐藏状态，直接隐藏语音转文字UI
         if (Objects.equals(
@@ -330,7 +336,8 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
         }
         if (views.sttText != null) {
             // 清除图标（隐藏状态清除所有图标）
-            views.sttText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    views.sttText, 0, 0, 0, 0);
         }
     }
 
@@ -368,7 +375,8 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
         if (views.sttText != null) {
             views.sttText.setVisibility(View.GONE);
             // 清除图标（转换中状态不显示图标）
-            views.sttText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    views.sttText, 0, 0, 0, 0);
         }
 
         if (views.loadingDots != null) {
@@ -391,7 +399,8 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
                             views.sttText.getContext(), R.attr.rc_text_secondary_color));
 
             // 设置失败图标到文字左侧，间距为4dp
-            views.sttText.setCompoundDrawablesWithIntrinsicBounds(
+            TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    views.sttText,
                     IMKitThemeManager.getAttrResId(
                             views.sttText.getContext(),
                             R.attr.rc_conversation_list_cell_msg_fail_msg),
@@ -426,7 +435,8 @@ public class HQVoiceMessageItemProvider extends BaseMessageItemProvider<HQVoiceM
                     IMKitThemeManager.getColorFromAttrId(
                             views.sttText.getContext(), R.attr.rc_text_primary_color));
             // 清除图标（成功状态不显示图标）
-            views.sttText.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            TextViewCompat.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    views.sttText, 0, 0, 0, 0);
 
             String messageUid = uiMessage.getMessage().getUId();
             boolean isLeftToRight =

@@ -2,18 +2,14 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape>
-            <corners android:bottomRightRadius="10dp"
-                android:bottomLeftRadius="10dp"
-                />
-            <solid android:color="#e5e5e5"/>
+            <corners android:bottomLeftRadius="10dp" android:bottomRightRadius="10dp" />
+            <solid android:color="?attr/rc_auxiliary_background_1_color"/>
         </shape>
     </item>
     <item>
         <shape>
-            <corners android:bottomRightRadius="10dp"
-                android:bottomLeftRadius="10dp"
-                />
-            <solid android:color="@color/rc_white_color"/>
+            <corners android:bottomLeftRadius="10dp" android:bottomRightRadius="10dp" />
+            <solid android:color="?attr/rc_common_background_color"/>
         </shape>
     </item>
 </selector>
