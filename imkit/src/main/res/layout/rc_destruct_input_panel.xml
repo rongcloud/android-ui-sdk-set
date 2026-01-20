@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:minHeight="@dimen/rc_ext_input_panel_height"
-    android:layout_height="wrap_content"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:layout_height="wrap_content">
 
     <ImageView
         android:id="@+id/input_panel_voice_toggle"
@@ -15,7 +14,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:src="?attr/rc_conversation_input_bar_keyboard_destruct_img" />
+        android:src="@drawable/rc_destruct_ext_panel_key_icon" />
 
     <EditText
         android:id="@+id/edit_btn"
@@ -28,7 +27,6 @@
         android:layout_marginBottom="6.5dp"
         android:background="@drawable/rc_ext_panel_editbox_background"
         android:maxLines="4"
-        android:textColor="?attr/rc_text_primary_color"
         app:layout_constraintBottom_toBottomOf="@+id/input_panel_voice_toggle"
         app:layout_constraintEnd_toStartOf="@+id/input_panel_img_btn"
         app:layout_constraintStart_toEndOf="@+id/input_panel_voice_toggle"
@@ -47,8 +45,7 @@
         android:textSize="@dimen/rc_font_nav_or_date_size"
         android:textColor="@color/rc_destruct_base_color"
         android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/input_panel_voice_toggle"
         app:layout_constraintEnd_toStartOf="@+id/input_panel_img_btn"
         app:layout_constraintStart_toEndOf="@+id/input_panel_voice_toggle"
         android:visibility="visible"/>
@@ -63,14 +60,14 @@
         app:layout_constraintEnd_toEndOf="@+id/input_panel_send_btn"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.47"
-        android:src="?attr/rc_conversation_input_bar_image_destruct_img" />
+        android:src="@drawable/rc_destruct_ext_panel_img_icon" />
 
     <ImageView
         android:id="@+id/input_panel_cancel_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:background="?attr/rc_conversation_input_bar_close_destruct_img"
+        android:background="@drawable/rc_destruct_ext_panel_cancel_icon"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

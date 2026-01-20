@@ -76,34 +76,6 @@ public class AndroidEmoji {
         replaceEmojiMap.put(0x270f, "✏️");
     }
 
-    /**
-     * 获取emoji的Unicode字符串表示，用于统一显示
-     *
-     * @param index emoji索引
-     * @return emoji的Unicode字符串
-     */
-    static String getEmojiString(int index) {
-        if (index >= 0 && sEmojiList != null && index < sEmojiList.size()) {
-            EmojiInfo emoji = sEmojiList.get(index);
-            int code = emoji.code;
-
-            // 优先使用替换映射中的字符串（为了兼容iOS）
-            if (replaceEmojiMap != null && replaceEmojiMap.containsKey(code)) {
-                return replaceEmojiMap.get(code);
-            }
-
-            // 将Unicode代码点转换为字符串
-            char[] chars = Character.toChars(code);
-            StringBuilder result = new StringBuilder(Character.toString(chars[0]));
-            for (int i = 1; i < chars.length; i++) {
-                result.append(chars[i]);
-            }
-            return result.toString();
-        }
-        RLog.e(TAG, "getEmojiString sEmojiList IndexOutOfBounds");
-        return "";
-    }
-
     public static List<EmojiInfo> getEmojiList() {
         return sEmojiList;
     }

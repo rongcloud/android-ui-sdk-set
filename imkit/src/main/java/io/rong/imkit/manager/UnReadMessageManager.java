@@ -8,6 +8,8 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.InsertEvent;
 import io.rong.imkit.event.actionevent.MessageEventListener;
+import io.rong.imlib.IRongCoreListener;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -35,6 +37,21 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
                     syncUnreadCount();
                 }
             };
+
+    private final IRongCoreListener.RemoteConversationUnreadListener
+            remoteConversationUnreadListener =
+                    new IRongCoreListener.RemoteConversationUnreadListener() {
+                        @Override
+                        public void onRemoteConversationUnreadInfoSyncCompleted() {
+                            syncUnreadCount();
+                        }
+
+                        @Override
+                        public void onRemoteConversationUnreadInfoChanged(
+                                List<Conversation> conversations) {
+                            syncUnreadCount();
+                        }
+                    };
     private MessageEventListener mMessageEventListener =
             new BaseMessageEvent() {
                 @Override
@@ -89,6 +106,8 @@ public class UnReadMessageManager extends RongIMClient.OnReceiveMessageWrapperLi
         IMCenter.getInstance().addConnectStatusListener(connectCallback);
         IMCenter.getInstance().addOnRecallMessageListener(recallMessageListener);
         IMCenter.getInstance().addSyncConversationReadStatusListener(this);
+        RongCoreClient.getInstance()
+                .addRemoteConversationUnreadListener(remoteConversationUnreadListener);
     }
 
     public static UnReadMessageManager getInstance() {

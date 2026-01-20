@@ -22,7 +22,6 @@ import com.bumptech.glide.request.target.Target;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.RecallEvent;
@@ -52,19 +51,6 @@ public class GIFPreviewActivity extends RongBaseNoActionbarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rc_gif_preview);
         mCountDownView = findViewById(R.id.rc_count_down);
-        mCountDownView.setBackgroundResource(
-                IMKitThemeManager.dynamicResource(
-                        R.drawable.rc_lively_common_background,
-                        R.drawable.rc_image_msg_count_down));
-        mCountDownView.setTextColor(
-                mCountDownView
-                        .getContext()
-                        .getResources()
-                        .getColor(
-                                IMKitThemeManager.dynamicResource(
-                                        mCountDownView.getContext(),
-                                        R.attr.rc_hint_color,
-                                        R.color.rc_white_color)));
         mFailedTxt = findViewById(R.id.rc_gif_txt);
         final ImageView gifPreview = findViewById(R.id.rc_gif_preview);
         currentMessage = getIntent().getParcelableExtra("message");

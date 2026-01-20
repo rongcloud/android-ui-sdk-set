@@ -65,8 +65,7 @@ public class MessageItemLongClickActionManager {
     private void initCommonMessageItemLongClickActions() {
         MessageItemLongClickAction messageItemLongClickAction =
                 new MessageItemLongClickAction.Builder()
-                        .titleResId(R.string.rc_copy)
-                        .iconResId(R.attr.rc_conversation_menu_item_copy_img)
+                        .titleResId(R.string.rc_dialog_item_message_copy)
                         .actionListener(
                                 new MessageItemLongClickAction.MessageItemLongClickListener() {
                                     @Override
@@ -188,8 +187,7 @@ public class MessageItemLongClickActionManager {
 
         messageItemLongClickAction =
                 new MessageItemLongClickAction.Builder()
-                        .titleResId(R.string.rc_delete)
-                        .iconResId(R.attr.rc_conversation_menu_item_delete_img)
+                        .titleResId(R.string.rc_dialog_item_message_delete)
                         .actionListener(
                                 new MessageItemLongClickAction.MessageItemLongClickListener() {
                                     @Override
@@ -253,8 +251,7 @@ public class MessageItemLongClickActionManager {
         addMessageItemLongClickAction(messageItemLongClickAction);
         messageItemLongClickAction =
                 new MessageItemLongClickAction.Builder()
-                        .titleResId(R.string.rc_recall)
-                        .iconResId(R.attr.rc_conversation_menu_item_recall_img)
+                        .titleResId(R.string.rc_dialog_item_message_recall)
                         .actionListener(
                                 new MessageItemLongClickAction.MessageItemLongClickListener() {
                                     @Override
@@ -413,8 +410,7 @@ public class MessageItemLongClickActionManager {
         if (RongCoreClient.getInstance().isTextTranslationSupported()) {
             messageItemLongClickAction =
                     new MessageItemLongClickAction.Builder()
-                            .titleResId(R.string.rc_translate)
-                            .iconResId(R.attr.rc_conversation_menu_item_translation_img)
+                            .titleResId(R.string.rc_translate_message)
                             .actionListener(
                                     new MessageItemLongClickAction.MessageItemLongClickListener() {
                                         @Override

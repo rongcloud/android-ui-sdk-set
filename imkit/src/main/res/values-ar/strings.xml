@@ -193,7 +193,7 @@
     <string name="rc_combine_history_deleted">تم حذف سجل المحادثة</string>
 
     <!--Reference Message-->
-    <string name="rc_reference_message">اقتبس</string>
+    <string name="rc_reference">اقتبس</string>
     <string name="rc_reference_link">[رساله]</string>
     <string name="rc_reference_file">[ملف]</string>
     <string name="rc_search_file_prefix">[ملف]&#160;</string>
@@ -376,11 +376,7 @@
     <string name="rc_picsel_video_corrupted">تعذر مشاركة الفيديو. الملف معطوب</string>
     <string name="rc_picsel_selected_max_time_span_with_param">لا يمكن مشاركة مقاطع الفيديو التي تزيد مدتها عن %s دقيقة</string>
     <string name="rc_picsel_selected_max_second_span_with_param">لا يمكن مشاركة مقاطع الفيديو التي تزيد مدتها عن %s ثانية</string>
-    <string name="rc_read_receipt">مقروء</string>
-    <string name="rc_unread_receipt">غير مقروء</string>
-    <string name="rc_message_read_receipt_status">حالة قراءة الرسالة</string>
-    <string name="rc_message_none_user_read">لم يقرأه أحد</string>
-    <string name="rc_message_all_user_read">كلهم قرأوا</string>
+    <string name="rc_read_receipt">أقرا</string>
 
     <string name="rc_dialog_item_message_reference">اقتبس</string>
     <string name="rc_dialog_item_message_edit">تحرير الرسالة</string>
@@ -434,7 +430,7 @@
 
     <string name="rc_android.permission.READ_MEDIA_IMAGES">الألبوم</string>
     <string name="rc_android.permission.READ_MEDIA_VIDEO"> فيديو</string>
-    <string name="rc_android.permission.READ_MEDIA_VISUAL_USER_SELECTED">الوصول الجزئي</string>
+    <string name="rc_android.permission.READ_MEDIA_VISUAL_USER_SELECTED">صلاحيات جزئية" هي التعبير الذي يمكن استخدامه للإشارة إلى </string>
     <string name="rc_android.permission.CAMERA">الكاميرا</string>
     <string name="rc_android.permission.ACCESS_FINE_LOCATION">معلومات الموقع</string>
     <string name="rc_android.permission.ACCESS_COARSE_LOCATION">معلومات الموقع</string>
@@ -444,9 +440,6 @@
     <string name="rc_android.permission.READ_PHONE_STATE">الهاتف</string>
     <string name="rc_android.permission.PROCESS_OUTGOING_CALLS">الهاتف</string>
     <string name="rc_android.permission.BLUETOOTH_CONNECT">قم بتوصيل الجهاز</string>
-    <string name="rc_android.permission.BLUETOOTH_ADVERTISE">قم بتوصيل الجهاز</string>
-    <string name="rc_android.permission.BLUETOOTH_SCAN">قم بتوصيل الجهاز</string>
-    <string name="rc_android.permission.READ_CONTACTS">قراءة جهات الاتصال</string>
     <string name="rc_pub_service_info_description">المميزاتتقديم</string>
     <string name="rc_pub_service_info_enter">الدخول إلى الاشتراك</string>
     <string name="rc_pub_service_info_follow">المتابعة</string>
@@ -521,7 +514,7 @@
 
     <string name="rc_mention_messages">@ %s</string>
     <string name="rc_media_upload_error">لا يمكن تحميل وسائط 0kb.</string>
-    <string name="rc_load_local_message">خطأ في الشبكة، عرض رسائل السجل المحلي؟</string>
+    <string name = "rc_load_local_message"> خطأ في الشبكة ، عرض رسائل السجل المحلي؟ </string>
 
     <string name="rc_message_too_long">النص الذي أدخلته طويل جدًا بحيث لا يمكن إرساله</string>
     <string name="rc_gif_message_too_large">فشل في الإرسال، حجم ملف ال GIF كبير جداً</string>
@@ -540,12 +533,12 @@
 
 
     // 群组功能
-    <string name="rc_create_group">أنشأ المجموعة</string>
+    <string name="rc_create_group"> أنشأ %d المجموعة</string>
     <string name="rc_group_name_hint">املأ اسم المجموعة</string>
     <string name="rc_input_length_invalid">الطول من 1 إلى 64 حرفًا.</string>
     <string name="rc_create_group_failure">فشل إنشاء المجموعة</string>
 
-    <string name="rc_group_info">معلومات المجموعة(%d)</string>
+    <string name="rc_group_info">معلومات المجموعة</string>
     <string name="rc_group_members_label">أعضاء المجموعة(%d)</string>
     <string name="rc_group_avatar">صورة جماعية</string>
     <string name="rc_group_name">اسم المجموعة</string>
@@ -620,12 +613,12 @@
     <string name="rc_unknow_type">غير معروف</string>
     <string name="rc_start_chat">ابدأ الدردشة</string>
     <string name="rc_start_audio">ابدأ مكالمة صوتية</string>
-    <string name="rc_start_video">بدء مكالمة فيديو</string>
+    <string name="rc_start_video">ابدأ الدردشة بالفيديو</string>
     <string name="rc_delete_friend">حذف جهة الاتصال</string>
     <string name="rc_add_friend_hint">يرجى إدخال سبب الإضافة (اختياري)</string>
     <string name="rc_send_apply_success">تم إرسال طلب الصداقة بنجاح</string>
     <string name="rc_send_apply_fail">فشل في إرسال طلب الصداقة</string>
-    <string name="rc_delete_friend_title">حذف جهة الاتصال \"%1$s\" وحذف سجل الدردشة معها</string>
+    <string name="rc_delete_friend_title">تأكيد حذف جهة الاتصال هذه</string>
 
     <string name="rc_just_now">الآن</string>
     <string name="rc_within_three_days">في غضون ثلاثة أيام</string>
@@ -647,7 +640,6 @@
     <string name="rc_add_failed">فشلت الإضافة</string>
     <string name="rc_remove_success">تمت الإزالة</string>
     <string name="rc_remove_failed">فشلت الإزالة</string>
-    <string name="rc_group_transfer_success">تم النقل بنجاح</string>
     <string name="rc_group_transfer_failed">فشل النقل</string>
     <string name="rc_invite_confirm_failed">فشل تأكيد الدعوة</string>
     <string name="rc_invite_reject_failed">فشل رفض الدعوة</string>
@@ -659,10 +651,10 @@
     <string name="rc_invite_join_group_send">تم إرسال الدعوة ويحتاج المستخدم المدعو إلى الموافقة على الانضمام إلى المجموعة.</string>
     <string name="rc_invite_join_group_send_need_manange">تم إرسال الدعوة، موافقة المشرف مطلوبة للانضمام إلى المجموعة</string>
 
-    <string name="rc_group_transfer_hint">سيكون "%1$s" مالك المجموعة الجديد، وستتخلى عن منصب مالك المجموعة</string>
-    <string name="rc_remove_manager_hint">هل أنت متأكد من إزالة "%1$s" من قائمة المشرفين؟</string>
-    <string name="rc_add_manager_hint">هل أنت متأكد من تعيين "%1$s" كمشرف؟</string>
-    <string name="rc_remove_follow_hint">بعد الإزالة، لن يرسل "%1$s" لك تذكيراً</string>
+    <string name="rc_group_transfer_hint">هل أنت متأكد من إزالة s$ من قائمة المشرفين؟</string>
+    <string name="rc_remove_manager_hint">هل أنت متأكد من إزالة s$ من قائمة المشرفين؟</string>
+    <string name="rc_add_manager_hint">هل أنت متأكد من تعيين s$ كمشرف؟</string>
+    <string name="rc_remove_follow_hint">بعد الإزالة، لن يرسل “s$“ لك تذكيراً</string>
     <string name="rc_publish_announcement_hint">سيتم إخطار جميع أعضاء المجموعة بهذا الإعلان، هل تريد نشره؟</string>
 
     <string name="rc_group_title">اسم المجموعة</string>
@@ -678,8 +670,6 @@
     <string name="rc_group_management">إدارة المجموعة</string>
     <string name="rc_group_follows">اهتمام خاص</string>
     <string name="rc_group_managers">مشرفو المجموعة</string>
-    <string name="rc_group_mention_title">اختر من تريد تنبيهه</string>
-    <string name="rc_group_mention_all_members">الجميع</string>
     <string name="rc_group_add_manager">إضافة مشرفين</string>
     <string name="rc_group_add_member">إضافة أعضاء</string>
     <string name="rc_group_select_member">اختر أعضاء المجموعة</string>
@@ -700,38 +690,18 @@
     <string name="rc_my_groups">مجموعتي</string>
     <string name="rc_all_requests">جميع الطلبات</string>
     <string name="rc_pending_confirmation">في انتظار الموافقة</string>
-    <string name="rc_completed">مُعَالَج</string>
+    <string name="rc_completed">Processed</string>
     <string name="rc_group_application_sent">تقدمت بطلب للانضمام</string>
-    <string name="rc_group_invitation_sent">دعوت %1$s للانضمام</string>
-    <string name="rc_group_invitation_received_inviter">دعاك %1$s للانضمام</string>
+    <string name="rc_group_invitation_sent">دعوت s$ للانضمام</string>
+    <string name="rc_group_invitation_received_inviter">دعاك s$ للانضمام</string>
     <string name="rc_group_application_received_invitation">%1$s دعا %2$s للانضمام</string>
-    <string name="rc_group_application_received_request">يريد %1$s الانضمام</string>
+    <string name="rc_group_application_received_request">يريد s$ الانضمام</string>
     <string name="rc_user_not_found">لم يتم العثور على المستخدم</string>
 
-    <string name="rc_chat_pin">تثبيت المحادثة</string>
+    <string name="rc_chat_pin">جة على القم</string>
     <string name="rc_notification_mute">الإخطارات</string>
     <string name="rc_remove">إزالة</string>
     <string name="rc_loading_saving">توفير...</string>
     <string name="rc_content_contain_sensitive">فشلت العملية، المحتوى يحتوي على معلومات حساسة</string>
     <!--5.12.2-->
-
-    <!--Speech to Text-->
-    <string name="rc_speech_to_text">تحويل إلى نص</string>
-    <string name="rc_cancel_speech_to_text">إلغاء تحويل النص</string>
-    <string name="rc_speech_to_text_failed">فشل تحويل الكلام إلى نص</string>
-    <string name="rc_speech_to_text_network_error">تعذر تحويل الصوت إلى نص. يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</string>
-    <string name="rc_speech_to_text_unsupported_format">صيغة هذا التسجيل الصوتي غير مدعومة للتحويل إلى نص.</string>
-    <string name="rc_copy">نسخ</string>
-    <!--Speech to Text-->
-
-    <!--  NewUIDesign  -->
-    <string name="rc_set_top">تثبيت</string>
-    <string name="rc_delete">حذف</string>
-    <string name="rc_recall">سحب</string>
-    <string name="rc_reference">اقتباس</string>
-    <string name="rc_edit">تعديل</string>
-    <string name="rc_multi_select">اختيار متعدد</string>
-    <string name="rc_translate">ترجمة</string>
-    <string name="rc_combine_webview_load_failed">فشل تحميل الرسائل المدمجة المعاد توجيهها</string>
-    <!--  NewUIDesign  -->
 </resources>

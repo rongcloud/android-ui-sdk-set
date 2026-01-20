@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/rc_title_bar_height"
-    android:paddingStart="11dp"
-    android:paddingEnd="@dimen/rc_margin_size_16">
+    android:background="@color/rc_white_color"
+    android:paddingLeft="@dimen/rc_margin_size_12"
+    android:paddingRight="@dimen/rc_margin_size_12">
 
     <!-- 左侧容器 -->
     <LinearLayout
@@ -17,14 +17,13 @@
         <TextView
             android:id="@+id/left_text"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:drawablePadding="-3dp"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/rc_title_bar_back"
+            android:drawablePadding="-5dp"
             android:gravity="center_vertical"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp"
-            android:textColor="?attr/rc_text_primary_color"
-            android:textSize="16sp"
-            app:drawableStartCompat="?attr/rc_navigation_bar_btn_back_img" />
+            android:padding="@dimen/rc_margin_size_4"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
     </LinearLayout>
 
     <!-- 中间容器 -->
@@ -36,13 +35,13 @@
 
         <TextView
             android:id="@+id/title_text"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:ellipsize="end"
             android:gravity="center"
             android:maxLines="1"
-            android:textColor="?attr/rc_text_primary_color"
-            android:textSize="18sp" />
+            android:textColor="@android:color/black"
+            android:textSize="17sp" />
     </FrameLayout>
 
     <!-- 右侧容器 -->
@@ -60,8 +59,8 @@
             android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:padding="@dimen/rc_margin_size_2"
-            android:textColor="?attr/rc_primary_color"
-            android:textSize="16sp"
+            android:textColor="@color/rc_blue"
+            android:textSize="14sp"
             android:visibility="gone" />
     </LinearLayout>
 </FrameLayout>

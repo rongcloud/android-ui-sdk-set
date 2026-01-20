@@ -36,8 +36,9 @@ import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.StreamMsgUtil;
+import io.rong.imlib.IRongCoreListener;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.message.FileMessage;
@@ -64,12 +65,16 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
     private List<ReferenceStatusListener> mReferenceStatusListenerList =
             new CopyOnWriteArrayList<>();
 
-    // 返回值上层没有使用
     private MessageItemLongClickAction mClickActionReference =
             new MessageItemLongClickAction.Builder()
-                    .titleResId(R.string.rc_reference)
-                    .iconResId(R.attr.rc_conversation_menu_item_reference_img)
-                    .actionListener(this::showReferenceViewInEditMode)
+                    .titleResId(R.string.rc_dialog_item_message_reference)
+                    .actionListener(
+                            (context, uiMessage) -> {
+                                if (!showReferenceView(context, uiMessage)) {
+                                    return false;
+                                }
+                                return true;
+                            })
                     .showFilter(
                             new MessageItemLongClickAction.Filter() {
                                 @Override
@@ -217,6 +222,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         RongExtensionManager.getInstance().addExtensionEventWatcher(this);
         IMCenter.getInstance().addOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().addMessageEventListener(mMessageEventListener);
+        RongCoreClient.getInstance().addMessageModifiedListener(mMessageModifiedListener);
     }
 
     private MessageEventListener mMessageEventListener =
@@ -336,6 +342,32 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                 }
             };
 
+    private IRongCoreListener.MessageModifiedListener mMessageModifiedListener =
+            new IRongCoreListener.MessageModifiedListener() {
+                @Override
+                public void onMessageModified(List<Message> messages) {
+                    if (messages == null || messages.isEmpty()) {
+                        return;
+                    }
+                    if (mRongExtension == null || mFragment == null) {
+                        return;
+                    }
+                    RongExtension rongExtension = mRongExtension.get();
+                    Fragment fragment = mFragment.get();
+                    if (rongExtension == null
+                            || fragment == null
+                            || fragment.isDetached()
+                            || fragment.getContext() == null
+                            || fragment.getFragmentManager() == null) {
+                        return;
+                    }
+                    RLog.d(TAG, "onMessageModified");
+                }
+
+                @Override
+                public void onModifiedMessageSyncCompleted() {}
+            };
+
     @Override
     public void onDetachedFromExtension() {
         // do nothing
@@ -403,6 +435,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             MessageItemLongClickActionManager.getInstance()
                     .removeMessageItemLongClickAction(mClickActionReference);
             IMCenter.getInstance().removeMessageEventListener(mMessageEventListener);
+            RongCoreClient.getInstance().removeMessageModifiedListener(mMessageModifiedListener);
             RongExtensionManager.getInstance().removeExtensionEventWatcher(this);
             mRongExtension = null;
             mFragment = null;
@@ -417,41 +450,6 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
      * @return 是否显示成功
      */
     public boolean showReferenceView(Context context, UiMessage uiMessage) {
-        if (EditMessageManager.getInstance().isEditMessageState()) {
-            return false;
-        }
-        // 如果context为空，则尝试使用mFragment的Context
-        if (context == null && mFragment != null) {
-            Fragment frag = mFragment.get();
-            if (frag != null && !frag.isDetached()) {
-                context = frag.getContext();
-            }
-        }
-        return showReferenceView(context, uiMessage, true);
-    }
-
-    private boolean showReferenceViewInEditMode(Context context, UiMessage uiMessage) {
-        if (EditMessageManager.getInstance().isEditMessageState()) {
-            // 编辑模式下，需延迟退出编辑模式、展示引用UI，否则软键盘会快速落下再弹起。
-            postDelayed(
-                    () -> {
-                        EditMessageManager.getInstance().exitEditMode();
-                        postDelayed(() -> showReferenceView(context, uiMessage, false));
-                    });
-        } else {
-            showReferenceView(context, uiMessage);
-        }
-        return true;
-    }
-
-    /**
-     * 显示引用消息栏
-     *
-     * @param context 上下文
-     * @param uiMessage 消息实体
-     * @return 是否显示成功
-     */
-    public boolean showReferenceView(Context context, UiMessage uiMessage, boolean showKeyBoard) {
         if (mRongExtension == null
                 || mFragment == null
                 || context == null
@@ -470,9 +468,51 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                 || fragment.isDetached()
                 || fragment.getContext() == null
                 || fragment.getFragmentManager() == null) {
-            return false;
+            return true;
+        }
+
+        // 关闭编辑模式，显示引用组件。增加延时，防止软键盘先收起再弹起的闪烁。
+        if (EditMessageManager.getInstance().isEditMessageState()) {
+            rongExtension.postDelayed(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            EditMessageManager.getInstance().exitEditMode();
+                            mUiMessage = uiMessage;
+                            mReferenceMessage =
+                                    ReferenceMessage.obtainMessage(
+                                            uiMessage.getMessage().getSenderUserId(),
+                                            uiMessage.getMessage().getContent(),
+                                            uiMessage.getUId());
+                            if (uiMessage.getMessage().isHasChanged()) {
+                                mReferenceMessage.setReferMsgStatus(
+                                        ReferenceMessage.ReferenceMessageStatus.MODIFIED);
+                            }
+                            ReferenceView reference =
+                                    new ReferenceView(
+                                            context,
+                                            rongExtension.getContainer(
+                                                    RongExtension.ContainerType.ATTACH),
+                                            uiMessage);
+                            rongExtension.setAttachedInfo(reference.getReferenceView());
+                            reference.setReferenceCancelListener(() -> hideReferenceView());
+                        }
+                    },
+                    100);
+            return true;
         }
         mUiMessage = uiMessage;
+        ReferenceView reference =
+                new ReferenceView(
+                        context,
+                        rongExtension.getContainer(RongExtension.ContainerType.ATTACH),
+                        uiMessage);
+        rongExtension.setAttachedInfo(reference.getReferenceView());
+        final RongExtensionViewModel extensionViewModel =
+                new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
+        extensionViewModel.getInputModeLiveData().postValue(InputMode.TextInput);
+        rongExtension.postDelayed(() -> extensionViewModel.setSoftInputKeyBoard(true), 100);
+
         mReferenceMessage =
                 ReferenceMessage.obtainMessage(
                         uiMessage.getMessage().getSenderUserId(),
@@ -481,24 +521,8 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         if (uiMessage.getMessage().isHasChanged()) {
             mReferenceMessage.setReferMsgStatus(ReferenceMessage.ReferenceMessageStatus.MODIFIED);
         }
-        ReferenceView reference =
-                new ReferenceView(
-                        context,
-                        rongExtension.getContainer(RongExtension.ContainerType.ATTACH),
-                        uiMessage);
         reference.setReferenceCancelListener(this::hideReferenceView);
-        rongExtension.setAttachedInfo(reference.getReferenceView());
-        final RongExtensionViewModel extensionViewModel =
-                new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
-        extensionViewModel.getInputModeLiveData().postValue(InputMode.TextInput);
-        if (showKeyBoard) {
-            rongExtension.postDelayed(() -> extensionViewModel.setSoftInputKeyBoard(true), 100);
-        }
         return true;
-    }
-
-    private void postDelayed(Runnable r) {
-        ExecutorFactory.getInstance().getMainHandler().postDelayed(r, 100);
     }
 
     public void hideReferenceView() {

@@ -37,7 +37,6 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.FilePreviewActivity;
 import io.rong.imkit.activity.PicturePagerActivity;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
@@ -106,15 +105,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         }
         if (referenceMessage.getReferenceContent() == null) {
             return;
-        }
-        if (!IMKitThemeManager.isTraditionTheme()) {
-            int attrResId =
-                    IMKitThemeManager.getAttrResId(
-                            holder.getContext(), R.attr.rc_text_primary_color);
-            holder.setBackgroundRes(R.id.rc_reference_vertical_mark, attrResId);
-            holder.setTextColorRes(R.id.rc_msg_tv_reference_name, attrResId);
-            holder.setTextColorRes(R.id.rc_msg_tv_reference_file_name, attrResId);
-            holder.setTextColorRes(R.id.rc_msg_tv_reference_content, attrResId);
         }
         if (referenceMessage.getReferenceContent() instanceof TextMessage
                 || referenceMessage.getReferenceContent() instanceof StreamMessage) {
@@ -552,8 +542,9 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         final SpannableStringBuilder ssb = new SpannableStringBuilder(string);
         ssb.setSpan(
                 new ForegroundColorSpan(
-                        IMKitThemeManager.getColorFromAttrId(
-                                view.getContext(), R.attr.rc_link_color)),
+                        view.getContext()
+                                .getResources()
+                                .getColor(R.color.rc_reference_text_link_color)),
                 0,
                 string.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -638,8 +629,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                                     }
                                 }
                             },
-                            IMKitThemeManager.getColorFromAttrId(
-                                    textView.getContext(), R.attr.rc_link_color));
+                            textView.getResources().getColor(R.color.rc_reference_text_link_color));
             uiMessage.setReferenceContentSpannable(spannable);
         }
         textView.setText(uiMessage.getReferenceContentSpannable());

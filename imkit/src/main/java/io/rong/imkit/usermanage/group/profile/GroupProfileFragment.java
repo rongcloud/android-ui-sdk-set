@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,9 +32,7 @@ import io.rong.imkit.usermanage.group.nickname.GroupNicknameActivity;
 import io.rong.imkit.usermanage.group.notice.GroupNoticeActivity;
 import io.rong.imkit.usermanage.group.remark.GroupRemarkActivity;
 import io.rong.imkit.usermanage.group.remove.RemoveGroupMembersActivity;
-import io.rong.imkit.utils.ImageViewUtils;
 import io.rong.imkit.utils.KitConstants;
-import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.SettingItemView;
 import io.rong.imlib.RongCoreClient;
@@ -128,9 +125,6 @@ public class GroupProfileFragment extends BaseViewModelFragment<GroupProfileView
         groupMembersLabel = view.findViewById(R.id.tv_group_members_label);
         groupMembersLayout = view.findViewById(R.id.ll_group_members);
 
-        // 启用群成员箭头的 RTL 自动镜像
-        ImageViewUtils.enableDrawableAutoMirror(view.findViewById(R.id.iv_group_members_arrow));
-
         // 配置 RecyclerView
         groupMemberRecyclerView.setLayoutManager(new GridLayoutManager(context, 5));
         displayMaxMemberCount =
@@ -190,12 +184,6 @@ public class GroupProfileFragment extends BaseViewModelFragment<GroupProfileView
                                         getString(
                                                 R.string.rc_group_info,
                                                 groupInfo.getMembersCount()));
-                            }
-                            // 如果是 RTL 模式，需要设置 ScaleType 为 FIT_START，保证居左
-                            if (RTLUtils.isRtl(this.getContext())) {
-                                groupAvatarView
-                                        .getSelectImage()
-                                        .setScaleType(ImageView.ScaleType.FIT_START);
                             }
                             // 设置群组头像
                             RongConfigCenter.featureConfig()

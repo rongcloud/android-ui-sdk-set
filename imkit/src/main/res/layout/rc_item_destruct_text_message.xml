@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/fl_bubble"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:layout_height="wrap_content">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/tv_unread"
         style="@style/RCTheme.Message.TextView"
         android:layout_width="wrap_content"
@@ -20,8 +18,7 @@
         android:text="@string/rc_click_to_view"
         android:textColor="#A0A5AB"
         android:visibility="gone"
-        android:gravity="center_vertical"
-        app:drawableEndCompat="?attr/rc_conversation_msg_status_text_destruct_img"
+        android:drawableEnd="@drawable/rc_item_fire_t"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,9 +36,9 @@
         android:layout_marginEnd="4.5dp"
         android:gravity="center_vertical|start"
         android:maxWidth="223dp"
-        android:padding="10dp"
-        android:textColor="?attr/rc_text_primary_color"
-        android:textColorLink="?attr/rc_primary_color"
+        android:padding="16dp"
+        android:textColor="@color/rc_text_main_color"
+        android:textColorLink="@color/rc_main_theme"
         android:textSize="@dimen/rc_font_secondary_size"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -63,7 +60,7 @@
             android:layout_width="@dimen/rc_margin_size_15"
             android:layout_height="@dimen/rc_margin_size_15"
             android:layout_gravity="center"
-            android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
+            android:src="@drawable/rc_fire" />
     </FrameLayout>
 
     <FrameLayout
@@ -80,7 +77,7 @@
             android:layout_width="@dimen/rc_margin_size_15"
             android:layout_height="@dimen/rc_margin_size_15"
             android:layout_gravity="center"
-            android:src="?attr/rc_conversation_msg_cell_fire_identify_img" />
+            android:src="@drawable/rc_fire" />
 
         <TextView
             android:id="@+id/tv_receiver_fire"
@@ -91,7 +88,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/rc_white_color"
-            android:textSize="11sp"
+            android:textSize="11dp"
             android:visibility="gone" />
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

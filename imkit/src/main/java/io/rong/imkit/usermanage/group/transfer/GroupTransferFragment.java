@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.ContactListComponent;
 import io.rong.imkit.usermanage.component.HeadComponent;
@@ -117,10 +116,7 @@ public class GroupTransferFragment extends BaseViewModelFragment<GroupTransferVi
         String name = concatenateUserDisplayNames(friendInfos, groupMemberInfo);
         // 弹出删除好友确认对话框
         new CommonDialog.Builder()
-                .setTitleText(R.string.rc_prompt)
                 .setContentMessage(getString(R.string.rc_group_transfer_hint, name))
-                .setPositiveTextColor(
-                        IMKitThemeManager.getColorFromAttrId(getContext(), R.attr.rc_primary_color))
                 .setDialogButtonClickListener(
                         (v, bundle) -> {
                             getViewModel()

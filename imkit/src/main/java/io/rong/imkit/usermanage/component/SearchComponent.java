@@ -22,7 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseComponent;
-import io.rong.imkit.config.IMKitThemeManager;
 
 public class SearchComponent extends BaseComponent {
 
@@ -52,12 +51,6 @@ public class SearchComponent extends BaseComponent {
             LayoutInflater inflater,
             @NonNull ViewGroup parent,
             AttributeSet attrs) {
-        // 只有在外部没有设置背景时，才应用默认背景
-        if (getBackground() == null) {
-            setBackgroundColor(
-                    IMKitThemeManager.getColorFromAttrId(
-                            context, R.attr.rc_user_manager_background_color));
-        }
         View view = inflater.inflate(R.layout.rc_search_component, parent, false);
         searchLayout = view.findViewById(R.id.layout_search);
         searchEditText = view.findViewById(R.id.et_search);
@@ -104,6 +97,10 @@ public class SearchComponent extends BaseComponent {
                             return false;
                         }
                     });
+            searchEditText.setOnFocusChangeListener(
+                    (v, hasFocus) -> {
+                        updateSearchLayoutPosition(hasFocus);
+                    });
 
             searchEditText.addTextChangedListener(
                     new TextWatcher() {
@@ -128,13 +125,8 @@ public class SearchComponent extends BaseComponent {
                         }
                     });
         } else {
-            // 保持不可编辑但可响应点击，将事件交给 flSearch
             searchEditText.setFocusable(false);
-            searchEditText.setFocusableInTouchMode(false);
             searchEditText.setCursorVisible(false);
-            searchEditText.setClickable(true);
-            searchEditText.setLongClickable(false);
-            searchEditText.setOnClickListener(v -> flSearch.callOnClick());
         }
 
         return view;
@@ -147,13 +139,6 @@ public class SearchComponent extends BaseComponent {
 
     public void setSearchHint(@StringRes int resId) {
         this.searchEditText.setHint(resId);
-    }
-
-    public void setSearchContent(String searchContent) {
-        if (searchContent != null) {
-            this.searchEditText.setText(searchContent);
-            this.searchEditText.setSelection(searchContent.length());
-        }
     }
 
     /**

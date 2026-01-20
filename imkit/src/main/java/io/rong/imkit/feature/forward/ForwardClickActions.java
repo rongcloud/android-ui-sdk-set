@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.ConversationFragment;
 import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
@@ -26,10 +25,7 @@ public class ForwardClickActions implements IClickActions {
 
     @Override
     public Drawable obtainDrawable(Context context) {
-        return context.getResources()
-                .getDrawable(
-                        IMKitThemeManager.getAttrResId(
-                                context, R.attr.rc_conversation_menu_item_forward_img));
+        return context.getResources().getDrawable(R.drawable.rc_selector_multi_forward);
     }
 
     @Override

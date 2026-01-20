@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:theme="@style/RCTraditionLightTheme">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
         android:id="@+id/rc_menu_title"
@@ -24,7 +23,7 @@
         android:layout_marginEnd="5dp"
         android:layout_marginBottom="5dp"
         android:background="@android:color/transparent"
-        android:src="?attr/rc_conversation_list_cell_portrait_msg_img"
+        android:src="@drawable/rc_default_portrait"
         android:visibility="gone" />
 
     <View

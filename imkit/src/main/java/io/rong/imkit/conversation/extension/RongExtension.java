@@ -20,7 +20,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.component.emoticon.EmoticonBoard;
 import io.rong.imkit.conversation.extension.component.inputpanel.InputPanel;
 import io.rong.imkit.conversation.extension.component.moreaction.MoreInputPanel;
@@ -83,7 +82,9 @@ public class RongExtension extends LinearLayout {
                             mExtensionViewModel.getExtensionBoardState().setValue(true);
                         } else {
                             if (mExtensionViewModel != null) {
-                                mExtensionViewModel.setSoftInputKeyBoard(false, true);
+                                if (mExtensionViewModel.isSoftInputShow()) {
+                                    mExtensionViewModel.setSoftInputKeyBoard(false, false);
+                                }
                                 if (mPreInputMode != null
                                         && (mPreInputMode == InputMode.TextInput
                                                 || mPreInputMode == InputMode.VoiceInput)) {
@@ -131,10 +132,6 @@ public class RongExtension extends LinearLayout {
         mAttachedInfoContainer = mRoot.findViewById(R.id.rc_ext_attached_info_container);
         mInputPanelContainer = mRoot.findViewById(R.id.rc_ext_input_container);
         mBoardContainer = mRoot.findViewById(R.id.rc_ext_board_container);
-        View extInputDivider = mRoot.findViewById(R.id.rc_ext_input_divider);
-        if (extInputDivider != null) {
-            extInputDivider.setVisibility(IMKitThemeManager.isTraditionTheme() ? VISIBLE : GONE);
-        }
     }
 
     public void bindToConversation(
@@ -294,10 +291,12 @@ public class RongExtension extends LinearLayout {
                         new Runnable() {
                             @Override
                             public void run() {
+                                editText.setSelection(editText.getText().toString().length());
+                                editText.requestFocus();
                                 mExtensionViewModel.forceSetSoftInputKeyBoard(true);
                             }
                         },
-                        300);
+                        200);
             }
 
             if (editText instanceof RongEditText) {

@@ -6,15 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/picture_color_white"
-    tools:context=".picture.PictureSelectorActivity"
-    tools:theme="@style/RCTraditionLightTheme">
+    tools:context=".picture.PictureSelectorActivity">
 
     <FrameLayout
         android:id="@+id/fl_top"
         android:layout_width="0dp"
         android:layout_height="44dp"
-        android:background="?attr/rc_common_background_color"
+        android:background="@color/rc_background_main_color"
         app:layout_constraintBottom_toTopOf="@id/picture_recycler"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -37,7 +35,7 @@
                 android:gravity="center"
                 android:maxEms="11"
                 android:text="@string/rc_picture_camera_roll"
-                android:textColor="?attr/rc_text_primary_color"
+                android:textColor="@color/rc_text_main_color"
                 android:textSize="@dimen/rc_font_secondary_size" />
 
             <ImageView
@@ -59,7 +57,7 @@
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:text="@string/rc_picture_cancel"
-            android:textColor="?attr/rc_primary_color"
+            android:textColor="@color/rc_main_theme"
             android:textSize="@dimen/rc_font_text_third_size" />
     </FrameLayout>
 
@@ -67,7 +65,7 @@
         android:id="@+id/fl_bottom"
         android:layout_width="0dp"
         android:layout_height="45dp"
-        android:background="?attr/rc_common_background_color"
+        android:background="@color/rc_background_main_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -80,24 +78,25 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:enabled="false"
-            android:gravity="center|center_vertical"
+            android:gravity="center"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
             android:text="@string/rc_picture_preview"
-            android:textColor="?attr/rc_primary_color"
-            android:textSize="@dimen/rc_font_text_third_size" />
+            android:textColor="@color/rc_text_main_color"
+            android:textSize="@dimen/rc_font_secondary_size" />
 
         <TextView
             android:id="@+id/picture_tv_ok"
             style="@style/TextStyle.Alignment"
-            android:layout_width="76dp"
-            android:layout_height="36dp"
-            android:layout_gravity="end|center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
             android:enabled="false"
             android:gravity="center"
-            android:layout_marginEnd="16dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:text="@string/rc_picture_send"
-            android:textColor="?attr/rc_primary_color"
+            android:textColor="@color/rc_main_theme"
             android:textSize="@dimen/rc_font_secondary_size" />
     </FrameLayout>
 
@@ -106,9 +105,8 @@
         android:id="@+id/picture_recycler"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingStart="2dp"
-        android:paddingEnd="2dp"
-        android:background="?attr/rc_common_background_color"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
         app:layout_constraintBottom_toTopOf="@id/fl_bottom"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -122,7 +120,7 @@
         android:gravity="center"
         android:lineSpacingExtra="3dp"
         android:text="@string/rc_picture_empty"
-        android:textColor="?attr/rc_text_primary_color"
+        android:textColor="@color/rc_white_color"
         android:textSize="18dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"

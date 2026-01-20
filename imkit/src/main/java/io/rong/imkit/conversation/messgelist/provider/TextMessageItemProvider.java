@@ -16,7 +16,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.text.TextUtilsCompat;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
@@ -154,11 +153,7 @@ public class TextMessageItemProvider extends BaseMessageItemProvider<TextMessage
         if (mConfig.showContentBubble) {
             holder.setBackgroundRes(
                     R.id.rc_text,
-                    IMKitThemeManager.getAttrResId(
-                            holder.getContext(),
-                            isSender
-                                    ? R.attr.rc_conversation_msg_send_background
-                                    : R.attr.rc_conversation_msg_receiver_background));
+                    isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
         }
         if (uiMessage.getTranslateStatus() == State.SUCCESS
                 && !TextUtils.isEmpty(uiMessage.getTranslatedContent())) {

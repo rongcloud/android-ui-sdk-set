@@ -111,21 +111,6 @@ public class CombineMessageUtils {
     private Boolean isSameYear;
     private String style = "";
     private String sendUserId;
-    private String darkStyle =
-            "html, body { background-color: #1a1a1a !important; color: #e0e0e0 !important; }"
-                    + ".rongcloud-message-user-name { color: #ffffff !important; }"
-                    + ".rong-time-value { background: #1a1a1a !important; color: #888888 !important; }"
-                    + ".rong-message { border-bottom-color: #333333 !important; color: #cccccc !important; }"
-                    + ".rong-hr { border-bottom-color: #333333 !important; }"
-                    + ".rong-link-site { color: #64B5F6 !important; }"
-                    + ".rong-message-combine { border-color: #444444 !important; background: #252525 !important; }"
-                    + ".rong-combine-title { color: #ffffff !important; }"
-                    + ".rong-conbine-foot { border-top-color: #444444 !important; }"
-                    + ".rong-big-img, .rong-big-video { background: #1a1a1a !important; }"
-                    + ".rongcloud-message-text { color: #cccccc !important; }"
-                    + ".rong-message-file div { color: #cccccc !important; }"
-                    + ".rong-message-user-portrait { background: #333333 !important; }";
-    private String fileIconStyle = ".rong-message-file img { background: transparent !important; }";
 
     private CombineMessageUtils() {
         // default implementation ignored
@@ -605,25 +590,5 @@ public class CombineMessageUtils {
                 .replace("&", "&amp;")
                 .replace("<", "&lt;")
                 .replace(">", "&gt;");
-    }
-
-    /** 获取暗黑模式样式 */
-    public String getDarkStyle() {
-        return darkStyle;
-    }
-
-    /** 设置暗黑模式样式 */
-    public void setDarkStyle(String darkStyle) {
-        this.darkStyle = darkStyle;
-    }
-
-    /** 获取文件消息 Icon 透明修复样式 */
-    public String getFileIconStyle() {
-        return fileIconStyle;
-    }
-
-    /** 设置文件消息 Icon 透明修复样式 */
-    public void setFileIconStyle(String fileIconStyle) {
-        this.fileIconStyle = fileIconStyle;
     }
 }

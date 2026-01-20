@@ -1,7 +1,6 @@
 package io.rong.imkit.usermanage.adapter.vh;
 
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,14 +8,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
-import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.ContactModel;
-import io.rong.imkit.model.OnlineStatusFriendInfo;
-import io.rong.imkit.usermanage.group.mention.GroupMentionFragment;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
-import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
@@ -34,8 +28,7 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
     private final ImageView contactPortraitImageView;
     private final ImageView contactSelectImageView;
     private final ImageView rightArrow;
-    private final ImageView tvRemove;
-    private final View divider;
+    private final TextView tvRemove;
     private final boolean showSelectButton;
     private final boolean showItemRightArrow;
     private final boolean showItemRightText;
@@ -59,7 +52,6 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         contactSelectImageView = itemView.findViewById(R.id.iv_contact_select);
         rightArrow = itemView.findViewById(R.id.iv_right_arrow);
         tvRemove = itemView.findViewById(R.id.tv_remove);
-        divider = itemView.findViewById(R.id.divider);
 
         this.showSelectButton = showSelectButton;
         this.showItemRightArrow = showItemRightArrow;
@@ -116,12 +108,8 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         String portraitUrl = null;
         String roleText = "";
 
-        if (contactModelBean instanceof OnlineStatusFriendInfo
-                || contactModelBean instanceof FriendInfo) {
-            FriendInfo friendInfo =
-                    contactModelBean instanceof OnlineStatusFriendInfo
-                            ? ((OnlineStatusFriendInfo) contactModelBean).getFriendInfo()
-                            : (FriendInfo) contactModelBean;
+        if (contactModelBean instanceof FriendInfo) {
+            FriendInfo friendInfo = (FriendInfo) contactModelBean;
             name =
                     !TextUtils.isEmpty(friendInfo.getRemark())
                             ? friendInfo.getRemark()
@@ -140,12 +128,10 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
                             ? groupMemberInfo.getNickname()
                             : groupMemberInfo.getName();
             // 使用静态内部类回调来获取朋友信息，避免内存泄露
-            if (!GroupMentionFragment.class.getSimpleName().equals(contactModel.getExtra())) {
-                RongCoreClient.getInstance()
-                        .getFriendsInfo(
-                                Collections.singletonList(groupMemberInfo.getUserId()),
-                                new FriendsInfoCallback(this));
-            }
+            RongCoreClient.getInstance()
+                    .getFriendsInfo(
+                            Collections.singletonList(groupMemberInfo.getUserId()),
+                            new FriendsInfoCallback(this));
 
             portraitUrl = groupMemberInfo.getPortraitUri();
             roleText = getRoleText(groupMemberInfo.getRole(), rightText);
@@ -158,17 +144,7 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
         }
 
         contactNameTextView.setText(name);
-        // 如果是OnlineStatusFriendInfo，则设置在线状态
-        if (AppSettingsHandler.getInstance().isOnlineStatusEnable()
-                && contactModelBean instanceof OnlineStatusFriendInfo) {
-            int statusResID =
-                    IMKitThemeManager.getAttrResId(
-                            contactNameTextView.getContext(),
-                            ((OnlineStatusFriendInfo) contactModelBean).isOnline()
-                                    ? R.attr.rc_user_online_status_img
-                                    : R.attr.rc_user_offline_status_img);
-            TextViewUtils.setCompoundDrawables(contactNameTextView, Gravity.START, statusResID);
-        }
+
         rightText.setText(roleText);
         rightText.setVisibility(showItemRightText ? View.VISIBLE : View.GONE);
         contactSelectImageView.setVisibility(showSelectButton ? View.VISIBLE : View.GONE);
@@ -184,12 +160,6 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
     public void setShowItemRemoveButton(boolean isShow) {
         if (tvRemove != null) {
             tvRemove.setVisibility(isShow ? View.VISIBLE : View.GONE);
-        }
-    }
-
-    public void setDividerVisibility(boolean isVisible) {
-        if (divider != null) {
-            divider.setVisibility(isVisible ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -241,21 +211,15 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
                 break;
             case UNCHECKED:
                 checkBox.setVisibility(View.VISIBLE);
-                checkBox.setImageResource(
-                        IMKitThemeManager.getAttrResId(
-                                checkBox.getContext(), R.attr.rc_group_member_unselect_img));
+                checkBox.setImageResource(R.drawable.rc_checkbox_none);
                 break;
             case CHECKED:
                 checkBox.setVisibility(View.VISIBLE);
-                checkBox.setImageResource(
-                        IMKitThemeManager.getAttrResId(
-                                checkBox.getContext(), R.attr.rc_group_member_select_img));
+                checkBox.setImageResource(R.drawable.rc_checkbox_select);
                 break;
             case DISABLE:
                 checkBox.setVisibility(View.VISIBLE);
-                checkBox.setImageResource(
-                        IMKitThemeManager.getAttrResId(
-                                checkBox.getContext(), R.attr.rc_group_member_disable_select_img));
+                checkBox.setImageResource(R.drawable.rc_checkbox_disable);
                 break;
             default:
                 break;

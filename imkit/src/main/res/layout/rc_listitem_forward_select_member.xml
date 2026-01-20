@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="5dp"
@@ -8,8 +7,7 @@
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:paddingBottom="8dp">
 
     <ImageView
         android:id="@+id/rc_checkbox"
@@ -25,7 +23,7 @@
         android:layout_marginStart="16dp"
         android:background="@android:color/transparent"
         android:scaleType="centerCrop"
-        android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
+        android:src="@drawable/rc_default_portrait" />
 
     <TextView
         android:id="@+id/rc_user_name"

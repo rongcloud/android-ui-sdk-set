@@ -8,7 +8,6 @@ import io.rong.imkit.feature.editmessage.EditMessageConfig;
 import io.rong.imkit.feature.mention.MentionBlock;
 import io.rong.imkit.utils.StringUtils;
 import io.rong.imlib.model.Conversation;
-import io.rong.message.ReferenceMessage.ReferenceMessageStatus;
 import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONArray;
@@ -102,26 +101,19 @@ public class RongExtensionCacheHelper {
             Conversation.ConversationType conversationType,
             String targetId,
             EditMessageConfig config) {
-        if (context == null
-                || conversationType == null
-                || TextUtils.isEmpty(targetId)
-                || config == null
-                || TextUtils.isEmpty(config.uid)) {
+        if (config == null || TextUtils.isEmpty(config.uid)) {
             return;
         }
         SharedPreferences sp =
                 context.getSharedPreferences(EXTENSION_PREFERENCE, Context.MODE_PRIVATE);
-        if (sp == null) {
-            return;
-        }
         String key = EDIT_MESSAGE + StringUtils.getKey(conversationType.getName(), targetId);
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uid", config.uid);
             jsonObject.put("content", config.content);
-            String content = !TextUtils.isEmpty(config.referContent) ? config.referContent : "";
-            jsonObject.put("referContent", content);
-            jsonObject.put("referUid", config.referUid);
+            jsonObject.put(
+                    "referContent",
+                    !TextUtils.isEmpty(config.referContent) ? config.referContent : "");
             jsonObject.put("sentTime", config.sentTime);
             if (config.mentionBlocks != null && !config.mentionBlocks.isEmpty()) {
                 JSONArray jsonArray = new JSONArray();
@@ -138,28 +130,16 @@ public class RongExtensionCacheHelper {
 
     public static void clearEditMessageConfig(
             Context context, Conversation.ConversationType conversationType, String targetId) {
-        if (context == null || conversationType == null || TextUtils.isEmpty(targetId)) {
-            return;
-        }
         SharedPreferences sp =
                 context.getSharedPreferences(EXTENSION_PREFERENCE, Context.MODE_PRIVATE);
-        if (sp == null) {
-            return;
-        }
         String key = EDIT_MESSAGE + StringUtils.getKey(conversationType.getName(), targetId);
         sp.edit().remove(key).apply();
     }
 
     public static EditMessageConfig getEditMessageConfig(
             Context context, Conversation.ConversationType conversationType, String targetId) {
-        if (context == null || conversationType == null || TextUtils.isEmpty(targetId)) {
-            return null;
-        }
         SharedPreferences sp =
                 context.getSharedPreferences(EXTENSION_PREFERENCE, Context.MODE_PRIVATE);
-        if (sp == null) {
-            return null;
-        }
         String key = EDIT_MESSAGE + StringUtils.getKey(conversationType.getName(), targetId);
         String configJson = sp.getString(key, "");
         if (TextUtils.isEmpty(configJson)) {
@@ -178,8 +158,6 @@ public class RongExtensionCacheHelper {
             }
             config.sentTime = editMessageConfig.optLong("sentTime", 0);
             config.referContent = editMessageConfig.optString("referContent", "");
-            config.referUid = editMessageConfig.optString("referUid", "");
-            config.referStatus = ReferenceMessageStatus.DEFAULT;
             JSONArray mentionBlocks = editMessageConfig.optJSONArray("mentionBlocks");
             if (mentionBlocks != null) {
                 List<MentionBlock> mentionBlocksList = new ArrayList<>();

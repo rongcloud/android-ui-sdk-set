@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/rc_common_background_color">
+    android:background="#ffffff">
 
     <LinearLayout
         android:id="@+id/content_view"
@@ -15,16 +15,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="10dp"
             android:text="@string/added_stickers"
-            android:textColor="?attr/rc_text_secondary_color"
+            android:textColor="#999999"
             android:textSize="12sp" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="?attr/rc_line_background_color" />
+            android:background="#4cb2b2b2" />
 
         <ListView
             android:id="@+id/rc_list"
@@ -53,7 +53,7 @@
             android:singleLine="true"
             android:layout_marginTop="72dp"
             android:text="@string/no_sticker"
-            android:textColor="?attr/rc_text_secondary_color"
+            android:textColor="#666666"
             android:textSize="18sp" />
 
     </LinearLayout>

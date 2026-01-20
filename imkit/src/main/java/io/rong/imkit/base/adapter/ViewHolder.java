@@ -126,10 +126,6 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         return this;
     }
 
-    public String getString(@StringRes int resId) {
-        return mContext.getString(resId);
-    }
-
     @SuppressLint("NewApi")
     public ViewHolder setAlpha(int viewId, float value) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

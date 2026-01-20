@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/rc_bottom_dialog_background_color">
+    android:background="#ffffff">
 
     <RelativeLayout
         android:layout_width="56dp"
@@ -16,7 +16,7 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="17dp"
             android:scaleType="centerCrop"
-            android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
+            android:src="@drawable/rc_default_portrait" />
 
         <TextView
             android:id="@+id/tv_username"

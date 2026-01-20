@@ -26,7 +26,6 @@ public class FeatureConfig {
     private boolean isDestructEnable; // 阅后即焚
     private boolean isQuickReplyEnable; // 快捷回复
     private boolean isEditMessageEnable; // 消息编辑
-    private boolean isUserOnlineStatusEnable; // 用户在线状态
     private IQuickReplyProvider quickReplyProvider;
     private IMCenter.VoiceMessageType voiceMessageType;
     private List<Conversation.ConversationType> readReceiptSupportTypes;
@@ -75,7 +74,6 @@ public class FeatureConfig {
         rc_translation_src_language = "zh_CN";
         rc_translation_target_language = "en";
         isEditMessageEnable = false;
-        isUserOnlineStatusEnable = false;
     }
 
     public void initConfig(Context context) {
@@ -388,23 +386,5 @@ public class FeatureConfig {
     /** 获取消息长按后是否支持编辑消息 */
     public boolean isEditMessageEnable() {
         return isEditMessageEnable;
-    }
-
-    /**
-     * 设置支持用户在线状态
-     *
-     * @since 5.32.0
-     */
-    public void enableUserOnlineStatus(boolean value) {
-        isUserOnlineStatusEnable = value;
-    }
-
-    /**
-     * 获取是否支持用户在线状态
-     *
-     * @since 5.32.0
-     */
-    public boolean isUserOnlineStatusEnable() {
-        return isUserOnlineStatusEnable;
     }
 }

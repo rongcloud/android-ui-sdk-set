@@ -9,11 +9,9 @@ package io.rong.imkit.model;
  * @since 1.0
  */
 public class ContactModel<T> {
-
     private CheckType checkType;
     private ItemType itemType;
     private T bean;
-    private Object extra;
 
     public static <T> ContactModel<T> obtain(T bean, ItemType itemType) {
         return new ContactModel<>(bean, itemType, CheckType.NONE);
@@ -27,15 +25,6 @@ public class ContactModel<T> {
         this.bean = bean;
         this.itemType = itemType;
         this.checkType = checkType;
-    }
-
-    public void putExtra(Object value) {
-        this.extra = value;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <E> E getExtra() {
-        return (E) extra;
     }
 
     public T getBean() {

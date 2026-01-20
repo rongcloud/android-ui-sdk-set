@@ -2,16 +2,16 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="54dp"
-    android:background="?attr/rc_auxiliary_background_1_color">
+    android:layout_height="56dp"
+    android:background="#ffffff">
 
     <ImageView
         android:id="@+id/iv_contact_portrait"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="16dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -23,7 +23,7 @@
         android:ellipsize="end"
         android:lines="1"
         android:maxLength="32"
-        android:textColor="?attr/rc_text_primary_color"
+        android:textColor="@color/rc_text_main_color"
         android:textSize="17sp"
         app:layout_constraintBottom_toBottomOf="@id/iv_contact_portrait"
         app:layout_constraintStart_toEndOf="@id/iv_contact_portrait"
@@ -31,8 +31,8 @@
 
     <View
         android:layout_width="0dp"
-        android:layout_height="0.5dp"
-        android:background="?attr/rc_line_background_color"
+        android:layout_height="1px"
+        android:background="#e3e5e6"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_contact_portrait" />

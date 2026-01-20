@@ -23,7 +23,6 @@ import io.rong.common.LibStorageUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
 import io.rong.imkit.event.actionevent.MessageEventListener;
@@ -118,7 +117,7 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.rc_ac_file_download);
-        initStatusBar(IMKitThemeManager.getAttrResId(this, R.attr.rc_common_background_color));
+        initStatusBar(R.color.app_color_white);
         initView();
         initData();
         if (mFileMessage == null || mMessage == null) {
@@ -297,8 +296,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + "/"
                                 + FileTypeUtils.formatFileSize(mFileSize)
                                 + ")");
-                mFileSizeView.setTextColor(
-                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_primary_color));
                 mFileDownloadOpenView.setText(getString(R.string.rc_cancel));
                 break;
             case DOWNLOADED:
@@ -309,8 +306,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 mFileDownloadOpenView.setVisibility(View.VISIBLE);
                 mFileDownloadOpenView.setText(getOpenFileShowText());
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
-                mFileSizeView.setTextColor(
-                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_text_secondary_color));
                 makeText(
                                 FilePreviewActivity.this,
                                 getString(R.string.rc_ac_file_preview_downloaded)
@@ -330,8 +325,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + "/"
                                 + FileTypeUtils.formatFileSize(mFileSize)
                                 + ")");
-                mFileSizeView.setTextColor(
-                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_primary_color));
                 mFileDownloadOpenView.setText(
                         getString(
                                 mFileDownloadInfo.progress == 0
@@ -354,8 +347,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 mFileDownloadOpenView.setText(
                         getString(R.string.rc_ac_file_preview_begin_download));
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
-                mFileSizeView.setTextColor(
-                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_text_secondary_color));
                 makeText(
                                 FilePreviewActivity.this,
                                 getString(R.string.rc_ac_file_preview_download_cancel),
@@ -364,8 +355,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                 break;
             case DELETED:
                 mFileSizeView.setText(FileTypeUtils.formatFileSize(mFileSize));
-                mFileSizeView.setTextColor(
-                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_text_secondary_color));
                 mFileDownloadOpenView.setText(
                         getString(R.string.rc_ac_file_preview_begin_download));
                 break;
@@ -382,8 +371,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                 + "/"
                                 + FileTypeUtils.formatFileSize(mFileSize)
                                 + ")");
-                mFileSizeView.setTextColor(
-                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_primary_color));
                 mFileDownloadOpenView.setText(
                         getString(R.string.rc_ac_file_preview_download_resume));
                 break;
@@ -433,8 +420,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                                     + "/"
                                     + FileTypeUtils.formatFileSize(mFileSize)
                                     + ")");
-                    mFileSizeView.setTextColor(
-                            IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_primary_color));
                     mFileDownloadOpenView.setText(
                             getResources().getString(R.string.rc_ac_file_preview_download_resume));
                     break;
@@ -538,8 +523,6 @@ public class FilePreviewActivity extends RongBaseActivity implements View.OnClic
                         + "/"
                         + FileTypeUtils.formatFileSize(mFileSize)
                         + ")");
-        mFileSizeView.setTextColor(
-                IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_primary_color));
         IMCenter.getInstance().downloadMediaMessage(mMessage, null);
     }
 

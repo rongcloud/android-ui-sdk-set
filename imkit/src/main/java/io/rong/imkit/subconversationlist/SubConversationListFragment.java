@@ -106,7 +106,7 @@ public class SubConversationListFragment extends ConversationListFragment {
     public void onResume() {
         super.onResume();
         if (mSubConversationListViewModel != null) {
-            mSubConversationListViewModel.onResume();
+            mSubConversationListViewModel.clearAllNotification();
         }
     }
 

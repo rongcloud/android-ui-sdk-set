@@ -225,10 +225,6 @@ public class ForwardManager {
     // 逐步转发
     private void forwardMessageByStep(
             List<Conversation> conversations, final List<Message> messages) {
-        if (messages.isEmpty()) {
-            RLog.e(TAG, "forwardMessageByStep messages empty");
-            return;
-        }
         for (Conversation conversation : conversations) {
             for (Message msg : messages) {
                 startForwardMessageByStep(
@@ -245,10 +241,6 @@ public class ForwardManager {
 
     // 合并转发
     private void forwardMessageByCombine(List<Conversation> conversations, List<Message> messages) {
-        if (messages.isEmpty()) {
-            RLog.e(TAG, "forwardMessageByCombine messages empty");
-            return;
-        }
         // 拼写H5界面,上传html文件,并回传文件地址uri
         Uri uri = CombineMessageUtils.getInstance().getUrlFromMessageList(messages);
         Conversation.ConversationType type = messages.get(0).getConversationType();

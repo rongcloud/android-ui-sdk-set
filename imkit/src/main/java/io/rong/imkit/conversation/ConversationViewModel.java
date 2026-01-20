@@ -1,25 +1,16 @@
 package io.rong.imkit.conversation;
 
 import android.app.Application;
-import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
-import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
-import io.rong.imkit.manager.OnLineStatusListener;
-import io.rong.imkit.manager.OnLineStatusManager;
 import io.rong.imkit.model.TypingInfo;
-import io.rong.imlib.IRongCoreCallback;
-import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.Conversation.ConversationNotificationStatus;
-import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.typingmessage.TypingStatus;
 import io.rong.message.HQVoiceMessage;
 import io.rong.message.TextMessage;
@@ -28,30 +19,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class ConversationViewModel extends AndroidViewModel {
-    private static final String TAG = "ConversationViewModel";
-    private volatile boolean mCleared = false;
+
     private MediatorLiveData<TypingInfo> typingStatusInfo = new MediatorLiveData<>();
-    private MediatorLiveData<SubscribeUserOnlineStatus> onlineStatus = new MediatorLiveData<>();
-    private MediatorLiveData<Boolean> isNotify = new MediatorLiveData<>();
-    private String mTargetId = "";
-    private final OnLineStatusListener mOnLineStatusListener =
-            statuses -> {
-                // 判断相同会话更新在线状态图标
-                for (Map.Entry<String, SubscribeUserOnlineStatus> entry : statuses.entrySet()) {
-                    if (TextUtils.equals(entry.getKey(), mTargetId)) {
-                        onlineStatus.postValue(entry.getValue());
-                        return;
-                    }
-                }
-            };
 
     public ConversationViewModel(Application application) {
         super(application);
         IMCenter.getInstance().addTypingStatusListener(typingStatusListener);
-        OnLineStatusManager.getInstance().addOnLineStatusListener(mOnLineStatusListener);
     }
 
     public ConversationViewModel(
@@ -61,7 +36,6 @@ public class ConversationViewModel extends AndroidViewModel {
             @NonNull Application application) {
         super(application);
         IMCenter.getInstance().addTypingStatusListener(typingStatusListener);
-        OnLineStatusManager.getInstance().addOnLineStatusListener(mOnLineStatusListener);
     }
 
     /**
@@ -71,43 +45,6 @@ public class ConversationViewModel extends AndroidViewModel {
      */
     public MediatorLiveData<TypingInfo> getTypingStatusInfo() {
         return typingStatusInfo;
-    }
-
-    public MediatorLiveData<SubscribeUserOnlineStatus> getOnlineStatus() {
-        return onlineStatus;
-    }
-
-    public boolean isOnlineStatus() {
-        return onlineStatus.getValue() != null && onlineStatus.getValue().isOnline();
-    }
-
-    public MediatorLiveData<Boolean> getNotify() {
-        return isNotify;
-    }
-
-    public void getUserOnlineStatus(String mTargetId) {
-        this.mTargetId = mTargetId;
-        RLog.d(TAG, "fetchUsersOnlineStatus.");
-        OnLineStatusManager.getInstance().fetchUsersOnlineStatus(mTargetId, false);
-    }
-
-    public void getNotificationStatus(Conversation.ConversationType type, String targetId) {
-        RongCoreClient.getInstance()
-                .getConversationNotificationStatus(
-                        type,
-                        targetId,
-                        new IRongCoreCallback.ResultCallback<ConversationNotificationStatus>() {
-                            @Override
-                            public void onSuccess(ConversationNotificationStatus status) {
-                                if (mCleared) {
-                                    return;
-                                }
-                                isNotify.postValue(status == ConversationNotificationStatus.NOTIFY);
-                            }
-
-                            @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode e) {}
-                        });
     }
 
     private RongIMClient.TypingStatusListener typingStatusListener =
@@ -153,10 +90,8 @@ public class ConversationViewModel extends AndroidViewModel {
 
     @Override
     protected void onCleared() {
-        mCleared = true;
         super.onCleared();
         IMCenter.getInstance().removeTypingStatusListener(typingStatusListener);
-        OnLineStatusManager.getInstance().removeOnLineStatusListener(mOnLineStatusListener);
     }
 
     /**

@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="@dimen/rc_reference_ext_view_height"
-    android:background="?attr/rc_common_background_color"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:background="@color/rc_white_color">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,7 +17,6 @@
             style="@style/TextStyle.Alignment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/rc_text_primary_color"
             android:singleLine="true"
             android:textSize="13dp" />
 
@@ -28,7 +25,6 @@
             style="@style/TextStyle.Alignment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?attr/rc_text_primary_color"
             android:ellipsize="end"
             android:singleLine="true"
             android:textSize="13dp" />

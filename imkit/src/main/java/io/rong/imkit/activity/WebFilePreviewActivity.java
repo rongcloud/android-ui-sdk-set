@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -108,7 +107,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.rc_ac_file_download);
-        initStatusBar(R.color.app_color_white);
         initView();
         initData();
     }
@@ -205,9 +203,7 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
                     @Override
                     public void onSuccess(DownloadInfo downloadInfo) {
                         mDownloadInfo = downloadInfo;
-                        if (!isPauseFileExists()
-                                && !isAttachFileExists()
-                                && !isPartAttachFileExists()) {
+                        if (!isAttachFileExists() && !isPartAttachFileExists()) {
                             if (mDownloadInfo != null) {
                                 FileUtils.removeFile(pausedPath);
                             }
@@ -506,10 +502,6 @@ public class WebFilePreviewActivity extends RongBaseActivity implements View.OnC
 
     private boolean isAttachFileExists() {
         return mAttachFile.exists();
-    }
-
-    private boolean isPauseFileExists() {
-        return !TextUtils.isEmpty(pausedPath) && new File(pausedPath).exists();
     }
 
     @Override

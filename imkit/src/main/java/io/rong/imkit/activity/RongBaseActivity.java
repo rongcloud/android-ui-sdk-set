@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.RongUtils;
@@ -49,8 +48,7 @@ public class RongBaseActivity extends AppCompatActivity {
                         finish();
                     }
                 });
-        mTitleBar.setBackgroundColor(
-                IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_common_background_color));
+        mTitleBar.setBackgroundColor(getResources().getColor(R.color.rc_white_color));
         mContentView = findViewById(R.id.rc_base_container);
     }
 
@@ -80,10 +78,7 @@ public class RongBaseActivity extends AppCompatActivity {
         StatusBarUtil.setStatusBarColor(
                 this,
                 colorResId == 0
-                        ? getResources()
-                                .getColor(
-                                        IMKitThemeManager.getAttrResId(
-                                                this, R.attr.rc_primary_color))
+                        ? getResources().getColor(R.color.rc_background_main_color)
                         : getResources().getColor(colorResId)); // Color.parseColor("#F5F6F9")
     }
 

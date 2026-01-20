@@ -1,9 +1,7 @@
 package io.rong.imkit.utils;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
-import io.rong.imkit.IMCenter;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,18 +54,5 @@ public class RTLUtils {
         // 中文字符
         Matcher mChinese = pChinese.matcher(txt);
         return mChinese.matches();
-    }
-
-    /** 是否 RTL 布局 */
-    public static boolean isRtl(Context c) {
-        Context context = c;
-        if (context == null) {
-            context = IMCenter.getInstance().getContext();
-        }
-        if (context == null) {
-            return false;
-        }
-        return context.getResources().getConfiguration().getLayoutDirection()
-                == View.LAYOUT_DIRECTION_RTL;
     }
 }

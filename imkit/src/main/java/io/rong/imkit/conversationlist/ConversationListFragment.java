@@ -22,7 +22,6 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.ConversationListBehaviorListener;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.conversationlist.model.GatheredConversation;
@@ -34,7 +33,6 @@ import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.FixedLinearLayoutManager;
 import io.rong.imkit.widget.adapter.BaseAdapter;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imkit.widget.dialog.ConversationLongClickPopup;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imkit.widget.refresh.SmartRefreshLayout;
 import io.rong.imkit.widget.refresh.api.RefreshLayout;
@@ -64,8 +62,6 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
     protected Handler mHandler = new Handler(Looper.getMainLooper());
     protected int mNewState = RecyclerView.SCROLL_STATE_IDLE;
     protected boolean delayRefresh = false;
-    private LinearLayoutManager layoutManager;
-    private int mLastValidPosition = 0; // 保存上次有效的滚动位置
 
     {
         mAdapter = onResolveAdapter();
@@ -95,7 +91,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         mList = view.findViewById(R.id.rc_conversation_list);
         mRefreshLayout = view.findViewById(R.id.rc_refresh);
         mAdapter.setItemClickListener(this);
-        layoutManager = new FixedLinearLayoutManager(getActivity());
+        LinearLayoutManager layoutManager = new FixedLinearLayoutManager(getActivity());
         mList.setLayoutManager(layoutManager);
         mList.setAdapter(mAdapter);
         mList.addOnScrollListener(
@@ -115,14 +111,6 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                                             .getConversationListLiveData()
                                             .getValue());
                         }
-
-                        // 保存有效的滚动位置
-                        if (mNewState == RecyclerView.SCROLL_STATE_IDLE && layoutManager != null) {
-                            int currentPosition = layoutManager.findFirstVisibleItemPosition();
-                            if (currentPosition >= 0) {
-                                mLastValidPosition = currentPosition;
-                            }
-                        }
                     }
                 });
         mNoticeContainerView = view.findViewById(R.id.rc_conversationlist_notice_container);
@@ -137,7 +125,7 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
     public void onResume() {
         super.onResume();
         if (mConversationListViewModel != null) {
-            mConversationListViewModel.onResume();
+            mConversationListViewModel.clearAllNotification();
         }
     }
 
@@ -199,39 +187,8 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
                                         TAG,
                                         "conversation list onChanged,recyclerviewStatus:"
                                                 + mNewState);
-                                if (mNewState == RecyclerView.SCROLL_STATE_IDLE
-                                        && layoutManager != null) {
-                                    // 1. 获取当前滚动位置
-                                    int firstVisiblePosition =
-                                            layoutManager.findFirstVisibleItemPosition();
-                                    if (firstVisiblePosition == 0 && mLastValidPosition > 0) {
-                                        firstVisiblePosition = mLastValidPosition;
-                                        RLog.d(
-                                                TAG,
-                                                "Using saved position instead of 0:"
-                                                        + mLastValidPosition);
-                                    }
-                                    int topOffset;
-                                    if (firstVisiblePosition != RecyclerView.NO_POSITION) {
-                                        View firstVisibleView =
-                                                layoutManager.findViewByPosition(
-                                                        firstVisiblePosition);
-                                        topOffset =
-                                                (firstVisibleView != null)
-                                                        ? firstVisibleView.getTop()
-                                                        : 0;
-                                    } else {
-                                        topOffset = 0;
-                                    }
-                                    // 2. 刷新数据
+                                if (mNewState == RecyclerView.SCROLL_STATE_IDLE) {
                                     mAdapter.setDataCollection(uiConversations);
-
-                                    // 3. 恢复刷新数据之前的位置
-                                    final int finalFirstVisiblePosition = firstVisiblePosition;
-                                    mList.post(
-                                            () ->
-                                                    layoutManager.scrollToPositionWithOffset(
-                                                            finalFirstVisiblePosition, topOffset));
                                 } else {
                                     delayRefresh = true;
                                 }
@@ -393,17 +350,11 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         final String removeItem =
                 view.getContext()
                         .getResources()
-                        .getString(
-                                IMKitThemeManager.dynamicResource(
-                                        R.string.rc_delete,
-                                        R.string.rc_conversation_list_dialog_remove));
+                        .getString(R.string.rc_conversation_list_dialog_remove);
         final String setTopItem =
                 view.getContext()
                         .getResources()
-                        .getString(
-                                IMKitThemeManager.dynamicResource(
-                                        R.string.rc_set_top,
-                                        R.string.rc_conversation_list_dialog_set_top));
+                        .getString(R.string.rc_conversation_list_dialog_set_top);
         final String cancelTopItem =
                 view.getContext()
                         .getResources()
@@ -418,70 +369,24 @@ public class ConversationListFragment extends Fragment implements BaseAdapter.On
         }
         items.add(removeItem);
         int size = items.size();
-
-        // 使用 V2 主题时使用新的弹窗
-        if (!IMKitThemeManager.isTraditionTheme()) {
-            // 创建选项列表
-            java.util.ArrayList<ConversationLongClickPopup.OptionItem> optionItems =
-                    new java.util.ArrayList<>();
-
-            // 添加置顶/取消置顶选项
-            if (!(baseUiConversation instanceof GatheredConversation)) {
-                optionItems.add(
-                        new ConversationLongClickPopup.OptionItem(
-                                baseUiConversation.mCore.isTop() ? cancelTopItem : setTopItem,
-                                R.drawable.rc_lively_pin_up));
-            }
-
-            // 添加删除选项
-            optionItems.add(
-                    new ConversationLongClickPopup.OptionItem(
-                            removeItem, R.drawable.rc_lively_delete_read));
-
-            ConversationLongClickPopup.newInstance(view.getContext(), optionItems)
-                    .setAnchorView(view)
-                    .setOnOptionItemClickListener(
-                            (item, position1) -> {
-                                // 根据 tag 判断是哪个选项，而不是比较字符串
-                                if (item.title.equals(setTopItem)
-                                        || item.title.equals(cancelTopItem)) {
-                                    // 置顶/取消置顶操作
-                                    String toastText =
-                                            baseUiConversation.mCore.isTop()
-                                                    ? cancelTopItem
-                                                    : setTopItem;
-                                    setConversationToTop(baseUiConversation, toastText);
-                                } else if (item.title.equals(removeItem)) {
+        OptionsPopupDialog.newInstance(view.getContext(), items.toArray(new String[size]))
+                .setOptionsPopupDialogListener(
+                        new OptionsPopupDialog.OnOptionsItemClickedListener() {
+                            @Override
+                            public void onOptionsItemClicked(final int which) {
+                                if (items.get(which).equals(setTopItem)
+                                        || items.get(which).equals(cancelTopItem)) {
+                                    setConversationToTop(baseUiConversation, items.get(which));
+                                } else if (items.get(which).equals(removeItem)) {
                                     IMCenter.getInstance()
                                             .removeConversation(
                                                     baseUiConversation.mCore.getConversationType(),
                                                     baseUiConversation.mCore.getTargetId(),
                                                     null);
                                 }
-                            })
-                    .show();
-        } else {
-            // 使用旧的弹窗
-            OptionsPopupDialog.newInstance(view.getContext(), items.toArray(new String[size]))
-                    .setOptionsPopupDialogListener(
-                            new OptionsPopupDialog.OnOptionsItemClickedListener() {
-                                @Override
-                                public void onOptionsItemClicked(final int which) {
-                                    if (items.get(which).equals(setTopItem)
-                                            || items.get(which).equals(cancelTopItem)) {
-                                        setConversationToTop(baseUiConversation, items.get(which));
-                                    } else if (items.get(which).equals(removeItem)) {
-                                        IMCenter.getInstance()
-                                                .removeConversation(
-                                                        baseUiConversation.mCore
-                                                                .getConversationType(),
-                                                        baseUiConversation.mCore.getTargetId(),
-                                                        null);
-                                    }
-                                }
-                            })
-                    .show();
-        }
+                            }
+                        })
+                .show();
         return true;
     }
 

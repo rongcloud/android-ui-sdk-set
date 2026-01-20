@@ -143,7 +143,6 @@
     <string name="rc_android.permission.BLUETOOTH_CONNECT">连接附近设备</string>
     <string name="rc_android.permission.BLUETOOTH_ADVERTISE">连接附近设备</string>
     <string name="rc_android.permission.BLUETOOTH_SCAN">连接附近设备</string>
-    <string name="rc_android.permission.READ_CONTACTS">读取联系人</string>
 
 
     <string name="rc_permission_grant_needed">您需要在设置中打开权限</string>
@@ -167,7 +166,7 @@
     <string name="rc_location_fail">定位失败</string>
     <string name="rc_location_temp_failed">定位失败，请稍后重试</string>
     <string name="rc_location_sharing_exceed_max">超过最大位置共享人数</string>
-    <string name="rc_location_you_are_sharing">您正在共享位置</string>
+    <string name="rc_location_you_are_sharing">你正在共享位置</string>
     <string name="rc_location_other_is_sharing">正在共享位置</string>
     <string name="rc_location_others_are_sharing">人正在共享位置</string>
     <string name="rc_location_others_sharing">人在共享位置</string>
@@ -360,7 +359,7 @@
     <string name="rc_emoji_love_heart">爱心</string><!--130-->
 
     <!--引用部分-->
-    <string name="rc_reference_message">引用消息</string>
+    <string name="rc_reference">引用消息</string>
     <string name="rc_reference_link">[图文]</string>
     <string name="rc_reference_file">[文件]</string>
     <string name="rc_search_file_prefix">[文件]&#160;</string>
@@ -394,7 +393,6 @@
     <string name="rc_picsel_selected_max_second_span_with_param">不能分享超过%s秒的视频</string>
 
     <string name="rc_dialog_item_message_more">更多&#8230;</string>
-    
     <!--图片浏览-->
     <string name="rc_save_picture">保存图片</string>
     <string name="rc_save_picture_at">图片保存成功</string>
@@ -450,10 +448,6 @@
     <string name="rc_kicked_from_chatroom">你已被踢出聊天室</string>
     <string name="rc_join_chatroom_failure">加入聊天室失败</string>
     <string name="rc_read_receipt">已读</string>
-    <string name="rc_unread_receipt">未读</string>
-    <string name="rc_message_read_receipt_status">消息阅读状态</string>
-    <string name="rc_message_none_user_read">无人已读</string>
-    <string name="rc_message_all_user_read">无人未读</string>
 
     <!-- groupnotificationmessage -->
     <string name="rc_item_divided_string">、</string>
@@ -628,14 +622,14 @@
     <string name="rc_friend_nickname_hint">请添加备注名</string>
     <string name="rc_remark">备注</string>
     <string name="rc_unknow_type">未知</string>
-    <string name="rc_start_chat">发起会话</string>
+    <string name="rc_start_chat">发起聊天</string>
     <string name="rc_start_audio">语音通话</string>
-    <string name="rc_start_video">视频通话</string>
+    <string name="rc_start_video">视频聊天</string>
     <string name="rc_delete_friend">删除好友</string>
     <string name="rc_add_friend_hint">请输入添加理由（可选）</string>
     <string name="rc_send_apply_success">好友请求已发送</string>
     <string name="rc_send_apply_fail">好友请求发送失败</string>
-    <string name="rc_delete_friend_title">将联系人“%1$s”删除，同时删除与该好友的聊天记录</string>
+    <string name="rc_delete_friend_title">确认删除此好友</string>
     <string name="rc_just_now">刚刚</string>
     <string name="rc_within_three_days">三天内</string>
     <string name="rc_three_days_ago">三天前</string>
@@ -668,9 +662,9 @@
     <string name="rc_invite_join_group_send">已发送邀请，被邀请用户同意后加入群组</string>
     <string name="rc_invite_join_group_send_need_manange">已发送邀请，需要管理员同意后加入群组</string>
 
-    <string name="rc_group_transfer_hint">确定选择 “%1$s” 为新群主，你将放弃群主身份</string>
-    <string name="rc_remove_manager_hint">确定将 “%1$s” 从管理员列表中移除吗？</string>
-    <string name="rc_add_manager_hint">确定将 “%1$s” 设置为管理员吗？</string>
+    <string name="rc_group_transfer_hint">确定选择 %1$s 为新群主，你将放弃群主身份</string>
+    <string name="rc_remove_manager_hint">确定将 %1$s 从管理员列表中移除吗？</string>
+    <string name="rc_add_manager_hint">确定将 %1$s 设置为管理员吗？</string>
     <string name="rc_remove_follow_hint">移除后, “%1$s” 在群内发消息不会给你发提醒</string>
     <string name="rc_publish_announcement_hint">该公告会通知全部群成员，是否发布？</string>
 
@@ -687,8 +681,6 @@
     <string name="rc_group_management">群管理</string>
     <string name="rc_group_follows">特别关注成员</string>
     <string name="rc_group_managers">群管理员</string>
-    <string name="rc_group_mention_title">选择提醒的人</string>
-    <string name="rc_group_mention_all_members">所有人</string>
     <string name="rc_group_add_manager">添加管理员</string>
     <string name="rc_group_add_member">添加成员</string>
     <string name="rc_group_select_member">选择群成员</string>
@@ -726,25 +718,5 @@
     <string name="rc_loading_saving">保存中</string>
     <string name="rc_content_contain_sensitive">操作失败，内容包含敏感信息</string>
     <!--5.16.0-->
-
-    <!--语音转文字-->
-    <string name="rc_speech_to_text">转文字</string>
-    <string name="rc_cancel_speech_to_text">取消转文字</string>
-    <string name="rc_speech_to_text_failed">语音转换失败</string>
-    <string name="rc_speech_to_text_network_error">当前网络不可用，无法转文字，请检查网络设置后再试</string>
-    <string name="rc_speech_to_text_unsupported_format">此语音消息格式不支持转文字功能。</string>
-    <string name="rc_copy">复制</string>
-    <!--语音转文字-->
-
-    <!--  NewUIDesign  -->
-    <string name="rc_set_top">置顶</string>
-    <string name="rc_delete">删除</string>
-    <string name="rc_recall">撤回</string>
-    <string name="rc_reference">引用</string>
-    <string name="rc_edit">编辑</string>
-    <string name="rc_multi_select">多选</string>
-    <string name="rc_translate">翻译</string>
-    <string name="rc_combine_webview_load_failed">合并转发消息加载失败</string>
-    <!--  NewUIDesign  -->
 
 </resources>

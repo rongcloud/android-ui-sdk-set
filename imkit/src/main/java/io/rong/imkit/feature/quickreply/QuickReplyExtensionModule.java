@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.IExtensionModule;
 import io.rong.imkit.conversation.extension.InputMode;
@@ -18,7 +17,6 @@ import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.conversation.extension.component.emoticon.IEmoticonTab;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
 import io.rong.imkit.feature.destruct.DestructManager;
-import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
@@ -58,12 +56,6 @@ public class QuickReplyExtensionModule implements IExtensionModule {
             mQuickReplyIcon =
                     LayoutInflater.from(fragment.getContext())
                             .inflate(R.layout.rc_ext_quick_reply_icon, attachContainer, false);
-            mQuickReplyIcon
-                    .findViewById(R.id.ext_common_phrases)
-                    .setBackgroundResource(
-                            IMKitThemeManager.dynamicResource(
-                                    R.drawable.rc_lively_common_background_radius_8,
-                                    R.drawable.rc_conner_gray_shape));
             attachContainer.addView(mQuickReplyIcon);
             attachContainer.setVisibility(View.VISIBLE);
             rongExtensionViewModel
@@ -141,7 +133,6 @@ public class QuickReplyExtensionModule implements IExtensionModule {
                                 }
                             });
             ReferenceManager.getInstance().setReferenceStatusListener(ReferenceStatusListener);
-            EditMessageManager.getInstance().addStatusListener(editStatusListener);
         }
     }
 
@@ -186,7 +177,6 @@ public class QuickReplyExtensionModule implements IExtensionModule {
     @Override
     public void onDetachedFromExtension() {
         ReferenceManager.getInstance().removeReferenceStatusListener(ReferenceStatusListener);
-        EditMessageManager.getInstance().removeStatusListener(editStatusListener);
         // The following code is used to resolve memory leaks.
 
         if (mExtension != null) {
@@ -230,16 +220,6 @@ public class QuickReplyExtensionModule implements IExtensionModule {
                     RongExtension extension = mExtension.get();
                     if (extension != null) {
                         extension.setAttachedInfo(mQuickReplyIcon);
-                    }
-                }
-            };
-    private final EditMessageManager.StatusListener editStatusListener =
-            new EditMessageManager.StatusListener() {
-                @Override
-                public void onVisibilityChanged(boolean isVisible) {
-                    RongExtension extension = mExtension.get();
-                    if (extension != null) {
-                        extension.setAttachedInfo(isVisible ? null : mQuickReplyIcon);
                     }
                 }
             };

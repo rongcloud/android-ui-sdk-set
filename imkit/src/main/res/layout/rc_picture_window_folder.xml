@@ -6,9 +6,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/folder_list"
-        android:background="?attr/rc_common_background_color"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:scrollbars="none" />
 
     <View

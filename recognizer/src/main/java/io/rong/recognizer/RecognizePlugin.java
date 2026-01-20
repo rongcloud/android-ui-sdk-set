@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.common.rlog.RLog;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
@@ -27,12 +26,7 @@ public class RecognizePlugin implements IPluginModule, IPluginRequestPermissionR
 
     @Override
     public Drawable obtainDrawable(Context context) {
-        int drawableResId =
-                IMKitThemeManager.dynamicResource(
-                        context,
-                        io.rong.imkit.R.attr.rc_conversation_plugin_item_voice_input_img,
-                        R.drawable.rc_recognizer_voice_selector);
-        return context.getResources().getDrawable(drawableResId);
+        return context.getResources().getDrawable(R.drawable.rc_recognizer_voice_selector);
     }
 
     @Override

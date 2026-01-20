@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
@@ -39,11 +38,9 @@ public class QuickReplyBoard {
     }
 
     private void initView(Context context, ViewGroup parent) {
-        // 根据主题选择不同的布局
-        int layoutResId =
-                IMKitThemeManager.dynamicResource(
-                        R.layout.rc_ext_quick_reply_list_v2, R.layout.rc_ext_quick_reply_list);
-        mRootView = LayoutInflater.from(context).inflate(layoutResId, parent, false);
+        mRootView =
+                LayoutInflater.from(context)
+                        .inflate(R.layout.rc_ext_quick_reply_list, parent, false);
         mListView = mRootView.findViewById(R.id.rc_list);
         PhrasesAdapter adapter = new PhrasesAdapter();
         mListView.setAdapter(adapter);
@@ -101,26 +98,19 @@ public class QuickReplyBoard {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
-                Context context = parent.getContext();
-                // 根据主题选择不同的列表项布局
-                int itemLayoutResId =
-                        IMKitThemeManager.dynamicResource(
-                                R.layout.rc_ext_quick_reply_list_item_v2,
-                                R.layout.rc_ext_quick_reply_list_item);
-                convertView = LayoutInflater.from(context).inflate(itemLayoutResId, parent, false);
-
-                // V1 版本需要动态设置高度
-                if (IMKitThemeManager.isTraditionTheme()) {
-                    int height =
-                            (int)
-                                            context.getResources()
-                                                    .getDimension(R.dimen.rc_extension_board_height)
-                                    / 5;
-                    RelativeLayout.LayoutParams layoutParams =
-                            new RelativeLayout.LayoutParams(
-                                    ViewGroup.LayoutParams.MATCH_PARENT, height);
-                    convertView.setLayoutParams(layoutParams);
-                }
+                convertView =
+                        LayoutInflater.from(parent.getContext())
+                                .inflate(R.layout.rc_ext_quick_reply_list_item, null);
+                int height =
+                        (int)
+                                        parent.getContext()
+                                                .getResources()
+                                                .getDimension(R.dimen.rc_extension_board_height)
+                                / 5;
+                RelativeLayout.LayoutParams layoutParams =
+                        new RelativeLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT, height);
+                convertView.setLayoutParams(layoutParams);
             }
             TextView tvPhrases = convertView.findViewById(R.id.rc_phrases_tv);
             tvPhrases.setText(mPhraseList.get(position));

@@ -39,7 +39,6 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
 
     protected HeadComponent headComponent;
     private EditText etGroupNotice;
-    private LinearLayout llGroupNoticeInput;
 
     /**
      * @since 5.12.2
@@ -47,7 +46,7 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
     private TextView tvEditPermission;
 
     private LinearLayout llGroupNoticeDisplay;
-    private LinearLayout llEmptyNotice;
+    private TextView tvNoticeEmpty;
     private TextView tvNoticeContent;
     private TipLoadingDialog dialog;
 
@@ -68,11 +67,10 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
         View view = inflater.inflate(R.layout.rc_page_group_notice, container, false);
         headComponent = view.findViewById(R.id.rc_head_component);
         etGroupNotice = view.findViewById(R.id.group_notice_input);
-        llGroupNoticeInput = view.findViewById(R.id.ll_group_notice_input);
         tvEditPermission = view.findViewById(R.id.tv_edit_permission);
         llGroupNoticeDisplay = view.findViewById(R.id.ll_group_notice_display);
         tvNoticeContent = view.findViewById(R.id.tv_notice_content);
-        llEmptyNotice = view.findViewById(R.id.ll_empty_notice);
+        tvNoticeEmpty = view.findViewById(R.id.tv_empty_notice);
         return view;
     }
 
@@ -95,22 +93,20 @@ public class GroupNoticeFragment extends BaseViewModelFragment<GroupNoticeViewMo
                         groupInfo.setNotice(newNotice);
                         onConfirmGroupNoticeUpdate(viewModel, groupInfo);
                     });
-            llGroupNoticeInput.setVisibility(View.VISIBLE);
-            llGroupNoticeDisplay.setVisibility(View.GONE);
+            etGroupNotice.setVisibility(View.VISIBLE);
             headComponent.setRightTextViewEnable(false);
             etGroupNotice.setText(groupInfo.getNotice());
+            llGroupNoticeDisplay.setVisibility(View.GONE);
         } else {
             headComponent.getRightTextView().setVisibility(View.GONE);
             headComponent.setRightTextViewEnable(false);
-            llGroupNoticeInput.setVisibility(View.GONE);
             llGroupNoticeDisplay.setVisibility(View.VISIBLE);
             if (groupInfo.getNotice() != null && !groupInfo.getNotice().isEmpty()) {
                 tvNoticeContent.setText(groupInfo.getNotice());
-                tvNoticeContent.setVisibility(View.VISIBLE);
-                llEmptyNotice.setVisibility(View.GONE);
+                tvNoticeEmpty.setVisibility(View.GONE);
             } else {
+                tvNoticeEmpty.setVisibility(View.VISIBLE);
                 tvNoticeContent.setVisibility(View.GONE);
-                llEmptyNotice.setVisibility(View.VISIBLE);
             }
             if (tvEditPermission != null) {
                 tvEditPermission.setText(

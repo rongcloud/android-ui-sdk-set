@@ -13,7 +13,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.tools.FileUtils;
 import io.rong.imkit.utils.GlideUtils;
@@ -58,10 +57,6 @@ public class RichContentMessageItemProvider extends BaseMessageItemProvider<Rich
         }
         holder.setText(R.id.rc_title, richContentMessage.getTitle());
         holder.setText(R.id.rc_content, richContentMessage.getContent());
-        img.setImageResource(
-                IMKitThemeManager.dynamicResource(
-                        R.drawable.rc_lively_ic_def_rich_content,
-                        R.drawable.rc_ic_def_rich_content));
         if (!TextUtils.isEmpty(richContentMessage.getImgUrl())) {
             String imgUrl = richContentMessage.getImgUrl();
             if (FileUtils.isHttp(imgUrl) && RongCoreClientImpl.isPrivateSDK()) {

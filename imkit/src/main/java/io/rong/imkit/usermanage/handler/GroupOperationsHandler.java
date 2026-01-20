@@ -85,10 +85,6 @@ public class GroupOperationsHandler extends MultiDataHandler {
     public static final DataKey<Boolean> KEY_REMOVE_GROUP_MANAGERS =
             DataKey.obtain("KEY_REMOVE_GROUP_MANAGERS", Boolean.class);
 
-    /** 用于加入群组的操作 */
-    public static final DataKey<IRongCoreEnum.CoreErrorCode> KEY_JOIN_GROUP =
-            DataKey.obtain("KEY_JOIN_GROUP", IRongCoreEnum.CoreErrorCode.class);
-
     private final String groupId;
 
     /**
@@ -493,32 +489,6 @@ public class GroupOperationsHandler extends MultiDataHandler {
                             public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
                                 notifyDataChange(KEY_REMOVE_GROUP_MANAGERS, false);
                                 notifyDataError(KEY_REMOVE_GROUP_MANAGERS, coreErrorCode);
-                            }
-                        });
-    }
-
-    /**
-     * 加入群组
-     *
-     * <p>加入群组权限决定是否可以直接加入群组。当群组需要审批时，会返回 RC_GROUP_JOIN_GROUP_NEED_MANAGER_ACCEPT
-     * 状态码，表示需要等待群主或管理员审批。
-     *
-     * @since 5.34.0
-     */
-    public void joinGroup() {
-        RongCoreClient.getInstance()
-                .joinGroup(
-                        groupId,
-                        new IRongCoreCallback.ResultCallback<IRongCoreEnum.CoreErrorCode>() {
-                            @Override
-                            public void onSuccess(IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                notifyDataChange(KEY_JOIN_GROUP, coreErrorCode);
-                            }
-
-                            @Override
-                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                notifyDataChange(KEY_JOIN_GROUP, coreErrorCode);
-                                notifyDataError(KEY_JOIN_GROUP, coreErrorCode);
                             }
                         });
     }

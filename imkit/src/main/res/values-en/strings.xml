@@ -85,7 +85,7 @@
     <string name="rc_click_to_view">Click to View</string>
 
     <!--Reference Message-->
-    <string name="rc_reference_message">Quote</string>
+    <string name="rc_reference">Quote</string>
     <string name="rc_reference_link">[RichContent]</string>
     <string name="rc_reference_file">[file]</string>
     <string name="rc_search_file_prefix">[File]&#160;</string>
@@ -367,10 +367,6 @@
     <string name="rc_kicked_from_chatroom">You were kicked out from chatroom</string>
     <string name="rc_join_chatroom_failure">Failed to join the chatroom</string>
     <string name="rc_read_receipt">read</string>
-    <string name="rc_unread_receipt">unread</string>
-    <string name="rc_message_read_receipt_status">Message read status</string>
-    <string name="rc_message_none_user_read">none read</string>
-    <string name="rc_message_all_user_read">all read</string>
 
     <string name="rc_message_unknown">The current version does not support viewing this message</string>
     <string name="rc_message_unknown_notification">Received an unknown message</string>
@@ -623,12 +619,12 @@
     <string name="rc_unknow_type">Unknown</string>
     <string name="rc_start_chat">Chat</string>
     <string name="rc_start_audio">Audio Call</string>
-    <string name="rc_start_video">Video Call</string>
+    <string name="rc_start_video">Video Chat</string>
     <string name="rc_delete_friend">Delete Friend</string>
     <string name="rc_add_friend_hint">Please enter a reason for adding (optional)</string>
     <string name="rc_send_apply_success">Friend request sent successfully</string>
     <string name="rc_send_apply_fail">Friend request failed to send</string>
-    <string name="rc_delete_friend_title">Delete contact \"%1$s\" and delete chat history</string>
+    <string name="rc_delete_friend_title">Confirm to delete this friend</string>
 
     <string name="rc_just_now">Just Now</string>
     <string name="rc_within_three_days">Within Three Days</string>
@@ -681,8 +677,6 @@
     <string name="rc_group_management">Group Management</string>
     <string name="rc_group_follows">Special Attention</string>
     <string name="rc_group_managers">Group Admins</string>
-    <string name="rc_group_mention_title">Select who to notify</string>
-    <string name="rc_group_mention_all_members">Everyone</string>
     <string name="rc_group_add_manager">Add Admins</string>
     <string name="rc_group_add_member">Add Members</string>
     <string name="rc_group_select_member">Select Group Members</string>
@@ -717,26 +711,4 @@
     <string name="rc_loading_saving">Saving</string>
     <string name="rc_content_contain_sensitive">Setup failed, Content contains sensitive information</string>
     <!--5.12.2-->
-
-    <!--Speech to Text-->
-    <string name="rc_speech_to_text">Convert to Text</string>
-    <string name="rc_cancel_speech_to_text">Cancel Transcription</string>
-    <string name="rc_speech_to_text_failed">Voice to Text Conversion Failed</string>
-    <string name="rc_speech_to_text_network_error">Unable to transcribe. Please check your network connection and try again.</string>
-    <string name="rc_speech_to_text_unsupported_format">We can\'t transcribe this voice message because of its format.</string>
-    <string name="rc_copy">Copy</string>
-    <!--Speech to Text-->
-
-    <!--  NewUIDesign  -->
-    <string name="rc_set_top">Pin</string>
-    <string name="rc_delete">Delete</string>
-    <string name="rc_recall">Recall</string>
-    <string name="rc_reference">Quote</string>
-    <string name="rc_edit">Edit</string>
-    <string name="rc_multi_select">Multi-select</string>
-    <string name="rc_translate">Translate</string>
-    <string name="rc_combine_webview_load_failed">Failed to load merged forwarded messages</string>
-    <!--  NewUIDesign  -->
-
-
 </resources>

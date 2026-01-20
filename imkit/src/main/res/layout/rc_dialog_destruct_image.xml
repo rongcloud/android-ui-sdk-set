@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/rc_common_background_color"
-    android:orientation="vertical"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:background="#ffffff"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/tv_sight"
@@ -14,15 +12,13 @@
         android:layout_height="40dp"
         android:gravity="center"
         android:text="@string/rc_dialog_item_sight"
-        android:textColor="?attr/rc_text_primary_color"
+        android:textColor="#333333"
         android:textSize="13sp" />
-
     <View
         android:id="@+id/view_horizontal"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="?attr/rc_line_background_color" />
-
+        android:background="#e0e0e0" />
     <TextView
         android:id="@+id/tv_album"
         style="@style/TextStyle.Alignment"
@@ -30,14 +26,12 @@
         android:layout_height="40dp"
         android:gravity="center"
         android:text="@string/rc_dialog_item_select_from_album"
-        android:textColor="?attr/rc_text_primary_color"
+        android:textColor="#333333"
         android:textSize="13sp" />
-
     <View
         android:layout_width="match_parent"
         android:layout_height="8dp"
-        android:background="?attr/rc_line_background_color" />
-
+        android:background="#f7f9fa" />
     <TextView
         android:id="@+id/tv_cancel"
         style="@style/TextStyle.Alignment"
@@ -45,7 +39,7 @@
         android:layout_height="40dp"
         android:gravity="center"
         android:text="@string/rc_cancel"
-        android:textColor="?attr/rc_text_primary_color"
+        android:textColor="#333333"
         android:textSize="13sp" />
 
 </LinearLayout>

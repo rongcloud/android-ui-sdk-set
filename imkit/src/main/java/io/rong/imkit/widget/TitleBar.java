@@ -3,6 +3,7 @@ package io.rong.imkit.widget;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -14,9 +15,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.widget.TextViewCompat;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 
 /** 头部Toolbar封装 Created by lhz on 18/3/22. */
 public class TitleBar extends Toolbar {
@@ -30,8 +29,6 @@ public class TitleBar extends Toolbar {
     private Context mContext;
     private Drawable drawable;
     private ImageView search;
-    private ImageView mMiddleLeftIcon;
-    private ImageView mMiddleRightIcon;
 
     public TitleBar(Context context) {
         super(context);
@@ -64,16 +61,8 @@ public class TitleBar extends Toolbar {
         TypedArray typedArray = mContext.obtainStyledAttributes(attrs, R.styleable.TitleBar);
         String title = typedArray.getString(R.styleable.TitleBar_title);
         String rightText = typedArray.getString(R.styleable.TitleBar_right_text);
-        int rightColor =
-                typedArray.getColor(
-                        R.styleable.TitleBar_right_text_color,
-                        IMKitThemeManager.getColorFromAttrId(
-                                getContext(), R.attr.rc_text_primary_color));
-        int leftColor =
-                typedArray.getColor(
-                        R.styleable.TitleBar_left_text_color,
-                        IMKitThemeManager.getColorFromAttrId(
-                                getContext(), R.attr.rc_text_primary_color));
+        int rightColor = typedArray.getColor(R.styleable.TitleBar_right_text_color, Color.BLACK);
+        int leftColor = typedArray.getColor(R.styleable.TitleBar_left_text_color, Color.BLACK);
         String leftText = typedArray.getString(R.styleable.TitleBar_left_text);
         boolean isBackIconShow = typedArray.getBoolean(R.styleable.TitleBar_show_back_icon, true);
         boolean isShowMiddle = typedArray.getBoolean(R.styleable.TitleBar_show_middle, true);
@@ -85,7 +74,7 @@ public class TitleBar extends Toolbar {
             drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
             TextView rightView = getRightView();
             rightView.setVisibility(VISIBLE);
-            TextViewCompat.setCompoundDrawablesRelative(rightView, null, null, drawable, null);
+            rightView.setCompoundDrawables(null, null, drawable, null);
         }
         if (null != title) {
             setTitle(title);
@@ -161,20 +150,6 @@ public class TitleBar extends Toolbar {
         return mMiddle;
     }
 
-    public ImageView getMiddleLeftIcon() {
-        if (mMiddleLeftIcon == null) {
-            mMiddleLeftIcon = findViewById(R.id.tool_bar_middle_left_icon);
-        }
-        return mMiddleLeftIcon;
-    }
-
-    public ImageView getMiddleRightIcon() {
-        if (mMiddleRightIcon == null) {
-            mMiddleRightIcon = findViewById(R.id.tool_bar_middle_right_icon);
-        }
-        return mMiddleRightIcon;
-    }
-
     public TextView getTypingView() {
         if (mTying == null) {
             mTying = findViewById(R.id.tool_bar_middle_typing);
@@ -226,16 +201,16 @@ public class TitleBar extends Toolbar {
             if (drawable == null) {
                 return;
             }
-            TextViewCompat.setCompoundDrawablesRelative(getRightView(), null, null, drawable, null);
+            getRightView().setCompoundDrawables(null, null, drawable, null);
         } else {
-            TextViewCompat.setCompoundDrawablesRelative(getRightView(), null, null, null, null);
+            getRightView().setCompoundDrawables(null, null, null, null);
         }
     }
 
     public void setRightIcon(@DrawableRes int res) {
         drawable = getResources().getDrawable(res);
         drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        TextViewCompat.setCompoundDrawablesRelative(getRightView(), null, null, drawable, null);
+        getRightView().setCompoundDrawables(null, null, drawable, null);
     }
 
     public ImageView getSearchView() {

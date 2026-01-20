@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.recallEdit.RecallEditCountDownCallBack;
 import io.rong.imkit.feature.recallEdit.RecallEditManager;
@@ -59,9 +58,7 @@ public class RecallNotificationMessageItemProvider
                 && content.getRecallActionTime() > 0
                 && countDownTime < validTime * 1000) {
             TextView tvEdit = holder.getView(R.id.rc_edit);
-            tvEdit.setTextColor(
-                    IMKitThemeManager.getColorFromAttrId(
-                            holder.getContext(), R.attr.rc_primary_color));
+            tvEdit.setTextColor(holder.getContext().getResources().getColor(R.color.rc_blue));
             if (uiMessage.isEdit()) {
                 tvEdit.setEnabled(false);
             } else {

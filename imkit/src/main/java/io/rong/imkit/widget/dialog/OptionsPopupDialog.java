@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 
 public class OptionsPopupDialog extends AlertDialog {
 
@@ -36,10 +35,6 @@ public class OptionsPopupDialog extends AlertDialog {
                 (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(R.layout.rc_dialog_popup_options, null);
         ListView mListView = view.findViewById(R.id.rc_list_dialog_popup_options);
-        mListView.setBackgroundResource(
-                IMKitThemeManager.dynamicResource(
-                        R.drawable.rc_lively_common_background_radius_8,
-                        R.drawable.rc_popup_dialog_corner_style));
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(
                         mContext,

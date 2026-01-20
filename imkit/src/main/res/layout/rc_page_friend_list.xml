@@ -9,7 +9,7 @@
         android:id="@+id/rc_head_component"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_title_bar_height"
-        app:head_right_text_drawable="?attr/rc_friend_list_add_new_img"
+        app:head_right_text_drawable="@drawable/rc_add_friend"
         app:head_title_text="@string/rc_friends" />
 
     <io.rong.imkit.usermanage.component.SearchComponent

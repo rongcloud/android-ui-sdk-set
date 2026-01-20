@@ -53,11 +53,6 @@ public class ExtendedGroup extends Group implements Parcelable {
 
         // 初始化 groupInfo，处理 groupInfo 可能为 null 的情况
         this.groupInfo = groupInfo != null ? groupInfo : new GroupInfo();
-        this.groupInfo.setGroupId(getId());
-        this.groupInfo.setGroupName(getName());
-        if (getPortraitUri() != null) {
-            this.groupInfo.setPortraitUri(getPortraitUri().toString());
-        }
     }
 
     /**

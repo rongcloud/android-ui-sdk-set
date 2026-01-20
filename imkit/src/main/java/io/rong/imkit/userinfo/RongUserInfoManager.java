@@ -12,9 +12,6 @@ import io.rong.imkit.userinfo.model.ExtendedGroupUserInfo;
 import io.rong.imkit.userinfo.model.ExtendedUserInfo;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imlib.model.UserInfo;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author rongcloud
@@ -160,62 +157,6 @@ public class RongUserInfoManager {
             extendedGroupUserInfo.setGroupId(groupId);
             return extendedGroupUserInfo;
         }
-    }
-
-    /**
-     * 预加载用户信息列表
-     *
-     * <p>注意：
-     *
-     * <p>1,内部接口，不建议 SDK 外部调用。
-     *
-     * <p>2,该方法解决信息托管超频问题，信息提供者暂不需优化。
-     */
-    public void preloadUserInfos(final List<String> ids) {
-        if (ids == null || ids.isEmpty() || dataSourceType != DataSourceType.INFO_MANAGEMENT) {
-            return;
-        }
-        userManageHelper.loadUserInfos(ids);
-    }
-
-    /**
-     * 预加载群信息列表
-     *
-     * <p>注意：
-     *
-     * <p>1,内部接口，不建议 SDK 外部调用。
-     *
-     * <p>2,该方法解决信息托管超频问题，信息提供者暂不需优化。
-     */
-    public void preloadGroupInfos(final List<String> ids) {
-        if (ids == null || ids.isEmpty() || dataSourceType != DataSourceType.INFO_MANAGEMENT) {
-            return;
-        }
-        userManageHelper.loadGroupInfos(ids);
-    }
-
-    /**
-     * 预加载群成员用户信息列表
-     *
-     * <p>注意：
-     *
-     * <p>1,内部接口，不建议 SDK 外部调用。
-     *
-     * <p>2,该方法解决信息托管超频问题，信息提供者暂不需优化。
-     */
-    public void preloadGroupUserInfos(final Map<String, String> groupUserInfos) {
-        if (groupUserInfos == null
-                || groupUserInfos.isEmpty()
-                || dataSourceType != DataSourceType.INFO_MANAGEMENT) {
-            return;
-        }
-        List<String> groupIds = new ArrayList<>();
-        List<String> userIds = new ArrayList<>();
-        for (Map.Entry<String, String> entry : groupUserInfos.entrySet()) {
-            groupIds.add(entry.getKey());
-            userIds.add(entry.getValue());
-        }
-        userManageHelper.loadGroupUserInfos(groupIds, userIds);
     }
 
     /**

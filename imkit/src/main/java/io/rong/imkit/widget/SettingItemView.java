@@ -72,14 +72,6 @@ public class SettingItemView extends LinearLayout {
                         : getContext().obtainStyledAttributes(attrs, R.styleable.SettingItemView);
         if (ta != null) {
             final int N = ta.getIndexCount();
-            boolean ivRightImageAutoMirrored = false;
-            for (int i = 0; i < N; i++) {
-                int attr = ta.getIndex(i);
-                if (attr == R.styleable.SettingItemView_item_right_image_auto_mirrored) {
-                    ivRightImageAutoMirrored = ta.getBoolean(attr, false);
-                    break;
-                }
-            }
             for (int i = 0; i < N; i++) {
                 int attr = ta.getIndex(i);
                 if (attr == R.styleable.SettingItemView_item_image) {
@@ -173,9 +165,6 @@ public class SettingItemView extends LinearLayout {
                     ivSelectImage.setImageDrawable(selectedImage);
                 } else if (attr == R.styleable.SettingItemView_item_right_image) {
                     Drawable rightImage = ta.getDrawable(attr);
-                    if (ivRightImageAutoMirrored && rightImage != null) {
-                        rightImage.setAutoMirrored(true);
-                    }
                     ivRightImage.setImageDrawable(rightImage);
                     ivRightImage.setVisibility(VISIBLE);
                 }

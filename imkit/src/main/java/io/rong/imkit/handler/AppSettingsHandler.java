@@ -1,13 +1,9 @@
 package io.rong.imkit.handler;
 
-import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.AppSettings;
-import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.MessageReadReceiptVersion;
-import java.util.Set;
 
 /**
  * 应用设置处理器 - 全局唯一实例
@@ -67,79 +63,17 @@ public class AppSettingsHandler {
      * @return 当前缓存的应用设置
      */
     public AppSettings getAppSettings() {
+        if (hasInit) {
+            return appSettings;
+        }
+        appSettings = RongCoreClient.getInstance().getAppSettings();
+        hasInit = true;
         return appSettings;
     }
 
     /** 是否初始化完成，从Lib获取成功过AppSettings */
     public boolean hasInit() {
         return hasInit;
-    }
-
-    /**
-     * 获取应用设置下的已读回执版本
-     *
-     * @return 当前缓存的已读回执版本
-     */
-    public MessageReadReceiptVersion getReadReceiptVersion() {
-        return appSettings.getReadReceiptVersion();
-    }
-
-    /**
-     * 是否支持已读V5
-     *
-     * @param type 会话类型
-     */
-    public boolean isReadReceiptV5Enabled(Conversation.ConversationType type) {
-        // 非单群聊会话类型，不支持
-        if (Conversation.ConversationType.GROUP != type
-                && Conversation.ConversationType.PRIVATE != type) {
-            return false;
-        }
-        // 未开启Kit回执开关，不支持
-        boolean enableReadReceipt = RongConfigCenter.conversationConfig().isEnableReadReceipt();
-        if (!enableReadReceipt) {
-            return false;
-        }
-        // 不支持的已读回执类型
-        Set<Conversation.ConversationType> types =
-                RongConfigCenter.conversationConfig().getSupportReadReceiptConversationType();
-        if (types.isEmpty() || !types.contains(type)) {
-            return false;
-        }
-        // 导航配置非V5版本号，不支持
-        return MessageReadReceiptVersion.V5 == appSettings.getReadReceiptVersion();
-    }
-
-    /**
-     * 是否开启在线状态功能，影响UI是否展示。
-     *
-     * <p>Kit 配置打开，且“好友在线状态订阅”与“非好友在线状态订阅”有一项打开，则代表开启在线状态功能
-     */
-    public boolean isOnlineStatusEnable() {
-        if (!RongConfigCenter.featureConfig().isUserOnlineStatusEnable()) {
-            return false;
-        }
-        return appSettings.isFriendOnlineStatusSubscribeEnable()
-                || appSettings.isOnlineStatusSubscribeEnable();
-    }
-
-    /** 是否开启好友在线状态订阅功能 */
-    public boolean isFriendOnlineStatusSubscribeEnable() {
-        // Kit配置和Lib配置同时开启。
-        return RongConfigCenter.featureConfig().isUserOnlineStatusEnable()
-                && appSettings.isFriendOnlineStatusSubscribeEnable();
-    }
-
-    /** 是否开启在线状态订阅功能 */
-    public boolean isOnlineStatusSubscribeEnable() {
-        // Kit配置和Lib配置同时开启。
-        return RongConfigCenter.featureConfig().isUserOnlineStatusEnable()
-                && appSettings.isOnlineStatusSubscribeEnable();
-    }
-
-    /** 是否开启用户信息托管 */
-    public boolean isUserProfileEnabled() {
-        return appSettings.isUserProfileEnabled();
     }
 
     /** 内部方法：异步获取并更新应用设置 */

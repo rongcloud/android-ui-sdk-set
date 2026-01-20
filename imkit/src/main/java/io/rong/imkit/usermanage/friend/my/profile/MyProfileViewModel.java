@@ -49,7 +49,6 @@ public class MyProfileViewModel extends BaseViewModel {
     protected void onCleared() {
         super.onCleared();
         userProfileHandler.stop();
-        userProfileOperationsHandler.stop();
     }
 
     public void loadMyUserProfile() {

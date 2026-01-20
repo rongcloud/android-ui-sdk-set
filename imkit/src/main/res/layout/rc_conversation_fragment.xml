@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/rc_auxiliary_background_1_color"
-    android:orientation="vertical"
-    tools:theme="@style/RCTraditionLightTheme">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/rc_background_main_color"
+    android:orientation="vertical">
 
     <io.rong.imkit.widget.refresh.SmartRefreshLayout
         android:id="@+id/rc_refresh"
@@ -39,33 +38,35 @@
         app:layout_constraintBottom_toBottomOf="@id/rc_refresh"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/rc_unread_message_count"
         android:layout_width="wrap_content"
-        android:minWidth="110dp"
+        android:minWidth="120dp"
         android:layout_height="@dimen/rc_unread_height"
         android:layout_marginStart="3dp"
         android:layout_marginTop="@dimen/rc_margin_size_30"
+        android:layout_marginEnd="5dp"
         android:background="@drawable/rc_unread_msg_bg_style"
         android:drawablePadding="3dp"
         android:gravity="center"
         android:paddingStart="7dp"
         android:paddingEnd="7dp"
         android:maxLines="1"
-        android:textColor="?attr/rc_primary_color"
-        android:textSize="13sp"
+        android:textColor="@color/rc_text_main_color"
+        android:textSize="14sp"
         android:visibility="gone"
-        app:drawableStartCompat="?attr/rc_conversation_unread_button_arrow_img"
+        android:drawableStart="@drawable/rc_unread_msg_arrow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/rc_mention_message_count"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/rc_unread_height"
         android:layout_marginStart="3dp"
         android:layout_marginTop="@dimen/rc_margin_size_80"
-        android:minWidth="110dp"
+        android:layout_marginEnd="5dp"
+        android:minWidth="120dp"
         android:background="@drawable/rc_unread_msg_bg_style"
         android:drawablePadding="5dp"
         android:gravity="center_vertical"
@@ -73,10 +74,10 @@
         android:paddingEnd="7dp"
         android:text="@string/rc_mention_messages"
         android:maxLines="1"
-        android:textColor="?attr/rc_hint_color"
-        android:textSize="13sp"
+        android:textColor="@color/rc_text_main_color"
+        android:textSize="14sp"
         android:visibility="gone"
-        app:drawableStartCompat="?attr/rc_conversation_mention_button_arrow_img"
+        android:drawableStart="@drawable/rc_unread_msg_arrow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -94,7 +95,7 @@
         android:id="@+id/rc_notification_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/rc_auxiliary_view_color"
+        android:background="#660F0F0F"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

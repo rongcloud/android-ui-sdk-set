@@ -9,12 +9,7 @@ import io.rong.imkit.utils.language.RongConfigurationManager;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class RongDateUtils {
 
@@ -23,27 +18,6 @@ public class RongDateUtils {
     private static final int OTHER = 2014;
     private static final int TODAY = 6;
     private static final int YESTERDAY = 15;
-
-    private static final ThreadLocal<Map<String, SimpleDateFormat>> THREAD_LOCAL_FORMATTERS =
-            new ThreadLocal<Map<String, SimpleDateFormat>>() {
-                @Override
-                protected Map<String, SimpleDateFormat> initialValue() {
-                    return new HashMap<>();
-                }
-            };
-
-    private static final ConcurrentHashMap<String, SimpleDateFormat> SHARED_FORMAT_CACHE =
-            new ConcurrentHashMap<>();
-
-    private static final Object PRELOAD_LOCK = new Object();
-
-    private static final String[] COMMON_FORMATS = {"HH:mm", "h:mm", "M/d", "yyyy/M/d"};
-    private static final long PRELOAD_WAIT_TIMEOUT_MS = 30L;
-
-    // 预加载状态标记，避免重复预加载
-    private static boolean sHasPreloaded = false;
-    private static volatile CountDownLatch sPreloadLatch;
-    private static volatile String sPreloadedLocaleKey;
 
     public static int judgeDate(Context context, Date date) {
         Locale locale = LangUtils.getAppLanguageLocal(context).toLocale();
@@ -251,143 +225,19 @@ public class RongDateUtils {
         }
     }
 
-    /**
-     * 预加载常用的日期格式化器，避免首次在主线程创建导致ANR 建议在 IMCenter 初始化时调用 该方法支持多次调用，内部会确保只执行一次预加载
-     *
-     * @param context Context
-     */
-    public static void preloadDateFormats(final Context context) {
-        if (context == null) {
-            RLog.w(TAG, "preloadDateFormats: context is null");
-            return;
-        }
-
-        final Locale targetLocale = LangUtils.getAppLanguageLocal(context).toLocale();
-        final String targetLocaleKey = targetLocale.toString();
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        synchronized (PRELOAD_LOCK) {
-            if (sHasPreloaded && targetLocaleKey.equals(sPreloadedLocaleKey)) {
-                RLog.d(TAG, "Date formats already preloaded for locale: " + targetLocaleKey);
-                return;
-            }
-            sPreloadLatch = latch;
-            sPreloadedLocaleKey = targetLocaleKey;
-            sHasPreloaded = false;
-        }
-
-        ExecutorHelper.getInstance()
-                .compressExecutor()
-                .execute(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                boolean success = false;
-                                try {
-                                    RLog.i(
-                                            TAG,
-                                            "Start preloading date formats for " + targetLocale);
-                                    preloadFormatsForLocale(targetLocale);
-
-                                    Locale defaultLocale = Locale.getDefault();
-                                    if (!defaultLocale.equals(targetLocale)) {
-                                        preloadFormatsForLocale(defaultLocale);
-                                        RLog.d(
-                                                TAG,
-                                                "Preloaded fallback locale formats: "
-                                                        + defaultLocale);
-                                    }
-                                    success = true;
-                                    RLog.i(TAG, "Date formats preloaded successfully");
-                                } catch (Exception e) {
-                                    RLog.e(
-                                            TAG,
-                                            "Failed to preload date formats: " + e.getMessage());
-                                } finally {
-                                    synchronized (PRELOAD_LOCK) {
-                                        sHasPreloaded = success;
-                                        if (!success) {
-                                            sPreloadedLocaleKey = null;
-                                        }
-                                    }
-                                    latch.countDown();
-                                    if (sPreloadLatch == latch) {
-                                        sPreloadLatch = null;
-                                    }
-                                }
-                            }
-                        });
-    }
-
     public static String formatDate(Context context, Date date, String fromat) {
         if (TextUtils.isEmpty(fromat)) {
             return "";
         }
 
         try {
-            Locale locale = LangUtils.getAppLanguageLocal(context).toLocale();
-            waitPreloadIfNeeded();
-            return formatWithLocale(fromat, date, locale);
-        } catch (Exception e) {
-            RLog.e(TAG, "formatDate error: " + e.getMessage());
-            try {
-                Locale defaultLocale = Locale.getDefault();
-                return formatWithLocale(fromat, date, defaultLocale);
-            } catch (Exception ex) {
-                RLog.e(TAG, "formatDate fallback error: " + ex.getMessage());
-                return "";
-            }
+            SimpleDateFormat sdf =
+                    new SimpleDateFormat(fromat, LangUtils.getAppLanguageLocal(context).toLocale());
+            return sdf.format(date);
+        } catch (IllegalArgumentException e1) {
+            RLog.e(TAG, "the given pattern is invalid.");
         }
-    }
 
-    private static void preloadFormatsForLocale(Locale locale) {
-        for (String format : COMMON_FORMATS) {
-            getOrCreateSharedFormatter(format, locale);
-            RLog.d(TAG, "Preloaded date format: " + buildCacheKey(format, locale));
-        }
-    }
-
-    private static void waitPreloadIfNeeded() {
-        CountDownLatch latch = sPreloadLatch;
-        if (latch == null) {
-            return;
-        }
-        try {
-            latch.await(PRELOAD_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private static String formatWithLocale(String pattern, Date date, Locale locale) {
-        SimpleDateFormat sdf = getThreadFormatter(pattern, locale);
-        return sdf.format(date);
-    }
-
-    private static SimpleDateFormat getThreadFormatter(String pattern, Locale locale) {
-        Map<String, SimpleDateFormat> threadCache = THREAD_LOCAL_FORMATTERS.get();
-        String key = buildCacheKey(pattern, locale);
-        SimpleDateFormat sdf = threadCache.get(key);
-        if (sdf == null) {
-            SimpleDateFormat shared = getOrCreateSharedFormatter(pattern, locale);
-            sdf = (SimpleDateFormat) shared.clone();
-            threadCache.put(key, sdf);
-        }
-        return sdf;
-    }
-
-    private static SimpleDateFormat getOrCreateSharedFormatter(String pattern, Locale locale) {
-        String key = buildCacheKey(pattern, locale);
-        SimpleDateFormat shared = SHARED_FORMAT_CACHE.get(key);
-        if (shared == null) {
-            SimpleDateFormat newFormatter = new SimpleDateFormat(pattern, locale);
-            SimpleDateFormat existing = SHARED_FORMAT_CACHE.putIfAbsent(key, newFormatter);
-            shared = existing != null ? existing : newFormatter;
-        }
-        return shared;
-    }
-
-    private static String buildCacheKey(String pattern, Locale locale) {
-        return pattern + "_" + locale.toString();
+        return "";
     }
 }

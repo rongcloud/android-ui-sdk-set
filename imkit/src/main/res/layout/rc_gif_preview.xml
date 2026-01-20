@@ -4,7 +4,7 @@
     android:id="@+id/rc_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/rc_common_background_color">
+    android:background="@android:color/white">
 
     <ImageView
         android:id="@+id/rc_gif_preview"
@@ -23,8 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/rc_load_image_failed"
-        android:visibility="gone"
-        android:textColor="?attr/rc_text_primary_color"
+        android:textColor="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/rc_gif_preview" />
@@ -33,7 +32,7 @@
         android:id="@+id/rc_count_down"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/rc_image_msg_count_down"
         android:gravity="center"

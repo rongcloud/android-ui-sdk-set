@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/rc_bottom_dialog_background_color"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@android:color/white">
 
     <TextView
         android:id="@+id/tv_title"
@@ -14,31 +15,31 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:paddingStart="25dp"
-        android:paddingTop="20dp"
         android:paddingEnd="25dp"
+        android:paddingTop="20dp"
+        android:textColor="#333333"
+        android:textSize="17sp"
         android:text="@string/rc_ext_plugin_destruct"
-        android:textColor="?attr/rc_text_primary_color"
-        android:textSize="17sp" />
-
+        />
     <TextView
         android:id="@+id/tv_content"
         style="@style/TextStyle.Alignment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingStart="25dp"
-        android:paddingTop="15dp"
-        android:paddingEnd="25dp"
         android:paddingBottom="15dp"
-        android:text="@string/rc_dialog_destruct_hint"
-        android:textColor="?attr/rc_text_primary_color"
-        android:textSize="16sp" />
+        android:paddingStart="25dp"
+        android:paddingEnd="25dp"
+        android:paddingTop="15dp"
+        android:textColor="#333333"
+        android:textSize="16sp"
+        android:text="@string/rc_dialog_destruct_hint" />
 
     <View
         android:id="@+id/view_horizontal"
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="?attr/rc_line_background_color" />
+        android:background="#e0e0e0" />
 
 
     <TextView
@@ -47,8 +48,8 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:gravity="center"
+        android:textStyle="bold"
         android:text="@string/rc_dialog_got_it"
-        android:textColor="?attr/rc_primary_color"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textColor="#5795f3"
+        android:textSize="16sp" />
 </LinearLayout>

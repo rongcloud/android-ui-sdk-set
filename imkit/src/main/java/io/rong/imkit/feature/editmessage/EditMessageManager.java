@@ -2,6 +2,7 @@ package io.rong.imkit.feature.editmessage;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.Spannable;
 import android.text.TextUtils;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -29,9 +30,11 @@ import io.rong.imkit.feature.mention.MentionBlock;
 import io.rong.imkit.feature.mention.MentionInstance;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.feature.reference.ReferenceManager;
-import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.userinfo.RongUserInfoManager;
+import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.ExecutorHelper;
+import io.rong.imkit.utils.StringUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.utils.keyboard.KeyboardHeightObserver;
 import io.rong.imlib.IRongCoreCallback;
@@ -39,21 +42,23 @@ import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.MessageModifyInfo;
 import io.rong.imlib.RongCoreClient;
-import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.model.AppSettings;
 import io.rong.imlib.model.Conversation;
-import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.UserInfo;
 import io.rong.imlib.params.ModifyMessageParams;
+import io.rong.message.FileMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
+import io.rong.message.RichContentMessage;
 import io.rong.message.TextMessage;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EditMessageManager implements IExtensionEventWatcher, IExtensionModule {
     public static final String TAG = "EditMessageManager";
@@ -63,16 +68,26 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
     private final Stack<EditMessageState> stack = new Stack<>();
     private final MessageItemLongClickAction mClickActionEditMessage =
             new MessageItemLongClickAction.Builder()
-                    .titleResId(R.string.rc_edit)
-                    .iconResId(R.attr.rc_conversation_menu_item_edit_img)
-                    .actionListener(this::onMessageItemLongClick)
+                    .titleResId(R.string.rc_dialog_item_message_edit)
+                    .actionListener(
+                            (context, uiMessage) -> {
+                                activeEditMode(
+                                        ActiveType.OnLongClickMessage,
+                                        uiMessage.getUId(),
+                                        getInputContent(uiMessage),
+                                        getReferContent(context, uiMessage),
+                                        uiMessage.getSentTime(),
+                                        getMentionBlocks(uiMessage),
+                                        true);
+                                return true;
+                            })
                     .showFilter(this::isFilter)
                     .build();
     // 观察软键盘高度
     private final List<KeyboardHeightObserver> mObservers = new ArrayList<>();
     private AppSettings settings = new AppSettings();
-    private final DraftHelper draftHelper = new DraftHelper();
-    private final IRongCoreListener.ConnectionStatusListener connectionStatusListener =
+    private DraftHelper draftHelper = new DraftHelper();
+    private IRongCoreListener.ConnectionStatusListener connectionStatusListener =
             new IRongCoreListener.ConnectionStatusListener() {
                 @Override
                 public void onChanged(ConnectionStatus status) {
@@ -89,8 +104,6 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
             };
     // 当前是否全屏编辑状态，并且Emoji面板展示状态是true
     private boolean isEmoticonMode = false;
-    private final EditMessageHandler editMessageHandler = new EditMessageHandler();
-    private List<StatusListener> mStatusListenerList = new CopyOnWriteArrayList<>();
 
     private EditMessageManager() {
         RongCoreClient.addConnectionStatusListener(connectionStatusListener);
@@ -115,6 +128,11 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
                 || fragment.getFragmentManager() == null) {
             return;
         }
+        // 添加监听
+        MessageItemLongClickActionManager.getInstance()
+                .addMessageItemLongClickAction(mClickActionEditMessage);
+        RongExtensionManager.getInstance().addExtensionEventWatcher(this);
+
         // 保存Fragment、RongExtension、RongExtensionViewModel
         mFragment = new WeakReference<>(fragment);
         mRongExtension = new WeakReference<>(extension);
@@ -123,22 +141,24 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         editMessageInstance.mFragment = mFragment;
         editMessageInstance.mRongExtension = mRongExtension;
         stack.add(editMessageInstance);
-        // 添加监听
-        MessageItemLongClickActionManager.getInstance()
-                .addMessageItemLongClickAction(mClickActionEditMessage);
-        RongExtensionManager.getInstance().addExtensionEventWatcher(this);
         // 根据上次保存的编辑配置，来决定是否激活编辑组件
-        editMessageHandler.resumeEditMode(
-                extension.getConversationIdentifier(),
-                EditMessageManager.ActiveType.OnAttachedToExtension);
-    }
-
-    /** 处理恢复编辑状态结果，根据不同的类型 ActiveType 处理不同的逻辑 */
-    public void onResumeEditModeResult(ActiveType type, EditMessageConfig config) {
-        if (type == EditMessageManager.ActiveType.OnCancelMultiSelectStatus) {
-            activeEditMode(type, config, false);
-        } else if (type == EditMessageManager.ActiveType.OnAttachedToExtension) {
-            activeEditMode(type, config, true);
+        EditMessageConfig config =
+                RongExtensionCacheHelper.getEditMessageConfig(
+                        extension.getContext(),
+                        extension.getConversationType(),
+                        extension.getTargetId());
+        if (EditMessageConfig.isInvalid(config)) {
+            exitEditMode();
+        } else {
+            editMessageInstance.config = config;
+            activeEditMode(
+                    ActiveType.OnAttachedToExtension,
+                    config.uid,
+                    config.content,
+                    config.referContent,
+                    config.sentTime,
+                    config.mentionBlocks,
+                    true);
         }
     }
 
@@ -161,48 +181,54 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
     @Override
     public void onDisconnect() {}
 
-    // 初始化上下文，mFragment、mRongExtension
-    private void initContext() {
-        if ((mRongExtension == null || mFragment == null) && !stack.isEmpty()) {
-            EditMessageState topState = stack.peek();
-            mRongExtension = topState.mRongExtension;
-            mFragment = topState.mFragment;
+    private void initConfig() {
+        if (mRongExtension == null || mFragment == null) {
+            if (!stack.isEmpty()) {
+                EditMessageState topState = stack.peek();
+                mRongExtension = topState.mRongExtension;
+                mFragment = topState.mFragment;
+            }
         }
     }
 
-    private boolean onMessageItemLongClick(Context context, UiMessage uiMessage) {
-        Message message = uiMessage.getMessage();
-        EditMessageConfig config = new EditMessageConfig();
-        config.uid = uiMessage.getUId();
-        config.content = EditMessageUtils.getOriginalContent(message);
-        String referContent = EditMessageUtils.getReferContent(message);
-        if (!TextUtils.isEmpty(referContent)) {
-            String name = EditMessageUtils.getDisplayName(message);
-            config.referContent = name + ":" + referContent;
+    /**
+     * 激活编辑消息模式
+     *
+     * @param config 编辑消息的配置
+     */
+    public void activeEditMode(EditMessageConfig config, boolean showKeyBoard) {
+        if (config == null) {
+            return;
         }
-        if (message.getContent() instanceof ReferenceMessage) {
-            ReferenceMessage referenceMessage = (ReferenceMessage) message.getContent();
-            config.referStatus = referenceMessage.getReferMsgStatus();
-            config.referUid = referenceMessage.getReferMsgUid();
-        }
-        config.sentTime = uiMessage.getSentTime();
-        config.mentionBlocks = getMentionBlocks(uiMessage);
-        activeEditMode(ActiveType.OnLongClickMessage, config, true);
-        return true;
+        activeEditMode(
+                ActiveType.OnCancelMultiSelectStatus,
+                config.uid,
+                config.content,
+                config.referContent,
+                config.sentTime,
+                config.mentionBlocks,
+                showKeyBoard);
     }
 
     /**
      * 激活编辑消息模式
      *
      * @param type 激活类型
-     * @param config 编辑消息配置
-     * @param showKeyBoard 是否展示软键盘
+     * @param uid 编辑消息的uid
+     * @param content 编辑消息的内容
+     * @param referContent 编辑消息的被引用消息内容
+     * @param sentTime 编辑消息的sentTime
+     * @param mentionBlocks 编辑消息的mentionBlocks
      */
-    public void activeEditMode(ActiveType type, EditMessageConfig config, boolean showKeyBoard) {
-        if (config == null || TextUtils.isEmpty(config.uid) || TextUtils.isEmpty(config.content)) {
-            return;
-        }
-        initContext();
+    public void activeEditMode(
+            ActiveType type,
+            String uid,
+            String content,
+            String referContent,
+            long sentTime,
+            List<MentionBlock> mentionBlocks,
+            boolean showKeyBoard) {
+        initConfig();
         if (mRongExtension == null || mFragment == null) {
             return;
         }
@@ -213,6 +239,9 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         }
         Activity activity = fragment.getActivity();
         if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        if (TextUtils.isEmpty(uid) || TextUtils.isEmpty(content)) {
             return;
         }
         if (stack.isEmpty()) {
@@ -223,13 +252,28 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         // 如果正在编辑消息中，判断新编辑的消息UID和正在编辑的消息UID是否相同
         if (!TextUtils.isEmpty(lastUid)) {
             // 长按消息编辑，uid相同，忽略
-            if (type == ActiveType.OnLongClickMessage && TextUtils.equals(lastUid, config.uid)) {
+            if (type == ActiveType.OnLongClickMessage && TextUtils.equals(lastUid, uid)) {
                 return;
             }
             // 不同，则弹出确认对话框
-            if (!TextUtils.equals(lastUid, config.uid)) {
+            if (!TextUtils.equals(lastUid, uid)) {
                 EditMessageDialog.OnClickListener listener =
-                        (v, b) -> postDelayed(() -> activeEditModeReally(config, showKeyBoard));
+                        (v, b) -> {
+                            extension.postDelayed(
+                                    new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            activeEditModeReally(
+                                                    uid,
+                                                    content,
+                                                    referContent,
+                                                    sentTime,
+                                                    mentionBlocks,
+                                                    showKeyBoard);
+                                        }
+                                    },
+                                    100);
+                        };
                 EditMessageDialog dialog =
                         EditMessageDialog.newInstance(activity)
                                 .setTitleText(R.string.rc_prompt)
@@ -240,14 +284,21 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
                 return;
             }
         }
-        postDelayed(() -> activeEditModeReally(config, showKeyBoard));
+        extension.postDelayed(
+                () ->
+                        activeEditModeReally(
+                                uid, content, referContent, sentTime, mentionBlocks, showKeyBoard),
+                100);
     }
 
-    private void activeEditModeReally(EditMessageConfig config, boolean showKeyBoard) {
-        if (config == null || TextUtils.isEmpty(config.uid) || TextUtils.isEmpty(config.content)) {
-            return;
-        }
-        initContext();
+    private void activeEditModeReally(
+            String uid,
+            String content,
+            String referContent,
+            long sentTime,
+            List<MentionBlock> mentionBlocks,
+            boolean showKeyBoard) {
+        initConfig();
         if (mRongExtension == null || mFragment == null) {
             return;
         }
@@ -258,6 +309,9 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         }
         Activity activity = fragment.getActivity();
         if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        if (TextUtils.isEmpty(uid) || TextUtils.isEmpty(content)) {
             return;
         }
         if (stack.isEmpty()) {
@@ -270,11 +324,7 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         RelativeLayout container = extension.getContainer(RongExtension.ContainerType.INPUT);
         EditMessageInputPanel mEditMessageInputPanel =
                 new EditMessageInputPanel(
-                        fragment,
-                        container,
-                        extension.getConversationIdentifier(),
-                        config.referUid,
-                        config.uid);
+                        fragment, container, extension.getConversationIdentifier());
         if (mEditMessageInputPanel.getRootView() == null) {
             return;
         }
@@ -288,60 +338,65 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         // ViewModel绑定编辑消息输入框布局的Edittext
         mExtensionViewModel.setEditTextWidget(mEditMessageInputPanel.getEditText());
         // RongMentionManager 重新绑定Edittext对应的MentionList。
-        addMentionBlocks(mEditMessageInputPanel.getEditText(), config.mentionBlocks);
+        addMentionBlocks(mEditMessageInputPanel.getEditText(), mentionBlocks);
         // 延时弹起键盘，避免键盘快速收起弹起动画突兀
-        postDelayed(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mFragment == null) {
-                            return;
-                        }
-                        Fragment fragment = mFragment.get();
-                        if (fragment == null
-                                || fragment.getActivity() == null
-                                || fragment.getActivity().isFinishing()) {
-                            return;
-                        }
-                        // 插入消息内容到编辑消息输入框Edittext，并设置引用消息内容
-                        mEditMessageInputPanel.setContent(config, showKeyBoard);
-                    }
-                });
+        mEditMessageInputPanel
+                .getEditText()
+                .postDelayed(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mFragment == null) {
+                                    return;
+                                }
+                                Fragment fragment = mFragment.get();
+                                if (fragment == null
+                                        || fragment.getActivity() == null
+                                        || fragment.getActivity().isFinishing()) {
+                                    return;
+                                }
+                                // 插入消息内容到编辑消息输入框Edittext，并设置引用消息内容
+                                mEditMessageInputPanel.setContent(
+                                        content, referContent, showKeyBoard);
+                            }
+                        },
+                        300);
+
         // 保存激活状态到内存中
         EditMessageState lastState = stack.peek();
+        EditMessageConfig config = new EditMessageConfig();
+        config.uid = uid;
+        config.content = content;
+        config.referContent = referContent;
+        config.sentTime = sentTime;
+        config.mentionBlocks = mentionBlocks;
         lastState.config = config;
+        // 保存编辑消息状态
+        RongExtensionCacheHelper.setEditMessageConfig(
+                activity, extension.getConversationType(), extension.getTargetId(), config);
         // 查询是否可以编辑，根据结果刷新UI
-        mEditMessageInputPanel.setCheckMessageModifiableResult(
-                checkMessageModifiable(config.sentTime));
+        mEditMessageInputPanel.setCheckMessageModifiableResult(checkMessageModifiable(sentTime));
         // 清除引用消息组件，必须要放到 setEditMessageConfig 后面
         ReferenceManager.getInstance().hideReferenceView();
-        // 保存编辑消息状态
-        editMessageHandler.saveEditedMessageDraft(extension.getConversationIdentifier(), config);
-        notifyVisibilityChanged(true);
     }
 
-    /** 退出编辑消息状态，清空编辑消息配置，并获取草稿。 */
+    // 退出编辑消息状态，清空编辑消息配置。
     public void exitEditMode() {
-        initContext();
+        initConfig();
         RongExtension extension = mRongExtension.get();
-        if (extension != null) {
-            // 清空内存状态
-            if (!stack.isEmpty()) {
-                EditMessageState lastState = stack.peek();
-                lastState.config = null;
-            }
-            // 清空激活状态
-            editMessageHandler.clearEditedMessageDraft(extension.getConversationIdentifier());
-            extension.resetToDefaultView(null, InputMode.TextInput, true);
-            postDelayed(() -> extension.getInputPanel().getDraftReally(null));
+        if (extension == null) {
+            return;
         }
-        notifyVisibilityChanged(false);
-    }
-
-    private void notifyVisibilityChanged(boolean isVisible) {
-        for (StatusListener listener : this.mStatusListenerList) {
-            listener.onVisibilityChanged(isVisible);
+        // 清空内存状态
+        if (!stack.isEmpty()) {
+            EditMessageState lastState = stack.peek();
+            lastState.config = null;
         }
+        // 清空激活状态
+        RongExtensionCacheHelper.clearEditMessageConfig(
+                extension.getContext(), extension.getConversationType(), extension.getTargetId());
+        extension.resetToDefaultView(null, InputMode.TextInput, true);
+        extension.getInputPanel().getDraft();
     }
 
     public void onKeyboardHeightChange(int orientation, boolean isOpen, int keyboardHeight) {
@@ -357,14 +412,20 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
 
     /** 是否编辑消息状态 */
     public EditMessageConfig getEditMessageConfig() {
-        // 获取内存中的编辑状态，不实时获取Lib状态
-        if (!stack.isEmpty()) {
-            EditMessageState lastState = stack.peek();
-            if (lastState != null && lastState.config != null) {
-                return lastState.config;
-            }
+        initConfig();
+        if (mRongExtension == null) {
+            return null;
         }
-        return null;
+        RongExtension extension = mRongExtension.get();
+        if (extension == null) {
+            return null;
+        }
+        EditMessageConfig config =
+                RongExtensionCacheHelper.getEditMessageConfig(
+                        extension.getContext(),
+                        extension.getConversationType(),
+                        extension.getTargetId());
+        return config;
     }
 
     // 是否全屏展示输入状态，并且是emoji输入状态
@@ -437,7 +498,7 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
 
     public void editMessage(Message message, String editContent) {
         ModifyMessageParams params = null;
-        // 重新编辑，通过消息气泡重试
+        // 重新编辑
         if (TextUtils.isEmpty(editContent)) {
             MessageModifyInfo modifyInfo = message.getModifyInfo();
             if (modifyInfo != null && modifyInfo.getContent() != null) {
@@ -459,18 +520,6 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
                 RLog.e(TAG, "editMessage objectName error" + message.getUId() + "," + editContent);
             }
         }
-        if (params == null) {
-            RLog.e(TAG, "editMessage params " + message.getUId());
-            int redId =
-                    TextUtils.isEmpty(editContent)
-                            ? R.string.rc_edit_status_retry_failed
-                            : R.string.rc_edit_status_failed;
-            ToastUtils.show(
-                    IMCenter.getInstance().getContext(),
-                    mFragment.get().getResources().getText(redId),
-                    Toast.LENGTH_SHORT);
-            return;
-        }
         // 更新内存中的状态为 UPDATING
         if (message.getModifyInfo() != null) {
             message.getModifyInfo().setStatus(MessageModifyInfo.MessageModifyStatus.UPDATING);
@@ -484,6 +533,10 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         }
         // MessageModifyStatus更新为 UPDATING，刷新UI
         refreshUIMessage(message);
+        if (params == null) {
+            RLog.e(TAG, "editMessage params " + message.getUId());
+            return;
+        }
         // modifyMessageCallback
         IRongCoreCallback.ModifyMessageCallback modifyMessageCallback =
                 new IRongCoreCallback.ModifyMessageCallback() {
@@ -533,12 +586,18 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         if (message == null) {
             return;
         }
-        ExecutorFactory.runOnMainThreadSafety(
-                () -> {
-                    List<Message> messages = new ArrayList<>();
-                    messages.add(message);
-                    IMCenter.getInstance().refreshMessage(new RefreshEvent(messages, true));
-                });
+        ExecutorHelper.getInstance()
+                .mainThread()
+                .execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                List<Message> messages = new ArrayList<>();
+                                messages.add(message);
+                                IMCenter.getInstance()
+                                        .refreshMessage(new RefreshEvent(messages, true));
+                            }
+                        });
     }
 
     @Override
@@ -576,7 +635,19 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
 
     @Override
     public void onSendToggleClick(Message message) {
-        // do nothing
+        MessageContent messageContent = message.getContent();
+        if (messageContent instanceof TextMessage && isEditMessageState()) {
+            int length = ((TextMessage) messageContent).getContent().length();
+            long time;
+            if (length <= 20) {
+                time = 10;
+            } else {
+                time = Math.round((length - 20) * 0.5 + 10);
+            }
+            messageContent.setDestructTime(time);
+            messageContent.setDestruct(true);
+            message.setContent(messageContent);
+        }
     }
 
     @Override
@@ -604,22 +675,20 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
     }
 
     public void onPause() {
-        updateCurrentEditConfig();
+        if (!stack.isEmpty()) {
+            updateCurrentEditConfig(stack.peek());
+        }
     }
 
     public void onResume() {
-        updateCurrentEditConfig();
+        if (!stack.isEmpty()) {
+            updateCurrentEditConfig(stack.peek());
+        }
     }
 
     // 更新内存中的编辑配置到SP
-    private void updateCurrentEditConfig() {
-        if (!RongConfigCenter.featureConfig().isEditMessageEnable()) {
-            return;
-        }
-        initContext();
-        if (stack.isEmpty()) {
-            return;
-        }
+    private void updateCurrentEditConfig(EditMessageState currentState) {
+        initConfig();
         if (mFragment == null || mRongExtension == null) {
             return;
         }
@@ -628,18 +697,62 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         if (extension == null || fragment == null) {
             return;
         }
-        EditMessageState state = stack.peek();
-        ConversationIdentifier id = extension.getConversationIdentifier();
-        if (state != null && state.config != null && !TextUtils.isEmpty(state.config.content)) {
-            editMessageHandler.saveEditedMessageDraft(id, state.config);
+        if (currentState != null
+                && currentState.config != null
+                && !TextUtils.isEmpty(currentState.config.content)) {
+            RongExtensionCacheHelper.setEditMessageConfig(
+                    extension.getContext(),
+                    extension.getConversationType(),
+                    extension.getTargetId(),
+                    currentState.config);
         } else {
-            editMessageHandler.clearEditedMessageDraft(id);
+            RongExtensionCacheHelper.clearEditMessageConfig(
+                    extension.getContext(),
+                    extension.getConversationType(),
+                    extension.getTargetId());
         }
+    }
+
+    private String getInputContent(UiMessage uiMessage) {
+        if (uiMessage.getContent() instanceof TextMessage) {
+            return ((TextMessage) uiMessage.getContent()).getContent();
+        }
+        if (uiMessage.getContent() instanceof ReferenceMessage) {
+            return ((ReferenceMessage) uiMessage.getContent()).getEditSendText();
+        }
+        return "";
+    }
+
+    private String getReferContent(Context context, UiMessage uiMessage) {
+        if (uiMessage.getContent() instanceof ReferenceMessage) {
+            ReferenceMessage referenceMessage = (ReferenceMessage) uiMessage.getContent();
+            MessageContent referenceContent = referenceMessage.getReferenceContent();
+            String name = getDisplayName(uiMessage, referenceMessage);
+            Spannable messageSummary =
+                    RongConfigCenter.conversationConfig()
+                            .getMessageSummary(context, referenceContent);
+            String content = "";
+            ReferenceMessage.ReferenceMessageStatus status = referenceMessage.getReferMsgStatus();
+            if (ReferenceMessage.ReferenceMessageStatus.DELETE == status) {
+                content = context.getString(R.string.rc_reference_status_delete);
+            } else if (ReferenceMessage.ReferenceMessageStatus.RECALLED == status) {
+                content = context.getString(R.string.rc_reference_status_recall);
+            } else if (referenceContent instanceof FileMessage) {
+                content = messageSummary.toString();
+            } else if (referenceContent instanceof RichContentMessage) {
+                String fileTile = ((RichContentMessage) referenceContent).getTitle();
+                content = messageSummary.toString() + fileTile;
+            } else {
+                content = StringUtils.getStringNoBlank(messageSummary.toString());
+            }
+            return name + ":" + content;
+        }
+        return "";
     }
 
     // Cursor生成，修改建议也用Cursor
     private List<MentionBlock> getMentionBlocks(UiMessage uiMessage) {
-        initContext();
+        initConfig();
         if (mFragment == null || mRongExtension == null) {
             return new ArrayList<>();
         }
@@ -648,12 +761,164 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         if (extension == null || fragment == null) {
             return new ArrayList<>();
         }
-        return EditMessageUtils.getMentionBlocks(uiMessage);
+        String content = "";
+        if (uiMessage.getContent() instanceof TextMessage) {
+            content = ((TextMessage) uiMessage.getContent()).getContent();
+        } else if (uiMessage.getContent() instanceof ReferenceMessage) {
+            content = ((ReferenceMessage) uiMessage.getContent()).getEditSendText();
+        }
+        if (TextUtils.isEmpty(content)) {
+            return new ArrayList<>();
+        }
+
+        MentionedInfo mentionedInfo = uiMessage.getContent().getMentionedInfo();
+        if (mentionedInfo == null) {
+            return new ArrayList<>();
+        }
+        List<String> mentionedUserIdList = new ArrayList<>();
+        if (mentionedInfo.getMentionedUserIdList() != null
+                && !mentionedInfo.getMentionedUserIdList().isEmpty()) {
+            mentionedUserIdList.addAll(mentionedInfo.getMentionedUserIdList());
+        }
+        if (mentionedInfo.getType() == MentionedInfo.MentionedType.ALL) {
+            boolean hasAll = false;
+            if (!mentionedUserIdList.isEmpty()) {
+                for (String uid : mentionedUserIdList) {
+                    if (TextUtils.equals(uid, "-1")) {
+                        hasAll = true;
+                    }
+                }
+            }
+            if (!hasAll) {
+                mentionedUserIdList.add("-1");
+            }
+        }
+        if (mentionedUserIdList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        String targetId = uiMessage.getTargetId();
+        Conversation.ConversationType type = uiMessage.getConversationType();
+        List<MentionBlock> mentionBlocks = new ArrayList<>();
+
+        // 记录已处理的区间，避免重复匹配 - 使用二维数组存储[start, end]
+        List<int[]> processedRanges = new ArrayList<>();
+
+        for (String uid : mentionedUserIdList) {
+            // 获取@的用户名
+            String mentionUserName = getMentionUserName(type, targetId, uid);
+            // 检查用户名是否为空
+            if (TextUtils.isEmpty(mentionUserName)) {
+                RLog.e(TAG, "Empty user name for uid: " + uid);
+                continue;
+            }
+
+            String searchPattern = "@" + mentionUserName + " ";
+            int searchIndex = 0;
+
+            // 查找所有匹配的位置
+            while (searchIndex < content.length()) {
+                int foundIndex = content.indexOf(searchPattern, searchIndex);
+                if (foundIndex == -1) {
+                    break; // 没有找到更多匹配
+                }
+
+                int foundEnd = foundIndex + searchPattern.length();
+
+                // 检查这个位置是否已经被处理过（区间重叠检查）
+                boolean alreadyProcessed = false;
+                for (int[] processedRange : processedRanges) {
+                    int processedStart = processedRange[0];
+                    int processedEnd = processedRange[1];
+                    // 检查两个区间是否重叠：foundIndex < processedEnd && foundEnd > processedStart
+                    if (foundIndex < processedEnd && foundEnd > processedStart) {
+                        alreadyProcessed = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyProcessed) {
+                    // 创建新的MentionBlock
+                    MentionBlock block = new MentionBlock();
+                    block.userId = uid;
+                    block.name = mentionUserName;
+                    block.offset = true;
+                    block.start = foundIndex;
+                    block.end = foundEnd;
+                    mentionBlocks.add(block);
+
+                    // 记录已处理的区间
+                    processedRanges.add(new int[] {foundIndex, foundEnd});
+                }
+
+                // 移动到下一个搜索位置，避免重复匹配
+                searchIndex = foundIndex + searchPattern.length();
+            }
+        }
+
+        return mentionBlocks;
+    }
+
+    // 返回Mention中userID对应的名字，@所有人则返回"所有人"。
+    private String getMentionUserName(
+            Conversation.ConversationType type, String targetId, String uid) {
+        if (type == Conversation.ConversationType.GROUP) {
+            if (TextUtils.equals(uid, "-1")) {
+                return "";
+            }
+            GroupUserInfo groupUserInfo =
+                    RongUserInfoManager.getInstance().getGroupUserInfo(targetId, uid);
+            if (groupUserInfo != null && !TextUtils.isEmpty(groupUserInfo.getNickname())) {
+                return groupUserInfo.getNickname();
+            }
+        }
+        UserInfo userInfo = RongUserInfoManager.getInstance().getUserInfo(uid);
+        if (userInfo == null
+                || TextUtils.isEmpty(userInfo.getUserId())
+                || userInfo.getName() == null) {
+            return "";
+        }
+        return userInfo.getName();
+    }
+
+    private String getDisplayName(UiMessage uiMessage, ReferenceMessage referenceMessage) {
+        if (uiMessage.getMessage().getSenderUserId() != null) {
+            UserInfo userInfo =
+                    getUserInfo(
+                            referenceMessage.getUserId(), referenceMessage.getReferenceContent());
+            String groupMemberName = "";
+            if (uiMessage
+                    .getMessage()
+                    .getConversationType()
+                    .equals(Conversation.ConversationType.GROUP)) {
+                GroupUserInfo groupUserInfo =
+                        RongUserInfoManager.getInstance()
+                                .getGroupUserInfo(
+                                        uiMessage.getMessage().getTargetId(),
+                                        referenceMessage.getUserId());
+                groupMemberName = groupUserInfo != null ? groupUserInfo.getNickname() : "";
+            }
+            return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, groupMemberName);
+        }
+        return "";
+    }
+
+    private UserInfo getUserInfo(String userId, MessageContent messageContent) {
+        boolean isInfoManagement =
+                RongUserInfoManager.getInstance().getDataSourceType()
+                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
+        if (isInfoManagement
+                && messageContent != null
+                && messageContent.getUserInfo() != null
+                && messageContent.getUserInfo().getUserId() != null
+                && messageContent.getUserInfo().getUserId().equals(userId)) {
+            return messageContent.getUserInfo();
+        }
+        return RongUserInfoManager.getInstance().getUserInfo(userId);
     }
 
     // 是否过滤
     private boolean isFilter(UiMessage uiMessage) {
-        initContext();
+        initConfig();
         if (mRongExtension == null || mFragment == null) {
             return false;
         }
@@ -709,7 +974,7 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
     }
 
     private void showEditFailedDialog(int txtResId) {
-        initContext();
+        initConfig();
         if (mFragment == null) {
             return;
         }
@@ -746,33 +1011,12 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
         draftHelper.addMentionBlocks(editText, mentionBlocks);
     }
 
-    private void postDelayed(Runnable r) {
-        ExecutorFactory.getInstance().getMainHandler().postDelayed(r, 100);
-    }
-
-    public void addStatusListener(StatusListener listener) {
-        if (listener != null && !this.mStatusListenerList.contains(listener)) {
-            this.mStatusListenerList.add(listener);
-        }
-    }
-
-    public void removeStatusListener(StatusListener listener) {
-        if (listener != null) {
-            this.mStatusListenerList.remove(listener);
-        }
-    }
-
     public enum ActiveType {
         // 长按消息。
         OnLongClickMessage,
         // onAttachedToExtension判断如果保存了编辑信息，要恢复。
         OnAttachedToExtension,
-        // 消息列表取消多选状态，恢复编辑状态
+        // 消息列表取消多选状态
         OnCancelMultiSelectStatus
-    }
-
-    public interface StatusListener {
-        /** 编辑消息栏展示或隐藏时回调 */
-        void onVisibilityChanged(boolean isVisible);
     }
 }

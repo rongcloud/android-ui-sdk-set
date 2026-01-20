@@ -1,14 +1,11 @@
 package io.rong.imkit.usermanage.friend.apply;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
 import io.rong.imkit.base.adapter.ViewHolder;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.model.UiFriendApplicationInfo;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.usermanage.ViewModelFactory;
@@ -26,7 +22,6 @@ import io.rong.imkit.usermanage.adapter.ApplyFriendAdapter;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.component.ListComponent;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
-import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.CommonDialog;
 import io.rong.imkit.widget.refresh.api.RefreshLayout;
@@ -45,7 +40,6 @@ public class ApplyFriendListFragment extends BaseViewModelFragment<ApplyFriendVi
     protected HeadComponent headComponent;
     protected ListComponent listComponent;
     protected PopupWindow popupWindow;
-    private TextView emptyView;
 
     protected ApplyFriendAdapter applyFriendAdapter = new ApplyFriendAdapter();
 
@@ -85,13 +79,11 @@ public class ApplyFriendListFragment extends BaseViewModelFragment<ApplyFriendVi
             @Nullable Bundle args) {
         rootView = inflater.inflate(R.layout.rc_page_friend_list_apply, container, false);
         headComponent = rootView.findViewById(R.id.tb_bar);
-        headComponent.setRightTextDrawable(
-                IMKitThemeManager.getAttrResId(context, R.attr.rc_navigation_bar_btn_more_img));
+        headComponent.setRightTextDrawable(R.drawable.rc_title_bar_more);
 
         listComponent = rootView.findViewById(R.id.rc_list_component);
         listComponent.setOnRefreshListener(onRefreshListener);
         listComponent.setOnLoadMoreListener(onLoadMoreListener);
-        emptyView = rootView.findViewById(R.id.rc_empty_tv);
 
         listComponent.setAdapter(applyFriendAdapter);
         return rootView;
@@ -134,9 +126,6 @@ public class ApplyFriendListFragment extends BaseViewModelFragment<ApplyFriendVi
                                 }
                             }
                             status = 0;
-                            boolean hasData = data != null && !data.isEmpty();
-                            emptyView.setVisibility(hasData ? View.GONE : View.VISIBLE);
-                            listComponent.setVisibility(hasData ? View.VISIBLE : View.GONE);
                             applyFriendAdapter.setData(data);
                         });
         viewModel.loadFriendApplications(false);
@@ -187,8 +176,8 @@ public class ApplyFriendListFragment extends BaseViewModelFragment<ApplyFriendVi
             popupWindow =
                     new PopupWindow(
                             view,
-                            ScreenUtils.dip2px(anchor.getContext(), 136),
-                            WindowManager.LayoutParams.WRAP_CONTENT);
+                            ScreenUtils.dip2px(anchor.getContext(), 180),
+                            ScreenUtils.dip2px(anchor.getContext(), 180));
             popupWindow.setBackgroundDrawable(new ColorDrawable()); // 必须设置Background才能触发外部触摸事件
             popupWindow.setOutsideTouchable(true);
             popupWindow.setFocusable(true);
@@ -221,30 +210,7 @@ public class ApplyFriendListFragment extends BaseViewModelFragment<ApplyFriendVi
             popupWindow.dismiss();
             return;
         }
-        // 设置 PopupWindow 的显示和消失监听
-        popupWindow.setOnDismissListener(() -> setWindowAlpha(anchor.getContext(), 1.0f));
-
-        // 计算 x 偏移量，根据布局方向确定 PopupWindow 的位置
-        int screenWidth = ScreenUtils.getScreenWidth(anchor.getContext());
-        int popupWidth = ScreenUtils.dip2px(anchor.getContext(), 136);
-        int margin = ScreenUtils.dip2px(anchor.getContext(), 16);
-        int[] location = new int[2];
-        anchor.getLocationOnScreen(location);
-        int anchorX = location[0];
-        int xOffset;
-
-        // 检测是否为 RTL 模式
-        if (RTLUtils.isRtl(anchor.getContext())) {
-            // RTL 模式：从左侧显示，距离屏幕左侧 16dp
-            xOffset = -(anchorX - margin);
-        } else {
-            // LTR 模式：从右侧显示，距离屏幕右侧 16dp
-            xOffset = screenWidth - anchorX - popupWidth - margin;
-        }
-
-        popupWindow.showAsDropDown(anchor, xOffset, 0);
-
-        setWindowAlpha(anchor.getContext(), 0.5f);
+        popupWindow.showAsDropDown(anchor);
     }
 
     protected void showDialog(String userId) {
@@ -283,12 +249,5 @@ public class ApplyFriendListFragment extends BaseViewModelFragment<ApplyFriendVi
                                 })
                         .build();
         dialog.show(getParentFragmentManager(), null);
-    }
-
-    private void setWindowAlpha(Context context, float alpha) {
-        Window window = ((Activity) context).getWindow();
-        WindowManager.LayoutParams layoutParams = window.getAttributes();
-        layoutParams.alpha = alpha;
-        window.setAttributes(layoutParams);
     }
 }

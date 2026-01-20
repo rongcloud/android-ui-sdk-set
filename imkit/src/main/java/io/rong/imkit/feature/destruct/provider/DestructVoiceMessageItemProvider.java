@@ -14,7 +14,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.text.TextUtilsCompat;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.conversation.messgelist.provider.MessageClickType;
 import io.rong.imkit.feature.destruct.DestructManager;
@@ -60,22 +59,9 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
                 uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND);
         holder.setBackgroundRes(
                 R.id.rc_voice_bg,
-                IMKitThemeManager.getAttrResId(
-                        holder.getContext(),
-                        isSender
-                                ? R.attr.rc_conversation_msg_send_background
-                                : R.attr.rc_conversation_msg_receiver_background));
+                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
         holder.setVisible(R.id.fl_send_fire, isSender);
         holder.setVisible(R.id.fl_receiver_fire, !isSender);
-        holder.setBackgroundRes(
-                R.id.tv_receiver_fire,
-                IMKitThemeManager.dynamicResource(
-                        R.drawable.rc_lively_common_background,
-                        R.drawable.rc_image_msg_count_down));
-        holder.setTextColorRes(
-                R.id.tv_receiver_fire,
-                IMKitThemeManager.dynamicResource(
-                        holder.getContext(), R.attr.rc_hint_color, R.color.rc_white_color));
         if (!isSender) {
             DestructManager.getInstance()
                     .addListener(
@@ -117,10 +103,7 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
                     (AnimationDrawable)
                             holder.getContext()
                                     .getResources()
-                                    .getDrawable(
-                                            IMKitThemeManager.getAttrResId(
-                                                    holder.getContext(),
-                                                    R.attr.rc_icon_voice_send_animator));
+                                    .getDrawable(R.drawable.rc_an_voice_send);
             holder.setVisible(R.id.rc_voice, false);
             holder.setVisible(R.id.rc_voice_send, true);
             ((TextView) holder.getView(R.id.rc_duration))
@@ -133,11 +116,7 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
                 holder.setImageDrawable(R.id.rc_voice_send, animationDrawable);
                 if (animationDrawable != null) animationDrawable.start();
             } else {
-                holder.setImageResource(
-                        R.id.rc_voice_send,
-                        IMKitThemeManager.getAttrResId(
-                                holder.getContext(),
-                                R.attr.rc_conversation_msg_cell_send_voice_3_img));
+                holder.setImageResource(R.id.rc_voice_send, R.drawable.rc_voice_send_play3);
             }
             holder.setVisible(R.id.rc_voice_unread, false);
             holder.setVisible(R.id.rc_voice_download_error, false);
@@ -147,10 +126,7 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
                     (AnimationDrawable)
                             holder.getContext()
                                     .getResources()
-                                    .getDrawable(
-                                            IMKitThemeManager.getAttrResId(
-                                                    holder.getContext(),
-                                                    R.attr.rc_icon_voice_receive_animator));
+                                    .getDrawable(R.drawable.rc_an_voice_receive);
             holder.setVisible(R.id.rc_voice, true);
             holder.setVisible(R.id.rc_voice_send, false);
             ((TextView) holder.getView(R.id.rc_duration))
@@ -163,11 +139,7 @@ public class DestructVoiceMessageItemProvider extends BaseMessageItemProvider<Vo
                 holder.setImageDrawable(R.id.rc_voice, animationDrawable);
                 if (animationDrawable != null) animationDrawable.start();
             } else {
-                holder.setImageResource(
-                        R.id.rc_voice,
-                        IMKitThemeManager.getAttrResId(
-                                holder.getContext(),
-                                R.attr.rc_conversation_msg_cell_receive_voice_3_img));
+                holder.setImageResource(R.id.rc_voice, R.drawable.rc_voice_receive_play3);
             }
             holder.setVisible(
                     R.id.rc_voice_unread, !uiMessage.getMessage().getReceivedStatus().isListened());

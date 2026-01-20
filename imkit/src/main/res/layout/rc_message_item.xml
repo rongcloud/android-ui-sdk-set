@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/rc_margin_size_10"
-    android:paddingBottom="@dimen/rc_margin_size_10"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:paddingBottom="@dimen/rc_margin_size_10">
 
     <TextView
         android:id="@+id/rc_time"
@@ -15,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="12dp"
-        android:textColor="?attr/rc_text_secondary_color"
+        android:textColor="@color/rc_secondary_color"
         android:textSize="@dimen/rc_font_describe_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,9 +26,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/rc_margin_size_8"
         android:layout_marginTop="10dp"
-        android:src="?attr/rc_conversation_msg_cell_selector"
+        android:src="@drawable/rc_selector_selected"
         android:visibility="gone"
-        tools:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/ll_content" />
 
@@ -38,7 +36,7 @@
         android:layout_width="@dimen/rc_message_portrait_size"
         android:layout_height="@dimen/rc_message_portrait_size"
         android:layout_marginStart="@dimen/rc_margin_size_4"
-        android:src="?attr/rc_text_secondary_color"
+        android:src="@color/rc_secondary_color"
         app:layout_constraintStart_toEndOf="@id/rc_selected"
         app:layout_constraintTop_toTopOf="@id/ll_content"
         app:layout_goneMarginStart="@dimen/rc_margin_size_12" />
@@ -48,7 +46,7 @@
         android:layout_width="@dimen/rc_message_portrait_size"
         android:layout_height="@dimen/rc_message_portrait_size"
         android:layout_marginEnd="@dimen/rc_margin_size_12"
-        android:src="?attr/rc_text_secondary_color"
+        android:src="@color/rc_secondary_color"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/ll_content"
         app:layout_goneMarginTop="@dimen/rc_margin_size_20" />
@@ -71,7 +69,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:singleLine="true"
-            android:textColor="?attr/rc_text_secondary_color"
+            android:textColor="@color/rc_secondary_color"
             android:textSize="@dimen/rc_font_text_third_size" />
 
         <LinearLayout
@@ -96,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="8dp"
-                android:src="?attr/rc_conversation_list_cell_msg_fail_msg"
+                android:src="@drawable/rc_ic_warning"
                 android:visibility="gone" />
 
             <ImageView
@@ -105,20 +103,20 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginEnd="4dp"
-                android:src="?attr/rc_conversation_list_cell_msg_read_img"
+                android:src="@drawable/rc_read_receipt"
                 android:visibility="gone" />
 
-            <androidx.appcompat.widget.AppCompatTextView
+            <TextView
                 android:id="@+id/rc_read_receipt_request"
                 style="@style/TextStyle.Alignment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_marginEnd="4dp"
-                android:textColor="?attr/rc_primary_color"
+                android:drawableStart="@drawable/rc_read_receipt_request_button"
+                android:textColor="@color/rc_read_receipt_status"
                 android:textSize="12sp"
-                android:visibility="gone"
-                app:drawableStartCompat="?attr/rc_conversation_msg_cell_receipt_img" />
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/rc_read_receipt_status"
@@ -128,7 +126,7 @@
                 android:layout_gravity="bottom"
                 android:layout_marginEnd="4dp"
                 android:text="@string/rc_read_receipt_status"
-                android:textColor="?attr/rc_primary_color"
+                android:textColor="@color/rc_read_receipt_status"
                 android:textSize="12sp"
                 android:visibility="gone" />
 
@@ -169,7 +167,6 @@
                 android:visibility="gone"
                 tools:visibility="visible" />
 
-            <!--todo rc_functional_error 待确认-->
             <TextView
                 android:id="@+id/rc_edit_status_content"
                 style="@style/TextStyle.Alignment"
@@ -177,7 +174,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="4dp"
-                android:textColor="?attr/rc_hint_color"
                 android:text="@string/rc_edit_status_failed"
                 android:textSize="12sp" />
         </LinearLayout>

@@ -18,7 +18,6 @@ import io.rong.common.utils.function.Func1;
 import io.rong.common.utils.optional.Option;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.db.model.Group;
 import io.rong.imkit.userinfo.db.model.GroupMember;
@@ -276,20 +275,14 @@ class UserInfoHelper {
     }
 
     private UserInfo transformUser(User user) {
+        int drawableId = R.drawable.rc_default_portrait;
         String url = user.portraitUrl;
         Uri portraitUri;
         if (!TextUtils.isEmpty(url)) {
             portraitUri = Uri.parse(url);
         } else if (context != null) {
-            int drawableId =
-                    IMKitThemeManager.getAttrResId(
-                            context, R.attr.rc_conversation_list_cell_portrait_msg_img);
             portraitUri = RongUtils.getUriFromDrawableRes(context, drawableId);
         } else if (IMCenter.getInstance().getContext() != null) {
-            int drawableId =
-                    IMKitThemeManager.getAttrResId(
-                            IMCenter.getInstance().getContext(),
-                            R.attr.rc_conversation_list_cell_portrait_msg_img);
             portraitUri =
                     RongUtils.getUriFromDrawableRes(
                             IMCenter.getInstance().getContext(), drawableId);

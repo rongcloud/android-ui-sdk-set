@@ -7,16 +7,12 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 35
-        versionName "5.34.2_opensource"
+        versionName "5.20.0.106_opensource"
     }
 
     sourceSets {
         main {
             manifest.srcFile 'src/main/AndroidManifest.xml'
-            res.srcDirs += ['res']
-            res.srcDirs += ['res-lively']
-            res.srcDirs += ['res-lively-light']
-            res.srcDirs += ['res-lively-dark']
             jniLibs.srcDirs = ['libs']
         }
     }

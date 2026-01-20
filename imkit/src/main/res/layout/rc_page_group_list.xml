@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
@@ -25,13 +24,11 @@
 
         <TextView
             android:id="@+id/rc_empty_tv"
-            android:textDirection="locale"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:paddingBottom="@dimen/rc_margin_size_127"
             android:text="@string/rc_no_data"
-            android:textColor="?attr/rc_text_primary_color"
             android:visibility="gone"
             tools:visiblity="visible" />
 
@@ -39,8 +36,6 @@
             android:id="@+id/rc_group_list_component"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingStart="@dimen/rc_margin_size_16"
-            android:paddingEnd="@dimen/rc_margin_size_16"
             app:enable_load_more="true"
             app:enable_refresh="false" />
 

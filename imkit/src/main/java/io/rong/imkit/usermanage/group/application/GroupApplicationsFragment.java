@@ -23,7 +23,6 @@ import io.rong.imkit.usermanage.adapter.GroupApplicationsAdapter;
 import io.rong.imkit.usermanage.component.CommonListComponent;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
-import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.GroupApplicationDirection;
@@ -245,7 +244,7 @@ public class GroupApplicationsFragment extends BaseViewModelFragment<GroupApplic
         final PopupWindow popupWindow =
                 new PopupWindow(
                         rootView,
-                        ScreenUtils.dip2px(anchor.getContext(), 136),
+                        ScreenUtils.dip2px(anchor.getContext(), 150),
                         WindowManager.LayoutParams.WRAP_CONTENT);
         popupWindow.setBackgroundDrawable(new ColorDrawable());
         popupWindow.setOutsideTouchable(true); // 必须设置以启用触摸外部关闭
@@ -337,26 +336,7 @@ public class GroupApplicationsFragment extends BaseViewModelFragment<GroupApplic
 
         // 设置 PopupWindow 的显示和消失监听
         popupWindow.setOnDismissListener(() -> setWindowAlpha(anchor.getContext(), 1.0f));
-
-        // 计算 x 偏移量，根据布局方向确定 PopupWindow 的位置
-        int screenWidth = ScreenUtils.getScreenWidth(anchor.getContext());
-        int popupWidth = ScreenUtils.dip2px(anchor.getContext(), 136);
-        int margin = ScreenUtils.dip2px(anchor.getContext(), 16);
-        int[] location = new int[2];
-        anchor.getLocationOnScreen(location);
-        int anchorX = location[0];
-        int xOffset;
-
-        // 检测是否为 RTL 模式
-        if (RTLUtils.isRtl(anchor.getContext())) {
-            // RTL 模式：从左侧显示，距离屏幕左侧 16dp
-            xOffset = -(anchorX - margin);
-        } else {
-            // LTR 模式：从右侧显示，距离屏幕右侧 16dp
-            xOffset = screenWidth - anchorX - popupWidth - margin;
-        }
-
-        popupWindow.showAsDropDown(anchor, xOffset, 0);
+        popupWindow.showAsDropDown(anchor, 0, 0);
         setWindowAlpha(anchor.getContext(), 0.5f);
     }
 

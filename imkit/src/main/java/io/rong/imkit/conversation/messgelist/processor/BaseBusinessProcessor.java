@@ -4,12 +4,17 @@ import static io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel.D
 
 import android.content.Context;
 import android.os.Bundle;
+import io.rong.imkit.IMCenter;
 import io.rong.imkit.conversation.messgelist.status.StateContext;
 import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imlib.IRongCoreCallback;
+import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.model.UserInfo;
@@ -192,6 +197,44 @@ public abstract class BaseBusinessProcessor implements IConversationBusinessProc
     public void onScrollToBottom(MessageViewModel viewModel) {
         if (mState != null) {
             mState.onScrollToBottom(viewModel);
+        }
+    }
+
+    /**
+     * 同步会话已读状态的封装方法。 根据服务器保存未读状态配置，自动选择调用 markRemoteConversationAsRead 或
+     * syncConversationReadStatus。
+     *
+     * @param conversationIdentifier 会话标识
+     * @param timestamp 会话中已读的最后一条消息的发送时间戳（当启用服务器保存未读时此参数会被忽略）
+     * @param callback 回调函数
+     */
+    protected void syncConversationReadStatus(
+            ConversationIdentifier conversationIdentifier,
+            long timestamp,
+            RongIMClient.OperationCallback callback) {
+        if (AppSettingsHandler.getInstance().getAppSettings().isServerSaveUnreadEnabled()) {
+            IMCenter.getInstance()
+                    .markRemoteConversationAsRead(
+                            conversationIdentifier,
+                            new IRongCoreCallback.OperationCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    if (callback != null) {
+                                        callback.onSuccess();
+                                    }
+                                }
+
+                                @Override
+                                public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                    if (callback != null) {
+                                        callback.onError(
+                                                RongIMClient.ErrorCode.valueOf(coreErrorCode.code));
+                                    }
+                                }
+                            });
+        } else {
+            IMCenter.getInstance()
+                    .syncConversationReadStatus(conversationIdentifier, timestamp, callback);
         }
     }
 }

@@ -2,7 +2,6 @@ package io.rong.sight;
 
 import android.content.Context;
 import androidx.fragment.app.Fragment;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.IExtensionModule;
 import io.rong.imkit.conversation.extension.RongExtension;
@@ -20,21 +19,13 @@ public class SightExtensionModule implements IExtensionModule {
 
     @Override
     public void onInit(Context context, String appKey) {
-        IMKitThemeManager.addTheme(
-                IMKitThemeManager.TRADITION_THEME,
-                R.style.RCTraditionLightTheme_SightKit,
-                R.style.RCTraditionLightTheme_SightKit);
-        IMKitThemeManager.addTheme(
-                IMKitThemeManager.LIVELY_THEME,
-                R.style.RCLivelyLightTheme_SightKit,
-                R.style.RCLivelyDarkTheme_SightKit);
         RongIMClient.getInstance().registerMessageType(SightMessage.class);
         RongConfigCenter.conversationConfig().addMessageProvider(new SightMessageItemProvider());
     }
 
     @Override
     public void onAttachedToExtension(Fragment fragment, RongExtension extension) {
-        // default implementation ignoredq
+        // default implementation ignored
     }
 
     @Override

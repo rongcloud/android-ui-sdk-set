@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.picture.adapter.PictureAlbumDirectoryAdapter;
 import io.rong.imkit.picture.adapter.PictureImageGridAdapter;
 import io.rong.imkit.picture.broadcast.BroadcastAction;
@@ -50,6 +48,7 @@ import io.rong.imkit.picture.tools.SdkVersionUtils;
 import io.rong.imkit.picture.tools.StringUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.picture.widget.FolderPopWindow;
+import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import java.io.File;
 import java.util.ArrayList;
@@ -99,7 +98,6 @@ public class PictureSelectorActivity extends PictureBaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        saveAndApplyStatusBar(Color.WHITE, true);
         BroadcastManager.getInstance(this)
                 .registerReceiver(
                         commonBroadcastReceiver,
@@ -142,10 +140,6 @@ public class PictureSelectorActivity extends PictureBaseActivity
         mTvEmpty = findViewById(R.id.tv_empty);
         llAlbum = findViewById(R.id.ll_Album);
         isNumComplete(numComplete);
-        mTvPicturePreview.setTextColor(
-                IMKitThemeManager.dynamicResource(
-                        IMKitThemeManager.getColorFromAttrId(this, R.attr.rc_primary_color),
-                        getResources().getColor(R.color.rc_text_main_color)));
         mTvPicturePreview.setOnClickListener(this);
         mBottomLayout.setVisibility(
                 config.selectionMode == PictureConfig.SINGLE && config.isSingleDirectReturn
@@ -153,12 +147,6 @@ public class PictureSelectorActivity extends PictureBaseActivity
                         : View.VISIBLE);
         mTvCancel.setOnClickListener(this);
         mTvPictureOk.setOnClickListener(this);
-        if (!IMKitThemeManager.isTraditionTheme()) {
-            mTvPictureOk.setBackgroundResource(R.drawable.rc_lively_send_primary_color_background);
-            mTvPictureOk.setTextColor(
-                    IMKitThemeManager.getAttrResId(
-                            mTvPictureOk.getContext(), R.attr.rc_control_title_white_color));
-        }
         llAlbum.setOnClickListener(this);
         String title = getString(R.string.rc_picture_camera_roll);
         mTvPictureTitle.setText(title);
@@ -194,25 +182,10 @@ public class PictureSelectorActivity extends PictureBaseActivity
         boolean eqVideo = config.chooseMode == PictureConfig.TYPE_VIDEO;
         config.isCheckOriginalImage = !isVideo && !eqVideo && config.isCheckOriginalImage;
         boolean enable = selectImages.size() != 0;
-        int textColor =
-                enable
-                        ? IMKitThemeManager.getColorFromAttrId(
-                                getContext(), R.attr.rc_primary_color)
-                        : getResources().getColor(R.color.rc_main_theme_lucency);
-        if (!IMKitThemeManager.isTraditionTheme()) {
-            textColor =
-                    IMKitThemeManager.getColorFromAttrId(
-                            getContext(), R.attr.rc_control_title_white_color);
-
-            mTvPicturePreview.setTextColor(
-                    IMKitThemeManager.getColorFromAttrId(
-                            this, enable ? R.attr.rc_primary_color : R.attr.rc_disabled_color));
-            mTvPictureOk.setBackgroundResource(
-                    enable
-                            ? R.drawable.rc_lively_send_primary_color_background
-                            : R.drawable.rc_lively_send_disable_color_background);
-        }
-        mTvPictureOk.setTextColor(textColor);
+        mTvPictureOk.setTextColor(
+                selectImages.size() > 0
+                        ? getResources().getColor(R.color.rc_main_theme)
+                        : getResources().getColor(R.color.rc_main_theme_lucency));
         mTvPictureOk.setText(
                 config.selectionMode == PictureConfig.SINGLE || !enable
                         ? getString(R.string.rc_picture_send)
@@ -235,11 +208,48 @@ public class PictureSelectorActivity extends PictureBaseActivity
 
     /** 加载数据 */
     private void loadAllMediaData() {
-        if (PermissionCheckUtil.checkMediaStoragePermissions(this)) {
+        // 如果是Android 14， 判断两种情况
+        // 第一种：获取到所有权限：READ_MEDIA_IMAGES 和 READ_MEDIA_VIDEO
+        // 第二种：获取到部分权限：READ_MEDIA_VISUAL_USER_SELECTED
+        // 此两种都可以打开媒体库并发送媒体消息，不属于上述两种则弹出警示框
+        boolean isAll = true;
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            isAll = getIntent().getExtras().getBoolean("isAll");
+        }
+
+        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_UPSIDE_DOWN_CAKE) {
+            String[] allPermissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+            String[] subPermissions =
+                    new String[] {Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED};
+
+            if (isAll) {
+                if (PermissionChecker.checkSelfPermission(this, allPermissions)) {
+                    mHandler.sendEmptyMessage(SHOW_DIALOG);
+                    readLocalMedia();
+                } else {
+                    PermissionChecker.requestPermissions(
+                            this, allPermissions, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
+                }
+            } else {
+                if (PermissionChecker.checkSelfPermission(this, subPermissions)) {
+                    mHandler.sendEmptyMessage(SHOW_DIALOG);
+                    readLocalMedia();
+                } else {
+                    PermissionChecker.requestPermissions(
+                            this, subPermissions, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
+                }
+            }
+            return;
+        }
+
+        String[] permissions = PermissionCheckUtil.getMediaStoragePermissions(this);
+        if (PermissionChecker.checkSelfPermission(this, permissions)) {
             mHandler.sendEmptyMessage(SHOW_DIALOG);
             readLocalMedia();
         } else {
-            String[] permissions = PermissionCheckUtil.getMediaStoragePermissions(this);
             PermissionChecker.requestPermissions(
                     this, permissions, PictureConfig.APPLY_STORAGE_PERMISSIONS_CODE);
         }

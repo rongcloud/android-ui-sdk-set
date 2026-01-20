@@ -10,7 +10,6 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -121,9 +120,14 @@ public class EmojiTab implements IEmoticonTab {
                                 if (index >= AndroidEmoji.getEmojiSize()) {
                                     mEmojiLiveData.setValue(DELETE);
                                 } else {
-                                    // 直接使用AndroidEmoji.getEmojiString方法，保持一致性
-                                    String emojiString = AndroidEmoji.getEmojiString(index);
-                                    mEmojiLiveData.setValue(emojiString);
+                                    int code = AndroidEmoji.getEmojiCode(index);
+                                    char[] chars = Character.toChars(code);
+                                    StringBuilder key =
+                                            new StringBuilder(Character.toString(chars[0]));
+                                    for (int i = 1; i < chars.length; i++) {
+                                        key.append(chars[i]);
+                                    }
+                                    mEmojiLiveData.setValue(key.toString());
                                 }
                             }
                         }
@@ -166,19 +170,15 @@ public class EmojiTab implements IEmoticonTab {
             if (convertView == null) {
                 viewHolder = new ViewHolder();
                 convertView = mLayoutInflater.inflate(R.layout.rc_ext_emoji_item, null);
-                viewHolder.emojiTV = convertView.findViewById(R.id.rc_ext_emoji_item);
+                viewHolder.emojiIV = convertView.findViewById(R.id.rc_ext_emoji_item);
                 convertView.setTag(viewHolder);
             }
             viewHolder = (ViewHolder) convertView.getTag();
             if (position == mEmojiCountPerPage || position + index == AndroidEmoji.getEmojiSize()) {
-                // 显示删除按钮，使用特殊字符或者drawable
-                viewHolder.emojiTV.setText("⌫"); // 使用删除符号
-                viewHolder.emojiTV.setTextSize(24f);
+                viewHolder.emojiIV.setImageResource(R.drawable.rc_icon_emoji_delete);
             } else {
-                // 使用Unicode字符显示emoji
-                String emojiString = AndroidEmoji.getEmojiString(index + position);
-                viewHolder.emojiTV.setText(emojiString);
-                viewHolder.emojiTV.setTextSize(24f);
+                viewHolder.emojiIV.setImageDrawable(
+                        AndroidEmoji.getEmojiDrawable(parent.getContext(), index + position));
             }
 
             return convertView;
@@ -218,6 +218,6 @@ public class EmojiTab implements IEmoticonTab {
     }
 
     private static class ViewHolder {
-        TextView emojiTV;
+        ImageView emojiIV;
     }
 }

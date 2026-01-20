@@ -8,7 +8,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -58,7 +57,7 @@ public class GatheredConversation extends BaseUiConversation {
                     0,
                     preStr.length(),
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } else if (isShowDraftContent()) {
+        } else if (!TextUtils.isEmpty(getDraft())) {
             preStr = mContext.getString(R.string.rc_conversation_summary_content_draft);
             mPreString = new SpannableString(preStr);
             mPreString.setSpan(
@@ -78,15 +77,14 @@ public class GatheredConversation extends BaseUiConversation {
             targetName = userInfo == null ? mLastTargetId : userInfo.getName();
         }
 
-        String draft = getDraftContent();
         builder.append(mPreString)
                 .append(targetName)
                 .append(COLON_SPLIT)
                 .append(
-                        TextUtils.isEmpty(draft)
+                        TextUtils.isEmpty(getDraft())
                                 ? RongConfigCenter.conversationConfig()
                                         .getMessageSummary(mContext, mCore)
-                                : draft);
+                                : getDraft());
         mConversationContent = builder;
     }
 
@@ -198,10 +196,7 @@ public class GatheredConversation extends BaseUiConversation {
             return;
         }
         if (mContext != null) {
-            int drawableId =
-                    IMKitThemeManager.getAttrResId(
-                            mContext, R.attr.rc_conversation_list_cell_portrait_msg_img);
-            uri = RongUtils.getUriFromDrawableRes(mContext, drawableId);
+            uri = RongUtils.getUriFromDrawableRes(mContext, R.drawable.rc_default_portrait);
             mCore.setPortraitUrl(uri.toString());
         }
     }

@@ -165,7 +165,6 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
                     new LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.WRAP_CONTENT, RongUtils.dip2px(45));
             params.setMargins(RongUtils.dip2px(14), 0, 0, 0);
-            params.setMarginStart(RongUtils.dip2px(14));
             view.setLayoutParams(params);
             view.setTextColor(getResources().getColor(R.color.rc_text_main_color));
             view.setTextSize(16);
@@ -183,16 +182,14 @@ public class CSLeaveMessageActivity extends RongBaseNoActionbarActivity {
             editText.setBackgroundColor(0);
             if (item.getType().equals("text")) {
                 params.setMargins(RongUtils.dip2px(10), 0, RongUtils.dip2px(14), 0);
-                params.setMarginStart(RongUtils.dip2px(10));
-                params.setMarginEnd(RongUtils.dip2px(14));
-                editText.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                editText.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
                 editText.setMaxLines(1);
                 editText.setMaxEms(20);
                 editText.setSingleLine();
             } else {
                 params.setMargins(0, 0, 0, 0);
-                editText.setGravity(Gravity.TOP | Gravity.START);
-                editText.setPaddingRelative(RongUtils.dip2px(14), 0, 0, 0);
+                editText.setGravity(Gravity.TOP | Gravity.LEFT);
+                editText.setPadding(RongUtils.dip2px(14), 0, 0, 0);
                 editText.setInputType(
                         InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
                 editText.setMinLines(3);

@@ -228,7 +228,12 @@ public class PictureSelectionModel {
         }
     }
 
-    @Deprecated
+    /**
+     * Start to select media and wait for result.
+     *
+     * @param requestCode Identity of the request Activity or Fragment.
+     * @param isAll Require all picture or not.
+     */
     public void forResult(int requestCode, boolean isAll) {
         if (!DoubleUtils.isFastDoubleClick()) {
             Activity activity = selector.getActivity();

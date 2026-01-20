@@ -28,9 +28,7 @@ public abstract class BaseDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(
-                DialogFragment.STYLE_NO_TITLE,
-                androidx.appcompat.R.style.Theme_AppCompat_Light_NoActionBar);
+        setStyle(DialogFragment.STYLE_NO_TITLE, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
     }
 
     @Override
@@ -51,7 +49,6 @@ public abstract class BaseDialogFragment extends DialogFragment {
             attributes.x = -ScreenUtils.dip2px(getContext(), getHorizontalMovement());
             attributes.y = ScreenUtils.dip2px(getContext(), getVerticalMovement());
             dialogWindow.setAttributes(attributes);
-            dialogWindow.setBackgroundDrawableResource(android.R.color.white);
         }
     }
 

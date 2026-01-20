@@ -12,10 +12,9 @@
     </RelativeLayout>
 
     <View
-        android:id="@+id/rc_ext_input_divider"
         android:layout_width="match_parent"
         android:layout_height="@dimen/rc_divider_height"
-        android:background="?attr/rc_line_background_color"/>
+        android:background="@color/rc_divider_color"/>
 
     <RelativeLayout
         android:id="@+id/rc_ext_input_container"

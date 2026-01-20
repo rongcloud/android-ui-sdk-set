@@ -101,10 +101,6 @@ public final class CommonListComponent extends BaseComponent {
         recyclerView.setAdapter(adapter);
     }
 
-    public RecyclerView getRecyclerView() {
-        return recyclerView;
-    }
-
     /**
      * 设置分页数据加载器
      *

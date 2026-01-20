@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rc_ac_layout_preview_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/rc_ac_ll_download_file_detail_info"
@@ -30,7 +28,7 @@
             android:layout_marginTop="@dimen/rc_file_preview_name_margin_top"
             android:ellipsize="middle"
             android:singleLine="true"
-            android:textColor="?attr/rc_text_primary_color"
+            android:textColor="@color/rc_file_preview_name"
             android:textSize="@dimen/rc_file_preview_name_size" />
     </LinearLayout>
 
@@ -42,7 +40,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/rc_file_preview_margin_bottom"
         android:layout_marginTop="@dimen/rc_file_preview_margin_top"
-        android:textColor="?attr/rc_text_secondary_color"
+        android:textColor="#a8a8a8"
         android:textSize="@dimen/rc_file_preview_size" />
 
 <!--    <LinearLayout-->
@@ -57,8 +55,8 @@
 <!--            android:layout_width="match_parent"-->
 <!--            android:layout_height="match_parent"-->
 <!--            android:layout_gravity="center_vertical"-->
-<!--            android:layout_marginStart="40dp"-->
-<!--            android:layout_marginEnd="40dp"-->
+<!--            android:layout_marginLeft="40dp"-->
+<!--            android:layout_marginRight="40dp"-->
 <!--            android:orientation="horizontal">-->
 
 <!--            <ProgressBar-->
@@ -67,15 +65,15 @@
 <!--                android:layout_width="match_parent"-->
 <!--                android:layout_height="8dp"-->
 <!--                android:layout_gravity="center_vertical"-->
-<!--                android:layout_marginStart="3dp"-->
-<!--                android:layout_marginEnd="3dp"-->
+<!--                android:layout_marginLeft="3dp"-->
+<!--                android:layout_marginRight="3dp"-->
 <!--                android:layout_weight="1" />-->
 
 <!--            <ImageView-->
 <!--                android:id="@+id/rc_btn_cancel"-->
 <!--                android:layout_width="wrap_content"-->
 <!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginEnd="36dp"-->
+<!--                android:layout_marginRight="36dp"-->
 <!--                android:src="@drawable/rc_btn_download_cancel" />-->
 <!--        </LinearLayout>-->
 

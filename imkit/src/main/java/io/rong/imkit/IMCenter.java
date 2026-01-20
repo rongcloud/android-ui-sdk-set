@@ -9,7 +9,6 @@ import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.ConversationListBehaviorListener;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
-import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.event.actionevent.ClearEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.DownloadEvent;
@@ -21,15 +20,12 @@ import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.forward.CombineMessage;
 import io.rong.imkit.feature.resend.ResendManager;
-import io.rong.imkit.handler.AppSettingsHandler;
-import io.rong.imkit.manager.OnLineStatusManager;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.notification.MessageNotificationHelper;
 import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.usermanage.interfaces.OnGroupAndUserEventListener;
 import io.rong.imkit.utils.ExecutorHelper;
-import io.rong.imkit.utils.RongDateUtils;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCallback;
@@ -645,8 +641,6 @@ public class IMCenter {
         HQVoiceMsgDownloadManager.getInstance().init(application);
         RongNotificationManager.getInstance().init(application);
         RongConfigurationManager.init(application);
-        RongDateUtils.preloadDateFormats(application);
-        OnLineStatusManager.getInstance().init();
         RongCoreClient.addOnReceiveMessageListener(
                 SingletonHolder.sInstance.mOnReceiveMessageListener);
         RongCoreClient.addConnectionStatusListener(
@@ -812,23 +806,6 @@ public class IMCenter {
                             callback.onDatabaseOpened(databaseOpenStatus);
                         }
                     }
-
-                    @Override
-                    public void onDatabaseOpened(
-                            RongIMClient.DatabaseOpenStatus databaseOpenStatus, boolean recreate) {
-                        if (connectCallback != null) {
-                            connectCallback.onDatabaseOpened(databaseOpenStatus, recreate);
-                        }
-                        if (databaseOpenStatus
-                                        == RongIMClient.DatabaseOpenStatus.DATABASE_OPEN_SUCCESS
-                                && RongUserInfoManager.getInstance().isCacheUserOrGroupInfo()) {
-                            RongUserInfoManager.getInstance()
-                                    .initAndUpdateUserDataBase(SingletonHolder.sInstance.mContext);
-                        }
-                        for (RongIMClient.ConnectCallback callback : mConnectStatusListener) {
-                            callback.onDatabaseOpened(databaseOpenStatus, recreate);
-                        }
-                    }
                 });
     }
 
@@ -897,7 +874,7 @@ public class IMCenter {
                                                     message.getTargetId(),
                                                     message.getMessageId(),
                                                     recallNotificationMessage,
-                                                    message));
+                                                    message.getUId()));
                                 }
                             }
 
@@ -978,6 +955,7 @@ public class IMCenter {
             final String pushData,
             SendMessageOption option,
             final IRongCallback.ISendMessageCallback callback) {
+        message.setNeedReceipt(true);
         if (mMessageInterceptor != null && mMessageInterceptor.interceptOnSendMessage(message)) {
             RLog.d(TAG, "message has been intercepted.");
             return;
@@ -1207,6 +1185,7 @@ public class IMCenter {
             final String pushData,
             final SendMessageOption option,
             final IRongCallback.ISendMediaMessageCallback callback) {
+        message.setNeedReceipt(true);
         if (mMessageInterceptor != null && mMessageInterceptor.interceptOnSendMessage(message)) {
             RLog.d(TAG, "message has been intercepted.");
             return;
@@ -1738,6 +1717,53 @@ public class IMCenter {
     }
 
     /**
+     * 标记远程会话为已读。
+     *
+     * <p>此方法会将会话的已读状态同步到服务器，并清理本地和多端的未读数。 成功后会触发 {@link
+     * ConversationEventListener#onClearedUnreadStatus(ConversationIdentifier)} 回调。
+     *
+     * <p><strong>注意：</strong>
+     *
+     * <ul>
+     *   <li>需要开通"服务器记录未读数"功能（serverSaveUnread）
+     *   <li>如果未开启此功能，会返回错误码 {@link
+     *       IRongCoreEnum.CoreErrorCode#RC_SERVER_RECORD_UNREAD_COUNT_DISABLED}
+     *   <li>支持单聊、群聊、超级群
+     *   <li>不支持聊天室
+     * </ul>
+     *
+     * @param conversationIdentifier 会话标识
+     * @param callback 操作结果回调。该回调在主线程中执行，请避免在回调中执行耗时操作，防止 SDK 线程阻塞。
+     * @since 5.20.0.106
+     */
+    public void markRemoteConversationAsRead(
+            final ConversationIdentifier conversationIdentifier,
+            final IRongCoreCallback.OperationCallback callback) {
+        RongCoreClient.getInstance()
+                .markRemoteConversationAsRead(
+                        conversationIdentifier,
+                        new IRongCoreCallback.OperationCallback() {
+                            @Override
+                            public void onSuccess() {
+                                for (ConversationEventListener listener :
+                                        mConversationEventListener) {
+                                    listener.onClearedUnreadStatus(conversationIdentifier);
+                                }
+                                if (callback != null) {
+                                    callback.onSuccess();
+                                }
+                            }
+
+                            @Override
+                            public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                                if (callback != null) {
+                                    callback.onError(coreErrorCode);
+                                }
+                            }
+                        });
+    }
+
+    /**
      * 清除某一会话的文字消息草稿，回调方式获取清除是否成功。
      *
      * @param conversationType 会话类型。
@@ -1799,7 +1825,10 @@ public class IMCenter {
                                     callback.onSuccess(value);
                                 }
                                 if (value) {
-                                    onSaveDraft(conversationIdentifier, content);
+                                    for (ConversationEventListener listener :
+                                            mConversationEventListener) {
+                                        listener.onSaveDraft(conversationIdentifier, content);
+                                    }
                                 }
                             }
 
@@ -2134,23 +2163,14 @@ public class IMCenter {
             RLog.d(TAG, "message insertOut has been intercepted.");
             return;
         }
-        // 为什么这里不使用Lib insertOutgoingMessage 接口？
-        // Lib insertOutgoingMessage 不支持设置 needReceipt
-        // ，因控制接口数量所以不建议Lib扩展insertOutgoingMessage接口，Kit改为使用 insertMessage。
-        Message message = Message.obtain(conversationIdentifier, content);
-        message.setSentTime(time);
-        message.setSentStatus(sentStatus);
-        message.setSenderUserId(RongCoreClient.getInstance().getCurrentUserId());
-        message.setMessageDirection(Message.MessageDirection.SEND);
-        message.setCanIncludeExpansion(false);
-        // 如果支持已读V5，则标识这条消息需要回执
-        if (AppSettingsHandler.getInstance()
-                .isReadReceiptV5Enabled(conversationIdentifier.getType())) {
-            message.setNeedReceipt(true);
-        }
         ChannelClient.getInstance()
-                .insertMessage(
-                        message,
+                .insertOutgoingMessage(
+                        conversationIdentifier.getType(),
+                        conversationIdentifier.getTargetId(),
+                        conversationIdentifier.getChannelId(),
+                        sentStatus,
+                        content,
+                        time,
                         new IRongCoreCallback.ResultCallback<Message>() {
                             @Override
                             public void onSuccess(Message message) {
@@ -2351,15 +2371,18 @@ public class IMCenter {
                             @Override
                             public void onSuccess() {
                                 int[] messageIds = new int[messages.length];
+                                String[] messageUIds = new String[messages.length];
                                 for (int i = 0; i < messages.length; i++) {
                                     messageIds[i] = messages[i].getMessageId();
+                                    messageUIds[i] = messages[i].getUId();
                                 }
                                 for (MessageEventListener item : mMessageEventListeners) {
                                     item.onDeleteMessage(
                                             new DeleteEvent(
                                                     identifier.getType(),
                                                     identifier.getTargetId(),
-                                                    messageIds));
+                                                    messageIds,
+                                                    messageUIds));
                                 }
                                 if (callback != null) {
                                     callback.onSuccess();
@@ -2690,28 +2713,6 @@ public class IMCenter {
         }
     }
 
-    /**
-     * 将指定消息添加到当前会话并立即刷新界面显示。
-     *
-     * @param message Message 要添加并显示的消息对象，不可为null
-     * @since 5.28.0
-     */
-    public void appendAndDisplayMessage(@NonNull Message message) {
-        for (MessageEventListener item : mMessageEventListeners) {
-            // 只应用在会话页面
-            if (item instanceof MessageViewModel) {
-                item.onInsertMessage(new InsertEvent(message));
-            }
-        }
-    }
-
-    /** 通知会话列表页面刷新某条会话草稿 */
-    public void onSaveDraft(ConversationIdentifier identifier, String content) {
-        for (ConversationEventListener listener : mConversationEventListener) {
-            listener.onSaveDraft(identifier, content);
-        }
-    }
-
     public Context getContext() {
         return mContext;
     }
@@ -2842,11 +2843,6 @@ public class IMCenter {
             if (userInfo != null) {
                 message.getContent().setUserInfo(userInfo);
             }
-        }
-        // 如果支持已读V5，则标识这条消息需要回执
-        if (AppSettingsHandler.getInstance()
-                .isReadReceiptV5Enabled(message.getConversationType())) {
-            message.setNeedReceipt(true);
         }
     }
 

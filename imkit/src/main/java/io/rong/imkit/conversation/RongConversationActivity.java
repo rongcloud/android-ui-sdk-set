@@ -8,17 +8,13 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.RongBaseActivity;
-import io.rong.imkit.config.IMKitThemeManager;
-import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.TypingInfo;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.TitleBar;
-import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
-import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.model.UserInfo;
 import java.util.Locale;
 
@@ -146,8 +142,6 @@ public class RongConversationActivity extends RongBaseActivity {
                                     if (typingInfo.typingList == null) {
                                         mTitleBar.getMiddleView().setVisibility(View.VISIBLE);
                                         mTitleBar.getTypingView().setVisibility(View.GONE);
-                                        setTitleOnlineStatus(
-                                                conversationViewModel.isOnlineStatus());
                                     } else {
                                         mTitleBar.getMiddleView().setVisibility(View.GONE);
                                         mTitleBar.getTypingView().setVisibility(View.VISIBLE);
@@ -155,14 +149,10 @@ public class RongConversationActivity extends RongBaseActivity {
                                                 typingInfo.typingList.get(
                                                         typingInfo.typingList.size() - 1);
                                         if (typing.type == TypingInfo.TypingUserInfo.Type.text) {
-                                            mTitleBar.getMiddleLeftIcon().setVisibility(View.GONE);
-                                            mTitleBar.getMiddleRightIcon().setVisibility(View.GONE);
                                             mTitleBar.setTyping(
                                                     R.string.rc_conversation_remote_side_is_typing);
                                         } else if (typing.type
                                                 == TypingInfo.TypingUserInfo.Type.voice) {
-                                            mTitleBar.getMiddleLeftIcon().setVisibility(View.GONE);
-                                            mTitleBar.getMiddleRightIcon().setVisibility(View.GONE);
                                             mTitleBar.setTyping(
                                                     R.string.rc_conversation_remote_side_speaking);
                                         }
@@ -170,59 +160,6 @@ public class RongConversationActivity extends RongBaseActivity {
                                 }
                             }
                         });
-
-        if (Conversation.ConversationType.PRIVATE == mConversationType
-                && !TextUtils.isEmpty(mTargetId)
-                && !TextUtils.equals(mTargetId, RongCoreClient.getInstance().getCurrentUserId())) {
-            setTitleOnlineStatus(false);
-            conversationViewModel
-                    .getOnlineStatus()
-                    .observe(
-                            this,
-                            new Observer<SubscribeUserOnlineStatus>() {
-                                @Override
-                                public void onChanged(SubscribeUserOnlineStatus status) {
-                                    setTitleOnlineStatus(status != null && status.isOnline());
-                                }
-                            });
-            conversationViewModel.getUserOnlineStatus(mTargetId);
-        }
-        conversationViewModel.getNotify().observe(this, this::setTitleNotifyStatus);
-        conversationViewModel.getNotificationStatus(mConversationType, mTargetId);
-    }
-
-    /** 设置在线状态 */
-    private void setTitleOnlineStatus(boolean isOnline) {
-        if (!AppSettingsHandler.getInstance().isOnlineStatusEnable()) {
-            return;
-        }
-        if (mTitleBar.getMiddleLeftIcon() == null) {
-            return;
-        }
-        int resId =
-                IMKitThemeManager.getAttrResId(
-                        this,
-                        isOnline
-                                ? R.attr.rc_user_online_status_img
-                                : R.attr.rc_user_offline_status_img);
-        mTitleBar.getMiddleLeftIcon().setVisibility(View.VISIBLE);
-        mTitleBar.getMiddleLeftIcon().setImageResource(resId);
-    }
-
-    /** 设置通知状态 */
-    private void setTitleNotifyStatus(boolean notify) {
-        // 5.34.0 临时关闭
-        //        if (mTitleBar.getMiddleRightIcon() == null) {
-        //            return;
-        //        }
-        //        if (!notify) {
-        //            int resId =
-        //                    IMKitThemeManager.getAttrResId(
-        //                            this,
-        // io.rong.imkit.R.attr.rc_conversation_block_notification_img);
-        //            mTitleBar.getMiddleRightIcon().setImageResource(resId);
-        //        }
-        //        mTitleBar.getMiddleRightIcon().setVisibility(notify ? View.GONE : View.VISIBLE);
     }
 
     @Override

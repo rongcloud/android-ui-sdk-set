@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.util.LayoutDirection;
+import androidx.core.text.TextUtilsCompat;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.moreaction.DeleteClickActions;
@@ -40,6 +42,7 @@ import io.rong.imkit.feature.publicservice.provider.PublicServiceMultiRichConten
 import io.rong.imkit.feature.publicservice.provider.PublicServiceRichContentMessageProvider;
 import io.rong.imkit.feature.reference.ReferenceMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.CollectionsUtils;
 import io.rong.imkit.widget.adapter.ProviderManager;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
@@ -50,6 +53,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -312,6 +316,10 @@ public class ConversationConfig {
     private void initMoreClickAction() {
         mMoreClickActions.add(new ForwardClickActions());
         mMoreClickActions.add(new DeleteClickActions());
+        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
+                == LayoutDirection.RTL) {
+            CollectionsUtils.reverse(mMoreClickActions);
+        }
     }
 
     /**
@@ -658,22 +666,9 @@ public class ConversationConfig {
         mEnableReadReceipt = enable;
     }
 
-    /**
-     * 已读回执是否生效，仅支持单聊，群聊，讨论组，密聊，其余不生效
-     *
-     * @return 回执开关
-     */
-    public boolean isEnableReadReceipt() {
-        return mEnableReadReceipt;
-    }
-
     public void setSupportReadReceiptConversationType(Conversation.ConversationType... types) {
         mSupportReadReceiptConversationTypes.clear();
         mSupportReadReceiptConversationTypes.addAll(Arrays.asList(types));
-    }
-
-    public Set<Conversation.ConversationType> getSupportReadReceiptConversationType() {
-        return mSupportReadReceiptConversationTypes;
     }
 
     /**

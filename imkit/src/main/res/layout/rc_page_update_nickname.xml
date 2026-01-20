@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
@@ -13,38 +12,38 @@
         app:head_right_text="@string/rc_confirm"
         app:head_title_text="@string/rc_set_remark_name" />
 
+    <!-- 分割线 -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/rc_margin_size_16" />
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingStart="@dimen/rc_margin_size_16"
-        android:layout_marginTop="@dimen/rc_margin_size_16"
-        android:paddingEnd="@dimen/rc_margin_size_16">
+        android:layout_height="44dp"
+        android:background="@color/rc_white_color"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp">
 
         <TextView
             android:id="@+id/tv_title"
-            android:textDirection="locale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/rc_nickname_label"
-            android:textColor="?attr/rc_text_primary_color"
-            android:textSize="14sp" />
+            android:textSize="17dp" />
 
         <EditText
             android:id="@+id/et_content"
             style="@style/EditTextStyle.Alignment"
             android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:layout_marginTop="10dp"
-            android:background="?attr/rc_unread_msg_bg_style_color"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:maxLength="32"
+            android:background="@drawable/rc_ext_panel_editbox_background"
             android:gravity="center_vertical"
             android:hint="@string/rc_nickname_hint"
-            android:textColor="?attr/rc_text_primary_color"
-            android:textColorHint="?attr/rc_text_secondary_color"
-            android:maxLength="32"
-            android:paddingStart="@dimen/rc_margin_size_12"
-            android:paddingEnd="@dimen/rc_margin_size_12"
-            android:textSize="14sp" />
+            android:textSize="17dp" />
     </LinearLayout>
 
 </LinearLayout>

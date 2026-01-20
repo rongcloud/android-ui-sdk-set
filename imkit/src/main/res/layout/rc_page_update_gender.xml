@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
@@ -16,21 +15,17 @@
     <io.rong.imkit.widget.SettingItemView
         android:id="@+id/siv_gender_man"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
+        android:layout_height="46dp"
         android:layout_marginTop="16dp"
-        android:layout_marginStart="@dimen/rc_margin_size_16"
-        android:layout_marginEnd="@dimen/rc_margin_size_16"
         app:item_content="@string/rc_gender_man"
         app:item_divider="true"
-        app:item_right_image="?attr/rc_group_manage_gender_cell_check_img" />
+        app:item_right_image="@drawable/rc_cb_select_friend_pic_btn_selected" />
 
     <io.rong.imkit.widget.SettingItemView
         android:id="@+id/siv_gender_female"
         android:layout_width="match_parent"
-        android:layout_height="54dp"
-        android:layout_marginStart="@dimen/rc_margin_size_16"
-        android:layout_marginEnd="@dimen/rc_margin_size_16"
+        android:layout_height="46dp"
         app:item_content="@string/rc_gender_female"
-        app:item_right_image="?attr/rc_group_manage_gender_cell_check_img" />
+        app:item_right_image="@drawable/rc_cb_select_friend_pic_btn_selected" />
 
 </LinearLayout>

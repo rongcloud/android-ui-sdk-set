@@ -36,7 +36,6 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
@@ -161,8 +160,8 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
                         for (int messageId : event.getMessageIds()) {
                             mImageAdapter.removeRecallItem(messageId);
                         }
+                        mImageAdapter.notifyDataSetChanged();
                         if (mImageAdapter.getItemCount() == 0) {
-                            RLog.d(TAG, "onDeleteMessage finish ");
                             finish();
                         }
                     }
@@ -318,11 +317,6 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
 
     // 延迟拉取前面或后面的图片消息，加载过快会导致ViewPager当前Item不是第一个，造成预览错乱
     private void fetchImageMessage(final int msgId, boolean fetchBehind, boolean fetchFront) {
-        // 如果传进来个阅后即焚消息，那么不触发左滑右滑拉消息逻辑
-        if (mMessage.getContent().isDestruct()) {
-            RLog.d(TAG, "fetchImageMessage return, message is destruct");
-            return;
-        }
         mainHandler.postDelayed(
                 new Runnable() {
                     @Override
@@ -550,19 +544,6 @@ public class PicturePagerActivity extends RongBaseNoActionbarActivity
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             updatePhotoView(position, holder);
-            holder.mCountDownView.setBackgroundResource(
-                    IMKitThemeManager.dynamicResource(
-                            R.drawable.rc_lively_common_background,
-                            R.drawable.rc_image_msg_count_down));
-            holder.mCountDownView.setTextColor(
-                    holder.mCountDownView
-                            .getContext()
-                            .getResources()
-                            .getColor(
-                                    IMKitThemeManager.dynamicResource(
-                                            holder.mCountDownView.getContext(),
-                                            R.attr.rc_hint_color,
-                                            R.color.rc_white_color)));
             holder.photoView.setOnLongClickListener(PicturePagerActivity.this);
             holder.photoView.setOnClickListener(
                     new View.OnClickListener() {

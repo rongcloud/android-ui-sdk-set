@@ -60,10 +60,6 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         notifyDataSetChanged();
     }
 
-    public List<ContactModel> getData() {
-        return data;
-    }
-
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -92,19 +88,6 @@ public class ContactListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         ContactModel contactModel = data.get(position);
         if (holder instanceof ContactSelectableViewHolder) {
             ((ContactSelectableViewHolder) holder).setShowItemRemoveButton(showItemRemoveButton);
-            // 判断是否隐藏分割线：1. 是最后一个项 2. 下一个是 title
-            boolean showDivider = true;
-            if (position == data.size() - 1) {
-                // 最后一个项，隐藏分割线
-                showDivider = false;
-            } else {
-                ContactModel<?> nextModel = data.get(position + 1);
-                if (nextModel.getContactType() == ContactModel.ItemType.TITLE) {
-                    // 下一个是标题，隐藏分割线
-                    showDivider = false;
-                }
-            }
-            ((ContactSelectableViewHolder) holder).setDividerVisibility(showDivider);
             ((ContactSelectableViewHolder) holder).bind(contactModel);
         } else if (holder instanceof ContactTitleViewHolder) {
             ((ContactTitleViewHolder) holder).bind(contactModel);

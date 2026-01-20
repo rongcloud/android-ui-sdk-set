@@ -13,12 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.core.widget.TextViewCompat;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseComponent;
-import io.rong.imkit.config.IMKitThemeManager;
-import io.rong.imkit.picture.tools.ScreenUtils;
-import io.rong.imkit.utils.TextViewUtils;
 
 /**
  * 功能描述:
@@ -54,12 +50,6 @@ public class HeadComponent extends BaseComponent {
     @Override
     protected View onCreateView(
             Context context, LayoutInflater from, @NonNull ViewGroup parent, AttributeSet attrs) {
-        // 只有在外部没有设置背景时，才应用默认背景
-        if (getBackground() == null) {
-            setBackgroundColor(
-                    IMKitThemeManager.getColorFromAttrId(
-                            context, R.attr.rc_user_manager_background_color));
-        }
         View view = from.inflate(R.layout.rc_head_component, parent, false);
         rightContainer = view.findViewById(R.id.right_container);
         leftTextView = view.findViewById(R.id.left_text);
@@ -150,8 +140,6 @@ public class HeadComponent extends BaseComponent {
                     }
                 });
 
-        // 处理 XML 中通过 drawableStartCompat 设置的图片，使其在 RTL 模式下自动翻转
-        TextViewUtils.enableDrawableAutoMirror(leftTextView);
         return view;
     }
 
@@ -195,7 +183,7 @@ public class HeadComponent extends BaseComponent {
     public void setLeftTextDrawable(int resId) {
         Drawable drawable = getResources().getDrawable(resId);
         drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        TextViewCompat.setCompoundDrawablesRelative(leftTextView, drawable, null, null, null);
+        leftTextView.setCompoundDrawables(drawable, null, null, null);
         leftTextView.setVisibility(View.VISIBLE);
     }
 
@@ -207,7 +195,7 @@ public class HeadComponent extends BaseComponent {
     public void setTitleTextDrawable(int resId) {
         Drawable drawable = getResources().getDrawable(resId);
         drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
-        TextViewCompat.setCompoundDrawablesRelative(titleTextView, drawable, null, null, null);
+        titleTextView.setCompoundDrawables(drawable, null, null, null);
         titleTextView.setVisibility(View.VISIBLE);
     }
 
@@ -218,9 +206,8 @@ public class HeadComponent extends BaseComponent {
      */
     public void setRightTextDrawable(int resId) {
         Drawable drawable = getResources().getDrawable(resId);
-        drawable.setBounds(
-                0, 0, ScreenUtils.dip2px(getContext(), 24), ScreenUtils.dip2px(getContext(), 24));
-        TextViewCompat.setCompoundDrawablesRelative(rightTextView, null, null, drawable, null);
+        drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
+        rightTextView.setCompoundDrawables(null, null, drawable, null);
         rightTextView.setVisibility(View.VISIBLE);
     }
 
@@ -234,13 +221,11 @@ public class HeadComponent extends BaseComponent {
             rightTextColorDefault =
                     rightTextColorDefault != -1
                             ? rightTextColorDefault
-                            : IMKitThemeManager.getColorFromAttrId(
-                                    getContext(), R.attr.rc_primary_color);
+                            : rightTextView.getResources().getColor(R.color.rc_blue);
             rightTextColorDisable =
                     rightTextColorDisable != -1
                             ? rightTextColorDisable
-                            : IMKitThemeManager.getColorFromAttrId(
-                                    getContext(), R.attr.rc_text_secondary_color);
+                            : rightTextView.getResources().getColor(R.color.rc_secondary_color);
             rightTextView.setTextColor(enable ? rightTextColorDefault : rightTextColorDisable);
             rightTextView.setEnabled(enable);
             rightTextView.setClickable(enable);

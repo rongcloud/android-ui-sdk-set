@@ -3,12 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/rc_margin_size_16"
-    android:layout_marginEnd="@dimen/rc_margin_size_16"
-    android:background="?attr/rc_bottom_dialog_background_color"
-    android:paddingStart="@dimen/rc_margin_size_16"
+    android:background="@color/rc_white_color"
     android:paddingTop="@dimen/rc_margin_size_8"
-    android:paddingEnd="@dimen/rc_margin_size_16"
+    android:paddingEnd="@dimen/rc_margin_size_14"
     tools:ignore="RtlSymmetry">
 
     <!-- 用户头像 -->
@@ -16,39 +13,37 @@
         android:id="@+id/iv_head"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginStart="@dimen/rc_margin_size_20"
         android:scaleType="centerCrop"
-        android:src="?attr/rc_conversation_list_cell_portrait_msg_img"
+        android:src="@drawable/fire"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- 用户名 -->
     <TextView
         android:id="@+id/tv_title"
-        android:textDirection="locale"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
+        android:layout_marginStart="13dp"
         android:ellipsize="end"
         android:maxLines="2"
-        android:textColor="?attr/rc_text_primary_color"
-        android:textSize="17sp"
+        android:textColor="@color/rc_text_main_color"
+        android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_head"
         app:layout_constraintTop_toTopOf="@+id/iv_head"
         tools:text="用户名用户名用户" />
-
     <!-- 理由 -->
     <TextView
         android:id="@+id/tv_content"
-        android:textDirection="locale"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="@dimen/rc_margin_size_8"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="@dimen/rc_margin_size_2"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="?attr/rc_text_secondary_color"
-        android:textSize="14sp"
+        android:textColor="@color/rc_rich_content"
+        android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_head"
         app:layout_constraintTop_toBottomOf="@id/tv_title"
@@ -59,9 +54,9 @@
         android:id="@+id/ll_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
+        android:layout_marginStart="@dimen/rc_margin_size_8"
+        android:layout_marginTop="@dimen/rc_margin_size_4"
+        android:layout_marginBottom="@dimen/rc_margin_size_4"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -71,42 +66,38 @@
         <!-- 已处理状态 -->
         <TextView
             android:id="@+id/tv_result"
-            android:textDirection="locale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_gravity="center_vertical"
-            android:textColor="?attr/rc_text_secondary_color"
-            android:textSize="14sp"
+            android:textColor="@color/rc_secondary_color"
+            android:textSize="13sp"
             android:visibility="gone"
             tools:text="@string/rc_passed" />
 
         <!-- 拒绝按钮 -->
         <TextView
             android:id="@+id/tv_reject"
-            android:textDirection="locale"
-            android:layout_width="62dp"
-            android:layout_height="34dp"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/rc_apply_reject_bg"
             android:gravity="center"
             android:paddingHorizontal="12dp"
             android:text="@string/rc_reject"
-            android:textColor="?attr/rc_hint_color"
-            android:textSize="14sp" />
+            android:textColor="@color/rc_text_main_color"
+            android:textSize="13sp" />
 
         <!-- 同意按钮 -->
         <TextView
             android:id="@+id/tv_accept"
-            android:textDirection="locale"
-            android:layout_width="62dp"
-            android:layout_height="34dp"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
             android:background="@drawable/rc_apply_accept_bg"
             android:gravity="center"
             android:paddingHorizontal="12dp"
             android:text="@string/rc_accept"
             android:textColor="@color/rc_white_color"
-            android:textSize="14sp" />
+            android:textSize="13sp" />
 
     </LinearLayout>
 
@@ -114,8 +105,8 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="?attr/rc_line_background_color"
+        android:background="@color/rc_divider_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/tv_title" />
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

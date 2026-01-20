@@ -3,6 +3,7 @@ package io.rong.imkit.usermanage.friend.my.nikename;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,7 +78,6 @@ public class UpdateNickNameFragment extends BaseViewModelFragment<UpdateNickName
             etContent.setHint(R.string.rc_friend_nickname_hint);
             tvTitle.setText(R.string.rc_remark);
         }
-        headComponent.setRightTextViewEnable(false);
         headComponent.setRightClickListener(
                 v -> {
                     String name = etContent.getText().toString();
@@ -145,12 +145,6 @@ public class UpdateNickNameFragment extends BaseViewModelFragment<UpdateNickName
                     }
                 });
 
-        String nickName =
-                userProfile != null
-                        ? userProfile.getName()
-                        : friendInfo != null ? friendInfo.getRemark() : "";
-        etContent.setText(nickName);
-
         etContent.addTextChangedListener(
                 new TextWatcher() {
                     @Override
@@ -162,13 +156,27 @@ public class UpdateNickNameFragment extends BaseViewModelFragment<UpdateNickName
 
                     @Override
                     public void afterTextChanged(Editable s) {
-                        int length = s.length();
-                        boolean isEnable = length <= 64;
-                        if (headComponent != null) {
-                            headComponent.setRightTextViewEnable(isEnable);
-                        }
+                        updateConfirmEnable();
                     }
                 });
+
+        String nickName =
+                userProfile != null
+                        ? userProfile.getName()
+                        : friendInfo != null ? friendInfo.getRemark() : "";
+        etContent.setText(nickName);
+    }
+
+    private void updateConfirmEnable() {
+        if (userProfile != null) {
+            if (!TextUtils.isEmpty(etContent.getText())) {
+                headComponent.setRightTextViewEnable(true);
+            } else {
+                headComponent.setRightTextViewEnable(false);
+            }
+        } else {
+            headComponent.setRightTextViewEnable(true);
+        }
     }
 
     /** loading dialog */

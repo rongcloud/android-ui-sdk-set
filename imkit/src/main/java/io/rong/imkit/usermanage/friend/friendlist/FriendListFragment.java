@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
-import io.rong.imkit.model.OnlineStatusFriendInfo;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.ContactListComponent;
 import io.rong.imkit.usermanage.component.HeadComponent;
@@ -74,33 +73,14 @@ public class FriendListFragment extends BaseViewModelFragment<FriendListViewMode
                                 contactListComponent.setContactList(contactModels);
                             }
                         });
-        // 监听获取在线状态
-        viewModel
-                .getOnlineStatusLiveData()
-                .observe(
-                        getViewLifecycleOwner(),
-                        data -> {
-                            if (data != null && contactListComponent != null) {
-                                contactListComponent.setContactOnlineStatusList(data);
-                            }
-                        });
         // 设置联系人列表点击事件
         contactListComponent.setOnItemClickListener(
                 contactModel -> {
-                    if (contactModel != null) {
-                        FriendInfo friendInfo = null;
-                        if (contactModel.getBean() instanceof FriendInfo) {
-                            friendInfo = (FriendInfo) contactModel.getBean();
-                        } else if (contactModel.getBean() instanceof OnlineStatusFriendInfo) {
-                            friendInfo =
-                                    ((OnlineStatusFriendInfo) contactModel.getBean())
-                                            .getFriendInfo();
-                        }
-                        if (friendInfo != null) {
-                            startActivity(
-                                    UserProfileActivity.newIntent(
-                                            getActivity(), friendInfo.getUserId()));
-                        }
+                    if (contactModel != null && contactModel.getBean() instanceof FriendInfo) {
+                        FriendInfo friendInfo = (FriendInfo) contactModel.getBean();
+                        startActivity(
+                                UserProfileActivity.newIntent(
+                                        getActivity(), friendInfo.getUserId()));
                     }
                 });
     }

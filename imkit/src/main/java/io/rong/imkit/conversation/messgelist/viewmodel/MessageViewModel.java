@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -24,9 +23,8 @@ import io.rong.imkit.MessageItemLongClickAction;
 import io.rong.imkit.MessageItemLongClickActionManager;
 import io.rong.imkit.R;
 import io.rong.imkit.RongIM;
-import io.rong.imkit.config.ConversationConfig;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.conversation.extension.component.moreaction.IClickActions;
 import io.rong.imkit.conversation.messgelist.processor.ConversationProcessorFactory;
 import io.rong.imkit.conversation.messgelist.processor.IConversationBusinessProcessor;
@@ -43,12 +41,12 @@ import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.event.uievent.InputBarEvent;
 import io.rong.imkit.event.uievent.MessageEvent;
 import io.rong.imkit.event.uievent.PageEvent;
-import io.rong.imkit.event.uievent.ReadReceiptStateClickEvent;
 import io.rong.imkit.event.uievent.ScrollEvent;
 import io.rong.imkit.event.uievent.ScrollToEndEvent;
 import io.rong.imkit.event.uievent.ShowLongClickDialogEvent;
 import io.rong.imkit.event.uievent.ToastEvent;
 import io.rong.imkit.feature.destruct.DestructManager;
+import io.rong.imkit.feature.editmessage.EditMessageConfig;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.forward.ForwardClickActions;
 import io.rong.imkit.feature.forward.ForwardManager;
@@ -56,13 +54,10 @@ import io.rong.imkit.feature.translation.RCTranslationResultWrapper;
 import io.rong.imkit.feature.translation.TranslationProvider;
 import io.rong.imkit.feature.translation.TranslationResultListenerWrapper;
 import io.rong.imkit.handler.AppSettingsHandler;
-import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.handler.ReadReceiptV5Handler;
-import io.rong.imkit.handler.SpeechToTextHandler;
 import io.rong.imkit.handler.StreamMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.IAudioPlayListener;
-import io.rong.imkit.manager.UnReadMessageManager;
 import io.rong.imkit.manager.hqvoicemessage.AutoDownloadEntry;
 import io.rong.imkit.manager.hqvoicemessage.HQVoiceMsgDownloadManager;
 import io.rong.imkit.model.State;
@@ -71,14 +66,12 @@ import io.rong.imkit.notification.RongNotificationManager;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
-import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
-import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imkit.widget.TextAnimationHelper;
 import io.rong.imkit.widget.cache.MessageList;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.IRongCoreListener;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
@@ -90,8 +83,7 @@ import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfo;
-import io.rong.imlib.model.ReadReceiptInfoV5;
-import io.rong.imlib.model.SpeechToTextInfo;
+import io.rong.imlib.model.ReadReceiptResponseV5;
 import io.rong.imlib.model.UnknownMessage;
 import io.rong.imlib.model.UserInfo;
 import io.rong.message.HQVoiceMessage;
@@ -100,9 +92,12 @@ import io.rong.message.MediaMessageContent;
 import io.rong.message.ReadReceiptMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
+import io.rong.message.TextMessage;
 import io.rong.message.VoiceMessage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -126,10 +121,7 @@ public class MessageViewModel extends AndroidViewModel
     private MediatorLiveData<List<UiMessage>> mUiMessageLiveData = new MediatorLiveData<>();
     private ConversationIdentifier mConversationIdentifier;
     private final StreamMessageHandler mStreamMessageHandler;
-    private final SpeechToTextHandler mSpeechToTextHandler;
-    private final EditMessageHandler mEditMessageHandler;
     private final ReadReceiptV5Handler mReadReceiptV5Handler;
-    // 消息回执监听器
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
             new RongIMClient.ReadReceiptListener() {
                 @Override
@@ -228,7 +220,6 @@ public class MessageViewModel extends AndroidViewModel
     private boolean mInitMentionedMessageFinish;
     private MediatorLiveData<Boolean> mIsEditStatus = new MediatorLiveData<>();
     private MessageItemLongClickAction mMoreAction;
-    private MessageItemLongClickAction mSpeechToTextAction;
     // 应用是否在前台
     private boolean mIsForegroundActivity;
     // 是否滑动到页面最底部
@@ -298,6 +289,9 @@ public class MessageViewModel extends AndroidViewModel
                                                                     message.getMessageId(),
                                                                     message.getReceivedStatus(),
                                                                     null);
+
+                                                    fetchReadReceiptInfoForMessages(
+                                                            Collections.singletonList(message));
                                                 }
                                             }
                                             mProcessor.onReceived(
@@ -370,12 +364,9 @@ public class MessageViewModel extends AndroidViewModel
                         refreshSingleMessage(uiMessage);
                     }
                     // 监听撤回，刷新引用消息
-                    List<UiMessage> uiMessages =
-                            mEditMessageHandler.processMessageReferMsgStatus(
-                                    message,
-                                    ReferenceMessage.ReferenceMessageStatus.RECALLED,
-                                    getUiMessages());
-                    mUiMessageLiveData.postValue(uiMessages);
+                    refreshReferenceMessageStatus(
+                            new String[] {message.getUId()},
+                            ReferenceMessage.ReferenceMessageStatus.RECALLED);
                     return false;
                 }
             };
@@ -386,6 +377,11 @@ public class MessageViewModel extends AndroidViewModel
                 public void onChanged(ConnectionStatus connectionStatus) {
                     if (mProcessor != null) {
                         mProcessor.onConnectStatusChange(MessageViewModel.this, connectionStatus);
+                    }
+                    // 如果连接成功清除未读数
+                    if (RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED.equals(
+                            connectionStatus)) {
+                        cleanUnreadStatus();
                     }
                 }
             };
@@ -410,118 +406,50 @@ public class MessageViewModel extends AndroidViewModel
                 }
             };
 
+    private IRongCoreListener.MessageModifiedListener mMessageModifiedListener =
+            new IRongCoreListener.MessageModifiedListener() {
+                @Override
+                public void onMessageModified(List<Message> messages) {
+                    if (messages != null && !messages.isEmpty()) {
+                        refreshEditMessage(messages);
+                        refreshReferenceMessageEditStatus(messages);
+                    }
+                }
+
+                @Override
+                public void onModifiedMessageSyncCompleted() {}
+            };
+
     public MessageViewModel(@NonNull Application application) {
         super(application);
         mainHandler = new Handler(Looper.getMainLooper());
         mStreamMessageHandler = new StreamMessageHandler();
         mStreamMessageHandler.addDataChangeListener(
-                StreamMessageHandler.KEY_FETCH_STREAM_MESSAGE, this::refreshModifyMessage);
-        mSpeechToTextHandler = new SpeechToTextHandler();
-        mSpeechToTextHandler.addDataChangeListener(
-                SpeechToTextHandler.KEY_SPEECH_TO_TEXT_LISTENER, this::refreshModifyMessage);
-        mSpeechToTextHandler.addDataChangeListener(
-                SpeechToTextHandler.KEY_REQUEST_SPEECH_TO_TEXT,
-                new OnDataChangeListener<UiMessage>() {
-                    @Override
-                    public void onDataChange(UiMessage uiMessage) {
-                        MessageViewModel.this.refreshModifyMessage(uiMessage);
-                    }
-
-                    @Override
-                    public void onDataError(
-                            IRongCoreEnum.CoreErrorCode coreErrorCode, String errorMsg) {
-                        String message;
-                        if (coreErrorCode
-                                == IRongCoreEnum.CoreErrorCode
-                                        .SPEECH_TO_TEXT_MESSAGE_CONTENT_UNSUPPORTED) {
-                            message =
-                                    getApplication()
-                                            .getString(
-                                                    R.string.rc_speech_to_text_unsupported_format);
-                        } else {
-                            message =
-                                    getApplication()
-                                            .getString(R.string.rc_speech_to_text_network_error);
+                StreamMessageHandler.KEY_FETCH_STREAM_MESSAGE,
+                uiMessage -> {
+                    if (uiMessage != null && uiMessage.getMessage() != null) {
+                        UiMessage findUiMessage =
+                                findUIMessage(uiMessage.getMessage().getMessageId());
+                        if (findUiMessage != null) {
+                            findUiMessage.setMessage(uiMessage.getMessage());
+                            findUiMessage.setBusinessState(uiMessage.getBusinessState());
+                            refreshSingleMessage(findUiMessage);
                         }
-                        io.rong.imkit.utils.ToastUtils.show(
-                                IMCenter.getInstance().getContext(), message, Toast.LENGTH_SHORT);
-                    }
-                });
-        mSpeechToTextHandler.addDataChangeListener(
-                SpeechToTextHandler.KEY_SET_SPEECH_TO_TEXT_VISIBLE,
-                new OnDataChangeListener<UiMessage>() {
-                    @Override
-                    public void onDataChange(UiMessage uiMessage) {
-                        MessageViewModel.this.refreshModifyMessage(uiMessage);
-                    }
-
-                    @Override
-                    public void onDataError(
-                            IRongCoreEnum.CoreErrorCode coreErrorCode, String errorMsg) {
-                        String message;
-                        if (coreErrorCode
-                                == IRongCoreEnum.CoreErrorCode
-                                        .SPEECH_TO_TEXT_MESSAGE_CONTENT_UNSUPPORTED) {
-                            message =
-                                    getApplication()
-                                            .getString(
-                                                    R.string.rc_speech_to_text_unsupported_format);
-                        } else {
-                            message =
-                                    getApplication()
-                                            .getString(R.string.rc_speech_to_text_network_error);
-                        }
-                        io.rong.imkit.utils.ToastUtils.show(
-                                IMCenter.getInstance().getContext(), message, Toast.LENGTH_SHORT);
-                    }
-                });
-        mEditMessageHandler = new EditMessageHandler();
-        mEditMessageHandler.addDataChangeListener(
-                EditMessageHandler.KEY_ON_MESSAGE_MODIFIED,
-                new OnDataChangeListener<List<Message>>() {
-                    @Override
-                    public void onDataChange(List<Message> editMessageList) {
-                        List<UiMessage> uiMessages =
-                                mEditMessageHandler.processMessageEditStatusAndReferMsgStatus(
-                                        editMessageList, getUiMessages());
-                        mUiMessageLiveData.postValue(uiMessages);
-                        // 更新引用消息
-                        mEditMessageHandler.updateReferenceView(editMessageList, getUiMessages());
                     }
                 });
         mReadReceiptV5Handler = new ReadReceiptV5Handler();
         mReadReceiptV5Handler.addDataChangeListener(
                 ReadReceiptV5Handler.KEY_GET_MESSAGE_READ_RECEIPT_INFO_V5,
-                new OnDataChangeEnhancedListener<HashMap<String, ReadReceiptInfoV5>>() {
-                    @Override
-                    public void onDataChange(HashMap<String, ReadReceiptInfoV5> map) {
-                        if (!map.isEmpty()) {
-                            for (UiMessage uiMessage : mUiMessages) {
-                                ReadReceiptInfoV5 infoV5 = map.get(uiMessage.getUId());
-                                if (infoV5 != null) {
-                                    uiMessage.setReadReceiptInfoV5(infoV5);
-                                }
-                            }
-                        }
-                        refreshAllMessage();
+                readReceiptInfoList -> {
+                    if (readReceiptInfoList != null && !readReceiptInfoList.isEmpty()) {
+                        updateReadCountForMessages(readReceiptInfoList);
                     }
                 });
         mReadReceiptV5Handler.addDataChangeListener(
                 ReadReceiptV5Handler.KEY_MESSAGE_READ_RECEIPT_V5_LISTENER,
-                new OnDataChangeEnhancedListener<HashMap<String, ReadReceiptInfoV5>>() {
-                    @Override
-                    public void onDataChange(HashMap<String, ReadReceiptInfoV5> map) {
-                        boolean needRefresh = false;
-                        for (UiMessage uiMessage : mUiMessages) {
-                            ReadReceiptInfoV5 infoV5 = map.get(uiMessage.getUId());
-                            if (infoV5 != null) {
-                                needRefresh = true;
-                                uiMessage.setReadReceiptInfoV5(infoV5);
-                            }
-                        }
-                        if (needRefresh) {
-                            refreshAllMessage(false);
-                        }
+                responses -> {
+                    if (responses != null && !responses.isEmpty()) {
+                        handleReadReceiptV5Responses(responses);
                     }
                 });
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
@@ -530,19 +458,9 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().addOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().addMessageEventListener(this);
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
+        RongCoreClient.getInstance().addMessageModifiedListener(mMessageModifiedListener);
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         initTranslationListener();
-    }
-
-    private void refreshModifyMessage(UiMessage uiMessage) {
-        if (uiMessage != null && uiMessage.getMessage() != null) {
-            UiMessage findUiMessage = findUIMessage(uiMessage.getMessage().getMessageId());
-            if (findUiMessage != null) {
-                findUiMessage.setMessage(uiMessage.getMessage());
-                findUiMessage.setBusinessState(uiMessage.getBusinessState());
-                refreshSingleMessage(findUiMessage);
-            }
-        }
     }
 
     private void stopDestructTime(UiMessage uiMessage) {
@@ -558,7 +476,6 @@ public class MessageViewModel extends AndroidViewModel
         mBundle = bundle;
         mProcessor.init(this, bundle);
         mIsEditStatus.setValue(false);
-        mReadReceiptV5Handler.bindConversation(mConversationIdentifier);
     }
 
     /** 初始化加载本地消息 下拉加载历史消息 */
@@ -594,13 +511,14 @@ public class MessageViewModel extends AndroidViewModel
                 }
             }
             if (!contains && shouldContainUnknownMessage(message)) {
-                // 根据sentTime确定正确的插入位置，而不是直接插入到第0个位置
-                int position = findPositionBySendTime(message.getSentTime());
-                mUiMessages.add(position, mapUIMessage(message));
+                mUiMessages.add(0, mapUIMessage(message));
             }
         }
         processHistoryDividerMessage();
         refreshAllMessage();
+
+        // 批量获取历史消息的已读回执信息
+        fetchReadReceiptInfoForMessages(messages);
     }
 
     public UiMessage mapUIMessage(Message message) {
@@ -688,10 +606,6 @@ public class MessageViewModel extends AndroidViewModel
         return mConversationIdentifier.getType();
     }
 
-    public String getCurChannelId() {
-        return mConversationIdentifier == null ? "" : mConversationIdentifier.optChannelId();
-    }
-
     public ConversationIdentifier getConversationIdentifier() {
         return mConversationIdentifier;
     }
@@ -732,6 +646,9 @@ public class MessageViewModel extends AndroidViewModel
         mUiMessages.addAll(list);
         processHistoryDividerMessage();
         refreshAllMessage();
+
+        // 批量获取更多消息的已读回执信息
+        fetchReadReceiptInfoForMessages(messages);
     }
 
     /** normal状态点击历史消息bar history状态点击新消息bar */
@@ -753,15 +670,9 @@ public class MessageViewModel extends AndroidViewModel
         }
         processHistoryDividerMessage();
         refreshAllMessage();
-    }
 
-    /**
-     * 查询消息的已读回执V5信息，查询后绑定到UIMessage再刷新一次。
-     *
-     * @param messages 待查询的消息
-     */
-    public void getMessageReadReceiptInfoV5(List<Message> messages) {
-        mReadReceiptV5Handler.getMessageReadReceiptInfoV5(getConversationIdentifier(), messages);
+        // 批量获取重新加载消息的已读回执信息
+        fetchReadReceiptInfoForMessages(messages);
     }
 
     public MediatorLiveData<PageEvent> getPageEventLiveData() {
@@ -788,11 +699,7 @@ public class MessageViewModel extends AndroidViewModel
             if (mMoreAction == null) {
                 mMoreAction =
                         new MessageItemLongClickAction.Builder()
-                                .titleResId(
-                                        IMKitThemeManager.isTraditionTheme()
-                                                ? R.string.rc_dialog_item_message_more
-                                                : R.string.rc_multi_select)
-                                .iconResId(R.attr.rc_conversation_menu_item_multiple_img)
+                                .titleResId(R.string.rc_dialog_item_message_more)
                                 .actionListener(
                                         new MessageItemLongClickAction
                                                 .MessageItemLongClickListener() {
@@ -841,120 +748,12 @@ public class MessageViewModel extends AndroidViewModel
                     .addMessageItemLongClickAction(mMoreAction);
         }
 
-        // 动态创建语音转文字功能 - 每次都重新创建以确保title是最新的
-        createSpeechToTextAction(uiMessage);
-
         final List<MessageItemLongClickAction> messageItemLongClickActions =
                 MessageItemLongClickActionManager.getInstance()
                         .getMessageItemLongClickActions(uiMessage);
         executePageEvent(
                 new ShowLongClickDialogEvent(
                         new MessageItemLongClickBean(messageItemLongClickActions, uiMessage)));
-        return true;
-    }
-
-    /** 动态创建语音转文字Action 根据消息的语音转文字状态动态显示对应的操作选项 */
-    private void createSpeechToTextAction(UiMessage uiMessage) {
-        // 清理之前的Action
-        if (mSpeechToTextAction != null) {
-            MessageItemLongClickActionManager.getInstance()
-                    .removeMessageItemLongClickAction(mSpeechToTextAction);
-        }
-
-        // 检查是否需要显示语音转文字功能
-        io.rong.imlib.model.SpeechToTextInfo sttInfo = getSpeechToTextInfo(uiMessage);
-        if (sttInfo == null) {
-            return;
-        }
-
-        // 根据语音转文字状态确定按钮文本
-        int titleResId = getSpeechToTextTitleByStatus(sttInfo);
-
-        mSpeechToTextAction =
-                new MessageItemLongClickAction.Builder()
-                        .titleResId(titleResId)
-                        .iconResId(R.attr.rc_conversation_menu_item_translation_img)
-                        .actionListener(this::handleSpeechToTextAction)
-                        .showFilter(message -> getSpeechToTextInfo(message) != null)
-                        .build();
-
-        MessageItemLongClickActionManager.getInstance()
-                .addMessageItemLongClickAction(mSpeechToTextAction, 0);
-    }
-
-    /**
-     * 获取消息的语音转文字信息
-     *
-     * @param uiMessage 消息对象
-     * @return 语音转文字信息，如果不支持则返回null
-     */
-    private io.rong.imlib.model.SpeechToTextInfo getSpeechToTextInfo(UiMessage uiMessage) {
-        if (!AppSettingsHandler.getInstance().getAppSettings().isSpeechToTextEnable()) {
-            return null;
-        }
-        // 如果消息发送状态是正在发送、发送失败或取消，则不显示语音转文字UI
-        Message.SentStatus sentStatus = uiMessage.getMessage().getSentStatus();
-        if (sentStatus == Message.SentStatus.SENDING
-                || sentStatus == Message.SentStatus.FAILED
-                || sentStatus == Message.SentStatus.CANCELED) {
-            return null;
-        }
-
-        if (SpeechToTextHandler.SPEECH_TO_TEXT_LOADING_STATE.equals(uiMessage.getBusinessState())) {
-            return null;
-        }
-
-        MessageContent content = uiMessage.getContent();
-        // 阅后即焚的消息不展示
-        if (content.isDestruct()) {
-            return null;
-        }
-        if (content instanceof VoiceMessage) {
-            return ((VoiceMessage) content).getSttInfo();
-        } else if (content instanceof HQVoiceMessage) {
-            return ((HQVoiceMessage) content).getSttInfo();
-        }
-        return null;
-    }
-
-    /**
-     * 根据语音转文字状态获取按钮标题资源ID
-     *
-     * @param sttInfo 语音转文字信息
-     * @return 对应的字符串资源ID
-     */
-    private int getSpeechToTextTitleByStatus(SpeechToTextInfo sttInfo) {
-        return sttInfo.isVisible() ? R.string.rc_cancel_speech_to_text : R.string.rc_speech_to_text;
-    }
-
-    /** 处理语音转文字操作 根据当前状态执行相应的转换或显示/隐藏操作 */
-    private boolean handleSpeechToTextAction(Context context, UiMessage uiMessage) {
-        io.rong.imlib.model.SpeechToTextInfo sttInfo = getSpeechToTextInfo(uiMessage);
-        if (sttInfo == null) {
-            return false;
-        }
-
-        io.rong.imlib.model.SpeechToTextInfo.SpeechToTextStatus status = sttInfo.getStatus();
-        String messageUId = uiMessage.getUId();
-        int messageId = uiMessage.getMessageId();
-
-        // 根据状态执行相应操作
-        if (sttInfo.isVisible()) {
-            // 当 isVisible = false 时，立即设置 businessState 为隐藏状态并更新UI
-            uiMessage.setBusinessState(SpeechToTextHandler.SPEECH_TO_TEXT_HIDDEN_STATE);
-            refreshSingleMessage(uiMessage);
-            mSpeechToTextHandler.setMessageSpeechToTextVisible(messageId, false);
-        } else {
-            TextAnimationHelper.addPendingAnimation(messageUId);
-            if (status == io.rong.imlib.model.SpeechToTextInfo.SpeechToTextStatus.NOT_CONVERTED
-                    || status == io.rong.imlib.model.SpeechToTextInfo.SpeechToTextStatus.FAILED) {
-                // 开始语音转文字
-                mSpeechToTextHandler.requestSpeechToTextForMessage(messageUId);
-            } else {
-                // 切换显示/隐藏状态
-                mSpeechToTextHandler.setMessageSpeechToTextVisible(messageId, true);
-            }
-        }
         return true;
     }
 
@@ -1225,8 +1024,12 @@ public class MessageViewModel extends AndroidViewModel
                         InputBarEvent.Type.HideMoreMenu, getCurConversationType().getName()));
 
         // 如果多选前是编辑消息模式，则恢复编辑消息输入UI。
-        mEditMessageHandler.resumeEditMode(
-                mConversationIdentifier, EditMessageManager.ActiveType.OnCancelMultiSelectStatus);
+        EditMessageConfig config =
+                RongExtensionCacheHelper.getEditMessageConfig(
+                        getApplication(),
+                        mConversationIdentifier.getType(),
+                        mConversationIdentifier.getTargetId());
+        EditMessageManager.getInstance().activeEditMode(config, false);
     }
 
     public UiMessage findUIMessage(String messageUId) {
@@ -1374,12 +1177,10 @@ public class MessageViewModel extends AndroidViewModel
 
     @Override
     public void onDeleteMessage(DeleteEvent event) {
-        List<Message> deleteMessages = new ArrayList<>();
         for (int messageId : event.getMessageIds()) {
             int position = findPositionByMessageId(messageId);
             if (position >= 0) {
                 UiMessage uiMessage = mUiMessages.get(position);
-                deleteMessages.add(uiMessage.getMessage());
                 MessageContent content = uiMessage.getMessage().getContent();
                 if (AudioPlayManager.getInstance().isPlaying()) {
                     if (content instanceof VoiceMessage) {
@@ -1412,13 +1213,9 @@ public class MessageViewModel extends AndroidViewModel
                 && mProcessor != null) {
             onRefresh();
         }
-        if (!deleteMessages.isEmpty()) {
-            List<UiMessage> uiMessages =
-                    mEditMessageHandler.processMessageReferMsgStatus(
-                            deleteMessages.toArray(new Message[0]),
-                            ReferenceMessage.ReferenceMessageStatus.DELETE,
-                            getUiMessages());
-            mUiMessageLiveData.postValue(uiMessages);
+        if (event.getMessageUIds() != null && event.getMessageUIds().length > 0) {
+            refreshReferenceMessageStatus(
+                    event.getMessageUIds(), ReferenceMessage.ReferenceMessageStatus.DELETE);
         }
     }
 
@@ -1454,23 +1251,16 @@ public class MessageViewModel extends AndroidViewModel
                 processNewMessageUnread(true);
             }
         }
-        List<UiMessage> uiMessages =
-                mEditMessageHandler.processMessageReferMsgStatus(
-                        event.getRecallMessage(),
-                        ReferenceMessage.ReferenceMessageStatus.RECALLED,
-                        getUiMessages());
-        mUiMessageLiveData.postValue(uiMessages);
+        refreshReferenceMessageStatus(
+                new String[] {event.getMessageUid()},
+                ReferenceMessage.ReferenceMessageStatus.RECALLED);
     }
 
     @Override
     public void onRefreshEvent(RefreshEvent event) {
         if (event.getMessages() != null && !event.getMessages().isEmpty()) {
-            List<UiMessage> uiMessages =
-                    mEditMessageHandler.processMessageEditStatusAndReferMsgStatus(
-                            event.getMessages(), getUiMessages());
-            mUiMessageLiveData.postValue(uiMessages);
-            // 更新引用消息
-            mEditMessageHandler.updateReferenceView(event.getMessages(), getUiMessages());
+            refreshEditMessage(event.getMessages());
+            refreshReferenceMessageEditStatus(event.getMessages());
             return;
         }
         Message message = event.getMessage();
@@ -1538,14 +1328,12 @@ public class MessageViewModel extends AndroidViewModel
         if (!shouldContainUnknownMessage(uiMessage.getMessage())) {
             return;
         }
-        if (mProcessor.isHistoryState(this)
-                && uiMessage.getContent() instanceof MediaMessageContent
-                && uiMessage.getState() == State.PROGRESS) {
-            return;
-        }
         mUiMessages.add(uiMessage);
         refreshAllMessage();
         executePageEvent(new ScrollToEndEvent());
+
+        // 获取新添加消息的已读回执信息
+        fetchReadReceiptInfoForSingleMessage(uiMessage);
     }
 
     public void refreshSingleMessage(UiMessage uiMessage) {
@@ -1553,6 +1341,96 @@ public class MessageViewModel extends AndroidViewModel
         if (position != -1) {
             uiMessage.setChange(true);
             mUiMessageLiveData.postValue(mUiMessages);
+        }
+    }
+
+    public void refreshEditMessage(List<Message> messageList) {
+        boolean hasChange = false;
+        for (Message message : messageList) {
+            if (message == null || TextUtils.isEmpty(message.getUId())) {
+                continue;
+            }
+            UiMessage uiMessage = findUIMessage(message.getUId());
+            if (uiMessage == null) {
+                continue;
+            }
+            // 消息类型是引用消息，需要保存内存中的引用状态
+            if (uiMessage.getContent() instanceof ReferenceMessage
+                    && message.getContent() instanceof ReferenceMessage) {
+                ReferenceMessage.ReferenceMessageStatus uiStatus =
+                        ((ReferenceMessage) uiMessage.getContent()).getReferMsgStatus();
+                ReferenceMessage.ReferenceMessageStatus messageStatus =
+                        ((ReferenceMessage) message.getContent()).getReferMsgStatus();
+                // 如果内存中的referMsgStatus值大于待刷新的referMsgStatus值，则使用内存中的referMsgStatus。
+                // 原因：ReferenceMessageStatus代表着向前状态，较大的值不会退回到较小的值。
+                if (uiStatus.getValue() > messageStatus.getValue()) {
+                    ((ReferenceMessage) message.getContent()).setReferMsgStatus(uiStatus);
+                }
+            }
+            uiMessage.setMessage(message);
+            uiMessage.setContentSpannable(null);
+            uiMessage.setReferenceContentSpannable(null);
+            uiMessage.setChange(true);
+            hasChange = true;
+        }
+        if (hasChange) {
+            mUiMessageLiveData.postValue(mUiMessages);
+        }
+    }
+
+    // 刷新引用消息的被引用消息状态：编辑状态
+    public void refreshReferenceMessageEditStatus(List<Message> messages) {
+        List<Message> result = new ArrayList<>();
+        HashMap<String, Message> uIdMap = new HashMap<>();
+        for (Message message : messages) {
+            uIdMap.put(message.getUId(), message);
+        }
+        for (UiMessage item : mUiMessages) {
+            if (item.getMessage().getContent() instanceof ReferenceMessage) {
+                ReferenceMessage referMsg = (ReferenceMessage) item.getMessage().getContent();
+                Message msg = uIdMap.get(referMsg.getReferMsgUid());
+                if (msg != null) {
+                    if (msg.isHasChanged()) {
+                        referMsg.setReferMsgStatus(
+                                ReferenceMessage.ReferenceMessageStatus.MODIFIED);
+                    }
+                    MessageContent referenceContent = referMsg.getReferenceContent();
+                    MessageContent sourceContent = msg.getContent();
+                    if (referenceContent instanceof TextMessage
+                            && sourceContent instanceof TextMessage) {
+                        String newContent = ((TextMessage) msg.getContent()).getContent();
+                        ((TextMessage) referenceContent).setContent(newContent);
+                    } else if (referenceContent instanceof ReferenceMessage
+                            && sourceContent instanceof ReferenceMessage) {
+                        String newContent = ((ReferenceMessage) msg.getContent()).getEditSendText();
+                        ((ReferenceMessage) referenceContent).setEditSendText(newContent);
+                    }
+                    result.add(item.getMessage());
+                }
+            }
+        }
+        if (!result.isEmpty()) {
+            refreshEditMessage(result);
+        }
+    }
+
+    // 刷新引用消息的被引用消息状态：撤回状态、删除状态
+    public void refreshReferenceMessageStatus(
+            String[] uIds, ReferenceMessage.ReferenceMessageStatus status) {
+        List<Message> result = new ArrayList<>();
+        HashSet<String> uIdSet = new HashSet<>();
+        Collections.addAll(uIdSet, uIds);
+        for (UiMessage item : mUiMessages) {
+            if (item.getMessage().getContent() instanceof ReferenceMessage) {
+                ReferenceMessage referMsg = (ReferenceMessage) item.getMessage().getContent();
+                if (uIdSet.contains(referMsg.getReferMsgUid())) {
+                    referMsg.setReferMsgStatus(status);
+                    result.add(item.getMessage());
+                }
+            }
+        }
+        if (!result.isEmpty()) {
+            refreshEditMessage(result);
         }
     }
 
@@ -1750,11 +1628,7 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void onReadReceiptStateClick(UiMessage uiMessage) {
-        // 开启已读V5，则进入Kit的消息阅读状态页面
-        if (AppSettingsHandler.getInstance()
-                .isReadReceiptV5Enabled(uiMessage.getConversationType())) {
-            executePageEvent(new ReadReceiptStateClickEvent(uiMessage));
-        }
+        // do nothing
     }
 
     public void onReEditClick(UiMessage uiMessage) {
@@ -1862,8 +1736,6 @@ public class MessageViewModel extends AndroidViewModel
     protected void onCleared() {
         super.onCleared();
         mStreamMessageHandler.stop();
-        mSpeechToTextHandler.stop();
-        mEditMessageHandler.stop();
         mReadReceiptV5Handler.stop();
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
@@ -1871,9 +1743,9 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().removeOnRecallMessageListener(mRecallMessageListener);
         IMCenter.getInstance().removeMessageEventListener(this);
         IMCenter.getInstance().removeConversationEventListener(mConversationEventListener);
+        RongCoreClient.getInstance().removeMessageModifiedListener(mMessageModifiedListener);
         RongUserInfoManager.getInstance().removeUserDataObserver(this);
         unInitTranslationListener();
-        TextAnimationHelper.clearAllCache();
     }
 
     public boolean isForegroundActivity() {
@@ -1955,9 +1827,6 @@ public class MessageViewModel extends AndroidViewModel
                             Objects.equals(
                                     data.getBusinessState(),
                                     StreamMessageHandler.State.RETRY_PULL));
-                    break;
-                case MessageClickType.SPEECH_TO_TEXT:
-                    mSpeechToTextHandler.setMessageSpeechToTextVisible(data.getMessageId(), false);
                     break;
                 default:
                     break;
@@ -2115,6 +1984,7 @@ public class MessageViewModel extends AndroidViewModel
         mIsForegroundActivity = true;
         if (mProcessor != null) mProcessor.onResume(this);
         cleanUnreadStatus();
+        fetchReadReceiptInfoForUiMessages(getUiMessages());
         if (RongConfigCenter.featureConfig().rc_wipe_out_notification_message) {
             clearAllNotification();
         }
@@ -2123,7 +1993,11 @@ public class MessageViewModel extends AndroidViewModel
     /** 清理未读状态 */
     public void cleanUnreadStatus() {
         if (isInitUnreadMessageFinish() && isInitMentionedMessageFinish()) {
-            IMCenter.getInstance().clearMessagesUnreadStatus(mConversationIdentifier, null);
+            if (AppSettingsHandler.getInstance().getAppSettings().isServerSaveUnreadEnabled()) {
+                IMCenter.getInstance().markRemoteConversationAsRead(mConversationIdentifier, null);
+            } else {
+                IMCenter.getInstance().clearMessagesUnreadStatus(mConversationIdentifier, null);
+            }
         }
     }
 
@@ -2160,18 +2034,10 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void onDestroy() {
-        syncConversationUnReadStatus(getCurConversationType(), getCurTargetId());
         stopPlay();
         MessageItemLongClickActionManager.getInstance()
                 .removeMessageItemLongClickAction(mMoreAction);
         mMoreAction = null;
-
-        if (mSpeechToTextAction != null) {
-            MessageItemLongClickActionManager.getInstance()
-                    .removeMessageItemLongClickAction(mSpeechToTextAction);
-            mSpeechToTextAction = null;
-        }
-
         if (mProcessor != null) mProcessor.onDestroy(this);
     }
 
@@ -2308,6 +2174,230 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     /**
+     * 更新消息的已读人数
+     *
+     * @param readReceiptInfoList 已读回执信息列表
+     */
+    private void updateReadCountForMessages(
+            List<io.rong.imlib.model.ReadReceiptInfoV5> readReceiptInfoList) {
+        for (io.rong.imlib.model.ReadReceiptInfoV5 receiptInfo : readReceiptInfoList) {
+            String messageUId = receiptInfo.getMessageUId();
+            int readCount = receiptInfo.getReadCount();
+
+            // 根据messageUId找到对应的UiMessage并更新readCount
+            for (UiMessage uiMessage : mUiMessages) {
+                if (messageUId.equals(uiMessage.getUId())) {
+                    uiMessage.setReadReceiptCount(readCount);
+                    refreshSingleMessage(uiMessage);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取消息的已读回执信息
+     *
+     * @param messageUIds 消息UID列表
+     */
+    private void fetchReadReceiptInfo(List<String> messageUIds) {
+        if (messageUIds == null || messageUIds.isEmpty() || mConversationIdentifier == null) {
+            return;
+        }
+
+        mReadReceiptV5Handler.getMessageReadReceiptInfoV5(mConversationIdentifier, messageUIds);
+    }
+
+    /**
+     * 发送已读回执响应
+     *
+     * @param messageUIds 消息UID列表
+     */
+    private void sendReadReceiptResponse(List<String> messageUIds) {
+        if (messageUIds == null || messageUIds.isEmpty() || mConversationIdentifier == null) {
+            return;
+        }
+
+        mReadReceiptV5Handler.sendReadReceiptResponseV5(mConversationIdentifier, messageUIds);
+    }
+
+    /**
+     * 批量获取消息列表的已读回执信息
+     *
+     * @param messages 消息列表
+     */
+    private void fetchReadReceiptInfoForMessages(List<Message> messages) {
+        if (messages == null || messages.isEmpty()) {
+            return;
+        }
+
+        List<String> sendMessageUIds = new ArrayList<>();
+        List<String> receiveMessageUIds = new ArrayList<>();
+
+        for (Message message : messages) {
+            if (message.getUId() != null
+                    && !message.getUId().isEmpty()
+                    && message.isNeedReceipt()) {
+                if (Message.MessageDirection.SEND.equals(message.getMessageDirection())) {
+                    sendMessageUIds.add(message.getUId());
+                } else if (Message.MessageDirection.RECEIVE.equals(message.getMessageDirection())
+                        && message.isNeedReceipt()
+                        && !message.isSentReceipt()) {
+                    receiveMessageUIds.add(message.getUId());
+                }
+            }
+        }
+
+        // 对发送的消息获取已读回执信息
+        if (!sendMessageUIds.isEmpty()) {
+            fetchReadReceiptInfo(sendMessageUIds);
+        }
+
+        // 对接收的消息发送已读回执响应
+        if (!receiveMessageUIds.isEmpty()) {
+            sendReadReceiptResponse(receiveMessageUIds);
+        }
+    }
+
+    /**
+     * 批量获取UI消息列表的已读回执信息
+     *
+     * @param uiMessages UI消息列表
+     */
+    private void fetchReadReceiptInfoForUiMessages(List<UiMessage> uiMessages) {
+        if (uiMessages == null || uiMessages.isEmpty()) {
+            return;
+        }
+
+        List<String> sendMessageUIds = new ArrayList<>();
+        List<String> receiveMessageUIds = new ArrayList<>();
+
+        for (UiMessage uiMessage : uiMessages) {
+            Message message = uiMessage.getMessage();
+            if (message != null
+                    && message.getUId() != null
+                    && !message.getUId().isEmpty()
+                    && message.isNeedReceipt()) {
+                if (Message.MessageDirection.SEND.equals(message.getMessageDirection())) {
+                    sendMessageUIds.add(message.getUId());
+                } else if (Message.MessageDirection.RECEIVE.equals(message.getMessageDirection())
+                        && message.isNeedReceipt()
+                        && !message.isSentReceipt()) {
+                    receiveMessageUIds.add(message.getUId());
+                }
+            }
+        }
+
+        // 对发送的消息获取已读回执信息
+        if (!sendMessageUIds.isEmpty()) {
+            fetchReadReceiptInfo(sendMessageUIds);
+        }
+
+        // 对接收的消息发送已读回执响应
+        if (!receiveMessageUIds.isEmpty()) {
+            sendReadReceiptResponse(receiveMessageUIds);
+        }
+    }
+
+    /**
+     * 获取单个消息的已读回执信息
+     *
+     * @param uiMessage UI消息对象
+     */
+    private void fetchReadReceiptInfoForSingleMessage(UiMessage uiMessage) {
+        if (uiMessage == null
+                || uiMessage.getUId() == null
+                || uiMessage.getUId().isEmpty()
+                || uiMessage.getMessage() == null
+                || !uiMessage.getMessage().isNeedReceipt()) {
+            return;
+        }
+
+        List<String> messageUIds = new ArrayList<>();
+        messageUIds.add(uiMessage.getUId());
+
+        if (Message.MessageDirection.SEND.equals(uiMessage.getMessage().getMessageDirection())) {
+            fetchReadReceiptInfo(messageUIds);
+        } else if (Message.MessageDirection.RECEIVE.equals(
+                        uiMessage.getMessage().getMessageDirection())
+                && !uiMessage.getMessage().isSentReceipt()) {
+            sendReadReceiptResponse(messageUIds);
+        }
+    }
+
+    /**
+     * 处理V5已读回执响应列表
+     *
+     * @param responses 已读回执响应列表
+     */
+    private void handleReadReceiptV5Responses(List<ReadReceiptResponseV5> responses) {
+        if (responses == null || responses.isEmpty() || mConversationIdentifier == null) {
+            return;
+        }
+
+        for (ReadReceiptResponseV5 response : responses) {
+            // 检查identifier是否与当前会话一致
+            if (response.getIdentifier() != null && isIdentifierMatched(response.getIdentifier())) {
+
+                String messageUId = response.getMessageUId();
+                int readCount = response.getReadCount();
+
+                // 根据messageUId查找对应的UiMessage
+                UiMessage targetMessage = findUIMessageByUId(messageUId);
+                if (targetMessage != null) {
+                    // 更新readCount
+                    targetMessage.setReadReceiptCount(readCount);
+                    // 刷新消息
+                    refreshSingleMessage(targetMessage);
+
+                    RLog.d(
+                            TAG,
+                            "Updated readCount for message: "
+                                    + messageUId
+                                    + ", readCount: "
+                                    + readCount);
+                } else {
+                    RLog.w(TAG, "Message not found for UID: " + messageUId);
+                }
+            }
+        }
+    }
+
+    /**
+     * 检查ConversationIdentifier是否与当前会话匹配
+     *
+     * @param identifier 要检查的会话标识
+     * @return true如果匹配当前会话
+     */
+    private boolean isIdentifierMatched(ConversationIdentifier identifier) {
+        if (mConversationIdentifier == null || identifier == null) {
+            return false;
+        }
+
+        return mConversationIdentifier.getType() == identifier.getType()
+                && Objects.equals(mConversationIdentifier.getTargetId(), identifier.getTargetId());
+    }
+
+    /**
+     * 根据消息UID查找UiMessage
+     *
+     * @param messageUId 消息UID
+     * @return 找到的UiMessage，如果没找到返回null
+     */
+    private UiMessage findUIMessageByUId(String messageUId) {
+        if (messageUId == null || messageUId.isEmpty()) {
+            return null;
+        }
+
+        for (UiMessage uiMessage : mUiMessages) {
+            if (messageUId.equals(uiMessage.getUId())) {
+                return uiMessage;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 检查是否应该跳过 UnknownMessage
      *
      * @param message 消息对象
@@ -2318,36 +2408,5 @@ public class MessageViewModel extends AndroidViewModel
             return RongConfigCenter.featureConfig().isShowUnknownMessage();
         }
         return true;
-    }
-
-    /**
-     * 同步 UnReadMessageManager 未读数变更 注意：如果 rc_read_receipt 和 rc_enable_sync_read_status 同时设置为false，
-     * 则 UnReadMessageManager 不会触发变更，需要手动触发
-     */
-    private void syncConversationUnReadStatus(Conversation.ConversationType type, String targetId) {
-        ConversationConfig config = RongConfigCenter.conversationConfig();
-        // 打开多端阅读状态同步功能
-        if (config.isEnableMultiDeviceSync(type)) {
-            return;
-        }
-        // ConversationConfig的 isShowReadReceipt 与 isShowReadReceiptRequest 支持的类型
-        if (Conversation.ConversationType.PRIVATE != type
-                && Conversation.ConversationType.ENCRYPTED != type
-                && Conversation.ConversationType.GROUP != type
-                && Conversation.ConversationType.DISCUSSION != type) {
-            return;
-        }
-        if (!config.isShowReadReceipt(type) && !config.isShowReadReceiptRequest(type)) {
-            RLog.d(TAG, "syncConversationUnReadStatus");
-            UnReadMessageManager.getInstance().onSyncConversationReadStatus(type, targetId);
-        }
-    }
-
-    /** 消息Item曝光，发送已读回执 */
-    public void onItemViewVisible(boolean visible, UiMessage data) {
-        if (!visible || data == null || data.getMessage() == null) {
-            return;
-        }
-        mReadReceiptV5Handler.sendReadReceiptResponseV5(data.getMessage());
     }
 }

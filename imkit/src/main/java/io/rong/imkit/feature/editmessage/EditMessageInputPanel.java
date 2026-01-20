@@ -4,12 +4,10 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -26,55 +24,26 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.conversation.extension.component.emoticon.EmoticonBoard;
-import io.rong.imkit.event.actionevent.BaseMessageEvent;
-import io.rong.imkit.event.actionevent.DeleteEvent;
-import io.rong.imkit.event.actionevent.RecallEvent;
 import io.rong.imkit.feature.mention.RongMentionManager;
-import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
-import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.RongViewUtils;
 import io.rong.imkit.utils.keyboard.KeyboardHeightObserver;
 import io.rong.imkit.widget.RongEditText;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
-import io.rong.imlib.RongIMClient;
-import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.model.ConversationIdentifier;
-import io.rong.imlib.model.Message;
-import io.rong.message.RecallNotificationMessage;
-import io.rong.message.ReferenceMessage;
-import java.util.List;
 
-public class EditMessageInputPanel extends BaseMessageEvent
-        implements KeyboardHeightObserver,
-                View.OnAttachStateChangeListener,
-                RongIMClient.OnRecallMessageListener {
-
-    /** 用于拼接用户名和内容的冒号分隔符 */
-    private static final String COLON_SEPARATOR = ":";
-
+public class EditMessageInputPanel implements KeyboardHeightObserver {
     private View mRootView;
     private RongExtensionViewModel mExtensionViewModel;
     private ConversationIdentifier mConversationIdentifier;
     private Fragment mFragment;
-    // 编辑消息uid，外部传入
-    private String editMsgUid;
-    // 编辑消息所引用的消息uid，外部传入
-    private String referUid;
-    // 引用的内容
-    private String referContent;
-    private EditMessageHandler mEditMessageHandler;
 
     // 布局中的控件
     private TextView mReferenceContent;
@@ -84,36 +53,23 @@ public class EditMessageInputPanel extends BaseMessageEvent
     private LinearLayout mEditTimeoutContainer;
     private ImageView mCancelButton;
     private ImageView mConfirmButton;
+
     // 全屏输入的Dialog
     private Dialog mExpandDialog;
     // 是否编辑过期
     private boolean modifiable = false;
-    // 当前输入框的焦点开始位置索引
-    private int selectionStart = 0;
 
     @SuppressLint("ClickableViewAccessibility")
     EditMessageInputPanel(
-            Fragment fragment,
-            ViewGroup parent,
-            ConversationIdentifier conversationIdentifier,
-            String referUid,
-            String editMsgUid) {
+            Fragment fragment, ViewGroup parent, ConversationIdentifier conversationIdentifier) {
         if (fragment == null || fragment.getContext() == null) {
             return;
         }
         mFragment = fragment;
         mConversationIdentifier = conversationIdentifier;
-        this.editMsgUid = editMsgUid;
-        this.referUid = referUid;
-        mEditMessageHandler = new EditMessageHandler();
-        mEditMessageHandler.addDataChangeListener(
-                EditMessageHandler.KEY_ON_MESSAGE_MODIFIED, this::onMessageModify);
-        mEditMessageHandler.addDataChangeListener(
-                EditMessageHandler.KEY_ON_MESSAGE_REFRESH, this::onRefreshReferenceMessage);
         mRootView =
                 LayoutInflater.from(fragment.getContext())
                         .inflate(R.layout.rc_edit_message_input_panel, parent, false);
-        mRootView.addOnAttachStateChangeListener(this);
 
         // 初始化布局中的控件
         mReferenceContent = mRootView.findViewById(R.id.rc_reference_content);
@@ -123,10 +79,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
         mEditTimeoutContainer = mRootView.findViewById(R.id.rc_edit_timeout_container);
         mCancelButton = mRootView.findViewById(R.id.rc_edit_message_cancel_btn);
         mConfirmButton = mRootView.findViewById(R.id.rc_edit_message_confirm_btn);
-        mEditText.setBackgroundResource(
-                IMKitThemeManager.dynamicResource(
-                        R.drawable.rc_lively_panel_input_background,
-                        R.drawable.rc_ext_panel_editbox_background));
+
         mReferenceContent.setText("");
         mExpandButton.setOnClickListener(view -> expandInputView());
         mEmojiButton.setOnClickListener(
@@ -139,10 +92,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
                 view -> {
                     if (!modifiable) {
                         mEditTimeoutContainer.setVisibility(VISIBLE);
-                        mConfirmButton.setImageResource(
-                                IMKitThemeManager.getAttrResId(
-                                        mConfirmButton.getContext(),
-                                        R.attr.rc_conversation_msg_edit_confirm_unable_img));
+                        mConfirmButton.setImageResource(R.drawable.rc_edit_message_confirm_unable);
                         return;
                     }
                     IRongCoreCallback.OperationCallback callback =
@@ -159,10 +109,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
                                         modifiable = false;
                                         mEditTimeoutContainer.setVisibility(VISIBLE);
                                         mConfirmButton.setImageResource(
-                                                IMKitThemeManager.getAttrResId(
-                                                        mConfirmButton.getContext(),
-                                                        R.attr
-                                                                .rc_conversation_msg_edit_confirm_unable_img));
+                                                R.drawable.rc_edit_message_confirm_unable);
                                     }
                                 }
                             };
@@ -182,19 +129,13 @@ public class EditMessageInputPanel extends BaseMessageEvent
                         if (!modifiable) {
                             mEditTimeoutContainer.setVisibility(VISIBLE);
                             mConfirmButton.setImageResource(
-                                    IMKitThemeManager.getAttrResId(
-                                            mConfirmButton.getContext(),
-                                            R.attr.rc_conversation_msg_edit_confirm_unable_img));
+                                    R.drawable.rc_edit_message_confirm_unable);
                         } else {
                             boolean isClear = TextUtils.isEmpty(editable.toString());
                             mConfirmButton.setImageResource(
-                                    IMKitThemeManager.getAttrResId(
-                                            mConfirmButton.getContext(),
-                                            isClear
-                                                    ? R.attr
-                                                            .rc_conversation_msg_edit_confirm_unable_img
-                                                    : R.attr
-                                                            .rc_conversation_msg_edit_confirm_enable_img));
+                                    isClear
+                                            ? R.drawable.rc_edit_message_confirm_unable
+                                            : R.drawable.rc_edit_message_confirm_enable);
                             mConfirmButton.setClickable(!isClear);
                         }
                     }
@@ -220,32 +161,17 @@ public class EditMessageInputPanel extends BaseMessageEvent
         EditMessageManager.getInstance().addKeyboardHeightObserver(this);
     }
 
-    // 设置重新编辑内容，引用的内容
-    public void setContent(EditMessageConfig config, boolean showKeyBoard) {
-        mEditText.setText(config.content, false);
-        mEditText.setSelection(config.content.length());
+    public void setContent(String content, String referContent, boolean showKeyBoard) {
+        mEditText.setText(content, false);
+        mEditText.setSelection(content.length());
         if (showKeyBoard) {
             mEditText.requestFocus();
             mExtensionViewModel.forceSetSoftInputKeyBoard(true);
         }
-        setReferenceContent(config.referContent);
-    }
-
-    // 设置引用的内容（非全屏引用和全屏引用）
-    private void setReferenceContent(String referContent) {
-        ExecutorFactory.runOnMainThreadSafety(
-                () -> {
-                    if (mReferenceContent != null && !TextUtils.isEmpty(referContent)) {
-                        mReferenceContent.setVisibility(VISIBLE);
-                        EditMessageInputPanel.this.referContent = referContent;
-                        mReferenceContent.setText(referContent);
-                        if (mExpandDialog != null
-                                && mExpandDialog.isShowing()
-                                && mExpandDialog.getWindow() != null) {
-                            setExpandReferContent(mExpandDialog.getWindow().getDecorView());
-                        }
-                    }
-                });
+        if (!TextUtils.isEmpty(referContent)) {
+            mReferenceContent.setVisibility(VISIBLE);
+            mReferenceContent.setText(referContent);
+        }
     }
 
     /** 展开全屏输入页面 展开过程：1，收起软键盘；2，停顿100ms，从下往上打开全屏输入页面，打开软键盘 */
@@ -253,9 +179,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
         if (mFragment == null || mFragment.getContext() == null) {
             return;
         }
-        if (mEditText != null) {
-            this.selectionStart = mEditText.getSelectionStart();
-        }
+
         // 1. 收起软键盘
         if (mExtensionViewModel != null) {
             mExtensionViewModel.forceSetSoftInputKeyBoard(false);
@@ -271,10 +195,6 @@ public class EditMessageInputPanel extends BaseMessageEvent
      * @param expandView 全屏输入页面的视图，如果为null则通过Dialog获取
      */
     private void collapseExpandView(View expandView, boolean exitEditMode) {
-        RongEditText expandEditText = expandView.findViewById(R.id.rc_edit_btn_expand);
-        if (expandEditText != null) {
-            this.selectionStart = expandEditText.getSelectionStart();
-        }
         // 收起全屏输入页面，收起软键盘
         if (mExtensionViewModel != null) {
             mExtensionViewModel.forceSetSoftInputKeyBoard(false);
@@ -299,17 +219,13 @@ public class EditMessageInputPanel extends BaseMessageEvent
         ViewGroup expandTimeoutContainer =
                 expandView.findViewById(R.id.rc_edit_timeout_expand_container);
         RongEditText expandEditText = expandView.findViewById(R.id.rc_edit_btn_expand);
+        TextView expandReferContent = expandView.findViewById(R.id.rc_reference_content);
         ImageView expandCollapseButton = expandView.findViewById(R.id.rc_edit_message_collapse_btn);
         ImageView expandConfirmButton = expandView.findViewById(R.id.rc_edit_message_confirm_btn);
         ImageView expandCancelButton = expandView.findViewById(R.id.rc_edit_message_cancel_btn);
         ImageView expandEmojiButton = expandView.findViewById(R.id.rc_edit_message_emoji_btn);
-        ConstraintLayout expandEmojiBoardContainer =
+        ViewGroup expandEmojiBoardContainer =
                 expandView.findViewById(R.id.rc_emoji_board_container);
-        expandEditText.setBackgroundResource(
-                IMKitThemeManager.dynamicResource(
-                        R.drawable.rc_lively_panel_input_background,
-                        R.drawable.rc_ext_panel_editbox_background));
-        updateBoardContainerHeight(expandEmojiBoardContainer);
         // 设置emoji表情面板，但是隐藏状态的。
         EmoticonBoard mEmoticonBoard =
                 new EmoticonBoard(
@@ -320,19 +236,31 @@ public class EditMessageInputPanel extends BaseMessageEvent
                         false);
         RongViewUtils.addView(expandEmojiBoardContainer, mEmoticonBoard.getView());
         expandEmojiBoardContainer.setVisibility(GONE);
+        // 同步当前输入内容到全屏页面
+        if (mEditText != null && !TextUtils.isEmpty(mEditText.getText())) {
+            int selectionStart = mEditText.getSelectionStart();
+            int selectionEnd = mEditText.getSelectionEnd();
+            expandEditText.setText(mEditText.getText().toString(), false);
+            expandEditText.setSelection(selectionStart, selectionEnd);
+        }
+        if (mReferenceContent != null && !TextUtils.isEmpty(mReferenceContent.getText())) {
+            expandReferContent.setText(mReferenceContent.getText().toString());
+        }
         // 设置是否可以编辑状态
-        if (modifiable) {
-            expandTimeoutContainer.setVisibility(GONE);
-            expandConfirmButton.setImageResource(
-                    IMKitThemeManager.getAttrResId(
-                            mConfirmButton.getContext(),
-                            R.attr.rc_conversation_msg_edit_confirm_enable_img));
-        } else {
+        if (!modifiable) {
             expandTimeoutContainer.setVisibility(VISIBLE);
+            expandConfirmButton.setImageResource(R.drawable.rc_edit_message_confirm_unable);
+            expandConfirmButton.setClickable(false);
+        } else {
+            boolean isClear =
+                    mEditText == null
+                            || mEditText.getText() == null
+                            || TextUtils.isEmpty(mEditText.getText().toString());
             expandConfirmButton.setImageResource(
-                    IMKitThemeManager.getAttrResId(
-                            mConfirmButton.getContext(),
-                            R.attr.rc_conversation_msg_edit_confirm_unable_img));
+                    isClear
+                            ? R.drawable.rc_edit_message_confirm_unable
+                            : R.drawable.rc_edit_message_confirm_enable);
+            expandConfirmButton.setClickable(!isClear);
         }
         expandEditText.addTextChangedListener(
                 new TextWatcher() {
@@ -348,19 +276,14 @@ public class EditMessageInputPanel extends BaseMessageEvent
                         if (!modifiable) {
                             expandTimeoutContainer.setVisibility(VISIBLE);
                             expandConfirmButton.setImageResource(
-                                    IMKitThemeManager.getAttrResId(
-                                            mConfirmButton.getContext(),
-                                            R.attr.rc_conversation_msg_edit_confirm_unable_img));
+                                    R.drawable.rc_edit_message_confirm_unable);
+                            expandConfirmButton.setClickable(false);
                         } else {
                             boolean isClear = TextUtils.isEmpty(editable.toString());
                             expandConfirmButton.setImageResource(
-                                    IMKitThemeManager.getAttrResId(
-                                            expandConfirmButton.getContext(),
-                                            isClear
-                                                    ? R.attr
-                                                            .rc_conversation_msg_edit_confirm_unable_img
-                                                    : R.attr
-                                                            .rc_conversation_msg_edit_confirm_enable_img));
+                                    isClear
+                                            ? R.drawable.rc_edit_message_confirm_unable
+                                            : R.drawable.rc_edit_message_confirm_enable);
                             expandConfirmButton.setClickable(!isClear);
                         }
                     }
@@ -390,9 +313,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
                     if (!modifiable) {
                         expandTimeoutContainer.setVisibility(VISIBLE);
                         expandConfirmButton.setImageResource(
-                                IMKitThemeManager.getAttrResId(
-                                        mConfirmButton.getContext(),
-                                        R.attr.rc_conversation_msg_edit_confirm_unable_img));
+                                R.drawable.rc_edit_message_confirm_unable);
                         return;
                     }
                     IRongCoreCallback.OperationCallback callback =
@@ -409,10 +330,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
                                         modifiable = false;
                                         expandTimeoutContainer.setVisibility(VISIBLE);
                                         expandConfirmButton.setImageResource(
-                                                IMKitThemeManager.getAttrResId(
-                                                        mConfirmButton.getContext(),
-                                                        R.attr
-                                                                .rc_conversation_msg_edit_confirm_unable_img));
+                                                R.drawable.rc_edit_message_confirm_unable);
                                     }
                                 }
                             };
@@ -432,14 +350,6 @@ public class EditMessageInputPanel extends BaseMessageEvent
                         emojiBoardContainer.setVisibility(VISIBLE);
                     }
                 });
-
-        // 同步当前输入内容到全屏页面
-        if (mEditText != null && !TextUtils.isEmpty(mEditText.getText())) {
-            expandEditText.setText(mEditText.getText().toString(), false);
-            expandEditText.setSelection(this.selectionStart, this.selectionStart);
-        }
-        // 同步当前引用内容到全屏页面
-        setExpandReferContent(expandView);
 
         mExpandDialog.setContentView(expandView);
         mExpandDialog.setCancelable(false);
@@ -530,12 +440,28 @@ public class EditMessageInputPanel extends BaseMessageEvent
                 }
                 RongEditText expandEditText = expandView.findViewById(R.id.rc_edit_btn_expand);
                 if (expandEditText != null) {
+                    // 同步全屏页面输入内容到当前输入内容
                     String content = "";
                     if (!TextUtils.isEmpty(expandEditText.getText())) {
                         content = expandEditText.getText().toString();
                     }
+                    int selectionStart = expandEditText.getSelectionStart();
+                    int selectionEnd = expandEditText.getSelectionEnd();
                     mEditText.setText(content, false);
-                    mEditText.setSelection(this.selectionStart, this.selectionStart);
+                    mEditText.setSelection(selectionStart, selectionEnd);
+                    // 设置是否可以编辑状态
+                    if (!modifiable) {
+                        mEditTimeoutContainer.setVisibility(VISIBLE);
+                        mConfirmButton.setImageResource(R.drawable.rc_edit_message_confirm_unable);
+                        mConfirmButton.setClickable(false);
+                    } else {
+                        boolean isClear = TextUtils.isEmpty(content);
+                        mConfirmButton.setImageResource(
+                                isClear
+                                        ? R.drawable.rc_edit_message_confirm_unable
+                                        : R.drawable.rc_edit_message_confirm_enable);
+                        mConfirmButton.setClickable(!isClear);
+                    }
                 }
             }
         }
@@ -582,15 +508,6 @@ public class EditMessageInputPanel extends BaseMessageEvent
         expandView.startAnimation(slideDownAnimation);
     }
 
-    private void setExpandReferContent(View expandView) {
-        if (expandView != null
-                && mReferenceContent != null
-                && !TextUtils.isEmpty(mReferenceContent.getText())) {
-            TextView expandReferContent = expandView.findViewById(R.id.rc_reference_content);
-            expandReferContent.setText(mReferenceContent.getText().toString());
-        }
-    }
-
     // 监听软键盘弹起落下
     public void onKeyboardStatusChange(boolean isKeyboardShow) {
         if (mExpandDialog == null) {
@@ -604,43 +521,6 @@ public class EditMessageInputPanel extends BaseMessageEvent
             emojiBoardContainer.setVisibility(
                     EditMessageManager.getInstance().isEmoticonMode() ? VISIBLE : GONE);
         }
-    }
-
-    /** 重新技术Emoji面板高度，防止异常case导致过高。 注意：此逻辑使用了RongExtension#updateInputMode的同名方法处理高度。 */
-    private void updateBoardContainerHeight(ConstraintLayout expandEmojiBoardContainer) {
-        if (mFragment == null || mFragment.getContext() == null) {
-            return;
-        }
-        if (!useKeyboardHeightProvider()) {
-            return;
-        }
-        Context context = mFragment.getContext();
-        int saveKeyboardHeight =
-                RongUtils.getSaveKeyBoardHeight(
-                        context, context.getResources().getConfiguration().orientation);
-        ViewGroup.LayoutParams layoutParams = expandEmojiBoardContainer.getLayoutParams();
-        int boardHeight =
-                expandEmojiBoardContainer
-                        .getResources()
-                        .getDimensionPixelSize(R.dimen.rc_extension_board_height);
-        if (saveKeyboardHeight <= 0 && layoutParams.height != boardHeight) {
-            layoutParams.height = boardHeight;
-            expandEmojiBoardContainer.setLayoutParams(layoutParams);
-        } else if (layoutParams.height != saveKeyboardHeight) {
-            layoutParams.height = saveKeyboardHeight;
-            expandEmojiBoardContainer.setLayoutParams(layoutParams);
-        }
-    }
-
-    private boolean useKeyboardHeightProvider() {
-        if (mFragment == null || mFragment.getActivity() == null) {
-            return false;
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Activity activity = mFragment.getActivity();
-            return activity != null && !activity.isInMultiWindowMode();
-        }
-        return false;
     }
 
     public void onDestroy() {
@@ -658,9 +538,6 @@ public class EditMessageInputPanel extends BaseMessageEvent
         mEditText.removeAllTextChangedListener();
         mEditText.setOnBackspaceListener(null);
         EditMessageManager.getInstance().removeKeyboardHeightObserver(this);
-        mEditMessageHandler.stop();
-        IMCenter.getInstance().removeMessageEventListener(this);
-        IMCenter.getInstance().removeOnRecallMessageListener(this);
     }
 
     View getRootView() {
@@ -675,132 +552,15 @@ public class EditMessageInputPanel extends BaseMessageEvent
         this.modifiable = modifiable;
         if (modifiable) {
             mEditTimeoutContainer.setVisibility(GONE);
-            mConfirmButton.setImageResource(
-                    IMKitThemeManager.getAttrResId(
-                            mConfirmButton.getContext(),
-                            R.attr.rc_conversation_msg_edit_confirm_enable_img));
+            mConfirmButton.setImageResource(R.drawable.rc_edit_message_confirm_enable);
         } else {
             mEditTimeoutContainer.setVisibility(VISIBLE);
-            mConfirmButton.setImageResource(
-                    IMKitThemeManager.getAttrResId(
-                            mConfirmButton.getContext(),
-                            R.attr.rc_conversation_msg_edit_confirm_unable_img));
+            mConfirmButton.setImageResource(R.drawable.rc_edit_message_confirm_unable);
         }
     }
 
     @Override
     public void onKeyboardHeightChanged(int orientation, boolean isOpen, int keyboardHeight) {
         onKeyboardStatusChange(isOpen);
-    }
-
-    @Override
-    public void onViewAttachedToWindow(@NonNull View v) {
-        IMCenter.getInstance().addMessageEventListener(this);
-        IMCenter.getInstance().addOnRecallMessageListener(this);
-    }
-
-    @Override
-    public void onViewDetachedFromWindow(@NonNull View v) {
-        v.removeOnAttachStateChangeListener(this);
-        onDestroy();
-    }
-
-    @Override
-    public boolean onMessageRecalled(Message recallMessage, RecallNotificationMessage recall) {
-        // 非本端撤回
-        onMessageRecalled(recallMessage);
-        return false;
-    }
-
-    @Override
-    public void onRecallEvent(@NonNull RecallEvent event) {
-        // 本端撤回
-        onMessageRecalled(event.getRecallMessage());
-    }
-
-    @Override
-    public void onDeleteMessage(@NonNull DeleteEvent event) {
-        // 本端删除
-        if (mFragment == null || mFragment.getContext() == null) {
-            return;
-        }
-        // 如果引用内容已经是终态：撤回或者删除，则不需要查询
-        String delete = mFragment.getContext().getString(R.string.rc_reference_status_delete);
-        String recall = mFragment.getContext().getString(R.string.rc_reference_status_recall);
-        if (isReferContentEndWithStatus(referContent, delete)
-                || isReferContentEndWithStatus(referContent, recall)) {
-            return;
-        }
-        // 更新被引用内容状态时，判断被删除消息的uid与当前编辑组件保存的uid相同才更新。这里的问题是DeleteEvent只有消息ID数组。
-        // IMCenter中删除消息业务调用了2个接口触发DeleteEvent，需要使用删本地接口回调的DeleteEvent，但无法满足需求：
-        // 删本地（deleteMessages入参是消息id数组） + 删远端(deleteRemoteMessages入参是Message数组，按配置删除）。
-        // 解决：1，IMCenter新增接口返回Message（无实际必要新增接口）；2，重新查询改消息更新。
-        mEditMessageHandler.refreshReferenceMessage(editMsgUid, mConversationIdentifier);
-    }
-
-    /**
-     * 检查引用内容是否以指定的状态结尾 判断规则：必须以 COLON_SEPARATOR + status 结尾，且只能有一个这样的组合
-     *
-     * @param referContent 引用内容
-     * @param status 状态字符串（delete 或 recall）
-     * @return true 如果以指定状态结尾，false 否则
-     */
-    private boolean isReferContentEndWithStatus(String referContent, String status) {
-        if (TextUtils.isEmpty(referContent) || TextUtils.isEmpty(status)) {
-            return false;
-        }
-
-        String expectedSuffix = COLON_SEPARATOR + status;
-
-        // 检查是否以期望的后缀结尾
-        if (!referContent.endsWith(expectedSuffix)) {
-            return false;
-        }
-
-        // 确保只有一个 COLON_SEPARATOR + status 的组合
-        // 去掉最后的后缀，检查剩余部分是否还包含相同的后缀
-        String remainingContent =
-                referContent.substring(0, referContent.length() - expectedSuffix.length());
-        return !remainingContent.contains(expectedSuffix);
-    }
-
-    // 更新引用内容
-    private void onRefreshReferenceMessage(Message message) {
-        if (mFragment == null || mFragment.getContext() == null) {
-            return;
-        }
-        if (!(message.getContent() instanceof ReferenceMessage)) {
-            return;
-        }
-        String name = EditMessageUtils.getDisplayName(message);
-        String content = EditMessageUtils.getReferContent(message);
-        setReferenceContent(name + COLON_SEPARATOR + content);
-    }
-
-    // 撤回后，更新引用内容
-    private void onMessageRecalled(Message recallMessage) {
-        if (mFragment == null || mFragment.getContext() == null) {
-            return;
-        }
-        if (!TextUtils.equals(referUid, recallMessage.getUId())) {
-            return;
-        }
-        String name = EditMessageUtils.getDisplayName(recallMessage);
-        String content = mFragment.getContext().getString(R.string.rc_reference_status_recall);
-        setReferenceContent(name + COLON_SEPARATOR + content);
-    }
-
-    private void onMessageModify(List<Message> messages) {
-        if (mFragment == null || mFragment.getContext() == null) {
-            return;
-        }
-        for (Message message : messages) {
-            if (!TextUtils.equals(message.getUId(), referUid)) {
-                continue;
-            }
-            String name = EditMessageUtils.getDisplayName(message);
-            String content = EditMessageUtils.getOriginalContent(message);
-            setReferenceContent(name + COLON_SEPARATOR + content);
-        }
     }
 }

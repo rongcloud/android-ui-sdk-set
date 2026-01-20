@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 import io.rong.common.rlog.RLog;
 import io.rong.contactcard.activities.ContactDetailActivity;
 import io.rong.contactcard.activities.ContactListActivity;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.component.plugin.IPluginModule;
 import io.rong.imkit.utils.ToastUtils;
@@ -34,12 +33,7 @@ public class ContactCardPlugin implements IPluginModule {
     @Override
     public Drawable obtainDrawable(Context context) {
         this.context = context;
-        int drawableResId =
-                IMKitThemeManager.dynamicResource(
-                        context,
-                        io.rong.imkit.R.attr.rc_conversation_plugin_item_contact_img,
-                        R.drawable.rc_contact_plugin_icon);
-        return ContextCompat.getDrawable(context, drawableResId);
+        return ContextCompat.getDrawable(context, R.drawable.rc_contact_plugin_icon);
     }
 
     @Override

@@ -8,6 +8,7 @@ import io.rong.imkit.conversation.messgelist.viewmodel.MessageViewModel;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.publicservice.message.PublicServiceCommandMessage;
 import io.rong.imlib.publicservice.model.PublicServiceMenu;
@@ -84,9 +85,8 @@ public class PublicServiceBusinessProcessor extends BaseBusinessProcessor {
                     RongConfigCenter.conversationConfig()
                             .isEnableMultiDeviceSync(viewModel.getCurConversationType());
             if (syncReadStatus) {
-                IMCenter.getInstance()
-                        .syncConversationReadStatus(
-                                viewModel.getConversationIdentifier(), message.getSentTime(), null);
+                syncConversationReadStatus(
+                        viewModel.getConversationIdentifier(), message.getSentTime(), null);
             }
         }
         return super.onReceived(viewModel, message, left, hasPackage, offline);
@@ -99,14 +99,12 @@ public class PublicServiceBusinessProcessor extends BaseBusinessProcessor {
                 RongConfigCenter.conversationConfig()
                         .isEnableMultiDeviceSync(viewModel.getCurConversationType());
         if (syncReadStatus) {
-            IMCenter.getInstance()
-                    .syncConversationReadStatus(
-                            viewModel.getConversationIdentifier(),
-                            conversation.getSentTime(),
-                            null);
+            syncConversationReadStatus(
+                    viewModel.getConversationIdentifier(), conversation.getSentTime(), null);
         }
-        IMCenter.getInstance()
-                .syncConversationReadStatus(
-                        viewModel.getCurConversationType(), viewModel.getCurTargetId(), 0, null);
+        ConversationIdentifier identifier =
+                ConversationIdentifier.obtain(
+                        viewModel.getCurConversationType(), viewModel.getCurTargetId(), "");
+        syncConversationReadStatus(identifier, 0, null);
     }
 }

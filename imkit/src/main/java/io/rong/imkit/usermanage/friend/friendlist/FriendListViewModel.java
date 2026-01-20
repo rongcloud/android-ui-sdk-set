@@ -8,9 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.model.ContactModel;
-import io.rong.imkit.model.OnlineStatusFriendInfo;
 import io.rong.imkit.usermanage.handler.FriendInfoHandler;
-import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.utils.StringUtils;
 import io.rong.imlib.listener.FriendEventListener;
 import io.rong.imlib.model.DirectionType;
@@ -18,7 +16,6 @@ import io.rong.imlib.model.FriendApplicationStatus;
 import io.rong.imlib.model.FriendApplicationType;
 import io.rong.imlib.model.FriendInfo;
 import io.rong.imlib.model.QueryFriendsDirectionType;
-import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +30,6 @@ import java.util.Map;
 public class FriendListViewModel extends BaseViewModel {
 
     private final MutableLiveData<List<ContactModel>> allContactsLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Map<String, SubscribeUserOnlineStatus>> onlineStatusLiveData =
-            new MutableLiveData<>();
     private final FriendInfoHandler friendInfoHandler;
 
     private final FriendEventListener listener =
@@ -89,13 +84,8 @@ public class FriendListViewModel extends BaseViewModel {
                     public void onDataChange(List<FriendInfo> friendInfos) {
                         List<ContactModel> contactModels = sortAndCategorizeContacts(friendInfos);
                         allContactsLiveData.postValue(contactModels); // 初始状态下，展示所有联系人
-                        friendInfoHandler.getUserOnlineStatus(friendInfos);
                     }
                 });
-        friendInfoHandler.addDataChangeListener(
-                FriendInfoHandler.KEY_GET_FRIENDS_ONLINE_STATUS,
-                (OnDataChangeEnhancedListener<Map<String, SubscribeUserOnlineStatus>>)
-                        onlineStatusLiveData::postValue);
 
         IMCenter.getInstance().addFriendEventListener(listener);
         getAllFriends();
@@ -103,10 +93,6 @@ public class FriendListViewModel extends BaseViewModel {
 
     public LiveData<List<ContactModel>> getAllContactsLiveData() {
         return allContactsLiveData;
-    }
-
-    public LiveData<Map<String, SubscribeUserOnlineStatus>> getOnlineStatusLiveData() {
-        return onlineStatusLiveData;
     }
 
     private List<ContactModel> sortAndCategorizeContacts(List<FriendInfo> friendInfos) {
@@ -153,7 +139,7 @@ public class FriendListViewModel extends BaseViewModel {
             // 添加联系人 ContactModel
             contactModels.add(
                     ContactModel.obtain(
-                            new OnlineStatusFriendInfo(friendInfo, false),
+                            friendInfo,
                             ContactModel.ItemType.CONTENT,
                             ContactModel.CheckType.UNCHECKED));
         }

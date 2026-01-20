@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rc_popup_dialog_corner_style"
     android:gravity="center_vertical"
-    android:orientation="vertical"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/rl_popup_dialog_title"
@@ -22,7 +20,7 @@
             android:includeFontPadding="false"
             android:paddingStart="19dp"
             android:singleLine="true"
-            android:textColor="?attr/rc_text_primary_color"
+            android:textColor="@color/rc_popup_dialog_text_color"
             android:textSize="20sp"
             android:visibility="gone" />
     </RelativeLayout>
@@ -41,7 +39,7 @@
             android:includeFontPadding="false"
             android:paddingStart="19dp"
             android:paddingEnd="19dp"
-            android:textColor="?attr/rc_text_primary_color"
+            android:textColor="@color/rc_popup_dialog_text_color"
             android:textSize="17sp" />
     </RelativeLayout>
 

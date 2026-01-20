@@ -15,7 +15,6 @@
 
     <TextView
         android:id="@+id/tv_group_member_name"
-        android:textDirection="locale"
         android:layout_width="64dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/iv_group_member_avatar"
@@ -25,6 +24,6 @@
         android:ellipsize="end"
         android:gravity="center"
         android:maxLines="1"
-        android:textColor="?attr/rc_text_primary_color"
+        android:textColor="#111F2C"
         android:textSize="12sp" />
 </RelativeLayout>

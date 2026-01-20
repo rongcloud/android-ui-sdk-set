@@ -1,41 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rc_bg_item"
-    android:orientation="vertical"
-    tools:theme="@style/RCTraditionLightTheme">
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/rc_margin_size_16"
-        android:paddingTop="11dp"
-        android:paddingEnd="@dimen/rc_margin_size_16"
-        android:paddingBottom="11dp">
+        android:paddingLeft="@dimen/rc_margin_size_16"
+        android:paddingTop="@dimen/rc_margin_size_8"
+        android:paddingRight="@dimen/rc_margin_size_16"
+        android:paddingBottom="@dimen/rc_margin_size_8">
 
         <!-- 群头像 -->
         <ImageView
             android:id="@+id/iv_head"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:scaleType="centerCrop"
-            android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
+            android:src="@drawable/rc_default_portrait" />
 
         <!-- 群名称 -->
         <TextView
             android:id="@+id/tv_title"
-            android:textDirection="locale"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/rc_margin_size_12"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:singleLine="true"
-            android:textColor="?attr/rc_text_primary_color"
+            android:textColor="@color/rc_text_main_color"
             android:textSize="17sp" />
 
     </LinearLayout>
@@ -44,8 +41,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:layout_marginStart="60dp"
-        android:layout_marginEnd="10dp"
-        android:background="?attr/rc_line_background_color" />
+        android:layout_marginStart="64dp"
+        android:background="@color/rc_divider_color" />
 
 </LinearLayout>
