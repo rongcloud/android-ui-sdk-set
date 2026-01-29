@@ -82,6 +82,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
                 public boolean onMessageRecalled(
                         Message message, RecallNotificationMessage recallNotificationMessage) {
                     if (currentSelectMessageId == message.getMessageId()) {
+                        // 暂停当前视频播放
+                        pauseCurrentVideo();
                         new AlertDialog.Builder(
                                         SightPlayerActivity.this,
                                         AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
@@ -125,6 +127,8 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
                 @Override
                 public void onRecallEvent(RecallEvent event) {
                     if (currentSelectMessageId == event.getMessageId()) {
+                        // 暂停当前视频播放
+                        pauseCurrentVideo();
                         new AlertDialog.Builder(
                                         SightPlayerActivity.this,
                                         AlertDialog.THEME_DEVICE_DEFAULT_LIGHT)
@@ -284,6 +288,17 @@ public class SightPlayerActivity extends RongBaseNoActionbarActivity {
         mViewPager = findViewById(R.id.viewpager);
         mViewPager.registerOnPageChangeCallback(mPageChangeListener);
         mViewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
+    }
+
+    /** 暂停当前正在播放的视频 */
+    private void pauseCurrentVideo() {
+        int currentPosition = mViewPager.getCurrentItem();
+        Fragment fragment =
+                getSupportFragmentManager()
+                        .findFragmentByTag("f" + mVideoPagerAdapter.getItemId(currentPosition));
+        if (fragment instanceof SightPlayerFragment) {
+            ((SightPlayerFragment) fragment).pauseVideo();
+        }
     }
 
     public static class VideoPagerAdapter extends FragmentStateAdapter {

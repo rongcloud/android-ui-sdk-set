@@ -278,7 +278,7 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         // 如果在主线程，就开启线程去发送通知
         if (ExecutorFactory.isMainThread()) {
             ExecutorHelper.getInstance()
-                    .compressExecutor()
+                    .notificationExecutor()
                     .execute(() -> prepareToSendNotification(message));
             return;
         }
@@ -479,11 +479,22 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         if (mIsInForeground) {
             return true;
         }
+
+        // 如果关闭通知属性为 true 则不弹通知。
         MessageConfig messageConfig = message.getMessageConfig();
         if (messageConfig != null && messageConfig.isDisableNotification()) {
             return true;
         }
-        if (!isQuietSettingSynced) { // 全局免打扰设置没有同步成功时，默认不弹通知。
+
+        // 通知被拦截，则 SDK 不再处理。
+        NotificationConfig.Interceptor interceptor =
+                RongConfigCenter.notificationConfig().getInterceptor();
+        if (interceptor != null && interceptor.isNotificationIntercepted(message)) {
+            return true;
+        }
+
+        // 全局免打扰设置没有同步成功时，默认不弹通知。
+        if (!isQuietSettingSynced) {
             getNotificationQuietHours(null);
             return true;
         } else return isInQuietTime();
@@ -923,7 +934,11 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         if (user == null) {
             return;
         }
-        resendNotificationOnInfoUpdate(user.getUserId());
+        if (ExecutorFactory.isMainThread()) {
+            ExecutorHelper.getInstance()
+                    .notificationExecutor()
+                    .execute(() -> resendNotificationOnInfoUpdate(user.getUserId()));
+        }
     }
 
     @Override
@@ -931,7 +946,11 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         if (group == null) {
             return;
         }
-        resendNotificationOnInfoUpdate(group.getId());
+        if (ExecutorFactory.isMainThread()) {
+            ExecutorHelper.getInstance()
+                    .notificationExecutor()
+                    .execute(() -> resendNotificationOnInfoUpdate(group.getId()));
+        }
     }
 
     /**

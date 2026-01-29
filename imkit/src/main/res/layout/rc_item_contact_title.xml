@@ -2,19 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#ebebeb"
+    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="horizontal">
 
     <TextView
         android:id="@+id/tv_catalog_letter"
-        style="@style/TextStyle.Alignment"
+        android:textDirection="locale"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#fff5f6f9"
-        android:paddingStart="@dimen/rc_margin_size_12"
-        android:paddingTop="@dimen/rc_margin_size_4"
-        android:paddingBottom="@dimen/rc_margin_size_4"
+        android:paddingTop="@dimen/rc_margin_size_10"
+        android:paddingBottom="@dimen/rc_margin_size_10"
+        android:textSize="14sp"
         android:text="A"
-        android:textColor="#999999" />
+        android:textColor="?attr/rc_text_primary_color" />
 
 </LinearLayout>

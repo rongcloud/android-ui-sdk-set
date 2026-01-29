@@ -11,6 +11,7 @@ import io.rong.common.FileUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.ExecutorHelper;
@@ -31,7 +32,10 @@ public class FilePlugin implements IPluginModule {
     @Override
     public Drawable obtainDrawable(Context context) {
         this.mContext = context;
-        return ContextCompat.getDrawable(context, R.drawable.rc_ic_files_selector);
+        return ContextCompat.getDrawable(
+                context,
+                IMKitThemeManager.getAttrResId(
+                        context, R.attr.rc_conversation_plugin_item_file_img));
     }
 
     @Override

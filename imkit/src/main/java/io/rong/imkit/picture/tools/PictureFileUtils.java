@@ -22,8 +22,6 @@ import io.rong.common.CursorUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.picture.config.PictureConfig;
 import io.rong.imkit.picture.config.PictureMimeType;
-import io.rong.imkit.picture.permissions.PermissionChecker;
-import io.rong.imkit.utils.AndroidConstant;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -104,18 +102,29 @@ public class PictureFileUtils {
      * @return
      */
     private static File getRootDirFile(Context context, int type) {
-
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return context.getExternalFilesDir(Environment.DIRECTORY_DCIM);
+            return getDir(context, Environment.DIRECTORY_DCIM);
         }
-
         switch (type) {
             case PictureConfig.TYPE_VIDEO:
-                return context.getExternalFilesDir(Environment.DIRECTORY_MOVIES);
+                return getDir(context, Environment.DIRECTORY_MOVIES);
             default:
-                return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+                return getDir(context, Environment.DIRECTORY_PICTURES);
         }
+    }
+
+    private static File getDir(Context context, String dir) {
+        // 大于等于Q使用内部路径
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return context.getExternalFilesDir(dir);
+        }
+        // 小于Q如果有写存储权限，直接使用相册路径，便能拍摄的同时保存到相册
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (!PermissionCheckUtil.checkPermissions(context, permissions)) {
+            return context.getExternalFilesDir(dir);
+        }
+        return Environment.getExternalStoragePublicDirectory(dir);
     }
 
     /** TAG for log messages. */
@@ -174,15 +183,7 @@ public class PictureFileUtils {
     public static String getDataColumn(
             Context context, Uri uri, String selection, String[] selectionArgs) {
         if (!PermissionCheckUtil.checkMediaStoragePermissions(context)) {
-            if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_UPSIDE_DOWN_CAKE) {
-                String[] subPermissions =
-                        new String[] {Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED};
-                if (!PermissionChecker.checkSelfPermission(context, subPermissions)) {
-                    return "";
-                }
-            } else {
-                return "";
-            }
+            return "";
         }
         Cursor cursor = null;
         final String column = "_data";

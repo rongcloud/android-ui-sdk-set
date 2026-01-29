@@ -389,6 +389,13 @@ public class SightPlayerFragment extends Fragment implements EasyVideoCallback {
         }
     }
 
+    /** 暂停视频播放 */
+    public void pauseVideo() {
+        if (mPlaybackVideoFragment != null) {
+            mPlaybackVideoFragment.pause();
+        }
+    }
+
     public static class DownloadMediaMessageCallback
             implements IRongCallback.IDownloadMediaMessageCallback {
         WeakReference<SightPlayerFragment> reference;

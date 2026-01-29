@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
+import io.rong.imlib.model.FriendInfo;
 import io.rong.imlib.model.UserInfo;
 import io.rong.imlib.model.UserProfile;
 
@@ -16,6 +17,7 @@ import io.rong.imlib.model.UserProfile;
 public class ExtendedUserInfo extends UserInfo implements Parcelable {
 
     private final UserProfile userProfile;
+    private final FriendInfo friendInfo;
 
     /**
      * 创建 ExtendedUserInfo 对象。
@@ -24,7 +26,7 @@ public class ExtendedUserInfo extends UserInfo implements Parcelable {
      * @return ExtendedUserInfo 对象。
      */
     public static ExtendedUserInfo obtain(@NonNull UserInfo userInfo) {
-        return new ExtendedUserInfo(userInfo, null);
+        return new ExtendedUserInfo(userInfo, null, null);
     }
 
     /**
@@ -34,29 +36,48 @@ public class ExtendedUserInfo extends UserInfo implements Parcelable {
      * @return ExtendedUserInfo 对象。
      */
     public static ExtendedUserInfo obtain(@NonNull UserProfile userProfile) {
-        return new ExtendedUserInfo(null, userProfile);
+        return new ExtendedUserInfo(null, userProfile, null);
     }
 
-    private ExtendedUserInfo(UserInfo userInfo, UserProfile userProfile) {
-        super(
-                userInfo != null
-                        ? userInfo.getUserId()
-                        : (userProfile != null ? userProfile.getUserId() : ""),
-                userInfo != null
-                        ? userInfo.getName()
-                        : (userProfile != null ? userProfile.getName() : ""),
-                userInfo != null
-                        ? userInfo.getPortraitUri()
-                        : (userProfile != null && userProfile.getPortraitUri() != null
-                                ? Uri.parse(userProfile.getPortraitUri())
-                                : null));
+    /**
+     * 创建 ExtendedUserInfo 对象。
+     *
+     * @param friendInfo 好友信息。
+     * @return ExtendedUserInfo 对象。
+     */
+    public static ExtendedUserInfo obtain(@NonNull FriendInfo friendInfo) {
+        return new ExtendedUserInfo(null, null, friendInfo);
+    }
 
+    private ExtendedUserInfo(UserInfo userInfo, UserProfile userProfile, FriendInfo friendInfo) {
+        super("", "", null);
         if (userInfo != null) {
+            this.setUserId(userInfo.getUserId());
+            this.setName(userInfo.getName());
+            this.setPortraitUri(userInfo.getPortraitUri());
             this.setAlias(userInfo.getAlias());
             this.setExtra(userInfo.getExtra());
+        } else if (userProfile != null) {
+            this.setUserId(userProfile.getUserId());
+            this.setName(userProfile.getName());
+            if (userProfile.getPortraitUri() != null) {
+                this.setPortraitUri(Uri.parse(userProfile.getPortraitUri()));
+            }
+        } else if (friendInfo != null) {
+            this.setUserId(friendInfo.getUserId());
+            this.setName(friendInfo.getName());
+            if (friendInfo.getPortraitUri() != null) {
+                this.setPortraitUri(Uri.parse(friendInfo.getPortraitUri()));
+            }
+            if (friendInfo.getRemark() != null) {
+                this.setAlias(friendInfo.getRemark());
+            }
         }
 
         this.userProfile = userProfile != null ? userProfile : new UserProfile();
+        this.userProfile.setUserId(getUserId());
+        this.friendInfo = friendInfo != null ? friendInfo : new FriendInfo();
+        this.friendInfo.setUserId(getUserId());
     }
 
     /**
@@ -66,6 +87,15 @@ public class ExtendedUserInfo extends UserInfo implements Parcelable {
      */
     public UserProfile getUserProfile() {
         return userProfile;
+    }
+
+    /**
+     * 获取 FriendInfo 对象。
+     *
+     * @return FriendInfo 对象。
+     */
+    public FriendInfo getFriendInfo() {
+        return friendInfo;
     }
 
     /**
@@ -89,6 +119,23 @@ public class ExtendedUserInfo extends UserInfo implements Parcelable {
         return userProfile;
     }
 
+    /**
+     * 将 ExtendedUserInfo 转换为 FriendInfo 对象。
+     *
+     * @return 转换后的 FriendInfo 对象。
+     */
+    public FriendInfo toFriendInfo() {
+        FriendInfo friendInfo = new FriendInfo();
+        friendInfo.setUserId(getUserId());
+        friendInfo.setName(getName());
+        friendInfo.setPortraitUri(getPortraitUri() != null ? getPortraitUri().toString() : null);
+        friendInfo.setAddTime(this.friendInfo.getAddTime());
+        friendInfo.setDirectionType(this.friendInfo.getDirectionType());
+        friendInfo.setExtProfile(this.friendInfo.getExtProfile());
+        friendInfo.setRemark(this.friendInfo.getRemark());
+        return friendInfo;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -98,11 +145,13 @@ public class ExtendedUserInfo extends UserInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         super.writeToParcel(dest, flags);
         dest.writeParcelable(userProfile, flags);
+        dest.writeParcelable(friendInfo, flags);
     }
 
     protected ExtendedUserInfo(Parcel in) {
         super(in);
         userProfile = in.readParcelable(UserProfile.class.getClassLoader());
+        friendInfo = in.readParcelable(FriendInfo.class.getClassLoader());
     }
 
     public static final Creator<ExtendedUserInfo> CREATOR =
@@ -123,6 +172,8 @@ public class ExtendedUserInfo extends UserInfo implements Parcelable {
         return "ExtendedUserInfo{"
                 + "userProfile="
                 + userProfile
+                + "friendInfo="
+                + friendInfo
                 + ", id='"
                 + getUserId()
                 + '\''

@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.InputMode;
 import io.rong.imkit.conversation.extension.RongExtension;
 import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
@@ -79,6 +80,19 @@ public class DestructInputPanel {
         mImageButton = mRootView.findViewById(R.id.input_panel_img_btn);
         mCancelButton = mRootView.findViewById(R.id.input_panel_cancel_btn);
         mSendButton = mRootView.findViewById(R.id.input_panel_send_btn);
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            mRootView.setBackgroundColor(
+                    IMKitThemeManager.getColorFromAttrId(
+                            fragment.getContext(), R.attr.rc_common_background_color));
+            mEditText.setBackgroundResource(R.drawable.rc_lively_panel_input_background);
+            mVoicePressButton.setTextColor(
+                    IMKitThemeManager.getColorFromAttrId(
+                            fragment.getContext(), R.attr.rc_text_primary_color));
+        }
+        mVoicePressButton.setBackgroundResource(
+                IMKitThemeManager.dynamicResource(
+                        R.drawable.rc_lively_auxiliary_background_1_radius_8,
+                        R.drawable.rc_ext_voice_idle_button));
 
         isVoiceInputMode =
                 RongExtensionCacheHelper.isVoiceInputMode(
@@ -245,13 +259,21 @@ public class DestructInputPanel {
     private void updateViewByVoiceToggle(Context context) {
         if (isVoiceInputMode) {
             mVoiceToggle.setImageDrawable(
-                    context.getResources().getDrawable(R.drawable.rc_destruct_ext_panel_key_icon));
+                    context.getResources()
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            context,
+                                            R.attr
+                                                    .rc_conversation_input_bar_keyboard_destruct_img)));
             mEditText.setVisibility(GONE);
             mVoicePressButton.setVisibility(VISIBLE);
         } else {
             mVoiceToggle.setImageDrawable(
                     context.getResources()
-                            .getDrawable(R.drawable.rc_destruct_ext_panel_voice_icon));
+                            .getDrawable(
+                                    IMKitThemeManager.getAttrResId(
+                                            context,
+                                            R.attr.rc_conversation_input_bar_voice_destruct_img)));
             mEditText.setVisibility(VISIBLE);
             mVoicePressButton.setVisibility(GONE);
         }
@@ -359,44 +381,36 @@ public class DestructInputPanel {
                         mLastTouchY = event.getY();
                         mUpDirection = false;
                         ((TextView) v).setText(R.string.rc_voice_release_to_send);
-                        ((TextView) v)
-                                .setBackground(
-                                        v.getContext()
-                                                .getResources()
-                                                .getDrawable(
-                                                        R.drawable.rc_ext_voice_touched_button));
+                        v.setBackgroundResource(
+                                IMKitThemeManager.dynamicResource(
+                                        R.drawable.rc_lively_auxiliary_background_2_radius_8,
+                                        R.drawable.rc_ext_voice_touched_button));
                     } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                         if (mLastTouchY - event.getY() > mOffsetLimit && !mUpDirection) {
                             AudioRecordManager.getInstance().willCancelRecord();
                             mUpDirection = true;
                             ((TextView) v).setText(R.string.rc_voice_press_to_input);
-                            ((TextView) v)
-                                    .setBackground(
-                                            v.getContext()
-                                                    .getResources()
-                                                    .getDrawable(
-                                                            R.drawable.rc_ext_voice_idle_button));
+                            v.setBackgroundResource(
+                                    IMKitThemeManager.dynamicResource(
+                                            R.drawable.rc_lively_auxiliary_background_1_radius_8,
+                                            R.drawable.rc_ext_voice_idle_button));
                         } else if (event.getY() - mLastTouchY > -mOffsetLimit && mUpDirection) {
                             AudioRecordManager.getInstance().continueRecord();
                             mUpDirection = false;
-                            ((TextView) v)
-                                    .setBackground(
-                                            v.getContext()
-                                                    .getResources()
-                                                    .getDrawable(
-                                                            R.drawable
-                                                                    .rc_ext_voice_touched_button));
+                            v.setBackgroundResource(
+                                    IMKitThemeManager.dynamicResource(
+                                            R.drawable.rc_lively_auxiliary_background_2_radius_8,
+                                            R.drawable.rc_ext_voice_touched_button));
                             ((TextView) v).setText(R.string.rc_voice_release_to_send);
                         }
                     } else if (event.getAction() == MotionEvent.ACTION_UP
                             || event.getAction() == MotionEvent.ACTION_CANCEL) {
                         AudioRecordManager.getInstance().stopRecord();
                         ((TextView) v).setText(R.string.rc_voice_press_to_input);
-                        ((TextView) v)
-                                .setBackground(
-                                        v.getContext()
-                                                .getResources()
-                                                .getDrawable(R.drawable.rc_ext_voice_idle_button));
+                        v.setBackgroundResource(
+                                IMKitThemeManager.dynamicResource(
+                                        R.drawable.rc_lively_auxiliary_background_1_radius_8,
+                                        R.drawable.rc_ext_voice_idle_button));
                     }
                     if (mConversationIdentifier
                             .getType()

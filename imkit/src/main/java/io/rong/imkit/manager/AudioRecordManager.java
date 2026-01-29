@@ -21,6 +21,7 @@ import android.widget.TextView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imlib.IRongCallback;
@@ -155,7 +156,9 @@ public class AudioRecordManager implements Handler.Callback {
 
         if (mRecordWindow != null) {
             mStateIV.setVisibility(View.VISIBLE);
-            mStateIV.setImageResource(R.drawable.rc_voice_volume_1);
+            mStateIV.setImageResource(
+                    IMKitThemeManager.getAttrResId(
+                            mStateIV.getContext(), R.attr.rc_conversation_mic_volume_0_img));
             mStateTV.setVisibility(View.VISIBLE);
             mStateTV.setText(R.string.rc_voice_rec);
             mStateTV.setBackgroundResource(android.R.color.transparent);
@@ -340,6 +343,7 @@ public class AudioRecordManager implements Handler.Callback {
             int bpsWb = RongConfigCenter.featureConfig().getAudioWBEncodingBitRate();
             if (RongConfigCenter.featureConfig().getVoiceMessageType()
                     == IMCenter.VoiceMessageType.HighQuality) {
+                mMediaRecorder.setAudioSamplingRate(SamplingRate.RC_SAMPLE_RATE_16000.getValue());
                 mMediaRecorder.setAudioEncodingBitRate(AUDIO_AA_ENCODING_BIT_RATE);
             } else {
                 mMediaRecorder.setAudioSamplingRate(mSampleRate.value);
@@ -538,25 +542,46 @@ public class AudioRecordManager implements Handler.Callback {
 
             switch (db / 5) {
                 case 0:
-                    mStateIV.setImageResource(R.drawable.rc_voice_volume_1);
+                    mStateIV.setImageResource(
+                            IMKitThemeManager.getAttrResId(
+                                    mStateIV.getContext(),
+                                    R.attr.rc_conversation_mic_volume_0_img));
                     break;
                 case 1:
-                    mStateIV.setImageResource(R.drawable.rc_voice_volume_2);
+                    mStateIV.setImageResource(
+                            IMKitThemeManager.getAttrResId(
+                                    mStateIV.getContext(),
+                                    R.attr.rc_conversation_mic_volume_1_img));
                     break;
                 case 2:
-                    mStateIV.setImageResource(R.drawable.rc_voice_volume_3);
+                    mStateIV.setImageResource(
+                            IMKitThemeManager.getAttrResId(
+                                    mStateIV.getContext(),
+                                    R.attr.rc_conversation_mic_volume_2_img));
                     break;
                 case 3:
-                    mStateIV.setImageResource(R.drawable.rc_voice_volume_4);
+                    mStateIV.setImageResource(
+                            IMKitThemeManager.getAttrResId(
+                                    mStateIV.getContext(),
+                                    R.attr.rc_conversation_mic_volume_3_img));
                     break;
                 case 4:
-                    mStateIV.setImageResource(R.drawable.rc_voice_volume_5);
+                    mStateIV.setImageResource(
+                            IMKitThemeManager.getAttrResId(
+                                    mStateIV.getContext(),
+                                    R.attr.rc_conversation_mic_volume_4_img));
                     break;
                 case 5:
-                    mStateIV.setImageResource(R.drawable.rc_voice_volume_6);
+                    mStateIV.setImageResource(
+                            IMKitThemeManager.getAttrResId(
+                                    mStateIV.getContext(),
+                                    R.attr.rc_conversation_mic_volume_5_img));
                     break;
                 default:
-                    mStateIV.setImageResource(R.drawable.rc_voice_volume_6);
+                    mStateIV.setImageResource(
+                            IMKitThemeManager.getAttrResId(
+                                    mStateIV.getContext(),
+                                    R.attr.rc_conversation_mic_volume_6_img));
                     break;
             }
         }

@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import io.rong.common.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.SettingItemView;
 import io.rong.imlib.IRongCoreCallback;
@@ -122,9 +123,12 @@ public class PublicServiceProfileFragment extends DispatchResultFragment {
 
     private void initData(final PublicServiceProfile info) {
         if (info != null) {
+            int defaultPortrait =
+                    IMKitThemeManager.getAttrResId(
+                            getContext(), R.attr.rc_conversation_list_cell_portrait_msg_img);
             Glide.with(this)
                     .load(info.getPortraitUri())
-                    .placeholder(R.drawable.rc_default_portrait)
+                    .placeholder(defaultPortrait)
                     .into(mPortraitIV);
             mNameTV.setText(info.getName());
             mAccountTV.setText(

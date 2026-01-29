@@ -229,6 +229,24 @@ public class PermissionCheckUtil {
     }
 
     public static boolean checkMediaStoragePermissions(Context context) {
+        // KNOTE: 2021/8/25 CAMERA权限进入图库后点击拍照时申请
+        // 如果是Android 14， 判断两种情况
+        // 第一种：获取到所有权限：READ_MEDIA_IMAGES 和 READ_MEDIA_VIDEO
+        // 第二种：获取到部分权限：READ_MEDIA_VISUAL_USER_SELECTED
+        // 此两种都可以打开媒体库并发送媒体消息，不属于上述两种则弹出警示框
+        if (Build.VERSION.SDK_INT >= AndroidConstant.ANDROID_UPSIDE_DOWN_CAKE) {
+            String[] allPermissions =
+                    new String[] {
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO
+                    };
+            String[] subPermissions =
+                    new String[] {Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED};
+
+            if (checkPermissions(context, allPermissions)) {
+                return true;
+            }
+            return checkPermissions(context, subPermissions);
+        }
         String[] permissions = getMediaStoragePermissions(context);
         return checkPermissions(context, permissions);
     }

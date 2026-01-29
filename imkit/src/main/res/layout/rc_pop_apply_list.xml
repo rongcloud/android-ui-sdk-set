@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="180dp"
-    android:layout_height="181dp"
-    android:background="#ffffff"
-    android:weightSum="3"
-    android:orientation="vertical">
+    android:layout_width="136dp"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rc_selector_item_radius"
+    android:orientation="vertical"
+    android:paddingVertical="8dp">
 
     <TextView
-        android:layout_weight="1"
         android:id="@+id/tv_all"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="34dp"
+        android:background="@drawable/rc_selector_item_hover"
         android:gravity="center"
         android:text="@string/rc_all_friend_request"
-        android:textColor="#111f2c"
-        android:textSize="17dp"
-        />
+        android:textColor="?attr/rc_text_primary_color"
+        android:textSize="14sp" />
+
     <TextView
-        android:layout_weight="1"
         android:id="@+id/tv_received_apply"
-        android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="34dp"
+        android:background="@drawable/rc_selector_item_hover"
+        android:gravity="center"
         android:text="@string/rc_my_received_request"
-        android:textColor="#111f2c"
-        android:textSize="17dp"
-        />
+        android:textColor="?attr/rc_text_primary_color"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/tv_send_apply"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="34dp"
+        android:background="@drawable/rc_selector_item_hover"
         android:gravity="center"
         android:text="@string/rc_my_sent_request"
-        android:textColor="#111f2c"
-        android:textSize="17dp" />
+        android:textColor="?attr/rc_text_primary_color"
+        android:textSize="14sp" />
 
 </LinearLayout>

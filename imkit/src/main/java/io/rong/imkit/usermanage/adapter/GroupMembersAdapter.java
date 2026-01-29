@@ -9,8 +9,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
@@ -68,9 +70,14 @@ public class GroupMembersAdapter
     }
 
     private void setupSpecialActionItem(@NonNull GroupInfoViewHolder holder, int position) {
+        // 清除 ImageView 上可能正在进行的 Glide 加载请求，防止异步加载覆盖特殊操作图标
+        Glide.with(context).clear(holder.avatarImageView);
+
         if (position == getItemCount() - 1 && allowGroupRemoval) {
             holder.groupNameTextView.setText("");
-            holder.avatarImageView.setImageResource(R.drawable.rc_remove_member);
+            holder.groupNameTextView.setVisibility(View.GONE);
+            holder.avatarImageView.setImageResource(
+                    IMKitThemeManager.getAttrResId(context, R.attr.rc_group_member_remove_img));
             holder.itemView.setOnClickListener(
                     v -> {
                         if (groupActionListener != null) {
@@ -79,7 +86,9 @@ public class GroupMembersAdapter
                     });
         } else if (allowGroupAddition) {
             holder.groupNameTextView.setText("");
-            holder.avatarImageView.setImageResource(R.drawable.rc_add_member);
+            holder.groupNameTextView.setVisibility(View.GONE);
+            holder.avatarImageView.setImageResource(
+                    IMKitThemeManager.getAttrResId(context, R.attr.rc_group_member_add_img));
             holder.itemView.setOnClickListener(
                     v -> {
                         if (groupActionListener != null) {
@@ -95,6 +104,7 @@ public class GroupMembersAdapter
                 !TextUtils.isEmpty(groupMemberInfo.getNickname())
                         ? groupMemberInfo.getNickname()
                         : groupMemberInfo.getName());
+        holder.groupNameTextView.setVisibility(View.VISIBLE);
 
         RongCoreClient.getInstance()
                 .getFriendsInfo(

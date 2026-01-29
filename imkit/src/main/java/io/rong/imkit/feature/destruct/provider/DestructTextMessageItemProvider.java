@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.TextView;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.feature.destruct.DestructManager;
@@ -56,12 +57,23 @@ public class DestructTextMessageItemProvider extends BaseMessageItemProvider<Tex
         holder.getConvertView().setTag(uiMessage.getMessage().getUId());
         boolean isSender =
                 uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
+        int backgroundResId =
+                IMKitThemeManager.getAttrResId(
+                        holder.getContext(),
+                        isSender
+                                ? R.attr.rc_conversation_msg_send_background
+                                : R.attr.rc_conversation_msg_receiver_background);
+        holder.setBackgroundRes(R.id.tv_unread, backgroundResId);
+        holder.setBackgroundRes(R.id.rc_text, backgroundResId);
         holder.setBackgroundRes(
-                R.id.tv_unread,
-                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
-        holder.setBackgroundRes(
-                R.id.rc_text,
-                isSender ? R.drawable.rc_ic_bubble_right : R.drawable.rc_ic_bubble_left);
+                R.id.tv_receiver_fire,
+                IMKitThemeManager.dynamicResource(
+                        R.drawable.rc_lively_common_background,
+                        R.drawable.rc_image_msg_count_down));
+        holder.setTextColorRes(
+                R.id.tv_receiver_fire,
+                IMKitThemeManager.dynamicResource(
+                        holder.getContext(), R.attr.rc_hint_color, R.color.rc_white_color));
         if (isSender) {
             holder.setVisible(R.id.tv_unread, false);
             holder.setVisible(R.id.rc_text, true);

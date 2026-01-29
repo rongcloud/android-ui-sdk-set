@@ -16,14 +16,17 @@ import io.rong.imkit.R;
 import io.rong.imkit.base.BaseComponent;
 import io.rong.imkit.base.adapter.HeaderAndFooterWrapper;
 import io.rong.imkit.model.ContactModel;
+import io.rong.imkit.model.OnlineStatusFriendInfo;
 import io.rong.imkit.usermanage.adapter.ContactListAdapter;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imkit.usermanage.interfaces.OnPagedDataLoader;
 import io.rong.imkit.widget.SideBar;
 import io.rong.imkit.widget.refresh.SmartRefreshLayout;
 import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ContactListComponent extends BaseComponent {
 
@@ -138,6 +141,11 @@ public class ContactListComponent extends BaseComponent {
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         rvContactList.setLayoutManager(layoutManager);
 
+        // Disable change animation to prevent portrait flicker
+        if (rvContactList.getItemAnimator() != null) {
+            rvContactList.getItemAnimator().setChangeDuration(0);
+        }
+
         // Set item divider if enabled
         if (showDivider) {
             DividerItemDecoration itemDecoration =
@@ -205,6 +213,33 @@ public class ContactListComponent extends BaseComponent {
                 }
             }
             setSideBarContactLetters(lettersList.toArray(new String[0]));
+        }
+    }
+
+    /** 设置联系人在线状态列表 */
+    public void setContactOnlineStatusList(Map<String, SubscribeUserOnlineStatus> statusMap) {
+        if (contactListAdapter == null || headerAndFooterWrapper == null) {
+            return;
+        }
+        List<ContactModel> data = contactListAdapter.getData();
+        if (data == null || data.isEmpty()) {
+            return;
+        }
+        int headersCount = headerAndFooterWrapper.getHeadersCount();
+        for (int i = 0; i < data.size(); i++) {
+            ContactModel contactModel = data.get(i);
+            if (contactModel.getBean() instanceof OnlineStatusFriendInfo) {
+                OnlineStatusFriendInfo info = ((OnlineStatusFriendInfo) contactModel.getBean());
+                SubscribeUserOnlineStatus status = statusMap.get(info.getFriendInfo().getUserId());
+                // 只更新statusMap中实际包含的用户状态，避免将未包含的用户错误地标记为离线
+                if (status != null) {
+                    boolean online = status.isOnline();
+                    if (info.isOnline() != online) {
+                        info.setOnline(online);
+                        headerAndFooterWrapper.notifyItemChanged(i + headersCount);
+                    }
+                }
+            }
         }
     }
 

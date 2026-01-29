@@ -27,7 +27,9 @@ public class UpdateGenderActivity extends BaseActivity {
     public static Intent newIntent(@NonNull Context context, UserProfile userProfile) {
         Intent intent = new Intent(context, UpdateGenderActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putParcelable(KitConstants.KEY_USER_PROFILER, userProfile);
+        bundle.putParcelable(
+                KitConstants.KEY_USER_PROFILER,
+                userProfile == null ? new UserProfile() : userProfile);
         intent.putExtras(bundle);
         return intent;
     }

@@ -5,7 +5,6 @@
     android:id="@id/rc_layout"
     android:layout_width="240dp"
     android:layout_height="93dp"
-    android:background="@android:color/white"
     android:orientation="vertical">
 
     <LinearLayout
@@ -22,7 +21,7 @@
             android:layout_marginEnd="12dp"
             android:background="@android:color/transparent"
             android:scaleType="fitXY"
-            android:src="@drawable/rc_default_portrait" />
+            android:src="?attr/rc_conversation_list_cell_portrait_msg_img" />
 
         <TextView
             android:id="@+id/rc_name"
@@ -31,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
             android:textSize="17sp"
-            android:textColor="#111F2C"
+            android:textColor="?attr/rc_text_primary_color"
             android:ellipsize="end"
             android:maxLines="1"
             tools:text="Frank"/>
@@ -40,7 +39,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#EDEDED"
+        android:background="?attr/rc_line_background_color"
         android:layout_marginEnd="12dp"
         android:layout_marginStart="12dp" />
 
@@ -57,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#A0A5AB"
+            android:textColor="?attr/rc_text_secondary_color"
             android:text="@string/rc_plugins_contact"/>
     </LinearLayout>
 

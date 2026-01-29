@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/rc_auxiliary_background_1_color"
     android:orientation="vertical">
 
     <io.rong.imkit.usermanage.component.HeadComponent
@@ -19,17 +20,35 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#f5f6f9">
-        <TextView
-            android:id="@+id/tv_hint"
+        android:background="?attr/rc_auxiliary_background_1_color">
+
+        <LinearLayout
+            android:id="@+id/ll_empty_hint"
             android:layout_width="wrap_content"
-            android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_marginTop="200dp"
-            android:text="@string/rc_user_does_not_exist"
-            android:textColor="#a0a5ab"
-            android:visibility="gone"
-            android:textSize="18dp" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_empty_hint"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:src="?attr/rc_friend_search_not_exist_img" />
+
+            <TextView
+                android:id="@+id/tv_hint"
+                android:textDirection="locale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/rc_user_does_not_exist"
+                android:textColor="?attr/rc_text_primary_color"
+                android:textSize="14sp" />
+
+        </LinearLayout>
 
     </FrameLayout>
 

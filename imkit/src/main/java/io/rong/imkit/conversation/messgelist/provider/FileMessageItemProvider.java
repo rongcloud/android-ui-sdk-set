@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.FileTypeUtils;
@@ -63,11 +64,16 @@ public class FileMessageItemProvider extends BaseMessageItemProvider<FileMessage
         holder.setImageResource(
                 R.id.rc_msg_iv_file_type_image,
                 FileTypeUtils.fileTypeImageId(holder.getContext(), fileMessage.getName()));
-        if (Message.MessageDirection.SEND.equals(uiMessage.getMessageDirection())) {
-            holder.setBackgroundRes(R.id.rc_message, R.drawable.rc_bg_file_message_send);
-        } else {
-            holder.setBackgroundRes(R.id.rc_message, R.drawable.rc_bg_file_message_receive);
-        }
+        boolean isSender =
+                uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND);
+        holder.setBackgroundRes(
+                R.id.rc_message,
+                IMKitThemeManager.dynamicResource(
+                        holder.getContext(),
+                        R.attr.rc_conversation_msg_special_background,
+                        isSender
+                                ? R.drawable.rc_bg_file_message_send
+                                : R.drawable.rc_bg_file_message_receive));
         if (uiMessage.getMessage().getSentStatus().equals(Message.SentStatus.SENDING)
                 && fileMessage.progress < 100) {
             holder.setVisible(R.id.rc_msg_pb_file_upload_progress, true);

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@drawable/rc_bg_black_cover"
-            android:gravity="left"
+            android:gravity="start"
             android:paddingStart="19dp"
             android:paddingEnd="19dp"
             android:paddingBottom="12dp"

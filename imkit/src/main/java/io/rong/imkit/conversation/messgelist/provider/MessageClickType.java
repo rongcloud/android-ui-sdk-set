@@ -13,4 +13,5 @@ public class MessageClickType {
     public static final int CONTENT_CLICK = -9;
     public static final int EDIT_CLICK = -10;
     public static final int STREAM_MSG_PULL = -11;
+    public static final int SPEECH_TO_TEXT = -12;
 }

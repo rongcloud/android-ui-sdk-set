@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#F5F5F5">
+    android:background="?attr/rc_common_background_color"
+    tools:theme="@style/RCTraditionLightTheme">
 
     <TextView
         android:id="@+id/rc_reference_content"
@@ -17,7 +18,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:singleLine="true"
-        android:textColor="@color/rc_edit_reference"
+        android:textColor="?attr/rc_text_secondary_color"
         android:textSize="13sp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,7 +36,8 @@
         android:layout_marginTop="9dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="6dp"
-        android:background="@drawable/rc_ext_panel_editbox_background"
+        android:background="@drawable/rc_lively_panel_input_background"
+        android:textColor="?attr/rc_text_primary_color"
         android:maxLines="4"
         android:minHeight="39dp"
         android:paddingStart="10dp"
@@ -57,7 +59,7 @@
         android:paddingTop="5dp"
         android:paddingEnd="5dp"
         android:paddingBottom="5dp"
-        android:src="@drawable/rc_edit_message_expand"
+        android:src="?attr/rc_conversation_msg_edit_expand_img"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/rc_edit_btn" />
 
@@ -74,7 +76,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:src="@drawable/rc_ext_input_panel_emoji"
+            android:src="?attr/rc_conversation_input_bar_emoji_img"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -103,7 +105,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="2dp"
                 android:text="@string/rc_edit_status_expired"
-                android:textColor="@color/rc_edit_failed"
+                android:textColor="?attr/rc_hint_color"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -113,7 +115,7 @@
             android:layout_height="28dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
-            android:src="@drawable/rc_edit_message_cancel"
+            android:src="?attr/rc_conversation_msg_edit_cancel_img"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/rc_edit_message_confirm_btn"
             app:layout_constraintTop_toTopOf="parent" />
@@ -123,7 +125,7 @@
             android:layout_width="50dp"
             android:layout_height="28dp"
             android:layout_marginEnd="12dp"
-            android:src="@drawable/rc_edit_message_confirm_enable"
+            android:src="?attr/rc_conversation_msg_edit_confirm_enable_img"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

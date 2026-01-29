@@ -56,4 +56,10 @@ public final class KitConstants {
 
     /** 标题 */
     public static final String KEY_TITLE = "KEY_TITLE";
+
+    /** 消息 */
+    public static final String KEY_MESSAGE = "KEY_MESSAGE";
+
+    /** 消息已读V5信息 */
+    public static final String KEY_READ_RECEIPT_INFO_V5 = "KEY_READ_RECEIPT_INFO_V5";
 }

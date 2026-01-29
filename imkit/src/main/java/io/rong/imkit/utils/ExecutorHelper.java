@@ -11,13 +11,19 @@ public class ExecutorHelper {
     private final Executor mNetworkIO;
     private final Executor mUiExecutor;
     private final Executor mCompressExecutor;
+    private final Executor mNotificationExecutor;
 
     ExecutorHelper(
-            Executor diskIO, Executor networkIO, Executor mainThread, Executor compressExecutor) {
+            Executor diskIO,
+            Executor networkIO,
+            Executor mainThread,
+            Executor compressExecutor,
+            Executor notificationExecutor) {
         this.mDiskIO = diskIO;
         this.mNetworkIO = networkIO;
         this.mUiExecutor = mainThread;
         this.mCompressExecutor = compressExecutor;
+        this.mNotificationExecutor = notificationExecutor;
     }
 
     public ExecutorHelper() {
@@ -25,7 +31,8 @@ public class ExecutorHelper {
                 new DisIOExecutor(),
                 new NetExecutor(),
                 new MainThreadExecutor(),
-                new CompressExecutor());
+                new CompressExecutor(),
+                new NotificationExecutor());
     }
 
     private static class SingletonHolder {
@@ -50,6 +57,10 @@ public class ExecutorHelper {
 
     public Executor mainThread() {
         return mUiExecutor;
+    }
+
+    public Executor notificationExecutor() {
+        return mNotificationExecutor;
     }
 
     private static class MainThreadExecutor implements Executor {
@@ -98,6 +109,20 @@ public class ExecutorHelper {
         @Override
         public void execute(@NonNull Runnable command) {
             mCompressExecutor.execute(command);
+        }
+    }
+
+    /** 单线程有序执行通知任务 */
+    private static class NotificationExecutor implements Executor {
+        private final Executor mNotificationExecutor;
+
+        public NotificationExecutor() {
+            mNotificationExecutor = Executors.newSingleThreadExecutor();
+        }
+
+        @Override
+        public void execute(@NonNull Runnable command) {
+            mNotificationExecutor.execute(command);
         }
     }
 }

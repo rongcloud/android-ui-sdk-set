@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.RongExtensionManager;
 import io.rong.imkit.conversation.extension.RongExtensionViewModel;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
@@ -396,9 +397,8 @@ public class EmoticonBoard {
             if (cur >= 0) {
                 ViewGroup curView = (ViewGroup) mScrollTab.getChildAt(cur);
                 curView.setBackgroundColor(
-                        curView.getContext()
-                                .getResources()
-                                .getColor(R.color.rc_EmoticonTab_bg_select_color));
+                        IMKitThemeManager.getColorFromAttrId(
+                                curView.getContext(), R.attr.rc_line_background_color));
                 int w = curView.getMeasuredWidth();
                 if (w != 0) {
                     int screenW = RongUtils.getScreenWidth();

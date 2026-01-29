@@ -12,6 +12,7 @@ import io.rong.imkit.ConversationEventListener;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.DataProcessor;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversationlist.model.BaseUiConversation;
 import io.rong.imkit.conversationlist.model.GatheredConversation;
@@ -707,7 +708,7 @@ public class UltraGroupConversationListViewModel extends ConversationListViewMod
         NoticeContent noticeContent = new NoticeContent();
         String content = null;
         boolean isShowContent = true;
-        int resId = 0;
+        int resId = IMKitThemeManager.getAttrResId(mApplication, R.attr.rc_network_unreachable_img);
 
         Resources resources = mApplication.getResources();
         if (!RongConfigCenter.conversationListConfig().isEnableConnectStateNotice()) {
@@ -717,19 +718,16 @@ public class UltraGroupConversationListViewModel extends ConversationListViewMod
         if (status.equals(
                 RongIMClient.ConnectionStatusListener.ConnectionStatus.NETWORK_UNAVAILABLE)) {
             content = resources.getString(R.string.rc_conversation_list_notice_network_unavailable);
-            resId = R.drawable.rc_ic_error_notice;
         } else if (status.equals(
                 RongIMClient.ConnectionStatusListener.ConnectionStatus
                         .KICKED_OFFLINE_BY_OTHER_CLIENT)) {
             content = resources.getString(R.string.rc_conversation_list_notice_kicked);
-            resId = R.drawable.rc_ic_error_notice;
         } else if (status.equals(
                 RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTED)) {
             isShowContent = false;
         } else if (status.equals(
                 RongIMClient.ConnectionStatusListener.ConnectionStatus.UNCONNECTED)) {
             content = resources.getString(R.string.rc_conversation_list_notice_disconnect);
-            resId = R.drawable.rc_ic_error_notice;
         } else if (status.equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.CONNECTING)
                 || status.equals(RongIMClient.ConnectionStatusListener.ConnectionStatus.SUSPEND)) {
             content = resources.getString(R.string.rc_conversation_list_notice_connecting);

@@ -1,5 +1,6 @@
 package io.rong.imkit.utils;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import com.bumptech.glide.Priority;
@@ -10,6 +11,8 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.util.ContentLengthInputStream;
 import com.bumptech.glide.util.LogTime;
 import com.bumptech.glide.util.Synthetic;
+import io.rong.common.rlog.RLog;
+import io.rong.common.utils.SSLUtils;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.RCIMProxy;
 import java.io.IOException;
@@ -21,6 +24,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * @author gusd @Date 2022/09/08
@@ -90,6 +94,30 @@ public class ProxyHttpUrlFetcher implements DataFetcher<InputStream> {
         }
 
         urlConnection = connectionFactory.build(url);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) {
+            // 针对 HttpsURLConnection 应用自定义的 SSL 配置（如忽略证书、自定义 HostnameVerifier）
+            if (urlConnection instanceof HttpsURLConnection) {
+                HttpsURLConnection httpsURLConnection = (HttpsURLConnection) urlConnection;
+                if (SSLUtils.getHostVerifier() != null) {
+                    httpsURLConnection.setHostnameVerifier(SSLUtils.getHostVerifier());
+                    RLog.d(TAG, "loadDataWithRedirects: Apply custom HostnameVerifier for " + url);
+                } else {
+                    RLog.d(
+                            TAG,
+                            "loadDataWithRedirects: No custom HostnameVerifier found for " + url);
+                }
+                if (SSLUtils.getSslSocketFactory() != null) {
+                    httpsURLConnection.setSSLSocketFactory(SSLUtils.getSslSocketFactory());
+                    RLog.d(TAG, "loadDataWithRedirects: Apply custom SSLSocketFactory for " + url);
+                } else {
+                    RLog.d(
+                            TAG,
+                            "loadDataWithRedirects: No custom SSLSocketFactory found for " + url);
+                }
+            } else {
+                RLog.d(TAG, "loadDataWithRedirects: Not HttpsURLConnection" + url);
+            }
+        }
         for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
             urlConnection.addRequestProperty(headerEntry.getKey(), headerEntry.getValue());
         }

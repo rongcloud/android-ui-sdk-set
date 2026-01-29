@@ -4,6 +4,9 @@ import android.content.Context;
 import android.text.Spannable;
 import android.text.TextUtils;
 import io.rong.common.rlog.RLog;
+import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.feature.editmessage.EditMessageConfig;
+import io.rong.imkit.feature.editmessage.EditMessageUtils;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -12,6 +15,8 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.ReadReceiptInfoV5;
+import io.rong.imlib.model.SubscribeUserOnlineStatus;
 import io.rong.imlib.model.UserInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,8 +27,20 @@ public abstract class BaseUiConversation {
     Context mContext;
     public Conversation mCore;
     public Spannable mConversationContent;
-    // 已读回执人数
-    private int readReceiptCount = 0;
+
+    /**
+     * 已读回执V5信息
+     *
+     * @since 5.30.0
+     */
+    private ReadReceiptInfoV5 readReceiptInfoV5;
+
+    /**
+     * 在线状态
+     *
+     * @since 5.32.0
+     */
+    private SubscribeUserOnlineStatus onlineStatus;
 
     public BaseUiConversation(Context context, Conversation conversation) {
         if (context == null || conversation == null) {
@@ -85,6 +102,7 @@ public abstract class BaseUiConversation {
 
     abstract void buildConversationContent();
 
+    /** 获取会话输入框输入的草稿 */
     public String getDraft() {
         if (mCore == null || TextUtils.isEmpty(mCore.getDraft())) {
             return "";
@@ -100,6 +118,39 @@ public abstract class BaseUiConversation {
             draftContent = draft;
         }
         return draftContent == null ? "" : draftContent;
+    }
+
+    /** 获取编辑消息的输入的草稿。 */
+    private String getEditDraft() {
+        if (!isEditedMessageDraftValid()) {
+            return "";
+        }
+        EditMessageConfig config =
+                EditMessageUtils.convertEditMessageConfig(mCore.getEditedMessageDraft());
+        return config != null ? config.content : "";
+    }
+
+    public String getDraftContent() {
+        String editDraft = getEditDraft();
+        if (!TextUtils.isEmpty(editDraft)) {
+            return editDraft.replace("\n", "");
+        }
+        return getDraft().replace("\n", "");
+    }
+
+    /** 是否编辑消息草稿合法 */
+    private boolean isEditedMessageDraftValid() {
+        return RongConfigCenter.featureConfig().isEditMessageEnable()
+                && mCore != null
+                && mCore.getUnreadMentionedCount() <= 0
+                && mCore.getEditedMessageDraft() != null
+                && !TextUtils.isEmpty(mCore.getEditedMessageDraft().getMessageUId())
+                && !TextUtils.isEmpty(mCore.getEditedMessageDraft().getContent());
+    }
+
+    /** 是否展示会话草稿或者编辑消息草稿 */
+    public boolean isShowDraftContent() {
+        return isEditedMessageDraftValid() || !TextUtils.isEmpty(getDraft());
     }
 
     /**
@@ -145,21 +196,19 @@ public abstract class BaseUiConversation {
         return RongUserInfoManager.getInstance().getUserInfo(userId);
     }
 
-    /**
-     * 获取已读回执人数
-     *
-     * @return 已读回执人数
-     */
-    public int getReadReceiptCount() {
-        return readReceiptCount;
+    public ReadReceiptInfoV5 getReadReceiptInfoV5() {
+        return readReceiptInfoV5;
     }
 
-    /**
-     * 设置已读回执人数
-     *
-     * @param readReceiptCount 已读回执人数
-     */
-    public void setReadReceiptCount(int readReceiptCount) {
-        this.readReceiptCount = readReceiptCount;
+    public void setReadReceiptInfoV5(ReadReceiptInfoV5 readReceiptInfoV5) {
+        this.readReceiptInfoV5 = readReceiptInfoV5;
+    }
+
+    public void setOnlineStatus(SubscribeUserOnlineStatus onlineStatus) {
+        this.onlineStatus = onlineStatus;
+    }
+
+    public SubscribeUserOnlineStatus getOnlineStatus() {
+        return onlineStatus;
     }
 }

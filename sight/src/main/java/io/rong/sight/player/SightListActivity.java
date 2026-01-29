@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.TimeUtils;
@@ -73,6 +74,12 @@ public class SightListActivity extends RongBaseNoActionbarActivity
                                 finish();
                             }
                         });
+        if (IMKitThemeManager.isTraditionTheme()) {
+            View divider = findViewById(R.id.rc_sightList_divider);
+            if (divider != null) {
+                divider.setVisibility(View.VISIBLE);
+            }
+        }
         initUserInfoChangeListener();
     }
 
@@ -188,11 +195,17 @@ public class SightListActivity extends RongBaseNoActionbarActivity
             ViewHolder viewHolder;
             if (convertView == null) {
                 LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-                convertView = inflater.inflate(R.layout.rc_sight_list_item, null);
+                convertView =
+                        inflater.inflate(
+                                IMKitThemeManager.isTraditionTheme()
+                                        ? R.layout.rc_sight_list_item
+                                        : R.layout.rc_lively_sight_list_item,
+                                null);
                 viewHolder = new ViewHolder();
                 viewHolder.itemIcon = convertView.findViewById(R.id.rc_portrait);
                 viewHolder.itemTitle = convertView.findViewById(R.id.rc_title);
                 viewHolder.itemDetail = convertView.findViewById(R.id.rc_detail);
+                viewHolder.itemTime = convertView.findViewById(R.id.rc_time);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
@@ -203,9 +216,17 @@ public class SightListActivity extends RongBaseNoActionbarActivity
             viewHolder.itemTitle.setText(sightMessage.getName());
             String time = TimeUtils.formatData(SightListActivity.this, message.getSentTime());
             String size = convertFileSize(sightMessage.getSize());
-            String detail = String.format("%s %s %s", itemData.senderName, time, size);
+            String detail =
+                    IMKitThemeManager.isTraditionTheme()
+                            ? String.format("%s %s %s", itemData.senderName, time, size)
+                            : String.format("%s %s", size, itemData.senderName);
             viewHolder.itemDetail.setText(detail);
-            viewHolder.itemIcon.setImageResource(R.drawable.rc_ic_sight_video);
+            if (viewHolder.itemTime != null) {
+                viewHolder.itemTime.setText(time);
+            }
+            viewHolder.itemIcon.setImageResource(
+                    IMKitThemeManager.getAttrResId(
+                            SightListActivity.this, R.attr.rc_ic_sight_video));
             convertView.setOnClickListener(
                     new View.OnClickListener() {
                         @Override
@@ -226,6 +247,7 @@ public class SightListActivity extends RongBaseNoActionbarActivity
         ImageView itemIcon;
         TextView itemTitle;
         TextView itemDetail;
+        TextView itemTime;
     }
 
     private static class ItemData {
@@ -238,9 +260,9 @@ public class SightListActivity extends RongBaseNoActionbarActivity
         long mb = kb * 1024;
         long gb = mb * 1024;
         if (size < kb) {
-            return String.format("%.2f B", (float) size);
-        } else if (size < mb) return String.format("%.2f KB", (float) size / kb);
-        else if (size < gb) return String.format("%.2f MB", (float) size / mb);
-        else return String.format("%.2f G", (float) size / gb);
+            return String.format("%.2fB", (float) size);
+        } else if (size < mb) return String.format("%.2fKB", (float) size / kb);
+        else if (size < gb) return String.format("%.2fMB", (float) size / mb);
+        else return String.format("%.2fG", (float) size / gb);
     }
 }

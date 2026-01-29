@@ -13,6 +13,7 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.utils.ImageViewUtils;
 
 public class PictureVideoPlayActivity extends PictureBaseActivity
         implements MediaPlayer.OnErrorListener,
@@ -41,6 +42,7 @@ public class PictureVideoPlayActivity extends PictureBaseActivity
             return;
         }
         picture_left_back = findViewById(R.id.picture_left_back);
+        ImageViewUtils.enableDrawableAutoMirror(picture_left_back);
         mVideoView = findViewById(R.id.video_view);
         mVideoView.setBackgroundColor(Color.BLACK);
         iv_play = findViewById(R.id.iv_play);
@@ -70,6 +72,7 @@ public class PictureVideoPlayActivity extends PictureBaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         super.onCreate(savedInstanceState);
+        saveAndApplyStatusBar(Color.BLACK, true);
     }
 
     @Override

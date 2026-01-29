@@ -3,13 +3,13 @@
 
     <item android:state_window_focused="false">
         <shape android:shape="rectangle">
-            <solid android:color="@android:color/white" />
+            <solid android:color="?attr/rc_bottom_dialog_background_color" />
         </shape>
     </item>
 
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/color_list_item_hover" />
+            <solid android:color="?attr/rc_selected_background_color" />
         </shape>
     </item>
 

@@ -12,6 +12,8 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageConfig;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfo;
+import io.rong.imlib.model.ReadReceiptInfoV5;
+import io.rong.imlib.model.ReadReceiptResponseV5;
 import io.rong.imlib.model.UserInfo;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +44,8 @@ public class UiMessage extends UiBaseBean {
     /** 业务状态 */
     private String businessState;
 
-    /** 已读回执人数 */
-    private int readReceiptCount;
+    /** 已读V5信息 */
+    private ReadReceiptInfoV5 readReceiptInfoV5;
 
     public UiMessage(Message message) {
         setMessage(message);
@@ -377,6 +379,31 @@ public class UiMessage extends UiBaseBean {
         change();
     }
 
+    public ReadReceiptInfoV5 getReadReceiptInfoV5() {
+        return readReceiptInfoV5;
+    }
+
+    public void setReadReceiptInfoV5(ReadReceiptInfoV5 readReceiptInfoV5) {
+        this.readReceiptInfoV5 = readReceiptInfoV5;
+        change();
+    }
+
+    public void setReadReceiptInfoV5(ReadReceiptResponseV5 responseV5) {
+        if (responseV5 == null
+                || responseV5.getIdentifier() == null
+                || TextUtils.isEmpty(responseV5.getMessageUId())) {
+            return;
+        }
+        ReadReceiptInfoV5 infoV5 = new ReadReceiptInfoV5();
+        infoV5.setIdentifier(responseV5.getIdentifier());
+        infoV5.setMessageUId(responseV5.getMessageUId());
+        infoV5.setReadCount(responseV5.getReadCount());
+        infoV5.setUnreadCount(responseV5.getUnreadCount());
+        infoV5.setTotalCount(responseV5.getTotalCount());
+        this.readReceiptInfoV5 = infoV5;
+        change();
+    }
+
     public MessageConfig getMessageConfig() {
         return message != null ? message.getMessageConfig() : null;
     }
@@ -464,13 +491,5 @@ public class UiMessage extends UiBaseBean {
 
     public void setBusinessState(String businessState) {
         this.businessState = businessState;
-    }
-
-    public int getReadReceiptCount() {
-        return readReceiptCount;
-    }
-
-    public void setReadReceiptCount(int readReceiptCount) {
-        this.readReceiptCount = readReceiptCount;
     }
 }

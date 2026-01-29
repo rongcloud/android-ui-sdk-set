@@ -13,6 +13,7 @@ import androidx.core.os.EnvironmentCompat;
 import io.rong.common.FileUtils;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.model.FileInfo;
 import java.io.File;
@@ -36,44 +37,70 @@ public class FileTypeUtils {
         }
         if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_image_file_suffix)))
-            id = R.drawable.rc_file_icon_picture;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_picture, R.drawable.rc_file_icon_picture);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_file_file_suffix)))
-            id = R.drawable.rc_file_icon_file;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_file, R.drawable.rc_file_icon_file);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_video_file_suffix)))
-            id = R.drawable.rc_file_icon_video;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_video, R.drawable.rc_file_icon_video);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_audio_file_suffix)))
-            id = R.drawable.rc_file_icon_audio;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_audio, R.drawable.rc_file_icon_audio);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_word_file_suffix)))
-            id = R.drawable.rc_file_icon_word;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_word, R.drawable.rc_file_icon_word);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_excel_file_suffix)))
-            id = R.drawable.rc_file_icon_excel;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_excel, R.drawable.rc_file_icon_excel);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_ppt_file_suffix)))
-            id = R.drawable.rc_file_icon_ppt;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_ppt, R.drawable.rc_file_icon_ppt);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_pdf_file_suffix)))
-            id = R.drawable.rc_file_icon_pdf;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_pdf, R.drawable.rc_file_icon_pdf);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_apk_file_suffix)))
-            id = R.drawable.rc_file_icon_apk;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_apk, R.drawable.rc_file_icon_apk);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_key_file_suffix)))
-            id = R.drawable.rc_file_icon_key;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_key, R.drawable.rc_file_icon_key);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_numbers_file_suffix)))
-            id = R.drawable.rc_file_icon_numbers;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_numbers, R.drawable.rc_file_icon_numbers);
         else if (checkSuffix(
                 fileName, context.getResources().getStringArray(R.array.rc_pages_file_suffix)))
-            id = R.drawable.rc_file_icon_pages;
+            id =
+                    IMKitThemeManager.dynamicResource(
+                            R.drawable.rc_lively_file_pages, R.drawable.rc_file_icon_pages);
         else {
             id = serchDefaultIconInRegister();
             if (id <= 0) {
-                id = R.drawable.rc_file_icon_else;
+                id =
+                        IMKitThemeManager.dynamicResource(
+                                R.drawable.rc_lively_file_else, R.drawable.rc_file_icon_else);
             }
         }
         return id;

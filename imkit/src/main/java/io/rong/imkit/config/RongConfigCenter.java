@@ -17,6 +17,8 @@ public class RongConfigCenter {
         sConversationConfig.initConfig(context);
         sFeatureConfig.initConfig(context);
         sConversationListConfig.initConfig(context);
+        // 初始化主题
+        IMKitThemeManager.initThemes(context);
     }
 
     /**

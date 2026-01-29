@@ -16,7 +16,6 @@ import io.rong.imlib.ChannelClient;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
-import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.NetUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -48,17 +47,18 @@ public class MessageProcessor {
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         // 为了加速第一次加载速度：如果是私群聊，且sentTime为0。则先加载本地消息，成功或回调后，再调用断档消息。
         if (needLoadLocalMessagesAtFirst(messageViewModel.getCurConversationType(), sentTime)) {
-            RongIMClient.getInstance()
+            ChannelClient.getInstance()
                     .getHistoryMessages(
                             messageViewModel.getCurConversationType(),
                             messageViewModel.getCurTargetId(),
                             messageViewModel.getRefreshMessageId(),
                             DEFAULT_COUNT,
-                            new RongIMClient.ResultCallback<List<Message>>() {
+                            messageViewModel.getCurChannelId(),
+                            new IRongCoreCallback.ResultCallback<List<Message>>() {
                                 @Override
                                 public void onSuccess(List<Message> messages) {
-                                    refreshReferenceMessage(
-                                            messageViewModel.getConversationIdentifier(),
+                                    refreshMessageExtendInfo(
+                                            weakVM.get(),
                                             messages,
                                             new RefreshCallback<List<Message>>() {
                                                 @Override
@@ -81,7 +81,7 @@ public class MessageProcessor {
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode errorCode) {
+                                public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
                                     // 无论成功或者失败，均需要再调用一次断档接口
                                     getMessages(weakVM.get(), sentTime, count, isForward, callback);
                                 }
@@ -145,7 +145,7 @@ public class MessageProcessor {
                                     long syncTimestamp,
                                     boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -200,14 +200,16 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messageList,
-                                        refreshCallback);
+                                refreshMessageExtendInfo(
+                                        weakVM.get(), messageList, refreshCallback);
                             }
 
                             @Override
-                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {}
+                            public void onFail(IRongCoreEnum.CoreErrorCode errorCode) {
+                                if (callback != null) {
+                                    callback.onErrorOnlySuccess();
+                                }
+                            }
                         });
     }
 
@@ -244,7 +246,7 @@ public class MessageProcessor {
                                     long syncTimestamp,
                                     boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -300,10 +302,8 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messageList,
-                                        refreshCallback);
+                                refreshMessageExtendInfo(
+                                        weakVM.get(), messageList, refreshCallback);
                             }
 
                             @Override
@@ -324,6 +324,7 @@ public class MessageProcessor {
             }
             return;
         }
+        WeakReference<MessageViewModel> weakVM = new WeakReference<>(viewModel);
         HistoryMessageOption historyMessageOption = new HistoryMessageOption();
         historyMessageOption.setDataTime(sentTime);
         historyMessageOption.setCount(after);
@@ -341,7 +342,7 @@ public class MessageProcessor {
                                     long syncTimestamp,
                                     boolean hasMoreMsg,
                                     IRongCoreEnum.CoreErrorCode errorCode) {
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -361,10 +362,8 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        viewModel.getConversationIdentifier(),
-                                        messageList,
-                                        refreshCallback);
+                                refreshMessageExtendInfo(
+                                        weakVM.get(), messageList, refreshCallback);
                             }
 
                             @Override
@@ -416,12 +415,16 @@ public class MessageProcessor {
         if (messageViewModel == null) {
             return;
         }
+        if (messageViewModel.isInitUnreadMessageFinish()) {
+            return;
+        }
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
-        RongIMClient.getInstance()
+        ChannelClient.getInstance()
                 .getTheFirstUnreadMessage(
                         messageViewModel.getCurConversationType(),
                         messageViewModel.getCurTargetId(),
-                        new RongIMClient.ResultCallback<Message>() {
+                        messageViewModel.getCurChannelId(),
+                        new IRongCoreCallback.ResultCallback<Message>() {
                             @Override
                             public void onSuccess(Message message) {
                                 if (weakVM.get() == null) {
@@ -441,7 +444,7 @@ public class MessageProcessor {
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode e) {
+                            public void onError(IRongCoreEnum.CoreErrorCode e) {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
@@ -453,19 +456,20 @@ public class MessageProcessor {
 
     private static void initMentionedMessage(
             Conversation conversation, final MessageViewModel messageViewModel) {
-        if (conversation == null) {
+        if (conversation == null || messageViewModel == null) {
             return;
         }
-        if (messageViewModel == null) {
+        if (messageViewModel.isInitMentionedMessageFinish()) {
             return;
         }
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
         if (conversation.getMentionedCount() > 0) {
-            RongIMClient.getInstance()
+            ChannelClient.getInstance()
                     .getUnreadMentionedMessages(
                             messageViewModel.getCurConversationType(),
                             messageViewModel.getCurTargetId(),
-                            new RongIMClient.ResultCallback<List<Message>>() {
+                            messageViewModel.getCurChannelId(),
+                            new IRongCoreCallback.ResultCallback<List<Message>>() {
                                 @Override
                                 public void onSuccess(List<Message> messages) {
                                     if (weakVM.get() == null) {
@@ -480,7 +484,7 @@ public class MessageProcessor {
                                 }
 
                                 @Override
-                                public void onError(RongIMClient.ErrorCode e) {
+                                public void onError(IRongCoreEnum.CoreErrorCode e) {
                                     if (weakVM.get() == null) {
                                         return;
                                     }
@@ -499,20 +503,21 @@ public class MessageProcessor {
             return;
         }
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
-        RongIMClient.getInstance()
+        ChannelClient.getInstance()
                 .getHistoryMessages(
                         messageViewModel.getCurConversationType(),
                         messageViewModel.getCurTargetId(),
                         messageViewModel.getRefreshMessageId(),
                         DEFAULT_COUNT + 1,
-                        new RongIMClient.ResultCallback<List<Message>>() {
+                        messageViewModel.getCurChannelId(),
+                        new IRongCoreCallback.ResultCallback<List<Message>>() {
                             // 返回列表（10，9，8，7，6，按messageId倒序）
                             @Override
                             public void onSuccess(List<Message> messages) {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -548,14 +553,11 @@ public class MessageProcessor {
                                                 }
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messages,
-                                        refreshCallback);
+                                refreshMessageExtendInfo(weakVM.get(), messages, refreshCallback);
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
                                 // do nothing
                             }
                         });
@@ -566,19 +568,20 @@ public class MessageProcessor {
             return;
         }
         WeakReference<MessageViewModel> weakVM = new WeakReference<>(messageViewModel);
-        RongIMClient.getInstance()
+        ChannelClient.getInstance()
                 .getRemoteHistoryMessages(
                         messageViewModel.getCurConversationType(),
                         messageViewModel.getCurTargetId(),
+                        messageViewModel.getCurChannelId(),
                         messageViewModel.getRefreshSentTime(),
                         DEFAULT_REMOTE_COUNT,
-                        new RongIMClient.ResultCallback<List<Message>>() {
+                        new IRongCoreCallback.ResultCallback<List<Message>>() {
                             @Override
                             public void onSuccess(List<Message> messages) {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
-                                RefreshCallback refreshCallback =
+                                RefreshCallback<List<Message>> refreshCallback =
                                         new RefreshCallback<List<Message>>() {
                                             @Override
                                             public void onSuccess(List<Message> refreshList) {
@@ -596,14 +599,11 @@ public class MessageProcessor {
                                                                                 .RefreshFinish));
                                             }
                                         };
-                                refreshReferenceMessage(
-                                        messageViewModel.getConversationIdentifier(),
-                                        messages,
-                                        refreshCallback);
+                                refreshMessageExtendInfo(weakVM.get(), messages, refreshCallback);
                             }
 
                             @Override
-                            public void onError(RongIMClient.ErrorCode errorCode) {
+                            public void onError(IRongCoreEnum.CoreErrorCode errorCode) {
                                 if (weakVM.get() == null) {
                                     return;
                                 }
@@ -614,37 +614,19 @@ public class MessageProcessor {
                         });
     }
 
-    public static void refreshReferenceMessage(Message message, RefreshCallback<Message> callback) {
-        if (message.getContent() instanceof ReferenceMessage
-                && RongConfigCenter.featureConfig().isEditMessageEnable()) {
-            ReferenceMessage referenceMessage = (ReferenceMessage) message.getContent();
-            RongCoreClient.getInstance()
-                    .getMessageByUid(
-                            referenceMessage.getReferMsgUid(),
-                            new IRongCoreCallback.ResultCallback<Message>() {
-                                @Override
-                                public void onSuccess(Message newMessage) {
-                                    if (newMessage.isHasChanged()) {
-                                        referenceMessage.setReferMsgStatus(
-                                                ReferenceMessage.ReferenceMessageStatus.MODIFIED);
-                                    }
-                                    callback.onSuccess(message);
-                                }
-
-                                @Override
-                                public void onError(IRongCoreEnum.CoreErrorCode e) {
-                                    callback.onSuccess(message);
-                                }
-                            });
-        } else {
-            callback.onSuccess(message);
-        }
-    }
-
-    private static void refreshReferenceMessage(
-            ConversationIdentifier id,
+    /** 刷新消息的一些扩展属性：已读回执V5信息、引用类型消息的引用状态 */
+    private static void refreshMessageExtendInfo(
+            MessageViewModel messageViewModel,
             List<Message> messagesList,
             RefreshCallback<List<Message>> callback) {
+        if (messageViewModel == null) {
+            callback.onSuccess(messagesList);
+            return;
+        }
+        ConversationIdentifier id = messageViewModel.getConversationIdentifier();
+        // 查询消息的已读回执V5信息，查询后绑定到UIMessage再刷新一次。
+        messageViewModel.getMessageReadReceiptInfoV5(messagesList);
+        // 查询引用消息状态
         if (messagesList == null || messagesList.isEmpty()) {
             callback.onSuccess(messagesList);
             return;

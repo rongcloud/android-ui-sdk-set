@@ -18,13 +18,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewAnimator;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.request.RequestOptions;
 import io.rong.contactcard.R;
 import io.rong.contactcard.message.ContactMessage;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.activity.RongBaseNoActionbarActivity;
+import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.userinfo.model.GroupUserInfo;
@@ -104,8 +102,7 @@ public class ContactDetailActivity extends RongBaseNoActionbarActivity
 
         switch (mConversationType) {
             case PRIVATE:
-                UserInfo mine = RongUserInfoManager.getInstance().getUserInfo(mTargetId);
-                onUserUpdate(mine);
+                onUserUpdate(RongUserInfoManager.getInstance().getUserInfo(mTargetId));
                 break;
             case ENCRYPTED:
                 String userId = null;
@@ -113,8 +110,7 @@ public class ContactDetailActivity extends RongBaseNoActionbarActivity
                 if (str.length >= ENCRYPTED_LENGTH) {
                     userId = str[1];
                 }
-                mine = RongUserInfoManager.getInstance().getUserInfo(userId);
-                onUserUpdate(mine);
+                onUserUpdate(RongUserInfoManager.getInstance().getUserInfo(userId));
                 break;
             case GROUP:
                 group = RongUserInfoManager.getInstance().getGroupInfo(mTargetId);
@@ -321,13 +317,13 @@ public class ContactDetailActivity extends RongBaseNoActionbarActivity
     @Override
     public void onUserUpdate(UserInfo info) {
         if (info != null) {
-            if (info.getPortraitUri() != null) {
-                Glide.with(this)
-                        .load(info.getPortraitUri())
-                        .apply(RequestOptions.bitmapTransform(new CircleCrop()))
-                        .into(mTargetPortrait);
-            }
-            RongUserInfoManager.getInstance().getUserDisplayName(info);
+            RongConfigCenter.featureConfig()
+                    .getKitImageEngine()
+                    .loadUserPortrait(
+                            this,
+                            info.getPortraitUri() != null ? info.getPortraitUri().toString() : "",
+                            mTargetPortrait);
+            mTargetName.setText(RongUserInfoManager.getInstance().getUserDisplayName(info));
         }
     }
 
@@ -335,9 +331,12 @@ public class ContactDetailActivity extends RongBaseNoActionbarActivity
     public void onGroupUpdate(Group group) {
         if (group != null) {
             this.group = group;
-            if (group.getPortraitUri() != null) {
-                Glide.with(this).load(group.getPortraitUri()).into(mTargetPortrait);
-            }
+            RongConfigCenter.featureConfig()
+                    .getKitImageEngine()
+                    .loadGroupPortrait(
+                            this,
+                            group.getPortraitUri() != null ? group.getPortraitUri().toString() : "",
+                            mTargetPortrait);
             if (group.getName() != null) {
                 if (mGroupMember != null && mGroupMember.size() > 0) {
                     mTargetName.setText(
@@ -388,7 +387,14 @@ public class ContactDetailActivity extends RongBaseNoActionbarActivity
 
             UserInfo member = list.get(position);
             if (member != null) {
-                Glide.with(convertView).load(member.getPortraitUri()).into(viewHolder.portrait);
+                RongConfigCenter.featureConfig()
+                        .getKitImageEngine()
+                        .loadGroupPortrait(
+                                viewHolder.portrait.getContext(),
+                                member.getPortraitUri() != null
+                                        ? member.getPortraitUri().toString()
+                                        : "",
+                                viewHolder.portrait);
                 viewHolder.name.setText(member.getName());
             }
 

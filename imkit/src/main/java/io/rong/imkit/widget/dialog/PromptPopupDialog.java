@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 
 public class PromptPopupDialog extends AlertDialog {
 
@@ -63,6 +64,9 @@ public class PromptPopupDialog extends AlertDialog {
         TextView txtViewMessage = view.findViewById(R.id.popup_dialog_message);
         TextView txtViewOK = view.findViewById(R.id.popup_dialog_button_ok);
         TextView txtViewCancel = view.findViewById(R.id.popup_dialog_button_cancel);
+        view.setBackgroundColor(
+                IMKitThemeManager.getColorFromAttrId(
+                        view.getContext(), R.attr.rc_common_background_color));
         txtViewOK.setOnClickListener(
                 new View.OnClickListener() {
                     @Override

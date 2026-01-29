@@ -3,6 +3,7 @@ package io.rong.imkit.picture;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -20,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.picture.adapter.ViewPagerAdapter;
 import io.rong.imkit.picture.anim.OptAnimationLoader;
 import io.rong.imkit.picture.broadcast.BroadcastAction;
@@ -30,6 +32,7 @@ import io.rong.imkit.picture.entity.LocalMedia;
 import io.rong.imkit.picture.observable.ImagesObservable;
 import io.rong.imkit.picture.tools.ScreenUtils;
 import io.rong.imkit.picture.tools.ToastUtils;
+import io.rong.imkit.utils.ImageViewUtils;
 import io.rong.imlib.RongCoreClient;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -91,6 +94,7 @@ public class PicturePreviewActivity extends PictureBaseActivity
         screenWidth = ScreenUtils.getScreenWidth(this);
         animation = OptAnimationLoader.loadAnimation(this, R.anim.rc_picture_anim_modal_in);
         picture_left_back = findViewById(R.id.picture_left_back);
+        ImageViewUtils.enableDrawableAutoMirror(picture_left_back);
         topLayout = findViewById(R.id.fl_top);
         viewPager = findViewById(R.id.preview_pager);
         btnCheck = findViewById(R.id.btnCheck);
@@ -106,6 +110,12 @@ public class PicturePreviewActivity extends PictureBaseActivity
         btnCheck.setOnClickListener(this);
         selectImages = getIntent().getParcelableArrayListExtra(PictureConfig.EXTRA_SELECT_LIST);
         is_bottom_preview = getIntent().getBooleanExtra(PictureConfig.EXTRA_BOTTOM_PREVIEW, false);
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            mTvPictureOk.setBackgroundResource(R.drawable.rc_lively_send_primary_color_background);
+            mTvPictureOk.setTextColor(
+                    IMKitThemeManager.getAttrResId(
+                            mTvPictureOk.getContext(), R.attr.rc_control_title_white_color));
+        }
         // 底部预览按钮过来
         images.clear();
         if (is_bottom_preview) {
@@ -128,18 +138,28 @@ public class PicturePreviewActivity extends PictureBaseActivity
         mCbOriginal.setVisibility(eqVideo ? View.GONE : View.VISIBLE);
         mCbOriginal.setChecked(config.isCheckOriginalImage);
         mCbOriginal.setText(
-                getString(R.string.rc_picture_original_image_size, getSize(media.getSize())));
+                config.isCheckOriginalImage
+                        ? getString(
+                                R.string.rc_picture_original_image_size, getSize(media.getSize()))
+                        : getString(R.string.rc_picture_original_image));
         mCbOriginal.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
+                            LocalMedia media = images.get(position);
                             if (isGIFAboveMaxSize(media)) {
                                 mCbOriginal.setChecked(false);
                                 return;
                             }
                         }
                         config.isCheckOriginalImage = isChecked;
+                        mCbOriginal.setText(
+                                isChecked
+                                        ? getString(
+                                                R.string.rc_picture_original_image_size,
+                                                getSize(images.get(position).getSize()))
+                                        : getString(R.string.rc_picture_original_image));
                     }
                 });
     }
@@ -148,12 +168,16 @@ public class PicturePreviewActivity extends PictureBaseActivity
     @Override
     public void initPictureSelectorStyle() {
         mCbOriginal.setButtonDrawable(
-                ContextCompat.getDrawable(this, R.drawable.rc_picture_original_checkbox));
+                ContextCompat.getDrawable(
+                        this,
+                        IMKitThemeManager.getAttrResId(
+                                getContext(), R.attr.rc_media_file_state_check_img)));
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        saveAndApplyStatusBar(Color.BLACK, false);
         BroadcastManager.getInstance(this)
                 .registerReceiver(commonBroadcastReceiver, BroadcastAction.ACTION_CLOSE_PREVIEW);
     }
@@ -210,9 +234,11 @@ public class PicturePreviewActivity extends PictureBaseActivity
                         mCbOriginal.setVisibility(eqVideo ? View.GONE : View.VISIBLE);
                         mCbOriginal.setChecked(config.isCheckOriginalImage);
                         mCbOriginal.setText(
-                                getString(
-                                        R.string.rc_picture_original_image_size,
-                                        getSize(media.getSize())));
+                                config.isCheckOriginalImage
+                                        ? getString(
+                                                R.string.rc_picture_original_image_size,
+                                                getSize(media.getSize()))
+                                        : getString(R.string.rc_picture_original_image));
                     }
                 });
         viewPager.setAdapter(adapter);
@@ -267,11 +293,21 @@ public class PicturePreviewActivity extends PictureBaseActivity
     /** 更新图片选择数量 */
     protected void onSelectNumChange(boolean isRefresh) {
         this.refresh = isRefresh;
-        boolean enable = selectImages.size() != 0;
-        mTvPictureOk.setTextColor(
-                selectImages.size() > 0
+        boolean enable = !selectImages.isEmpty();
+        int textColor =
+                enable
                         ? getResources().getColor(R.color.rc_main_theme)
-                        : getResources().getColor(R.color.rc_main_theme_lucency));
+                        : getResources().getColor(R.color.rc_main_theme_lucency);
+        if (!IMKitThemeManager.isTraditionTheme()) {
+            textColor =
+                    IMKitThemeManager.getColorFromAttrId(
+                            getContext(), R.attr.rc_control_title_white_color);
+            mTvPictureOk.setBackgroundResource(
+                    enable
+                            ? R.drawable.rc_lively_send_primary_color_background
+                            : R.drawable.rc_lively_send_disable_color_background);
+        }
+        mTvPictureOk.setTextColor(textColor);
         mTvPictureOk.setText(
                 config.selectionMode == PictureConfig.SINGLE || !enable
                         ? getString(R.string.rc_picture_send)
