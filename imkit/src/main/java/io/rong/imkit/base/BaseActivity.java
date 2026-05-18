@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.utils.RongUtils;
 import io.rong.imkit.utils.language.RongConfigurationManager;
 
@@ -23,6 +24,7 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         RongUtils.fixAndroid8ActivityCrash(this);
+        IMKitThemeManager.ensureThemeApplied(this);
         super.onCreate(savedInstanceState);
     }
 

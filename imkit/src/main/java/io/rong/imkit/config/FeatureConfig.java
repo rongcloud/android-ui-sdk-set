@@ -21,6 +21,16 @@ import java.util.List;
 public class FeatureConfig {
 
     private static final String TAG = "FeatureConfig";
+    private static final List<String> DEFAULT_QUOTE_MESSAGE_TYPE_WHITE_LIST =
+            Arrays.asList(
+                    "RC:TxtMsg",
+                    "RC:ImgMsg",
+                    "RC:GIFMsg",
+                    "RC:SightMsg",
+                    "RC:VcMsg",
+                    "RC:HQVCMsg",
+                    "RC:FileMsg",
+                    "RC:LBSMsg");
     // <!--是否支持消息引用功能，默认打开，聊天页面长按消息支持引用（目前仅支持文本消息、文件消息、图文消息、图片消息、引用消息的引用）-->
     private boolean isReferenceEnable; // 引用
     private boolean isDestructEnable; // 阅后即焚
@@ -57,6 +67,11 @@ public class FeatureConfig {
     private KitMediaInterceptor kitMediaInterceptor;
     private boolean showUnknownMessage = true;
     private boolean showUnknownMessageNotification = false;
+
+    // 引用消息 V2 开关，与 isReferenceEnable 为 AND 关系
+    private boolean isQuoteV2Enable = false;
+    // V2 引用态下允许发送的消息类型白名单（objectName），默认支持文本、图片、GIF、小视频、语音、高清语音、文件、位置
+    private List<String> quoteMessageTypeWhiteList = newDefaultQuoteMessageTypeWhiteList();
 
     public FeatureConfig() {
         isReferenceEnable = true;
@@ -406,5 +421,62 @@ public class FeatureConfig {
      */
     public boolean isUserOnlineStatusEnable() {
         return isUserOnlineStatusEnable;
+    }
+
+    /**
+     * 发送引用消息时是否使用 quote 回复 V2。仅控制发送侧协议路径，不影响 V2 引用卡片在消息列表中的渲染： 只要消息携带
+     * quoteInfo.messageUId，就会展示引用卡片。
+     *
+     * @since 5.36.0
+     */
+    public boolean isQuoteV2Enable() {
+        return isQuoteV2Enable;
+    }
+
+    /**
+     * 开启/关闭"发送时使用 quote 回复 V2"。与 {@link #isReferenceEnable()} 为 AND 关系， 两者同时开启时长按消息发送的回复才走 V2 路径。
+     *
+     * <p>注意：此开关不再控制收到的消息是否渲染引用卡片，UI 渲染仅依赖消息自身是否携带 {@code quoteInfo}。
+     *
+     * @since 5.36.0
+     */
+    public void enableQuoteV2(boolean enable) {
+        this.isQuoteV2Enable = enable;
+    }
+
+    /**
+     * {@link #enableQuoteV2(boolean)} 的别名，遵循 setter 命名规范。
+     *
+     * @since 5.36.0
+     */
+    public void setQuoteV2Enable(boolean enable) {
+        enableQuoteV2(enable);
+    }
+
+    /**
+     * 获取 V2 引用态下允许发送的消息类型白名单（objectName 列表）。
+     *
+     * @since 5.36.0
+     */
+    public List<String> getQuoteMessageTypeWhiteList() {
+        return quoteMessageTypeWhiteList;
+    }
+
+    /**
+     * 设置 V2 引用态下允许发送的消息类型白名单。
+     *
+     * @param whiteList objectName 列表，传 null 时重置为默认值；空列表表示不允许任何类型
+     * @since 5.36.0
+     */
+    public void setQuoteMessageTypeWhiteList(List<String> whiteList) {
+        if (whiteList == null) {
+            this.quoteMessageTypeWhiteList = newDefaultQuoteMessageTypeWhiteList();
+        } else {
+            this.quoteMessageTypeWhiteList = new ArrayList<>(whiteList);
+        }
+    }
+
+    private static List<String> newDefaultQuoteMessageTypeWhiteList() {
+        return new ArrayList<>(DEFAULT_QUOTE_MESSAGE_TYPE_WHITE_LIST);
     }
 }

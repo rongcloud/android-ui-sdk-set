@@ -86,6 +86,8 @@
     <string name="rc_edit_status_expired">编辑已过期</string>
     <string name="rc_reference_status_delete">此消息已删除</string>
     <string name="rc_reference_status_recall">此消息已撤回</string>
+    <string name="rc_reference_status_loading">消息加载中...</string>
+    <string name="rc_reference_status_failed">消息获取失败</string>
     <string name="rc_edit_failed_by_remote_msg_not_exist">云端消息不存在，无法编辑</string>
     <string name="rc_edit_failed_by_sensitive">编辑内容含有敏感信息，更新失败</string>
     <string name="rc_edit_failed_by_expire">超过有效编辑时间，无法编辑</string>
@@ -430,7 +432,6 @@
     <string name="rc_message_content_sticker">[动态表情]</string>
     <string name="rc_message_content_rp">[红包]</string>
     <string name="rc_message_content_vst">[音视频通话]</string>
-
     <string name="rc_daybreak_format">凌晨</string>
     <string name="rc_morning_format">上午</string>
     <string name="rc_noon_format">中午</string>

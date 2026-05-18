@@ -52,6 +52,8 @@ import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.forward.ForwardClickActions;
 import io.rong.imkit.feature.forward.ForwardManager;
+import io.rong.imkit.feature.reference.QuoteCardRefreshMatcher;
+import io.rong.imkit.feature.reference.QuoteMessageBatchLoader;
 import io.rong.imkit.feature.translation.RCTranslationResultWrapper;
 import io.rong.imkit.feature.translation.TranslationProvider;
 import io.rong.imkit.feature.translation.TranslationResultListenerWrapper;
@@ -105,6 +107,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MessageViewModel extends AndroidViewModel
@@ -370,6 +373,8 @@ public class MessageViewModel extends AndroidViewModel
                         refreshSingleMessage(uiMessage);
                     }
                     // 监听撤回，刷新引用消息
+                    markQuoteCardMessagesChanged(message);
+                    QuoteMessageBatchLoader.getInstance().markMessagesRecalled(message);
                     List<UiMessage> uiMessages =
                             mEditMessageHandler.processMessageReferMsgStatus(
                                     message,
@@ -1379,7 +1384,8 @@ public class MessageViewModel extends AndroidViewModel
             int position = findPositionByMessageId(messageId);
             if (position >= 0) {
                 UiMessage uiMessage = mUiMessages.get(position);
-                deleteMessages.add(uiMessage.getMessage());
+                Message deletedMessage = uiMessage.getMessage();
+                deleteMessages.add(deletedMessage);
                 MessageContent content = uiMessage.getMessage().getContent();
                 if (AudioPlayManager.getInstance().isPlaying()) {
                     if (content instanceof VoiceMessage) {
@@ -1413,12 +1419,29 @@ public class MessageViewModel extends AndroidViewModel
             onRefresh();
         }
         if (!deleteMessages.isEmpty()) {
+            QuoteMessageBatchLoader.getInstance().markMessagesDeleted(deleteMessages);
+            markQuoteCardMessagesChanged(deleteMessages.toArray(new Message[0]));
             List<UiMessage> uiMessages =
                     mEditMessageHandler.processMessageReferMsgStatus(
                             deleteMessages.toArray(new Message[0]),
                             ReferenceMessage.ReferenceMessageStatus.DELETE,
                             getUiMessages());
             mUiMessageLiveData.postValue(uiMessages);
+        }
+    }
+
+    private void markQuoteCardMessagesChanged(Message... affectedMessages) {
+        markQuoteCardMessagesChanged(QuoteCardRefreshMatcher.collectAffectedUids(affectedMessages));
+    }
+
+    private void markQuoteCardMessagesChanged(Set<String> affectedUids) {
+        if (affectedUids == null || affectedUids.isEmpty()) {
+            return;
+        }
+        for (UiMessage uiMessage : mUiMessages) {
+            if (QuoteCardRefreshMatcher.shouldRefresh(uiMessage.getMessage(), affectedUids)) {
+                uiMessage.setChange(true);
+            }
         }
     }
 
@@ -1454,6 +1477,8 @@ public class MessageViewModel extends AndroidViewModel
                 processNewMessageUnread(true);
             }
         }
+        markQuoteCardMessagesChanged(event.getRecallMessage());
+        QuoteMessageBatchLoader.getInstance().markMessagesRecalled(event.getRecallMessage());
         List<UiMessage> uiMessages =
                 mEditMessageHandler.processMessageReferMsgStatus(
                         event.getRecallMessage(),
@@ -1481,6 +1506,7 @@ public class MessageViewModel extends AndroidViewModel
                 uiMessage.setContentSpannable(null);
                 uiMessage.setReferenceContentSpannable(null);
             }
+            EditMessageHandler.mergeQuoteInfoForRefresh(message, uiMessage.getMessage());
             uiMessage.setMessage(message);
             refreshSingleMessage(uiMessage);
         }

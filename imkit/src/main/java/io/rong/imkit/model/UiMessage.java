@@ -103,20 +103,41 @@ public class UiMessage extends UiBaseBean {
 
     public void setMessage(Message message) {
         this.message = message;
-        if (message.getSentStatus() != null) {
-            switch (message.getSentStatus()) {
-                case SENDING:
-                    state = State.PROGRESS;
-                    break;
-                case FAILED:
-                    state = State.ERROR;
-                    break;
-                case CANCELED:
-                    state = State.CANCEL;
-                    break;
-            }
-        }
+        syncStateWithSentStatus();
         change();
+    }
+
+    static @State.Value int resolveStateForSentStatus(
+            Message.MessageDirection direction,
+            Message.SentStatus sentStatus,
+            @State.Value int currentState) {
+        if (direction != Message.MessageDirection.SEND || sentStatus == null) {
+            return currentState;
+        }
+        switch (sentStatus) {
+            case SENDING:
+                return State.PROGRESS;
+            case FAILED:
+                return State.ERROR;
+            case CANCELED:
+                return State.CANCEL;
+            case SENT:
+            case RECEIVED:
+            case READ:
+            case DESTROYED:
+                return State.NORMAL;
+            default:
+                return currentState;
+        }
+    }
+
+    private void syncStateWithSentStatus() {
+        if (message == null) {
+            return;
+        }
+        state =
+                resolveStateForSentStatus(
+                        message.getMessageDirection(), message.getSentStatus(), state);
     }
 
     public UserInfo getUserInfo() {
@@ -292,6 +313,7 @@ public class UiMessage extends UiBaseBean {
             return;
         }
         message.setSentStatus(sentStatus);
+        syncStateWithSentStatus();
         change();
     }
 

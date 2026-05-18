@@ -40,6 +40,7 @@ public class RongBaseActivity extends AppCompatActivity {
         RongUtils.fixAndroid8ActivityCrash(this);
         super.onCreate(savedInstanceState);
         setTheme(androidx.appcompat.R.style.Theme_AppCompat_Light_NoActionBar);
+        IMKitThemeManager.ensureThemeApplied(this);
         super.setContentView(R.layout.rc_base_activity_layout);
         mTitleBar = findViewById(R.id.rc_title_bar);
         mTitleBar.setOnBackClickListener(

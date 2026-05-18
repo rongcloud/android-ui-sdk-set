@@ -43,9 +43,14 @@
 
     <color name="rc_reference_sent_mark_bg">#A5CCE5</color>
     <color name="rc_reference_file_name">#528EBD</color>
-    <color name="rc_reference_title_color">#A0A5AB</color>
+    <color name="rc_reference_title_color">#020814</color>
     <color name="rc_reference_text_link_color">#2972ab</color>
     <color name="rc_reference_content_send_color">#111F2C</color>
+
+    <!-- Quote V2: 文件预览卡片 -->
+    <color name="rc_file_quote_card_background">#FFFFFF</color>
+    <color name="rc_file_quote_card_border">#E2E4E5</color>
+    <color name="rc_file_quote_size_color">#A0A5AB</color>
 
     <color name="rc_rich_title">#262626</color>
     <color name="rc_rich_content">#939393</color>

@@ -598,7 +598,10 @@ public class ConversationFragment extends Fragment
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            ReferenceManager.getInstance().hideReferenceView();
+            // V2 引用模式下不在此处隐藏引用条，由 applyQuoteInfoIfActive 在发送/入库路径中消费
+            if (!RongConfigCenter.featureConfig().isQuoteV2Enable()) {
+                ReferenceManager.getInstance().hideReferenceView();
+            }
         }
         if (requestCode == REQUEST_CODE_FORWARD) {
             if (mMessageViewModel != null) mMessageViewModel.forwardMessage(data);

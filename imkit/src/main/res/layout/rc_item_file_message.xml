@@ -34,13 +34,16 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/rc_file_content_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/rc_margin_size_12"
             android:layout_marginTop="@dimen/rc_margin_size_12"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <FrameLayout
+                android:id="@+id/rc_file_icon_container"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="@dimen/rc_margin_size_12">
@@ -64,6 +67,7 @@
             </FrameLayout>
 
             <RelativeLayout
+                android:id="@+id/rc_file_info_container"
                 android:layout_width="@dimen/rc_file_item_content_width"
                 android:layout_height="@dimen/rc_file_item_content_height"
                 android:layout_gravity="center_vertical">

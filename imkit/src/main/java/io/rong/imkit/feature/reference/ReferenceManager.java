@@ -3,6 +3,7 @@ package io.rong.imkit.feature.reference;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.widget.EditText;
@@ -40,6 +41,7 @@ import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.QuoteInfo;
 import io.rong.message.FileMessage;
 import io.rong.message.ImageMessage;
 import io.rong.message.RecallNotificationMessage;
@@ -59,6 +61,8 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
     private WeakReference<RongExtension> mRongExtension;
     private WeakReference<Fragment> mFragment;
     private UiMessage mUiMessage;
+    private volatile QuoteInfo pendingPluginQuoteInfo;
+    private volatile String pendingPluginQuoteObjectName;
     private Stack<ReferenceInstance> stack = new Stack<>();
     private WeakReference<RongExtensionViewModel> messageViewModel;
     private List<ReferenceStatusListener> mReferenceStatusListenerList =
@@ -118,16 +122,23 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                                     rongExtension.getTargetId());
                                     boolean isEnableReferenceMsg =
                                             RongConfigCenter.featureConfig().isReferenceEnable();
-                                    boolean isInstanceOf =
-                                            (message.getContent() instanceof TextMessage)
-                                                    || (message.getContent()
-                                                            instanceof ImageMessage)
-                                                    || (message.getContent() instanceof FileMessage)
-                                                    || (message.getContent()
-                                                            instanceof RichContentMessage)
-                                                    || (message.getContent()
-                                                            instanceof ReferenceMessage)
-                                                    || isEnableStreamMsg(message);
+                                    // V2 开启时，任何有 messageUId 的消息都可被引用
+                                    boolean isInstanceOf;
+                                    if (RongConfigCenter.featureConfig().isQuoteV2Enable()) {
+                                        isInstanceOf = !TextUtils.isEmpty(message.getUId());
+                                    } else {
+                                        isInstanceOf =
+                                                (message.getContent() instanceof TextMessage)
+                                                        || (message.getContent()
+                                                                instanceof ImageMessage)
+                                                        || (message.getContent()
+                                                                instanceof FileMessage)
+                                                        || (message.getContent()
+                                                                instanceof RichContentMessage)
+                                                        || (message.getContent()
+                                                                instanceof ReferenceMessage)
+                                                        || isEnableStreamMsg(message);
+                                    }
                                     return isSuccess
                                             && isEnableReferenceMsg
                                             && isInstanceOf
@@ -204,7 +215,10 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                             new Observer<InputMode>() {
                                 @Override
                                 public void onChanged(InputMode inputMode) {
-                                    if (inputMode.equals(InputMode.VoiceInput)) {
+                                    // V2 开启时切换到语音/扩展面板仍保持引用条
+                                    if (inputMode.equals(InputMode.VoiceInput)
+                                            && !RongConfigCenter.featureConfig()
+                                                    .isQuoteV2Enable()) {
                                         hideReferenceView();
                                     }
                                 }
@@ -374,17 +388,28 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
 
     @Override
     public void onSendToggleClick(Message message) {
+        if (mUiMessage == null || mReferenceMessage == null) {
+            return;
+        }
+        // V2 路径：在 Message 上设置 quoteInfo，不替换消息类型
+        if (RongConfigCenter.featureConfig().isQuoteV2Enable()) {
+            // 白名单校验：不在白名单中的消息类型不附加 quoteInfo，引用面板保持不消失
+            if (isQuoteReplySupportedForObjectName(resolveObjectName(message))) {
+                applyQuoteInfoToMessage(message);
+                hideReferenceView();
+            }
+            return;
+        }
+        // V1 路径：包装为 ReferenceMessage
         if (!(message.getContent() instanceof TextMessage)) {
             RLog.e(TAG, "primary message content must be TextMessage");
             return;
         }
         String primaryString = ((TextMessage) message.getContent()).getContent();
-        if (mReferenceMessage != null) {
-            mReferenceMessage.buildSendText(primaryString);
-            mReferenceMessage.setMentionedInfo(message.getContent().getMentionedInfo());
-            message.setContent(mReferenceMessage);
-            hideReferenceView();
-        }
+        mReferenceMessage.buildSendText(primaryString);
+        mReferenceMessage.setMentionedInfo(message.getContent().getMentionedInfo());
+        message.setContent(mReferenceMessage);
+        hideReferenceView();
     }
 
     @Override
@@ -501,7 +526,183 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         ExecutorFactory.getInstance().getMainHandler().postDelayed(r, 100);
     }
 
+    /**
+     * V2 引用回复开启时，将当前引用态附加到待发送消息上。 供媒体/插件发送路径在 sendMessage 前调用。
+     *
+     * @param message 待发送的消息
+     * @return 是否成功附加了引用信息
+     */
+    public boolean applyQuoteInfoIfActive(Message message) {
+        if (!RongConfigCenter.featureConfig().isQuoteV2Enable()) {
+            return false;
+        }
+        if (message == null) {
+            return false;
+        }
+        QuoteInfo quoteInfo = pendingPluginQuoteInfo;
+        boolean usePendingQuoteInfo = quoteInfo != null;
+        if (!usePendingQuoteInfo) {
+            quoteInfo = buildQuoteInfoFromUiMessage(mUiMessage);
+        }
+        if (quoteInfo == null) {
+            return false;
+        }
+        String objectName = resolveObjectName(message);
+        if (usePendingQuoteInfo && !TextUtils.equals(objectName, pendingPluginQuoteObjectName)) {
+            return false;
+        }
+        // 白名单校验：待发送消息类型不在白名单中则不附加 quoteInfo
+        if (!isQuoteReplySupportedForObjectName(objectName)) {
+            if (usePendingQuoteInfo) {
+                clearPendingPluginQuoteInfo();
+            }
+            return false;
+        }
+        message.setQuoteInfo(quoteInfo);
+        if (usePendingQuoteInfo) {
+            clearPendingPluginQuoteInfo();
+        } else {
+            hideReferenceViewAfterQuotedPluginSend();
+        }
+        return true;
+    }
+
+    private void hideReferenceViewAfterQuotedPluginSend() {
+        Runnable task =
+                () -> {
+                    hideReferenceView();
+                    collapsePluginBoardAfterQuotedPluginSend();
+                };
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            task.run();
+        } else {
+            ExecutorFactory.getInstance().getMainHandler().post(task);
+        }
+    }
+
+    public boolean prepareQuotedFilePluginSend() {
+        if (!RongConfigCenter.featureConfig().isQuoteV2Enable()
+                || !isQuoteReplySupportedForObjectName("RC:FileMsg")) {
+            return false;
+        }
+        QuoteInfo quoteInfo = buildQuoteInfoFromUiMessage(mUiMessage);
+        if (quoteInfo == null) {
+            return false;
+        }
+        pendingPluginQuoteInfo = quoteInfo;
+        pendingPluginQuoteObjectName = "RC:FileMsg";
+        Runnable task =
+                () -> {
+                    hideReferenceView();
+                    collapsePluginBoardAfterQuotedPluginSend();
+                };
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            task.run();
+        } else {
+            ExecutorFactory.getInstance().getMainHandler().post(task);
+        }
+        return true;
+    }
+
+    public void cancelPendingQuotedPluginSend() {
+        clearPendingPluginQuoteInfo();
+    }
+
+    private void clearPendingPluginQuoteInfo() {
+        pendingPluginQuoteInfo = null;
+        pendingPluginQuoteObjectName = null;
+    }
+
+    private void collapsePluginBoardAfterQuotedPluginSend() {
+        if (messageViewModel == null) {
+            return;
+        }
+        RongExtensionViewModel viewModel = messageViewModel.get();
+        if (viewModel == null || viewModel.getInputModeLiveData() == null) {
+            return;
+        }
+        InputMode inputMode = viewModel.getInputModeLiveData().getValue();
+        if (inputMode == InputMode.PluginMode) {
+            viewModel.setSoftInputKeyBoard(false);
+            viewModel.getExtensionBoardState().setValue(false);
+            viewModel.getInputModeLiveData().setValue(InputMode.NormalMode);
+        }
+    }
+
+    /**
+     * 从 Message 中获取 objectName，对齐 iOS quoteObjectNameForMessage。 Message.obtain 创建的消息 objectName
+     * 可能为 null，需要从 MessageContent 的 {@link io.rong.imlib.MessageTag} 注解回退获取。
+     */
+    private String resolveObjectName(Message message) {
+        if (message == null) {
+            return null;
+        }
+        String objectName = message.getObjectName();
+        if (!TextUtils.isEmpty(objectName)) {
+            return objectName;
+        }
+        if (message.getContent() != null) {
+            io.rong.imlib.MessageTag tag =
+                    message.getContent().getClass().getAnnotation(io.rong.imlib.MessageTag.class);
+            if (tag != null) {
+                return tag.value();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 判断指定消息类型是否在 V2 引用白名单中，对齐 iOS isQuoteReplySupportedForObjectName 逻辑。 语音和高清语音视为等价：配置任一项即两者均可发送。
+     */
+    private boolean isQuoteReplySupportedForObjectName(String objectName) {
+        if (TextUtils.isEmpty(objectName)) {
+            return false;
+        }
+        List<String> whiteList = RongConfigCenter.featureConfig().getQuoteMessageTypeWhiteList();
+        if (whiteList == null || whiteList.isEmpty()) {
+            return false;
+        }
+        if (whiteList.contains(objectName)) {
+            return true;
+        }
+        // 语音与高清语音互认：配置其中一个即同时放行另一个
+        if ("RC:HQVCMsg".equals(objectName)) {
+            return whiteList.contains("RC:VcMsg");
+        }
+        if ("RC:VcMsg".equals(objectName)) {
+            return whiteList.contains("RC:HQVCMsg");
+        }
+        return false;
+    }
+
+    /** 将当前引用态的 quoteInfo 设置到待发送消息上。 */
+    private boolean applyQuoteInfoToMessage(Message message) {
+        QuoteInfo quoteInfo = buildQuoteInfoFromUiMessage(mUiMessage);
+        if (quoteInfo == null) {
+            return false;
+        }
+        message.setQuoteInfo(quoteInfo);
+        return true;
+    }
+
+    private QuoteInfo buildQuoteInfoFromUiMessage(UiMessage uiMessage) {
+        if (uiMessage == null || uiMessage.getMessage() == null) {
+            return null;
+        }
+        Message quotedMsg = uiMessage.getMessage();
+        String uid = quotedMsg.getUId();
+        if (TextUtils.isEmpty(uid)) {
+            return null;
+        }
+        String senderId = quotedMsg.getSenderUserId();
+        String objectName = quotedMsg.getObjectName();
+        return new QuoteInfo(uid, senderId, objectName);
+    }
+
     public void hideReferenceView() {
+        if (mReferenceMessage == null && mUiMessage == null) {
+            return;
+        }
         mReferenceMessage = null;
         RongExtension rongExtension = null;
 

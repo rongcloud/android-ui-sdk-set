@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    V1 引用消息 cell（RC:ReferenceMsg）。
+    引用区使用 QuoteCardView，与 V2 保持视觉一致（对齐 iOS 两端共用 RCReferencedContentView）。
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rc_reference_root_view"
@@ -7,92 +11,19 @@
     android:orientation="vertical"
     tools:theme="@style/RCTraditionLightTheme">
 
-    <LinearLayout
+    <io.rong.imkit.feature.reference.QuoteCardView
+        android:id="@+id/rc_reference_quote_card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/rc_reference_margin_top"
-        android:layout_marginEnd="@dimen/rc_reference_margin_right"
-        android:orientation="horizontal">
-
-        <View
-            android:id="@+id/rc_reference_vertical_mark"
-            android:layout_width="@dimen/rc_reference_divider_width"
-            android:layout_height="@dimen/rc_reference_divider_height"
-            android:layout_marginStart="@dimen/rc_reference_divider_margin_left"
-            android:layout_marginTop="@dimen/rc_reference_divider_margin_top"
-            android:layout_marginEnd="@dimen/rc_reference_divider_margin_right"
-            android:background="@color/rc_reference_sent_mark_bg" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/rc_msg_tv_reference_name"
-                style="@style/TextStyle.Alignment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/rc_reference_name_margin_left"
-                android:layout_marginEnd="@dimen/rc_reference_name_margin_right"
-                android:layout_toEndOf="@id/rc_reference_vertical_mark"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:gravity="start|top"
-                android:maxLines="1"
-                android:textColor="@color/rc_reference_title_color"
-                android:textSize="@dimen/rc_reference_content_size" />
-
-            <io.rong.imkit.widget.RCMessageFrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/rc_reference_name_margin_left">
-
-                <TextView
-                    android:id="@+id/rc_msg_tv_reference_file_name"
-                    style="@style/TextStyle.Alignment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_gravity="top"
-                    android:ellipsize="middle"
-                    android:gravity="top"
-                    android:singleLine="true"
-                    android:textColor="@color/rc_reference_file_name"
-                    android:textSize="@dimen/rc_reference_content_size"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/rc_msg_tv_reference_content"
-                    style="@style/TextStyle.Alignment"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:textColor="@color/rc_reference_title_color"
-                    android:textColorLink="?attr/rc_link_color"
-                    android:textSize="@dimen/rc_reference_name_size" />
-            </io.rong.imkit.widget.RCMessageFrameLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <ImageView
-        android:id="@+id/rc_msg_iv_reference"
-        android:layout_width="@dimen/rc_reference_image_size"
-        android:layout_height="@dimen/rc_reference_image_size"
-        android:layout_marginStart="@dimen/rc_margin_size_14"
-        android:layout_marginTop="@dimen/rc_margin_size_4"
-        android:scaleType="centerCrop" />
+        android:layout_marginTop="@dimen/rc_reference_margin_top" />
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="0.5dp"
+        android:layout_height="@dimen/rc_quote_v2_divider_height"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginTop="@dimen/rc_quote_v2_divider_top_spacing"
+        android:layout_marginBottom="@dimen/rc_quote_v2_divider_bottom_spacing"
         android:background="?attr/rc_line_background_color" />
 
     <io.rong.imkit.widget.RCMessageFrameLayout
@@ -108,10 +39,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/rc_reference_content_send_margin_bottom"
+            android:includeFontPadding="false"
             android:textColor="?attr/rc_text_primary_color"
             android:textColorLink="?attr/rc_link_color"
             android:textSize="@dimen/rc_reference_content_send_size" />
-
     </io.rong.imkit.widget.RCMessageFrameLayout>
 
 </LinearLayout>

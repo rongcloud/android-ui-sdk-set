@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    V2 引用消息卡片：展示在消息气泡内部，对标 iOS RCReferencedContentView。
+    支持四种互斥布局：
+    1. inline 行（文本/语音/位置/小视频/未知/已撤回/已删除）：
+        显示 rc_quote_inline_row（左侧 compact 竖线 + "昵称: 内容" 双行 TextView）。
+    2. 图片预览：
+        显示 rc_quote_header_row（左侧 compact 竖线 + "昵称:"）+ rc_quote_thumbnail。
+    3. 文件预览卡：
+        显示 rc_quote_header_row（左侧 compact 竖线 + "昵称:"）+ rc_quote_file_card。
+    4. 富文本（图文）：
+        与 inline 行类似，但允许 truncating end。
+    切换由 QuoteCardView 在代码中通过 visibility 控制。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rc_quote_card_root"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/rc_quote_v2_card_horizontal_margin"
+    android:layout_marginEnd="@dimen/rc_quote_v2_card_horizontal_margin"
+    android:orientation="vertical"
+    tools:theme="@style/RCTraditionLightTheme">
+
+    <!--
+        模式 1/4：inline 单/双行布局。
+        左侧 compact 竖线（1dp x 9dp）需垂直居中于 TextView 首行（行高 18dp，中心 9dp 处），
+        因此使用 layout_gravity=top 让其顶端与文本顶端对齐，再通过代码动态设置 marginTop=4.5dp。
+    -->
+    <LinearLayout
+        android:id="@+id/rc_quote_inline_row"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/rc_quote_inline_left_line"
+            android:layout_width="@dimen/rc_quote_v2_inline_left_line_width"
+            android:layout_height="@dimen/rc_quote_v2_inline_left_line_height"
+            android:layout_gravity="top"
+            android:background="@color/rc_reference_title_color" />
+
+        <TextView
+            android:id="@+id/rc_quote_inline_text"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rc_quote_v2_inline_left_line_margin_end"
+            android:breakStrategy="simple"
+            android:includeFontPadding="false"
+            android:lineSpacingExtra="0dp"
+            android:maxLines="2"
+            android:maxWidth="@dimen/rc_quote_v2_inline_text_max_width"
+            android:textColor="@color/rc_reference_title_color"
+            android:textSize="@dimen/rc_quote_v2_text_size"
+            tools:text="发送者: 引用内容预览" />
+    </LinearLayout>
+
+    <!--
+        模式 2/3：图片预览 / 文件卡 顶部 sender 行。
+        左侧 compact 竖线（1dp x 9dp）居中对齐于 sender 文本（高度 18dp，中心 9dp 处）。
+    -->
+    <LinearLayout
+        android:id="@+id/rc_quote_header_row"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/rc_quote_header_left_line"
+            android:layout_width="@dimen/rc_quote_v2_inline_left_line_width"
+            android:layout_height="@dimen/rc_quote_v2_inline_left_line_height"
+            android:background="@color/rc_reference_title_color" />
+
+        <TextView
+            android:id="@+id/rc_quote_header_sender_name"
+            style="@style/TextStyle.Alignment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/rc_quote_v2_inline_left_line_margin_end"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:maxWidth="@dimen/rc_quote_v2_inline_text_max_width"
+            android:textColor="@color/rc_reference_title_color"
+            android:textSize="@dimen/rc_quote_v2_text_size"
+            tools:text="发送者:" />
+    </LinearLayout>
+
+    <!-- 模式 2：被引用图片缩略图，居于 sender 行下方 -->
+    <ImageView
+        android:id="@+id/rc_quote_thumbnail"
+        android:layout_width="@dimen/rc_quote_v2_image_thumbnail_size"
+        android:layout_height="@dimen/rc_quote_v2_image_thumbnail_size"
+        android:layout_marginTop="4dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <!-- 模式 3：文件预览卡。 -->
+    <LinearLayout
+        android:id="@+id/rc_quote_file_card"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/rc_quote_v2_file_card_height"
+        android:layout_marginTop="@dimen/rc_quote_v2_file_card_top_spacing"
+        android:background="@drawable/rc_quote_v2_file_card_bg"
+        android:gravity="center_vertical"
+        android:minWidth="@dimen/rc_quote_v2_file_card_min_width"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/rc_quote_v2_file_card_padding"
+        android:paddingEnd="@dimen/rc_quote_v2_file_card_padding"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/rc_quote_file_card_icon"
+            android:layout_width="@dimen/rc_quote_v2_file_card_icon_size"
+            android:layout_height="@dimen/rc_quote_v2_file_card_icon_size"
+            android:scaleType="fitCenter"
+            tools:src="@drawable/rc_file_icon_other" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/rc_quote_v2_file_card_icon_text_spacing"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/rc_quote_file_card_name"
+                style="@style/TextStyle.Alignment"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_quote_v2_text_line_height"
+                android:layout_marginTop="6dp"
+                android:ellipsize="middle"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="0dp"
+                android:singleLine="true"
+                android:textColor="@color/rc_reference_title_color"
+                android:textSize="@dimen/rc_quote_v2_text_size"
+                tools:text="report.pdf" />
+
+            <TextView
+                android:id="@+id/rc_quote_file_card_size"
+                style="@style/TextStyle.Alignment"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/rc_quote_v2_file_card_size_line_height"
+                android:layout_marginTop="3dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="0dp"
+                android:singleLine="true"
+                android:textColor="@color/rc_file_quote_size_color"
+                android:textSize="@dimen/rc_quote_v2_text_size"
+                tools:text="1.2 MB" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,11 +1,14 @@
 package io.rong.imkit.conversation.messgelist.provider;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.InsetDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -20,10 +23,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
+import io.rong.imkit.activity.FilePreviewActivity;
+import io.rong.imkit.activity.PicturePagerActivity;
 import io.rong.imkit.config.ConversationClickListener;
 import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
+import io.rong.imkit.feature.reference.QuoteCardView;
+import io.rong.imkit.feature.reference.QuoteMessageBatchLoader;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.State;
@@ -38,8 +45,12 @@ import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.ReadReceiptInfoV5;
 import io.rong.imlib.model.UserInfo;
+import io.rong.message.FileMessage;
 import io.rong.message.HistoryDividerMessage;
+import io.rong.message.ImageMessage;
+import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
+import io.rong.message.SightMessage;
 import io.rong.message.TextMessage;
 import java.util.List;
 import java.util.Objects;
@@ -58,7 +69,82 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         ViewHolder contentViewHolder = onCreateMessageContentViewHolder(contentView, viewType);
         if (contentViewHolder != null) {
             if (contentView.getChildCount() == 0) {
-                contentView.addView(contentViewHolder.itemView);
+                // 用竖向 LinearLayout 包装消息内容和 V2 引用卡片
+                LinearLayout wrapper = new LinearLayout(parent.getContext());
+                wrapper.setOrientation(LinearLayout.VERTICAL);
+                wrapper.setLayoutParams(
+                        new FrameLayout.LayoutParams(
+                                FrameLayout.LayoutParams.WRAP_CONTENT,
+                                FrameLayout.LayoutParams.WRAP_CONTENT));
+
+                // 子 view 通过 parent.performClick/LongClick 透传事件，
+                // 需要让 wrapper 继续向上委托到 rc_content，否则事件链断裂
+                final FrameLayout parentContent = contentView;
+                wrapper.setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                parentContent.performClick();
+                            }
+                        });
+                wrapper.setOnLongClickListener(
+                        new View.OnLongClickListener() {
+                            @Override
+                            public boolean onLongClick(View v) {
+                                return parentContent.performLongClick();
+                            }
+                        });
+
+                // V2 引用卡片在上，默认 GONE
+                QuoteCardView quoteCard = new QuoteCardView(parent.getContext());
+                LinearLayout.LayoutParams quoteCardLp =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                quoteCardLp.topMargin =
+                        parent.getContext()
+                                .getResources()
+                                .getDimensionPixelSize(R.dimen.rc_reference_margin_top);
+                quoteCard.setLayoutParams(quoteCardLp);
+                quoteCard.setVisibility(View.GONE);
+                wrapper.addView(quoteCard);
+
+                // 引用卡片与消息体之间的分隔横线。
+                View quoteDivider = new View(parent.getContext());
+                quoteDivider.setBackgroundColor(
+                        parent.getContext().getResources().getColor(R.color.rc_divider_color));
+                int dividerHeight =
+                        parent.getContext()
+                                .getResources()
+                                .getDimensionPixelSize(R.dimen.rc_quote_v2_divider_height);
+                int dividerTopMargin =
+                        parent.getContext()
+                                .getResources()
+                                .getDimensionPixelSize(R.dimen.rc_quote_v2_divider_top_spacing);
+                int dividerBottomMargin =
+                        parent.getContext()
+                                .getResources()
+                                .getDimensionPixelSize(R.dimen.rc_quote_v2_divider_bottom_spacing);
+                int dividerHMargin =
+                        (int)
+                                (parent.getContext().getResources().getDisplayMetrics().density * 12
+                                        + 0.5f);
+                LinearLayout.LayoutParams dividerLp =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT, dividerHeight);
+                dividerLp.setMarginStart(dividerHMargin);
+                dividerLp.setMarginEnd(dividerHMargin);
+                dividerLp.topMargin = dividerTopMargin;
+                dividerLp.bottomMargin = dividerBottomMargin;
+                quoteDivider.setLayoutParams(dividerLp);
+                quoteDivider.setVisibility(View.GONE);
+                quoteDivider.setTag("quote_card_divider");
+                wrapper.addView(quoteDivider);
+
+                // 消息内容在下
+                wrapper.addView(contentViewHolder.itemView);
+
+                contentView.addView(wrapper);
             }
         }
         return new MessageViewHolder(rootView.getContext(), rootView, contentViewHolder);
@@ -129,6 +215,8 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                 } else {
                     RLog.e(TAG, "bindViewHolder MessageContent cast Exception");
                 }
+                // V2 引用卡片绑定
+                bindQuoteCard(holder, uiMessage, listener, list);
             } else {
                 RLog.e(TAG, "holder is not MessageViewHolder");
             }
@@ -314,7 +402,10 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             final int position,
             final IViewProviderListener<UiMessage> listener,
             final List<UiMessage> list) {
-        if (showBubble()) {
+        // 带 V2 引用卡片时强制显示气泡背景（图片/语音等原本无气泡的消息也需要包裹）
+        boolean needBubble =
+                showBubble() || QuoteCardView.shouldShowQuoteCard(uiMessage.getMessage());
+        if (needBubble) {
             holder.setBackgroundRes(
                     R.id.rc_content,
                     IMKitThemeManager.getAttrResId(
@@ -427,7 +518,10 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
                 isSender
                         ? R.attr.rc_conversation_msg_send_background
                         : R.attr.rc_conversation_msg_receiver_background;
-        if (Objects.equals(uiMessage.getMessage().getObjectName(), "RC:FileMsg")
+        boolean hasQuoteCard = QuoteCardView.shouldShowQuoteCard(uiMessage.getMessage());
+        boolean isFileMessage =
+                Objects.equals(uiMessage.getMessage().getObjectName(), "RC:FileMsg");
+        if ((isFileMessage && !hasQuoteCard)
                 || Objects.equals(uiMessage.getMessage().getObjectName(), "RC:CardMsg")
                 || Objects.equals(uiMessage.getMessage().getObjectName(), "RC:LBSMsg")) {
             backgroundAttrId = R.attr.rc_conversation_msg_special_background;
@@ -733,6 +827,111 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         }
     }
 
+    /** 返回带引用卡片时 wrapper 的最小宽度（px）。默认不设置最小宽度，由 wrapper 按引用区和正文 的较宽者自适应；特殊消息类型可覆写。 */
+    protected int getQuoteCardWrapperMinWidth(Context context) {
+        return 0;
+    }
+
+    /** 绑定 V2 引用卡片。在 rc_content 的包装器 LinearLayout 中查找 QuoteCardView， 根据消息是否携带 quoteInfo 决定显示/隐藏。 */
+    private void bindQuoteCard(
+            ViewHolder holder,
+            UiMessage uiMessage,
+            IViewProviderListener<UiMessage> listener,
+            List<UiMessage> list) {
+        QuoteCardView quoteCard = findQuoteCard(holder);
+        if (quoteCard == null) {
+            return;
+        }
+
+        final QuoteCardView finalQuoteCard = quoteCard;
+        Message message = uiMessage.getMessage();
+        ViewGroup wrapper = (ViewGroup) finalQuoteCard.getParent();
+        // 分隔线在 onCreateViewHolder 中通过 tag 标记
+        View quoteDivider = wrapper != null ? wrapper.findViewWithTag("quote_card_divider") : null;
+
+        if (QuoteCardView.shouldShowQuoteCard(message)) {
+            finalQuoteCard.setVisibility(View.VISIBLE);
+            if (quoteDivider != null) {
+                quoteDivider.setVisibility(View.VISIBLE);
+            }
+            if (wrapper != null) {
+                wrapper.setMinimumWidth(getQuoteCardWrapperMinWidth(holder.getContext()));
+            }
+            QuoteMessageBatchLoader.getInstance().loadForUiMessages(list, null);
+            finalQuoteCard.setMessage(message);
+            // 点击引用卡片 → 预览原消息
+            finalQuoteCard.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            onQuoteCardClick(v.getContext(), finalQuoteCard);
+                        }
+                    });
+        } else {
+            finalQuoteCard.setVisibility(View.GONE);
+            if (quoteDivider != null) {
+                quoteDivider.setVisibility(View.GONE);
+            }
+            finalQuoteCard.reset();
+            finalQuoteCard.setOnClickListener(null);
+            // 无引用卡片时重置 wrapper 的最小宽度，避免影响无引用消息的气泡大小
+            if (wrapper != null) {
+                wrapper.setMinimumWidth(0);
+            }
+        }
+    }
+
+    /** 引用卡片点击处理：根据被引用消息类型跳转到对应预览界面。 已撤回和不可用的消息不响应点击。 */
+    private void onQuoteCardClick(Context context, QuoteCardView quoteCard) {
+        Message quotedMsg = quoteCard.getQuotedMessage();
+        if (quotedMsg == null || quotedMsg.getContent() == null) {
+            return;
+        }
+        // 已撤回消息不可预览
+        if (quotedMsg.getContent() instanceof RecallNotificationMessage) {
+            return;
+        }
+        try {
+            MessageContent content = quotedMsg.getContent();
+            if (content instanceof ImageMessage) {
+                Intent intent = new Intent(context, PicturePagerActivity.class);
+                intent.setPackage(context.getPackageName());
+                intent.putExtra("message", quotedMsg);
+                context.startActivity(intent);
+            } else if (content instanceof FileMessage) {
+                Intent intent = new Intent(context, FilePreviewActivity.class);
+                intent.setPackage(context.getPackageName());
+                intent.putExtra("FileMessage", quotedMsg.getContent());
+                intent.putExtra("Message", quotedMsg);
+                context.startActivity(intent);
+            } else if (content instanceof SightMessage) {
+                RLog.d(TAG, "QuoteCard clicked on sight message, not handled yet");
+            } else if (content instanceof TextMessage) {
+                // 文本消息点击放大：对齐 V1 ReferenceDialog 的放大预览体验
+                showQuotedTextPreview(context, ((TextMessage) content).getContent());
+            }
+        } catch (Exception e) {
+            RLog.e(TAG, "onQuoteCardClick", e);
+        }
+    }
+
+    /** 以全屏对话框展示被引用文本消息的完整内容，对齐 V1 的 showPopWindow 放大体验。 */
+    private void showQuotedTextPreview(Context context, String text) {
+        if (TextUtils.isEmpty(text) || !(context instanceof android.app.Activity)) {
+            return;
+        }
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context);
+        TextView textView = new TextView(context);
+        int padding = (int) (context.getResources().getDisplayMetrics().density * 16 + 0.5f);
+        textView.setPadding(padding, padding, padding, padding);
+        textView.setText(text);
+        textView.setTextIsSelectable(true);
+        textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16);
+        builder.setView(textView);
+        builder.setPositiveButton(R.string.rc_dialog_ok, null);
+        builder.show();
+    }
+
     protected void setTextMessageContent(
             TextView textView, UiMessage uiMessage, SpannableStringBuilder span) {
         if (uiMessage.getMessage().isHasChanged()) {
@@ -923,5 +1122,260 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
     private int getEditStatusColor(TextView textView) {
         return IMKitThemeManager.getColorFromAttrId(
                 textView.getContext(), R.attr.rc_text_primary_color);
+    }
+
+    protected void applyContentBackgroundEndInset(ViewHolder parentHolder, int endInsetPx) {
+        if (parentHolder == null || endInsetPx <= 0) {
+            return;
+        }
+        View contentView = parentHolder.getView(R.id.rc_content);
+        if (contentView == null) {
+            return;
+        }
+        Drawable background = contentView.getBackground();
+        if (background == null) {
+            return;
+        }
+        contentView.setBackground(new InsetDrawable(background, 0, 0, endInsetPx, 0));
+    }
+
+    protected int getVisibleDecorationSpacePx(View... decorationViews) {
+        if (decorationViews == null) {
+            return 0;
+        }
+        for (View decorationView : decorationViews) {
+            if (decorationView == null || decorationView.getVisibility() != View.VISIBLE) {
+                continue;
+            }
+            ViewGroup.LayoutParams layoutParams = decorationView.getLayoutParams();
+            int width = 0;
+            int startMargin = 0;
+            int endMargin = 0;
+            if (layoutParams != null) {
+                width = Math.max(layoutParams.width, 0);
+                if (layoutParams instanceof ViewGroup.MarginLayoutParams) {
+                    ViewGroup.MarginLayoutParams marginLayoutParams =
+                            (ViewGroup.MarginLayoutParams) layoutParams;
+                    startMargin = Math.max(marginLayoutParams.getMarginStart(), 0);
+                    endMargin = Math.max(marginLayoutParams.getMarginEnd(), 0);
+                }
+            }
+            return width + startMargin + endMargin;
+        }
+        return 0;
+    }
+
+    protected QuoteCardView findQuoteCard(ViewHolder holder) {
+        if (holder == null) {
+            return null;
+        }
+        FrameLayout contentFrame = holder.getView(R.id.rc_content);
+        if (contentFrame == null || contentFrame.getChildCount() == 0) {
+            return null;
+        }
+        View wrapperView = contentFrame.getChildAt(0);
+        if (!(wrapperView instanceof LinearLayout)) {
+            return null;
+        }
+        LinearLayout wrapper = (LinearLayout) wrapperView;
+        for (int i = 0; i < wrapper.getChildCount(); i++) {
+            if (wrapper.getChildAt(i) instanceof QuoteCardView) {
+                return (QuoteCardView) wrapper.getChildAt(i);
+            }
+        }
+        return null;
+    }
+
+    protected void applyQuoteCardWidth(ViewHolder parentHolder, int widthPx) {
+        QuoteCardView quoteCard = findQuoteCard(parentHolder);
+        if (quoteCard == null) {
+            return;
+        }
+        ViewGroup.LayoutParams layoutParams = quoteCard.getLayoutParams();
+        if (layoutParams == null || layoutParams.width == widthPx) {
+            return;
+        }
+        layoutParams.width = widthPx;
+        quoteCard.setLayoutParams(layoutParams);
+    }
+
+    protected void applyMeasuredContentBackgroundEndInset(
+            ViewHolder parentHolder,
+            View messageBubbleView,
+            boolean hasQuoteCard,
+            boolean isSender) {
+        if (parentHolder == null || messageBubbleView == null) {
+            return;
+        }
+        View contentView = parentHolder.getView(R.id.rc_content);
+        if (contentView == null) {
+            return;
+        }
+        contentView.post(
+                () -> {
+                    int endInsetPx =
+                            QuotedVoiceBubbleInsetResolver.resolveMeasuredEndInsetPx(
+                                    hasQuoteCard,
+                                    isSender,
+                                    contentView.getWidth(),
+                                    messageBubbleView.getWidth());
+                    applyContentBackgroundEndInset(parentHolder, endInsetPx);
+                });
+    }
+
+    /**
+     * 将红点及 HQ 语音的下载指示器恢复到语音布局内的原始位置。
+     *
+     * <p>{@link #relocateVoiceUnread} 可能在上次 bind 时将这些 view 移到消息项 rc_layout 中， RecyclerView 复用时语音
+     * Provider 的 {@code holder.setVisible(...)} 只在 holder.itemView 子树中查找，找不到已被移出的 view。 此方法应在语音
+     * Provider 设置红点 visibility <b>之前</b>调用，确保始终可被找到。
+     *
+     * @param holder 语音消息内容 ViewHolder
+     * @param parentHolder 消息 Item ViewHolder
+     */
+    protected void restoreVoiceUnreadToVoiceLayout(ViewHolder holder, ViewHolder parentHolder) {
+        View voiceRcLayout = holder.getView(R.id.rc_layout);
+        if (!(voiceRcLayout instanceof ViewGroup)) {
+            return;
+        }
+        // 红点 8dp，下载失败/下载进度 16dp，依次恢复到 rc_voice_bg 之后
+        restoreIndicatorToVoiceLayout(
+                parentHolder, (ViewGroup) voiceRcLayout, R.id.rc_voice_unread, 8);
+        restoreIndicatorToVoiceLayout(
+                parentHolder, (ViewGroup) voiceRcLayout, R.id.rc_voice_download_error, 16);
+        restoreIndicatorToVoiceLayout(
+                parentHolder, (ViewGroup) voiceRcLayout, R.id.rc_download_progress, 16);
+    }
+
+    /** 将单个指示器 view 恢复到语音布局末尾。 */
+    private void restoreIndicatorToVoiceLayout(
+            ViewHolder parentHolder, ViewGroup voiceRcLayout, int viewId, int sizeDp) {
+        View indicator = parentHolder.getView(viewId);
+        if (indicator == null) {
+            return;
+        }
+        ViewGroup currentParent = (ViewGroup) indicator.getParent();
+        if (currentParent == null || currentParent == voiceRcLayout) {
+            return;
+        }
+        currentParent.removeView(indicator);
+        float density = indicator.getContext().getResources().getDisplayMetrics().density;
+        int size = (int) (sizeDp * density + 0.5f);
+        int marginStart = (int) (8 * density + 0.5f);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+        lp.setMarginStart(marginStart);
+        voiceRcLayout.addView(indicator, lp);
+    }
+
+    /**
+     * 语音消息带引用卡片时，将未读红点及 HQ 语音下载指示器从语音布局内移到 rc_content 右侧。
+     *
+     * <p>引用卡片使 rc_content 获得气泡背景，若这些指示器留在 rc_content 内则会被气泡包裹。 此方法将它们移到消息项的 rc_layout（水平
+     * LinearLayout）中 rc_content 之后的位置， 利用 {@code gravity=BOTTOM} 配合 bottomMargin 与语音条（固定 40dp 高度）
+     * 垂直居中对齐。无引用卡片时将指示器移回语音布局原位。
+     *
+     * <p>应在语音 Provider 设置完红点 visibility <b>之后</b>调用。配合 {@link #restoreVoiceUnreadToVoiceLayout} 使用。
+     *
+     * @param holder 语音消息内容 ViewHolder（含 rc_voice_bg、rc_voice_unread 等）
+     * @param parentHolder 消息 Item ViewHolder（含 rc_content、rc_layout）
+     * @param hasQuoteCard 是否带 V2 引用卡片
+     * @param isSender 是否发送方
+     */
+    protected void relocateVoiceUnread(
+            ViewHolder holder, ViewHolder parentHolder, boolean hasQuoteCard, boolean isSender) {
+        LinearLayout messageLayout = parentHolder.getView(R.id.rc_layout);
+        View voiceRcLayout = holder.getView(R.id.rc_layout);
+        FrameLayout rcContent = parentHolder.getView(R.id.rc_content);
+
+        // 红点 8dp，下载失败/下载进度 16dp
+        relocateIndicatorView(
+                parentHolder,
+                messageLayout,
+                voiceRcLayout,
+                rcContent,
+                R.id.rc_voice_unread,
+                8,
+                hasQuoteCard,
+                isSender);
+        relocateIndicatorView(
+                parentHolder,
+                messageLayout,
+                voiceRcLayout,
+                rcContent,
+                R.id.rc_voice_download_error,
+                16,
+                hasQuoteCard,
+                isSender);
+        relocateIndicatorView(
+                parentHolder,
+                messageLayout,
+                voiceRcLayout,
+                rcContent,
+                R.id.rc_download_progress,
+                16,
+                hasQuoteCard,
+                isSender);
+    }
+
+    /**
+     * 将单个指示器 view 移到 rc_content 外部或恢复到语音布局内。 语音条固定 40dp，通过 bottomMargin = (40 - sizeDp) / 2 实现垂直居中。
+     */
+    private void relocateIndicatorView(
+            ViewHolder parentHolder,
+            LinearLayout messageLayout,
+            View voiceRcLayout,
+            FrameLayout rcContent,
+            int viewId,
+            int sizeDp,
+            boolean hasQuoteCard,
+            boolean isSender) {
+        View indicator = parentHolder.getView(viewId);
+        if (indicator == null) {
+            return;
+        }
+        ViewGroup currentParent = (ViewGroup) indicator.getParent();
+        if (currentParent == null) {
+            return;
+        }
+
+        float density = indicator.getContext().getResources().getDisplayMetrics().density;
+        int size = (int) (sizeDp * density + 0.5f);
+        int marginStart = (int) (8 * density + 0.5f);
+
+        if (hasQuoteCard && !isSender) {
+            // 接收方带引用卡片：指示器应在 rc_content 外部
+            if (currentParent != messageLayout) {
+                currentParent.removeView(indicator);
+                int idx = messageLayout.indexOfChild(rcContent) + 1;
+                // 已有外移的指示器时 idx 需递增，避免覆盖
+                while (idx < messageLayout.getChildCount()
+                        && messageLayout.getChildAt(idx) != null
+                        && messageLayout.getChildAt(idx).getId() != View.NO_ID
+                        && isVoiceIndicator(messageLayout.getChildAt(idx).getId())) {
+                    idx++;
+                }
+                int bottomMargin = (int) ((40 - sizeDp) / 2.0f * density + 0.5f);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+                lp.setMarginStart(marginStart);
+                lp.bottomMargin = bottomMargin;
+                lp.gravity = Gravity.BOTTOM;
+                messageLayout.addView(indicator, idx, lp);
+            }
+        } else {
+            // 无引用卡片或发送方：指示器应在语音布局内部
+            if (voiceRcLayout instanceof ViewGroup && currentParent != voiceRcLayout) {
+                currentParent.removeView(indicator);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+                lp.setMarginStart(marginStart);
+                ((ViewGroup) voiceRcLayout).addView(indicator, lp);
+            }
+        }
+    }
+
+    /** 判断给定 id 是否为语音指示器 view（红点/下载错误/下载进度）。 */
+    private boolean isVoiceIndicator(int id) {
+        return id == R.id.rc_voice_unread
+                || id == R.id.rc_voice_download_error
+                || id == R.id.rc_download_progress;
     }
 }

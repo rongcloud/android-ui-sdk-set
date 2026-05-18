@@ -20,6 +20,7 @@ import io.rong.imkit.event.actionevent.RefreshEvent;
 import io.rong.imkit.event.actionevent.SendEvent;
 import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.forward.CombineMessage;
+import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.manager.OnLineStatusManager;
@@ -2148,6 +2149,9 @@ public class IMCenter {
                 .isReadReceiptV5Enabled(conversationIdentifier.getType())) {
             message.setNeedReceipt(true);
         }
+        // V2 引用：在消息入库前附加 quoteInfo（覆盖 SendImageManager、SendMediaManager
+        // 等先 insert 后 send 的路径，确保 quoteInfo 在首次入库时就写入 DB）
+        ReferenceManager.getInstance().applyQuoteInfoIfActive(message);
         ChannelClient.getInstance()
                 .insertMessage(
                         message,
@@ -2848,6 +2852,9 @@ public class IMCenter {
                 .isReadReceiptV5Enabled(message.getConversationType())) {
             message.setNeedReceipt(true);
         }
+        // V2 引用：在消息发送前附加 quoteInfo（覆盖 FilePlugin、SightPlugin、
+        // AudioRecordManager、LocationPlugin 等直接调用 sendMessage/sendMediaMessage 的路径）
+        ReferenceManager.getInstance().applyQuoteInfoIfActive(message);
     }
 
     /**

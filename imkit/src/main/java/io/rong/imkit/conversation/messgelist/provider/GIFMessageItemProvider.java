@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
@@ -21,6 +23,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.GIFPreviewActivity;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.feature.reference.QuoteCardView;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
@@ -38,10 +41,32 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
     private Integer minSize = null;
     private Integer maxSize = null;
 
+    @Override
+    protected int getQuoteCardWrapperMinWidth(Context context) {
+        // GIF 消息本体足够宽，不需要额外最小宽度撑大气泡。
+        return 0;
+    }
+
     public GIFMessageItemProvider() {
         mConfig.showReadState = true;
         mConfig.showProgress = false;
         mConfig.showContentBubble = false;
+    }
+
+    static int resolveGifRootGravity(boolean hasQuoteCard, boolean isSender) {
+        return hasQuoteCard ? Gravity.START : -1;
+    }
+
+    static int resolveGifRootMargin(boolean hasQuoteCard, int quoteLineStartMarginPx) {
+        return hasQuoteCard ? quoteLineStartMarginPx : 0;
+    }
+
+    static int resolveGifRootEndMargin(boolean hasQuoteCard, int quoteLineEndMarginPx) {
+        return hasQuoteCard ? quoteLineEndMarginPx : 0;
+    }
+
+    static int resolveGifRootBottomMargin(boolean hasQuoteCard, int quoteLineBottomMarginPx) {
+        return hasQuoteCard ? quoteLineBottomMarginPx : 0;
     }
 
     @Override
@@ -163,6 +188,46 @@ public class GIFMessageItemProvider extends BaseMessageItemProvider<GIFMessage> 
                     holder.setText(R.id.rc_length, formatSize(gifMessage.getGifDataSize()));
                 }
             }
+        }
+
+        boolean hasQuoteCard = QuoteCardView.shouldShowQuoteCard(uiMessage.getMessage());
+        boolean isSender =
+                uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
+        View gifRoot = holder.itemView;
+        ViewGroup.LayoutParams lp = gifRoot.getLayoutParams();
+        if (lp instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) lp;
+            if (hasQuoteCard) {
+                int bodySpacing = ScreenUtils.dip2px(gifRoot.getContext(), 6);
+                int startMargin =
+                        resolveGifRootMargin(
+                                true,
+                                gifRoot.getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.rc_quote_v2_card_horizontal_margin));
+                int endMargin =
+                        resolveGifRootEndMargin(
+                                true,
+                                gifRoot.getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.rc_quote_v2_card_horizontal_margin));
+                int bottomMargin =
+                        resolveGifRootBottomMargin(
+                                true,
+                                gifRoot.getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.rc_quote_v2_card_horizontal_margin));
+                llp.setMargins(startMargin, bodySpacing, endMargin, bottomMargin);
+                llp.setMarginStart(startMargin);
+                llp.setMarginEnd(endMargin);
+                llp.gravity = resolveGifRootGravity(true, isSender);
+            } else {
+                llp.setMargins(0, 0, 0, 0);
+                llp.setMarginStart(0);
+                llp.setMarginEnd(0);
+                llp.gravity = resolveGifRootGravity(false, isSender);
+            }
+            gifRoot.setLayoutParams(llp);
         }
     }
 

@@ -5,6 +5,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import androidx.annotation.NonNull;
@@ -771,6 +772,14 @@ public class IMKitThemeManager {
                 return typedValue.resourceId;
             }
         }
+        if (typedValue.resourceId == 0) {
+            RLog.w(
+                    TAG,
+                    "getAttrResId: failed to resolve attribute 0x"
+                            + Integer.toHexString(attrId)
+                            + ", theme may not have been applied. isInit="
+                            + isInit);
+        }
         return typedValue.resourceId;
     }
 
@@ -799,7 +808,25 @@ public class IMKitThemeManager {
         if (context == null || attrId == 0) {
             return 0;
         }
-        return context.getResources().getColor(getAttrResId(context, attrId));
+        int resId = getAttrResId(context, attrId);
+        if (resId == 0) {
+            RLog.w(
+                    TAG,
+                    "getColorFromAttrId: attribute 0x"
+                            + Integer.toHexString(attrId)
+                            + " not found in theme, returning 0");
+            return 0;
+        }
+        try {
+            return context.getResources().getColor(resId);
+        } catch (Exception e) {
+            RLog.e(
+                    TAG,
+                    "getColorFromAttrId: failed to get color for resId 0x"
+                            + Integer.toHexString(resId),
+                    e);
+            return 0;
+        }
     }
 
     // ========== 私有方法 ==========
@@ -852,6 +879,35 @@ public class IMKitThemeManager {
         int nightMode =
                 context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         return nightMode == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    /**
+     * 确保主题已应用到指定的 Context。
+     *
+     * <p>在 Activity 的 {@code onCreate} 中、{@code setContentView} 调用之前使用， 以确保布局中的 {@code ?attr/rc_*}
+     * 属性引用能够被正确解析。
+     *
+     * <p>此方法在内部会检查主题系统是否已初始化，如未初始化则先执行初始化。
+     *
+     * <pre>
+     * {@literal @}Override
+     * protected void onCreate(Bundle savedInstanceState) {
+     *     IMKitThemeManager.ensureThemeApplied(this);
+     *     super.onCreate(savedInstanceState);
+     *     setContentView(R.layout.my_layout);
+     * }
+     * </pre>
+     *
+     * @param context 上下文（通常是 Activity）
+     */
+    public static void ensureThemeApplied(Context context) {
+        if (context == null) {
+            return;
+        }
+        if (!isInit) {
+            initThemes(context);
+        }
+        applyTheme(context);
     }
 
     /** 应用当前主题到指定的 Context（自动处理自定义主题的基础主题叠加） */
@@ -943,15 +999,28 @@ public class IMKitThemeManager {
 
     // ========== 内部类 ==========
 
-    /** Activity 生命周期回调，用于在 Activity 创建时自动应用主题 */
+    /** Activity 生命周期回调，用于在 Activity 创建前自动应用主题 */
     private static class ThemeCallback implements Application.ActivityLifecycleCallbacks {
 
+        /** API 29+ 在 Activity.onCreate() 之前调用，确保 setContentView() 时 布局中的 ?attr/rc_* 属性引用能被正确解析。 */
+        @Override
+        public void onActivityPreCreated(
+                @NonNull Activity activity, @Nullable Bundle savedInstanceState) {
+            RLog.v(TAG, "onActivityPreCreated: " + activity.getClass().getSimpleName());
+            IMKitThemeManager.applyTheme(activity);
+        }
+
+        /**
+         * API < 29 的兜底：onActivityPreCreated 不可用时，在 onCreate() 结束后应用主题， 确保后续 Fragment inflate
+         * 等场景仍可解析主题属性。
+         */
         @Override
         public void onActivityCreated(
                 @NonNull Activity activity, @Nullable Bundle savedInstanceState) {
-            RLog.v(TAG, "onActivityCreated: " + activity.getClass().getSimpleName());
-            // applyTheme 会自动处理内置主题和自定义主题（包括基础主题叠加）
-            IMKitThemeManager.applyTheme(activity);
+            if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                RLog.v(TAG, "onActivityCreated(fallback): " + activity.getClass().getSimpleName());
+                IMKitThemeManager.applyTheme(activity);
+            }
         }
 
         @Override

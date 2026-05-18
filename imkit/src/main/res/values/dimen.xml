@@ -70,7 +70,8 @@
 
     <dimen name="rc_reference_ext_view_height">60dp</dimen>
     <dimen name="rc_reference_width">255dp</dimen>
-    <dimen name="rc_reference_margin_top">8dp</dimen>
+    <!-- 顶部气泡 padding：与 iOS RCReferenceMessageCell bubble_top_space=10 对齐 -->
+    <dimen name="rc_reference_margin_top">10dp</dimen>
     <dimen name="rc_reference_margin_right">12dp</dimen>
     <dimen name="rc_reference_divider_width">2dp</dimen>
     <dimen name="rc_reference_divider_height">13dp</dimen>
@@ -84,9 +85,39 @@
     <dimen name="rc_reference_image_size">56dp</dimen>
     <dimen name="rc_reference_content_margin_left">12dp</dimen>
     <dimen name="rc_reference_content_margin_right">12dp</dimen>
-    <dimen name="rc_reference_content_margin_top">4dp</dimen>
+    <!-- 与 iOS 对齐：divider 自身 marginBottom 已经是 10dp，正文上方不再追加间距。 -->
+    <dimen name="rc_reference_content_margin_top">0dp</dimen>
     <dimen name="rc_reference_content_send_margin_bottom">10dp</dimen>
     <dimen name="rc_reference_content_send_size">17dp</dimen>
+
+    <!-- Quote V2 卡片样式（对齐 iOS RCReferencedContentView） -->
+    <dimen name="rc_quote_v2_text_size">12sp</dimen>
+    <dimen name="rc_quote_v2_text_line_height">18dp</dimen>
+    <dimen name="rc_quote_v2_inline_left_line_width">1dp</dimen>
+    <dimen name="rc_quote_v2_inline_left_line_height">9dp</dimen>
+    <dimen name="rc_quote_v2_inline_left_line_margin_end">4dp</dimen>
+    <dimen name="rc_quote_v2_card_horizontal_margin">12dp</dimen>
+    <dimen name="rc_quote_v2_inline_text_max_width">194dp</dimen>
+    <dimen name="rc_quote_v2_image_thumbnail_size">50dp</dimen>
+    <dimen name="rc_quote_v2_file_card_height">50dp</dimen>
+    <dimen name="rc_quote_v2_file_card_min_width">156dp</dimen>
+    <dimen name="rc_quote_v2_file_card_radius">6dp</dimen>
+    <dimen name="rc_quote_v2_file_card_border">0.5dp</dimen>
+    <dimen name="rc_quote_v2_file_card_padding">8dp</dimen>
+    <dimen name="rc_quote_v2_file_card_icon_size">32dp</dimen>
+    <dimen name="rc_quote_v2_file_card_icon_text_spacing">8dp</dimen>
+    <dimen name="rc_quote_v2_file_card_size_line_height">15dp</dimen>
+    <dimen name="rc_quote_v2_file_body_content_height">36dp</dimen>
+    <dimen name="rc_quote_v2_file_card_top_spacing">6dp</dimen>
+    <!-- 引用卡片与正文之间分隔线 -->
+    <dimen name="rc_quote_v2_divider_top_spacing">6dp</dimen>
+    <dimen name="rc_quote_v2_divider_height">1dp</dimen>
+    <dimen name="rc_quote_v2_divider_bottom_spacing">0dp</dimen>
+    <dimen name="rc_quote_v2_body_bottom_padding">10dp</dimen>
+
+    <!-- 与 rc_text_message_item / rc_translate_text_message_item 中 TextView maxWidth 一致；
+         V2 引用卡片使用相同下限宽度，避免主文极短时令整列气泡过窄、引用摘要被过度省略 -->
+    <dimen name="rc_message_content_max_width">223dp</dimen>
 
     <!--FilePreview-->
     <dimen name="rc_file_preview_image_size">80dp</dimen>

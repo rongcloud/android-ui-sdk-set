@@ -212,7 +212,11 @@ public class InputPanel {
                             mExtensionViewModel
                                     .getInputModeLiveData()
                                     .setValue(InputMode.PluginMode);
-                            ReferenceManager.getInstance().hideReferenceView();
+                            // V2 引用模式下切换到插件面板仍保持引用条，
+                            // 引用条由 applyQuoteInfoIfActive 在发送路径中按白名单消费
+                            if (!RongConfigCenter.featureConfig().isQuoteV2Enable()) {
+                                ReferenceManager.getInstance().hideReferenceView();
+                            }
                         }
                     }
                 });

@@ -81,6 +81,7 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
             config = PictureSelectionConfig.getInstance();
         }
         setTheme(config.themeStyleId);
+        IMKitThemeManager.ensureThemeApplied(this);
         super.onCreate(savedInstanceState);
         initConfig();
         int layoutResID = getResourceId();

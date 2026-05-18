@@ -4,77 +4,59 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
-import android.util.LayoutDirection;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
-import androidx.core.text.TextUtilsCompat;
 import androidx.fragment.app.FragmentActivity;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
 import io.rong.common.rlog.RLog;
-import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.FilePreviewActivity;
 import io.rong.imkit.activity.PicturePagerActivity;
-import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.conversation.messgelist.provider.BaseMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.picture.tools.ScreenUtils;
-import io.rong.imkit.userinfo.RongUserInfoManager;
-import io.rong.imkit.userinfo.model.GroupUserInfo;
 import io.rong.imkit.utils.RouteUtils;
-import io.rong.imkit.utils.StringUtils;
 import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imkit.widget.ILinkClickListener;
 import io.rong.imkit.widget.LinkTextViewMovementMethod;
 import io.rong.imkit.widget.ReferenceDialog;
 import io.rong.imkit.widget.adapter.IViewProviderListener;
 import io.rong.imkit.widget.adapter.ViewHolder;
-import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
-import io.rong.imlib.model.UserInfo;
 import io.rong.message.FileMessage;
 import io.rong.message.ImageMessage;
 import io.rong.message.ReferenceMessage;
 import io.rong.message.RichContentMessage;
-import io.rong.message.StreamMessage;
+import io.rong.message.SightMessage;
 import io.rong.message.TextMessage;
 import java.util.List;
-import java.util.Locale;
 
+/**
+ * V1 引用消息 cell。
+ *
+ * <p>引用区使用 {@link QuoteCardView}，与 V2 视觉一致（对齐 iOS RCReferencedContentView 的两端共用模式）。 Provider
+ * 仅负责发送方文本渲染、引用点击交互、及高 DPI 下的容器宽度调整。
+ */
 public class ReferenceMessageItemProvider extends BaseMessageItemProvider<ReferenceMessage> {
     private static final int MAX_DENSITY_DPI = 500;
     private static final int STANDARD_DEFAULT_DENSITY_DPI = 440;
     private static final int DATUM_DENSITY_DPI = 160;
 
+    private static final String TAG = "ReferenceMessageItemProvider";
+
     public ReferenceMessageItemProvider() {
         mConfig.showReadState = true;
         mConfig.showEditState = true;
     }
-
-    private static final String TAG = "ReferenceMessageItemProvider";
 
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
@@ -93,113 +75,30 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             int position,
             List<UiMessage> list,
             IViewProviderListener<UiMessage> listener) {
+        // 1. 发送方文本（用户自己回复的内容）
         TextView referenceSendContent = holder.getView(R.id.rc_msg_tv_reference_send_content);
-        if (referenceMessage.getUserId() != null) {
-            holder.setText(
-                    R.id.rc_msg_tv_reference_name,
-                    getDisplayName(uiMessage, referenceMessage) + " : ");
-        }
         if (referenceSendContent != null && referenceMessage.getEditSendText() != null) {
-            setTextContent(
-                    referenceSendContent, uiMessage, referenceMessage.getEditSendText(), true);
+            setTextContent(referenceSendContent, uiMessage, referenceMessage.getEditSendText());
             setMovementMethod(uiMessage, referenceSendContent);
+            referenceSendContent.setOnLongClickListener(
+                    v -> parentHolder.getView(R.id.rc_content).performLongClick());
         }
-        if (referenceMessage.getReferenceContent() == null) {
-            return;
-        }
-        if (!IMKitThemeManager.isTraditionTheme()) {
-            int attrResId =
-                    IMKitThemeManager.getAttrResId(
-                            holder.getContext(), R.attr.rc_text_primary_color);
-            holder.setBackgroundRes(R.id.rc_reference_vertical_mark, attrResId);
-            holder.setTextColorRes(R.id.rc_msg_tv_reference_name, attrResId);
-            holder.setTextColorRes(R.id.rc_msg_tv_reference_file_name, attrResId);
-            holder.setTextColorRes(R.id.rc_msg_tv_reference_content, attrResId);
-        }
-        if (referenceMessage.getReferenceContent() instanceof TextMessage
-                || referenceMessage.getReferenceContent() instanceof StreamMessage) {
-            String content;
-            if (referenceMessage.getReferenceContent() instanceof TextMessage) {
-                content = ((TextMessage) referenceMessage.getReferenceContent()).getContent();
-            } else {
-                content = ((StreamMessage) referenceMessage.getReferenceContent()).getContent();
-            }
-            setTextType(
-                    holder.getConvertView(),
-                    holder,
-                    parentHolder,
-                    position,
-                    referenceMessage,
-                    content,
-                    uiMessage);
-            holder.setVisible(R.id.rc_msg_tv_reference_content, true);
-            holder.setVisible(R.id.rc_msg_iv_reference, false);
-            holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
-        } else if (referenceMessage.getReferenceContent() instanceof ImageMessage) {
-            boolean processed = processReferenceMessageStatus(referenceMessage, holder, uiMessage);
-            if (!processed) {
-                setImageType(
-                        holder.getConvertView(),
-                        holder,
-                        parentHolder,
-                        position,
-                        referenceMessage,
-                        uiMessage);
-                holder.setVisible(R.id.rc_msg_tv_reference_content, false);
-                holder.setVisible(R.id.rc_msg_iv_reference, true);
-                holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
-            }
-        } else if (referenceMessage.getReferenceContent() instanceof FileMessage) {
-            boolean processed = processReferenceMessageStatus(referenceMessage, holder, uiMessage);
-            if (!processed) {
-                setFileType(
-                        holder.getConvertView(),
-                        holder,
-                        parentHolder,
-                        position,
-                        referenceMessage,
-                        uiMessage);
-                holder.setVisible(R.id.rc_msg_tv_reference_content, false);
-                holder.setVisible(R.id.rc_msg_iv_reference, false);
-                holder.setVisible(R.id.rc_msg_tv_reference_file_name, true);
-            }
-        } else if (referenceMessage.getReferenceContent() instanceof RichContentMessage) {
-            boolean processed = processReferenceMessageStatus(referenceMessage, holder, uiMessage);
-            if (!processed) {
-                setRichType(
-                        holder.getConvertView(),
-                        holder,
-                        parentHolder,
-                        position,
-                        referenceMessage,
-                        uiMessage);
-                holder.setVisible(R.id.rc_msg_tv_reference_content, true);
-                TextView referenceContent = holder.getView(R.id.rc_msg_tv_reference_content);
-                if (referenceContent != null) {
-                    referenceContent.setMaxLines(3);
-                    referenceContent.setEllipsize(TextUtils.TruncateAt.END);
-                }
-                holder.setVisible(R.id.rc_msg_iv_reference, false);
-                holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
-            }
-        } else if (referenceMessage.getReferenceContent() instanceof ReferenceMessage) {
-            setReferenceType(
-                    holder.getConvertView(),
-                    holder,
-                    parentHolder,
-                    position,
-                    referenceMessage,
-                    uiMessage);
-            holder.setVisible(R.id.rc_msg_tv_reference_content, true);
-            holder.setVisible(R.id.rc_msg_iv_reference, false);
-            holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
-        } else {
-            holder.setVisible(R.id.rc_msg_tv_reference_content, true);
-            holder.setText(
-                    R.id.rc_msg_tv_reference_content,
-                    holder.getContext().getString(R.string.rc_message_unknown));
-            holder.setVisible(R.id.rc_msg_iv_reference, false);
-            holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
+
+        // 2. 引用区交给 QuoteCardView 渲染（与 V2 风格一致）
+        QuoteCardView quoteCard = holder.getView(R.id.rc_reference_quote_card);
+        if (quoteCard != null) {
+            Message wrappingMessage = uiMessage.getMessage();
+            quoteCard.setReferenceMessage(wrappingMessage);
+            quoteCard.setOnClickListener(
+                    v -> {
+                        if (isInvalidReferenceStatus(referenceMessage)) {
+                            return;
+                        }
+                        handleQuoteClick(
+                                v.getContext(), wrappingMessage, referenceMessage, uiMessage);
+                    });
+            quoteCard.setOnLongClickListener(
+                    v -> parentHolder.getView(R.id.rc_content).performLongClick());
         }
 
         setMaximumDisplaySize(holder);
@@ -236,99 +135,32 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
     public Spannable getSummarySpannable(Context context, ReferenceMessage referenceMessage) {
         if (referenceMessage != null && !TextUtils.isEmpty(referenceMessage.getEditSendText())) {
             return new SpannableString(referenceMessage.getEditSendText());
-        } else {
-            return null;
         }
+        return null;
     }
 
-    private String getDisplayName(UiMessage uiMessage, ReferenceMessage referenceMessage) {
-        if (uiMessage.getMessage().getSenderUserId() != null) {
-            UserInfo userInfo =
-                    getUserInfo(
-                            referenceMessage.getUserId(), referenceMessage.getReferenceContent());
-            String groupMemberName = "";
-            if (uiMessage
-                    .getMessage()
-                    .getConversationType()
-                    .equals(Conversation.ConversationType.GROUP)) {
-                GroupUserInfo groupUserInfo =
-                        RongUserInfoManager.getInstance()
-                                .getGroupUserInfo(
-                                        uiMessage.getMessage().getTargetId(),
-                                        referenceMessage.getUserId());
-                groupMemberName = groupUserInfo != null ? groupUserInfo.getNickname() : "";
-            }
-            return RongUserInfoManager.getInstance().getUserDisplayName(userInfo, groupMemberName);
-        }
-        return "";
-    }
-
-    private UserInfo getUserInfo(String userId, MessageContent messageContent) {
-        boolean isInfoManagement =
-                RongUserInfoManager.getInstance().getDataSourceType()
-                        == RongUserInfoManager.DataSourceType.INFO_MANAGEMENT;
-        if (isInfoManagement
-                && messageContent != null
-                && messageContent.getUserInfo() != null
-                && messageContent.getUserInfo().getUserId() != null
-                && messageContent.getUserInfo().getUserId().equals(userId)) {
-            return messageContent.getUserInfo();
-        }
-        return RongUserInfoManager.getInstance().getUserInfo(userId);
-    }
-
-    private SpannableStringBuilder createSpan(String content) {
-        SpannableStringBuilder spannable = new SpannableStringBuilder(content);
-        return spannable;
-    }
-
-    private void setTextContent(
-            final TextView textView, final UiMessage data, String content, boolean isSendContent) {
+    /** 把发送方文本（含 emoji/链接 spannable 化）写入 TextView，并缓存 spannable 到 UiMessage 上。 */
+    private void setTextContent(final TextView textView, final UiMessage data, String content) {
         textView.setTag(data.getMessageId());
-        content = isSendContent ? content : StringUtils.getStringNoBlank(content);
-        if (isSendContent) {
-            if (data.getContentSpannable() == null) {
-                Runnable textViewRunnable =
-                        () -> setTextMessageContent(textView, data, data.getContentSpannable());
-                SpannableStringBuilder spannable =
-                        TextViewUtils.getSpannable(
-                                content,
-                                false,
-                                new TextViewUtils.RegularCallBack() {
-                                    @Override
-                                    public void finish(SpannableStringBuilder spannable) {
-                                        data.setContentSpannable(spannable);
-                                        if (textView.getTag().equals(data.getMessageId())) {
-                                            textView.post(textViewRunnable);
-                                        }
+        if (data.getContentSpannable() == null) {
+            Runnable textViewRunnable =
+                    () -> setTextMessageContent(textView, data, data.getContentSpannable());
+            SpannableStringBuilder spannable =
+                    TextViewUtils.getSpannable(
+                            content,
+                            false,
+                            new TextViewUtils.RegularCallBack() {
+                                @Override
+                                public void finish(SpannableStringBuilder spannable) {
+                                    data.setContentSpannable(spannable);
+                                    if (textView.getTag().equals(data.getMessageId())) {
+                                        textView.post(textViewRunnable);
                                     }
-                                });
-                data.setContentSpannable(spannable);
-            }
-            setTextMessageContent(textView, data, data.getContentSpannable());
-        } else {
-            if (data.getReferenceContentSpannable() == null) {
-                Runnable textViewRunnable =
-                        () ->
-                                setReferenceMessageContent(
-                                        textView, data, data.getReferenceContentSpannable());
-                SpannableStringBuilder spannable =
-                        TextViewUtils.getSpannable(
-                                content,
-                                false,
-                                new TextViewUtils.RegularCallBack() {
-                                    @Override
-                                    public void finish(SpannableStringBuilder spannable) {
-                                        data.setReferenceContentSpannable(spannable);
-                                        if (textView.getTag().equals(data.getMessageId())) {
-                                            textView.post(textViewRunnable);
-                                        }
-                                    }
-                                });
-                data.setReferenceContentSpannable(spannable);
-            }
-            setReferenceMessageContent(textView, data, data.getReferenceContentSpannable());
+                                }
+                            });
+            data.setContentSpannable(spannable);
         }
+        setTextMessageContent(textView, data, data.getContentSpannable());
     }
 
     private void setMovementMethod(final UiMessage uiMessage, final TextView textView) {
@@ -337,11 +169,11 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                         new ILinkClickListener() {
                             @Override
                             public boolean onLinkClick(String link) {
-                                boolean result = false;
+                                boolean handled = false;
                                 if (RongConfigCenter.conversationConfig()
                                                 .getConversationClickListener()
                                         != null) {
-                                    result =
+                                    handled =
                                             RongConfigCenter.conversationConfig()
                                                     .getConversationClickListener()
                                                     .onMessageLinkClick(
@@ -349,374 +181,68 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                                                             link,
                                                             uiMessage.getMessage());
                                 }
-                                if (result) return true;
-                                String str = link.toLowerCase();
-                                if (str.startsWith("http") || str.startsWith("https")) {
+                                if (handled) return true;
+                                String lower = link.toLowerCase();
+                                if (lower.startsWith("http") || lower.startsWith("https")) {
                                     RouteUtils.routeToWebActivity(textView.getContext(), link);
-                                    result = true;
+                                    return true;
                                 }
-
-                                return result;
+                                return false;
                             }
                         }));
     }
 
-    private void setTextType(
-            final View view,
-            ViewHolder holder,
-            ViewHolder parentHolder,
-            final int position,
-            final ReferenceMessage referenceMessage,
-            final String content,
-            final UiMessage uiMessage) {
-        if (referenceMessage == null || referenceMessage.getReferenceContent() == null) {
+    /** 引用区点击：根据被引用消息类型跳转预览。 */
+    private void handleQuoteClick(
+            Context context,
+            Message wrappingMessage,
+            ReferenceMessage referenceMessage,
+            UiMessage uiMessage) {
+        MessageContent referContent = referenceMessage.getReferenceContent();
+        if (referContent == null) {
             return;
         }
-        TextView textView = holder.getView(R.id.rc_msg_tv_reference_content);
-        if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
-                == LayoutDirection.RTL) {
-            textView.getViewTreeObserver()
-                    .addOnGlobalLayoutListener(new OnGlobalLayoutListenerByEllipsize(textView, 1));
-        }
-
-        setTextContent(textView, uiMessage, content, false);
-        setReferenceContentAction(
-                view, holder, parentHolder, position, referenceMessage, uiMessage);
-        textClickAction(view, textView, uiMessage, referenceMessage);
-    }
-
-    private void textClickAction(
-            final View view,
-            TextView textView,
-            final UiMessage uiMessage,
-            ReferenceMessage referenceMessage) {
-        textView.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (isInvalidReferenceStatus(referenceMessage)) {
-                            return;
-                        }
-                        showPopWindow(view.getContext(), uiMessage);
-                        hideInputKeyboard(view);
-                    }
-                });
-    }
-
-    private void hideInputKeyboard(View view) {
-        InputMethodManager imm =
-                (InputMethodManager)
-                        view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
-    private void setReferenceContentAction(
-            final View view,
-            ViewHolder holder,
-            final ViewHolder parentHolder,
-            final int position,
-            final ReferenceMessage referenceMessage,
-            final UiMessage uiMessage) {
-        holder.setOnLongClickListener(
-                R.id.rc_msg_tv_reference_content,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-
-        holder.setOnLongClickListener(
-                R.id.rc_msg_tv_reference_send_content,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-        TextView referenceContent = holder.getView(R.id.rc_msg_tv_reference_content);
-        setMovementMethod(uiMessage, referenceContent);
-    }
-
-    private void setImageType(
-            final View view,
-            ViewHolder holder,
-            final ViewHolder parentHolder,
-            final int position,
-            final ReferenceMessage referenceMessage,
-            final UiMessage uiMessage) {
-        if (referenceMessage == null || referenceMessage.getReferenceContent() == null) {
-            return;
-        }
-        final ImageView imageView = holder.getView(R.id.rc_msg_iv_reference);
-        ImageMessage content = (ImageMessage) referenceMessage.getReferenceContent();
-        Uri imageUri = null;
-        if (content.getThumUri() != null) {
-            imageUri = content.getThumUri();
-        } else if (content.getLocalPath() != null) {
-            imageUri = content.getLocalPath();
-        } else if (content.getMediaUrl() != null) {
-            imageUri = content.getMediaUrl();
-        }
-        if (imageUri != null) {
-            RequestOptions options =
-                    RequestOptions.bitmapTransform(
-                                    new RoundedCorners(
-                                            ScreenUtils.dip2px(
-                                                    IMCenter.getInstance().getContext(), 3)))
-                            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL);
-            Glide.with(view)
-                    .load(imageUri)
-                    .apply(options)
-                    .listener(
-                            new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(
-                                        @Nullable GlideException e,
-                                        Object model,
-                                        Target<Drawable> target,
-                                        boolean isFirstResource) {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(
-                                        Drawable resource,
-                                        Object model,
-                                        Target<Drawable> target,
-                                        DataSource dataSource,
-                                        boolean isFirstResource) {
-                                    ViewGroup.LayoutParams layoutParams =
-                                            imageView.getLayoutParams();
-                                    layoutParams.width = resource.getIntrinsicWidth();
-                                    layoutParams.height = resource.getIntrinsicHeight();
-                                    imageView.setLayoutParams(layoutParams);
-                                    return false;
-                                }
-                            })
-                    .into(imageView);
-        }
-        imageView.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (isInvalidReferenceStatus(referenceMessage)) {
-                            return;
-                        }
-                        try {
-                            Intent intent =
-                                    new Intent(view.getContext(), PicturePagerActivity.class);
-                            intent.setPackage(view.getContext().getPackageName());
-                            intent.putExtra("message", uiMessage.getMessage());
-                            view.getContext().startActivity(intent);
-                        } catch (Exception e) {
-                            RLog.e(TAG, "setImageType", e);
-                        }
-                    }
-                });
-
-        imageView.setOnLongClickListener(
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-
-        holder.setOnLongClickListener(
-                R.id.rc_msg_tv_reference_send_content,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-    }
-
-    private void setFileType(
-            final View view,
-            final ViewHolder holder,
-            final ViewHolder parentHolder,
-            final int position,
-            final ReferenceMessage referenceMessage,
-            final UiMessage uiMessage) {
-        if (referenceMessage == null || referenceMessage.getReferenceContent() == null) {
-            return;
-        }
-        final FileMessage content = (FileMessage) referenceMessage.getReferenceContent();
-        String string =
-                view.getContext().getString(R.string.rc_search_file_prefix)
-                        + ' '
-                        + content.getName();
-
-        final SpannableStringBuilder ssb = new SpannableStringBuilder(string);
-        ssb.setSpan(
-                new ForegroundColorSpan(
-                        IMKitThemeManager.getColorFromAttrId(
-                                view.getContext(), R.attr.rc_link_color)),
-                0,
-                string.length(),
-                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        holder.setText(R.id.rc_msg_tv_reference_file_name, ssb);
-        holder.setOnClickListener(
-                R.id.rc_msg_tv_reference_file_name,
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (isInvalidReferenceStatus(referenceMessage)) {
-                            return;
-                        }
-                        try {
-                            Intent intent = new Intent();
-                            intent.setClass(view.getContext(), FilePreviewActivity.class);
-                            intent.setPackage(view.getContext().getPackageName());
-                            ReferenceMessage referenceMessage =
-                                    (ReferenceMessage) uiMessage.getMessage().getContent();
-                            FileMessage fileMessage =
-                                    (FileMessage) referenceMessage.getReferenceContent();
-                            intent.putExtra("FileMessage", fileMessage);
-                            intent.putExtra("Message", uiMessage.getMessage());
-                            intent.putExtra("Progress", uiMessage.getProgress());
-                            view.getContext().startActivity(intent);
-                        } catch (Exception e) {
-                            RLog.e(TAG, "exception: " + e);
-                        }
-                    }
-                });
-        holder.setOnLongClickListener(
-                R.id.rc_msg_tv_reference_file_name,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-        holder.setOnLongClickListener(
-                R.id.rc_msg_tv_reference_send_content,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-    }
-
-    private void setRichType(
-            final View view,
-            ViewHolder holder,
-            final ViewHolder parentHolder,
-            final int position,
-            final ReferenceMessage referenceMessage,
-            final UiMessage uiMessage) {
-        if (referenceMessage == null || referenceMessage.getReferenceContent() == null) {
-            return;
-        }
-        final RichContentMessage content =
-                (RichContentMessage) referenceMessage.getReferenceContent();
-        String string =
-                view.getContext().getString(R.string.rc_reference_link) + ' ' + content.getTitle();
-        final TextView textView = holder.getView(R.id.rc_msg_tv_reference_content);
-        textView.setTag(uiMessage.getMessageId());
-        if (uiMessage.getReferenceContentSpannable() == null) {
-            SpannableStringBuilder spannable =
-                    TextViewUtils.getRichSpannable(
-                            string,
-                            new TextViewUtils.RegularCallBack() {
-                                @Override
-                                public void finish(SpannableStringBuilder spannable) {
-                                    uiMessage.setReferenceContentSpannable(spannable);
-                                    if (textView.getTag().equals(uiMessage.getMessageId())) {
-                                        textView.post(
-                                                new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        textView.setText(
-                                                                uiMessage
-                                                                        .getReferenceContentSpannable());
-                                                    }
-                                                });
-                                    }
-                                }
-                            },
-                            IMKitThemeManager.getColorFromAttrId(
-                                    textView.getContext(), R.attr.rc_link_color));
-            uiMessage.setReferenceContentSpannable(spannable);
-        }
-        textView.setText(uiMessage.getReferenceContentSpannable());
-        holder.setOnClickListener(
-                R.id.rc_msg_tv_reference_content,
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (isInvalidReferenceStatus(referenceMessage)) {
-                            return;
-                        }
-                        RouteUtils.routeToWebActivity(view.getContext(), content.getUrl());
-                    }
-                });
-        holder.setOnLongClickListener(
-                R.id.rc_msg_tv_reference_content,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-        holder.setOnLongClickListener(
-                R.id.rc_msg_tv_reference_send_content,
-                new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        return parentHolder.getView(R.id.rc_content).performLongClick();
-                    }
-                });
-    }
-
-    private void setReferenceType(
-            final View view,
-            ViewHolder holder,
-            ViewHolder parentHolder,
-            final int position,
-            final ReferenceMessage referenceMessage,
-            final UiMessage uiMessage) {
-        if (referenceMessage == null || referenceMessage.getReferenceContent() == null) {
-            return;
-        }
-        ReferenceMessage content = (ReferenceMessage) referenceMessage.getReferenceContent();
-        setTextContent(
-                holder.getView(R.id.rc_msg_tv_reference_content),
-                uiMessage,
-                content.getEditSendText(),
-                false);
-        setReferenceContentAction(
-                view, holder, parentHolder, position, referenceMessage, uiMessage);
-        textClickAction(
-                view,
-                holder.getView(R.id.rc_msg_tv_reference_content),
-                uiMessage,
-                referenceMessage);
-    }
-
-    // 处理引用消息状态，如果状态是delete、recall，则返回true统一展示“已撤回”、“已删除”。
-    private boolean processReferenceMessageStatus(
-            ReferenceMessage referenceMessage, ViewHolder holder, UiMessage uiMessage) {
-        ReferenceMessage.ReferenceMessageStatus status = referenceMessage.getReferMsgStatus();
-        if (status == ReferenceMessage.ReferenceMessageStatus.DELETE
-                || status == ReferenceMessage.ReferenceMessageStatus.RECALLED) {
-            TextView textView = holder.getView(R.id.rc_msg_tv_reference_content);
-            if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
-                    == LayoutDirection.RTL) {
-                textView.getViewTreeObserver()
-                        .addOnGlobalLayoutListener(
-                                new OnGlobalLayoutListenerByEllipsize(textView, 1));
+        try {
+            if (referContent instanceof ImageMessage) {
+                Intent intent = new Intent(context, PicturePagerActivity.class);
+                intent.setPackage(context.getPackageName());
+                intent.putExtra("message", wrappingMessage);
+                context.startActivity(intent);
+            } else if (referContent instanceof SightMessage) {
+                RLog.d(TAG, "Quote clicked on sight message, not handled yet");
+            } else if (referContent instanceof FileMessage) {
+                Intent intent = new Intent(context, FilePreviewActivity.class);
+                intent.setPackage(context.getPackageName());
+                intent.putExtra("FileMessage", referContent);
+                intent.putExtra("Message", wrappingMessage);
+                intent.putExtra("Progress", uiMessage.getProgress());
+                context.startActivity(intent);
+            } else if (referContent instanceof RichContentMessage) {
+                String url = ((RichContentMessage) referContent).getUrl();
+                if (!TextUtils.isEmpty(url)) {
+                    RouteUtils.routeToWebActivity(context, url);
+                }
+            } else if (referContent instanceof TextMessage
+                    || referContent instanceof ReferenceMessage) {
+                showPopWindow(context, uiMessage);
+                hideInputKeyboard(context);
             }
-            setReferenceMessageContent(textView, uiMessage, new SpannableStringBuilder(""));
-            holder.setVisible(R.id.rc_msg_tv_reference_content, true);
-            holder.setVisible(R.id.rc_msg_iv_reference, false);
-            holder.setVisible(R.id.rc_msg_tv_reference_file_name, false);
-            return true;
+        } catch (Exception e) {
+            RLog.e(TAG, "handleQuoteClick", e);
         }
-        return false;
+    }
+
+    private void hideInputKeyboard(Context context) {
+        if (!(context instanceof FragmentActivity)) {
+            return;
+        }
+        InputMethodManager imm =
+                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        FragmentActivity activity = (FragmentActivity) context;
+        View focus = activity.getCurrentFocus();
+        if (imm != null && focus != null) {
+            imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
+        }
     }
 
     private boolean isInvalidReferenceStatus(ReferenceMessage referenceMessage) {
@@ -726,79 +252,14 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
     }
 
     private void showPopWindow(Context context, UiMessage uiMessage) {
-        // View inflate = View.inflate(context, R.layout.rc_reference_popupwindow, null);
         if (context instanceof FragmentActivity) {
             new ReferenceDialog(uiMessage)
                     .show(((FragmentActivity) context).getSupportFragmentManager());
         }
-
-        // final PopupWindow popupWindow = new PopupWindow(inflate,
-        // WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
-        // lp.layoutInDisplayCutoutMode =
-        // WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-        //
-        //        //sdk > 21 解决 标题栏没有办法遮罩的问题
-        //        popupWindow.setClippingEnabled(false);
-        //        popupWindow.setFocusable(true);
-        //        popupWindow.setOutsideTouchable(true);
-        //        popupWindow.showAtLocation(inflate, Gravity.NO_GRAVITY, 0, 0);
-        //        fullScreenImmersive(inflate);
-    }
-
-    private void fullScreenImmersive(View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            int uiOptions =
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            | View.SYSTEM_UI_FLAG_FULLSCREEN;
-            view.setSystemUiVisibility(uiOptions);
-        }
-    }
-
-    public class OnGlobalLayoutListenerByEllipsize
-            implements ViewTreeObserver.OnGlobalLayoutListener {
-
-        private TextView textView;
-        private int maxLines;
-
-        public OnGlobalLayoutListenerByEllipsize(TextView textView, int maxLines) {
-            if (maxLines <= 0) {
-                throw new IllegalArgumentException("MaxLines cannot be less than or equal to 0");
-            }
-            this.textView = textView;
-            this.maxLines = maxLines;
-            this.textView.setMaxLines(this.maxLines + 1);
-            this.textView.setSingleLine(false);
-        }
-
-        @Override
-        public void onGlobalLayout() {
-            if (textView.getLineCount() > maxLines) {
-                int line = textView.getLayout().getLineEnd(maxLines - 1);
-                // 定义成 CharSequence 类型，是为了兼容 emoji 表情，如果使用 String 类型则会造成 emoji 无法显示
-                CharSequence truncate = "...";
-                CharSequence text = textView.getText();
-                try {
-                    text = text.subSequence(0, line - 2);
-                } catch (Exception e) {
-                    truncate = "";
-                    text = textView.getText();
-                }
-                if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault())
-                        == LayoutDirection.RTL) {
-                    textView.setText(truncate.toString() + text);
-                } else {
-                    textView.setText(text + truncate.toString());
-                }
-            }
-        }
     }
 
     /**
-     * 如果 DisplayMetrics.densityDpi 大于 500 并且是竖屏的情况下需要改变父 View 的宽度
-     *
-     * <p>像素值 = DP_VALUE * (设备DPI / 基准DPI_160)
+     * 高 DPI 设备 + 竖屏下，按 dp 重算 root 宽度，避免 UI 异常放大。
      *
      * @param holder ViewHolder
      */
@@ -807,7 +268,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         if (resources == null) {
             return;
         }
-
         DisplayMetrics metrics = resources.getDisplayMetrics();
         Configuration config = resources.getConfiguration();
         if (metrics.densityDpi > MAX_DENSITY_DPI
@@ -818,7 +278,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             float viewWidthValue = dbValue * STANDARD_DEFAULT_DENSITY_DPI / DATUM_DENSITY_DPI;
             LinearLayout rootView = holder.getView(R.id.rc_reference_root_view);
             ViewGroup.LayoutParams params = rootView.getLayoutParams();
-            // 根据以上公式确保在高密度DPI下布局不会出现UI过大和异常的问题
             params.width = (int) viewWidthValue;
             params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
             rootView.setLayoutParams(params);

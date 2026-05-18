@@ -193,6 +193,9 @@ public class HeadComponent extends BaseComponent {
      * @param resId 图标资源id
      */
     public void setLeftTextDrawable(int resId) {
+        if (resId <= 0) {
+            return;
+        }
         Drawable drawable = getResources().getDrawable(resId);
         drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
         TextViewCompat.setCompoundDrawablesRelative(leftTextView, drawable, null, null, null);
@@ -205,6 +208,9 @@ public class HeadComponent extends BaseComponent {
      * @param resId 图标资源id
      */
     public void setTitleTextDrawable(int resId) {
+        if (resId <= 0) {
+            return;
+        }
         Drawable drawable = getResources().getDrawable(resId);
         drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
         TextViewCompat.setCompoundDrawablesRelative(titleTextView, drawable, null, null, null);
@@ -217,6 +223,9 @@ public class HeadComponent extends BaseComponent {
      * @param resId 图标资源id
      */
     public void setRightTextDrawable(int resId) {
+        if (resId <= 0) {
+            return;
+        }
         Drawable drawable = getResources().getDrawable(resId);
         drawable.setBounds(
                 0, 0, ScreenUtils.dip2px(getContext(), 24), ScreenUtils.dip2px(getContext(), 24));

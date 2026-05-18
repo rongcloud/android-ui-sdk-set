@@ -2,9 +2,12 @@ package io.rong.imkit.activity;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import io.rong.imkit.R;
+import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.PermissionCheckUtil;
 import io.rong.imkit.utils.language.RongConfigurationManager;
@@ -15,6 +18,12 @@ public class RongBaseNoActionbarActivity extends FragmentActivity {
     protected void attachBaseContext(Context newBase) {
         Context context = RongConfigurationManager.getInstance().getConfigurationContext(newBase);
         super.attachBaseContext(context);
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        IMKitThemeManager.ensureThemeApplied(this);
+        super.onCreate(savedInstanceState);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

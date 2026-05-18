@@ -13,6 +13,7 @@ import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.config.IMKitThemeManager;
 import io.rong.imkit.conversation.extension.RongExtension;
+import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCallback;
@@ -76,6 +77,8 @@ public class FilePlugin implements IPluginModule {
                     ToastUtils.s(mContext, mContext.getString(R.string.rc_file_not_exist));
                     return;
                 }
+                final boolean hasPendingQuote =
+                        ReferenceManager.getInstance().prepareQuotedFilePluginSend();
                 ExecutorHelper.getInstance()
                         .diskIO()
                         .execute(
@@ -90,6 +93,8 @@ public class FilePlugin implements IPluginModule {
                                                         Message.obtain(
                                                                 mConversationIdentifier,
                                                                 fileMessage);
+                                                ReferenceManager.getInstance()
+                                                        .applyQuoteInfoIfActive(message);
                                                 IMCenter.getInstance()
                                                         .sendMediaMessage(
                                                                 message,
@@ -99,9 +104,17 @@ public class FilePlugin implements IPluginModule {
                                                                                 .ISendMediaMessageCallback)
                                                                         null);
                                             } else {
+                                                if (hasPendingQuote) {
+                                                    ReferenceManager.getInstance()
+                                                            .cancelPendingQuotedPluginSend();
+                                                }
                                                 RLog.e(TAG, "fileMessage null");
                                             }
                                         } catch (Exception e) {
+                                            if (hasPendingQuote) {
+                                                ReferenceManager.getInstance()
+                                                        .cancelPendingQuotedPluginSend();
+                                            }
                                             RLog.e(TAG, "select file exception" + e);
                                         }
                                     }

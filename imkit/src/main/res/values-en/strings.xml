@@ -412,6 +412,8 @@
     <string name="rc_edit_status_expired">Edit expired</string>
     <string name="rc_reference_status_delete">The message has been deleted.</string>
     <string name="rc_reference_status_recall">The message has been recall.</string>
+    <string name="rc_reference_status_loading">loading...</string>
+    <string name="rc_reference_status_failed">Failed to get message</string>
     <string name="rc_edit_failed_by_remote_msg_not_exist">The cloud message does not exist and cannot be edited.</string>
     <string name="rc_edit_failed_by_sensitive">The edited content contains sensitive information, and the update failed.</string>
     <string name="rc_edit_failed_by_expire">Exceeded the effective editing time and cannot be edited</string>

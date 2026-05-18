@@ -7,10 +7,12 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -23,6 +25,7 @@ import io.rong.common.rlog.RLog;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.R;
 import io.rong.imkit.activity.PicturePagerActivity;
+import io.rong.imkit.feature.reference.QuoteCardView;
 import io.rong.imkit.feature.resend.ResendManager;
 import io.rong.imkit.model.State;
 import io.rong.imkit.model.UiMessage;
@@ -41,6 +44,12 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
     private final String MSG_TAG = "RC:ImgMsg";
     private Integer minSize = null;
     private Integer maxSize = null;
+
+    @Override
+    protected int getQuoteCardWrapperMinWidth(Context context) {
+        // 图片消息本身足够宽，不需要额外最小宽度撑大气泡
+        return 0;
+    }
 
     public ImageMessageItemProvider() {
         mConfig.showContentBubble = false;
@@ -67,6 +76,22 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                 e.printStackTrace();
             }
         }
+    }
+
+    static int resolveImageRootGravity(boolean hasQuoteCard, boolean isSender) {
+        return hasQuoteCard ? Gravity.START : -1;
+    }
+
+    static int resolveImageRootMargin(boolean hasQuoteCard, int quoteLineStartMarginPx) {
+        return hasQuoteCard ? quoteLineStartMarginPx : 0;
+    }
+
+    static int resolveImageRootEndMargin(boolean hasQuoteCard, int quoteLineEndMarginPx) {
+        return hasQuoteCard ? quoteLineEndMarginPx : 0;
+    }
+
+    static int resolveImageRootBottomMargin(boolean hasQuoteCard, int quoteLineBottomMarginPx) {
+        return hasQuoteCard ? quoteLineBottomMarginPx : 0;
     }
 
     @Override
@@ -160,6 +185,50 @@ public class ImageMessageItemProvider extends BaseMessageItemProvider<ImageMessa
                     uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND
                             ? R.drawable.rc_send_thumb_image_broken
                             : R.drawable.rc_received_thumb_image_broken);
+        }
+
+        // 有引用卡片时给图片容器添加内边距，并与引用卡片左侧对齐
+        boolean hasQuoteCard = QuoteCardView.shouldShowQuoteCard(uiMessage.getMessage());
+        boolean isSender =
+                uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND;
+        View imageRoot = holder.itemView;
+        ViewGroup.LayoutParams lp = imageRoot.getLayoutParams();
+        if (lp instanceof LinearLayout.LayoutParams) {
+            LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) lp;
+            if (hasQuoteCard) {
+                int bodySpacing = ScreenUtils.dip2px(imageRoot.getContext(), 6);
+                int startMargin =
+                        resolveImageRootMargin(
+                                true,
+                                imageRoot
+                                        .getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.rc_quote_v2_card_horizontal_margin));
+                int endMargin =
+                        resolveImageRootEndMargin(
+                                true,
+                                imageRoot
+                                        .getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.rc_quote_v2_card_horizontal_margin));
+                int bottomMargin =
+                        resolveImageRootBottomMargin(
+                                true,
+                                imageRoot
+                                        .getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.rc_quote_v2_card_horizontal_margin));
+                llp.setMargins(startMargin, bodySpacing, endMargin, bottomMargin);
+                llp.setMarginStart(startMargin);
+                llp.setMarginEnd(endMargin);
+                llp.gravity = resolveImageRootGravity(true, isSender);
+            } else {
+                llp.setMargins(0, 0, 0, 0);
+                llp.setMarginStart(0);
+                llp.setMarginEnd(0);
+                llp.gravity = resolveImageRootGravity(false, isSender);
+            }
+            imageRoot.setLayoutParams(llp);
         }
     }
 

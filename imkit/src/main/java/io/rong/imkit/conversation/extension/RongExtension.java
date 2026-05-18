@@ -345,8 +345,10 @@ public class RongExtension extends LinearLayout {
         mAttachedInfoContainer.removeAllViews();
         if (view != null) {
             mAttachedInfoContainer.addView(view);
+            mAttachedInfoContainer.setVisibility(VISIBLE);
+        } else {
+            mAttachedInfoContainer.setVisibility(GONE);
         }
-        mAttachedInfoContainer.setVisibility(VISIBLE);
     }
 
     /**

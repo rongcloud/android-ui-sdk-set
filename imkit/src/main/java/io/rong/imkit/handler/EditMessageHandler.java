@@ -11,6 +11,8 @@ import io.rong.imkit.conversation.extension.RongExtensionCacheHelper;
 import io.rong.imkit.feature.editmessage.EditMessageConfig;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.editmessage.EditMessageUtils;
+import io.rong.imkit.feature.reference.QuoteCardRefreshMatcher;
+import io.rong.imkit.feature.reference.QuoteMessageBatchLoader;
 import io.rong.imkit.feature.reference.ReferenceManager;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imlib.IRongCoreCallback;
@@ -24,6 +26,7 @@ import io.rong.imlib.model.EditedMessageDraft;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.MessageResult;
+import io.rong.imlib.model.QuoteInfo;
 import io.rong.imlib.params.RefreshReferenceMessageParams;
 import io.rong.message.ReferenceMessage;
 import io.rong.message.TextMessage;
@@ -31,6 +34,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
@@ -101,6 +106,8 @@ public class EditMessageHandler extends MultiDataHandler {
         for (Message message : editMessageList) {
             uIdMap.put(message.getUId(), message);
         }
+        QuoteMessageBatchLoader.getInstance().markMessagesModified(editMessageList);
+        markQuoteCardMessagesChangedForEditedMessages(editMessageList, uiMessageList);
         for (UiMessage item : uiMessageList) {
             if (item.getMessage().getContent() instanceof ReferenceMessage) {
                 ReferenceMessage referMsg = (ReferenceMessage) item.getMessage().getContent();
@@ -175,8 +182,24 @@ public class EditMessageHandler extends MultiDataHandler {
                     result.add(item.getMessage());
                 }
             }
+            QuoteInfo quoteInfo = item.getMessage().getQuoteInfo();
+            if (quoteInfo != null && uIdSet.contains(quoteInfo.getMessageUId())) {
+                quoteInfo.setQuoteMessageStatus(toQuoteMessageStatus(status));
+                result.add(item.getMessage());
+            }
         }
         return processMessageEditStatus(result, uiMessageList);
+    }
+
+    private static QuoteInfo.QuoteMessageStatus toQuoteMessageStatus(
+            ReferenceMessage.ReferenceMessageStatus status) {
+        if (status == ReferenceMessage.ReferenceMessageStatus.RECALLED) {
+            return QuoteInfo.QuoteMessageStatus.RECALLED;
+        }
+        if (status == ReferenceMessage.ReferenceMessageStatus.DELETE) {
+            return QuoteInfo.QuoteMessageStatus.DELETED;
+        }
+        return QuoteInfo.QuoteMessageStatus.DEFAULT;
     }
 
     /**
@@ -201,6 +224,7 @@ public class EditMessageHandler extends MultiDataHandler {
             if (uiMessage == null) {
                 continue;
             }
+            mergeQuoteInfoForRefresh(message, uiMessage.getMessage());
             // 消息类型是引用消息，需要保存内存中的引用状态
             if (uiMessage.getContent() instanceof ReferenceMessage
                     && message.getContent() instanceof ReferenceMessage) {
@@ -262,6 +286,80 @@ public class EditMessageHandler extends MultiDataHandler {
             }
         }
         return null;
+    }
+
+    public static void mergeQuoteInfoForRefresh(Message refreshedMessage, Message cachedMessage) {
+        if (refreshedMessage == null || cachedMessage == null) {
+            return;
+        }
+        QuoteInfo cachedQuoteInfo = cachedMessage.getQuoteInfo();
+        if (!hasValidQuoteInfo(cachedQuoteInfo)) {
+            return;
+        }
+        QuoteInfo refreshedQuoteInfo = refreshedMessage.getQuoteInfo();
+        if (!hasValidQuoteInfo(refreshedQuoteInfo)) {
+            refreshedMessage.setQuoteInfo(cachedQuoteInfo);
+            return;
+        }
+        if (!Objects.equals(cachedQuoteInfo.getMessageUId(), refreshedQuoteInfo.getMessageUId())) {
+            return;
+        }
+        if (isEmpty(refreshedQuoteInfo.getSenderId()) && !isEmpty(cachedQuoteInfo.getSenderId())) {
+            refreshedQuoteInfo.setSenderId(cachedQuoteInfo.getSenderId());
+        }
+        if (isEmpty(refreshedQuoteInfo.getObjectName())
+                && !isEmpty(cachedQuoteInfo.getObjectName())) {
+            refreshedQuoteInfo.setObjectName(cachedQuoteInfo.getObjectName());
+        }
+        if (isTerminalQuoteStatus(cachedQuoteInfo.getQuoteMessageStatus())
+                && !isTerminalQuoteStatus(refreshedQuoteInfo.getQuoteMessageStatus())) {
+            refreshedQuoteInfo.setQuoteMessageStatus(cachedQuoteInfo.getQuoteMessageStatus());
+        }
+    }
+
+    private static boolean hasValidQuoteInfo(QuoteInfo quoteInfo) {
+        return quoteInfo != null && !isEmpty(quoteInfo.getMessageUId());
+    }
+
+    private static boolean isTerminalQuoteStatus(QuoteInfo.QuoteMessageStatus status) {
+        return status == QuoteInfo.QuoteMessageStatus.DELETED
+                || status == QuoteInfo.QuoteMessageStatus.RECALLED;
+    }
+
+    private static boolean isEmpty(String value) {
+        return value == null || value.length() == 0;
+    }
+
+    static void markQuoteCardMessagesChangedForEditedMessages(
+            List<Message> editMessageList, List<UiMessage> uiMessageList) {
+        if (editMessageList == null
+                || editMessageList.isEmpty()
+                || uiMessageList == null
+                || uiMessageList.isEmpty()) {
+            return;
+        }
+        Set<String> affectedUids =
+                QuoteCardRefreshMatcher.collectAffectedUids(
+                        editMessageList.toArray(new Message[0]));
+        if (affectedUids.isEmpty()) {
+            return;
+        }
+        for (UiMessage uiMessage : uiMessageList) {
+            if (uiMessage == null) {
+                continue;
+            }
+            if (shouldRefreshQuoteCardForEditedMessages(uiMessage.getMessage(), affectedUids)) {
+                uiMessage.setChange(true);
+            }
+        }
+    }
+
+    static boolean shouldRefreshQuoteCardForEditedMessages(
+            Message message, Set<String> affectedUids) {
+        if (affectedUids == null || affectedUids.isEmpty()) {
+            return false;
+        }
+        return QuoteCardRefreshMatcher.shouldRefresh(message, affectedUids);
     }
 
     /**
