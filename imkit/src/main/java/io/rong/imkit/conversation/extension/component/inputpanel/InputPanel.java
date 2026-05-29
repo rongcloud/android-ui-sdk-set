@@ -34,6 +34,7 @@ import io.rong.imkit.feature.editmessage.EditMessageConfig;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.DraftHelper;
 import io.rong.imkit.feature.reference.ReferenceManager;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.manager.AudioPlayManager;
 import io.rong.imkit.manager.AudioRecordManager;
@@ -129,6 +130,7 @@ public class InputPanel {
         mAddOrSendBtn = mInputPanel.findViewById(R.id.input_panel_add_or_send);
         mSendBtn = mInputPanel.findViewById(R.id.input_panel_send_btn);
         mAddBtn = mInputPanel.findViewById(R.id.input_panel_add_btn);
+        AppSettingsHandler.getInstance().applyMessageInputLimit(mEditText);
         if (!IMKitThemeManager.isTraditionTheme()) {
             mInputPanel.setBackgroundColor(
                     IMKitThemeManager.getColorFromAttrId(

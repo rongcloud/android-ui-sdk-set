@@ -17,6 +17,7 @@ import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.feature.mention.RongMentionManager;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.picture.tools.ToastUtils;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -31,7 +32,6 @@ public class RongExtensionViewModel extends AndroidViewModel {
     private ConversationIdentifier mConversationIdentifier;
     private EditText mEditText;
     private boolean isSoftInputShow;
-    private static final int MAX_MESSAGE_LENGTH_TO_SEND = 5500;
     private TextWatcher mTextWatcher =
             new TextWatcher() {
                 private int start;
@@ -106,6 +106,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
     void setAttachedConversation(ConversationIdentifier conversationIdentifier, EditText editText) {
         mConversationIdentifier = conversationIdentifier;
         mEditText = editText;
+        AppSettingsHandler.getInstance().applyMessageInputLimit(mEditText);
         mEditText.addTextChangedListener(mTextWatcher);
         if (mConversationIdentifier.getType().equals(Conversation.ConversationType.GROUP)
                 || mConversationIdentifier
@@ -128,7 +129,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
         }
 
         String text = mEditText.getText().toString();
-        if (text.length() > MAX_MESSAGE_LENGTH_TO_SEND) {
+        if (text.length() > AppSettingsHandler.getInstance().getMessageInputLimit()) {
             ToastUtils.s(
                     getApplication().getApplicationContext(),
                     getApplication().getString(R.string.rc_message_too_long));
@@ -260,6 +261,7 @@ public class RongExtensionViewModel extends AndroidViewModel {
     public void setEditTextWidget(EditText editText) {
         if (!Objects.equals(mEditText, editText)) {
             mEditText = editText;
+            AppSettingsHandler.getInstance().applyMessageInputLimit(mEditText);
             mEditText.addTextChangedListener(mTextWatcher);
             // 更新@管理类的Edittext
             RongMentionManager.getInstance().setInputEditText(mConversationIdentifier, editText);

@@ -29,6 +29,7 @@ import io.rong.imkit.feature.mention.MentionBlock;
 import io.rong.imkit.feature.mention.MentionInstance;
 import io.rong.imkit.feature.mention.RongMentionManager;
 import io.rong.imkit.feature.reference.ReferenceManager;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.utils.ExecutorHelper;
@@ -57,7 +58,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EditMessageManager implements IExtensionEventWatcher, IExtensionModule {
     public static final String TAG = "EditMessageManager";
-    private static final int MAX_MESSAGE_LENGTH_TO_SEND = 5500;
     private WeakReference<RongExtension> mRongExtension;
     private WeakReference<Fragment> mFragment;
     private final Stack<EditMessageState> stack = new Stack<>();
@@ -379,7 +379,7 @@ public class EditMessageManager implements IExtensionEventWatcher, IExtensionMod
     /** 修改消息 */
     public void editMessage(EditText editText, IRongCoreCallback.OperationCallback callback) {
         String text = editText.getText().toString();
-        if (text.length() > MAX_MESSAGE_LENGTH_TO_SEND) {
+        if (text.length() > AppSettingsHandler.getInstance().getMessageInputLimit()) {
             ToastUtils.show(
                     editText.getContext(),
                     editText.getContext().getString(R.string.rc_message_too_long),

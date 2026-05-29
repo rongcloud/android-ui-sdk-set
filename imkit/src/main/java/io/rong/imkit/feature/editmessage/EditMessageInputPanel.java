@@ -40,6 +40,7 @@ import io.rong.imkit.event.actionevent.BaseMessageEvent;
 import io.rong.imkit.event.actionevent.DeleteEvent;
 import io.rong.imkit.event.actionevent.RecallEvent;
 import io.rong.imkit.feature.mention.RongMentionManager;
+import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.handler.EditMessageHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.utils.RongUtils;
@@ -127,6 +128,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
                 IMKitThemeManager.dynamicResource(
                         R.drawable.rc_lively_panel_input_background,
                         R.drawable.rc_ext_panel_editbox_background));
+        AppSettingsHandler.getInstance().applyMessageInputLimit(mEditText);
         mReferenceContent.setText("");
         mExpandButton.setOnClickListener(view -> expandInputView());
         mEmojiButton.setOnClickListener(
@@ -223,7 +225,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
     // 设置重新编辑内容，引用的内容
     public void setContent(EditMessageConfig config, boolean showKeyBoard) {
         mEditText.setText(config.content, false);
-        mEditText.setSelection(config.content.length());
+        setSelectionSafely(mEditText, config.content.length());
         if (showKeyBoard) {
             mEditText.requestFocus();
             mExtensionViewModel.forceSetSoftInputKeyBoard(true);
@@ -309,6 +311,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
                 IMKitThemeManager.dynamicResource(
                         R.drawable.rc_lively_panel_input_background,
                         R.drawable.rc_ext_panel_editbox_background));
+        AppSettingsHandler.getInstance().applyMessageInputLimit(expandEditText);
         updateBoardContainerHeight(expandEmojiBoardContainer);
         // 设置emoji表情面板，但是隐藏状态的。
         EmoticonBoard mEmoticonBoard =
@@ -436,7 +439,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
         // 同步当前输入内容到全屏页面
         if (mEditText != null && !TextUtils.isEmpty(mEditText.getText())) {
             expandEditText.setText(mEditText.getText().toString(), false);
-            expandEditText.setSelection(this.selectionStart, this.selectionStart);
+            setSelectionSafely(expandEditText, this.selectionStart);
         }
         // 同步当前引用内容到全屏页面
         setExpandReferContent(expandView);
@@ -535,7 +538,7 @@ public class EditMessageInputPanel extends BaseMessageEvent
                         content = expandEditText.getText().toString();
                     }
                     mEditText.setText(content, false);
-                    mEditText.setSelection(this.selectionStart, this.selectionStart);
+                    setSelectionSafely(mEditText, this.selectionStart);
                 }
             }
         }
@@ -589,6 +592,14 @@ public class EditMessageInputPanel extends BaseMessageEvent
             TextView expandReferContent = expandView.findViewById(R.id.rc_reference_content);
             expandReferContent.setText(mReferenceContent.getText().toString());
         }
+    }
+
+    private void setSelectionSafely(EditText editText, int selection) {
+        if (editText == null) {
+            return;
+        }
+        int safeSelection = Math.max(0, Math.min(selection, editText.length()));
+        editText.setSelection(safeSelection);
     }
 
     // 监听软键盘弹起落下

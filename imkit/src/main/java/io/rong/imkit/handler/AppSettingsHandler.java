@@ -1,5 +1,7 @@
 package io.rong.imkit.handler;
 
+import android.text.InputFilter;
+import android.widget.EditText;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCoreListener;
@@ -7,6 +9,10 @@ import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.AppSettings;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.MessageReadReceiptVersion;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -25,6 +31,8 @@ import java.util.Set;
 public class AppSettingsHandler {
 
     private static final String TAG = "AppSettingsHandler";
+    private static final int DEFAULT_MESSAGE_INPUT_LIMIT = 5000;
+    private static final int CONFIGURED_MESSAGE_INPUT_LIMIT = 1500;
 
     /** 静态内部类持有单例实例 利用JVM的类加载机制保证线程安全和懒加载 */
     private static class Holder {
@@ -32,6 +40,7 @@ public class AppSettingsHandler {
     }
 
     private AppSettings appSettings = new AppSettings();
+    private final List<WeakReference<EditText>> messageInputEditTexts = new ArrayList<>();
 
     private final IRongCoreListener.ConnectionStatusListener connectionStatusListener =
             new IRongCoreListener.ConnectionStatusListener() {
@@ -68,6 +77,72 @@ public class AppSettingsHandler {
      */
     public AppSettings getAppSettings() {
         return appSettings;
+    }
+
+    public int getMessageInputLimit() {
+        return appSettings.getMessageSizeLimit() > 0
+                ? CONFIGURED_MESSAGE_INPUT_LIMIT
+                : DEFAULT_MESSAGE_INPUT_LIMIT;
+    }
+
+    public void applyMessageInputLimit(EditText editText) {
+        if (editText == null) {
+            return;
+        }
+        trackMessageInput(editText);
+        applyMessageInputLimitInternal(editText);
+    }
+
+    private void applyMessageInputLimitInternal(EditText editText) {
+        InputFilter[] filters = editText.getFilters();
+        List<InputFilter> newFilters = new ArrayList<>();
+        if (filters != null) {
+            for (InputFilter filter : filters) {
+                if (!(filter instanceof InputFilter.LengthFilter)) {
+                    newFilters.add(filter);
+                }
+            }
+        }
+        newFilters.add(new InputFilter.LengthFilter(getMessageInputLimit()));
+        editText.setFilters(newFilters.toArray(new InputFilter[0]));
+    }
+
+    private void trackMessageInput(EditText editText) {
+        synchronized (messageInputEditTexts) {
+            Iterator<WeakReference<EditText>> iterator = messageInputEditTexts.iterator();
+            while (iterator.hasNext()) {
+                EditText trackedEditText = iterator.next().get();
+                if (trackedEditText == null) {
+                    iterator.remove();
+                } else if (trackedEditText == editText) {
+                    return;
+                }
+            }
+            messageInputEditTexts.add(new WeakReference<>(editText));
+        }
+    }
+
+    private void refreshMessageInputLimits() {
+        ExecutorHelper.getInstance()
+                .mainThread()
+                .execute(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                synchronized (messageInputEditTexts) {
+                                    Iterator<WeakReference<EditText>> iterator =
+                                            messageInputEditTexts.iterator();
+                                    while (iterator.hasNext()) {
+                                        EditText editText = iterator.next().get();
+                                        if (editText == null) {
+                                            iterator.remove();
+                                        } else {
+                                            applyMessageInputLimitInternal(editText);
+                                        }
+                                    }
+                                }
+                            }
+                        });
     }
 
     /** 是否初始化完成，从Lib获取成功过AppSettings */
@@ -150,8 +225,13 @@ public class AppSettingsHandler {
                         new Runnable() {
                             @Override
                             public void run() {
-                                appSettings = RongCoreClient.getInstance().getAppSettings();
+                                AppSettings settings =
+                                        RongCoreClient.getInstance().getAppSettings();
+                                if (settings != null) {
+                                    appSettings = settings;
+                                }
                                 hasInit = true;
+                                refreshMessageInputLimits();
                             }
                         });
     }
