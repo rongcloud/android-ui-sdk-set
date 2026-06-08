@@ -17,12 +17,16 @@ import io.rong.imkit.R;
 import io.rong.imkit.model.UiMessage;
 import io.rong.imkit.picture.widget.BaseDialogFragment;
 import io.rong.imkit.utils.RouteUtils;
+import io.rong.imkit.utils.StringUtils;
 import io.rong.imkit.utils.TextViewUtils;
 import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageContent;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
+import io.rong.message.StreamMessage;
+import io.rong.message.TextMessage;
 
 public class ReferenceDialog extends BaseDialogFragment
         implements RongIMClient.OnRecallMessageListener {
@@ -83,8 +87,7 @@ public class ReferenceDialog extends BaseDialogFragment
     @Override
     public void bindData() {
         SpannableStringBuilder spannable =
-                TextViewUtils.getSpannable(
-                        mUiMessage.getReferenceContentSpannable().toString(), this::setText);
+                TextViewUtils.getSpannable(getReferenceContentText(), this::setText);
         setText(spannable);
     }
 
@@ -186,11 +189,36 @@ public class ReferenceDialog extends BaseDialogFragment
                             @Override
                             public void onOptionsItemClicked(int which) {
                                 if (which == 0) {
-                                    copyText(mUiMessage.getReferenceContentSpannable().toString());
+                                    copyText(getReferenceContentText());
                                 }
                             }
                         })
                 .show();
+    }
+
+    private String getReferenceContentText() {
+        SpannableStringBuilder referenceContentSpannable =
+                mUiMessage == null ? null : mUiMessage.getReferenceContentSpannable();
+        if (referenceContentSpannable != null) {
+            return referenceContentSpannable.toString();
+        }
+        if (mUiMessage == null
+                || mUiMessage.getMessage() == null
+                || !(mUiMessage.getMessage().getContent() instanceof ReferenceMessage)) {
+            return "";
+        }
+        ReferenceMessage referenceMessage = (ReferenceMessage) mUiMessage.getMessage().getContent();
+        MessageContent referenceContent = referenceMessage.getReferenceContent();
+        String content = "";
+        if (referenceContent instanceof TextMessage) {
+            content = ((TextMessage) referenceContent).getContent();
+        } else if (referenceContent instanceof StreamMessage) {
+            content = ((StreamMessage) referenceContent).getContent();
+        } else if (referenceContent instanceof ReferenceMessage) {
+            content = ((ReferenceMessage) referenceContent).getEditSendText();
+        }
+        String text = StringUtils.getStringNoBlank(content);
+        return text == null ? "" : text;
     }
 
     private void copyText(String text) {

@@ -37,6 +37,7 @@ import io.rong.message.ImageMessage;
 import io.rong.message.ReferenceMessage;
 import io.rong.message.RichContentMessage;
 import io.rong.message.SightMessage;
+import io.rong.message.StreamMessage;
 import io.rong.message.TextMessage;
 import java.util.List;
 
@@ -223,6 +224,7 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
                     RouteUtils.routeToWebActivity(context, url);
                 }
             } else if (referContent instanceof TextMessage
+                    || referContent instanceof StreamMessage
                     || referContent instanceof ReferenceMessage) {
                 showPopWindow(context, uiMessage);
                 hideInputKeyboard(context);
