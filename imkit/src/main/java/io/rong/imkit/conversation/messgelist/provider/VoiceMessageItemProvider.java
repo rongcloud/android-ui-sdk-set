@@ -47,6 +47,33 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
         mConfig.showContentBubble = false;
     }
 
+    static void applyVoiceRootLayoutForQuote(View voiceRoot, boolean hasQuoteCard) {
+        if (voiceRoot == null) {
+            return;
+        }
+        ViewGroup.LayoutParams lp = voiceRoot.getLayoutParams();
+        if (!(lp instanceof LinearLayout.LayoutParams)) {
+            return;
+        }
+        int horizontalMargin =
+                voiceRoot
+                        .getResources()
+                        .getDimensionPixelSize(R.dimen.rc_quote_v2_card_horizontal_margin);
+        int topMargin = voiceRoot.getResources().getDimensionPixelSize(R.dimen.rc_margin_size_6);
+        int bottomMargin =
+                voiceRoot
+                        .getResources()
+                        .getDimensionPixelSize(R.dimen.rc_quote_v2_body_bottom_padding);
+        LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) lp;
+        int start = hasQuoteCard ? horizontalMargin : 0;
+        int end = hasQuoteCard ? horizontalMargin : 0;
+        llp.setMargins(start, hasQuoteCard ? topMargin : 0, end, hasQuoteCard ? bottomMargin : 0);
+        llp.setMarginStart(start);
+        llp.setMarginEnd(end);
+        llp.gravity = hasQuoteCard ? Gravity.START : -1;
+        voiceRoot.setLayoutParams(llp);
+    }
+
     @Override
     protected ViewHolder onCreateMessageContentViewHolder(ViewGroup parent, int viewType) {
         View view =
@@ -69,11 +96,14 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
 
         boolean isSender =
                 uiMessage.getMessage().getMessageDirection().equals(Message.MessageDirection.SEND);
+        boolean hasVisibleReactions = hasVisibleReactions(uiMessage);
+        boolean hasQuoteCard = QuoteCardView.shouldShowQuoteCard(uiMessage.getMessage());
+        boolean useSendBackground = hasQuoteCard ? !isSender : isSender != hasVisibleReactions;
         holder.setBackgroundRes(
                 R.id.rc_voice_bg,
                 IMKitThemeManager.getAttrResId(
                         holder.getContext(),
-                        isSender
+                        useSendBackground
                                 ? R.attr.rc_conversation_msg_send_background
                                 : R.attr.rc_conversation_msg_receiver_background));
         int minWidth = 70, maxWidth = 204;
@@ -97,9 +127,7 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
         } else {
             holder.setText(R.id.rc_duration, String.format("%s\"", message.getDuration()));
         }
-        boolean hasQuoteCard = QuoteCardView.shouldShowQuoteCard(uiMessage.getMessage());
         if (uiMessage.getMessage().getMessageDirection() == Message.MessageDirection.SEND) {
-            boolean alignContentStart = hasQuoteCard;
             AnimationDrawable animationDrawable =
                     (AnimationDrawable)
                             holder.getContext()
@@ -107,29 +135,23 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
                                     .getDrawable(
                                             IMKitThemeManager.getAttrResId(
                                                     holder.getContext(),
-                                                    alignContentStart
-                                                            ? R.attr.rc_icon_voice_receive_animator
-                                                            : R.attr.rc_icon_voice_send_animator));
-            holder.setVisible(R.id.rc_voice, alignContentStart);
-            holder.setVisible(R.id.rc_voice_send, !alignContentStart);
-            rcDuration.setGravity(
-                    (alignContentStart ? Gravity.START : Gravity.END) | Gravity.CENTER_VERTICAL);
+                                                    R.attr.rc_icon_voice_send_animator));
+            holder.setVisible(R.id.rc_voice, false);
+            holder.setVisible(R.id.rc_voice_send, true);
+            rcDuration.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) rcDuration.getLayoutParams();
-            lp.setMarginStart(alignContentStart ? 12 : 0);
-            lp.setMarginEnd(alignContentStart ? 0 : 12);
+            lp.setMarginStart(0);
+            lp.setMarginEnd(12);
             rcDuration.setLayoutParams(lp);
             if (uiMessage.isPlaying()) {
-                holder.setImageDrawable(
-                        alignContentStart ? R.id.rc_voice : R.id.rc_voice_send, animationDrawable);
+                holder.setImageDrawable(R.id.rc_voice_send, animationDrawable);
                 if (animationDrawable != null) animationDrawable.start();
             } else {
                 holder.setImageResource(
-                        alignContentStart ? R.id.rc_voice : R.id.rc_voice_send,
+                        R.id.rc_voice_send,
                         IMKitThemeManager.getAttrResId(
                                 holder.getContext(),
-                                alignContentStart
-                                        ? R.attr.rc_conversation_msg_cell_receive_voice_3_img
-                                        : R.attr.rc_conversation_msg_cell_send_voice_3_img));
+                                R.attr.rc_conversation_msg_cell_send_voice_3_img));
             }
             holder.setVisible(R.id.rc_voice_unread, false);
         } else {
@@ -166,16 +188,9 @@ public class VoiceMessageItemProvider extends BaseMessageItemProvider<VoiceMessa
                 QuotedVoiceBubbleInsetResolver.resolveQuoteCardWidthPx(
                         hasQuoteCard, isSender, rcVoiceBgView.getLayoutParams().width);
         applyQuoteCardWidth(parentHolder, quoteCardWidthPx);
-        // 将红点移到 rc_content 外部，避免被气泡背景覆盖
-        relocateVoiceUnread(holder, parentHolder, hasQuoteCard, isSender);
+        relocateVoiceUnread(holder, parentHolder, hasQuoteCard, isSender, hasVisibleReactions);
 
-        // 引用卡片使 wrapper 变宽时，发送方语音内容对齐到左侧以对齐 iOS。
-        ViewGroup.LayoutParams rootLp = holder.itemView.getLayoutParams();
-        if (rootLp instanceof LinearLayout.LayoutParams) {
-            ((LinearLayout.LayoutParams) rootLp).gravity =
-                    (hasQuoteCard && isSender) ? Gravity.START : -1;
-            holder.itemView.setLayoutParams(rootLp);
-        }
+        applyVoiceRootLayoutForQuote(holder.itemView, hasQuoteCard);
 
         // 设置语音转文字UI
         setupSpeechToTextUI(holder, message, uiMessage, listener);

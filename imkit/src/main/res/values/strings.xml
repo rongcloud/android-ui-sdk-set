@@ -748,4 +748,17 @@
     <string name="rc_combine_webview_load_failed">合并转发消息加载失败</string>
     <!--  NewUIDesign  -->
 
+    <!-- Reaction -->
+    <string name="rc_reaction_menu_title">表情回复</string>
+    <string name="rc_reaction_frequent_title">最常使用</string>
+    <string name="rc_reaction_default_title">默认表情</string>
+    <string name="rc_reaction_more">更多</string>
+    <string name="rc_reaction_current_user">我</string>
+    <string name="rc_reaction_detail_title">回应详情</string>
+    <string name="rc_reaction_limit_exceeded">回应已达上限，无法继续添加</string>
+    <string name="rc_reaction_operation_failed">消息回应失败，请稍后再试</string>
+    <string name="rc_reaction_count_overflow">99+</string>
+    <string name="rc_reaction_count_format">%1$s人</string>
+    <string name="rc_reaction_name_overflow_format">...%1$s人</string>
+
 </resources>

@@ -108,6 +108,27 @@ public class AndroidEmoji {
         return sEmojiList;
     }
 
+    /**
+     * 按表情资源（{@code rc_emoji.xml}）定义顺序返回全部 emoji 的 unicode 字符串。
+     *
+     * <p>输出与输入框表情面板的数量、排序完全一致，供消息回应默认表情库复用，避免两套表情数据脱节。 复用 {@link #getEmojiString(int)}
+     * 的取值逻辑，因此带变体选择符的符号（如 ❤️）已是含 {@code \\uFE0F} 的全限定写法， 可直接作为跨端回应标识。{@link #init(Context)}
+     * 未调用时返回空列表。
+     */
+    public static List<String> getEmojiUnicodeList() {
+        List<String> result = new ArrayList<>();
+        if (sEmojiList == null) {
+            return result;
+        }
+        for (int i = 0; i < sEmojiList.size(); i++) {
+            String unicode = getEmojiString(i);
+            if (unicode != null && !unicode.isEmpty()) {
+                result.add(unicode);
+            }
+        }
+        return result;
+    }
+
     public static int getEmojiSize() {
         return sEmojiMap != null ? sEmojiMap.size() : 0;
     }

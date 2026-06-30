@@ -32,4 +32,10 @@
     <color name="rc_clear_color_light">#00FFFFFF</color>
 
     <color name="rc_auxiliary_red_light">#FF5F59</color>
+
+    <!-- 消息回应新增辅助色 (Reaction Colors) -->
+    <color name="rc_reaction_default_background_color_light">#F0F0F0</color>
+    <color name="rc_reaction_selected_background_color_light">#BED4FF</color>
+    <color name="rc_reaction_divider_color_light">#A6A6A6</color>
+    <color name="rc_reaction_selected_border_color_light">#CC0047FF</color>
 </resources>

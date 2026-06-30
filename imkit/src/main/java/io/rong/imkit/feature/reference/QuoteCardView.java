@@ -19,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
+import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.userinfo.RongUserInfoManager;
@@ -81,6 +82,8 @@ public class QuoteCardView extends LinearLayout {
     private TextView fileCardName;
     private TextView fileCardSize;
     private int fileCardMinWidthOverridePx;
+    private View customReferenceContentView;
+    private boolean hasCustomReferenceContent;
 
     private final QuoteCardBindingState bindingState = new QuoteCardBindingState();
 
@@ -191,6 +194,14 @@ public class QuoteCardView extends LinearLayout {
         }
 
         String quotedMsgUId = quoteInfo.getMessageUId();
+        QuoteMessageBatchLoader.Result result =
+                QuoteMessageBatchLoader.getInstance().getResult(message);
+        if (shouldQueryQuotedMessage(quoteInfo)
+                && bindingState.shouldReuse(quotedMsgUId, forceReload)) {
+            if (result.getState() == QuoteMessageBatchLoader.State.LOADING) {
+                return;
+            }
+        }
         this.conversationType = message.getConversationType();
         this.targetId = message.getTargetId();
         this.channelId = message.getChannelId();
@@ -204,8 +215,6 @@ public class QuoteCardView extends LinearLayout {
                         null);
 
         bindingState.bind(quotedMsgUId);
-        QuoteMessageBatchLoader.Result result =
-                QuoteMessageBatchLoader.getInstance().getResult(message);
         renderBatchResult(result);
     }
 
@@ -243,20 +252,11 @@ public class QuoteCardView extends LinearLayout {
 
         ReferenceMessage.ReferenceMessageStatus status = refMsg.getReferMsgStatus();
         if (status == ReferenceMessage.ReferenceMessageStatus.DELETE) {
-            applyMode(Mode.STATUS);
-            applyAccentColor(true);
-            setInlineDisplayText(
-                    currentSenderDisplayName,
-                    getContext()
-                            .getString(QuoteCardStatusTextResolver.resolveUnavailableTextResId()));
+            showStatusText(QuoteCardStatusTextResolver.resolveUnavailableTextResId(), true);
             return;
         }
         if (status == ReferenceMessage.ReferenceMessageStatus.RECALLED) {
-            applyMode(Mode.STATUS);
-            applyAccentColor(true);
-            setInlineDisplayText(
-                    currentSenderDisplayName,
-                    getContext().getString(QuoteCardStatusTextResolver.resolveRecalledTextResId()));
+            showStatusText(QuoteCardStatusTextResolver.resolveRecalledTextResId(), true);
             return;
         }
 
@@ -264,6 +264,7 @@ public class QuoteCardView extends LinearLayout {
     }
 
     private void showNormalLoadingState() {
+        clearCustomReferenceContentView();
         applyMode(Mode.INLINE);
         applyAccentColor(false);
         setInlineDisplayText(
@@ -295,6 +296,7 @@ public class QuoteCardView extends LinearLayout {
         }
         if (fileCardIcon != null) fileCardIcon.setImageDrawable(null);
         fileCardMinWidthOverridePx = 0;
+        clearCustomReferenceContentView();
         applyMode(Mode.INLINE);
     }
 
@@ -361,6 +363,7 @@ public class QuoteCardView extends LinearLayout {
 
         // 已撤回
         if (quotedMsg.getContent() instanceof RecallNotificationMessage) {
+            clearCustomReferenceContentView();
             applyMode(Mode.STATUS);
             applyAccentColor(true);
             setInlineDisplayText(
@@ -370,11 +373,17 @@ public class QuoteCardView extends LinearLayout {
             return;
         }
 
+        if (tryRenderCustomContent(quotedMsg)) {
+            requestParentRelayout();
+            return;
+        }
+
         // 按类型渲染
         renderContent(quotedMsg);
     }
 
     private void showStatusText(int textResId, boolean isErrorStatus) {
+        clearCustomReferenceContentView();
         applyMode(Mode.STATUS);
         applyAccentColor(isErrorStatus);
         setInlineDisplayText(currentSenderDisplayName, getContext().getString(textResId));
@@ -389,6 +398,7 @@ public class QuoteCardView extends LinearLayout {
 
     /** V1/V2 共用的内容渲染逻辑，仅依赖 {@link MessageContent} 自身。 */
     private void renderLocalContent(@Nullable MessageContent content, @Nullable String objectName) {
+        clearCustomReferenceContentView();
         if (content == null) {
             applyMode(Mode.INLINE);
             applyAccentColor(false);
@@ -431,6 +441,83 @@ public class QuoteCardView extends LinearLayout {
             setInlineDisplayText(
                     currentSenderDisplayName, resolveInlineSummaryText(content, objectName));
         }
+    }
+
+    private boolean tryRenderCustomContent(@NonNull Message quotedMsg) {
+        MessageContent content = quotedMsg.getContent();
+        ReferenceContentMessageItemProvider provider =
+                RongConfigCenter.conversationConfig()
+                        .getReferenceContentMessageItemProvider(
+                                resolveObjectName(quotedMsg), content);
+        if (provider == null || !(rootContainer instanceof ViewGroup)) {
+            clearCustomReferenceContentView();
+            return false;
+        }
+        try {
+            ViewGroup parent = (ViewGroup) rootContainer;
+            View customView = provider.onCreateView(getContext(), parent);
+            if (customView == null) {
+                clearCustomReferenceContentView();
+                return false;
+            }
+            provider.onBindView(customView, quotedMsg, content);
+            showCustomReferenceContentView(customView);
+            return true;
+        } catch (Exception e) {
+            RLog.e("QuoteCardView", "tryRenderCustomContent error", e);
+            clearCustomReferenceContentView();
+            return false;
+        }
+    }
+
+    private void showCustomReferenceContentView(@NonNull View customView) {
+        clearCustomReferenceContentView();
+        applyMode(Mode.INLINE);
+        if (inlineRow != null) inlineRow.setVisibility(GONE);
+        if (headerRow != null) headerRow.setVisibility(GONE);
+        if (thumbnailIv != null) thumbnailIv.setVisibility(GONE);
+        if (fileCard != null) fileCard.setVisibility(GONE);
+        if (rootContainer instanceof ViewGroup) {
+            ViewGroup parent = (ViewGroup) rootContainer;
+            ViewParent oldParent = customView.getParent();
+            if (oldParent instanceof ViewGroup) {
+                ((ViewGroup) oldParent).removeView(customView);
+            }
+            parent.addView(customView);
+            customReferenceContentView = customView;
+            hasCustomReferenceContent = true;
+            setOnClickListener(null);
+        }
+    }
+
+    private void clearCustomReferenceContentView() {
+        hasCustomReferenceContent = false;
+        if (customReferenceContentView == null) {
+            return;
+        }
+        ViewParent parent = customReferenceContentView.getParent();
+        if (parent instanceof ViewGroup) {
+            ((ViewGroup) parent).removeView(customReferenceContentView);
+        }
+        customReferenceContentView = null;
+    }
+
+    public boolean hasCustomReferenceContent() {
+        return hasCustomReferenceContent;
+    }
+
+    private String resolveObjectName(@NonNull Message message) {
+        String objectName = message.getObjectName();
+        if (!TextUtils.isEmpty(objectName)) {
+            return objectName;
+        }
+        MessageContent content = message.getContent();
+        if (content == null) {
+            return null;
+        }
+        io.rong.imlib.MessageTag tag =
+                content.getClass().getAnnotation(io.rong.imlib.MessageTag.class);
+        return tag != null ? tag.value() : null;
     }
 
     private String resolveInlineSummaryText(

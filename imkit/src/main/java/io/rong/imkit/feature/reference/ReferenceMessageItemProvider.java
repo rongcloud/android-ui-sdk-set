@@ -2,18 +2,14 @@ package io.rong.imkit.feature.reference;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.fragment.app.FragmentActivity;
 import io.rong.common.rlog.RLog;
@@ -48,10 +44,6 @@ import java.util.List;
  * 仅负责发送方文本渲染、引用点击交互、及高 DPI 下的容器宽度调整。
  */
 public class ReferenceMessageItemProvider extends BaseMessageItemProvider<ReferenceMessage> {
-    private static final int MAX_DENSITY_DPI = 500;
-    private static final int STANDARD_DEFAULT_DENSITY_DPI = 440;
-    private static final int DATUM_DENSITY_DPI = 160;
-
     private static final String TAG = "ReferenceMessageItemProvider";
 
     public ReferenceMessageItemProvider() {
@@ -101,8 +93,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
             quoteCard.setOnLongClickListener(
                     v -> parentHolder.getView(R.id.rc_content).performLongClick());
         }
-
-        setMaximumDisplaySize(holder);
     }
 
     @Override
@@ -257,32 +247,6 @@ public class ReferenceMessageItemProvider extends BaseMessageItemProvider<Refere
         if (context instanceof FragmentActivity) {
             new ReferenceDialog(uiMessage)
                     .show(((FragmentActivity) context).getSupportFragmentManager());
-        }
-    }
-
-    /**
-     * 高 DPI 设备 + 竖屏下，按 dp 重算 root 宽度，避免 UI 异常放大。
-     *
-     * @param holder ViewHolder
-     */
-    private void setMaximumDisplaySize(ViewHolder holder) {
-        Resources resources = holder.getContext().getResources();
-        if (resources == null) {
-            return;
-        }
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        Configuration config = resources.getConfiguration();
-        if (metrics.densityDpi > MAX_DENSITY_DPI
-                && config.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            float dimensionValue =
-                    holder.getContext().getResources().getDimension(R.dimen.rc_reference_width);
-            float dbValue = dimensionValue / metrics.density;
-            float viewWidthValue = dbValue * STANDARD_DEFAULT_DENSITY_DPI / DATUM_DENSITY_DPI;
-            LinearLayout rootView = holder.getView(R.id.rc_reference_root_view);
-            ViewGroup.LayoutParams params = rootView.getLayoutParams();
-            params.width = (int) viewWidthValue;
-            params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-            rootView.setLayoutParams(params);
         }
     }
 }

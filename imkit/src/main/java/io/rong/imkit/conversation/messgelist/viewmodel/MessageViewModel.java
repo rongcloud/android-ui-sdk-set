@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -52,6 +54,9 @@ import io.rong.imkit.feature.destruct.DestructManager;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.forward.ForwardClickActions;
 import io.rong.imkit.feature.forward.ForwardManager;
+import io.rong.imkit.feature.reaction.OnMessageReactionClickListener;
+import io.rong.imkit.feature.reaction.ReactionEmojiPickerDialog;
+import io.rong.imkit.feature.reaction.ReactionFrequentManager;
 import io.rong.imkit.feature.reference.QuoteCardRefreshMatcher;
 import io.rong.imkit.feature.reference.QuoteMessageBatchLoader;
 import io.rong.imkit.feature.translation.RCTranslationResultWrapper;
@@ -59,6 +64,8 @@ import io.rong.imkit.feature.translation.TranslationProvider;
 import io.rong.imkit.feature.translation.TranslationResultListenerWrapper;
 import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.handler.EditMessageHandler;
+import io.rong.imkit.handler.MessageReactionHandler;
+import io.rong.imkit.handler.ReactionMergeUtils;
 import io.rong.imkit.handler.ReadReceiptV5Handler;
 import io.rong.imkit.handler.SpeechToTextHandler;
 import io.rong.imkit.handler.StreamMessageHandler;
@@ -80,6 +87,7 @@ import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.widget.TextAnimationHelper;
 import io.rong.imkit.widget.cache.MessageList;
 import io.rong.imlib.IRongCallback;
+import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongCoreClient;
@@ -91,6 +99,8 @@ import io.rong.imlib.model.Group;
 import io.rong.imlib.model.MentionedInfo;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.MessageReaction;
+import io.rong.imlib.model.MessageReactionOperationType;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.ReadReceiptInfoV5;
 import io.rong.imlib.model.SpeechToTextInfo;
@@ -104,6 +114,7 @@ import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
 import io.rong.message.VoiceMessage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -121,6 +132,20 @@ public class MessageViewModel extends AndroidViewModel
     public static final int SHOW_UNREAD_MESSAGE_COUNT =
             RongConfigCenter.conversationConfig().getConversationShowUnreadMessageCount();
     private static final String TAG = "MessageViewModel";
+    private static final List<String> REACTION_SUPPORT_MESSAGE_TYPES =
+            Arrays.asList(
+                    "RC:TxtMsg",
+                    "RC:ImgTextMsg",
+                    "RC:ImgMsg",
+                    "RC:GIFMsg",
+                    "RC:HQVCMsg",
+                    "RC:VcMsg",
+                    "RC:SightMsg",
+                    "RC:FileMsg",
+                    "RC:LBSMsg",
+                    "RC:ReferenceMsg",
+                    "RC:CombineMsg",
+                    "RC:CombineV2Msg");
     public static String[] writePermission =
             new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE};
     private List<UiMessage> mUiMessages = new MessageList<>(6000);
@@ -132,6 +157,7 @@ public class MessageViewModel extends AndroidViewModel
     private final SpeechToTextHandler mSpeechToTextHandler;
     private final EditMessageHandler mEditMessageHandler;
     private final ReadReceiptV5Handler mReadReceiptV5Handler;
+    private final MessageReactionHandler mMessageReactionHandler;
     // 消息回执监听器
     private final RongIMClient.ReadReceiptListener mReadReceiptListener =
             new RongIMClient.ReadReceiptListener() {
@@ -232,6 +258,7 @@ public class MessageViewModel extends AndroidViewModel
     private MediatorLiveData<Boolean> mIsEditStatus = new MediatorLiveData<>();
     private MessageItemLongClickAction mMoreAction;
     private MessageItemLongClickAction mSpeechToTextAction;
+    private MessageItemLongClickAction mReactionAction;
     // 应用是否在前台
     private boolean mIsForegroundActivity;
     // 是否滑动到页面最底部
@@ -529,6 +556,15 @@ public class MessageViewModel extends AndroidViewModel
                         }
                     }
                 });
+        mMessageReactionHandler = new MessageReactionHandler();
+        mMessageReactionHandler.addDataChangeListener(
+                MessageReactionHandler.KEY_MESSAGE_REACTION_SUMMARIES,
+                this::applyReactionSummaries);
+        mMessageReactionHandler.addDataChangeListener(
+                MessageReactionHandler.KEY_MESSAGE_REACTION_CHANGED, this::applyReactionChange);
+        mMessageReactionHandler.addDataChangeListener(
+                MessageReactionHandler.KEY_MESSAGE_REACTION_OPERATION_ERROR,
+                this::showReactionOperationError);
         IMCenter.getInstance().addAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().addConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().addReadReceiptListener(mReadReceiptListener);
@@ -537,6 +573,37 @@ public class MessageViewModel extends AndroidViewModel
         IMCenter.getInstance().addConversationEventListener(mConversationEventListener);
         RongUserInfoManager.getInstance().addUserDataObserver(this);
         initTranslationListener();
+    }
+
+    private void showReactionOperationError(MessageReactionHandler.OperationError operationError) {
+        if (operationError == null) {
+            return;
+        }
+        OnMessageReactionClickListener listener =
+                RongConfigCenter.featureConfig().getOnMessageReactionClickListener();
+        if (listener != null
+                && listener.onMessageReactionClickError(
+                        operationError.getCoreErrorCode(),
+                        operationError.getUiMessage(),
+                        operationError.getReactionId())) {
+            return;
+        }
+        executePageEvent(new ToastEvent(getReactionOperationErrorMessage(operationError)));
+    }
+
+    private String getReactionOperationErrorMessage(
+            MessageReactionHandler.OperationError operationError) {
+        return getApplication()
+                .getString(getReactionOperationErrorMessageRes(operationError.getCoreErrorCode()));
+    }
+
+    static int getReactionOperationErrorMessageRes(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_MSG_REACTION_LIMIT_REACHED
+                || coreErrorCode
+                        == IRongCoreEnum.CoreErrorCode.RC_MSG_REACTION_USER_LIMIT_REACHED) {
+            return R.string.rc_reaction_limit_exceeded;
+        }
+        return R.string.rc_reaction_operation_failed;
     }
 
     private void refreshModifyMessage(UiMessage uiMessage) {
@@ -606,6 +673,7 @@ public class MessageViewModel extends AndroidViewModel
         }
         processHistoryDividerMessage();
         refreshAllMessage();
+        loadReactionSummaries(messages);
     }
 
     public UiMessage mapUIMessage(Message message) {
@@ -737,6 +805,126 @@ public class MessageViewModel extends AndroidViewModel
         mUiMessages.addAll(list);
         processHistoryDividerMessage();
         refreshAllMessage();
+        loadReactionSummaries(messages);
+    }
+
+    /**
+     * 批量拉取可见消息的回应摘要并填充到对应 {@link UiMessage}。
+     *
+     * <p>具体筛选、分片与请求由 {@link MessageReactionHandler} 处理。
+     */
+    private void loadReactionSummaries(List<Message> messages) {
+        mMessageReactionHandler.loadReactionSummaries(mConversationIdentifier, messages);
+    }
+
+    private void applyReactionSummaries(MessageReactionHandler.SummaryResult result) {
+        if (result == null) {
+            return;
+        }
+        mainHandler.post(
+                () -> {
+                    for (String messageUId : result.getRequestedMessageUIds()) {
+                        UiMessage uiMessage = findUIMessage(messageUId);
+                        if (uiMessage == null) {
+                            continue;
+                        }
+                        List<MessageReaction> reactions = result.getSummaries().get(messageUId);
+                        if (reactions == null || reactions.isEmpty()) {
+                            uiMessage.setReactions(null);
+                        } else {
+                            reactions = ReactionMergeUtils.copySummaryInLatestOrder(reactions);
+                            if (uiMessage.getMessage() != null) {
+                                uiMessage.getMessage().setHasReactions(true);
+                            }
+                            uiMessage.setReactions(reactions);
+                        }
+                        refreshSingleMessage(uiMessage);
+                    }
+                });
+    }
+
+    private void applyReactionChange(MessageReactionHandler.ReactionChange change) {
+        if (change == null || change.getReaction() == null) {
+            return;
+        }
+        mainHandler.post(
+                () -> {
+                    if (!change.isLocal()
+                            && !isSameConversation(change.getConversationIdentifier())) {
+                        return;
+                    }
+                    MessageReaction reaction = change.getReaction();
+                    UiMessage uiMessage = findUIMessage(reaction.getMessageUId());
+                    if (uiMessage == null) {
+                        return;
+                    }
+                    List<MessageReaction> reactions =
+                            change.isLocal()
+                                    ? ReactionMergeUtils.applyLocalToggle(
+                                            uiMessage.getReactions(),
+                                            change.getOperationType(),
+                                            reaction)
+                                    : ReactionMergeUtils.applyDelta(
+                                            uiMessage.getReactions(),
+                                            change.getOperationType(),
+                                            reaction);
+                    if (uiMessage.getMessage() != null) {
+                        uiMessage.getMessage().setHasReactions(!reactions.isEmpty());
+                    }
+                    uiMessage.setReactions(reactions.isEmpty() ? null : reactions);
+                    refreshSingleMessage(uiMessage);
+                    if (shouldReloadReactionSummary(change)) {
+                        mMessageReactionHandler.reloadReactionSummary(
+                                mConversationIdentifier, reaction.getMessageUId());
+                    }
+                });
+    }
+
+    private boolean shouldReloadReactionSummary(MessageReactionHandler.ReactionChange change) {
+        return change != null
+                && !change.isLocal()
+                && change.getOperationType() == MessageReactionOperationType.REMOVED;
+    }
+
+    private boolean isSameConversation(ConversationIdentifier conversationIdentifier) {
+        if (conversationIdentifier == null || mConversationIdentifier == null) {
+            return true;
+        }
+        return Objects.equals(conversationIdentifier.getType(), mConversationIdentifier.getType())
+                && Objects.equals(
+                        conversationIdentifier.getTargetId(), mConversationIdentifier.getTargetId())
+                && Objects.equals(
+                        conversationIdentifier.optChannelId(),
+                        mConversationIdentifier.optChannelId());
+    }
+
+    private void toggleReaction(UiMessage uiMessage, String reactionId, boolean recordUsage) {
+        if (uiMessage == null || TextUtils.isEmpty(reactionId)) {
+            return;
+        }
+        mMessageReactionHandler.toggleReaction(
+                uiMessage,
+                reactionId,
+                new IRongCoreCallback.OperationCallback() {
+                    @Override
+                    public void onSuccess() {
+                        if (recordUsage) {
+                            new ReactionFrequentManager(getApplication()).recordUsage(reactionId);
+                        }
+                    }
+
+                    @Override
+                    public void onError(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+                        // Handler 已分发可见错误状态；这里保持消息列表主流程安静。
+                    }
+                });
+    }
+
+    public void onReactionClick(UiMessage uiMessage, MessageReaction reaction) {
+        if (uiMessage == null || reaction == null || TextUtils.isEmpty(reaction.getReactionId())) {
+            return;
+        }
+        toggleReaction(uiMessage, reaction.getReactionId(), !reaction.isHasCurrentUserReacted());
     }
 
     /** normal状态点击历史消息bar history状态点击新消息bar */
@@ -758,6 +946,7 @@ public class MessageViewModel extends AndroidViewModel
         }
         processHistoryDividerMessage();
         refreshAllMessage();
+        loadReactionSummaries(messages);
     }
 
     /**
@@ -848,6 +1037,7 @@ public class MessageViewModel extends AndroidViewModel
 
         // 动态创建语音转文字功能 - 每次都重新创建以确保title是最新的
         createSpeechToTextAction(uiMessage);
+        createReactionAction(uiMessage);
 
         final List<MessageItemLongClickAction> messageItemLongClickActions =
                 MessageItemLongClickActionManager.getInstance()
@@ -885,6 +1075,106 @@ public class MessageViewModel extends AndroidViewModel
 
         MessageItemLongClickActionManager.getInstance()
                 .addMessageItemLongClickAction(mSpeechToTextAction, 0);
+    }
+
+    private void createReactionAction(UiMessage uiMessage) {
+        if (mReactionAction != null) {
+            MessageItemLongClickActionManager.getInstance()
+                    .removeMessageItemLongClickAction(mReactionAction);
+        }
+        if (!isReactionActionSupported(uiMessage)) {
+            mReactionAction = null;
+            return;
+        }
+        mReactionAction =
+                new MessageItemLongClickAction.Builder()
+                        .titleResId(R.string.rc_reaction_menu_title)
+                        .iconResId(R.attr.rc_conversation_menu_item_reaction_img)
+                        .actionListener(
+                                (context, message) -> {
+                                    showReactionPicker(context, message);
+                                    return true;
+                                })
+                        .showFilter(this::isReactionActionSupported)
+                        .build();
+        MessageItemLongClickActionManager.getInstance()
+                .addMessageItemLongClickAction(mReactionAction);
+    }
+
+    private boolean isReactionActionSupported(UiMessage uiMessage) {
+        if (!RongConfigCenter.featureConfig().isMessageReactionEnable()
+                || uiMessage == null
+                || uiMessage.getMessage() == null) {
+            return false;
+        }
+        Message message = uiMessage.getMessage();
+        if (TextUtils.isEmpty(message.getUId())) {
+            return false;
+        }
+        if (!isReactionSupportedMessageContent(message.getContent())) {
+            return false;
+        }
+        Conversation.ConversationType type = message.getConversationType();
+        if (type != Conversation.ConversationType.PRIVATE
+                && type != Conversation.ConversationType.GROUP) {
+            return false;
+        }
+        return isReactionSupportedObjectName(message.getObjectName());
+    }
+
+    private boolean isReactionSupportedMessageContent(MessageContent content) {
+        return content != null && !content.isDestruct();
+    }
+
+    private boolean isReactionSupportedObjectName(String objectName) {
+        return REACTION_SUPPORT_MESSAGE_TYPES.contains(objectName);
+    }
+
+    private void showReactionPicker(Context context, UiMessage uiMessage) {
+        if (context == null || uiMessage == null || uiMessage.getMessage() == null) {
+            return;
+        }
+        String messageUId = uiMessage.getMessage().getUId();
+        if (TextUtils.isEmpty(messageUId) || !(context instanceof FragmentActivity)) {
+            return;
+        }
+        FragmentActivity activity = (FragmentActivity) context;
+        ReactionEmojiPickerDialog dialog = ReactionEmojiPickerDialog.newInstance(messageUId);
+        dialog.setOnEmojiSelectedListener(
+                (msgUId, reactionId) ->
+                        toggleReaction(
+                                uiMessage,
+                                reactionId,
+                                !hasCurrentUserReaction(uiMessage, reactionId)));
+        View decorView = activity.getWindow() == null ? null : activity.getWindow().getDecorView();
+        if (decorView == null) {
+            dialog.show(activity.getSupportFragmentManager());
+            return;
+        }
+        decorView.post(
+                () -> {
+                    if (!activity.isFinishing() && !activity.isDestroyed()) {
+                        dialog.show(activity.getSupportFragmentManager());
+                    }
+                });
+    }
+
+    private boolean hasCurrentUserReaction(UiMessage uiMessage, String reactionId) {
+        if (uiMessage == null || TextUtils.isEmpty(reactionId)) {
+            return false;
+        }
+        List<MessageReaction> reactions = uiMessage.getReactions();
+        if (reactions == null || reactions.isEmpty()) {
+            return false;
+        }
+        for (MessageReaction reaction : reactions) {
+            if (reaction != null
+                    && reactionId.equals(reaction.getReactionId())
+                    && reaction.isHasCurrentUserReacted()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1235,9 +1525,14 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public UiMessage findUIMessage(String messageUId) {
+        if (TextUtils.isEmpty(messageUId)) {
+            return null;
+        }
         UiMessage uiMessage = null;
         for (UiMessage item : mUiMessages) {
-            if (messageUId.equals(item.getMessage().getUId())) {
+            if (item != null
+                    && item.getMessage() != null
+                    && messageUId.equals(item.getMessage().getUId())) {
                 uiMessage = item;
                 break;
             }
@@ -1507,6 +1802,7 @@ public class MessageViewModel extends AndroidViewModel
                 uiMessage.setReferenceContentSpannable(null);
             }
             EditMessageHandler.mergeQuoteInfoForRefresh(message, uiMessage.getMessage());
+            preserveMessageStateForRefresh(message, uiMessage.getMessage());
             uiMessage.setMessage(message);
             refreshSingleMessage(uiMessage);
         }
@@ -1891,6 +2187,7 @@ public class MessageViewModel extends AndroidViewModel
         mSpeechToTextHandler.stop();
         mEditMessageHandler.stop();
         mReadReceiptV5Handler.stop();
+        mMessageReactionHandler.stop();
         IMCenter.getInstance().removeAsyncOnReceiveMessageListener(mOnReceiveMessageListener);
         IMCenter.getInstance().removeConnectionStatusListener(mConnectionStatusListener);
         IMCenter.getInstance().removeReadReceiptListener(mReadReceiptListener);
@@ -2197,6 +2494,11 @@ public class MessageViewModel extends AndroidViewModel
                     .removeMessageItemLongClickAction(mSpeechToTextAction);
             mSpeechToTextAction = null;
         }
+        if (mReactionAction != null) {
+            MessageItemLongClickActionManager.getInstance()
+                    .removeMessageItemLongClickAction(mReactionAction);
+            mReactionAction = null;
+        }
 
         if (mProcessor != null) mProcessor.onDestroy(this);
     }
@@ -2232,10 +2534,19 @@ public class MessageViewModel extends AndroidViewModel
 
     @Override
     public void onUserUpdate(UserInfo user) {
-        if (user != null) {
-            for (UiMessage item : getUiMessages()) {
-                item.onUserInfoUpdate(user);
+        if (user == null || TextUtils.isEmpty(user.getUserId())) {
+            return;
+        }
+        boolean hasUpdated = false;
+        for (UiMessage item : getUiMessages()) {
+            item.onUserInfoUpdate(user);
+            if (user.getUserId().equals(item.getSenderUserId())
+                    || item.hasReactionUser(user.getUserId())) {
+                item.change();
+                hasUpdated = true;
             }
+        }
+        if (hasUpdated) {
             refreshAllMessage(false);
         }
     }
@@ -2249,13 +2560,22 @@ public class MessageViewModel extends AndroidViewModel
     public void onGroupUserInfoUpdate(GroupUserInfo groupUserInfo) {
         if (!Conversation.ConversationType.GROUP.equals(getCurConversationType())
                 || groupUserInfo == null
+                || TextUtils.isEmpty(groupUserInfo.getUserId())
                 || !groupUserInfo.getGroupId().equals(getCurTargetId())) {
             return;
         }
+        boolean hasUpdated = false;
         for (UiMessage item : getUiMessages()) {
             item.onGroupMemberInfoUpdate(groupUserInfo);
+            if (groupUserInfo.getUserId().equals(item.getSenderUserId())
+                    || item.hasReactionUser(groupUserInfo.getUserId())) {
+                item.change();
+                hasUpdated = true;
+            }
         }
-        refreshAllMessage(false);
+        if (hasUpdated) {
+            refreshAllMessage(false);
+        }
     }
 
     public void initTranslationListener() {
@@ -2331,6 +2651,34 @@ public class MessageViewModel extends AndroidViewModel
             return true;
         }
         return false;
+    }
+
+    static void preserveMessageStateForRefresh(Message refreshedMessage, Message currentMessage) {
+        if (refreshedMessage == null || currentMessage == null) {
+            return;
+        }
+        String refreshedUId = refreshedMessage.getUId();
+        String currentUId = currentMessage.getUId();
+        if ((refreshedUId == null || refreshedUId.length() == 0)
+                && currentUId != null
+                && currentUId.length() > 0) {
+            refreshedMessage.setUId(currentMessage.getUId());
+        }
+        String refreshedObjectName = refreshedMessage.getObjectName();
+        String currentObjectName = currentMessage.getObjectName();
+        if ((refreshedObjectName == null || refreshedObjectName.length() == 0)
+                && currentObjectName != null
+                && currentObjectName.length() > 0) {
+            refreshedMessage.setObjectName(currentObjectName);
+        }
+
+        if (refreshedMessage.getMessageDirection() == Message.MessageDirection.SEND
+                && refreshedMessage.getSentStatus() == Message.SentStatus.SENDING) {
+            Message.SentStatus currentStatus = currentMessage.getSentStatus();
+            if (currentStatus != null && currentStatus != Message.SentStatus.SENDING) {
+                refreshedMessage.setSentStatus(currentStatus);
+            }
+        }
     }
 
     /**

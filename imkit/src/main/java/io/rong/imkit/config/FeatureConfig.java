@@ -13,6 +13,7 @@ import io.rong.imkit.KitImageEngine;
 import io.rong.imkit.KitMediaInterceptor;
 import io.rong.imkit.R;
 import io.rong.imkit.feature.quickreply.IQuickReplyProvider;
+import io.rong.imkit.feature.reaction.OnMessageReactionClickListener;
 import io.rong.imlib.model.Conversation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +38,8 @@ public class FeatureConfig {
     private boolean isQuickReplyEnable; // 快捷回复
     private boolean isEditMessageEnable; // 消息编辑
     private boolean isUserOnlineStatusEnable; // 用户在线状态
+    private boolean isMessageReactionEnable; // 消息回应
+    private OnMessageReactionClickListener messageReactionClickListener;
     private IQuickReplyProvider quickReplyProvider;
     private IMCenter.VoiceMessageType voiceMessageType;
     private List<Conversation.ConversationType> readReceiptSupportTypes;
@@ -91,6 +94,7 @@ public class FeatureConfig {
         rc_translation_target_language = "en";
         isEditMessageEnable = false;
         isUserOnlineStatusEnable = false;
+        isMessageReactionEnable = false;
     }
 
     public void initConfig(Context context) {
@@ -403,6 +407,48 @@ public class FeatureConfig {
     /** 获取消息长按后是否支持编辑消息 */
     public boolean isEditMessageEnable() {
         return isEditMessageEnable;
+    }
+
+    /**
+     * 设置消息回应功能开关。
+     *
+     * <p>开启后，消息长按菜单中显示"表情回应"入口，消息气泡底部展示回应信息。
+     *
+     * @param value true 开启，false 关闭（默认）。
+     * @since 5.42.0
+     */
+    public void enableMessageReaction(boolean value) {
+        isMessageReactionEnable = value;
+    }
+
+    /**
+     * 获取消息回应功能是否开启。
+     *
+     * @return true 已开启，false 未开启。
+     * @since 5.42.0
+     */
+    public boolean isMessageReactionEnable() {
+        return isMessageReactionEnable;
+    }
+
+    /**
+     * 设置消息回应点击事件监听器。
+     *
+     * @param listener 监听器实例。
+     * @since 5.42.0
+     */
+    public void setOnMessageReactionClickListener(OnMessageReactionClickListener listener) {
+        this.messageReactionClickListener = listener;
+    }
+
+    /**
+     * 获取消息回应点击事件监听器。
+     *
+     * @return 监听器实例，可能为 null。
+     * @since 5.42.0
+     */
+    public OnMessageReactionClickListener getOnMessageReactionClickListener() {
+        return messageReactionClickListener;
     }
 
     /**

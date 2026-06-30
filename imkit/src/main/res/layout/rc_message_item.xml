@@ -132,10 +132,35 @@
                 android:textSize="12sp"
                 android:visibility="gone" />
 
-            <FrameLayout
-                android:id="@+id/rc_content"
+            <LinearLayout
+                android:id="@+id/rc_message_content_wrapper"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <FrameLayout
+                    android:id="@+id/rc_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <View
+                    android:id="@+id/rc_reaction_content_divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:background="?attr/rc_reaction_divider_color"
+                    android:visibility="gone" />
+
+                <io.rong.imkit.feature.reaction.ReactionView
+                    android:id="@+id/rc_reaction_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="10dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+
         </LinearLayout>
 
 

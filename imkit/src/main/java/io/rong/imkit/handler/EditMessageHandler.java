@@ -148,7 +148,7 @@ public class EditMessageHandler extends MultiDataHandler {
             Message message,
             ReferenceMessage.ReferenceMessageStatus status,
             List<UiMessage> uiMessageList) {
-        if (message != null && !TextUtils.isEmpty(message.getUId())) {
+        if (message != null && !isEmpty(message.getUId())) {
             return processMessageReferMsgStatus(new Message[] {message}, status, uiMessageList);
         }
         return uiMessageList;
@@ -169,26 +169,27 @@ public class EditMessageHandler extends MultiDataHandler {
         if (uiMessageList == null || uiMessageList.isEmpty()) {
             return uiMessageList;
         }
-        List<Message> result = new ArrayList<>();
         HashSet<String> uIdSet = new HashSet<>();
         for (Message message : messages) {
-            uIdSet.add(message.getUId());
+            if (message != null && !isEmpty(message.getUId())) {
+                uIdSet.add(message.getUId());
+            }
         }
         for (UiMessage item : uiMessageList) {
             if (item.getMessage().getContent() instanceof ReferenceMessage) {
                 ReferenceMessage referMsg = (ReferenceMessage) item.getMessage().getContent();
                 if (uIdSet.contains(referMsg.getReferMsgUid())) {
                     referMsg.setReferMsgStatus(status);
-                    result.add(item.getMessage());
+                    item.setChange(true);
                 }
             }
             QuoteInfo quoteInfo = item.getMessage().getQuoteInfo();
             if (quoteInfo != null && uIdSet.contains(quoteInfo.getMessageUId())) {
                 quoteInfo.setQuoteMessageStatus(toQuoteMessageStatus(status));
-                result.add(item.getMessage());
+                item.setChange(true);
             }
         }
-        return processMessageEditStatus(result, uiMessageList);
+        return uiMessageList;
     }
 
     private static QuoteInfo.QuoteMessageStatus toQuoteMessageStatus(
@@ -200,6 +201,10 @@ public class EditMessageHandler extends MultiDataHandler {
             return QuoteInfo.QuoteMessageStatus.DELETED;
         }
         return QuoteInfo.QuoteMessageStatus.DEFAULT;
+    }
+
+    private static boolean isEmpty(CharSequence value) {
+        return value == null || value.length() == 0;
     }
 
     /**
@@ -217,7 +222,7 @@ public class EditMessageHandler extends MultiDataHandler {
             return uiMessageList;
         }
         for (Message message : editMessageList) {
-            if (message == null || TextUtils.isEmpty(message.getUId())) {
+            if (message == null || isEmpty(message.getUId())) {
                 continue;
             }
             UiMessage uiMessage = findUIMessage(uiMessageList, message.getUId());

@@ -7,7 +7,7 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 35
-        versionName "5.40.2_opensource"
+        versionName "5.42.0_opensource"
     }
 
     sourceSets {

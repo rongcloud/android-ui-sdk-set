@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.util.Pair;
 import io.rong.common.rlog.RLog;
 import io.rong.imkit.R;
 import io.rong.imkit.conversation.extension.component.moreaction.DeleteClickActions;
@@ -38,18 +39,30 @@ import io.rong.imkit.feature.destruct.provider.DestructVoiceMessageItemProvider;
 import io.rong.imkit.feature.forward.ForwardClickActions;
 import io.rong.imkit.feature.publicservice.provider.PublicServiceMultiRichContentMessageProvider;
 import io.rong.imkit.feature.publicservice.provider.PublicServiceRichContentMessageProvider;
+import io.rong.imkit.feature.reference.ReferenceContentInputBarProvider;
+import io.rong.imkit.feature.reference.ReferenceContentMessageItemProvider;
+import io.rong.imkit.feature.reference.ReferenceMenuItemFilter;
 import io.rong.imkit.feature.reference.ReferenceMessageItemProvider;
 import io.rong.imkit.model.UiMessage;
+import io.rong.imkit.utils.StreamMsgUtil;
 import io.rong.imkit.widget.adapter.ProviderManager;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.Conversation;
+import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageContent;
 import io.rong.imlib.model.UnknownMessage;
+import io.rong.message.FileMessage;
+import io.rong.message.ImageMessage;
+import io.rong.message.ReferenceMessage;
+import io.rong.message.RichContentMessage;
+import io.rong.message.StreamMessage;
+import io.rong.message.TextMessage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -57,6 +70,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ConversationConfig {
 
     private static final int conversationHistoryMessageMaxCount = 100;
+
+    /** 消息回应「最近常用」区默认显示个数。 */
+    private static final int DEFAULT_REACTION_FREQUENT_DISPLAY_COUNT = 14;
+
+    /** 消息回应「最近常用」区显示个数的有效范围下限。 */
+    private static final int MIN_REACTION_FREQUENT_DISPLAY_COUNT = 1;
+
+    /** 消息回应「最近常用」区显示个数的有效范围上限（同时也是本地最多存储的常用表情数）。 */
+    private static final int MAX_REACTION_FREQUENT_DISPLAY_COUNT = 20;
+
     // 离线补偿已读回执，sp 文件名称
     public static String SP_NAME_READ_RECEIPT_CONFIG = "readReceiptConfig";
 
@@ -96,6 +119,12 @@ public class ConversationConfig {
     /** 已读回执，仅支持，单，群聊 */
     private boolean mEnableReadReceipt = true;
 
+    private MessageReactionDisplayMode messageReactionDisplayMode =
+            MessageReactionDisplayMode.COUNT_ONLY;
+
+    /** 消息回应「最近常用」区显示个数，默认 14，有效范围 [1, 20]。 */
+    private int messageReactionFrequentDisplayCount = DEFAULT_REACTION_FREQUENT_DISPLAY_COUNT;
+
     private Set<Conversation.ConversationType> mSupportReadReceiptConversationTypes =
             new HashSet<>(4);
 
@@ -133,6 +162,22 @@ public class ConversationConfig {
             new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<IClickActions> mMoreClickActions = new CopyOnWriteArrayList<>();
     private IMessageProvider defaultMessageProvider = new DefaultMessageItemProvider();
+    private final ReferenceMenuItemFilter mDefaultReferenceMenuItemFilter =
+            new ReferenceMenuItemFilter() {
+                @Override
+                public boolean shouldShowReferenceMenuItem(UiMessage uiMessage) {
+                    return isDefaultReferenceableMessage(uiMessage);
+                }
+            };
+    private ReferenceMenuItemFilter mReferenceMenuItemFilter = mDefaultReferenceMenuItemFilter;
+    private final Map<String, ReferenceContentMessageItemProvider>
+            mReferenceContentMessageItemProviders = new HashMap<>();
+    private final CopyOnWriteArrayList<ReferenceContentMessageItemProvider>
+            mReferenceContentMessageItemContentProviders = new CopyOnWriteArrayList<>();
+    private final Map<String, ReferenceContentInputBarProvider> mReferenceContentInputBarProviders =
+            new HashMap<>();
+    private final CopyOnWriteArrayList<ReferenceContentInputBarProvider>
+            mReferenceContentInputBarContentProviders = new CopyOnWriteArrayList<>();
     private IMessageViewModelProcessor mViewModelProcessor;
     // 是否显示未读 @消息
     private boolean showNewMentionMessageBar = true;
@@ -385,6 +430,197 @@ public class ConversationConfig {
      */
     public ProviderManager<UiMessage> getMessageListProvider() {
         return mMessageListProvider;
+    }
+
+    /**
+     * 设置引用菜单准入回调。传 null 时恢复 SDK 默认准入逻辑。
+     *
+     * @param filter 引用菜单准入回调
+     */
+    public void setReferenceMenuItemFilter(ReferenceMenuItemFilter filter) {
+        mReferenceMenuItemFilter = filter == null ? mDefaultReferenceMenuItemFilter : filter;
+    }
+
+    /**
+     * 获取引用菜单准入回调；未设置时返回 SDK 默认实现。
+     *
+     * @return 当前引用菜单准入回调
+     */
+    public ReferenceMenuItemFilter getReferenceMenuItemFilter() {
+        return mReferenceMenuItemFilter;
+    }
+
+    /**
+     * 获取 SDK 默认引用菜单准入回调。业务自定义 filter 如需保留内置类型，可委托该实现。
+     *
+     * @return SDK 默认引用菜单准入回调
+     */
+    public ReferenceMenuItemFilter getDefaultReferenceMenuItemFilter() {
+        return mDefaultReferenceMenuItemFilter;
+    }
+
+    /**
+     * 注册消息列表引用展示区自定义 Provider。
+     *
+     * @param objectName 消息 objectName，非空时优先精确匹配；为空时仅参与 content 类型兜底
+     * @param provider Provider 实例
+     */
+    public void addReferenceContentMessageItemProvider(
+            String objectName, ReferenceContentMessageItemProvider provider) {
+        if (provider == null) {
+            return;
+        }
+        if (!isEmpty(objectName)) {
+            mReferenceContentMessageItemProviders.put(objectName, provider);
+            return;
+        }
+        mReferenceContentMessageItemContentProviders.add(provider);
+    }
+
+    /**
+     * 查询消息列表引用展示区自定义 Provider。查询顺序：objectName 精确匹配 -> content 类型兜底。
+     *
+     * @param objectName 被引用消息 objectName
+     * @param content 被引用消息内容
+     * @return 命中的 Provider，未命中返回 null
+     */
+    public ReferenceContentMessageItemProvider getReferenceContentMessageItemProvider(
+            String objectName, MessageContent content) {
+        if (!isEmpty(objectName)) {
+            ReferenceContentMessageItemProvider provider =
+                    mReferenceContentMessageItemProviders.get(objectName);
+            if (provider != null) {
+                return provider;
+            }
+        }
+        return findReferenceContentMessageItemProviderByContent(content);
+    }
+
+    /**
+     * 注册输入框引用展示区自定义 Provider。
+     *
+     * @param objectName 消息 objectName，非空时优先精确匹配；为空时仅参与 content 类型兜底
+     * @param provider Provider 实例
+     */
+    public void addReferenceContentInputBarProvider(
+            String objectName, ReferenceContentInputBarProvider provider) {
+        if (provider == null) {
+            return;
+        }
+        if (!isEmpty(objectName)) {
+            mReferenceContentInputBarProviders.put(objectName, provider);
+            return;
+        }
+        mReferenceContentInputBarContentProviders.add(provider);
+    }
+
+    /**
+     * 查询输入框引用展示区自定义 Provider。查询顺序：objectName 精确匹配 -> content 类型兜底。
+     *
+     * @param objectName 被引用消息 objectName
+     * @param content 被引用消息内容
+     * @return 命中的 Provider，未命中返回 null
+     */
+    public ReferenceContentInputBarProvider getReferenceContentInputBarProvider(
+            String objectName, MessageContent content) {
+        if (!isEmpty(objectName)) {
+            ReferenceContentInputBarProvider provider =
+                    mReferenceContentInputBarProviders.get(objectName);
+            if (provider != null) {
+                return provider;
+            }
+        }
+        return findReferenceContentInputBarProviderByContent(content);
+    }
+
+    private ReferenceContentMessageItemProvider findReferenceContentMessageItemProviderByContent(
+            MessageContent content) {
+        if (content == null) {
+            return null;
+        }
+        for (ReferenceContentMessageItemProvider provider :
+                mReferenceContentMessageItemContentProviders) {
+            try {
+                if (provider != null && provider.isReferenceContentType(content)) {
+                    return provider;
+                }
+            } catch (Exception e) {
+                RLog.e(TAG, "getReferenceContentMessageItemProvider error", e);
+            }
+        }
+        for (ReferenceContentMessageItemProvider provider :
+                mReferenceContentMessageItemProviders.values()) {
+            try {
+                if (provider != null && provider.isReferenceContentType(content)) {
+                    return provider;
+                }
+            } catch (Exception e) {
+                RLog.e(TAG, "getReferenceContentMessageItemProvider error", e);
+            }
+        }
+        return null;
+    }
+
+    private ReferenceContentInputBarProvider findReferenceContentInputBarProviderByContent(
+            MessageContent content) {
+        if (content == null) {
+            return null;
+        }
+        for (ReferenceContentInputBarProvider provider :
+                mReferenceContentInputBarContentProviders) {
+            try {
+                if (provider != null && provider.isReferenceContentType(content)) {
+                    return provider;
+                }
+            } catch (Exception e) {
+                RLog.e(TAG, "getReferenceContentInputBarProvider error", e);
+            }
+        }
+        for (ReferenceContentInputBarProvider provider :
+                mReferenceContentInputBarProviders.values()) {
+            try {
+                if (provider != null && provider.isReferenceContentType(content)) {
+                    return provider;
+                }
+            } catch (Exception e) {
+                RLog.e(TAG, "getReferenceContentInputBarProvider error", e);
+            }
+        }
+        return null;
+    }
+
+    private boolean isDefaultReferenceableMessage(UiMessage uiMessage) {
+        if (uiMessage == null || uiMessage.getMessage() == null) {
+            return false;
+        }
+        Message message = uiMessage.getMessage();
+        MessageContent content = message.getContent();
+        return content instanceof TextMessage
+                || content instanceof ImageMessage
+                || content instanceof FileMessage
+                || content instanceof RichContentMessage
+                || content instanceof ReferenceMessage
+                || isEnableStreamMsg(message);
+    }
+
+    private boolean isEnableStreamMsg(Message message) {
+        if (message != null && message.getContent() instanceof StreamMessage) {
+            StreamMessage streamMessage = (StreamMessage) message.getContent();
+            Pair<String, Boolean> streamMessageSummary =
+                    StreamMsgUtil.getStreamMessageSummary(message);
+            boolean isSuccess = streamMessage.isSync() || streamMessageSummary.second;
+            if (!streamMessage.isSync()) {
+                streamMessage.setContent(
+                        StreamMsgUtil.getStreamMessageShowContent(
+                                streamMessage, streamMessageSummary));
+            }
+            return isSuccess;
+        }
+        return false;
+    }
+
+    private static boolean isEmpty(CharSequence value) {
+        return value == null || value.length() == 0;
     }
 
     /**
@@ -665,6 +901,53 @@ public class ConversationConfig {
      */
     public boolean isEnableReadReceipt() {
         return mEnableReadReceipt;
+    }
+
+    /**
+     * 设置消息回应展示模式。
+     *
+     * @param mode COUNT_ONLY 仅显示数字（默认），DETAIL 显示用户名详情。
+     * @since 5.42.0
+     */
+    public void setMessageReactionDisplayMode(MessageReactionDisplayMode mode) {
+        this.messageReactionDisplayMode =
+                mode == null ? MessageReactionDisplayMode.COUNT_ONLY : mode;
+    }
+
+    /**
+     * 获取消息回应展示模式。
+     *
+     * @return 当前展示模式。
+     * @since 5.42.0
+     */
+    public MessageReactionDisplayMode getMessageReactionDisplayMode() {
+        return messageReactionDisplayMode;
+    }
+
+    /**
+     * 设置消息回应「最近常用」区显示的表情个数。
+     *
+     * <p>有效范围 [1, 20]。传入值不在有效范围内时恢复默认值 14。
+     *
+     * @param count 显示个数，默认 14。
+     * @since 5.42.0
+     */
+    public void setMessageReactionFrequentDisplayCount(int count) {
+        this.messageReactionFrequentDisplayCount =
+                count < MIN_REACTION_FREQUENT_DISPLAY_COUNT
+                                || count > MAX_REACTION_FREQUENT_DISPLAY_COUNT
+                        ? DEFAULT_REACTION_FREQUENT_DISPLAY_COUNT
+                        : count;
+    }
+
+    /**
+     * 获取消息回应「最近常用」区显示的表情个数。
+     *
+     * @return 显示个数，默认 14，范围 [1, 20]。
+     * @since 5.42.0
+     */
+    public int getMessageReactionFrequentDisplayCount() {
+        return messageReactionFrequentDisplayCount;
     }
 
     public void setSupportReadReceiptConversationType(Conversation.ConversationType... types) {

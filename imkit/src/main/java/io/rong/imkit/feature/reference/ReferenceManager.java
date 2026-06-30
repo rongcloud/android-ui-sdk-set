@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Pair;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -36,18 +37,13 @@ import io.rong.imkit.event.actionevent.SendMediaEvent;
 import io.rong.imkit.feature.editmessage.EditMessageManager;
 import io.rong.imkit.feature.mention.IExtensionEventWatcher;
 import io.rong.imkit.model.UiMessage;
-import io.rong.imkit.utils.StreamMsgUtil;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.ExecutorFactory;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.QuoteInfo;
-import io.rong.message.FileMessage;
-import io.rong.message.ImageMessage;
 import io.rong.message.RecallNotificationMessage;
 import io.rong.message.ReferenceMessage;
-import io.rong.message.RichContentMessage;
-import io.rong.message.StreamMessage;
 import io.rong.message.TextMessage;
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -122,47 +118,32 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
                                                     rongExtension.getTargetId());
                                     boolean isEnableReferenceMsg =
                                             RongConfigCenter.featureConfig().isReferenceEnable();
-                                    // V2 开启时，任何有 messageUId 的消息都可被引用
-                                    boolean isInstanceOf;
+                                    boolean hasValidQuoteV2Uid =
+                                            !RongConfigCenter.featureConfig().isQuoteV2Enable()
+                                                    || !TextUtils.isEmpty(message.getUId());
+                                    boolean shouldShowByFilter = false;
+                                    try {
+                                        shouldShowByFilter =
+                                                RongConfigCenter.conversationConfig()
+                                                        .getReferenceMenuItemFilter()
+                                                        .shouldShowReferenceMenuItem(uiMessage);
+                                    } catch (Exception e) {
+                                        RLog.e(TAG, "ReferenceMenuItemFilter error", e);
+                                    }
+                                    boolean isReferenceable;
                                     if (RongConfigCenter.featureConfig().isQuoteV2Enable()) {
-                                        isInstanceOf = !TextUtils.isEmpty(message.getUId());
+                                        isReferenceable = hasValidQuoteV2Uid && shouldShowByFilter;
                                     } else {
-                                        isInstanceOf =
-                                                (message.getContent() instanceof TextMessage)
-                                                        || (message.getContent()
-                                                                instanceof ImageMessage)
-                                                        || (message.getContent()
-                                                                instanceof FileMessage)
-                                                        || (message.getContent()
-                                                                instanceof RichContentMessage)
-                                                        || (message.getContent()
-                                                                instanceof ReferenceMessage)
-                                                        || isEnableStreamMsg(message);
+                                        isReferenceable = shouldShowByFilter;
                                     }
                                     return isSuccess
                                             && isEnableReferenceMsg
-                                            && isInstanceOf
+                                            && isReferenceable
                                             && !forbidConversationType
                                             && !isFireMsg & !isFireMode;
                                 }
                             })
                     .build();
-
-    private boolean isEnableStreamMsg(Message message) {
-        if (message.getContent() instanceof StreamMessage) {
-            StreamMessage streamMessage = (StreamMessage) message.getContent();
-            Pair<String, Boolean> streamMessageSummary =
-                    StreamMsgUtil.getStreamMessageSummary(message);
-            boolean isSuccess = streamMessage.isSync() || streamMessageSummary.second;
-            if (!streamMessage.isSync()) {
-                streamMessage.setContent(
-                        StreamMsgUtil.getStreamMessageShowContent(
-                                streamMessage, streamMessageSummary));
-            }
-            return isSuccess;
-        }
-        return false;
-    }
 
     private static class SingletonHolder {
         static ReferenceManager instance = new ReferenceManager();
@@ -506,13 +487,17 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         if (uiMessage.getMessage().isHasChanged()) {
             mReferenceMessage.setReferMsgStatus(ReferenceMessage.ReferenceMessageStatus.MODIFIED);
         }
-        ReferenceView reference =
-                new ReferenceView(
-                        context,
-                        rongExtension.getContainer(RongExtension.ContainerType.ATTACH),
-                        uiMessage);
-        reference.setReferenceCancelListener(this::hideReferenceView);
-        rongExtension.setAttachedInfo(reference.getReferenceView());
+        View attachedInfo = createCustomReferenceInputBarView(context, rongExtension, uiMessage);
+        if (attachedInfo == null) {
+            ReferenceView reference =
+                    new ReferenceView(
+                            context,
+                            rongExtension.getContainer(RongExtension.ContainerType.ATTACH),
+                            uiMessage);
+            reference.setReferenceCancelListener(this::hideReferenceView);
+            attachedInfo = reference.getReferenceView();
+        }
+        rongExtension.setAttachedInfo(attachedInfo);
         final RongExtensionViewModel extensionViewModel =
                 new ViewModelProvider(fragment).get(RongExtensionViewModel.class);
         extensionViewModel.getInputModeLiveData().postValue(InputMode.TextInput);
@@ -520,6 +505,30 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             rongExtension.postDelayed(() -> extensionViewModel.setSoftInputKeyBoard(true), 100);
         }
         return true;
+    }
+
+    private View createCustomReferenceInputBarView(
+            Context context, RongExtension rongExtension, UiMessage uiMessage) {
+        Message message = uiMessage.getMessage();
+        ReferenceContentInputBarProvider provider =
+                RongConfigCenter.conversationConfig()
+                        .getReferenceContentInputBarProvider(
+                                resolveObjectName(message), message.getContent());
+        if (provider == null) {
+            return null;
+        }
+        try {
+            ViewGroup parent = rongExtension.getContainer(RongExtension.ContainerType.ATTACH);
+            View customView = provider.onCreateView(context, parent, this::hideReferenceView);
+            if (customView == null) {
+                return null;
+            }
+            provider.onBindView(customView, message, message.getContent());
+            return customView;
+        } catch (Exception e) {
+            RLog.e(TAG, "createCustomReferenceInputBarView error", e);
+            return null;
+        }
     }
 
     private void postDelayed(Runnable r) {
@@ -638,7 +647,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
             return null;
         }
         String objectName = message.getObjectName();
-        if (!TextUtils.isEmpty(objectName)) {
+        if (!isEmpty(objectName)) {
             return objectName;
         }
         if (message.getContent() != null) {
@@ -655,7 +664,7 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
      * 判断指定消息类型是否在 V2 引用白名单中，对齐 iOS isQuoteReplySupportedForObjectName 逻辑。 语音和高清语音视为等价：配置任一项即两者均可发送。
      */
     private boolean isQuoteReplySupportedForObjectName(String objectName) {
-        if (TextUtils.isEmpty(objectName)) {
+        if (isEmpty(objectName)) {
             return false;
         }
         List<String> whiteList = RongConfigCenter.featureConfig().getQuoteMessageTypeWhiteList();
@@ -691,12 +700,16 @@ public class ReferenceManager implements IExtensionModule, IExtensionEventWatche
         }
         Message quotedMsg = uiMessage.getMessage();
         String uid = quotedMsg.getUId();
-        if (TextUtils.isEmpty(uid)) {
+        if (isEmpty(uid)) {
             return null;
         }
         String senderId = quotedMsg.getSenderUserId();
-        String objectName = quotedMsg.getObjectName();
+        String objectName = resolveObjectName(quotedMsg);
         return new QuoteInfo(uid, senderId, objectName);
+    }
+
+    private static boolean isEmpty(CharSequence value) {
+        return value == null || value.length() == 0;
     }
 
     public void hideReferenceView() {

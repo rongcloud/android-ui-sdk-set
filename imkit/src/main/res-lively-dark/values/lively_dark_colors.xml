@@ -32,4 +32,10 @@
     <color name="rc_clear_color_dark">#00FFFFFF</color>
 
     <color name="rc_destruct_color_dark">#FF5F59</color>
+
+    <!-- 消息回应新增辅助色 (Reaction Colors) -->
+    <color name="rc_reaction_default_background_color_dark">#33FFFFFF</color>
+    <color name="rc_reaction_selected_background_color_dark">#2052B7</color>
+    <color name="rc_reaction_divider_color_dark">#FFFFFF</color>
+    <color name="rc_reaction_selected_border_color_dark">#CC4177FF</color>
 </resources>

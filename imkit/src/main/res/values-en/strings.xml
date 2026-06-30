@@ -740,5 +740,17 @@
     <string name="rc_combine_webview_load_failed">Failed to load merged forwarded messages</string>
     <!--  NewUIDesign  -->
 
+    <!-- Reaction -->
+    <string name="rc_reaction_menu_title">Reactions</string>
+    <string name="rc_reaction_frequent_title">Frequently used</string>
+    <string name="rc_reaction_default_title">Default emojis</string>
+    <string name="rc_reaction_more">More</string>
+    <string name="rc_reaction_current_user">Me</string>
+    <string name="rc_reaction_detail_title">Reaction Details</string>
+    <string name="rc_reaction_limit_exceeded">Reaction limit reached. Cannot add more.</string>
+    <string name="rc_reaction_operation_failed">Reaction failed. Please try again later.</string>
+    <string name="rc_reaction_count_overflow">99+</string>
+    <string name="rc_reaction_count_format">%1$s</string>
+    <string name="rc_reaction_name_overflow_format">...%1$s</string>
 
 </resources>

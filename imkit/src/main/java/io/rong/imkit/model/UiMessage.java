@@ -11,11 +11,13 @@ import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Message;
 import io.rong.imlib.model.MessageConfig;
 import io.rong.imlib.model.MessageContent;
+import io.rong.imlib.model.MessageReaction;
 import io.rong.imlib.model.ReadReceiptInfo;
 import io.rong.imlib.model.ReadReceiptInfoV5;
 import io.rong.imlib.model.ReadReceiptResponseV5;
 import io.rong.imlib.model.UserInfo;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UiMessage extends UiBaseBean {
@@ -46,6 +48,8 @@ public class UiMessage extends UiBaseBean {
 
     /** 已读V5信息 */
     private ReadReceiptInfoV5 readReceiptInfoV5;
+
+    private List<MessageReaction> reactions;
 
     public UiMessage(Message message) {
         setMessage(message);
@@ -228,6 +232,27 @@ public class UiMessage extends UiBaseBean {
         }
     }
 
+    public boolean hasReactionUser(String userId) {
+        return hasReactionUser(reactions, userId);
+    }
+
+    static boolean hasReactionUser(List<MessageReaction> reactions, String userId) {
+        if (TextUtils.isEmpty(userId) || reactions == null || reactions.isEmpty()) {
+            return false;
+        }
+        for (MessageReaction reaction : reactions) {
+            if (reaction == null || reaction.getUsers() == null) {
+                continue;
+            }
+            for (io.rong.imlib.model.MessageReactionUser user : reaction.getUsers()) {
+                if (user != null && userId.equals(user.getUserId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public int getMessageId() {
         return message != null ? message.getMessageId() : -1;
     }
@@ -407,6 +432,15 @@ public class UiMessage extends UiBaseBean {
 
     public void setReadReceiptInfoV5(ReadReceiptInfoV5 readReceiptInfoV5) {
         this.readReceiptInfoV5 = readReceiptInfoV5;
+        change();
+    }
+
+    public List<MessageReaction> getReactions() {
+        return reactions;
+    }
+
+    public void setReactions(List<MessageReaction> reactions) {
+        this.reactions = reactions;
         change();
     }
 

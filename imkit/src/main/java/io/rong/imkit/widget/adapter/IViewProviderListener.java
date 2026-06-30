@@ -1,6 +1,7 @@
 package io.rong.imkit.widget.adapter;
 
 import android.view.View;
+import io.rong.imlib.model.MessageReaction;
 
 public interface IViewProviderListener<T> {
 
@@ -9,6 +10,8 @@ public interface IViewProviderListener<T> {
      * @param data 传递的数据源
      */
     void onViewClick(int clickType, T data);
+
+    default void onReactionClick(T data, MessageReaction reaction) {}
 
     /**
      * @param view 触发长按的视图

@@ -42,6 +42,11 @@
         <item name="rc_user_manager_background_color">@color/rc_white_color</item>
         <item name="rc_conversation_stick_color">@color/rc_item_top_color</item>
 
+        <!-- 消息回应新增辅助色 -->
+        <item name="rc_reaction_default_background_color">@color/rc_reaction_default_background_color_light</item>
+        <item name="rc_reaction_selected_background_color">@color/rc_reaction_selected_background_color_light</item>
+        <item name="rc_reaction_divider_color">@color/rc_reaction_divider_color_light</item>
+        <item name="rc_reaction_selected_border_color">@color/rc_reaction_selected_border_color_light</item>
 
         <!-- 图标 Drawable (使用 drawable-xhdpi 原始资源) -->
         <item name="rc_conversation_list_cell_block_notification_img">@drawable/rc_no_disturb</item>
@@ -67,6 +72,7 @@
         <item name="rc_conversation_menu_item_forward_img">@drawable/rc_selector_multi_forward</item>
         <item name="rc_conversation_menu_item_combine_forward_img">@drawable/rc_lively_combine_forward_light</item>
         <item name="rc_conversation_menu_item_combine_delete_img">@drawable/rc_more_action_multi_delete</item>
+        <item name="rc_conversation_menu_item_reaction_img">@drawable/rc_lively_reaction_menu</item>
 
 
         <!-- 插件图标 Drawable -->

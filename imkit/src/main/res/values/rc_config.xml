@@ -68,6 +68,9 @@
     <!--是否启用阅后即焚插件-->
     <bool name="rc_open_destruct_plugin">false</bool>
 
+    <!-- 每页展示的扩展插件数量 -->
+    <integer name="rc_extension_plugin_count_per_page">8</integer>
+
     <!--多选时,最大多选消息数 -->
     <integer name="rc_max_message_selected_count">100</integer>
 

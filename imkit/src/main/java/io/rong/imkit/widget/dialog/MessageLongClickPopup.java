@@ -356,9 +356,9 @@ public class MessageLongClickPopup {
                         @Override
                         public void onClick(View v) {
                             if (mItemClickedListener != null) {
-                                mItemClickedListener.onOptionsItemClicked(
-                                        holder.getAdapterPosition());
+                                int position = holder.getAdapterPosition();
                                 dismiss();
+                                mItemClickedListener.onOptionsItemClicked(position);
                             }
                         }
                     });

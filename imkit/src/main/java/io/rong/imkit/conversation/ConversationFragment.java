@@ -83,6 +83,7 @@ import io.rong.imkit.widget.refresh.wrapper.RongRefreshHeader;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
+import io.rong.imlib.model.MessageReaction;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -499,6 +500,11 @@ public class ConversationFragment extends Fragment
         }
 
         mMessageViewModel.onViewClick(clickType, data);
+    }
+
+    @Override
+    public void onReactionClick(UiMessage data, MessageReaction reaction) {
+        mMessageViewModel.onReactionClick(data, reaction);
     }
 
     // todo: 临时变量,后期将 MessageViewModel 中 onViewLongClick 逻辑重构后 移除

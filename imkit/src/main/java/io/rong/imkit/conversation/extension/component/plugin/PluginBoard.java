@@ -44,6 +44,7 @@ public class PluginBoard {
     private static final int DEFAULT_SHOW_COLUMN = 4;
     // FIXME: 2021/10/15 优先确保显示两行按钮时不会产生滑动
     private static final int DEFAULT_SHOW_ROW = 2;
+    private static final int DEFAULT_PLUGIN_COUNT_PER_PAGE = DEFAULT_SHOW_COLUMN * DEFAULT_SHOW_ROW;
 
     public PluginBoard(
             Fragment fragment,
@@ -113,18 +114,7 @@ public class PluginBoard {
                         // do nothing
                     }
                 });
-        try {
-            mPluginCountPerPage =
-                    context.getResources()
-                            .getInteger(
-                                    context.getResources()
-                                            .getIdentifier(
-                                                    "rc_extension_plugin_count_per_page",
-                                                    "integer",
-                                                    context.getPackageName()));
-        } catch (Exception e) {
-            mPluginCountPerPage = 8;
-        }
+        mPluginCountPerPage = getPluginCountPerPage(context);
 
         mViewPager = mViewContainer.findViewById(R.id.rc_view_pager);
         mIndicator = mViewContainer.findViewById(R.id.rc_indicator);
@@ -137,6 +127,17 @@ public class PluginBoard {
                     }
                 });
         initPlugins(mConversationType);
+    }
+
+    private int getPluginCountPerPage(Context context) {
+        int pluginCount = DEFAULT_PLUGIN_COUNT_PER_PAGE;
+        try {
+            pluginCount =
+                    context.getResources().getInteger(R.integer.rc_extension_plugin_count_per_page);
+        } catch (Exception e) {
+            RLog.e(TAG, "getPluginCountPerPage", e);
+        }
+        return pluginCount > 0 ? pluginCount : DEFAULT_PLUGIN_COUNT_PER_PAGE;
     }
 
     private Pair<Integer, Integer> calculateCellSize(

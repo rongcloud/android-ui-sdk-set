@@ -6,14 +6,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rc_reference_root_view"
-    android:layout_width="@dimen/rc_reference_width"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:minWidth="@dimen/rc_reference_message_width"
     android:orientation="vertical"
     tools:theme="@style/RCTraditionLightTheme">
 
     <io.rong.imkit.feature.reference.QuoteCardView
         android:id="@+id/rc_reference_quote_card"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/rc_reference_margin_top" />
 
@@ -27,7 +28,7 @@
         android:background="?attr/rc_line_background_color" />
 
     <io.rong.imkit.widget.RCMessageFrameLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/rc_reference_content_margin_left"
         android:layout_marginTop="@dimen/rc_reference_content_margin_top"
@@ -36,10 +37,11 @@
         <TextView
             android:id="@+id/rc_msg_tv_reference_send_content"
             style="@style/TextStyle.Alignment"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/rc_reference_content_send_margin_bottom"
             android:includeFontPadding="false"
+            android:maxWidth="@dimen/rc_reference_message_width"
             android:textColor="?attr/rc_text_primary_color"
             android:textColorLink="?attr/rc_link_color"
             android:textSize="@dimen/rc_reference_content_send_size" />

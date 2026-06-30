@@ -583,9 +583,15 @@ public class CombineMessageUtils {
 
     // 获取合并转发消息下载文件目录，不含最后的 /
     public String getCombineFileDirectory() {
-        return FileUtils.getCachePath(IMCenter.getInstance().getContext())
-                + File.separator
-                + COMBINE_FILE_PATH;
+        String combineFileDirectory =
+                FileUtils.getCachePath(IMCenter.getInstance().getContext())
+                        + File.separator
+                        + COMBINE_FILE_PATH;
+        File dir = new File(combineFileDirectory);
+        if (!dir.exists() && !dir.mkdirs() && !dir.exists()) {
+            RLog.e(TAG, "getCombineFileDirectory mkdirs failed: " + combineFileDirectory);
+        }
+        return combineFileDirectory;
     }
 
     public String optString(String str) {

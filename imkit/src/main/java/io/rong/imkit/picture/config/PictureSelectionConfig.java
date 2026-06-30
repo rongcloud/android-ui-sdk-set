@@ -129,10 +129,10 @@ public final class PictureSelectionConfig implements Parcelable {
         this.minSelectNum = in.readInt();
         this.requestedOrientation = in.readInt();
         this.imageSpanCount = in.readInt();
+        this.isCheckOriginalImage = in.readByte() != 0;
         this.zoomAnim = in.readByte() != 0;
         this.isCamera = in.readByte() != 0;
         this.isGif = in.readByte() != 0;
-        this.isCheckOriginalImage = in.readByte() != 0;
         this.enablePreview = in.readByte() != 0;
         this.enPreviewVideo = in.readByte() != 0;
         this.checkNumMode = in.readByte() != 0;
