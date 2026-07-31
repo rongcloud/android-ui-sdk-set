@@ -17,7 +17,6 @@ import io.rong.imkit.userinfo.RongUserInfoManager;
 import io.rong.imkit.utils.ExecutorHelper;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.MessageTag;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.Group;
 import io.rong.imlib.model.Message;
@@ -301,7 +300,7 @@ public class ForwardManager {
                                 null,
                                 (IRongCallback.ISendMediaMessageCallback) null);
             }
-        } else if (messageContent instanceof LocationMessage) {
+        } else if ("RC:LBSMsg".equals(fwdMessage.getObjectName())) {
             IMCenter.getInstance().sendLocationMessage(message, null, null, null);
         } else if (messageContent instanceof ReferenceMessage) {
             IMCenter.getInstance().sendMessage(message, null, null, null);

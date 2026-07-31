@@ -367,6 +367,10 @@ public abstract class PictureBaseActivity extends AppCompatActivity {
                     imageUri = PictureFileUtils.parUri(this, cameraFile);
                 }
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                // Android 18 起隐式 URI 授权收紧,显式授予相机应用对输出 URI 的读写权限
+                cameraIntent.addFlags(
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                                | Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivityForResult(cameraIntent, PictureConfig.REQUEST_CAMERA);
             }
         } catch (Exception e) {

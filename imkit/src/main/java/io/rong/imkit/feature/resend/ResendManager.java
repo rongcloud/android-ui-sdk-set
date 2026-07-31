@@ -8,7 +8,6 @@ import io.rong.imkit.IMCenter;
 import io.rong.imlib.IRongCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Message;
 import io.rong.message.ImageMessage;
 import io.rong.message.MediaMessageContent;
@@ -286,7 +285,7 @@ public class ResendManager {
                                     }
                                 });
             }
-        } else if (message.getContent() instanceof LocationMessage) {
+        } else if ("RC:LBSMsg".equals(message.getObjectName())) {
             IMCenter.getInstance().sendLocationMessage(message, null, null, callback);
         } else if (message.getContent() instanceof ReferenceMessage) {
             IMCenter.getInstance().sendMessage(message, null, null, callback);

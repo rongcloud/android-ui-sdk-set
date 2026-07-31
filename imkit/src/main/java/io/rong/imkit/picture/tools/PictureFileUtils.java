@@ -327,24 +327,27 @@ public class PictureFileUtils {
             int orientation =
                     exifInterface.getAttributeInt(
                             ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    degree = 90;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    degree = 180;
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    degree = 270;
-                    break;
-                default:
-                    degree = 90;
-                    break;
-            }
+            degree = getRotateDegree(orientation);
         } catch (Exception e) {
             RLog.e(TAG, e.getMessage());
         }
         return degree;
+    }
+
+    static int getRotateDegree(int orientation) {
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_NORMAL:
+            case ExifInterface.ORIENTATION_UNDEFINED:
+                return 0;
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return 90;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return 180;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return 270;
+            default:
+                return 90;
+        }
     }
 
     /**

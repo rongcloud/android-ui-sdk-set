@@ -23,7 +23,6 @@ import io.rong.imkit.widget.dialog.OptionsPopupDialog;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
 import io.rong.imlib.common.NetUtils;
-import io.rong.imlib.location.message.RealTimeLocationStartMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Message;
@@ -49,6 +48,7 @@ import java.util.List;
 public class MessageItemLongClickActionManager {
 
     private static final String TAG = MessageItemLongClickActionManager.class.getSimpleName();
+    private static final String REAL_TIME_LOCATION_START_OBJECT_NAME = "RC:RLStart";
 
     private OptionsPopupDialog mDialog;
     private Message mLongClickMessage;
@@ -339,8 +339,8 @@ public class MessageItemLongClickActionManager {
                                                 || message.getContent() instanceof HandshakeMessage
                                                 || message.getContent()
                                                         instanceof PublicServiceRichContentMessage
-                                                || message.getContent()
-                                                        instanceof RealTimeLocationStartMessage
+                                                || REAL_TIME_LOCATION_START_OBJECT_NAME.equals(
+                                                        message.getObjectName())
                                                 || message.getContent() instanceof UnknownMessage
                                                 || message.getContent()
                                                         instanceof

@@ -61,6 +61,8 @@ import java.util.Objects;
 public abstract class BaseMessageItemProvider<T extends MessageContent>
         implements IMessageProvider<T> {
     protected static final String TAG = "BaseMessageItemProvider";
+    private static final int READ_RECEIPT_CIRCLE_SIZE_DP = 16;
+    private static final float MIN_READ_RECEIPT_VISIBLE_PERCENTAGE = 0.10f;
     protected MessageItemProviderConfig mConfig = new MessageItemProviderConfig();
 
     @Override
@@ -188,6 +190,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             initUserInfo(holder, uiMessage, position, listener, isSender);
             initContent(holder, isSender, uiMessage, position, listener, list);
             initStatus(holder, uiMessage, position, listener, message, isSender, list);
+            relocateSpeechToTextContainer(holder);
             bindReactionView(holder, uiMessage, listener);
 
             if (holder instanceof MessageViewHolder) {
@@ -289,6 +292,35 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             reactionView.setVisibility(View.GONE);
             resetReactionContainer(holder, reactionView);
         }
+    }
+
+    private void relocateSpeechToTextContainer(ViewHolder holder) {
+        if (!(holder instanceof MessageViewHolder)) {
+            return;
+        }
+        ViewHolder contentHolder = ((MessageViewHolder) holder).getMessageContentViewHolder();
+        View speechToTextContainer = contentHolder.getView(R.id.rc_stt_container);
+        // Cache descendants before moving the container out of the content holder's view tree.
+        contentHolder.getView(R.id.rc_stt_text);
+        contentHolder.getView(R.id.rc_loading_dots);
+        LinearLayout messageColumn = holder.getView(R.id.ll_content);
+        View messageRow = holder.getView(R.id.rc_layout);
+        if (speechToTextContainer == null
+                || messageColumn == null
+                || speechToTextContainer.getParent() == messageColumn
+                || !(speechToTextContainer.getParent() instanceof ViewGroup)) {
+            return;
+        }
+
+        ((ViewGroup) speechToTextContainer.getParent()).removeView(speechToTextContainer);
+        int insertIndex =
+                resolveSpeechToTextInsertIndex(
+                        messageColumn.indexOfChild(messageRow), messageColumn.getChildCount());
+        messageColumn.addView(speechToTextContainer, insertIndex);
+    }
+
+    static int resolveSpeechToTextInsertIndex(int messageRowIndex, int childCount) {
+        return messageRowIndex < 0 ? childCount : Math.min(messageRowIndex + 1, childCount);
     }
 
     /** 有回应时，消息体与回应区共同使用同一个圆角底板；媒体消息额外加内边距以露出卡片边界。 */
@@ -1205,8 +1237,14 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
             readCount = readInfo.getReadCount();
             unreadCount = readInfo.getUnreadCount();
         }
-        int totalCount = readCount + unreadCount;
-        float readPercentage = totalCount > 0 ? (float) readCount / totalCount : 0f;
+        int totalCount =
+                readInfo != null && readInfo.getTotalCount() > 0
+                        ? readInfo.getTotalCount()
+                        : readCount + unreadCount;
+        float readPercentage = totalCount > 0 ? Math.min(1f, (float) readCount / totalCount) : 0f;
+        if (readCount > 0 && readPercentage < MIN_READ_RECEIPT_VISIBLE_PERCENTAGE) {
+            readPercentage = MIN_READ_RECEIPT_VISIBLE_PERCENTAGE;
+        }
         // 全部已读，展示对钩
         if (readPercentage >= 1f) {
             imageView.setImageResource(
@@ -1224,12 +1262,12 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
         // 根据百分比绘制不同的圆圈状态
         Context context = imageView.getContext();
         // 设置固定尺寸
-        int size = 12; // dp
+        int size = READ_RECEIPT_CIRCLE_SIZE_DP; // dp
         float density = context.getResources().getDisplayMetrics().density;
         int sizeInPx = (int) (size * density);
         // 确保最小尺寸
-        if (sizeInPx < 12) {
-            sizeInPx = 12;
+        if (sizeInPx < READ_RECEIPT_CIRCLE_SIZE_DP) {
+            sizeInPx = READ_RECEIPT_CIRCLE_SIZE_DP;
         }
         // 创建bitmap
         Bitmap bitmap = Bitmap.createBitmap(sizeInPx, sizeInPx, Bitmap.Config.ARGB_4444);
@@ -1276,7 +1314,7 @@ public abstract class BaseMessageItemProvider<T extends MessageContent>
 
     private int getEditStatusColor(TextView textView) {
         return IMKitThemeManager.getColorFromAttrId(
-                textView.getContext(), R.attr.rc_text_primary_color);
+                textView.getContext(), R.attr.rc_text_secondary_color);
     }
 
     protected void applyContentBackgroundEndInset(ViewHolder parentHolder, int endInsetPx) {

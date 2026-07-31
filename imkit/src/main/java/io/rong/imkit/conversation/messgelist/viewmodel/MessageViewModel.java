@@ -92,7 +92,6 @@ import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.MessageTag;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.RongIMClient;
-import io.rong.imlib.location.message.LocationMessage;
 import io.rong.imlib.model.Conversation;
 import io.rong.imlib.model.ConversationIdentifier;
 import io.rong.imlib.model.Group;
@@ -1283,7 +1282,7 @@ public class MessageViewModel extends AndroidViewModel
     }
 
     public void reSendMessage(Message message) {
-        if (message.getContent() instanceof LocationMessage) {
+        if ("RC:LBSMsg".equals(message.getObjectName())) {
             IMCenter.getInstance().sendLocationMessage(message, null, null, null);
         } else if (message.getContent() instanceof ReferenceMessage) {
             IMCenter.getInstance()
