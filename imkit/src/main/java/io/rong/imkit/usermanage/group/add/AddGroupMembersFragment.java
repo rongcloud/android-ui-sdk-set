@@ -9,19 +9,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
 import io.rong.imkit.model.ContactModel;
+import io.rong.imkit.usermanage.GroupLimitUtils;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.ContactListComponent;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.component.SearchComponent;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
+import io.rong.imkit.usermanage.model.InviteUsersToGroupOperationResult;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.IRongCoreEnum;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 功能描述: 创建增加群联系人页面
@@ -82,10 +86,13 @@ public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembe
     }
 
     private void handleConfirmSelection(@NonNull AddGroupMembersViewModel viewModel) {
-        viewModel.inviteUsersToGroup(
-                errorCode ->
-                        onInviteUsersToGroupResult(
-                                viewModel.getGroupId(), viewModel.getSelectUserIds(), errorCode));
+        viewModel.inviteUsersToGroupWithResult(
+                result ->
+                        onInviteUsersToGroupResultWithDetails(
+                                viewModel.getGroupId(),
+                                viewModel.getSelectUserIds(),
+                                result,
+                                viewModel.getContactDisplayNames()));
     }
 
     protected void onInviteUsersToGroupResult(
@@ -115,6 +122,45 @@ public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembe
                     getString(R.string.rc_invite_join_group_failed),
                     Toast.LENGTH_SHORT);
         }
+    }
+
+    /** 处理带结构化失败详情的邀请结果。 @since 5.46.0 */
+    protected void onInviteUsersToGroupResultWithDetails(
+            String groupId,
+            List<String> selectedIdList,
+            InviteUsersToGroupOperationResult result,
+            Map<String, String> contactDisplayNames) {
+        if (result.isSuccess()) {
+            onInviteUsersToGroupResult(groupId, selectedIdList, result.getCode());
+            return;
+        }
+        @StringRes int limitMessageResId = getInviteGroupLimitMessageResId(result.getCode());
+        if (limitMessageResId != 0) {
+            ToastUtils.show(getContext(), getString(limitMessageResId), Toast.LENGTH_SHORT);
+            return;
+        }
+        if (result.getCode() == IRongCoreEnum.CoreErrorCode.RC_GROUP_JOIN_COUNT_EXCEED_LIMIT) {
+            String tips = getString(R.string.rc_group_join_count_exceed_limit);
+            if (result.getErrorInfo() != null
+                    && !result.getErrorInfo().getFailedUserInfos().isEmpty()) {
+                tips =
+                        GroupLimitUtils.getFailedUsersLimitMessage(
+                                requireContext(),
+                                result.getErrorInfo().getFailedUserInfos(),
+                                contactDisplayNames);
+            }
+            ToastUtils.show(getContext(), tips, Toast.LENGTH_SHORT);
+            return;
+        }
+        onInviteUsersToGroupResult(groupId, selectedIdList, result.getCode());
+    }
+
+    @StringRes
+    static int getInviteGroupLimitMessageResId(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_MEMBERS_COUNT_EXCEED_LIMIT) {
+            return R.string.rc_group_members_count_exceed_limit_invite;
+        }
+        return 0;
     }
 
     protected void onBindSearchComponent(
@@ -189,7 +235,7 @@ public class AddGroupMembersFragment extends BaseViewModelFragment<AddGroupMembe
             }
 
             ContactModel.CheckType updateCheckType =
-                    (contactModel.getCheckType() == ContactModel.CheckType.CHECKED)
+                    GroupLimitUtils.isSelected(contactModel)
                             ? ContactModel.CheckType.UNCHECKED
                             : ContactModel.CheckType.CHECKED;
             listener.onActionClick(true);

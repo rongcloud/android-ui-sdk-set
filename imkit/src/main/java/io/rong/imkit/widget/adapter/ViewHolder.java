@@ -56,7 +56,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
      * @param viewId
      * @return
      */
-    public <T extends View> T getView(int viewId) {
+    public synchronized <T extends View> T getView(int viewId) {
         View view = mViews.get(viewId);
         if (view == null) {
             view = mConvertView.findViewById(viewId);

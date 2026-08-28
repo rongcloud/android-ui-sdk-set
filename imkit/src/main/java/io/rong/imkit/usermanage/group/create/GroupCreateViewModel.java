@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import io.rong.imkit.base.BaseViewModel;
+import io.rong.imkit.usermanage.GroupLimitUtils;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
+import io.rong.imkit.usermanage.model.CreateGroupOperationResult;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.model.ConversationIdentifier;
@@ -14,6 +16,7 @@ import io.rong.imlib.model.GroupInfo;
 import io.rong.imlib.model.GroupJoinPermission;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -26,6 +29,7 @@ public class GroupCreateViewModel extends BaseViewModel {
 
     private final String groupId;
     private final ArrayList<String> inviteeUserIds;
+    private final Map<String, String> inviteeDisplayNames;
     private final Random rand = new Random();
 
     protected final GroupOperationsHandler groupOperationsHandler;
@@ -34,6 +38,10 @@ public class GroupCreateViewModel extends BaseViewModel {
         super(arguments);
         groupId = generateOrRetrieveGroupId(arguments);
         inviteeUserIds = arguments.getStringArrayList(KitConstants.KEY_INVITEE_USER_IDS);
+        inviteeDisplayNames =
+                GroupLimitUtils.mapDisplayNames(
+                        inviteeUserIds,
+                        arguments.getStringArrayList(KitConstants.KEY_INVITEE_DISPLAY_NAMES));
         groupOperationsHandler = new GroupOperationsHandler(ConversationIdentifier.obtainGroup(""));
     }
 
@@ -48,6 +56,10 @@ public class GroupCreateViewModel extends BaseViewModel {
 
     List<String> getInviteeUserIds() {
         return inviteeUserIds;
+    }
+
+    Map<String, String> getInviteeDisplayNames() {
+        return inviteeDisplayNames;
     }
 
     /**
@@ -79,6 +91,16 @@ public class GroupCreateViewModel extends BaseViewModel {
         GroupInfo groupInfo = new GroupInfo(groupId, groupName);
         groupInfo.setJoinPermission(GroupJoinPermission.Free);
         groupOperationsHandler.createGroupExamine(groupInfo, inviteeUserIds);
+    }
+
+    /** 创建群组并返回结构化结果。 @since 5.46.0 */
+    public void createGroupWithResult(
+            String groupName, OnDataChangeListener<CreateGroupOperationResult> listener) {
+        groupOperationsHandler.replaceDataChangeListener(
+                GroupOperationsHandler.KEY_CREATE_GROUP_RESULT, listener);
+        GroupInfo groupInfo = new GroupInfo(groupId, groupName);
+        groupInfo.setJoinPermission(GroupJoinPermission.Free);
+        groupOperationsHandler.createGroupWithResult(groupInfo, inviteeUserIds);
     }
 
     @Override

@@ -94,6 +94,14 @@ public class GroupApplicationsViewModel extends BaseViewModel {
         groupApplicationOperationsHandler.acceptGroupInvite(groupId, inviterId);
     }
 
+    /** 接受群邀请并返回原始结果码。 @since 5.46.0 */
+    public void acceptGroupInviteWithResult(
+            String groupId,
+            String inviterId,
+            OnDataChangeListener<IRongCoreEnum.CoreErrorCode> listener) {
+        groupApplicationOperationsHandler.acceptGroupInviteWithResult(groupId, inviterId, listener);
+    }
+
     /**
      * 拒绝群组邀请
      *
@@ -107,9 +115,8 @@ public class GroupApplicationsViewModel extends BaseViewModel {
             String inviterId,
             String reason,
             OnDataChangeListener<Boolean> onDataChangeListener) {
-        groupApplicationOperationsHandler.replaceDataChangeListener(
-                GroupApplicationOperationsHandler.KEY_REFUSE_GROUP_INVITE, onDataChangeListener);
-        groupApplicationOperationsHandler.refuseGroupInvite(groupId, inviterId, reason);
+        groupApplicationOperationsHandler.refuseGroupInvite(
+                groupId, inviterId, reason, onDataChangeListener);
     }
 
     /**
@@ -125,10 +132,8 @@ public class GroupApplicationsViewModel extends BaseViewModel {
             String inviterId,
             String applicantId,
             OnDataChangeListener<IRongCoreEnum.CoreErrorCode> onDataChangeListener) {
-        groupApplicationOperationsHandler.replaceDataChangeListener(
-                GroupApplicationOperationsHandler.KEY_ACCEPT_GROUP_APPLICATION,
-                onDataChangeListener);
-        groupApplicationOperationsHandler.acceptGroupApplication(groupId, inviterId, applicantId);
+        groupApplicationOperationsHandler.acceptGroupApplication(
+                groupId, inviterId, applicantId, onDataChangeListener);
     }
 
     /**
@@ -146,11 +151,8 @@ public class GroupApplicationsViewModel extends BaseViewModel {
             String applicantId,
             String reason,
             OnDataChangeListener<Boolean> onDataChangeListener) {
-        groupApplicationOperationsHandler.replaceDataChangeListener(
-                GroupApplicationOperationsHandler.KEY_REFUSE_GROUP_APPLICATION,
-                onDataChangeListener);
         groupApplicationOperationsHandler.refuseGroupApplication(
-                groupId, inviterId, applicantId, reason);
+                groupId, inviterId, applicantId, reason, onDataChangeListener);
     }
 
     OnPagedDataLoader getOnPageDataLoader() {

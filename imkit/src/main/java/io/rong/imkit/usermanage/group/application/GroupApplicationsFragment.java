@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
 import io.rong.imkit.picture.tools.ScreenUtils;
+import io.rong.imkit.usermanage.GroupLimitUtils;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.adapter.GroupApplicationsAdapter;
 import io.rong.imkit.usermanage.component.CommonListComponent;
@@ -26,6 +27,7 @@ import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imkit.utils.RTLUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imlib.IRongCoreEnum;
+import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.GroupApplicationDirection;
 import io.rong.imlib.model.GroupApplicationInfo;
 import io.rong.imlib.model.GroupApplicationStatus;
@@ -144,17 +146,14 @@ public class GroupApplicationsFragment extends BaseViewModelFragment<GroupApplic
                 || status == GroupApplicationStatus.ManagerUnHandled) {
             if (direction == GroupApplicationDirection.InvitationReceived) {
                 getViewModel()
-                        .acceptGroupInvite(
+                        .acceptGroupInviteWithResult(
                                 groupApplicationInfo.getGroupId(),
                                 groupApplicationInfo.getInviterInfo().getUserId(),
-                                isSuccess -> {
-                                    if (!isSuccess) {
-                                        ToastUtils.show(
-                                                getContext(),
-                                                getString(R.string.rc_invite_confirm_failed),
-                                                Toast.LENGTH_SHORT);
+                                coreErrorCode -> {
+                                    if (!GroupLimitUtils.isGroupApplicationSuccess(coreErrorCode)) {
+                                        showAcceptFailure(groupApplicationInfo, coreErrorCode);
                                     }
-                                    listener.onActionClick(IRongCoreEnum.CoreErrorCode.SUCCESS);
+                                    listener.onActionClick(coreErrorCode);
                                 });
             } else if (direction == GroupApplicationDirection.ApplicationReceived) {
                 getViewModel()
@@ -163,23 +162,38 @@ public class GroupApplicationsFragment extends BaseViewModelFragment<GroupApplic
                                 groupApplicationInfo.getInviterInfo().getUserId(),
                                 groupApplicationInfo.getJoinMemberInfo().getUserId(),
                                 coreErrorCode -> {
-                                    boolean isSuccess =
-                                            coreErrorCode == IRongCoreEnum.CoreErrorCode.SUCCESS
-                                                    || coreErrorCode
-                                                            == IRongCoreEnum.CoreErrorCode
-                                                                    .RC_GROUP_NEED_INVITEE_ACCEPT;
-                                    if (!isSuccess) {
-                                        ToastUtils.show(
-                                                getContext(),
-                                                getString(R.string.rc_invite_confirm_failed),
-                                                Toast.LENGTH_SHORT);
+                                    if (!GroupLimitUtils.isGroupApplicationSuccess(coreErrorCode)) {
+                                        showAcceptFailure(groupApplicationInfo, coreErrorCode);
                                     }
-                                    if (isSuccess) {
-                                        listener.onActionClick(coreErrorCode);
-                                    }
+                                    listener.onActionClick(coreErrorCode);
                                 });
             }
         }
+    }
+
+    private void showAcceptFailure(
+            GroupApplicationInfo groupApplicationInfo, IRongCoreEnum.CoreErrorCode coreErrorCode) {
+        String tips;
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_JOIN_COUNT_EXCEED_LIMIT) {
+            tips =
+                    GroupLimitUtils.getGroupApplicationLimitMessage(
+                            requireContext(),
+                            groupApplicationInfo.getJoinMemberInfo(),
+                            RongCoreClient.getInstance().getCurrentUserId());
+        } else {
+            tips = getString(getAcceptFailureMessageResId(coreErrorCode));
+        }
+        ToastUtils.show(getContext(), tips, Toast.LENGTH_SHORT);
+    }
+
+    static int getAcceptFailureMessageResId(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_COUNT_EXCEED_LIMIT) {
+            return R.string.rc_group_app_count_exceed_limit;
+        }
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_MEMBERS_COUNT_EXCEED_LIMIT) {
+            return R.string.rc_group_members_count_exceed_limit_join;
+        }
+        return R.string.rc_invite_confirm_failed;
     }
 
     /**

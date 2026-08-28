@@ -1002,7 +1002,7 @@ public class ConversationConfig {
      * @return 功能是否开启。
      */
     public boolean isEnableMultiDeviceSync(Conversation.ConversationType type) {
-        if (enableMultiDeviceSync) {
+        if (enableMultiDeviceSync && type != null) {
             switch (type) {
                 case PRIVATE:
                 case ENCRYPTED:

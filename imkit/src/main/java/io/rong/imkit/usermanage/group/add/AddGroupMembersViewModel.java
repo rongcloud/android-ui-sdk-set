@@ -9,10 +9,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import io.rong.imkit.base.BaseViewModel;
 import io.rong.imkit.model.ContactModel;
+import io.rong.imkit.usermanage.GroupLimitUtils;
 import io.rong.imkit.usermanage.handler.FriendInfoHandler;
 import io.rong.imkit.usermanage.handler.GroupMembersFullHandler;
 import io.rong.imkit.usermanage.handler.GroupOperationsHandler;
 import io.rong.imkit.usermanage.interfaces.OnDataChangeListener;
+import io.rong.imkit.usermanage.model.InviteUsersToGroupOperationResult;
 import io.rong.imkit.utils.KitConstants;
 import io.rong.imkit.utils.StringUtils;
 import io.rong.imlib.IRongCoreEnum;
@@ -25,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,6 +45,7 @@ public class AddGroupMembersViewModel extends BaseViewModel {
     private final MutableLiveData<List<ContactModel>> selectedContactsLiveData =
             new MutableLiveData<>(new ArrayList<>());
     private final Set<String> existingGroupMemberIds = new HashSet<>();
+    private final Set<String> failedUserIds = new HashSet<>();
 
     protected final FriendInfoHandler friendInfoHandler;
     protected final GroupMembersFullHandler groupMembersFullHandler;
@@ -133,6 +138,33 @@ public class AddGroupMembersViewModel extends BaseViewModel {
         groupOperationsHandler.inviteUsersToGroup(userIds);
     }
 
+    /** 邀请用户加入群组并返回结构化结果。 @since 5.46.0 */
+    public void inviteUsersToGroupWithResult(
+            @NonNull OnDataChangeListener<InviteUsersToGroupOperationResult> listener) {
+        if (isJoining) {
+            return;
+        }
+        List<String> userIds = getSelectUserIds();
+        if (userIds.isEmpty()) {
+            return;
+        }
+        clearFailedUserStates();
+        isJoining = true;
+        groupOperationsHandler.replaceDataChangeListener(
+                GroupOperationsHandler.KEY_INVITE_USERS_TO_GROUP_RESULT,
+                result -> {
+                    isJoining = false;
+                    if (!result.isSuccess()
+                            && result.getCode()
+                                    == IRongCoreEnum.CoreErrorCode.RC_GROUP_JOIN_COUNT_EXCEED_LIMIT
+                            && result.getErrorInfo() != null) {
+                        markFailedUsers(result.getErrorInfo().getFailedUserInfos());
+                    }
+                    listener.onDataChange(result);
+                });
+        groupOperationsHandler.inviteUsersToGroupWithResult(userIds);
+    }
+
     /**
      * @since 5.12.2
      */
@@ -153,6 +185,7 @@ public class AddGroupMembersViewModel extends BaseViewModel {
      * @param updatedContact 更新后的联系人
      */
     public void updateContact(ContactModel updatedContact) {
+        clearFailedUserStates();
         List<ContactModel> selectedList = new ArrayList<>(selectedContactsLiveData.getValue());
 
         // 使用迭代器检查并移除或添加元素
@@ -226,6 +259,13 @@ public class AddGroupMembersViewModel extends BaseViewModel {
         return groupId;
     }
 
+    Map<String, String> getContactDisplayNames() {
+        Map<String, String> names = new LinkedHashMap<>();
+        addContactDisplayNames(names, filteredContactsLiveData.getValue());
+        addContactDisplayNames(names, selectedContactsLiveData.getValue());
+        return names;
+    }
+
     private List<ContactModel> sortAndCategorizeContacts(List<FriendInfo> friendInfos) {
         // 排序处理，中文按首字母，英文按整个名字排序
         Collections.sort(
@@ -273,6 +313,8 @@ public class AddGroupMembersViewModel extends BaseViewModel {
             }
             if (existingGroupMemberIds.contains(friendInfo.getUserId())) {
                 checkType = ContactModel.CheckType.DISABLE;
+            } else if (failedUserIds.contains(friendInfo.getUserId())) {
+                checkType = ContactModel.CheckType.FAILED;
             }
 
             // 添加联系人 ContactModel
@@ -290,5 +332,53 @@ public class AddGroupMembersViewModel extends BaseViewModel {
                         ? friendInfo.getRemark()
                         : friendInfo.getName();
         return !TextUtils.isEmpty(name) ? name : "#";
+    }
+
+    private void markFailedUsers(List<GroupMemberInfo> failedUsers) {
+        failedUserIds.clear();
+        if (failedUsers != null) {
+            for (GroupMemberInfo failedUser : failedUsers) {
+                if (failedUser != null && !TextUtils.isEmpty(failedUser.getUserId())) {
+                    failedUserIds.add(failedUser.getUserId());
+                }
+            }
+        }
+        updateFailedContactStates();
+    }
+
+    private void clearFailedUserStates() {
+        if (failedUserIds.isEmpty()) {
+            return;
+        }
+        failedUserIds.clear();
+        updateFailedContactStates();
+    }
+
+    private void updateFailedContactStates() {
+        List<ContactModel> filtered = filteredContactsLiveData.getValue();
+        List<ContactModel> selected = selectedContactsLiveData.getValue();
+        GroupLimitUtils.updateFailedContactStates(filtered, failedUserIds);
+        GroupLimitUtils.updateFailedContactStates(selected, failedUserIds);
+        if (filtered != null) {
+            filteredContactsLiveData.postValue(new ArrayList<>(filtered));
+        }
+        if (selected != null) {
+            selectedContactsLiveData.postValue(new ArrayList<>(selected));
+        }
+    }
+
+    private void addContactDisplayNames(Map<String, String> names, List<ContactModel> contacts) {
+        if (contacts == null) {
+            return;
+        }
+        for (ContactModel contact : contacts) {
+            if (contact.getBean() instanceof FriendInfo) {
+                FriendInfo friendInfo = (FriendInfo) contact.getBean();
+                String displayName = GroupLimitUtils.getFriendDisplayName(friendInfo);
+                if (!TextUtils.isEmpty(displayName)) {
+                    names.put(friendInfo.getUserId(), displayName);
+                }
+            }
+        }
     }
 }

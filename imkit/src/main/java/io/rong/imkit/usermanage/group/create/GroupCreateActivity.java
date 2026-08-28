@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import io.rong.imkit.IMCenter;
@@ -26,6 +27,18 @@ public class GroupCreateActivity extends BaseActivity {
 
     public static Intent newIntent(@NonNull Context context, @NonNull List<String> inviteeUserIds) {
         return newIntent(context, "", inviteeUserIds);
+    }
+
+    /** 使用选择页展示名称打开创建群页面。 @since 5.46.0 */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static Intent newIntent(
+            @NonNull Context context,
+            @NonNull List<String> inviteeUserIds,
+            @NonNull List<String> inviteeDisplayNames) {
+        Intent intent = newIntent(context, "", inviteeUserIds);
+        intent.putStringArrayListExtra(
+                KitConstants.KEY_INVITEE_DISPLAY_NAMES, new ArrayList<>(inviteeDisplayNames));
+        return intent;
     }
 
     @NonNull

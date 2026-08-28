@@ -3,11 +3,15 @@ package io.rong.imkit.usermanage.handler;
 import androidx.annotation.NonNull;
 import io.rong.imkit.IMCenter;
 import io.rong.imkit.base.MultiDataHandler;
+import io.rong.imkit.usermanage.model.CreateGroupOperationResult;
+import io.rong.imkit.usermanage.model.InviteUsersToGroupOperationResult;
 import io.rong.imlib.IRongCoreCallback;
 import io.rong.imlib.IRongCoreEnum;
 import io.rong.imlib.RongCoreClient;
 import io.rong.imlib.model.ConversationIdentifier;
+import io.rong.imlib.model.CreateGroupErrorInfo;
 import io.rong.imlib.model.GroupInfo;
+import io.rong.imlib.model.InviteUsersToGroupErrorInfo;
 import io.rong.imlib.model.QuitGroupConfig;
 import java.util.List;
 
@@ -32,6 +36,17 @@ public class GroupOperationsHandler extends MultiDataHandler {
     /** 用于标识邀请用户加入群组的操作 */
     public static final DataKey<IRongCoreEnum.CoreErrorCode> KEY_INVITE_USERS_TO_GROUP =
             DataKey.obtain("KEY_INVITE_USERS_TO_GROUP", IRongCoreEnum.CoreErrorCode.class);
+
+    /** 用于标识带结构化结果的创建群组操作。 @since 5.46.0 */
+    public static final DataKey<CreateGroupOperationResult> KEY_CREATE_GROUP_RESULT =
+            DataKey.obtain("KEY_CREATE_GROUP_RESULT", CreateGroupOperationResult.class);
+
+    /** 用于标识带结构化结果的邀请用户入群操作。 @since 5.46.0 */
+    public static final DataKey<InviteUsersToGroupOperationResult>
+            KEY_INVITE_USERS_TO_GROUP_RESULT =
+                    DataKey.obtain(
+                            "KEY_INVITE_USERS_TO_GROUP_RESULT",
+                            InviteUsersToGroupOperationResult.class);
 
     /** 用于标识踢出群成员的操作 */
     public static final DataKey<Boolean> KEY_KICK_GROUP_MEMBERS =
@@ -141,6 +156,31 @@ public class GroupOperationsHandler extends MultiDataHandler {
                         });
     }
 
+    /** 创建群组并返回结构化失败详情。 @since 5.46.0 */
+    public void createGroupWithResult(GroupInfo groupInfo, List<String> inviteeUserIds) {
+        RongCoreClient.getInstance()
+                .createGroup(
+                        groupInfo,
+                        inviteeUserIds,
+                        new IRongCoreCallback.CreateGroupResultCallback() {
+                            @Override
+                            public void onSuccess(IRongCoreEnum.CoreErrorCode processCode) {
+                                notifyDataChange(
+                                        KEY_CREATE_GROUP_RESULT,
+                                        CreateGroupOperationResult.success(processCode));
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode errorCode,
+                                    CreateGroupErrorInfo errorInfo) {
+                                notifyDataChange(
+                                        KEY_CREATE_GROUP_RESULT,
+                                        CreateGroupOperationResult.error(errorCode, errorInfo));
+                            }
+                        });
+    }
+
     /**
      * 邀请用户加入群组
      *
@@ -160,6 +200,32 @@ public class GroupOperationsHandler extends MultiDataHandler {
                             @Override
                             public void onError(IRongCoreEnum.CoreErrorCode e) {
                                 notifyDataError(KEY_INVITE_USERS_TO_GROUP, e);
+                            }
+                        });
+    }
+
+    /** 邀请用户加入群组并返回结构化失败详情。 @since 5.46.0 */
+    public void inviteUsersToGroupWithResult(@NonNull List<String> userIds) {
+        RongCoreClient.getInstance()
+                .inviteUsersToGroup(
+                        groupId,
+                        userIds,
+                        new IRongCoreCallback.InviteUsersToGroupResultCallback() {
+                            @Override
+                            public void onSuccess(IRongCoreEnum.CoreErrorCode processCode) {
+                                notifyDataChange(
+                                        KEY_INVITE_USERS_TO_GROUP_RESULT,
+                                        InviteUsersToGroupOperationResult.success(processCode));
+                            }
+
+                            @Override
+                            public void onError(
+                                    IRongCoreEnum.CoreErrorCode errorCode,
+                                    InviteUsersToGroupErrorInfo errorInfo) {
+                                notifyDataChange(
+                                        KEY_INVITE_USERS_TO_GROUP_RESULT,
+                                        InviteUsersToGroupOperationResult.error(
+                                                errorCode, errorInfo));
                             }
                         });
     }

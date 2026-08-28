@@ -274,6 +274,10 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         return RongUserInfoManager.getInstance().getUserInfo(userId);
     }
 
+    static String resolveNotificationTitle(String displayName, String applicationName) {
+        return displayName == null ? applicationName : displayName;
+    }
+
     private void prepareToSendNotification(Message message) {
         // 如果在主线程，就开启线程去发送通知
         if (ExecutorFactory.isMainThread()) {
@@ -322,9 +326,15 @@ public class RongNotificationManager implements RongUserInfoManager.UserDataObse
         } else {
             UserInfo userInfo = getUserInfo(targetId, message.getContent());
             title =
-                    userInfo == null
-                            ? targetId
-                            : RongUserInfoManager.getInstance().getUserDisplayName(userInfo);
+                    resolveNotificationTitle(
+                            userInfo == null
+                                    ? null
+                                    : RongUserInfoManager.getInstance()
+                                            .getUserDisplayName(userInfo),
+                            mApplication
+                                    .getPackageManager()
+                                    .getApplicationLabel(mApplication.getApplicationInfo())
+                                    .toString());
             if (userInfo == null) {
                 if (targetKey != null) {
                     messageMap.put(targetKey.getKey(), message);

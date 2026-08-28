@@ -40,6 +40,8 @@ public class GroupApplicationsAdapter
         extends RecyclerView.Adapter<GroupApplicationsAdapter.GroupApplicationViewHolder> {
 
     private final List<GroupApplicationInfo> data = new ArrayList<>();
+    private final GroupApplicationRequestTracker operationTracker =
+            new GroupApplicationRequestTracker();
     private OnActionClickListener<GroupApplicationInfo> onAcceptClickListener;
     private OnActionClickListener<GroupApplicationInfo> onRejectClickListener;
 
@@ -138,36 +140,26 @@ public class GroupApplicationsAdapter
                 updateButtonVisibility(holder, R.string.rc_expired, true);
                 break;
         }
+        updateActionButtonsEnabled(holder, !operationTracker.isPending(groupApplicationInfo));
 
         // 接受按钮点击事件
         holder.tvAccept.setOnClickListener(
                 v -> {
-                    if (onAcceptClickListener != null) {
+                    if (onAcceptClickListener != null
+                            && operationTracker.tryStart(groupApplicationInfo)) {
+                        GroupApplicationStatus pendingStatus = groupApplicationInfo.getStatus();
+                        updateActionButtonsEnabled(holder, false);
                         onAcceptClickListener.onActionClickWithConfirm(
                                 groupApplicationInfo,
                                 coreErrorCode -> {
-                                    if (coreErrorCode instanceof IRongCoreEnum.CoreErrorCode) {
-                                        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.SUCCESS
-                                                || coreErrorCode
-                                                        == IRongCoreEnum.CoreErrorCode
-                                                                .RC_GROUP_NEED_INVITEE_ACCEPT) {
-                                            @StringRes int resid = R.string.rc_joined;
-                                            if (coreErrorCode
-                                                    == IRongCoreEnum.CoreErrorCode.SUCCESS) {
-                                                resid = R.string.rc_joined;
-                                            } else if (coreErrorCode
-                                                    == IRongCoreEnum.CoreErrorCode
-                                                            .RC_GROUP_NEED_INVITEE_ACCEPT) {
-                                                resid = R.string.rc_invitee_pending;
-                                            } else {
-                                                resid = R.string.rc_set_failed;
-                                            }
-                                            holder.tvResult.setVisibility(View.VISIBLE);
-                                            holder.tvResult.setText(resid);
-                                            holder.tvReject.setVisibility(View.GONE);
-                                            holder.tvAccept.setVisibility(View.GONE);
-                                        }
-                                    }
+                                    operationTracker.finish(groupApplicationInfo);
+                                    int currentPosition =
+                                            applyAcceptResult(
+                                                    data,
+                                                    groupApplicationInfo,
+                                                    pendingStatus,
+                                                    coreErrorCode);
+                                    notifyOperationFinished(currentPosition);
                                 });
                     }
                 });
@@ -175,25 +167,24 @@ public class GroupApplicationsAdapter
         // 拒绝按钮点击事件
         holder.tvReject.setOnClickListener(
                 v -> {
-                    if (onRejectClickListener != null) {
+                    if (onRejectClickListener != null
+                            && operationTracker.tryStart(groupApplicationInfo)) {
+                        updateActionButtonsEnabled(holder, false);
                         onRejectClickListener.onActionClickWithConfirm(
                                 groupApplicationInfo,
                                 isSuccess -> {
+                                    GroupApplicationStatus completedStatus = null;
                                     if (isSuccess instanceof Boolean && (Boolean) isSuccess) {
                                         GroupApplicationStatus status =
                                                 groupApplicationInfo.getStatus();
-                                        @StringRes int resid = R.string.rc_rejected;
                                         if (status == GroupApplicationStatus.InviteeUnHandled) {
-                                            resid = R.string.rc_invitee_rejected;
+                                            completedStatus = GroupApplicationStatus.InviteeRefused;
                                         } else if (status
                                                 == GroupApplicationStatus.ManagerUnHandled) {
-                                            resid = R.string.rc_manager_rejected;
+                                            completedStatus = GroupApplicationStatus.ManagerRefused;
                                         }
-                                        holder.tvResult.setVisibility(View.VISIBLE);
-                                        holder.tvResult.setText(resid);
-                                        holder.tvReject.setVisibility(View.GONE);
-                                        holder.tvAccept.setVisibility(View.GONE);
                                     }
+                                    finishOperation(groupApplicationInfo, completedStatus);
                                 });
                     }
                 });
@@ -214,6 +205,56 @@ public class GroupApplicationsAdapter
         holder.tvResult.setVisibility(isShowResult ? View.VISIBLE : View.GONE);
         holder.tvReject.setVisibility(isShowResult ? View.GONE : View.VISIBLE);
         holder.tvAccept.setVisibility(isShowResult ? View.GONE : View.VISIBLE);
+    }
+
+    private void updateActionButtonsEnabled(GroupApplicationViewHolder holder, boolean isEnabled) {
+        holder.tvAccept.setEnabled(isEnabled);
+        holder.tvReject.setEnabled(isEnabled);
+    }
+
+    void finishOperation(
+            GroupApplicationInfo applicationInfo, GroupApplicationStatus completedStatus) {
+        operationTracker.finish(applicationInfo);
+        int currentPosition = applyCompletedStatus(data, applicationInfo, completedStatus);
+        notifyOperationFinished(currentPosition);
+    }
+
+    private void notifyOperationFinished(int currentPosition) {
+        if (currentPosition >= 0) {
+            notifyItemChanged(currentPosition);
+        }
+    }
+
+    static int applyAcceptResult(
+            List<GroupApplicationInfo> applications,
+            GroupApplicationInfo applicationInfo,
+            GroupApplicationStatus pendingStatus,
+            Object result) {
+        GroupApplicationStatus completedStatus = pendingStatus;
+        if (result == IRongCoreEnum.CoreErrorCode.SUCCESS) {
+            completedStatus = GroupApplicationStatus.Joined;
+        } else if (result == IRongCoreEnum.CoreErrorCode.RC_GROUP_NEED_INVITEE_ACCEPT) {
+            completedStatus = GroupApplicationStatus.InviteeUnHandled;
+        }
+        return applyCompletedStatus(applications, applicationInfo, completedStatus);
+    }
+
+    static int applyCompletedStatus(
+            List<GroupApplicationInfo> applications,
+            GroupApplicationInfo applicationInfo,
+            GroupApplicationStatus completedStatus) {
+        GroupApplicationRequestTracker.RequestKey requestKey =
+                GroupApplicationRequestTracker.requestKey(applicationInfo);
+        for (int index = 0; index < applications.size(); index++) {
+            GroupApplicationInfo currentApplication = applications.get(index);
+            if (requestKey.equals(GroupApplicationRequestTracker.requestKey(currentApplication))) {
+                if (completedStatus != null) {
+                    currentApplication.setStatus(completedStatus);
+                }
+                return index;
+            }
+        }
+        return -1;
     }
 
     private String getPortraitUri(GroupApplicationInfo info) {

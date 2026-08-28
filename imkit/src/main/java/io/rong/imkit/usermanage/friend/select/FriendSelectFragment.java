@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
 import io.rong.imkit.model.ContactModel;
+import io.rong.imkit.usermanage.GroupLimitUtils;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.ContactListComponent;
 import io.rong.imkit.usermanage.component.HeadComponent;
@@ -78,13 +79,19 @@ public class FriendSelectFragment extends BaseViewModelFragment<FriendSelectView
                         return;
                     }
                     List<String> inviteeUserIds = new ArrayList<>();
+                    List<String> inviteeDisplayNames = new ArrayList<>();
                     for (int i = 0; i < value.size(); i++) {
                         Object bean = value.get(i).getBean();
                         if (bean instanceof FriendInfo) {
-                            inviteeUserIds.add(((FriendInfo) bean).getUserId());
+                            FriendInfo friendInfo = (FriendInfo) bean;
+                            inviteeUserIds.add(friendInfo.getUserId());
+                            String displayName = GroupLimitUtils.getFriendDisplayName(friendInfo);
+                            inviteeDisplayNames.add(displayName == null ? "" : displayName);
                         }
                     }
-                    startActivity(GroupCreateActivity.newIntent(getContext(), inviteeUserIds));
+                    startActivity(
+                            GroupCreateActivity.newIntent(
+                                    getContext(), inviteeUserIds, inviteeDisplayNames));
                 });
         headComponent.setRightTextViewEnable(false);
         viewModel

@@ -18,6 +18,9 @@ public final class KitConstants {
     /** 邀请用户id */
     public static final String KEY_INVITEE_USER_IDS = "KEY_INVITEE_USER_IDS";
 
+    /** 邀请用户在选择页面的展示名称，顺序与邀请用户id一致 */
+    public static final String KEY_INVITEE_DISPLAY_NAMES = "KEY_INVITEE_DISPLAY_NAMES";
+
     /** 会话标识 */
     public static final String KEY_CONVERSATION_IDENTIFIER = "KEY_CONVERSATION_IDENTIFIER";
 

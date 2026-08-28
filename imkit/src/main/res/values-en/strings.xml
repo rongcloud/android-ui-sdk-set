@@ -600,6 +600,18 @@
     <string name="rc_group_members_kick_failed">Failed to remove Group member</string>
     <string name="rc_invite_join_group_success">Invitation to join the group was successful</string>
     <string name="rc_invite_join_group_failed">Invitation to join the group failed</string>
+    <string name="rc_group_app_count_exceed_limit">Group limit reached. Creation failed.</string>
+    <string name="rc_group_members_count_exceed_limit">Total group member limit reached. Creation failed.</string>
+    <string name="rc_group_members_count_exceed_limit_invite">Total group member limit reached. Invitation failed.</string>
+    <string name="rc_group_members_count_exceed_limit_join">Total group member limit reached. Join failed.</string>
+    <string name="rc_group_join_count_exceed_limit">Joined group limit reached.</string>
+    <string name="rc_group_failed_users_join_count_exceed_limit_single">%1$s has reached the group join limit and is unable to join more groups.</string>
+    <string name="rc_group_failed_users_join_count_exceed_limit_multiple">%1$s have reached the group join limit and are unable to join more groups.</string>
+    <string name="rc_group_application_join_count_exceed_limit">Join failed. %1$s has reached the group limit.</string>
+    <string name="rc_group_member_invite_failed_description">Failed to join group</string>
+    <string name="rc_group_limit_name_list_pair">%1$s and %2$s</string>
+    <string name="rc_group_limit_name_list_middle">%1$s, %2$s</string>
+    <string name="rc_group_limit_name_list_end">%1$s, and %2$s</string>
 
     <string name="rc_group_notice_success">Published successfully</string>
     <string name="rc_group_notice_failed">Publishing failed</string>

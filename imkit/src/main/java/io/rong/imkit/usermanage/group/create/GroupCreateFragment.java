@@ -12,14 +12,16 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.lifecycle.ViewModelProvider;
 import io.rong.imkit.R;
 import io.rong.imkit.base.BaseViewModelFragment;
 import io.rong.imkit.config.RongConfigCenter;
+import io.rong.imkit.usermanage.GroupLimitUtils;
 import io.rong.imkit.usermanage.ViewModelFactory;
 import io.rong.imkit.usermanage.component.HeadComponent;
 import io.rong.imkit.usermanage.friend.select.FriendSelectFragment;
-import io.rong.imkit.usermanage.interfaces.OnDataChangeEnhancedListener;
+import io.rong.imkit.usermanage.model.CreateGroupOperationResult;
 import io.rong.imkit.utils.RouteUtils;
 import io.rong.imkit.utils.ToastUtils;
 import io.rong.imkit.widget.dialog.TipLoadingDialog;
@@ -94,19 +96,13 @@ public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewMo
                         }
                         showLoadingDialog();
                         getViewModel()
-                                .createGroup(
+                                .createGroupWithResult(
                                         groupName,
-                                        new OnDataChangeEnhancedListener<
-                                                IRongCoreEnum.CoreErrorCode>() {
-                                            @Override
-                                            public void onDataChange(
-                                                    IRongCoreEnum.CoreErrorCode coreErrorCode) {
-                                                onCreateGroupResult(
+                                        result ->
+                                                onCreateGroupResultWithDetails(
                                                         viewModel.getGroupId(),
                                                         viewModel.getInviteeUserIds(),
-                                                        coreErrorCode);
-                                            }
-                                        });
+                                                        result));
                     }
                 });
     }
@@ -138,6 +134,46 @@ public class GroupCreateFragment extends BaseViewModelFragment<GroupCreateViewMo
             }
             ToastUtils.show(getContext(), tips, Toast.LENGTH_SHORT);
         }
+    }
+
+    /** 处理带结构化失败详情的创建群组结果。 @since 5.46.0 */
+    protected void onCreateGroupResultWithDetails(
+            String groupId, List<String> inviteeUserIds, CreateGroupOperationResult result) {
+        if (result.isSuccess()) {
+            onCreateGroupResult(groupId, inviteeUserIds, result.getCode());
+            return;
+        }
+        dismissLoadingDialog();
+        @StringRes int limitMessageResId = getCreateGroupLimitMessageResId(result.getCode());
+        if (limitMessageResId != 0) {
+            ToastUtils.show(getContext(), getString(limitMessageResId), Toast.LENGTH_SHORT);
+            return;
+        }
+        if (result.getCode() == IRongCoreEnum.CoreErrorCode.RC_GROUP_JOIN_COUNT_EXCEED_LIMIT) {
+            String tips = getString(R.string.rc_group_join_count_exceed_limit);
+            if (result.getErrorInfo() != null
+                    && !result.getErrorInfo().getFailedUserInfos().isEmpty()) {
+                tips =
+                        GroupLimitUtils.getFailedUsersLimitMessage(
+                                requireContext(),
+                                result.getErrorInfo().getFailedUserInfos(),
+                                getViewModel().getInviteeDisplayNames());
+            }
+            ToastUtils.show(getContext(), tips, Toast.LENGTH_SHORT);
+            return;
+        }
+        onCreateGroupResult(groupId, inviteeUserIds, result.getCode());
+    }
+
+    @StringRes
+    static int getCreateGroupLimitMessageResId(IRongCoreEnum.CoreErrorCode coreErrorCode) {
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_COUNT_EXCEED_LIMIT) {
+            return R.string.rc_group_app_count_exceed_limit;
+        }
+        if (coreErrorCode == IRongCoreEnum.CoreErrorCode.RC_GROUP_MEMBERS_COUNT_EXCEED_LIMIT) {
+            return R.string.rc_group_members_count_exceed_limit;
+        }
+        return 0;
     }
 
     /** loading dialog */

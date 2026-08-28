@@ -14,6 +14,7 @@ import io.rong.imkit.config.RongConfigCenter;
 import io.rong.imkit.handler.AppSettingsHandler;
 import io.rong.imkit.model.ContactModel;
 import io.rong.imkit.model.OnlineStatusFriendInfo;
+import io.rong.imkit.usermanage.GroupLimitUtils;
 import io.rong.imkit.usermanage.group.mention.GroupMentionFragment;
 import io.rong.imkit.usermanage.interfaces.OnActionClickListener;
 import io.rong.imkit.utils.TextViewUtils;
@@ -98,9 +99,10 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
     private void updateCheckType() {
         ContactModel.CheckType checkType = data.getCheckType();
         if (checkType == ContactModel.CheckType.CHECKED
+                || checkType == ContactModel.CheckType.FAILED
                 || checkType == ContactModel.CheckType.UNCHECKED) {
             checkType =
-                    (checkType == ContactModel.CheckType.CHECKED)
+                    GroupLimitUtils.isSelected(data)
                             ? ContactModel.CheckType.UNCHECKED
                             : ContactModel.CheckType.CHECKED;
             // 更新视图
@@ -235,6 +237,7 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
     }
 
     private void updateCheck(ImageView checkBox, ContactModel.CheckType checkType) {
+        checkBox.setContentDescription(null);
         switch (checkType) {
             case NONE:
                 checkBox.setVisibility(View.GONE);
@@ -256,6 +259,13 @@ public class ContactSelectableViewHolder extends RecyclerView.ViewHolder {
                 checkBox.setImageResource(
                         IMKitThemeManager.getAttrResId(
                                 checkBox.getContext(), R.attr.rc_group_member_disable_select_img));
+                break;
+            case FAILED:
+                checkBox.setVisibility(View.VISIBLE);
+                checkBox.setImageResource(R.drawable.rc_ic_error_notice);
+                checkBox.setContentDescription(
+                        checkBox.getContext()
+                                .getString(R.string.rc_group_member_invite_failed_description));
                 break;
             default:
                 break;

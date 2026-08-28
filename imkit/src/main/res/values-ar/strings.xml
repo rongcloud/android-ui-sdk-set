@@ -588,6 +588,18 @@
     <string name="rc_group_members_kick_failed">فشل حذف أعضاء المجموعة</string>
     <string name="rc_invite_join_group_success">تمت الدعوة بنجاح للانضمام إلى المجموعة</string>
     <string name="rc_invite_join_group_failed">فشلت الدعوة للانضمام إلى المجموعة</string>
+    <string name="rc_group_app_count_exceed_limit">تم تجاوز الحد الأقصى لعدد المجموعات. فشل الإنشاء.</string>
+    <string name="rc_group_members_count_exceed_limit">تم تجاوز الحد الأقصى لإجمالي أعضاء المجموعة. فشل الإنشاء.</string>
+    <string name="rc_group_members_count_exceed_limit_invite">تم تجاوز الحد الأقصى لإجمالي أعضاء المجموعة. فشلت الدعوة.</string>
+    <string name="rc_group_members_count_exceed_limit_join">تم تجاوز الحد الأقصى لإجمالي أعضاء المجموعة. فشل الانضمام.</string>
+    <string name="rc_group_join_count_exceed_limit">تم بلوغ الحد الأقصى للمجموعات المنضم إليها.</string>
+    <string name="rc_group_failed_users_join_count_exceed_limit_single">بلغ %1$s الحد الأقصى للانضمام إلى المجموعات، ولا يمكنه الانضمام إلى مجموعات أخرى.</string>
+    <string name="rc_group_failed_users_join_count_exceed_limit_multiple">بلغ %1$s الحد الأقصى للانضمام إلى المجموعات، ولا يمكنهم الانضمام إلى مجموعات أخرى.</string>
+    <string name="rc_group_application_join_count_exceed_limit">فشل الانضمام. بلغ %1$s الحد الأقصى لعدد المجموعات.</string>
+    <string name="rc_group_member_invite_failed_description">فشل الانضمام إلى المجموعة</string>
+    <string name="rc_group_limit_name_list_pair">%1$s و%2$s</string>
+    <string name="rc_group_limit_name_list_middle">%1$s، %2$s</string>
+    <string name="rc_group_limit_name_list_end">%1$s، و%2$s</string>
 
     <string name="rc_group_notice_success">تم النشر بنجاح</string>
     <string name="rc_group_notice_failed">فشل النشر</string>

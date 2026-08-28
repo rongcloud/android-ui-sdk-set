@@ -62,7 +62,9 @@ public class ContactModel<T> {
         NONE,
         CHECKED,
         UNCHECKED,
-        DISABLE
+        DISABLE,
+        /** 本次群成员邀请失败，但仍保持选中状态。 @since 5.46.0 */
+        FAILED
     }
 
     public enum ItemType {
